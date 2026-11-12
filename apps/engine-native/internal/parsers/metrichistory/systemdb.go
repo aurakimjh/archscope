@@ -127,6 +127,8 @@ func (b *builder) postgres(body []byte, o Options) error {
 	b.set.Normalizer = m.EpochNormalizer
 	windows := []map[string]any{}
 	var previous uint64
+	var priorReset uint64
+	var hasReset bool
 	for i, s := range c.Snapshots {
 		end, e := captureTime(s.captureWindow, previous, i)
 		if e != nil {
@@ -142,6 +144,11 @@ func (b *builder) postgres(body []byte, o Options) error {
 			if !ok || r > end {
 				return fmt.Errorf("POSTGRES_CAPTURE_RESET: snapshots/%d/stats_reset_ns", i)
 			}
+			if hasReset && r < priorReset {
+				return fmt.Errorf("POSTGRES_CAPTURE_RESET_BACKWARDS: snapshots/%d/stats_reset_ns must be nondecreasing across known epochs", i)
+			}
+			priorReset = r
+			hasReset = true
 		}
 		windows = append(windows, map[string]any{"capture_start_ns": s.Start, "capture_end_ns": s.End, "postmaster_start_ns": s.Postmaster, "stats_reset_ns": s.Reset})
 		resource := appleJSON(map[string]string{"host_id": c.Host, "boot_id": c.Boot, "instance_id": c.Instance, "database_tag": c.Database, "database_oid": c.OID, "postmaster_start_ns": s.Postmaster, "engine": "postgresql", "engine_version": c.Version})
@@ -165,6 +172,9 @@ func (b *builder) postgres(body []byte, o Options) error {
 		pos := fmt.Sprintf("snapshots/%d/numbackends", i)
 		if e := captureUint(s.Backends, pos); e != nil {
 			return e
+		}
+		if *s.Backends == "0" {
+			return fmt.Errorf("POSTGRES_CAPTURE_BACKENDS: snapshots/%d/numbackends must include at least the collection backend", i)
 		}
 		if e := b.capturePoint("postgres.database.numbackends", "{backend}", "Instantaneous connected backends, including collection backend; not active queries or pool queue.", "gauge", resource, appleJSON(map[string]string{"view": "pg_stat_database", "observation": "instantaneous_backend_count", "clock": "unix_server_clock"}), s.Start, s.End, s.Backends, pos); e != nil {
 			return e

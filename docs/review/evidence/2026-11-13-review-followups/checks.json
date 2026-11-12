@@ -1,0 +1,29 @@
+{
+  "passed": [
+    "frontend state regression",
+    "frontend production build",
+    "Wails TypeScript bindings regenerated (no tracked drift)",
+    "host go vet",
+    "Windows386 go vet",
+    "Windowsamd64 go vet",
+    "Mac production build and isolated app strict/deep ad-hoc signature verification",
+    "Windows386 GUI build",
+    "Windowsamd64 GUI build",
+    "Linuxarm64 CLI build",
+    "desktop-only/server-build refusal gate",
+    "offline resources check",
+    "85 dependency notices check",
+    "111 shared manifest file hashes",
+    "86 offline Linux CLI/helper operations, zero inet syscalls, failed-connect positive control detected",
+    "all4 unrelated user changes preserved",
+    "26 actual CLI operations including nonzero exact rational diff sorting and node ties"
+  ],
+  "mac_linker_warning": "SDK27.2 objects versus deployment target11.0; build success is not minimum-OS acceptance",
+  "race_suite": {
+    "packages": 120,
+    "test_pass_events": 1759,
+    "failures": 0
+  },
+  "no_native_windows_claim": true,
+  "resource_finalization": "Only paired guide/resource wording changed after race compilation; final catalog/distribution tests and delivery builds reverified these embedded resources."
+}

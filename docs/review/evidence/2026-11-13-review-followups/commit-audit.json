@@ -1,0 +1,126 @@
+{
+  "items": [
+    {
+      "id": "R14-02",
+      "commit": "3738c31d9b90335c893d022cbfa34be5fb635a39",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 7
+    },
+    {
+      "id": "R14-03",
+      "commit": "0dbe790d0da3663cb224c0b5ddd6c5df1b79fb59",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 6
+    },
+    {
+      "id": "R14-04",
+      "commit": "54160e6827b6bee6d27a029bd06098e1f24b4add",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 7
+    },
+    {
+      "id": "R14-05",
+      "commit": "1ba47181aacdc1d01834e6dc300a69c05305b44b",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 6
+    },
+    {
+      "id": "R14-06",
+      "commit": "d2d6fbe8d1ad2da89ebd91677f8e44522614c929",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 9
+    },
+    {
+      "id": "R14-07",
+      "commit": "ce6e03eed798c53c6e01a829da3b118df178ac94",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 15
+    },
+    {
+      "id": "R15-03",
+      "commit": "9b5e3e58cf5dd6a26b0693400b098e0bec67b19a",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 15
+    },
+    {
+      "id": "R15-04",
+      "commit": "aaeb621a32a826d7c33083ddd0a1c390ef77f056",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 18
+    },
+    {
+      "id": "R15-05",
+      "commit": "cb20a34f80df5e768628c719767d2fab1ed7500f",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 12
+    },
+    {
+      "id": "R17-05",
+      "commit": "624a236cbba25a478fa0510af2afb1f96fb04cd4",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 13
+    },
+    {
+      "id": "R19-02",
+      "commit": "8206dfddfb3b4e92ac7016e5d7e8a0ca1a998033",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 14
+    },
+    {
+      "id": "R19-03",
+      "commit": "8574dcf9db2d01d95001b84a6bfc5bd923e15b34",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 14
+    },
+    {
+      "id": "R19-04",
+      "commit": "c9102524ae5ca663fc066a5da1accfc4f6d63b2e",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 13
+    },
+    {
+      "id": "R20-02",
+      "commit": "cbbc92e72d3cf6d4316ac3d4a007b54c32db5aba",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 11
+    },
+    {
+      "id": "R20-03",
+      "commit": "06d814c5b497977eaf7c59f5b0fae73984d94ce8",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 10
+    },
+    {
+      "id": "R20-04",
+      "commit": "0d8ba5c087efa6729bdf261899445a0c73026221",
+      "state": "EVIDENCE_PARTIAL",
+      "files_verified": 11
+    },
+    {
+      "id": "R21-02",
+      "commit": "2ea8685f56fd4255c60e72b32acc0b4ac6063276",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 10
+    },
+    {
+      "id": "R21-04",
+      "commit": "4b230d6f1ab8fbd56a69fce6d29be3593b6c0f13",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 12
+    },
+    {
+      "id": "R22-03",
+      "commit": "f0797a84007c3a2cf037f4d7e565a3b7ee81427f",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 16
+    },
+    {
+      "id": "R22-01",
+      "commit": "0ac2cebd391373b6fc832b5be33b86afd9959173",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 16
+    }
+  ],
+  "source_versions_verified": 235,
+  "unrelated_changes_excluded": true
+}

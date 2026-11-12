@@ -23,3 +23,5 @@ ss 수집에는 주소·포트·프로세스 정보가 없는 summary만 사용�
 stats_reset NULL은 reset 이력 미확보이며 같은 postmaster도 crash recovery 중 통계 연속성을 증명하지 못한다. unknown counter의 delta/rate는 억제한다. 누적 관측만 보존하거나, DB 소유자가 별도 허가된 정비 창에 reset 영향을 검토하고 새 epoch를 만든 뒤 수집할 수 있다. 수집기는 reset을 하지 않는다. capture-postgres.py는 libpq 환경/pgpass를 사용하는 별도 명시적 psql 읽기 전용 wrapper 수집기이며 importer가 호출하지 않는다.
 
 새 PostgreSQL 가져오기는 normalizer1.3.0: unknown→known 첫 전이는 epoch_transition_from_unknown으로 명시하고 delta/rate는 null, 다음 같은 epoch 관측부터 파생한다. 이전 unknown은 추정하지 않는다. 알려진→알려진 reset의 post-reset 파생은 유지하며 기존 저장 모델은 재해석하지 않는다.
+
+수집 backend를 포함하므로 numbackends≥1을 요구한다. 알려진 stats_reset timestamp는 unknown 관측을 사이에 두어도 비감소해야 한다. 역행은 명시적으로 거절하며 importer가 시각을 수정하지 않는다.

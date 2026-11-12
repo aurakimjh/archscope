@@ -1,0 +1,323 @@
+{
+  "status": "20_locally_remediated_1_evidence_partial",
+  "requested_order": [
+    "R14-02",
+    "R14-03",
+    "R14-04",
+    "R14-05",
+    "R14-06",
+    "R14-07",
+    "R15-03",
+    "R15-04",
+    "R15-05",
+    "R17-05",
+    "R19-02",
+    "R19-03",
+    "R19-04",
+    "R20-02",
+    "R20-03",
+    "R20-04",
+    "R21-02",
+    "R21-04",
+    "R22-03",
+    "R22-01",
+    "R22-02"
+  ],
+  "tasks": [
+    {
+      "id": "R14-02",
+      "commit": "3738c31d9b90335c893d022cbfa34be5fb635a39",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 7
+    },
+    {
+      "id": "R14-03",
+      "commit": "0dbe790d0da3663cb224c0b5ddd6c5df1b79fb59",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 6
+    },
+    {
+      "id": "R14-04",
+      "commit": "54160e6827b6bee6d27a029bd06098e1f24b4add",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 7
+    },
+    {
+      "id": "R14-05",
+      "commit": "1ba47181aacdc1d01834e6dc300a69c05305b44b",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 6
+    },
+    {
+      "id": "R14-06",
+      "commit": "d2d6fbe8d1ad2da89ebd91677f8e44522614c929",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 9
+    },
+    {
+      "id": "R14-07",
+      "commit": "ce6e03eed798c53c6e01a829da3b118df178ac94",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 15
+    },
+    {
+      "id": "R15-03",
+      "commit": "9b5e3e58cf5dd6a26b0693400b098e0bec67b19a",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 15
+    },
+    {
+      "id": "R15-04",
+      "commit": "aaeb621a32a826d7c33083ddd0a1c390ef77f056",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 18
+    },
+    {
+      "id": "R15-05",
+      "commit": "cb20a34f80df5e768628c719767d2fab1ed7500f",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 12
+    },
+    {
+      "id": "R17-05",
+      "commit": "624a236cbba25a478fa0510af2afb1f96fb04cd4",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 13
+    },
+    {
+      "id": "R19-02",
+      "commit": "8206dfddfb3b4e92ac7016e5d7e8a0ca1a998033",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 14
+    },
+    {
+      "id": "R19-03",
+      "commit": "8574dcf9db2d01d95001b84a6bfc5bd923e15b34",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 14
+    },
+    {
+      "id": "R19-04",
+      "commit": "c9102524ae5ca663fc066a5da1accfc4f6d63b2e",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 13
+    },
+    {
+      "id": "R20-02",
+      "commit": "cbbc92e72d3cf6d4316ac3d4a007b54c32db5aba",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 11
+    },
+    {
+      "id": "R20-03",
+      "commit": "06d814c5b497977eaf7c59f5b0fae73984d94ce8",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 10
+    },
+    {
+      "id": "R20-04",
+      "commit": "0d8ba5c087efa6729bdf261899445a0c73026221",
+      "state": "EVIDENCE_PARTIAL",
+      "files_verified": 11
+    },
+    {
+      "id": "R21-02",
+      "commit": "2ea8685f56fd4255c60e72b32acc0b4ac6063276",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 10
+    },
+    {
+      "id": "R21-04",
+      "commit": "4b230d6f1ab8fbd56a69fce6d29be3593b6c0f13",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 12
+    },
+    {
+      "id": "R22-03",
+      "commit": "f0797a84007c3a2cf037f4d7e565a3b7ee81427f",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 16
+    },
+    {
+      "id": "R22-01",
+      "commit": "0ac2cebd391373b6fc832b5be33b86afd9959173",
+      "state": "LOCALLY_FIXED",
+      "files_verified": 16
+    },
+    {
+      "id": "R22-02",
+      "state": "LOCALLY_FIXED",
+      "commit_scope": "last item commit containing this receipt"
+    }
+  ],
+  "verification": {
+    "full_race": {
+      "passed_packages": 120,
+      "passed_test_events": 1759,
+      "failures": 0
+    },
+    "cli_operations": 26,
+    "offline_operations": 86,
+    "offline_inet_syscalls": 0,
+    "positive_control_detected": true,
+    "shared_manifest_entries": 111
+  },
+  "pending": {
+    "id": "R20-04",
+    "completed": "Actual matched/unmatched/empty plus12-sample two-second multi-load capture; owned model cleanup verified",
+    "missing": "Authorized actual natural nonzero-swap/elevated-pressure capture. Current swap_used0/raw pressure1 is not elevated-pressure qualification. Other platforms/versions and long-duration runs remain disclosed unqualified.",
+    "no_forced_memory_stress": true
+  },
+  "git": {
+    "start_pull": "git pull --ff-only: already up to date at4b0743d",
+    "branch": "main",
+    "per_item_commits": 21,
+    "push": "not_attempted; held under user condition until entire batch completes",
+    "shared_assets_head": "5e0b2b9a61fd59bea3b708c26aa74fa351e505a0",
+    "shared_assets_push": "not_attempted"
+  },
+  "compatibility": [
+    "Existing saved revisions and raw JSON bytes preserved; new PostgreSQL imports pin normalizer1.3.0",
+    "Original independent CONDITIONAL verdicts retained; no independent final-fix PASS",
+    "Four native Windows acceptance tasks and Q01–Q04 remain separate",
+    "Actual isolated producer inputs are distinguished from structural GPU mutations and mock IPC UI",
+    "Mac build/signature and Windows cross-builds do not prove minimum-OS/native Windows/Office runtime acceptance"
+  ],
+  "unrelated_changes_preserved": [
+    "docs/en/SYSTEM_HTTP_CAPTURE.md",
+    "docs/ko/SYSTEM_HTTP_CAPTURE.md",
+    "scripts/verify-http-desktop.mjs",
+    "original ten-line work_status.md block"
+  ],
+  "implementation_doc_files": {
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/visuals.ts": "a1ead5e6494a9b5889edd1c13a5694f65a117ee6a83430a3b0e17b190043df88",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/ExecutionEvidence.tsx": "e3797b99a9077ea4191dcd6e7a682d609e054cdb61c0a52ae154cba2dfe4818f",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/VisualArtifactActions.tsx": "fe9bd298f730b7e5ad5c39f566eaa2398f5dc927597968a5db89c3c350f30b7a",
+    "apps/engine-native/cmd/archscope-engine/cmd_visual.go": "92a70e22cccd2853cbd8b88c5966a60b10f37566273412dcb82827be1d7c4ab9",
+    "apps/engine-native/internal/analysis/metric_history_test.go": "f2785b677de9866737410211fc5c7c7d13cb0f6cc2dbcf64b0f8149cb22b4f1b",
+    "apps/engine-native/internal/analysis/metric_projection.go": "5c89c564110674d29282566ab744b99150b47cdd5272aa6708616e5b192ef9c7",
+    "apps/engine-native/internal/analysis/providers.go": "09e71f63ac2dcae128c110129e80c4a6c9205ff61e781e627133858e6c3758e6",
+    "apps/engine-native/internal/analysis/results.go": "ea49e257d8fbf34865633064ceb9aa54f6c02febe39274eb3d84086160285637",
+    "apps/engine-native/internal/analysis/visual_view.go": "ea62e11c6a5b491e05d3bb8fb69cae05f39202dcd97ba0e2e601d931c113a1aa",
+    "apps/engine-native/internal/analysis/visual_view_test.go": "06c4c1c26dd6419354612e08963cce003105fb8532dae3bee5f95d3cdcbd6007",
+    "apps/engine-native/internal/analyzers/systemtrace/analyzer_test.go": "e0797c69e6647c9e22303cdd5aa0fa0b1eab2886fda65feab922d0404a9eb4b4",
+    "apps/engine-native/internal/analyzers/systemtrace/intervals.go": "3fff94028707c43c6d81c62700093bd41cf4287197b304384bea95c16b6fa8bf",
+    "apps/engine-native/internal/analyzers/systemtrace/project.go": "4c0b126c4617f6024ab8140d8d7228e13c82195612be0fa8ee07f4dd76f77fc7",
+    "apps/engine-native/internal/analyzers/traceimport/llm.go": "f783404a8fada145821f7ddb20e205b69ce30c390f3f58d0c80115a067988d89",
+    "apps/engine-native/internal/analyzers/traceimport/llm_test.go": "ae45189559ac5442a44accc72a55db4f666d90fa3ce1a9bc1bd3065f9aa73918",
+    "apps/engine-native/internal/catalog/contracts/apple-ollama-README.md": "071fa758c69c607651424034bb389f2b8f25a93383f0ed359c90e2a7ee5c3704",
+    "apps/engine-native/internal/catalog/contracts/apple-ollama-apple-sustained-multi.json": "4cf74f5cad8e830c3c806148dc7bfb18d459479ff26beae4d976d672673d91d4",
+    "apps/engine-native/internal/catalog/contracts/apple-ollama-capture.schema.json": "ba5bdffeb7369bf837c1d534488216a309875ca945021c4064d23263052a7e2a",
+    "apps/engine-native/internal/catalog/contracts/apple-ollama-manifest.json": "47879c326a875b85e2c729caef2338b350d0faee026ed14c4ef76700a23d4d15",
+    "apps/engine-native/internal/catalog/contracts/apple-ollama-qualification.json": "7cb17f773445c672b3d0c42bbd35314bea5e2c6711e92e384f5e2fbd3d5d7b88",
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-README.md": "d3d888b7a780c2fb4e38f03f67a3774ea28e772a6e18d8d01a6c44ed9037a072",
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-hs-err-21.0.10-full-sections.txt": "25d0dbfaf6bbe8fa65a2ecb0b24ac2c130bc807eb96cab85ac1dddb574567a4c",
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-jtl-timing-policy.json": "75b3fa4af76c7399912b9e49573ee4ad5b8b7c46f2bac404d61346604e007f70",
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-producer-provenance.json": "8175cab9350a12382f95d80ceb8776458cac3ef5e026592fe0314ae1c4ea141a",
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-set.manifest.json": "2ebd7fae86e7b5ab9913aa940b32cef578f36d5ea05be7de247d3c6ee55159eb",
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-set.schema.json": "232810095a51e0f778da70fab433e9bac13040b2bbae5ba4218fb7134936265c",
+    "apps/engine-native/internal/catalog/contracts/gpu-execution-README.md": "36205e9718ae2b3c103b812b3721d77a51e45c7667fd9e566336e0071c8fb2d6",
+    "apps/engine-native/internal/catalog/contracts/gpu-execution-nsight-overlap-ambiguous.sqlite": "7e337c74d5213444455764628c3be8e055f0b87ea6e5376dea350fe81cdbbe7d",
+    "apps/engine-native/internal/catalog/contracts/gpu-execution-set.manifest.json": "7b121c162c9ccc9403ea76e622b9cb9dcacf3a90134382d3b973837363352759",
+    "apps/engine-native/internal/catalog/contracts/gpu-execution-structural-expected.json": "64d50f56ad6790c7c92dae2d170d9a6fccca15a69e26f63bcd42b5094c3c0910",
+    "apps/engine-native/internal/catalog/contracts/gpu-execution-structural-flow.json": "c9d96cc5e280e304d97fda7bd5914bbb433968cc962b04c743da563da4f0b990",
+    "apps/engine-native/internal/catalog/contracts/llm-trace-README.md": "84fd4dda2b54baca00539fa3d5f23b769357b4cec8d61f5721bc2e9fd0a137f8",
+    "apps/engine-native/internal/catalog/contracts/llm-trace-set.manifest.json": "30c01bbf2d56cbba4a1706110fd468af6b87d9f1cb0e5263dec9ebfad6c3b4e2",
+    "apps/engine-native/internal/catalog/contracts/llm-trace-set.schema.json": "ec43535028fe8e56c956ba8aba48b3a71337f6f4996e243a1b98d4c60e3dd478",
+    "apps/engine-native/internal/catalog/contracts/metric-history-README.md": "7bd814f73a29837b1f7373aa10805ed88debc98243f25a660b3e89e7e91ae88d",
+    "apps/engine-native/internal/catalog/contracts/metric-history-set.manifest.json": "72398beb239ce77aacfb1fe1ba1b35870e0237db4e9c336c7bdf62d07a0791b4",
+    "apps/engine-native/internal/catalog/contracts/metric-history-set.schema.json": "cce57535d497a97e3b47bd79acc76bb80ffcd4380545e79d730fd408e5f7f875",
+    "apps/engine-native/internal/catalog/contracts/system-db-README.md": "1381fce1733d8d447c61b0fe9feb4906cff384c03b7ecd722ecf08071e21540e",
+    "apps/engine-native/internal/catalog/contracts/system-db-capture-postgres.py": "f06e229770c08649cf4efcc5c0459a3e464a3956d1dca18412608ccbff559604",
+    "apps/engine-native/internal/catalog/contracts/system-db-manifest.json": "44d660103cbab40128f290f57a2dadd2b01c3327064c6c97bff2d8fb82a78baa",
+    "apps/engine-native/internal/catalog/contracts/system-db-postgres-capture.schema.json": "05aa8a02fdb51f44a58337bb08fe662fa647ecd92ee773779a35eefd2f35d0b4",
+    "apps/engine-native/internal/catalog/contracts/system-db-postgres-readonly-unknown-capture.json": "e6e1bc8368484871fc3bfd41b1488b5082e07244e744ee545beee907a11edba6",
+    "apps/engine-native/internal/catalog/contracts/system-db-producer-provenance.json": "147b076784d8885b7d6c3539404fb3a0555789474007ced0976069c6188fcd46",
+    "apps/engine-native/internal/catalog/contracts/system-evidence-README.md": "9234112f08fc68019677a6aec1a3ba7ea4a4adae59bc68aaa229048fef4f7ef3",
+    "apps/engine-native/internal/catalog/contracts/system-evidence-set.manifest.json": "9cddd4c9b6b1084faecb7582d496147c33c7d91eea79ae939e07aafd4f2bac6d",
+    "apps/engine-native/internal/catalog/contracts/system-evidence-set.schema.json": "14177e2d91e0223b4f2384535159a804774b80aa6bb25a83a642aa73a4a97989",
+    "apps/engine-native/internal/catalog/system_db_test.go": "dcd7dcd187ce2149d800423017d5b33e46c815886f5333641895aaf3bc9b9425",
+    "apps/engine-native/internal/distribution/assets/docs/en/APPLE_SILICON_EVIDENCE.md": "04088c197a46c069eceeddc31b374ff8f0beb6ac670203cae9543b84cfeed92c",
+    "apps/engine-native/internal/distribution/assets/docs/en/EXECUTION_EVIDENCE.md": "5a128fd91bd3ec7473264356de5e5abe3d035f633d2656479a76dc566332515e",
+    "apps/engine-native/internal/distribution/assets/docs/en/GPU_EXECUTION_EVIDENCE.md": "0c4bd2fbbe6e822643bd26cb1fe690d34a2c9e93db350b3cb5af7596dcd5ba08",
+    "apps/engine-native/internal/distribution/assets/docs/en/LLM_TRACE_EVIDENCE.md": "5be378f1e483b5882ad191cc223e46e33cabfdda571aae56baef321b657fc4d9",
+    "apps/engine-native/internal/distribution/assets/docs/en/METRIC_HISTORY.md": "22237ec81a7312262b8837b2d5fadf4388cd1070e7461f4ff4e5da00e9a232fa",
+    "apps/engine-native/internal/distribution/assets/docs/en/SYSTEM_DB_SNAPSHOTS.md": "f44e44737709da6a17af77028e00017e9b77425b7ac44ae563296e4a1d0236e0",
+    "apps/engine-native/internal/distribution/assets/docs/en/SYSTEM_EVIDENCE.md": "a8df307d77279d4d832998d9ab01c74cdefea1f931a4f912b29137e885f8088a",
+    "apps/engine-native/internal/distribution/assets/docs/en/VISUAL_ARTIFACTS.md": "10f68b1e283ffff2e12479f1f49f281a7c847b2047767dae374deb64c97b751b",
+    "apps/engine-native/internal/distribution/assets/docs/ko/APPLE_SILICON_EVIDENCE.md": "3d0369881fa22ce2c233b69c9245d6fa116249eaf65f3e94c75cf0363a1d8a02",
+    "apps/engine-native/internal/distribution/assets/docs/ko/EXECUTION_EVIDENCE.md": "3e34442b8a96dc36340f735e836197260dcafbd792ed8bb3049c84093389c2bb",
+    "apps/engine-native/internal/distribution/assets/docs/ko/GPU_EXECUTION_EVIDENCE.md": "7298b2619de5f139cb05e6a603bd7b9584f3893a0adaa0e2debd8b11df136d8b",
+    "apps/engine-native/internal/distribution/assets/docs/ko/LLM_TRACE_EVIDENCE.md": "711a9815059669f0b76dc7241e5e1579f9e38ffafa2bbf64b4fdf454bf9adfcf",
+    "apps/engine-native/internal/distribution/assets/docs/ko/METRIC_HISTORY.md": "201c82ffc65ec1e61af8b040ce9a3c932e6355c43eb631664229211af56c9891",
+    "apps/engine-native/internal/distribution/assets/docs/ko/SYSTEM_DB_SNAPSHOTS.md": "b80a1d2998c9a6b77b5a1a4474c21256e6fdaa41e8f9f7d77b7a1d655939f931",
+    "apps/engine-native/internal/distribution/assets/docs/ko/SYSTEM_EVIDENCE.md": "bb083a98327fe6a8bfb28548344d23b5c1d6e209225707a42ba20a2f10bf8046",
+    "apps/engine-native/internal/distribution/assets/docs/ko/VISUAL_ARTIFACTS.md": "74704fdfe42fae8ac0839cee92b6419846638dae4f2366d3d33d83bd6aa05c73",
+    "apps/engine-native/internal/distribution/assets/fixtures.sha256": "cfebdad2a2c1574064752910fa8c3731828c174d21f2e0635fa6d5b174800adf",
+    "apps/engine-native/internal/distribution/assets/fixtures.zip": "aa86f450a43cae1a379f7d5d61a0c036bb5ef91ed8555ffbe38376e3d3bc4bce",
+    "apps/engine-native/internal/distribution/assets/tools/capture-postgres.py": "f06e229770c08649cf4efcc5c0459a3e464a3956d1dca18412608ccbff559604",
+    "apps/engine-native/internal/executionmodel/model.go": "dabe9c98e30eb5cd9e55f1b8bc4b4ccbf08cc6a5cf332784f9e230814f22854b",
+    "apps/engine-native/internal/llmmodel/model.go": "ae91983bed9166ff4e697fec193a2086596dc582a4dabb6555f8c1aefa9e21ba",
+    "apps/engine-native/internal/metricmodel/interval.go": "bea5e4d9aed48608b16b3d4a8b5028db2b2d4c1f09269b1e125b32a1267a3ee0",
+    "apps/engine-native/internal/metricmodel/model.go": "393388827f1f293fe2e77726a0a35668825affd5ed202c0e1e40f93c0353696e",
+    "apps/engine-native/internal/metricmodel/query_index.go": "71073a226d30aafe1df839df284facd43ad393ac88fdad421af5aef5d0f7c03a",
+    "apps/engine-native/internal/parsers/execution/contracts/jtl-timing-policy.json": "75b3fa4af76c7399912b9e49573ee4ad5b8b7c46f2bac404d61346604e007f70",
+    "apps/engine-native/internal/parsers/execution/crash.go": "bc154d59d4c597f23c3ced03d356421fbb6180c4236afa8bb12a1d0a8144a2f4",
+    "apps/engine-native/internal/parsers/execution/jtl.go": "5876eb25c7286504ad41cac4b37a297acd11d5f31e971f6f0088d610220a0028",
+    "apps/engine-native/internal/parsers/execution/source.go": "744f5f82a4694465092ac9e373e3fec31d071b78564c8579643d21bf1efa4c52",
+    "apps/engine-native/internal/parsers/execution/source_test.go": "c3dae5e6e6da4fd9673f1803518deb2d99504644c5dcea24bb5eefea6b340df3",
+    "apps/engine-native/internal/parsers/gputrace/source_test.go": "c37df7fbb60a07de8ffb9a128ceb7dcba50a9a50f57366f342b13a64d7de5679",
+    "apps/engine-native/internal/parsers/gputrace/sqlite.go": "f44b48b1ce98bf2a86b7f334f29e4aab43dd32c502ab54d9bf030f90cc43606c",
+    "apps/engine-native/internal/parsers/metrichistory/apple.go": "91b7c6fa65120caa26b715c4489968487c0393df840f329d65e2b65d0d6bfdc0",
+    "apps/engine-native/internal/parsers/metrichistory/apple_test.go": "2ace4f5b76f38231b0a6110a7a4a8a983d7c6db0b685738211767b270ec2038f",
+    "apps/engine-native/internal/parsers/metrichistory/systemdb.go": "fb56ca6a3eda9749ead4cfad455b73a477bff3399a293ee67543f8e7b9afe8cb",
+    "apps/engine-native/internal/parsers/metrichistory/systemdb_test.go": "bf20804bd76f00b1c688fcfb4708e632938c633e42a8169a4956449b708d65fe",
+    "apps/engine-native/internal/parsers/systemtrace/source.go": "13128fc83d058e5d8e56cef5ab20c6c0ac5a825caef7878d55a32a5d5fbb5079",
+    "apps/engine-native/internal/parsers/systemtrace/source_test.go": "12b2ae5832aadf8290fcf921e7ca960699b6558e98876875f2be6a21f8bb79ba",
+    "apps/engine-native/internal/parsers/systemtrace/testdata/README.md": "9234112f08fc68019677a6aec1a3ba7ea4a4adae59bc68aaa229048fef4f7ef3",
+    "apps/engine-native/internal/parsers/systemtrace/testdata/manifest.json": "9cddd4c9b6b1084faecb7582d496147c33c7d91eea79ae939e07aafd4f2bac6d",
+    "apps/engine-native/internal/parsers/systemtrace/testdata/system-evidence-set.schema.json": "14177e2d91e0223b4f2384535159a804774b80aa6bb25a83a642aa73a4a97989",
+    "apps/engine-native/internal/parsers/traceimport/llm.go": "1f4e6bf46e1cf4a23ea651731cddfcf6d0323c66951d95200bab03122945239e",
+    "apps/engine-native/internal/resultcontract/metric_presentation.go": "7cabef93a6a721181d5470d9742e04dc86243e8162ed48afd03e9467fff6b5f4",
+    "apps/engine-native/internal/resultcontract/presentation.go": "06fda74bb95b22a76c2c4213e19f5ff0a60150c5ee318d17da7ee9390cd68c64",
+    "apps/engine-native/internal/systemmodel/model.go": "76e5ed28d6ed1958fa47db02d66b0177c8d8eec39942b59c094e4f22abe90474",
+    "apps/engine-native/internal/visuals/artifact.go": "4daca7dbffaa661c0dcc92905a6505d85b312fb8f1576990b149c6929438eede",
+    "apps/engine-native/internal/visuals/artifact_test.go": "9fde90c04b9ff8274a3ef324b6b2b60db5ecc5a50e823a413cea5304180bb155",
+    "apps/engine-native/internal/visuals/model.go": "e422b6a77fe73a13fc4a8a840ee48e37337fa584ab0d239d6af2ca33719f6416",
+    "apps/engine-native/internal/visuals/report.go": "6e9327590174425fcc8016f6a2c0962aa99aaf65e73828b30a91b499ec8e7aad",
+    "docs/en/APPLE_SILICON_EVIDENCE.md": "04088c197a46c069eceeddc31b374ff8f0beb6ac670203cae9543b84cfeed92c",
+    "docs/en/EXECUTION_EVIDENCE.md": "5a128fd91bd3ec7473264356de5e5abe3d035f633d2656479a76dc566332515e",
+    "docs/en/GPU_EXECUTION_EVIDENCE.md": "0c4bd2fbbe6e822643bd26cb1fe690d34a2c9e93db350b3cb5af7596dcd5ba08",
+    "docs/en/LLM_TRACE_EVIDENCE.md": "5be378f1e483b5882ad191cc223e46e33cabfdda571aae56baef321b657fc4d9",
+    "docs/en/METRIC_HISTORY.md": "22237ec81a7312262b8837b2d5fadf4388cd1070e7461f4ff4e5da00e9a232fa",
+    "docs/en/SYSTEM_DB_SNAPSHOTS.md": "f44e44737709da6a17af77028e00017e9b77425b7ac44ae563296e4a1d0236e0",
+    "docs/en/SYSTEM_EVIDENCE.md": "a8df307d77279d4d832998d9ab01c74cdefea1f931a4f912b29137e885f8088a",
+    "docs/en/VISUAL_ARTIFACTS.md": "10f68b1e283ffff2e12479f1f49f281a7c847b2047767dae374deb64c97b751b",
+    "docs/ko/APPLE_SILICON_EVIDENCE.md": "3d0369881fa22ce2c233b69c9245d6fa116249eaf65f3e94c75cf0363a1d8a02",
+    "docs/ko/EXECUTION_EVIDENCE.md": "3e34442b8a96dc36340f735e836197260dcafbd792ed8bb3049c84093389c2bb",
+    "docs/ko/GPU_EXECUTION_EVIDENCE.md": "7298b2619de5f139cb05e6a603bd7b9584f3893a0adaa0e2debd8b11df136d8b",
+    "docs/ko/LLM_TRACE_EVIDENCE.md": "711a9815059669f0b76dc7241e5e1579f9e38ffafa2bbf64b4fdf454bf9adfcf",
+    "docs/ko/METRIC_HISTORY.md": "201c82ffc65ec1e61af8b040ce9a3c932e6355c43eb631664229211af56c9891",
+    "docs/ko/SYSTEM_DB_SNAPSHOTS.md": "b80a1d2998c9a6b77b5a1a4474c21256e6fdaa41e8f9f7d77b7a1d655939f931",
+    "docs/ko/SYSTEM_EVIDENCE.md": "bb083a98327fe6a8bfb28548344d23b5c1d6e209225707a42ba20a2f10bf8046",
+    "docs/ko/VISUAL_ARTIFACTS.md": "74704fdfe42fae8ac0839cee92b6419846638dae4f2366d3d33d83bd6aa05c73",
+    "docs/review/README.md": "0f01e7d5790eff5cf31ac3650f162c4ee885346342fa7a357f9647f81490d18d",
+    "scripts/build-offline-assets.py": "ca6cac49954f1b29de8df85ac945a09cb4d8fea05cc16d2f44304e92bf2a5743",
+    "scripts/capture-postgres.py": "f06e229770c08649cf4efcc5c0459a3e464a3956d1dca18412608ccbff559604"
+  },
+  "evidence_files": {
+    "browser-mock-ipc.png": "41310709cdf917f26673bafd0e706b36c8ecc0459eb310da616a84b3ef74f5eb",
+    "browser.json": "47c8a764fbb4b8b38f3d5565a610f2e4855f05702a0b6cee7d52c8a6379f2ca5",
+    "build-artifacts.json": "3d9703154c2cafe48b9c50e28aeb355b66502a9a893a975fc352566b94753d95",
+    "checks.json": "11e86d46ec8f0a47e9dddba4871de51b42059e15a68f6e42988fcf16a4730ec9",
+    "cli-qa.py": "f1ef16867a0ac8e873ea55b7fbc299320ba947d2f7bb8be90ae9a0b4d77923e3",
+    "cli-summary.json": "7b97d95dfe3ecd07fa0e568d0d7350b1e3ad9ce8a1f7e80383d4bb127517ce74",
+    "commit-audit.json": "d4c81f114b1b5c6be75aeddb1bc72c740d42e78b19646bf33dced8e546fe3e17",
+    "diff-cli-qa.py": "f0c1442195b5cb9b681118ae9ecf34528e124e148c440f49f31b9d8c62e12905",
+    "diff-cli-summary.json": "5e9bf0b4ef6fc5d3853d659077acb7badeb13ece49987a5dd1b9fb55d02777ab",
+    "full-race-summary.json": "0e7a41bbf6b9ff4f6ca3f05bd07ebcc778260d4d960f5366240e21b14f9d120f",
+    "manifest-check.json": "fcd6c1d2e09033d89cae0eeaf6ce7029d7124b53efd87dcd5e6a3b055d955f1f",
+    "offline-observer.py": "ab421863b376879e068f4e5fa9f744c38610e0147ff76f8957de672d78f9e107",
+    "offline-summary.json": "41acdbe49e02b10f9a381f2b26e8e4740946a5015bb1cb4bf50c3b52adc9c2cb"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "host_cli": {
+    "bytes": 43116578,
+    "sha256": "a16ae8c33249412b9e4565f3261532f60182067f8886ca79c82cdb141f280d3a"
+  },
+  "linux_arm64_cli": {
+    "bytes": 42177660,
+    "sha256": "f9e3e582eb6e96ac79714174625f1e6f1d19813144ab70fb5fd68199a421922b"
+  },
+  "windows_386_gui": {
+    "bytes": 52033536,
+    "sha256": "f5c543e95e68201f9228cb978f4768bc2be22757d91f88832ebed305d383dbbf"
+  },
+  "windows_amd64_gui": {
+    "bytes": 53983744,
+    "sha256": "52810adc759d5671db2a9d3c2df3a6ff491f3b8b3c41def0a4c7209002edf577"
+  },
+  "mac_production_gui": {
+    "bytes": 41314994,
+    "sha256": "aec9a0550db8f917b93be8b883dcfefb43e94bdec0408da984812338c0f9d8e4"
+  }
+}

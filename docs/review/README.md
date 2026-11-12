@@ -31,3 +31,5 @@
 | 2026-11-11 | [T-628 구현 재재리뷰 R3](done/2026-11-11_claude-code_T-628_implementation-re-review-R3.ko.md) | `6c3717d` | CONDITIONAL(P3만 잔여), N-01~N-04 해소 및 T-628 DONE 복귀 가능 확인. R3-01~R3-03을 작업표에 반영한 뒤 원문 보관; 3건 후속 수정·로컬 검증 완료. R3의 명시적 완료 허용에 따라 T-628 DONE; 최종 P3 수정분의 독립 검증이나 PASS를 주장하지 않음. |
 | 2026-11-11 | [T-628 구현 재리뷰 R2](done/2026-11-11_claude-code_T-628_implementation-re-review-R2.ko.md) | `63d3b6a` | CONDITIONAL 유지. N-01~N-04를 작업표에 반영한 뒤 원문 보관. R2 후속 수정·회귀 검증 완료(비교 출처/호환 분리, 공개 해제 제거, EOF 경계, 투영 예산); R3에서 R2 수정분 해소 확인. T-629 비차단; 독립 PASS 선언 없음. |
 | 2026-11-11 | [T-628 구현 독립 리뷰](done/2026-11-11_claude-code_T-628_implementation-review.ko.md) | `a698d26` | 원 판정 CONDITIONAL 유지. R-01~R-14를 work_status.md에 반영한 뒤 원문 보존·이동; R-01~R-14 후속 수정·로컬 검증 완료. 독립 재리뷰 전 T-628 REVIEW 유지; 원 리뷰의 R-01 조건을 충족하여 T-629 착수 가능. |
+
+2026-11-13 후속 일괄 처리: R14-02–07, R15-03–05, R17-05, R19-02–04, R20-02/03, R21-02/04, R22-03/01/02는 로컬 수정·검증. R20-04는 실제 다중 로드 보강 후에도 자연 상태 swap 사용/pressure 상승 표본 미확보로 EVIDENCE_PARTIAL. 원 CONDITIONAL과 native 수용 범위를 보존하며 최종 독립 PASS는 주장하지 않는다. 전체 완료 후 푸시 조건에 따라 아직 푸시하지 않음. 현재 작업표와 evidence/2026-11-13-review-followups/local.json을 참조한다.

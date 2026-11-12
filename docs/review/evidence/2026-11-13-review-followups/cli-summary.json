@@ -1,0 +1,176 @@
+{
+  "operations": [
+    {
+      "operation": [
+        "metrics",
+        "history-normalize"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-import"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-query"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-normalize"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-import"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-query"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-normalize"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-import"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-query"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "execution",
+        "normalize-source"
+      ],
+      "expected_refusal": "EXECUTION_JTL_VERSION_UNQUALIFIED",
+      "exit": 1
+    },
+    {
+      "operation": [
+        "execution",
+        "normalize-source"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "execution",
+        "normalize-source"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "normalize-source"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "import-source"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "query"
+      ],
+      "expected_refusal": null,
+      "exit": 0
+    }
+  ],
+  "count": 21,
+  "raw_json_immutable": true,
+  "pack_has_hash_linked_html": true,
+  "actual_sources_and_structural_gpu_distinguished": true
+}

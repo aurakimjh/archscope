@@ -113,20 +113,13 @@ artifact/view hash를 기록하세요. 한글·긴 이름·음수 delta·`900719
 clipboard wire format·cross-build를 네이티브 Windows/Office 수용으로 주장하지 않습니다.
 이번 실행에서는 Mac 데스크톱이 잠겨 있었습니다.
 
-## R14 후속과 검증 범위
+## R14 후속 처리와 검증 범위
 
-Checksum/구조 검사는 손상·부분 변조를 감지합니다. 그림과 manifest를 일관되게 바꾸면 통과할 수
-있으며 생성자 서명/인증이나 PNG가 view를 그렸다는 증명은 아닙니다. Spec 검증은 spec/view 내부
-binding의 확인이며 입력의 진실성을 증명하지 않습니다. R14-05에 생성자/SVG 대응 검증을 남깁니다.
-실제 Office 동작은 여전히 별도입니다.
-
-R14-02는 diff 정렬·0 변화 제외·inclusive 열 표시, R14-03은 profile의 0 아닌 offset 거부/변환
-(현재 cursor만 실제 paging), R14-04는 spec 생성 시 5장 검사(현재 render 때 적용), R14-06은
-글꼴 용량 보완입니다. 현 5장 묶음은 약33 MB라 총512 MiB에 약16건, Report Pack은 선택1–4건이어도
-byte 한도상 이런 큰 묶음은 약2건까지입니다. R14-07은 R13-06과 함께 generic 메트릭 값 투영을
-후속 처리합니다. R14-01은 로컬 수정했으며 원 CONDITIONAL과 명시적 종결 허용을 유지하고 새로운
-독립 PASS를 주장하지 않습니다.
-
+R14-01–07은 로컬 수정·검증했습니다. 원 독립 판정 CONDITIONAL을 보존하며 새로운 독립 PASS는
+아닙니다. 현재 지원 SVG는 아래 설명처럼 view/spec/글꼴로 재생성해 바이트를 결합 검증합니다.
+ZIP 해시는 작성자 인증이나 PNG 픽셀 증명이 아닙니다. 미지원 과거 생성기는 구조·해시 검사만
+유지하며 실제 Office 동작은 별도 수용 항목입니다. 글꼴 용량은 아래 전체 글꼴 유지 절충과
+실제 byte 표시로 처리했고 글꼴 최적화를 주장하지 않습니다.
 
 R15-06: spreadsheet-text-0.2.1은 0.1·1.5·3.14·12.5 같은 일반 소수를 TSV 숫자로 유지한다. 연도가 있는 dotted date는 보호한다. 과거 0.2.0 receipt는 당시 count로 검증하고 현재 export/descriptor는 0.2.1을 사용하며 보관 byte는 재작성하지 않는다.
 

@@ -284,3 +284,21 @@ func TestR2201UnknownToKnownEpochPolicyPreservesSavedRevision(t *testing.T) {
 		t.Fatal(n)
 	}
 }
+
+func TestR2202PostgresBackendAndResetInvariants(t *testing.T) {
+	raw := systemDBFixture(t, "postgres")
+	for name, change := range map[string]func(map[string]any){
+		"zero-backends":   func(c map[string]any) { c["snapshots"].([]any)[0].(map[string]any)["numbackends"] = "0" },
+		"backwards-reset": func(c map[string]any) { v := c["snapshots"].([]any); v[2].(map[string]any)["stats_reset_ns"] = "1" },
+	} {
+		t.Run(name, func(t *testing.T) {
+			_, err := p.ParseBytes(context.Background(), changedCapture(t, raw, change), "capture.json", p.Options{})
+			if err == nil {
+				t.Fatal("invalid capture accepted")
+			}
+			if !strings.Contains(err.Error(), "POSTGRES_CAPTURE_") {
+				t.Fatal(err)
+			}
+		})
+	}
+}

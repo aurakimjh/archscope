@@ -1,0 +1,26 @@
+{
+  "operations": [
+    [
+      "evidence",
+      "import"
+    ],
+    [
+      "evidence",
+      "import"
+    ],
+    [
+      "visual",
+      "create-spec"
+    ],
+    [
+      "visual",
+      "create-spec"
+    ],
+    [
+      "visual",
+      "create-spec"
+    ]
+  ],
+  "nonzero_comparison": true,
+  "all_three_sorts_and_node_ties_verified_with_exact_rationals": true
+}

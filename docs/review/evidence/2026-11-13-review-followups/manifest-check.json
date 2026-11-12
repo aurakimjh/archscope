@@ -1,0 +1,12 @@
+{
+  "families": [
+    "system-evidence-v1",
+    "llm-trace-v1",
+    "execution-evidence-v1",
+    "apple-ollama-capture-v1",
+    "gpu-execution-v1",
+    "system-db-snapshots-v1",
+    "metric-history-v1"
+  ],
+  "verified_entries": 111
+}

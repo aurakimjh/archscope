@@ -1,0 +1,14 @@
+{
+  "scope": "Actual React components rendered in Chromium with mock IPC descriptors; no native WebView or real renderer/copy claim",
+  "jmeter_opt_in_hint": true,
+  "actual_descriptor_bytes_displayed": [
+    33000000,
+    99000000
+  ],
+  "alerts": [],
+  "viewport_width": 1280,
+  "body_width": 1280,
+  "initial_desktop_guard": true,
+  "initial_console": "one expected native-bridge bootstrap error before harness; no component alerts",
+  "screenshot": "browser-mock-ipc.png"
+}

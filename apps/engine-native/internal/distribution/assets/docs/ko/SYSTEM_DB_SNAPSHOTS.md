@@ -44,8 +44,8 @@ producer/version/context를 query·namespace·export-ID 옵션으로 덮어쓰�
 기존 출력 파일은 거절합니다. Workspace의 메트릭 이력에서 형식 선택/auto → 원본 확인 →
 시계열 선택 → 새 모델 저장 → 분석으로 진행합니다. 확인한 원본 SHA가 저장 시에도 같아야 합니다.
 기존 정확한 조회·JSON/CSV/HTML/report pack·이미지 템플릿·바이트 일치 case를 사용합니다.
-범용 CSV/HTML의 요약·관측 가능성 표 제한은 유지하므로 정확한 값/rate는 history-query JSON을
-사용하세요. 원본 merge 자체는 시계 정렬이나 비교 가능한 scope를 증명하지 않습니다.
+범용 CSV는 요약·관측 가능성 표를 유지하고 HTML은 제한된 정확한 구간 값/rate·bucket 상세를
+추가합니다. 더 큰 선택은 history-query JSON이나 구간 CSV를 사용하세요. 원본 merge 자체는 시계 정렬이나 비교 가능한 scope를 증명하지 않습니다.
 
 ## 의미 보존
 
@@ -84,3 +84,5 @@ React/CLI DTO와 mock IPC의 범위이며 native WebView·Windows 실행 증거�
 `stats_reset=NULL`인 reset 이력 없는 DB는 누적값만 남으며 delta/rate가 없습니다. 같은 postmaster 수명도 backend crash recovery 중 통계 연속성을 보증하지 않아 시작을 추정하지 않습니다. 누적 관측을 유지하거나 DB 소유자가 허가된 정비 창에 reset의 다른 모니터링 영향까지 검토한 뒤 새 epoch에서 수집할 수 있습니다. 자동 reset은 없습니다. 별도 `capture-postgres.py --out capture.json --host-id host-a --boot-id boot-a --instance-id db-a --database-tag sample --samples 3`는 libpq 환경/pgpass 연결을 사용해 `BEGIN READ ONLY`로 고정 SQL을 실행하고 wrapper를 조립합니다. SQL/접속 문자열/DB명은 출력하지 않으며 importer는 DB에 접속하지 않습니다. 수집 자체의 backend/transaction 관측 영향은 남습니다.
 
 새 PostgreSQL 가져오기는 normalizer1.3.0을 사용합니다. unknown→known 첫 전이는 알려진 현재 시작을 유지하고 `epoch_transition_from_unknown`으로 표시하며 delta/rate는 null입니다. 이전 unknown 연속성을 가정하지 않고 다음 같은 epoch 관측부터 파생합니다. 알려진→알려진 reset의 post-reset 파생은 유지합니다. 저장된 1.0/1.1/1.2는 원래 상태/계산을 보존하며 명시적 merge는 최신 입력 normalizer를 선택합니다.
+
+입력 검증은 `numbackends≥1`(수집 backend 포함), 알려진 `stats_reset`의 비감소를 요구합니다. 중간 unknown 이후에도 이전 알려진 reset보다 역행하면 `POSTGRES_CAPTURE_RESET_BACKWARDS`로 거절합니다. zero backend는 `POSTGRES_CAPTURE_BACKENDS`이며 시각/값을 자동 보정하지 않습니다.

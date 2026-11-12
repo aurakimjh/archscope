@@ -141,24 +141,15 @@ Local evidence is under `docs/review/evidence/2026-11-12-t636/`. Chromium raster
 checks, contract tests, clipboard wire-format tests and cross-builds are not
 native Windows/Office acceptance. The Mac desktop was locked during this run.
 
-## Recorded R14 follow-ups and verification scope
+## R14 follow-up resolution and verification scope
 
-Checksums/structural checks detect corruption and partial alteration. A consistent
-replacement of image plus manifest can pass: the ZIP is not signed publisher
-identity or proof that PNG pixels depict the pinned view. Spec validation proves
-internal spec/view binding, not source truth. R14-05 queues stronger provenance/
-SVG correspondence. Native Office behavior remains unobserved.
-
-R14-02 queues explicit diff sorting/zero-delta and inclusive-column labels;
-R14-03 queues refusal/conversion of nonzero profile offset (only profile cursor
-currently controls paging); R14-04 queues ≤5-image validation at spec creation
-(currently enforced at render); R14-06 queues font-size optimization. A five-image
-bundle is about 33 MB with current embedded fonts: 512 MiB holds roughly 16 such
-bundles, and report byte ceilings permit about two, even though 1–4 artifacts may
-be selected. R14-07 tracks richer generic metric value exports with R13-06.
-R14-01 is locally fixed; original CONDITIONAL is retained under explicit closure
-permission, without a new independent PASS.
-
+R14-01–07 are locally remediated. The original independent verdict remains
+CONDITIONAL; this is not a new independent PASS. Current supported SVG bytes are
+bound to the frozen view/spec/font by regeneration, as described below. ZIP hashes
+do not authenticate authorship or certify PNG pixels. Historical unsupported
+renderers retain structural/hash-only checks. Native Office behavior remains a
+separate acceptance item. Font capacity is resolved by actual-byte disclosure and
+the explicit full-font tradeoff below, without claiming font optimization.
 
 R15-06: spreadsheet-text-0.2.1 leaves ordinary decimal numbers (0.1, 1.5, 3.14, 12.5) numeric in TSV. Dotted dates with a full year still receive protection. Historical 0.2.0 receipts are validated using their original counts; current exports/descriptors use 0.2.1 without rewriting archived bytes.
 

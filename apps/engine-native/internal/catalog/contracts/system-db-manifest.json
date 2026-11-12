@@ -10,7 +10,7 @@
     },
     {
       "file": "README.md",
-      "sha256": "ecdc1d6e62afd640a71257275e338ad650074ec95abc040e2642376d439e98a1"
+      "sha256": "1381fce1733d8d447c61b0fe9feb4906cff384c03b7ecd722ecf08071e21540e"
     },
     {
       "file": "capture-postgres.py",
@@ -38,7 +38,7 @@
     },
     {
       "file": "postgres-capture.schema.json",
-      "sha256": "6e1a522dde37d5167f32fbebbcd36202d5b7808b78d001684d75097c69972187"
+      "sha256": "05aa8a02fdb51f44a58337bb08fe662fa647ecd92ee773779a35eefd2f35d0b4"
     },
     {
       "file": "postgres-model.json",

@@ -52,9 +52,9 @@ namespace or export-ID options. Existing destinations are refused. In Workspace,
 open Metric history, choose the format (or auto), inspect, select exact series,
 save a new model and Analyze. The source SHA from inspection must still match.
 Existing exact history queries, common JSON/CSV/HTML/report packs, visual templates
-and byte-exact saved cases remain available. Generic CSV/HTML tables retain the
-existing summary/availability limits; use history-query JSON for exact interval
-values/rates. Merging sources does not establish shared clocks or comparable scopes.
+and byte-exact saved cases remain available. Generic CSV retains summary/availability tables; HTML adds bounded exact interval
+values/rates and bucket detail. Use history-query JSON or interval CSV for larger
+selections. Merging sources does not establish shared clocks or comparable scopes.
 
 ## Counter and gauge meanings
 
@@ -98,3 +98,5 @@ References: [PostgreSQL16 statistics](https://www.postgresql.org/docs/16/monitor
 A never-reset database with `stats_reset=NULL` retains cumulative observations without delta/rate. The same postmaster lifetime does not prove statistics continuity across backend crash recovery, so no start is inferred. Keep cumulative-only evidence, or have the database owner separately approve a maintenance window and assess reset effects on other monitoring before collecting a new known epoch. There is no automatic reset. The separate `capture-postgres.py --out capture.json --host-id host-a --boot-id boot-a --instance-id db-a --database-tag sample --samples 3` uses libpq environment/pgpass and fixed SQL in `BEGIN READ ONLY`, assembling the capture wrapper. It excludes SQL/connection strings/database names from output; importing never connects to the DB. Collection itself affects observed backends/transactions.
 
 New PostgreSQL imports use normalizer1.3.0. The first unknown→known transition retains its known current start and reports `epoch_transition_from_unknown` with null delta/rate. It assumes no continuity for the earlier unknown epoch; the next observation in the same known epoch can derive. Known→known resets keep post-reset derivation. Saved1.0/1.1/1.2 models retain their original status/calculation; explicit merge selects the newest input normalizer.
+
+Captures require `numbackends≥1` because the collector is connected, and nondecreasing known `stats_reset` timestamps even across intervening unknown observations. Backwards resets refuse with `POSTGRES_CAPTURE_RESET_BACKWARDS`; zero backends refuse with `POSTGRES_CAPTURE_BACKENDS`. No timestamp/value correction is performed.
