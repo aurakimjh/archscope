@@ -113,7 +113,9 @@ jobs:
           go run ./cmd/archscope-engine offline fixtures
 
       - name: go test
-        run: go test ./... -race -count=1
+        # The analysis package includes cumulative scale/import/export cases;
+        # race instrumentation can exceed Go's default ten-minute package limit.
+        run: go test ./... -race -count=1 -timeout 20m
 
       - name: Windows live-capture E2E
         if: runner.os == 'Windows'

@@ -1,0 +1,683 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-12",
+  "timezone": "Asia/Seoul",
+  "baseCommit": "d9e62b1ddc22e5cc2150d981e0909a23c210d7c9",
+  "testedCodeCommit": "3b968ea97cfb81b3ebdb0454549d685dd7e649c0",
+  "host": {
+    "os": "Windows 11 Pro",
+    "version": "10.0.26300",
+    "arch": "amd64",
+    "elevated": false,
+    "go": "go1.26.10 windows/amd64",
+    "node": "v22.15.1",
+    "cgoEnabled": false,
+    "cCompilerAvailable": false
+  },
+  "fullSuites": {
+    "amd64": {
+      "log": "go-final-amd64.jsonl",
+      "repositoryNormalizedLogSha256": "302b4284016c8ce9321eef40bd00760b589af6363dc9c5d8a678f417209519be",
+      "started": "2026-11-12T20:20:49.1727679+09:00",
+      "ended": "2026-11-12T20:25:18.8074442+09:00",
+      "passedTestCompletionEvents": 1672,
+      "failedTestCompletionEvents": 0,
+      "skippedTestCompletionEvents": 15,
+      "passedPackages": 116,
+      "failedPackages": 0,
+      "noTestPackages": 10,
+      "failures": [],
+      "skippedTests": [
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsBodyCaptureE2E"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsCaptureClientHelper"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsTransparentDirectClientE2E"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestWritePrivateJSONAnyUsesOwnerOnlyPermissions"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestReferencePresetFiltersWhenProvided"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestExplicitRegistrationLifecycleOnCleanHost"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestCOMRemotingHelper"
+        },
+        {
+          "package": "internal/capture/dumppolicy",
+          "test": "TestCurrentIsUnavailableOffWindows"
+        },
+        {
+          "package": "internal/capture/halog",
+          "test": "TestPrivateReferenceSample"
+        },
+        {
+          "package": "internal/capture/procmap",
+          "test": "TestWindowsResolverCostMeasurement"
+        },
+        {
+          "package": "internal/capture/proxy",
+          "test": "TestSEC10ForcedCrashProbe"
+        },
+        {
+          "package": "internal/capture/sessionfile",
+          "test": "TestLargeXLSIndependentReader"
+        },
+        {
+          "package": "internal/capture/transparent",
+          "test": "TestOfficialDriverFingerprints"
+        },
+        {
+          "package": "internal/cases",
+          "test": "TestR606LargePageMeasurement"
+        },
+        {
+          "package": "internal/visuals",
+          "test": "TestVisualFixtureForRealBrowserRaster"
+        }
+      ]
+    },
+    "386": {
+      "log": "go-final-386.jsonl",
+      "repositoryNormalizedLogSha256": "3c15a68fd861ae2465f10ddc9d230774d4fc63ace09475c93a01954a30b31835",
+      "started": "2026-11-12T20:21:21.5069113+09:00",
+      "ended": "2026-11-12T20:26:14.6529849+09:00",
+      "passedTestCompletionEvents": 1672,
+      "failedTestCompletionEvents": 0,
+      "skippedTestCompletionEvents": 15,
+      "passedPackages": 116,
+      "failedPackages": 0,
+      "noTestPackages": 10,
+      "failures": [],
+      "skippedTests": [
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsBodyCaptureE2E"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsCaptureClientHelper"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsTransparentDirectClientE2E"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestWritePrivateJSONAnyUsesOwnerOnlyPermissions"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestReferencePresetFiltersWhenProvided"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestExplicitRegistrationLifecycleOnCleanHost"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestCOMRemotingHelper"
+        },
+        {
+          "package": "internal/capture/dumppolicy",
+          "test": "TestCurrentIsUnavailableOffWindows"
+        },
+        {
+          "package": "internal/capture/halog",
+          "test": "TestPrivateReferenceSample"
+        },
+        {
+          "package": "internal/capture/procmap",
+          "test": "TestWindowsResolverCostMeasurement"
+        },
+        {
+          "package": "internal/capture/proxy",
+          "test": "TestSEC10ForcedCrashProbe"
+        },
+        {
+          "package": "internal/capture/sessionfile",
+          "test": "TestLargeXLSIndependentReader"
+        },
+        {
+          "package": "internal/capture/transparent",
+          "test": "TestOfficialDriverFingerprints"
+        },
+        {
+          "package": "internal/cases",
+          "test": "TestR606LargePageMeasurement"
+        },
+        {
+          "package": "internal/visuals",
+          "test": "TestVisualFixtureForRealBrowserRaster"
+        }
+      ]
+    }
+  },
+  "initialSuites": {
+    "amd64": {
+      "log": "go-amd64.jsonl",
+      "repositoryNormalizedLogSha256": "14f2476124483d78db619c709ae26b5787bb986e0baf24f368491d1b75663bb6",
+      "started": "2026-11-12T20:11:24.9179524+09:00",
+      "ended": "2026-11-12T20:18:34.1249501+09:00",
+      "passedTestCompletionEvents": 1663,
+      "failedTestCompletionEvents": 9,
+      "skippedTestCompletionEvents": 15,
+      "passedPackages": 113,
+      "failedPackages": 3,
+      "noTestPackages": 10,
+      "failures": [
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestT639ActualCLIImportsQueriesExportsAndRefusals"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestT638ActualCLIMetricHistoryRoundtripAndLegacy"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestT637ActualCLISourcesProfilesAndExistingExports"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestT636ActualCLIPinnedSpecsAndExplicitDesktopRefusals"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "test": null
+        },
+        {
+          "package": "internal/localconvert",
+          "test": "TestT633CancellationTerminatesProcessTree"
+        },
+        {
+          "package": "internal/localconvert",
+          "test": null
+        },
+        {
+          "package": "internal/parsers/profile",
+          "test": "TestActualProducerFixturesPinnedAndExact/pyspy-speedscope.json"
+        },
+        {
+          "package": "internal/parsers/profile",
+          "test": "TestActualProducerFixturesPinnedAndExact/pyspy.raw"
+        },
+        {
+          "package": "internal/parsers/profile",
+          "test": "TestActualProducerFixturesPinnedAndExact/go-heap.json"
+        },
+        {
+          "package": "internal/parsers/profile",
+          "test": "TestActualProducerFixturesPinnedAndExact"
+        },
+        {
+          "package": "internal/parsers/profile",
+          "test": null
+        }
+      ],
+      "skippedTests": [
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsBodyCaptureE2E"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsCaptureClientHelper"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsTransparentDirectClientE2E"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestWritePrivateJSONAnyUsesOwnerOnlyPermissions"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestReferencePresetFiltersWhenProvided"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestExplicitRegistrationLifecycleOnCleanHost"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestCOMRemotingHelper"
+        },
+        {
+          "package": "internal/capture/dumppolicy",
+          "test": "TestCurrentIsUnavailableOffWindows"
+        },
+        {
+          "package": "internal/capture/halog",
+          "test": "TestPrivateReferenceSample"
+        },
+        {
+          "package": "internal/capture/procmap",
+          "test": "TestWindowsResolverCostMeasurement"
+        },
+        {
+          "package": "internal/capture/proxy",
+          "test": "TestSEC10ForcedCrashProbe"
+        },
+        {
+          "package": "internal/capture/sessionfile",
+          "test": "TestLargeXLSIndependentReader"
+        },
+        {
+          "package": "internal/capture/transparent",
+          "test": "TestOfficialDriverFingerprints"
+        },
+        {
+          "package": "internal/cases",
+          "test": "TestR606LargePageMeasurement"
+        },
+        {
+          "package": "internal/visuals",
+          "test": "TestVisualFixtureForRealBrowserRaster"
+        }
+      ]
+    },
+    "386": {
+      "log": "go-386.jsonl",
+      "repositoryNormalizedLogSha256": "0d5f167e3e48fd5ba55abd53df3345e7190166c8591acfdb26c99ee96e4e2705",
+      "started": "2026-11-12T20:12:33.0574964+09:00",
+      "ended": "2026-11-12T20:19:17.9119044+09:00",
+      "passedTestCompletionEvents": 1663,
+      "failedTestCompletionEvents": 9,
+      "skippedTestCompletionEvents": 15,
+      "passedPackages": 113,
+      "failedPackages": 3,
+      "noTestPackages": 10,
+      "failures": [
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestT639ActualCLIImportsQueriesExportsAndRefusals"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestT638ActualCLIMetricHistoryRoundtripAndLegacy"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestT637ActualCLISourcesProfilesAndExistingExports"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestT636ActualCLIPinnedSpecsAndExplicitDesktopRefusals"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "test": null
+        },
+        {
+          "package": "internal/localconvert",
+          "test": "TestT633CancellationTerminatesProcessTree"
+        },
+        {
+          "package": "internal/localconvert",
+          "test": null
+        },
+        {
+          "package": "internal/parsers/profile",
+          "test": "TestActualProducerFixturesPinnedAndExact/pyspy-speedscope.json"
+        },
+        {
+          "package": "internal/parsers/profile",
+          "test": "TestActualProducerFixturesPinnedAndExact/pyspy.raw"
+        },
+        {
+          "package": "internal/parsers/profile",
+          "test": "TestActualProducerFixturesPinnedAndExact/go-heap.json"
+        },
+        {
+          "package": "internal/parsers/profile",
+          "test": "TestActualProducerFixturesPinnedAndExact"
+        },
+        {
+          "package": "internal/parsers/profile",
+          "test": null
+        }
+      ],
+      "skippedTests": [
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsBodyCaptureE2E"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsCaptureClientHelper"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsTransparentDirectClientE2E"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestWritePrivateJSONAnyUsesOwnerOnlyPermissions"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestReferencePresetFiltersWhenProvided"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestExplicitRegistrationLifecycleOnCleanHost"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestCOMRemotingHelper"
+        },
+        {
+          "package": "internal/capture/dumppolicy",
+          "test": "TestCurrentIsUnavailableOffWindows"
+        },
+        {
+          "package": "internal/capture/halog",
+          "test": "TestPrivateReferenceSample"
+        },
+        {
+          "package": "internal/capture/procmap",
+          "test": "TestWindowsResolverCostMeasurement"
+        },
+        {
+          "package": "internal/capture/proxy",
+          "test": "TestSEC10ForcedCrashProbe"
+        },
+        {
+          "package": "internal/capture/sessionfile",
+          "test": "TestLargeXLSIndependentReader"
+        },
+        {
+          "package": "internal/capture/transparent",
+          "test": "TestOfficialDriverFingerprints"
+        },
+        {
+          "package": "internal/cases",
+          "test": "TestR606LargePageMeasurement"
+        },
+        {
+          "package": "internal/visuals",
+          "test": "TestVisualFixtureForRealBrowserRaster"
+        }
+      ]
+    }
+  },
+  "focusedChecks": {
+    "cli-fixed-amd64": {
+      "log": "cli-fixed-amd64.jsonl",
+      "repositoryNormalizedLogSha256": "acb103de25c05478018352225b29cdb7648810b0b7196685c37b8efd25751c89",
+      "started": "2026-11-12T20:14:58.6897514+09:00",
+      "ended": "2026-11-12T20:15:51.656101+09:00",
+      "passedTestCompletionEvents": 4,
+      "failedTestCompletionEvents": 0,
+      "skippedTestCompletionEvents": 0,
+      "passedPackages": 1,
+      "failedPackages": 0,
+      "noTestPackages": 0,
+      "failures": [],
+      "skippedTests": []
+    },
+    "cli-suite-fixed-amd64": {
+      "log": "cli-suite-fixed-amd64.jsonl",
+      "repositoryNormalizedLogSha256": "b304571c1f35a69e4b8addeee659f628e129ad2b46a7fec1ff248740ff309e23",
+      "started": "2026-11-12T20:17:47.5826599+09:00",
+      "ended": "2026-11-12T20:19:34.2790425+09:00",
+      "passedTestCompletionEvents": 31,
+      "failedTestCompletionEvents": 0,
+      "skippedTestCompletionEvents": 1,
+      "passedPackages": 1,
+      "failedPackages": 0,
+      "noTestPackages": 0,
+      "failures": [],
+      "skippedTests": [
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestWritePrivateJSONAnyUsesOwnerOnlyPermissions"
+        }
+      ]
+    },
+    "vendor-presets-amd64": {
+      "log": "vendor-presets-amd64.jsonl",
+      "repositoryNormalizedLogSha256": "32c8bf6e583bc85ca1bb597ae730c334904d0eed636052140ad2a9e86045815e",
+      "started": "2026-11-12T20:31:05.9052381+09:00",
+      "ended": "2026-11-12T20:31:06.8210227+09:00",
+      "passedTestCompletionEvents": 1,
+      "failedTestCompletionEvents": 0,
+      "skippedTestCompletionEvents": 0,
+      "passedPackages": 1,
+      "failedPackages": 0,
+      "noTestPackages": 0,
+      "failures": [],
+      "skippedTests": []
+    },
+    "xls-independent-amd64": {
+      "log": "xls-independent-amd64.jsonl",
+      "repositoryNormalizedLogSha256": "f8ab18cd7d6dadc26f7e6fb41245c1c6255a6383eafa8ccc24085fee3cd1560a",
+      "started": "2026-11-12T20:31:31.5887013+09:00",
+      "ended": "2026-11-12T20:31:32.7132061+09:00",
+      "passedTestCompletionEvents": 1,
+      "failedTestCompletionEvents": 0,
+      "skippedTestCompletionEvents": 0,
+      "passedPackages": 1,
+      "failedPackages": 0,
+      "noTestPackages": 0,
+      "failures": [],
+      "skippedTests": []
+    },
+    "resolver-amd64": {
+      "log": "resolver-amd64.jsonl",
+      "repositoryNormalizedLogSha256": "a0a5072d13665c90a3ac769d6978010d2ada56fa6ff60a21a5d6d4647a7d067a",
+      "started": "2026-11-12T20:18:42.7119707+09:00",
+      "ended": "2026-11-12T20:18:48.4413178+09:00",
+      "passedTestCompletionEvents": 1,
+      "failedTestCompletionEvents": 0,
+      "skippedTestCompletionEvents": 0,
+      "passedPackages": 1,
+      "failedPackages": 0,
+      "noTestPackages": 0,
+      "failures": [],
+      "skippedTests": []
+    },
+    "cli-fixed-386": {
+      "log": "cli-fixed-386.jsonl",
+      "repositoryNormalizedLogSha256": "aca6b4f9393dc4da5fac2e44a910d96e1019a25c9a7b6462d34e1ba2d63e94fd",
+      "started": "2026-11-12T20:16:11.8976629+09:00",
+      "ended": "2026-11-12T20:17:03.2395404+09:00",
+      "passedTestCompletionEvents": 4,
+      "failedTestCompletionEvents": 0,
+      "skippedTestCompletionEvents": 0,
+      "passedPackages": 1,
+      "failedPackages": 0,
+      "noTestPackages": 0,
+      "failures": [],
+      "skippedTests": []
+    },
+    "cli-suite-fixed-386": {
+      "log": "cli-suite-fixed-386.jsonl",
+      "repositoryNormalizedLogSha256": "617c153b2fb7cb5da8d9e686bc668480a91e4f41b38b1a004c519ce79ea802b4",
+      "started": "2026-11-12T20:18:21.7352432+09:00",
+      "ended": "2026-11-12T20:20:10.8770002+09:00",
+      "passedTestCompletionEvents": 31,
+      "failedTestCompletionEvents": 0,
+      "skippedTestCompletionEvents": 1,
+      "passedPackages": 1,
+      "failedPackages": 0,
+      "noTestPackages": 0,
+      "failures": [],
+      "skippedTests": [
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestWritePrivateJSONAnyUsesOwnerOnlyPermissions"
+        }
+      ]
+    },
+    "vendor-presets-386": {
+      "log": "vendor-presets-386.jsonl",
+      "repositoryNormalizedLogSha256": "cc8497644fadc97965e38cb26a357ddbef7edc7c624472c3d40cb64bab9ed3a4",
+      "started": "2026-11-12T20:31:08.4200901+09:00",
+      "ended": "2026-11-12T20:31:09.1225058+09:00",
+      "passedTestCompletionEvents": 1,
+      "failedTestCompletionEvents": 0,
+      "skippedTestCompletionEvents": 0,
+      "passedPackages": 1,
+      "failedPackages": 0,
+      "noTestPackages": 0,
+      "failures": [],
+      "skippedTests": []
+    },
+    "xls-independent-386": {
+      "log": "xls-independent-386.jsonl",
+      "repositoryNormalizedLogSha256": "08c8bfe52bba008e0ea5b76aebd8a7e5ba6fac4519302dc4541fcf9222808917",
+      "started": "2026-11-12T20:31:34.2161119+09:00",
+      "ended": "2026-11-12T20:31:35.2283837+09:00",
+      "passedTestCompletionEvents": 1,
+      "failedTestCompletionEvents": 0,
+      "skippedTestCompletionEvents": 0,
+      "passedPackages": 1,
+      "failedPackages": 0,
+      "noTestPackages": 0,
+      "failures": [],
+      "skippedTests": []
+    },
+    "resolver-386": {
+      "log": "resolver-386.jsonl",
+      "repositoryNormalizedLogSha256": "4eee449c2bcc04f9328cf3dd5403d39fce054e83684ec112b64782066f57a1f5",
+      "started": "2026-11-12T20:18:50.1648444+09:00",
+      "ended": "2026-11-12T20:18:56.5065859+09:00",
+      "passedTestCompletionEvents": 1,
+      "failedTestCompletionEvents": 0,
+      "skippedTestCompletionEvents": 0,
+      "passedPackages": 1,
+      "failedPackages": 0,
+      "noTestPackages": 0,
+      "failures": [],
+      "skippedTests": []
+    }
+  },
+  "checks": [
+    {
+      "log": "vet-final-amd64.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "log": "cancel-repeat-amd64.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "b8c51860c1897084ffdb90310c9f106281b8a7b625b1db8072dad60bf32d823a"
+    },
+    {
+      "log": "build-final-amd64.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "log": "vet-final-386.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "log": "cancel-repeat-386.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "32531a860c3500aa4d236492aa9a7b5d6c2dc714a892c72e364bd432f2a2e69f"
+    },
+    {
+      "log": "build-final-386.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "log": "npm-ci.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "a5b7ac452bedb8379e61264a07fedc68d232001042fdb53e0ec973b2d841be77"
+    },
+    {
+      "log": "frontend-state.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb"
+    },
+    {
+      "log": "frontend-build.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "abb8621e96cd27fda1e6064ebaeee8f3f7f77bddda9ff5d6305f697e0d2284a9"
+    },
+    {
+      "log": "desktop-only.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97"
+    },
+    {
+      "log": "offline-assets-fixed.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "053bfe1a0dea54851860b07e24b43d47b840226dfe1c7d73680d136f0fc9a0dc"
+    },
+    {
+      "log": "offline-fixtures.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "37ba364d7611eeb733d0ea11edb12c74a5633569dfa480687955a4a19e788807"
+    },
+    {
+      "log": "parity-report.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "fada73b5663fdaf85722c89ffdfe897ca3ec932e1259b679c33eb2049c830db7"
+    },
+    {
+      "log": "reference-fixture.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "0d228bfbf0d806688d84dbf250f36fd9a5079ecb28939514df6ec9a736a5cf49"
+    },
+    {
+      "log": "policy-registry.log",
+      "result": "PASS",
+      "repositoryNormalizedLogSha256": "7f50f8df173854499b2a3d3755c0058553ecb63a408fe27a7284a92a705d117b"
+    }
+  ],
+  "binaries": {
+    "amd64": {
+      "buildCommit": "3b968ea97cfb81b3ebdb0454549d685dd7e649c0",
+      "sha256": "33cdce6ea519a4f02d4d34f0f9e10ebd220108e23e9df22782b1d5df99ac96e2",
+      "bytes": 48355328,
+      "startupIntervalSeconds": 15,
+      "controllerHarness": "4/16 PASS; aggregate UNVERIFIED"
+    },
+    "386": {
+      "buildCommit": "3b968ea97cfb81b3ebdb0454549d685dd7e649c0",
+      "sha256": "c2b38497fcafa8192dc1324928c44333dc62130fd85c58aee58ddd6174f04027",
+      "bytes": 46752768,
+      "startupIntervalSeconds": 15,
+      "controllerHarness": "4/16 PASS; aggregate UNVERIFIED"
+    }
+  },
+  "independentXlsReader": {
+    "package": "xlrd",
+    "version": "2.0.2",
+    "location": "isolated untracked test venv",
+    "result": "PASS on both architectures; 1,001 rows, literal formula-like text and Korean cells"
+  },
+  "localRace": {
+    "result": "NOT RUN",
+    "reason": "CGO_ENABLED=0; no C compiler. Hosted Windows race remains separate."
+  },
+  "notRun": [
+    "Elevated WinDivert transparent/service reach: driver and peer port-80 IPv4 fixture not configured.",
+    "Body-tier/SEC-10 forced-crash test: non-elevated host with existing HKLM LocalDumps policy; no policy isolation performed.",
+    "Clean-host public COM registration: installed vendor registration preserved.",
+    "Original vendor early-bound client and foreign-process in-memory WinINet cookie interoperability.",
+    "Complete populated/conditional/error Windows UI matrix and alternate OS DPI/1024x768 at 125% acceptance.",
+    "Multi-hour continuously operated desktop soak and complete reference feature parity."
+  ],
+  "resolverMeasurementContext": "Concurrent full x64/x86 suites, builds and soak; measurement only, not an SLO or a controlled comparison."
+}

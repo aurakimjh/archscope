@@ -15,10 +15,7 @@ import (
 )
 
 func TestT638ActualCLIMetricHistoryRoundtripAndLegacy(t *testing.T) {
-	executable := filepath.Join(t.TempDir(), "engine")
-	if output, e := exec.Command("go", "build", "-o", executable, ".").CombinedOutput(); e != nil {
-		t.Fatal(e, string(output))
-	}
+	executable := buildBinary(t)
 	run := func(args ...string) []byte {
 		t.Helper()
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)

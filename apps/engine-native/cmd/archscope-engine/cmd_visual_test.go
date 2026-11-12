@@ -14,10 +14,7 @@ import (
 )
 
 func TestT636ActualCLIPinnedSpecsAndExplicitDesktopRefusals(t *testing.T) {
-	executable := filepath.Join(t.TempDir(), "engine")
-	if out, e := exec.Command("go", "build", "-o", executable, ".").CombinedOutput(); e != nil {
-		t.Fatal(e, string(out))
-	}
+	executable := buildBinary(t)
 	run := func(args ...string) []byte {
 		t.Helper()
 		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)

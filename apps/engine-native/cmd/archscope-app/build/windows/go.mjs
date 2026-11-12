@@ -28,6 +28,13 @@ export function runWindowsGo(command, inputArgs) {
       if (args.some(arg => /^-modfile(?:=|$)/.test(arg))) throw new Error("An additional modfile must be merged with the Wails 386 modfile");
       const module = JSON.parse(execFileSync("go", ["list", "-m", "-json", "github.com/wailsapp/wails/v3"], { env, encoding: "utf8" }));
       if (module.Version !== "v3.1.0" || module.Replace) throw new Error("Revalidate the 386 POINT callback fix for this Wails version");
+      // go list omits Dir when a clean module cache contains only metadata.
+      // Download the selected pinned version before inspecting its source.
+      if (!module.Dir) {
+        const downloaded = JSON.parse(execFileSync("go", ["mod", "download", "-json", `${module.Path}@${module.Version}`], { env, encoding: "utf8" }));
+        if (downloaded.Path !== module.Path || downloaded.Version !== module.Version || !downloaded.Dir) throw new Error("Wails source download did not resolve the pinned module");
+        module.Dir = downloaded.Dir;
+      }
       const original = path.join(module.Dir, "pkg", "w32", "idroptarget.go");
       const bytes = readFileSync(original);
       if (createHash("sha256").update(bytes).digest("hex") !== "c2ba3162f5697609df5158902c4ba1400dad839279ecc06175fd72e74eb7ed12") throw new Error("Unexpected Wails IDropTarget source; refusing an unverified patch");

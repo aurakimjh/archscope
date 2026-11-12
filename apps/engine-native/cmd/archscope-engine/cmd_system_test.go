@@ -12,10 +12,7 @@ import (
 )
 
 func TestT637ActualCLISourcesProfilesAndExistingExports(t *testing.T) {
-	engine := filepath.Join(t.TempDir(), "engine")
-	if out, e := exec.Command("go", "build", "-o", engine, ".").CombinedOutput(); e != nil {
-		t.Fatal(e, string(out))
-	}
+	engine := buildBinary(t)
 	run := func(args ...string) []byte {
 		t.Helper()
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

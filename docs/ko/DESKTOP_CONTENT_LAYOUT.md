@@ -277,3 +277,19 @@ T-627의 Windows 전체 화면·메뉴·OS DPI 행렬은 남아 있습니다. �
 `.halog` 코덱과 원본 양방향 호환 검증은 완료했습니다. 보관 텍스트·인코딩·시간대
 한계는 [코덱 자료](../review/evidence/2026-11-11-windows/HALOG_CODEC.md)에 기록했습니다.
 [Windows 검증 자료](../review/evidence/2026-11-11-windows/README.md)를 참조하세요.
+
+### Windows 네이티브 메뉴 후속 검증 (2026-11-12)
+
+실제 production Wails/WebView2 창에서 네이티브 메뉴로 21개 화면의 빈 상태·폼
+진입과 한국어·영어 페이지/메뉴 동기화를 확인했습니다. 이번 제어 하니스의
+저장 파일을 지원되는 `--open`으로 다시 열어 POST Headers, 본문 기록 꺼짐
+표시와 메뉴 이동 후 2행 복원을 확인했습니다. 2행 sparse 입력이므로 70% 밀도
+판정이 아닙니다. HAR 선택창은 열렸지만 Computer Use가 입력 필드를 제어하지
+못해 파일 선택·분석 완료는 미검증입니다. 영어 모드 MSA Timeline의 일부
+한국어 문구와 파일 선택 취소 시 내부 오류 문자열은 후속 항목으로 남습니다.
+
+T-627은 populated/conditional/error 전체 기능, 정확한 CSS viewport·면적,
+좁은 창·다른 OS DPI 검증이 남아 REVIEW를 유지합니다. 양쪽 Windows 전체 Go
+테스트·vet, production 빌드, 프런트엔드 검사와 603.731초 서비스/프록시 반복
+검증이 통과했지만 여러 시간의 실제 GUI 동등성을 뜻하지는 않습니다.
+[Windows 검증 자료](../review/evidence/2026-11-12-windows/README.md)를 참조하세요.

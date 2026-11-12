@@ -86,12 +86,44 @@ func TestT633ConverterFailuresNeverPublishOrLeakStderr(t *testing.T) {
 }
 func TestT633CancellationTerminatesProcessTree(t *testing.T) {
 	tool := buildTool(t, "hang")
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	type outcome struct {
+		path string
+		err  error
+	}
+	done := make(chan outcome, 1)
+	source := inputFile(t)
+	go func() {
+		result, err := JFR(ctx, source, tool)
+		done <- outcome{result.Path, err}
+	}()
+	// Tool verification and Windows process startup can exceed one second on
+	// a busy host. Prove a child exists before measuring cancellation latency.
+	readyDeadline := time.Now().Add(15 * time.Second)
+	for {
+		if marker, err := os.ReadFile(tool + ".pid"); err == nil && len(marker) > 0 {
+			break
+		}
+		select {
+		case result := <-done:
+			t.Fatalf("converter exited before child readiness: %v", result.err)
+		default:
+		}
+		if time.Now().After(readyDeadline) {
+			t.Fatal("converter child did not become ready")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
 	start := time.Now()
-	result, e := JFR(ctx, inputFile(t), tool)
-	if !errors.Is(e, context.DeadlineExceeded) || result.Path != "" || time.Since(start) > 5*time.Second {
-		t.Fatal(result, e, time.Since(start))
+	cancel()
+	select {
+	case result := <-done:
+		if !errors.Is(result.err, context.Canceled) || result.path != "" || time.Since(start) > 5*time.Second {
+			t.Fatal(result, time.Since(start))
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("converter did not return promptly after cancellation")
 	}
 	assertChildStopped(t, tool+".pid")
 }

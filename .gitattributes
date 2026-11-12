@@ -8,6 +8,25 @@ apps/engine-native/internal/packs/assets/* -text
 apps/engine-native/internal/distribution/assets/** -text whitespace=-blank-at-eol
 docs/en/OFFLINE_PACKS.md text eol=lf
 docs/ko/OFFLINE_PACKS.md text eol=lf
+# Offline documentation is copied byte-for-byte into the shipped resource bundle.
+docs/en/INPUT_ASSISTANCE.md text eol=lf
+docs/ko/INPUT_ASSISTANCE.md text eol=lf
+docs/en/SYSTEM_EVIDENCE.md text eol=lf
+docs/ko/SYSTEM_EVIDENCE.md text eol=lf
+docs/en/INFERENCE_EVIDENCE.md text eol=lf
+docs/ko/INFERENCE_EVIDENCE.md text eol=lf
+docs/en/LLM_TRACE_EVIDENCE.md text eol=lf
+docs/ko/LLM_TRACE_EVIDENCE.md text eol=lf
+docs/en/RUNTIME_EVIDENCE.md text eol=lf
+docs/ko/RUNTIME_EVIDENCE.md text eol=lf
+docs/en/EXECUTION_EVIDENCE.md text eol=lf
+docs/ko/EXECUTION_EVIDENCE.md text eol=lf
+docs/en/VISUAL_ARTIFACTS.md text eol=lf
+docs/ko/VISUAL_ARTIFACTS.md text eol=lf
+docs/en/METRIC_HISTORY.md text eol=lf
+docs/ko/METRIC_HISTORY.md text eol=lf
+docs/en/APPLE_SILICON_EVIDENCE.md text eol=lf
+docs/ko/APPLE_SILICON_EVIDENCE.md text eol=lf
 # The shipped notice inventory pins these source lock bytes across platforms.
 apps/engine-native/go.sum text eol=lf
 apps/engine-native/cmd/archscope-app/frontend/package-lock.json text eol=lf
@@ -27,6 +46,7 @@ apps/engine-native/internal/catalog/contracts/system-evidence-perf-script.txt wh
 
 # Synthetic device/serving contracts use manifest-pinned LF bytes.
 apps/engine-native/internal/parsers/inference/testdata/* text eol=lf
+apps/engine-native/internal/parsers/profile/testdata/source-producers/* text eol=lf
 apps/engine-native/internal/analyzers/systemtrace/testdata/*.json text eol=lf
 
 apps/engine-native/internal/analyzers/inference/testdata/*.json text eol=lf
