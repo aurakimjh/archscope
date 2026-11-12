@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "scope": "Windows build/test runner module source resolution; no product capture changes",
+  "failureCommit": "b85d43cba08e6286141826bdbea1dbd3f31180c5",
+  "fixCommit": "9486ab0d656f60f3bf8b7f4459f5cb59cf44b77a",
+  "hostedFailure": {
+    "runId": 43210742986,
+    "jobId": 131157381317,
+    "name": "Windows GUI cross-build (386)",
+    "host": "ubuntu-latest",
+    "error": "ERR_INVALID_ARG_TYPE: path argument received undefined",
+    "cause": "go list -m -json can omit Dir when only module metadata is present in a clean cache"
+  },
+  "fix": "Download the selected pinned Wails module when Dir is absent, verify the returned path/version/directory, then retain the existing v3.1.0 and exact source hash guards before patching a temporary SDK copy.",
+  "localChecks": [
+    {
+      "name": "Original wrapper with isolated empty GOMODCACHE",
+      "result": "REPRODUCED",
+      "command": "GOARCH=386 node build/windows/build.mjs -h",
+      "exitCode": 1,
+      "error": "Same undefined module.Dir at runWindowsGo"
+    },
+    {
+      "name": "Fixed wrapper with another isolated empty GOMODCACHE",
+      "result": "PASS",
+      "command": "GOARCH=386 node build/windows/build.mjs -o ABS_PROBE_EXE ABS_PROBE_GO",
+      "exitCode": 0,
+      "input": "package main; func main() {}",
+      "outputBytes": 1669632,
+      "limit": "Actual compiler invocation after pinned download/hash checks/temporary SDK patch; a minimal Go program, not a complete cold-cache product build"
+    },
+    {
+      "name": "Fixed wrapper production x86 app build using the normal cache",
+      "result": "PASS",
+      "exitCode": 0
+    },
+    {
+      "name": "Fixed test wrapper native Windows live-capture E2E",
+      "result": "PASS",
+      "command": "GOARCH=386 node cmd/archscope-app/build/windows/test.mjs -count=1 -timeout 3m ./cmd/archscope-app -run ^TestWindowsLiveCaptureE2E$",
+      "exitCode": 0
+    }
+  ]
+}

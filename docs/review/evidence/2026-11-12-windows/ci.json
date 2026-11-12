@@ -1,0 +1,1557 @@
+{
+  "schemaVersion": 1,
+  "checkedAtUtc": "2026-11-12 12:46:24 UTC",
+  "testedSourceCommit": "97501f86a3b101cc4dfd9d03d1fa06e57aab5719",
+  "finalCodeResult": "PASS",
+  "finalRuns": [
+    {
+      "runId": 43217091988,
+      "commit": "97501f86a3b101cc4dfd9d03d1fa06e57aab5719",
+      "label": "Engine Native: 8/8 jobs PASS",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43217091988",
+      "jobs": [
+        {
+          "id": 131178969323,
+          "name": "Native Windows tests (386)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43217091988,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-go@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Verify native x86 packages",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Test native x86 packages with the production SDK fixes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/setup-node@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/setup-go@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 131178969595,
+          "name": "Go test/build (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43217091988,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up Go",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Set up Node for desktop policy checks",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Linux WebKitGTK headers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "go vet",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Enforce desktop-only product targets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "go build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Mandatory offline resource parity and fixture gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "go test",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Windows live-capture E2E",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 11
+            },
+            {
+              "name": "Windows resolver-cost measurement",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Upload Windows resolver-cost evidence",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Native registry policy rename regression",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Prepare SEC-10 crash-dump policy",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 15
+            },
+            {
+              "name": "Windows request and response body capture E2E",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 16
+            },
+            {
+              "name": "SEC-10 crash-dump exclusion evidence",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 17
+            },
+            {
+              "name": "Restore SEC-10 crash-dump policy",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Upload SEC-10 dump-exclusion evidence",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Post Set up Node for desktop policy checks",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 36
+            },
+            {
+              "name": "Post Set up Go",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 37
+            },
+            {
+              "name": "Post Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 38
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 39
+            }
+          ]
+        },
+        {
+          "id": 131178969694,
+          "name": "Windows GUI cross-build (amd64)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43217091988,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-go@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Frontend production assets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Build Windows GUI executable",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/setup-node@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/setup-go@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 131178969711,
+          "name": "Wails frontend build",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43217091988,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Install dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "State tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Set up Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 131178969733,
+          "name": "Windows GUI cross-build (386)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43217091988,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-go@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Frontend production assets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Build Windows GUI executable",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/setup-node@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/setup-go@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 131178969838,
+          "name": "Go test/build (macos-15)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43217091988,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up Go",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Set up Node for desktop policy checks",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Linux WebKitGTK headers",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 5
+            },
+            {
+              "name": "go vet",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Enforce desktop-only product targets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "go build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Mandatory offline resource parity and fixture gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "go test",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Windows live-capture E2E",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 11
+            },
+            {
+              "name": "Windows resolver-cost measurement",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Upload Windows resolver-cost evidence",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Native registry policy rename regression",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Prepare SEC-10 crash-dump policy",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 15
+            },
+            {
+              "name": "Windows request and response body capture E2E",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 16
+            },
+            {
+              "name": "SEC-10 crash-dump exclusion evidence",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 17
+            },
+            {
+              "name": "Restore SEC-10 crash-dump policy",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Upload SEC-10 dump-exclusion evidence",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Post Set up Node for desktop policy checks",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 36
+            },
+            {
+              "name": "Post Set up Go",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 37
+            },
+            {
+              "name": "Post Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 38
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 39
+            }
+          ]
+        },
+        {
+          "id": 131178969888,
+          "name": "macOS offline import/package smoke",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43217091988,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up Go",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Set up Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install Wails CLI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Install Task runner",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Install frontend dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Build engine CLI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Offline import smoke",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Package macOS app",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Verify package",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Set up Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Post Set up Go",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Post Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            }
+          ]
+        },
+        {
+          "id": 131178969987,
+          "name": "Go test/build (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43217091988,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up Go",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Set up Node for desktop policy checks",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Linux WebKitGTK headers",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 5
+            },
+            {
+              "name": "go vet",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Enforce desktop-only product targets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "go build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Mandatory offline resource parity and fixture gate",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "go test",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Windows live-capture E2E",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Windows resolver-cost measurement",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Upload Windows resolver-cost evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Native registry policy rename regression",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Prepare SEC-10 crash-dump policy",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Windows request and response body capture E2E",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "SEC-10 crash-dump exclusion evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Restore SEC-10 crash-dump policy",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Upload SEC-10 dump-exclusion evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Post Set up Node for desktop policy checks",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 36
+            },
+            {
+              "name": "Post Set up Go",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 37
+            },
+            {
+              "name": "Post Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 38
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 39
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "runId": 43217092334,
+      "commit": "97501f86a3b101cc4dfd9d03d1fa06e57aab5719",
+      "label": "General CI: 2/2 jobs PASS",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43217092334",
+      "jobs": [
+        {
+          "id": 131178970328,
+          "name": "Go Engine Native",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43217092334,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up Go",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Linux WebKitGTK headers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Test",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Build CLIs",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Set up Go",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 131178970879,
+          "name": "Wails Frontend",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43217092334,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Install dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Post Set up Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "targetedEarlierRuns": [
+    {
+      "runId": 43211422838,
+      "commit": "9486ab0d656f60f3bf8b7f4459f5cb59cf44b77a",
+      "label": "Both native Windows GUI startup jobs PASS; final merged binaries separately rechecked locally",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43211422838",
+      "jobs": [
+        {
+          "id": 131159716131,
+          "name": "Build and launch Wails exe (386)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43211422838,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up Go",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Set up Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install Wails CLI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Install Task runner",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Build Windows executable",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Launch GUI smoke",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Set up Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Post Set up Go",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 131159716467,
+          "name": "Build and launch Wails exe (amd64)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43211422838,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up Go",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Set up Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install Wails CLI",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Install Task runner",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Build Windows executable",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Launch GUI smoke",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Set up Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Post Set up Go",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "runId": 43210844096,
+      "commit": "b85d43cba08e6286141826bdbea1dbd3f31180c5",
+      "label": "Both native COM jobs PASS, including amd64 race; logs confirm clean-host registration/replacement/cleanup PASS",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43210844096",
+      "jobs": [
+        {
+          "id": 131157736773,
+          "name": "Native COM (386)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43210844096,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-go@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Verify COM code",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run ABI, lifetime and separate-process tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Post Run actions/setup-go@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            }
+          ]
+        },
+        {
+          "id": 131157737083,
+          "name": "Native COM (amd64)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43210844096,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-go@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Verify COM code",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run ABI, lifetime and separate-process tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Post Run actions/setup-go@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "requiredWindowsSteps": [
+    {
+      "name": "go test",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 10
+    },
+    {
+      "name": "Windows live-capture E2E",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 11
+    },
+    {
+      "name": "Windows resolver-cost measurement",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 12
+    },
+    {
+      "name": "Native registry policy rename regression",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 14
+    },
+    {
+      "name": "Prepare SEC-10 crash-dump policy",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 15
+    },
+    {
+      "name": "Windows request and response body capture E2E",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 16
+    },
+    {
+      "name": "SEC-10 crash-dump exclusion evidence",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 17
+    },
+    {
+      "name": "Restore SEC-10 crash-dump policy",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 18
+    }
+  ],
+  "timingEvidence": {
+    "linuxAnalysisSeconds": 600.339,
+    "linuxDistributionSeconds": 56.983,
+    "macAnalysisSeconds": 704.103,
+    "macDistributionSeconds": 55.406
+  },
+  "fixedFailureClasses": [
+    "Extensionless CLI outputs on Windows: T-636 through T-639 and merged T-644 now use buildBinary(t).",
+    "CRLF transformation of manifest-pinned profile producer inputs and offline source documents.",
+    "Converter cancellation before the fixture child is ready; synchronize readiness then retain bounded cancellation and child-exit assertions.",
+    "Cold-cache Wails module metadata has no Dir; explicitly download selected pinned module, retaining exact version/source hash guards.",
+    "Test-only aggregate fixture deadline; 3 minutes without reducing conformance or tamper/coverage assertions.",
+    "Cumulative race package default timeout; explicit 20 minutes and package concurrency 2.",
+    "Shared stale render/catalog test contexts; preserve per-operation 120-second/20-second intervals with fresh contexts.",
+    "Full 54,001-node import under race needs 5-minute test wait; load/refusal contexts remain independent at 3 minutes.",
+    "Merged Nsight SQLite Windows file URI must contain a leading slash for a local drive path; immutable/read-only/schema guards unchanged."
+  ],
+  "historicalRuns": [
+    {
+      "runId": 43210742986,
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43210742986",
+      "jobs": [
+        {
+          "id": 131157380949,
+          "name": "macOS offline import/package smoke",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131157381306,
+          "name": "Go test/build (macos-15)",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 131157381317,
+          "name": "Windows GUI cross-build (386)",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 131157381350,
+          "name": "Native Windows tests (386)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131157381379,
+          "name": "Windows GUI cross-build (amd64)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131157381417,
+          "name": "Wails frontend build",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131157381452,
+          "name": "Go test/build (windows-latest)",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 131157381575,
+          "name": "Go test/build (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ],
+      "note": "Superseded intermediate run; completed successes/failures preserved and unnecessary remaining work cancelled."
+    },
+    {
+      "runId": 43211422903,
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43211422903",
+      "jobs": [
+        {
+          "id": 131159715670,
+          "name": "Native Windows tests (386)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131159715821,
+          "name": "Windows GUI cross-build (386)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131159715844,
+          "name": "Windows GUI cross-build (amd64)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131159715894,
+          "name": "Go test/build (windows-latest)",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 131159715974,
+          "name": "Go test/build (macos-15)",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 131159715996,
+          "name": "macOS offline import/package smoke",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131159716041,
+          "name": "Wails frontend build",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131159716122,
+          "name": "Go test/build (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ],
+      "note": "Superseded intermediate run; completed successes/failures preserved and unnecessary remaining work cancelled."
+    },
+    {
+      "runId": 43212658409,
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43212658409",
+      "jobs": [
+        {
+          "id": 131163929038,
+          "name": "Wails frontend build",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131163929288,
+          "name": "Windows GUI cross-build (386)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131163929339,
+          "name": "Windows GUI cross-build (amd64)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131163929419,
+          "name": "macOS offline import/package smoke",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131163929424,
+          "name": "Go test/build (windows-latest)",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 131163929498,
+          "name": "Native Windows tests (386)",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 131163929622,
+          "name": "Go test/build (macos-15)",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 131163929631,
+          "name": "Go test/build (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ],
+      "note": "Superseded intermediate run; completed successes/failures preserved and unnecessary remaining work cancelled."
+    },
+    {
+      "runId": 43212869637,
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43212869637",
+      "jobs": [
+        {
+          "id": 131164645972,
+          "name": "Native Windows tests (386)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131164646315,
+          "name": "Wails frontend build",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131164646378,
+          "name": "Windows GUI cross-build (386)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131164646403,
+          "name": "Go test/build (macos-15)",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 131164646476,
+          "name": "Windows GUI cross-build (amd64)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131164646587,
+          "name": "macOS offline import/package smoke",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131164646650,
+          "name": "Go test/build (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 131164646662,
+          "name": "Go test/build (windows-latest)",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ],
+      "note": "Completed with Windows/macOS test deadline failures; subsequently fixed."
+    }
+  ],
+  "boundaries": [
+    "Local CGO/race remained unavailable; hosted Windows amd64 race is verified above.",
+    "Hosted body capture, forced-crash dump exclusion and policy restoration passed on disposable CI; local host policy was preserved.",
+    "Native GPU collection/CUDA/NCCL, WinDivert transparent/service peer reach, vendor early-bound/session-cookie interoperability, full OS DPI/UI matrix and multi-hour GUI parity are not established by these tests.",
+    "No independent review verdict or remaining task gate was promoted to PASS/DONE by this verification."
+  ]
+}

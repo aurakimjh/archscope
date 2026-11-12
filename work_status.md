@@ -4429,7 +4429,7 @@ full populated/conditional/error acceptance are not inferred from this smoke.
 Real Windows service/proxy soak passed 603.731s, 172 cycles and 44,720 requests,
 retaining at most 64 rows. This is not multi-hour continuously operated GUI proof.
 Both controller reports retain 4/16 PASS and aggregate UNVERIFIED. T-601 driver/
-peer/admin, T-611 original-client/cookie/clean-host, T-613 full parity and T-627
+peer/admin, T-611 original-client/cookie, T-613 full parity and T-627
 layout/DPI conditions remain open. Counts stay 225 DONE / 3 PENDING / 4 REVIEW =
 232 (7 open). Evidence: docs/review/evidence/2026-11-12-windows/README.md.
 
@@ -4611,3 +4611,50 @@ No numbered implementation is TODO; T-645 awaits independent review. Existing
 P3 queues, native Windows acceptance and individually gated future adapters remain.
 Unrelated HTTP documents/verifier and original ten-line tracker block are preserved
 and excluded from task staging/commit.
+
+### 2026-11-12 — merged native Windows verification (97501f86)
+
+Remote T-643/T-644 changes through `09413bfe` arrived before the Windows follow-up
+push. Only the unpublished context-fix commit was rebased onto them (`7a1c1dfe`);
+published history and unrelated changes were preserved. T-644's CLI regression
+had another extensionless executable, now built through `buildBinary(t)`. Actual
+Windows Nsight normalization then exposed a file URI drive/authority error.
+`97501f86` uses `file:///C:/...` for the owned immutable read-only copy while
+retaining query_only, trusted_schema and fixed schema/column checks.
+
+Both complete native Windows suites passed after integration: 118 packages,
+1,689 passing test-completion events, zero failures and 15 skips each. Both full
+vets, updated frontend state/production builds, 11 offline importer fixtures,
+both production builds and 15-second startup/controller runs passed. Each native
+controller report still has 4/16 PASS with aggregate UNVERIFIED. The earlier
+21-route/Headers/Body screenshots retain their actual pre-T-644 build hashes;
+they do not prove new GPU visual or CUDA/NCCL producer acceptance.
+
+Race follow-ups preserve the full 54,001-node model and exact saved bytes, with
+a five-minute import wait and independent three-minute load/refusal contexts.
+Render sessions each retain their own 120-second limit; catalog setup/selection/
+deactivation/import/reopen each get a fresh 20-second context. CI limits package
+concurrency to two and permits 20 minutes per cumulative race package. These are
+test/CI settings, not changed product limits or reduced assertions.
+
+Clean-host COM registration/replacement/cleanup passed on both hosted
+architectures; the installed local vendor registration was preserved. Driver/
+admin/peer reach, actual vendor early-bound/session-cookie interoperability,
+complete populated/conditional/DPI UI and multi-hour desktop parity remain open.
+At the tested 97501f86 snapshot, totals follow the separately integrated T-643
+closure: 226 DONE / 2 PENDING / 4 REVIEW = 232 (6 open). This Windows work closes
+none of those gates.
+Evidence: docs/review/evidence/2026-11-12-windows/merged-validation.json.
+
+Hosted source validation completed successfully at the same `97501f86` commit:
+Engine Native run `43217091988` passed all eight jobs; General CI run
+`43217092334` passed both jobs. Windows amd64 full race, native 386 full tests,
+live/body E2E, forced-crash dump exclusion and original dump-policy restoration
+all passed. Linux/macOS full race, both GUI cross-builds, frontend and Mac package
+checks passed as well. Earlier superseded failures/cancellations remain recorded;
+the final source verdict is PASS. Native layout/driver/vendor/parity boundaries
+above remain. Exact steps: docs/review/evidence/2026-11-12-windows/ci.json.
+The later independent T-644 review and T-645 implementation arrived while these
+receipts were being recorded. Their current task totals/statuses are preserved;
+the successful Windows source scope here remains 97501f86, not the later T-645
+implementation.
