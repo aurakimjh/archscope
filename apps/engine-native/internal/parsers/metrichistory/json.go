@@ -34,14 +34,28 @@ type historyFile struct {
 
 func (b *builder) snapshots(body []byte) error {
 	var input historyFile
-	if e := m.Strict(body, &input); e != nil {
+	if e := decodeSource(b.ctx, body, &input, true); e != nil {
 		return e
 	}
 	if input.Schema != "1.0.0" || input.Snapshots == nil {
 		return fmt.Errorf("METRIC_HISTORY_VERSION_UNSUPPORTED")
 	}
 	for i, snapshot := range input.Snapshots {
+		if snapshot.Time != nil {
+			if _, ok := m.Time(snapshot.Time); !ok {
+				return diagnostic(fmt.Sprintf("/snapshots/%d/time_unix_nano", i), "canonical_uint64_nanoseconds", fmt.Errorf("METRIC_TIME_INVALID"))
+			}
+		}
 		for j, metric := range snapshot.Metrics {
+			pointPath := fmt.Sprintf("/snapshots/%d/metrics/%d", i, j)
+			b.path = pointPath
+			if metric.Start != nil {
+				if start, ok := m.Time(metric.Start); !ok {
+					return diagnostic(pointPath+"/start_time_unix_nano", "canonical_uint64_nanoseconds", fmt.Errorf("METRIC_TIME_INVALID"))
+				} else if end, known := m.Time(snapshot.Time); known && start > end {
+					return diagnostic(pointPath+"/start_time_unix_nano", "start_not_after_end", fmt.Errorf("METRIC_TIME_INVALID"))
+				}
+			}
 			attrs := metric.Attributes
 			resource := metric.Resource
 			var e error
@@ -79,14 +93,14 @@ func (b *builder) snapshots(body []byte) error {
 			p := m.Point{SeriesID: id, Start: metric.Start, End: snapshot.Time, Histogram: metric.Histogram, Flags: metric.Flags}
 			if metric.Histogram == nil {
 				if len(metric.Value) > 0 {
-					p.Value, p.Special, e = decimal(metric.Value)
+					p.Value, p.Special, e = decimalAt(metric.Value, pointPath+"/value")
 					if e != nil {
 						return e
 					}
 				} else if p.Flags&1 != 0 {
 					p.Special = "no_recorded_value"
 				} else {
-					return fmt.Errorf("METRIC_NUMBER_REQUIRED")
+					return diagnostic(pointPath+"/value", "recorded_value_or_no_recorded_value_flag", fmt.Errorf("METRIC_NUMBER_REQUIRED"))
 				}
 			}
 			if e = b.addPoint(p, fmt.Sprintf("snapshots/%d/metrics/%d", i, j)); e != nil {
@@ -111,7 +125,7 @@ func (b *builder) rangeQuery(body []byte) error {
 			} `json:"result"`
 		} `json:"data"`
 	}
-	if e := wirejson.DecodeWithLimits(body, &input, wirejson.ResultLimits(MaxInputBytes, 128)); e != nil {
+	if e := decodeSource(b.ctx, body, &input, false); e != nil {
 		return e
 	}
 	if input.Status != "success" || input.Data.Type != "matrix" {
@@ -137,6 +151,7 @@ func (b *builder) rangeQuery(body []byte) error {
 		step = &text
 	}
 	for i, series := range input.Data.Result {
+		b.path = fmt.Sprintf("/data/result/%d", i)
 		if len(series.Histograms) > 0 && string(series.Histograms) != "[]" {
 			return fmt.Errorf("METRIC_PROMETHEUS_NATIVE_HISTOGRAM_UNSUPPORTED: not an OTLP exponential histogram")
 		}
@@ -154,20 +169,25 @@ func (b *builder) rangeQuery(body []byte) error {
 			return e
 		}
 		for j, pair := range series.Values {
+			pairPath := fmt.Sprintf("/data/result/%d/values/%d", i, j)
+			b.path = pairPath
 			if len(pair) != 2 {
 				return fmt.Errorf("METRIC_RANGE_PAIR_INVALID")
 			}
-			timeValue, special, e := decimal(pair[0])
-			if e != nil || special != "" || timeValue == nil {
-				return fmt.Errorf("METRIC_RANGE_TIME_INVALID")
+			timeValue, special, e := decimalAt(pair[0], pairPath+"/0")
+			if e != nil {
+				return e
+			}
+			if special != "" || timeValue == nil {
+				return diagnostic(pairPath+"/0", "finite_nonnegative_seconds", fmt.Errorf("METRIC_RANGE_TIME_INVALID"))
 			}
 			seconds, _ := m.Number(*timeValue)
 			nanos := new(big.Rat).Mul(seconds, big.NewRat(1_000_000_000, 1))
 			if !nanos.IsInt() || nanos.Sign() < 0 || nanos.Num().BitLen() > 64 {
-				return fmt.Errorf("METRIC_RANGE_TIME_PRECISION: exact nonzero uint64 nanoseconds required")
+				return diagnostic(pairPath+"/0", "exact_uint64_nanoseconds_from_seconds", fmt.Errorf("METRIC_RANGE_TIME_PRECISION"))
 			}
 			timestamp := nanos.Num().String()
-			value, special, e := decimal(pair[1])
+			value, special, e := decimalAt(pair[1], pairPath+"/1")
 			if e != nil {
 				return e
 			}

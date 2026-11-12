@@ -76,16 +76,17 @@ type otlpPoint struct {
 	Exemplars []json.RawMessage `json:"exemplars"`
 }
 
-func attributes(values []keyValue, depth int) (json.RawMessage, error) {
+func attributes(values []keyValue, depth int, path string) (outBody json.RawMessage, failure error) {
+	defer func() { failure = diagnostic(path, "bounded_typed_attributes", failure) }()
 	if depth > 16 || len(values) > 128 {
 		return nil, fmt.Errorf("METRIC_ATTRIBUTE_BUDGET")
 	}
 	out := map[string]json.RawMessage{}
-	for _, kv := range values {
+	for index, kv := range values {
 		if kv.Key == "" || len(kv.Key) > 4096 || out[kv.Key] != nil {
 			return nil, fmt.Errorf("METRIC_ATTRIBUTE_KEY_INVALID")
 		}
-		value, e := anyValue(kv.Value, depth+1)
+		value, e := anyValue(kv.Value, depth+1, fmt.Sprintf("%s/%d/value", path, index))
 		if e != nil {
 			return nil, e
 		}
@@ -97,7 +98,8 @@ func attributes(values []keyValue, depth int) (json.RawMessage, error) {
 	}
 	return body, nil
 }
-func anyValue(raw json.RawMessage, depth int) (json.RawMessage, error) {
+func anyValue(raw json.RawMessage, depth int, path string) (outBody json.RawMessage, failure error) {
+	defer func() { failure = diagnostic(path, "one_declared_typed_attribute_value", failure) }()
 	if len(raw) == 0 {
 		return json.RawMessage(`{}`), nil
 	}
@@ -135,13 +137,13 @@ func anyValue(raw json.RawMessage, depth int) (json.RawMessage, error) {
 			return nil, fmt.Errorf("METRIC_ATTRIBUTE_BOOL")
 		}
 	case "intValue":
-		text, e := integer(value, true, false)
+		text, e := integerAt(value, true, false, path+"/intValue")
 		if e != nil {
 			return nil, e
 		}
 		value, _ = json.Marshal(text)
 	case "doubleValue":
-		text, special, e := decimal(value)
+		text, special, e := decimalAt(value, path+"/doubleValue")
 		if e != nil {
 			return nil, e
 		}
@@ -166,8 +168,8 @@ func anyValue(raw json.RawMessage, depth int) (json.RawMessage, error) {
 			return nil, fmt.Errorf("METRIC_ATTRIBUTE_ARRAY")
 		}
 		next := []json.RawMessage{}
-		for _, v := range array.Values {
-			v, e := anyValue(v, depth+1)
+		for index, v := range array.Values {
+			v, e := anyValue(v, depth+1, fmt.Sprintf("%s/arrayValue/values/%d", path, index))
 			if e != nil {
 				return nil, e
 			}
@@ -181,7 +183,7 @@ func anyValue(raw json.RawMessage, depth int) (json.RawMessage, error) {
 		if e := wirejson.Decode(value, &list); e != nil {
 			return nil, e
 		}
-		nested, e := attributes(list.Values, depth+1)
+		nested, e := attributes(list.Values, depth+1, path+"/kvlistValue/values")
 		if e != nil {
 			return nil, e
 		}
@@ -205,32 +207,41 @@ func finiteOptional(raw json.RawMessage) (*string, error) {
 		return nil, nil
 	}
 	n, s, e := decimal(raw)
-	if e != nil || s != "" {
+	if e != nil {
+		return nil, e
+	}
+	if s != "" {
 		return nil, fmt.Errorf("METRIC_HISTOGRAM_NONFINITE")
 	}
 	return n, nil
 }
 func (b *builder) otlp(body []byte) error {
 	var file otlpFile
-	if e := wirejson.DecodeWithLimits(body, &file, wirejson.ResultLimits(MaxInputBytes, 128)); e != nil {
+	if e := decodeSource(b.ctx, body, &file, false); e != nil {
 		return e
 	}
 	if file.Resources == nil {
-		return fmt.Errorf("METRIC_OTLP_ROOT_REQUIRED: resourceMetrics lowerCamelCase required")
+		return &SourceError{Code: "METRIC_OTLP_ROOT_REQUIRED", Path: "/resourceMetrics", Rule: "use_lowerCamelCase_resourceMetrics"}
 	}
 	for ri, resource := range file.Resources {
-		attrs, e := attributes(resource.Resource.Attributes, 0)
+		resourcePath := fmt.Sprintf("/resourceMetrics/%d", ri)
+		b.path = resourcePath
+		attrs, e := attributes(resource.Resource.Attributes, 0, resourcePath+"/resource/attributes")
 		if e != nil {
 			return e
 		}
 		resourceBody, _ := json.Marshal(map[string]any{"attributes": json.RawMessage(attrs), "dropped_attributes": strconv.FormatUint(uint64(resource.Resource.Dropped), 10)})
 		for si, scope := range resource.Scopes {
-			scopeAttrs, e := attributes(scope.Scope.Attributes, 0)
+			scopePath := fmt.Sprintf("%s/scopeMetrics/%d", resourcePath, si)
+			b.path = scopePath
+			scopeAttrs, e := attributes(scope.Scope.Attributes, 0, scopePath+"/scope/attributes")
 			if e != nil {
 				return e
 			}
 			descriptor := m.Scope{Name: scope.Scope.Name, Version: scope.Scope.Version, SchemaURL: scope.SchemaURL, Attributes: scopeAttrs, Dropped: strconv.FormatUint(uint64(scope.Scope.Dropped), 10)}
 			for mi, metric := range scope.Metrics {
+				metricPath := fmt.Sprintf("%s/metrics/%d", scopePath, mi)
+				b.path = metricPath
 				data := metric.Gauge
 				kind := "gauge"
 				count := 0
@@ -269,11 +280,17 @@ func (b *builder) otlp(body []byte) error {
 						return fmt.Errorf("METRIC_TEMPORALITY_UNSUPPORTED")
 					}
 				}
+				jsonKind := kind
+				if kind == "exponential_histogram" {
+					jsonKind = "exponentialHistogram"
+				}
 				for pi, p := range data.Points {
+					pointPath := fmt.Sprintf("%s/%s/dataPoints/%d", metricPath, jsonKind, pi)
+					b.path = pointPath
 					if e = b.ctx.Err(); e != nil {
 						return e
 					}
-					pointAttrs, e := attributes(p.Attributes, 0)
+					pointAttrs, e := attributes(p.Attributes, 0, pointPath+"/attributes")
 					if e != nil {
 						return e
 					}
@@ -282,63 +299,71 @@ func (b *builder) otlp(body []byte) error {
 					if e != nil {
 						return e
 					}
-					start, e := timeField(p.Start)
+					start, e := timeAt(p.Start, pointPath+"/startTimeUnixNano")
 					if e != nil {
 						return e
 					}
-					end, e := timeField(p.End)
+					end, e := timeAt(p.End, pointPath+"/timeUnixNano")
 					if e != nil {
 						return e
+					}
+					if a, ok := m.Time(start); ok {
+						if z, known := m.Time(end); known && a > z {
+							return diagnostic(pointPath+"/startTimeUnixNano", "start_not_after_end", fmt.Errorf("METRIC_TIME_INVALID"))
+						}
 					}
 					point := m.Point{SeriesID: id, Start: start, End: end, Flags: p.Flags}
 					if kind == "gauge" || kind == "sum" {
 						if len(p.Int) > 0 && len(p.Double) > 0 {
-							return fmt.Errorf("METRIC_NUMBER_ONEOF")
+							return diagnostic(pointPath, "exactly_one_asInt_or_asDouble", fmt.Errorf("METRIC_NUMBER_ONEOF"))
 						}
 						if len(p.Int) > 0 {
-							text, e := integer(p.Int, true, false)
+							text, e := integerAt(p.Int, true, false, pointPath+"/asInt")
 							if e != nil {
 								return e
 							}
 							point.Value = &text
 						} else if len(p.Double) > 0 {
-							point.Value, point.Special, e = decimal(p.Double)
+							point.Value, point.Special, e = decimalAt(p.Double, pointPath+"/asDouble")
 							if e != nil {
 								return e
 							}
 						} else if p.Flags&1 != 0 {
 							point.Special = "no_recorded_value"
 						} else {
-							return fmt.Errorf("METRIC_NUMBER_REQUIRED")
+							return diagnostic(pointPath, "asInt_or_asDouble_or_no_recorded_value_flag", fmt.Errorf("METRIC_NUMBER_REQUIRED"))
 						}
 					} else {
 						hist := &m.Histogram{}
-						hist.Count, e = integer(p.Count, false, true)
+						hist.Count, e = integerAt(p.Count, false, true, pointPath+"/count")
 						if e != nil {
 							return e
 						}
-						hist.Sum, e = finiteOptional(p.Sum)
+						hist.Sum, e = finiteAt(p.Sum, pointPath+"/sum")
 						if e != nil {
 							return e
 						}
-						hist.Min, e = finiteOptional(p.Min)
+						hist.Min, e = finiteAt(p.Min, pointPath+"/min")
 						if e != nil {
 							return e
 						}
-						hist.Max, e = finiteOptional(p.Max)
+						hist.Max, e = finiteAt(p.Max, pointPath+"/max")
 						if e != nil {
 							return e
 						}
 						if kind == "histogram" {
-							for _, v := range p.Bounds {
-								n, e := finiteOptional(v)
-								if e != nil || n == nil {
-									return fmt.Errorf("METRIC_HISTOGRAM_BOUND_INVALID")
+							for index, v := range p.Bounds {
+								n, e := finiteAt(v, fmt.Sprintf("%s/explicitBounds/%d", pointPath, index))
+								if e != nil {
+									return e
+								}
+								if n == nil {
+									return diagnostic(fmt.Sprintf("%s/explicitBounds/%d", pointPath, index), "finite_histogram_bound", fmt.Errorf("METRIC_HISTOGRAM_BOUND_INVALID"))
 								}
 								hist.Bounds = append(hist.Bounds, *n)
 							}
-							for _, v := range p.Counts {
-								n, e := integer(v, false, false)
+							for index, v := range p.Counts {
+								n, e := integerAt(v, false, false, fmt.Sprintf("%s/bucketCounts/%d", pointPath, index))
 								if e != nil {
 									return e
 								}
@@ -347,27 +372,31 @@ func (b *builder) otlp(body []byte) error {
 						} else {
 							scale := p.Scale
 							hist.Scale = &scale
-							hist.ZeroCount, e = integer(p.ZeroCount, false, true)
+							hist.ZeroCount, e = integerAt(p.ZeroCount, false, true, pointPath+"/zeroCount")
 							if e != nil {
 								return e
 							}
-							hist.ZeroThreshold, e = finiteOptional(p.ZeroThreshold)
+							hist.ZeroThreshold, e = finiteAt(p.ZeroThreshold, pointPath+"/zeroThreshold")
 							if e != nil {
 								return e
 							}
 							if hist.ZeroThreshold == nil {
 								hist.ZeroThreshold = m.Pointer("0")
 							}
-							for side, data := range map[string]*struct {
-								Offset int32             `json:"offset"`
-								Counts []json.RawMessage `json:"bucketCounts"`
-							}{"positive": p.Positive, "negative": p.Negative} {
+							for _, entry := range []struct {
+								side string
+								data *struct {
+									Offset int32             `json:"offset"`
+									Counts []json.RawMessage `json:"bucketCounts"`
+								}
+							}{{"positive", p.Positive}, {"negative", p.Negative}} {
+								side, data := entry.side, entry.data
 								if data == nil {
 									continue
 								}
 								buckets := &m.Buckets{Offset: data.Offset, Counts: []string{}}
-								for _, v := range data.Counts {
-									n, e := integer(v, false, false)
+								for index, v := range data.Counts {
+									n, e := integerAt(v, false, false, fmt.Sprintf("%s/%s/bucketCounts/%d", pointPath, side, index))
 									if e != nil {
 										return e
 									}
@@ -381,6 +410,16 @@ func (b *builder) otlp(body []byte) error {
 							}
 						}
 						point.Histogram = hist
+					}
+					if series.Monotonic && point.Value != nil {
+						n, _ := m.Number(*point.Value)
+						if n.Sign() < 0 {
+							field := "asDouble"
+							if len(p.Int) > 0 {
+								field = "asInt"
+							}
+							return diagnostic(pointPath+"/"+field, "nonnegative_monotonic_sum", fmt.Errorf("METRIC_MONOTONIC_NEGATIVE"))
+						}
 					}
 					if len(p.Exemplars) > 128 {
 						return fmt.Errorf("METRIC_EXEMPLAR_BUDGET")

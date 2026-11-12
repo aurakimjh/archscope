@@ -153,9 +153,9 @@ numeric attributes exact during JavaScript display. Selection uses backend IDs.
 
 The independent CONDITIONAL review permits closure after its P2 payload fix with
 P3 work queued. R13-02 now supplies a process-local validated model/interval index
-cache for repeated desktop queries, as described below. Numeric/shape
-errors can lack point coordinates, and out-of-range exact values refuse the
-whole file (R13-04 remains pending). R13-03/05 now use explicit normalizer
+cache for repeated desktop queries, as described below. R13-04 now gives original
+source numeric/JSON-shape errors bounded codes, decoded JSON paths and rules.
+Out-of-range exact values still refuse the whole file. R13-03/05 now use explicit normalizer
 revisions for cadence gaps and equal-time observation cohorts, preserving saved
 legacy interpretations. R13-06 adds dedicated interval CSV and R13-07 adds the
 searchable paged picker described here. Native WebView/Windows and real user
@@ -204,7 +204,7 @@ Local regression evidence includes stateless/prepared byte-equivalent pages for
 neutral/actual PostgreSQL/Linux/SDK histogram cases,100k-point warm reuse, byte
 tampering with restored mtime, owner/cleanup, lazy expiry/byte eviction, concurrent
 caller isolation, cancellation and unchanged legacy saved bytes. These are backend
-checks, not native WebView/Windows or general latency/RSS acceptance. R13-04 remains the next follow-up after the locally fixed R13-03/05/06/07 batch.
+checks, not native WebView/Windows or general latency/RSS acceptance. R13-01–R13-07 are locally fixed; the original independent verdict remains CONDITIONAL.
 
 New source imports use normalizer 1.2.0. Equal-time cohorts whose complete
 observation payloads agree (including start, flags, histogram and exemplars) are
@@ -223,3 +223,39 @@ inspection cannot retain stale selection. Selection size is counted as UTF-8 JSO
 above 60 KiB, save/query/materialize/CSV actions require a narrower selection to
 leave room within the 64 KiB query envelope. Inventory remains bounded to 10k
 series; pagination does not imply unbounded inventory or larger result budgets.
+
+## Source error diagnostics (R13-04)
+
+Original OTLP, snapshot and range source numeric/JSON-shape failures return a
+`SourceError` with `Code`, `Path`, `Rule` and decoder-supplied one-based decoded
+JSON byte `Offset` (zero when unavailable). Text is bounded to 512 bytes and
+contains no input values, filenames, raw Go types or `strconv` messages. Example:
+
+```text
+METRIC_INTEGER_RANGE: path=/resourceMetrics/0/scopeMetrics/0/metrics/0/sum/dataPoints/777/asInt rule=signed_int64_integer byte_offset=0; entire source refused
+```
+
+Paths include the actual OTLP gauge/sum/histogram container. Gzip uses decoded
+JSON coordinates while source SHA-256 still binds the original compressed bytes.
+Decoder type errors identify array indices and fields; syntax errors identify the
+nearest decoded container and available decoder offset. Unknown object keys are
+redacted as `?`, and displayed paths are bounded. Root/strict unknown-field errors
+may use `/`; source/model resource ceilings retain their existing refusal codes
+and guidance. Cancellation remains cancellation.
+
+Stable numeric codes include `METRIC_NUMBER_EXPONENT_BUDGET` (exponent outside
+-128…128), `METRIC_NUMBER_EXACT_BUDGET` (normalized exact-number bounds),
+`METRIC_INTEGER_RANGE` (signed/unsigned 64-bit range), and
+`METRIC_NUMBER_INVALID`/`METRIC_INTEGER_INVALID`. JSON type/shape failures use
+`METRIC_JSON_SHAPE_INVALID`; malformed JSON uses `METRIC_JSON_INVALID`. The
+`resource_metrics` spelling explicitly requests lowerCamelCase `resourceMetrics`.
+Point conversion, nested attributes and bucket fields identify their own paths;
+model-only observation/shape failures are localized on failure without changing
+valid normalization or warm-query work.
+
+An error refuses the entire source, returns no partial model and publishes no
+normalized/result file. Finite values such as `1e-200` or exponent308 remain
+refused rather than rounded, discarded or converted to a new point status.
+Successful model/normalizer versions, point/reference IDs, saved0.1.0/0.2.0 readers
+and AnalysisResult remain unchanged. Closed Apple/DB/Linux adapters retain their
+existing semantic diagnostics; JSON type errors use the safe shared decoder.

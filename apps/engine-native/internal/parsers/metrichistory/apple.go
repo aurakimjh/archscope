@@ -68,7 +68,7 @@ func (b *builder) apple(body []byte, options Options) error {
 	if len(body) > 4<<20 {
 		return fmt.Errorf("APPLE_CAPTURE_BUDGET: maximum 4 MiB")
 	}
-	if e := m.Strict(body, &c); e != nil {
+	if e := decodeSource(b.ctx, body, &c, true); e != nil {
 		return e
 	}
 	if c.Contract != "apple-ollama-capture.v1" || (c.Collector != "1.0.0" && c.Collector != "1.1.0") || c.Engine != "0.40.16" {

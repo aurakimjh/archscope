@@ -19,7 +19,6 @@ import (
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
-	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
 )
 
 const MaxInputBytes = 64 << 20
@@ -114,7 +113,7 @@ func ParseBytes(ctx context.Context, original []byte, name string, options Optio
 	format := options.Format
 	if format == "" || format == "auto" {
 		var root map[string]json.RawMessage
-		if e := wirejson.DecodeWithLimits(body, &root, wirejson.ResultLimits(MaxInputBytes, 128)); e != nil {
+		if e := decodeSource(ctx, body, &root, false); e != nil {
 			return m.Set{}, e
 		}
 		if _, ok := root["contract"]; ok && string(root["contract"]) == `"apple-ollama-capture.v1"` {
@@ -130,6 +129,9 @@ func ParseBytes(ctx context.Context, original []byte, name string, options Optio
 		} else if _, ok := root["data"]; ok {
 			format = "prometheus-range-json"
 		} else {
+			if _, wrongCase := root["resource_metrics"]; wrongCase {
+				return m.Set{}, &SourceError{Code: "METRIC_OTLP_ROOT_REQUIRED", Path: "/resource_metrics", Rule: "use_lowerCamelCase_resourceMetrics"}
+			}
 			return m.Set{}, fmt.Errorf("METRIC_FORMAT_REQUIRED")
 		}
 	}
@@ -173,9 +175,19 @@ func ParseBytes(ctx context.Context, original []byte, name string, options Optio
 		e = fmt.Errorf("METRIC_FORMAT_UNSUPPORTED")
 	}
 	if e != nil {
-		return b.set, e
+		if format == "otlp-json" || format == "snapshot-sequence-json" || format == "prometheus-range-json" {
+			e = diagnostic(b.path, "declared_metric_semantics", e)
+		}
+		return m.Set{}, e
 	}
-	return m.Normalize(ctx, b.set)
+	normalized, e := m.Normalize(ctx, b.set)
+	if e != nil {
+		if format == "otlp-json" || format == "snapshot-sequence-json" || format == "prometheus-range-json" {
+			e = b.modelDiagnostic(normalized, e)
+		}
+		return m.Set{}, e
+	}
+	return normalized, nil
 }
 
 type builder struct {
@@ -183,6 +195,7 @@ type builder struct {
 	set             m.Set
 	series          map[string]bool
 	origin          string
+	path            string
 	charge, buckets int
 }
 
@@ -272,7 +285,7 @@ func decimal(raw json.RawMessage) (*string, string, error) {
 	}
 	out := m.Text(number)
 	if _, e := m.Number(out); e != nil {
-		return nil, "", e
+		return nil, "", fmt.Errorf("METRIC_NUMBER_EXACT_BUDGET")
 	}
 	return &out, "", nil
 }
@@ -281,7 +294,10 @@ func integer(raw json.RawMessage, signed bool, zeroDefault bool) (string, error)
 		return "0", nil
 	}
 	value, special, e := decimal(raw)
-	if e != nil || special != "" || value == nil {
+	if e != nil {
+		return "", e
+	}
+	if special != "" || value == nil {
 		return "", fmt.Errorf("METRIC_INTEGER_INVALID")
 	}
 	n, _ := m.Number(*value)
@@ -291,11 +307,11 @@ func integer(raw json.RawMessage, signed bool, zeroDefault bool) (string, error)
 	text := n.Num().String()
 	if signed {
 		if _, e = strconv.ParseInt(text, 10, 64); e != nil {
-			return "", e
+			return "", fmt.Errorf("METRIC_INTEGER_RANGE")
 		}
 	} else {
 		if _, e = strconv.ParseUint(text, 10, 64); e != nil {
-			return "", e
+			return "", fmt.Errorf("METRIC_INTEGER_RANGE")
 		}
 	}
 	return text, nil

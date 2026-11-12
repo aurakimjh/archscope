@@ -1,0 +1,489 @@
+{
+  "date": "2026-11-13",
+  "task": "R13-04",
+  "base_commit": "91e1f031cf716d18a9bc37192a75d84027f385a4",
+  "start_pull": "git pull --ff-only; already up to date",
+  "source_sha256": {
+    "apps/engine-native/cmd/archscope-app/metricsourceservice_test.go": "53083b21437a8d18cd2ffefe2563f28f28a1c424c2c2835209b5387fc1fdaef6",
+    "apps/engine-native/cmd/archscope-engine/cmd_metric_history_test.go": "120f651b6c0934026e47b69c90adbad22584f17907f4ac49945160a89d18972b",
+    "apps/engine-native/internal/distribution/assets/docs/en/METRIC_HISTORY.md": "2615c1aee18983162c4cab04c935494b695dae628f4b2aa63310f64f04151497",
+    "apps/engine-native/internal/distribution/assets/docs/ko/METRIC_HISTORY.md": "b56e6ee62c94ddbcb061c35041894cee47e8078c6e2a0e0d0ea42101f883f247",
+    "apps/engine-native/internal/parsers/metrichistory/apple.go": "31321f87112bd17840c23a702d87e1c3b3951ab308d6214284a0d88df50ef85c",
+    "apps/engine-native/internal/parsers/metrichistory/diagnostic.go": "7e2438c7728600c8bb4e425ab4970c739bb813003b5277d0561a3542ae40486d",
+    "apps/engine-native/internal/parsers/metrichistory/diagnostic_internal_test.go": "c0caf28af0e535318442f33b80acccccc7a749aec63b5cda5d5b3cbfe1aa4155",
+    "apps/engine-native/internal/parsers/metrichistory/diagnostic_test.go": "9549c90e26e1051db35ffaa7c1ae653ef35270c701d59c24820376f0d4f321d5",
+    "apps/engine-native/internal/parsers/metrichistory/json.go": "55ddde1fad8bd28c6547dc214e9366c2bc4f6e7e0892263927b91943a4f67d20",
+    "apps/engine-native/internal/parsers/metrichistory/otlp.go": "d29159dc7909ffc0bc8051341b47c37f41000a8c19760d5e46bcbe1f9f54cea0",
+    "apps/engine-native/internal/parsers/metrichistory/source.go": "c19f14053ca2cdcb8e79ac8bcf86593151fab604629fb320d8c0d5bffbfa64f4",
+    "apps/engine-native/internal/parsers/metrichistory/systemdb.go": "a107086473c16ac01a836fd61b19b35a491e5663e9fbdb86715ac7a3009a492f",
+    "docs/en/METRIC_HISTORY.md": "2615c1aee18983162c4cab04c935494b695dae628f4b2aa63310f64f04151497",
+    "docs/ko/METRIC_HISTORY.md": "b56e6ee62c94ddbcb061c35041894cee47e8078c6e2a0e0d0ea42101f883f247"
+  },
+  "contract": {
+    "source_diagnostic": "SourceError Code/Path/Rule/Offset",
+    "message_max_bytes": 512,
+    "coordinates": "decoded JSON, actual OTLP kind and array indices; decoder-supplied one-based byte offset, zero if unavailable; unknown keys redacted",
+    "refusal": "whole source; no partial model or normalized/result publication",
+    "numeric_policy": "unchanged exact exponent/precision/integer limits; no new point statuses, rounding or dropped observations",
+    "compatibility": "model1.0.0 and normalizers1.0.0/1.1.0/1.2.0; payload0.1.0/0.2.0; successful point/ref IDs and AnalysisResult unchanged",
+    "other_errors": "source/model resource limits, cancellation and capture semantics retain their existing contracts"
+  },
+  "verification": {
+    "race": {
+      "command": "GOWORK=off go test -race -json -p=2 -count=1 -timeout=20m ./...",
+      "passed_packages": 120,
+      "passed_test_events": 1721,
+      "failures": 0
+    },
+    "focused": [
+      "1000 points, zero-based index777, exponent1e-200/max-finite-double/signed-int overflow/precision/boolean errors",
+      "same point/field diagnostics for gzip and original JSON",
+      "snapshot decoder type array coordinates and offset",
+      "OTLP lowerCamelCase root spelling hint, auto and explicit formats",
+      "nested attribute integer and histogram bucket positions",
+      "20 repeated deterministic positive/negative bucket refusals",
+      "deferred model validation pinpoints the failing snapshot observation",
+      "bounded private-label/value/unknown-field errors, syntax/duplicate-key errors",
+      "cancellation and resource-refusal contract retention",
+      "actual CLI and Wails inspect/normalize refusals publish no file"
+    ],
+    "checks": [
+      "host go vet ./...",
+      "Windows amd64/386 go vet ./...",
+      "Mac production bundle executable and strict ad-hoc signature verification",
+      "Windows amd64/386 production GUI cross-builds",
+      "unchanged frontend state regression tests",
+      "embedded paired docs/resources match sources",
+      "85 dependency notices, desktop-only guard and diff checks"
+    ],
+    "cli": {
+      "operations": 39,
+      "operation_results": [
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": null,
+          "path": null,
+          "exit_code": 0
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": null,
+          "path": null,
+          "exit_code": 0
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": null,
+          "path": null,
+          "exit_code": 0
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": null,
+          "path": null,
+          "exit_code": 0
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": null,
+          "path": null,
+          "exit_code": 0
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": null,
+          "path": null,
+          "exit_code": 0
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": null,
+          "path": null,
+          "exit_code": 0
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": null,
+          "path": null,
+          "exit_code": 0
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": null,
+          "path": null,
+          "exit_code": 0
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": null,
+          "path": null,
+          "exit_code": 0
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": null,
+          "path": null,
+          "exit_code": 0
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": null,
+          "path": null,
+          "exit_code": 0
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-inspect"
+          ],
+          "expected_error": "METRIC_NUMBER_EXPONENT_BUDGET",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asDouble",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": "METRIC_NUMBER_EXPONENT_BUDGET",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asDouble",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-import"
+          ],
+          "expected_error": "METRIC_NUMBER_EXPONENT_BUDGET",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asDouble",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-inspect"
+          ],
+          "expected_error": "METRIC_NUMBER_EXPONENT_BUDGET",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asDouble",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": "METRIC_NUMBER_EXPONENT_BUDGET",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asDouble",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-import"
+          ],
+          "expected_error": "METRIC_NUMBER_EXPONENT_BUDGET",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asDouble",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-inspect"
+          ],
+          "expected_error": "METRIC_NUMBER_EXPONENT_BUDGET",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asDouble",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": "METRIC_NUMBER_EXPONENT_BUDGET",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asDouble",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-import"
+          ],
+          "expected_error": "METRIC_NUMBER_EXPONENT_BUDGET",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asDouble",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-inspect"
+          ],
+          "expected_error": "METRIC_NUMBER_EXPONENT_BUDGET",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asDouble",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": "METRIC_NUMBER_EXPONENT_BUDGET",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asDouble",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-import"
+          ],
+          "expected_error": "METRIC_NUMBER_EXPONENT_BUDGET",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asDouble",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-inspect"
+          ],
+          "expected_error": "METRIC_INTEGER_RANGE",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asInt",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": "METRIC_INTEGER_RANGE",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asInt",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-import"
+          ],
+          "expected_error": "METRIC_INTEGER_RANGE",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asInt",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-inspect"
+          ],
+          "expected_error": "METRIC_INTEGER_RANGE",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asInt",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": "METRIC_INTEGER_RANGE",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asInt",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-import"
+          ],
+          "expected_error": "METRIC_INTEGER_RANGE",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asInt",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-inspect"
+          ],
+          "expected_error": "METRIC_NUMBER_INVALID",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asInt",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": "METRIC_NUMBER_INVALID",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asInt",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-import"
+          ],
+          "expected_error": "METRIC_NUMBER_INVALID",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asInt",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-inspect"
+          ],
+          "expected_error": "METRIC_NUMBER_INVALID",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asInt",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-normalize"
+          ],
+          "expected_error": "METRIC_NUMBER_INVALID",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asInt",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-import"
+          ],
+          "expected_error": "METRIC_NUMBER_INVALID",
+          "path": "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asInt",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-import"
+          ],
+          "expected_error": "METRIC_JSON_SHAPE_INVALID",
+          "path": "/snapshots/0/time_unix_nano",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-import"
+          ],
+          "expected_error": "METRIC_OTLP_ROOT_REQUIRED",
+          "path": "/resource_metrics",
+          "exit_code": 1
+        },
+        {
+          "operation": [
+            "metrics",
+            "history-query"
+          ],
+          "expected_error": null,
+          "path": null,
+          "exit_code": 0
+        }
+      ],
+      "valid_models_byte_identical": [
+        {
+          "file": "sdk-python-1.38.0.otlp.json",
+          "sha256": "6f2138ea264d0b3b49ca9a9d7782e159d0707bb625df63348fa649a82bacf4ba"
+        },
+        {
+          "file": "snapshots.json",
+          "sha256": "183523d42ad7c3e7f1ceb16e9b9b62f08fa9b7460b9940c0381de130a65bcedc"
+        },
+        {
+          "file": "prometheus-range.json",
+          "sha256": "dcd649c7d81aa58eb73cf9ee8255de59789a0c253be91a8ee2b593e8817a241b"
+        },
+        {
+          "file": "apple-ollama-capture.json",
+          "sha256": "f6140bc2bc9309f81901931dc586ac963824541d1200bbc0156c5fc55919f96d"
+        },
+        {
+          "file": "system-db-postgres-capture.json",
+          "sha256": "792f18c4eef884bb29f0f6c37aa3d49d5c58e3ce83d5a5f819fa53a07cf9becd"
+        },
+        {
+          "file": "system-db-linux-ss-capture.json",
+          "sha256": "0a319b7160ae1f87622361d0b45e96cd7b4f0b744e555859202f2b1d17e20283"
+        }
+      ],
+      "legacy_saved_bytes_unchanged": true,
+      "whole_source_refusal": true,
+      "partial_output_files": 0
+    },
+    "offline": {
+      "operations": 76,
+      "inet_syscalls": 0,
+      "negative_diagnostic_refusals": 5,
+      "failed_connect_positive_control_inet_syscalls": 2,
+      "network": "none",
+      "scope": "Linux CLI process trees and explicitly invoked manual Python subset helper; no desktop/Windows outbound claim",
+      "observer_extension": "existing observer + interval CSV +5 diagnostic/no-publication refusals"
+    },
+    "baseline_binary_sha256": "34808fad1140217b2ecd4ac84198111086746ed1c5c7fcd7c5501efae1888c2f",
+    "baseline_comparison": "six valid source normalizations are byte-identical to the prior binary; saved0.1.0 bytes remain unchanged"
+  },
+  "artifact_sha256": {
+    "/tmp/archscope-r1304-targeted.log": "e829a9114a58c041396864b8d421ad1940370418468fcd8f4feb33482aa21750",
+    "/tmp/archscope-r1304-bridges.log": "c399919069a4c6d657789e7199b62a354ce6297fcc6fab208fa7f7da2b13398d",
+    "/tmp/archscope-r1304-final-focused.log": "f4c721167aa9fbf6e19be0ee775719c8e7811bec0407b98cb61dcb2dfccbe0f0",
+    "/tmp/archscope-r1304-final-race.jsonl": "dbdd2ee6913ff49c0e6459497dd1c2c2c1162fc49b16a65fcd84e6025ef1e828",
+    "/tmp/archscope-r1304-host-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/archscope-r1304-amd64-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/archscope-r1304-386-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/archscope-r1304-mac.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/archscope-r1304-sign.log": "9610c8522e60378808345cca59e8d7966fdcc73e906e51a3651bedd34e8d5134",
+    "/tmp/archscope-r1304-amd64-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/archscope-r1304-386-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/archscope-r1304-state.log": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb",
+    "/tmp/archscope-r1304-cli.py": "b41a8f5701975cee933738b08f7bc2bbe8aa9fe25f220cef160f7a69f48f6a68",
+    "/tmp/archscope-r1304-cli/summary.json": "1cf50cbbd8fc6761a65c8dfbed6f3fbd8218c286e57563e5df63ee4603e6a644",
+    "/tmp/archscope-r1304-offline.py": "a15d945436482f76f0938345a3e017894b59e3a40fc51eaac64ef85d2929e977",
+    "/tmp/archscope-r1304-offline-evidence/summary.json": "7f5623c703c2075d1fe20f6831b55ea7c36253b80558cd99bb240e68b2a36339"
+  },
+  "binary_sha256": {
+    "/tmp/archscope-r1304-engine": "b0acd75a8686b1d524e13fc4a21d94fa0a283605220fbca3761d4fa07b8b1cd5",
+    "/tmp/archscope-r1304-linux": "1e92fba63f3e79d8bbd8d95d4d946496e7507facef940ed91a3af39cde35414e",
+    "/tmp/archscope-r1304-amd64.exe": "04376c290feebfc69023df936f143d3c9f41e2280d20be41612d51b385992adc",
+    "/tmp/archscope-r1304-386.exe": "d3958206443c4790aaa4b28fe829aaf6e8cfc71a16c51669f84724e692099def",
+    "/Users/aura/workspace/archscope/apps/engine-native/cmd/archscope-app/bin/archscope.app/Contents/MacOS/archscope": "f7a6fd7e3ad56373b503352372c4176e24ea20b76a7b64417bc202ec4251c192"
+  },
+  "boundaries": [
+    "Local remediation/verification, no new independent PASS; T-638 DONE and original CONDITIONAL preserved.",
+    "No new native Windows/WebView runtime acceptance; cross-builds and direct Wails integration are separate evidence.",
+    "No shared schema or saved representation/version change; source error implementation remains project-specific.",
+    "Unknown strict/root fields and global identity errors may use a root path; syntax paths are nearest decoded containers and decoder offsets.",
+    "Unrelated HTTP docs/verifier and original tracker block are excluded from this commit.",
+    "Next ready follow-up is R14-02."
+  ]
+}

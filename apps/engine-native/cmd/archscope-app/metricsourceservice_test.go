@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analysis"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
 	p "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory"
@@ -188,5 +189,29 @@ func TestT643AppleWailsNormalizeSavedReadAndQuery(t *testing.T) {
 	again, e := svc.GetEvidenceResultJSON(view.Handle)
 	if e != nil || again != saved {
 		t.Fatal("saved bytes changed", e)
+	}
+}
+
+func TestR1304WailsSourceErrorsAreBoundedAndDoNotPublish(t *testing.T) {
+	svc := evidenceBridge(t, nil)
+	ctx := context.Background()
+	source := filepath.Join(t.TempDir(), "invalid.json")
+	body := []byte(`{"resourceMetrics":[{"scopeMetrics":[{"metrics":[{"name":"x","gauge":{"dataPoints":[{"asInt":"9223372036854775808"}]}}]}]}]}`)
+	if e := os.WriteFile(source, body, 0600); e != nil {
+		t.Fatal(e)
+	}
+	expected := "/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/0/asInt"
+	_, e := svc.InspectMetricSource(ctx, source, `{}`)
+	var issue *p.SourceError
+	if !errors.As(e, &issue) || issue.Path != expected || issue.Code != "METRIC_INTEGER_RANGE" || strings.Contains(e.Error(), "9223372036854775808") {
+		t.Fatal(e)
+	}
+	output := filepath.Join(t.TempDir(), "must-not-exist.json")
+	_, e = svc.NormalizeMetricSource(ctx, source, `{}`, "inspected", output)
+	if !errors.As(e, &issue) || issue.Path != expected {
+		t.Fatal(e)
+	}
+	if _, e = os.Stat(output); !os.IsNotExist(e) {
+		t.Fatal("invalid source published", e)
 	}
 }

@@ -105,3 +105,28 @@ func TestT638ActualCLIMetricHistoryRoundtripAndLegacy(t *testing.T) {
 		t.Fatal("legacy semantics changed", string(out))
 	}
 }
+
+func TestR1304ActualCLISourceErrorsDoNotPublish(t *testing.T) {
+	binary := buildBinary(t)
+	root := t.TempDir()
+	source := filepath.Join(root, "invalid.json")
+	points := make([]string, 1000)
+	for i := range points {
+		points[i] = `{"asInt":"1"}`
+	}
+	points[777] = `{"asDouble":"1e-200"}`
+	body := `{"resourceMetrics":[{"scopeMetrics":[{"metrics":[{"name":"x","gauge":{"dataPoints":[` + strings.Join(points, ",") + `]}}]}]}]}`
+	if e := os.WriteFile(source, []byte(body), 0600); e != nil {
+		t.Fatal(e)
+	}
+	for _, operation := range []string{"history-inspect", "history-normalize", "history-import"} {
+		output := filepath.Join(root, operation+".json")
+		text, e := exec.Command(binary, "metrics", operation, "--in", source, "--out", output).CombinedOutput()
+		if e == nil || !bytes.Contains(text, []byte("METRIC_NUMBER_EXPONENT_BUDGET")) || !bytes.Contains(text, []byte("/resourceMetrics/0/scopeMetrics/0/metrics/0/gauge/dataPoints/777/asDouble")) || bytes.Contains(text, []byte("1e-200")) {
+			t.Fatalf("%s: %s %v", operation, text, e)
+		}
+		if _, e = os.Stat(output); !os.IsNotExist(e) {
+			t.Fatal("failed source published", e)
+		}
+	}
+}

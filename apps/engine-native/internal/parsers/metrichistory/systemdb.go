@@ -100,7 +100,7 @@ func (b *builder) postgres(body []byte, o Options) error {
 		return fmt.Errorf("SNAPSHOT_CAPTURE_BUDGET: maximum4MiB")
 	}
 	var c pgCapture
-	if e := m.Strict(body, &c); e != nil {
+	if e := decodeSource(b.ctx, body, &c, true); e != nil {
 		return e
 	}
 	if c.Contract != "postgres-stat-database.v1" || c.Collector != "1.0.0" || c.Version != "16.14" || c.VersionNum != "160014" {
@@ -197,7 +197,7 @@ func (b *builder) socketSummary(body []byte, o Options) error {
 		return fmt.Errorf("SNAPSHOT_CAPTURE_BUDGET: maximum4MiB")
 	}
 	var c ssCapture
-	if e := m.Strict(body, &c); e != nil {
+	if e := decodeSource(b.ctx, body, &c, true); e != nil {
 		return e
 	}
 	if c.Contract != "linux-ss-summary.v1" || c.Collector != "1.0.0" || c.Version != "6.1.0" {
