@@ -1,0 +1,29 @@
+[
+  {
+    "Plan": {
+      "Node Type": "Nested Loop",
+      "Plan Rows": 100,
+      "Actual Rows": 5,
+      "Actual Loops": 1,
+      "Actual Total Time": 1.25,
+      "Plans": [
+        {
+          "Node Type": "Seq Scan",
+          "Plan Rows": 20,
+          "Actual Rows": 0,
+          "Actual Loops": 1,
+          "Actual Total Time": 0.125
+        },
+        {
+          "Node Type": "Index Scan",
+          "Plan Rows": 5,
+          "Actual Rows": 1,
+          "Actual Loops": 5,
+          "Actual Total Time": 0.2
+        }
+      ]
+    },
+    "Query": "SELECT * FROM synthetic WHERE private='PRIVATE_SYNTHETIC_SQL'",
+    "Execution Time": 2
+  }
+]

@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "id": "runtime-source-38c4af91203d76c3f8e0aea2188bf1067a0a963b65460c76ce1099452c665fa1",
+      "sha256": "7e3cce1a6934ecd9ad5257f575e4592b71243dfea082140d2f429b27158a05d1",
+      "format": "rust-backtrace",
+      "producer": "rustc panic/backtrace",
+      "producer_version": "1.94.1",
+      "clock_id": "unknown"
+    }
+  ],
+  "processes": [
+    {
+      "id": "synthetic-rust",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "pid_namespace": "synthetic-ns",
+      "pid": "800",
+      "process_start_ns": null,
+      "runtime": "Rust"
+    }
+  ],
+  "entities": [
+    {
+      "id": "entity-55597233ae4b59f17ef8a55b4e3d247c2e9505a32b58261232a85c17b37c0d91",
+      "process_id": "synthetic-rust",
+      "kind": "runtime_thread",
+      "runtime_id": "panic-thread",
+      "native_id": "",
+      "native_encoding": "none",
+      "thread_start_ns": null,
+      "thread_end_ns": null,
+      "name": "panic thread (native TID unobserved)",
+      "mapping_basis": "unknown"
+    }
+  ],
+  "frames": [
+    {
+      "id": "frame-a01883b73f0664f39482da72e9f81b3abb5cb126ba45a124312c6fa99c97bfc3",
+      "symbol": "std::panicking::begin_panic",
+      "display": "std::panicking::begin_panic",
+      "file": "/rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/std/src/panicking.rs",
+      "line": 761,
+      "runtime": "Rust",
+      "language": "Rust"
+    },
+    {
+      "id": "frame-2b2f58e4784cabfc860ae8edcac56919cdaae02647399773ec3cda3bc541e5d1",
+      "symbol": "synthetic_symbols::main",
+      "display": "synthetic_symbols::main",
+      "file": "/synthetic/synthetic.rs",
+      "line": 2,
+      "runtime": "Rust",
+      "language": "Rust"
+    },
+    {
+      "id": "frame-300aaec05d5c8bac9e72bfecacb7fdbe2fb2dd967578b3c397501872e9350035",
+      "symbol": "core::ops::function::FnOnce::call_once",
+      "display": "core::ops::function::FnOnce::call_once",
+      "file": "/rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs",
+      "line": 250,
+      "runtime": "Rust",
+      "language": "Rust"
+    }
+  ],
+  "stacks": [
+    {
+      "id": "stack-83e321ee5d886d29cb194a27e6d6eee1212421b9f4e0e603e7a3017a6ddd8998",
+      "frames": [
+        "frame-a01883b73f0664f39482da72e9f81b3abb5cb126ba45a124312c6fa99c97bfc3",
+        "frame-2b2f58e4784cabfc860ae8edcac56919cdaae02647399773ec3cda3bc541e5d1",
+        "frame-300aaec05d5c8bac9e72bfecacb7fdbe2fb2dd967578b3c397501872e9350035"
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "id": "runtime-observation-c3c79afba19d4b1420a5a85ef065071e624c5ff16fe051f0bf71bcf9968d0257",
+      "entity_id": "entity-55597233ae4b59f17ef8a55b4e3d247c2e9505a32b58261232a85c17b37c0d91",
+      "kind": "panic_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "panicked",
+      "population": "unknown",
+      "time_ns": null,
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-83e321ee5d886d29cb194a27e6d6eee1212421b9f4e0e603e7a3017a6ddd8998",
+      "ref": {
+        "source_id": "runtime-source-38c4af91203d76c3f8e0aea2188bf1067a0a963b65460c76ce1099452c665fa1",
+        "position": "lines:1-11; panic message excluded"
+      }
+    }
+  ],
+  "relations": [],
+  "profile_refs": [],
+  "plan_nodes": []
+}

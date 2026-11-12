@@ -1,0 +1,11 @@
+
+thread 'main' (1793935) panicked at /synthetic/synthetic.rs:2:37:
+SYNTHETIC_PANIC_BODY_NOT_RETAINED
+stack backtrace:
+   0: std::panicking::begin_panic
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/std/src/panicking.rs:761:5
+   1: synthetic_symbols::main
+             at /synthetic/synthetic.rs:2:37
+   2: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.

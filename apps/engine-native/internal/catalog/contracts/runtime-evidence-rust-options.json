@@ -1,0 +1,15 @@
+{
+  "format": "rust-backtrace",
+  "producer": "rustc panic/backtrace",
+  "producer_version": "1.94.1",
+  "clock_id": "unknown",
+  "process": {
+    "id": "synthetic-rust",
+    "host_id": "synthetic-host",
+    "boot_id": "synthetic-boot",
+    "pid_namespace": "synthetic-ns",
+    "pid": "800",
+    "process_start_ns": null,
+    "runtime": "Rust"
+  }
+}

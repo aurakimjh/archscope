@@ -28,6 +28,15 @@ type LLMPage struct {
 }
 
 func QueryLLM(ctx context.Context, s l.Set, digest string, q LLMQuery) (LLMPage, error) {
+	return queryLLM(ctx, s, nil, digest, q)
+}
+
+// QueryLLMProjected is for internal callers holding a validated immutable model
+// and its corresponding digest-bound projection. It never reparses source files.
+func QueryLLMProjected(ctx context.Context, s l.Set, p LLMProjection, digest string, q LLMQuery) (LLMPage, error) {
+	return queryLLM(ctx, s, &p, digest, q)
+}
+func queryLLM(ctx context.Context, s l.Set, prepared *LLMProjection, digest string, q LLMQuery) (LLMPage, error) {
 	out := LLMPage{Version: l.Version, ResultSHA: digest, Rows: []json.RawMessage{}}
 	if len(digest) != 64 || q.Limit < 1 || q.Limit > 100 || len(q.Cursor) > 2048 || !l.In(q.Kind, "spans", "records", "relations", "attempts", "logical_requests", "events", "contexts") || !l.Text(q.TraceID) || !l.Text(q.RecordID) || !l.Text(q.Namespace) || !l.Text(q.Logical) {
 		return out, fmt.Errorf("LLMTRACE_QUERY_INVALID")
@@ -52,9 +61,15 @@ func QueryLLM(ctx context.Context, s l.Set, digest string, q LLMQuery) (LLMPage,
 		}
 		offset = c.Offset
 	}
-	p, e := ProjectLLM(ctx, s)
-	if e != nil {
-		return out, e
+	var p LLMProjection
+	if prepared == nil {
+		var e error
+		p, e = ProjectLLM(ctx, s)
+		if e != nil {
+			return out, e
+		}
+	} else {
+		p = *prepared
 	}
 	spans := map[string]l.Span{}
 	for _, v := range s.Spans {
@@ -76,8 +91,14 @@ func QueryLLM(ctx context.Context, s l.Set, digest string, q LLMQuery) (LLMPage,
 			matchedRequests[requestKey(v)] = true
 		}
 	}
-	all := []json.RawMessage{}
-	add := func(v any) { raw, _ := json.Marshal(v); all = append(all, raw) }
+	add := func(v any) {
+		i := out.Total
+		out.Total++
+		if i >= offset && len(out.Rows) < q.Limit {
+			raw, _ := json.Marshal(v)
+			out.Rows = append(out.Rows, raw)
+		}
+	}
 	switch q.Kind {
 	case "contexts":
 		for _, v := range s.Contexts {
@@ -134,12 +155,10 @@ func QueryLLM(ctx context.Context, s l.Set, digest string, q LLMQuery) (LLMPage,
 			}
 		}
 	}
-	out.Total = len(all)
 	if offset > out.Total {
 		return out, fmt.Errorf("LLMTRACE_CURSOR_OFFSET_INVALID: offset=%d", offset)
 	}
-	end := min(offset+q.Limit, out.Total)
-	out.Rows = all[offset:end]
+	end := offset + len(out.Rows)
 	if end < out.Total {
 		raw, _ := json.Marshal(cursor{digest, out.QuerySHA, end})
 		out.Next = base64.RawURLEncoding.EncodeToString(raw)

@@ -1,0 +1,5 @@
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/symbolinfo	1.315s
+?   	github.com/aurakimjh/archscope/apps/engine-native/internal/runtimemodel	[no test files]
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/runtimeevidence	1.330s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/runtimeevidence	6.366s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/inference	31.501s

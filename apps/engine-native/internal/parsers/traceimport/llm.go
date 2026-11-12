@@ -427,7 +427,7 @@ func RequiresLLMNormalization(original []byte) bool {
 			return false
 		}
 	}
-	markers := []string{"gen_ai.", "openinference.", "diag.llm.", "diag.gateway.", "diag.lifecycle."}
+	markers := []string{"gen_ai.", "openinference.", "diag.llm.", "diag.gateway.", "diag.lifecycle.", "llm.prompts", "llm.completions", "traceloop.", "langfuse.", "ai.prompt", "input.value", "output.value"}
 	has := func(s string) bool {
 		for _, m := range markers {
 			if strings.Contains(s, m) {

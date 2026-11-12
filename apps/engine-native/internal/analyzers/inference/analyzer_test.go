@@ -12,6 +12,7 @@ import (
 	a "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/inference"
 	n "github.com/aurakimjh/archscope/apps/engine-native/internal/inferencemodel"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract"
 )
 
@@ -209,4 +210,61 @@ func TestT63910k20kSavedMetricReferenceScale(t *testing.T) {
 		}
 		t.Logf("points=%d one-metric-model result_bytes=%d", count, len(body))
 	}
+}
+
+func TestR17RationalRateAndLegacyProjection(t *testing.T) {
+	raw, e := os.ReadFile("testdata/legacy-rational-0.2.0.json")
+	if e != nil {
+		t.Fatal(e)
+	}
+	var old models.AnalysisResult
+	if e = json.Unmarshal(raw, &old); e != nil {
+		t.Fatal(e)
+	}
+	if e = a.Validate(old); e != nil {
+		t.Fatal("legacy reader changed", e)
+	}
+	set, e := a.ReadCore(old)
+	if e != nil {
+		t.Fatal(e)
+	}
+	rows, e := a.Observations(context.Background(), set)
+	if e != nil {
+		t.Fatal(e)
+	}
+	found := false
+	for _, row := range rows {
+		if row.Rate != nil && *row.Rate == "20/3" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("exact 100/15 rate lost", rows)
+	}
+	next, e := a.Build(context.Background(), set, "new explicit analysis")
+	if e != nil || next.Metadata.SchemaVersion != "0.3.0" {
+		t.Fatal(next.Metadata, e)
+	}
+	if e = a.Validate(next); e != nil {
+		t.Fatal(e)
+	}
+	set.Signals[0].Semantic = "pcie_bytes"
+	set.Signals[0].Conversion = "mib_to_bytes"
+	set.Signals[0].Boundary = "device"
+	set.Signals[0].EntityID = set.Entities[0].ID
+	set.Signals[0].Declaration.Unit = "MiB"
+	rows, e = a.Observations(context.Background(), set)
+	if e != nil {
+		t.Fatal(e)
+	}
+	found = false
+	for _, row := range rows {
+		if row.Rate != nil && *row.Rate == "20971520/3" && row.RateUnit == "bytes/second" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("scaled rational rate lost", rows)
+	}
+
 }

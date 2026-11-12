@@ -31,3 +31,9 @@ apps/engine-native/internal/analyzers/systemtrace/testdata/*.json text eol=lf
 
 apps/engine-native/internal/analyzers/inference/testdata/*.json text eol=lf
 apps/engine-native/internal/parsers/traceimport/contracts/* text eol=lf
+
+# T-641 verification records retain portable repository-normalized hashes.
+docs/review/evidence/2026-11-12-t641/*.json text eol=lf
+docs/review/evidence/2026-11-12-t641/*.txt text eol=lf
+docs/review/evidence/2026-11-12-t641/*.py text eol=lf
+docs/review/evidence/2026-11-12-t641/*.png -text

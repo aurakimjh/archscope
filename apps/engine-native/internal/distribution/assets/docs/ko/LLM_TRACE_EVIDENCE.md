@@ -108,3 +108,28 @@ Wails/Windows 및 실제 제품 export 실행 증거는 별도다.
 Context 개요는 20개로 제한한다. contexts 조회로 일치하는 계측 맥락 전체를 제한 페이지로 확인한다.
 
 기존 raw trace 분석 facade도 원본 64 MiB 초과 시 분할 안내와 함께 거부하여 일부만 검사한 tail을 접수하지 않는다. 기존 저장 reader는 유지하며 legacy 결과 발행 전에 해독된 의미 key를 다시 검사한다.
+
+
+## R17 입력·조회 제약
+
+원본 carrier 거부는 GenAI/OpenInference/diag/Traceloop/Langfuse와 input.value/output.value
+등 알려진 marker를 검사하며 escape/gzip도 포함합니다. 일반 속성명의 오탐 가능성이 있는
+best-effort 검사이며 임의 본문 완전 탐지나 Langfuse/LangSmith adapter가 아닙니다.
+미지원 export는 case copy 전에 정제하세요. 조회는 요청 페이지만 직렬화하고 서비스는
+검증한 graph/model projection을 2개·2분·보수적 JSON charge 96 MiB cache에서 재사용합니다.
+매 요청 소유권·파일 무결성을 다시 확인하며 CLI 프로세스 간 cache는 없습니다.
+
+리뷰한 span당 약 950 byte 형식은 약 35k span에서 32 MiB에 도달할 수 있어 명목 50k보다
+먼저 제한됩니다. 정규화 전에 원본 export를 trace별로 분할하세요. 초과 모델을 앱 안에서
+trace 선택해 줄이는 기능은 없습니다.
+
+| Profile | first/last-token 시간 지원 |
+|---|---|
+| neutral.v1 | 명시적 diag.llm first/last 경계 또는 인식하는 token event가 필요합니다. |
+| otel-genai.v1.37.0 / openinference.core.v1 | 해당 필드를 보존하되 first/last 측정은 고정 custom 경계/event가 필요합니다. 전체 span 시간은 TTFT/TPOT가 아닙니다. |
+
+R17-05는 P3 대기 항목입니다. first/last/span 경계 모순 시 TTFT/TPOT를 일관되게 null로
+만드는 수정은 이후 버전 LLM payload에서 처리하고 저장된 0.3.0 projection은 보존합니다.
+현재 duration은 boundary/status 근거와 함께 해석하며 이번 수정에서 해결을 주장하지 않습니다.
+
+`diag.llm.first_token_unix_nano`, `diag.llm.last_token_unix_nano`, `diag.llm.first_token`, `diag.llm.last_token`.

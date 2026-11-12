@@ -1,0 +1,350 @@
+{
+  "schema": "node-runtime-export.v1",
+  "report": {
+    "header": {
+      "reportVersion": 5,
+      "nodejsVersion": "v25.9.0",
+      "processId": "600",
+      "threadId": "0"
+    },
+    "javascriptStack": {
+      "stack": [
+        "at Object.getReport (node:internal/process/report:39:13)"
+      ]
+    },
+    "nativeStack": [
+      {
+        "symbol": "node::GetNodeReport(node::Environment*, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_string_view<char, std::__1::char_traits<char>>, v8::Local<v8::Value>, std::__1::basic_ostream<char, std::__1::char_traits<char>>&) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "node::report::GetReport(v8::FunctionCallbackInfo<v8::Value> const&) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "Builtins_CallApiCallbackGeneric [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "Builtins_AsyncFunctionAwaitResolveClosure [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "Builtins_PromiseFulfillReactionJob [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "Builtins_RunMicrotasks [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "Builtins_JSRunMicrotasksEntry [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "v8::internal::(anonymous namespace)::InvokeWithTryCatch(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "v8::internal::Execution::TryRunMicrotasks(v8::internal::Isolate*, v8::internal::MicrotaskQueue*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "v8::internal::MicrotaskQueue::RunMicrotasks(v8::internal::Isolate*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "v8::internal::MicrotaskQueue::PerformCheckpointInternal(v8::Isolate*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "node::InternalCallbackScope::Close() [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "node::InternalCallbackScope::~InternalCallbackScope() [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "node::Environment::RunTimers(uv_timer_s*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "uv__run_timers [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]"
+      },
+      {
+        "symbol": "uv_run [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]"
+      },
+      {
+        "symbol": "node::SpinEventLoopInternal(node::Environment*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "node::NodeMainInstance::Run(node::ExitCode*, node::Environment*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "node::NodeMainInstance::Run() [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "node::Start(int, char**) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+      },
+      {
+        "symbol": "start [/usr/lib/dyld]"
+      }
+    ],
+    "libuv": [
+      {
+        "type": "async",
+        "is_active": true
+      },
+      {
+        "type": "async",
+        "is_active": true
+      },
+      {
+        "type": "timer",
+        "is_active": false
+      },
+      {
+        "type": "check",
+        "is_active": true
+      },
+      {
+        "type": "idle",
+        "is_active": false
+      },
+      {
+        "type": "prepare",
+        "is_active": true
+      },
+      {
+        "type": "check",
+        "is_active": true
+      },
+      {
+        "type": "async",
+        "is_active": true
+      },
+      {
+        "type": "pipe",
+        "is_active": false
+      },
+      {
+        "type": "pipe",
+        "is_active": false
+      },
+      {
+        "type": "timer",
+        "is_active": true
+      },
+      {
+        "type": "timer",
+        "is_active": true
+      },
+      {
+        "type": "timer",
+        "is_active": false
+      },
+      {
+        "type": "loop",
+        "is_active": false
+      }
+    ],
+    "workers": [
+      {
+        "header": {
+          "reportVersion": 5,
+          "nodejsVersion": "v25.9.0",
+          "processId": "600",
+          "threadId": "1"
+        },
+        "javascriptStack": {
+          "stack": [
+            "at Object.getReport (node:internal/process/report:39:13)",
+            "at [worker eval]:1:120",
+            "at runScriptInThisContext (node:internal/vm:219:10)",
+            "at node:internal/process/execution:483:12",
+            "at [worker eval]-wrapper:6:24",
+            "at runScriptInContext (node:internal/process/execution:481:60)",
+            "at evalFunction (node:internal/process/execution:315:30)",
+            "at evalTypeScript (node:internal/process/execution:327:3)",
+            "at MessagePort.<anonymous> (node:internal/main/worker_thread:191:9)"
+          ]
+        },
+        "nativeStack": [
+          {
+            "symbol": "node::GetNodeReport(node::Environment*, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_string_view<char, std::__1::char_traits<char>>, v8::Local<v8::Value>, std::__1::basic_ostream<char, std::__1::char_traits<char>>&) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "node::report::GetReport(v8::FunctionCallbackInfo<v8::Value> const&) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_CallApiCallbackGeneric [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_JSEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_JSEntry [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "v8::internal::Execution::CallScript(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::JSFunction>, v8::internal::DirectHandle<v8::internal::Object>, v8::internal::DirectHandle<v8::internal::Object>) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "v8::Script::Run(v8::Local<v8::Context>, v8::Local<v8::Data>) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "node::contextify::ContextifyScript::EvalMachine(v8::Local<v8::Context>, node::Environment*, long long, bool, bool, bool, v8::MicrotaskQueue*, v8::FunctionCallbackInfo<v8::Value> const&) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "node::contextify::ContextifyScript::RunInContext(v8::FunctionCallbackInfo<v8::Value> const&) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_CallApiCallbackGeneric [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_JSEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "Builtins_JSEntry [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "v8::internal::Execution::Call(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::Object>, v8::internal::DirectHandle<v8::internal::Object>, v8::base::Vector<v8::internal::DirectHandle<v8::internal::Object> const>) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "v8::Function::Call(v8::Isolate*, v8::Local<v8::Context>, v8::Local<v8::Value>, int, v8::Local<v8::Value>*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "node::InternalMakeCallback(node::Environment*, v8::Local<v8::Object>, v8::Local<v8::Object>, v8::Local<v8::Function>, int, v8::Local<v8::Value>*, node::async_context, v8::Local<v8::Value>) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "node::AsyncWrap::MakeCallback(v8::Local<v8::Function>, int, v8::Local<v8::Value>*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "node::worker::MessagePort::OnMessage(node::worker::MessagePort::MessageProcessingMode) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "uv__async_io [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]"
+          },
+          {
+            "symbol": "uv__io_poll [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]"
+          },
+          {
+            "symbol": "uv_run [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]"
+          },
+          {
+            "symbol": "node::SpinEventLoopInternal(node::Environment*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "node::worker::Worker::Run() [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "node::worker::Worker::StartThread(v8::FunctionCallbackInfo<v8::Value> const&)::$_0::__invoke(void*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]"
+          },
+          {
+            "symbol": "_pthread_start [/usr/lib/system/libsystem_pthread.dylib]"
+          },
+          {
+            "symbol": "thread_start [/usr/lib/system/libsystem_pthread.dylib]"
+          }
+        ],
+        "libuv": [
+          {
+            "type": "async",
+            "is_active": true
+          },
+          {
+            "type": "async",
+            "is_active": true
+          },
+          {
+            "type": "timer",
+            "is_active": false
+          },
+          {
+            "type": "check",
+            "is_active": true
+          },
+          {
+            "type": "idle",
+            "is_active": false
+          },
+          {
+            "type": "prepare",
+            "is_active": true
+          },
+          {
+            "type": "check",
+            "is_active": true
+          },
+          {
+            "type": "async",
+            "is_active": true
+          },
+          {
+            "type": "timer",
+            "is_active": true
+          },
+          {
+            "type": "async",
+            "is_active": true
+          },
+          {
+            "type": "async",
+            "is_active": true
+          },
+          {
+            "type": "loop",
+            "is_active": false
+          }
+        ],
+        "workers": []
+      }
+    ]
+  },
+  "time_ns": "1000000000",
+  "event_loop": [
+    {
+      "thread_id": "0",
+      "from_ns": "1000000000",
+      "to_ns": "1041435083",
+      "delay_mean_ns": "12043605.333333334",
+      "delay_p95_ns": "12050431",
+      "delay_max_ns": "12050431",
+      "utilization_ratio": "0.008848930924655"
+    }
+  ]
+}

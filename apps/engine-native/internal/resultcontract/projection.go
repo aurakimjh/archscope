@@ -308,3 +308,26 @@ func (p *Projection) values(ctx context.Context, provider Provider) (*keyValueIn
 	p.keyValues[provider.Path] = out
 	return out, nil
 }
+
+// ExtensionJSON copies a bounded extension for internal semantic readers. The
+// private prepared result and indexes never escape to callers or frontend IPC.
+func (p *Projection) ExtensionJSON(ctx context.Context, name string, limit int) (json.RawMessage, error) {
+	if e := ctx.Err(); e != nil {
+		return nil, e
+	}
+	if verdict := p.registry.check(p.result, "compute", p.capabilities.Compatibility.Allowed); !verdict.Allowed {
+		return nil, fmt.Errorf("RESULT_COMPUTE_UNSUPPORTED: %s", verdict.Reason)
+	}
+	value, ok := p.result.Metadata.Extra[name]
+	if !ok {
+		return nil, fmt.Errorf("RESULT_EXTENSION_MISSING")
+	}
+	raw, e := json.Marshal(value)
+	if e != nil {
+		return nil, e
+	}
+	if limit < 1 || len(raw) > limit {
+		return nil, fmt.Errorf("RESULT_EXTENSION_BUDGET")
+	}
+	return raw, ctx.Err()
+}

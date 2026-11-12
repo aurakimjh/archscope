@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "id": "runtime-source-3d738a5e060a89a7fecbdcc5de92d7dfa9d50ce1284cef63249a42fb4fbf1208",
+      "sha256": "7e2f5cd2c802f537c3d0f970305dfe5ff64dbcaaed739f5363373facdddd5ea9",
+      "format": "ps-l-csv",
+      "producer": "explicit ps/top CSV exporter",
+      "producer_version": "synthetic-contract.v1",
+      "clock_id": "synthetic-jvm-clock"
+    }
+  ],
+  "processes": [
+    {
+      "id": "synthetic-jvm",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "pid_namespace": "synthetic-ns",
+      "pid": "700",
+      "process_start_ns": "0",
+      "runtime": "JVM"
+    }
+  ],
+  "entities": [
+    {
+      "id": "os-main",
+      "process_id": "synthetic-jvm",
+      "kind": "os_thread",
+      "runtime_id": "500",
+      "native_id": "500",
+      "native_encoding": "os_tid_decimal",
+      "thread_start_ns": "0",
+      "thread_end_ns": null,
+      "name": "main OS thread",
+      "mapping_basis": "declared"
+    }
+  ],
+  "frames": [],
+  "stacks": [],
+  "observations": [
+    {
+      "id": "runtime-observation-b2a91f960ebdef5cdb7fb255ba7e95cb4f0ee7316021bd1fff8885c21fdb1a2e",
+      "entity_id": "os-main",
+      "kind": "cpu",
+      "metric": "cpu_usage_percent",
+      "value": "33.333",
+      "unit": "percent",
+      "measurement_basis": "interval_average",
+      "observed_state": "",
+      "population": "synthetic-process-window",
+      "time_ns": null,
+      "from_ns": "0",
+      "to_ns": "3000000000",
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-3d738a5e060a89a7fecbdcc5de92d7dfa9d50ce1284cef63249a42fb4fbf1208",
+        "position": "line:2"
+      }
+    }
+  ],
+  "relations": [],
+  "profile_refs": [],
+  "plan_nodes": []
+}

@@ -1,0 +1,5 @@
+=== RUN   TestR17WarmLLMCacheIntegrityAndReleasedOwner
+    semantic_cache_test.go:80: 20k span warm query: 6.690291ms, page=25; no latency threshold or RSS claim
+--- PASS: TestR17WarmLLMCacheIntegrityAndReleasedOwner (7.70s)
+PASS
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analysis	8.100s

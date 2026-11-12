@@ -7,6 +7,7 @@ toolchain go1.26.10
 require (
 	github.com/go-ole/go-ole v1.3.0
 	github.com/google/pprof v0.0.0-20260402051712-545e8a4df936
+	github.com/ianlancetaylor/demangle v0.0.0-20261012173340-cbb8aaea4290
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2
 	github.com/spf13/cobra v1.10.2
 	github.com/wailsapp/wails/v3 v3.1.0

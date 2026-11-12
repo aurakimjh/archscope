@@ -1,11 +1,11 @@
 // [한글] threaddump 단일 분석기 회귀 테스트.
 //
 // 핵심 시나리오
-//   • RUNNABLE 다수 + BLOCKED 1건 → BLOCKED_THREADS_PRESENT finding.
-//   • WAITING 비율 > 50% → WAITING_THREADS_DOMINATE finding.
-//   • State 가 비어있는 thread → "UNKNOWN" 로 분류.
-//   • top_stack_signatures 가 빈도순 정렬.
-//   • per-thread 표(tables.threads) 가 입력 순서를 보존.
+//   - RUNNABLE 다수 + BLOCKED 1건 → BLOCKED_THREADS_PRESENT finding.
+//   - WAITING 비율 > 50% → WAITING_THREADS_DOMINATE finding.
+//   - State 가 비어있는 thread → "UNKNOWN" 로 분류.
+//   - top_stack_signatures 가 빈도순 정렬.
+//   - per-thread 표(tables.threads) 가 입력 순서를 보존.
 package threaddump
 
 import (
@@ -78,7 +78,7 @@ func TestAnalyzeMetadataIdentity(t *testing.T) {
 	if result.Metadata.Parser != "java_thread_dump" {
 		t.Fatalf("parser = %q", result.Metadata.Parser)
 	}
-	if result.Metadata.SchemaVersion != "0.1.0" {
+	if result.Metadata.SchemaVersion != "0.2.0" {
 		t.Fatalf("schema_version = %q", result.Metadata.SchemaVersion)
 	}
 	if len(result.SourceFiles) != 1 || result.SourceFiles[0] != path {

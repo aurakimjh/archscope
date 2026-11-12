@@ -38,6 +38,7 @@ import (
 // ThreadSnapshot only.
 type threadDumpRecord struct {
 	ThreadName string
+	NativeID   string
 	ThreadID   string
 	State      string
 	Stack      []string
@@ -140,7 +141,12 @@ func parseThreadBlock(block []string) *threadDumpRecord {
 		threadID = m[tidRE.SubexpIndex("tid")]
 	}
 
+	nativeID := ""
+	if match := regexp.MustCompile(`\bnid=(0x[0-9a-fA-F]+)`).FindStringSubmatch(block[0]); match != nil {
+		nativeID = match[1]
+	}
 	return &threadDumpRecord{
+		NativeID:   nativeID,
 		ThreadName: name,
 		ThreadID:   threadID,
 		State:      state,

@@ -121,3 +121,31 @@ Primary definitions: [OTel GenAI 1.37.0](https://github.com/open-telemetry/seman
 Context inventory is capped at 20; use the contexts query for bounded pages of every matching instrumentation context.
 
 The legacy raw trace analysis facade now refuses originals above 64 MiB with an explicit split instruction, so a partial privacy scan cannot admit an uninspected tail. Saved legacy readers are unchanged; decoded semantic keys are checked again before publishing a legacy result.
+
+
+## R17 intake and query constraints
+
+Raw-carrier refusal recognizes known GenAI/OpenInference/diag/Traceloop/Langfuse
+and input.value/output.value markers, including escaped/gzipped carriers. This is
+best-effort detection with possible false positives for ordinary attribute names;
+it is not complete arbitrary-body detection or a Langfuse/LangSmith adapter.
+Sanitize unsupported exports before case copy. Queries serialize only the requested
+page and the service reuses verified graph/model projections in a two-entry,
+two-minute, 96 MiB conservative JSON charge cache; each request rechecks result
+ownership and stored-file integrity. CLI commands remain cold processes.
+
+The reviewed approximately 950-byte/span shape reaches 32 MiB near 35k spans,
+before the nominal 50k record ceiling. Split the original export by trace before
+normalization; there is no in-app trace-selection operation for an oversized model.
+
+| Profile | First/last-token timing capability |
+|---|---|
+| neutral.v1 | Explicit diag.llm first/last boundaries or recognized token events. |
+| otel-genai.v1.37.0 / openinference.core.v1 | Preserve profile fields; first/last timing requires the pinned custom boundaries/events. Ordinary total span duration is not TTFT/TPOT. |
+
+R17-05 remains a queued P3: contradictory supplied first/last/span boundaries need
+consistent null TTFT/TPOT in a future versioned LLM payload, with old 0.3.0 saved
+projections preserved. Current duration fields must be interpreted with their
+boundary/status evidence; this local remediation does not claim that fix.
+
+`diag.llm.first_token_unix_nano`, `diag.llm.last_token_unix_nano`, `diag.llm.first_token`, `diag.llm.last_token`.

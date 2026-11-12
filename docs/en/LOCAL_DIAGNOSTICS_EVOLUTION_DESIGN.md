@@ -518,3 +518,8 @@ checkpoint does not activate optional producer decisions or the entire design.
 ## T-640 implementation boundary (2026-11-12)
 
 The limited `trace.llm-json` importer normalizes LLMTrace 1.0.0 into existing trace_import 0.3.0 / llm_core 1.0.0. Legacy trace 0.2.0 remains unchanged. Parent/link, observed child-union durations, explicit logical/attempt accounting, token boundaries and lifecycle populations stay separate. Body-free normalization precedes case copies/indexing. Exact bounded query/UI and existing providers/exports are reused. Q01 vendor JSON adapters stay gated. See [LLM trace evidence](LLM_TRACE_EVIDENCE.md). T-639 R16 adds explicitly declared untyped range metadata and user event-ID normalization, with 1.0/1.1 model and 0.1/0.2 result readers preserved; see [inference evidence](INFERENCE_EVIDENCE.md).
+
+
+## T-641 runtime evidence
+
+Runtime evidence uses the separate bounded canonical model within AnalysisResult. See [RUNTIME_EVIDENCE.md](RUNTIME_EVIDENCE.md) for pinned producer formats, identity/window qualification, live allocation profile reuse, GC union, plan per-loop semantics and saved-reader boundaries.

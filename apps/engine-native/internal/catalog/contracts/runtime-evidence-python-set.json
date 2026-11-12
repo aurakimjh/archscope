@@ -1,0 +1,472 @@
+{
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "id": "runtime-source-bc8133bf24be596396e403c2e5506dfd3b33f82796cf60c19634043b73194a7c",
+      "sha256": "dc4729ef9ae3ef89347690ab013b39521083c90773d2c8a48a0623c065b29f5a",
+      "format": "python-runtime-json",
+      "producer": "CPython asyncio/tracemalloc JSON exporter",
+      "producer_version": "3.14.4",
+      "clock_id": "synthetic-python-clock"
+    }
+  ],
+  "processes": [
+    {
+      "id": "synthetic-python",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "pid_namespace": "synthetic-ns",
+      "pid": "500",
+      "process_start_ns": "0",
+      "runtime": "Python"
+    }
+  ],
+  "entities": [
+    {
+      "id": "entity-1323153713b3462980fb5d7ab1ac7d8b25661c819bb9729039a8a3a7efa3ebe0",
+      "process_id": "synthetic-python",
+      "kind": "async_task",
+      "runtime_id": "task-0",
+      "native_id": "",
+      "native_encoding": "none",
+      "thread_start_ns": null,
+      "thread_end_ns": null,
+      "name": "synthetic-main",
+      "mapping_basis": "unknown"
+    },
+    {
+      "id": "entity-1d85d6d240896921d50e5a9f904b35bccf5e2c566fd63ebf9a6019efd847e86e",
+      "process_id": "synthetic-python",
+      "kind": "async_task",
+      "runtime_id": "task-1",
+      "native_id": "",
+      "native_encoding": "none",
+      "thread_start_ns": null,
+      "thread_end_ns": null,
+      "name": "synthetic-waiter",
+      "mapping_basis": "unknown"
+    },
+    {
+      "id": "entity-806ffdb45c96617c6b43be930fc0ec9e7b108c4ca1ae4129ebbefb45a690a11e",
+      "process_id": "synthetic-python",
+      "kind": "runtime_thread",
+      "runtime_id": "main",
+      "native_id": "500",
+      "native_encoding": "os_tid_decimal",
+      "thread_start_ns": null,
+      "thread_end_ns": null,
+      "name": "synthetic-main-thread",
+      "mapping_basis": "unknown"
+    },
+    {
+      "id": "entity-ed8985beaf93dbe9ad93f343352d7c6c6544a8fdb801fbd6be7bdbab0dd480da",
+      "process_id": "synthetic-python",
+      "kind": "process",
+      "runtime_id": "process",
+      "native_id": "",
+      "native_encoding": "none",
+      "thread_start_ns": null,
+      "thread_end_ns": null,
+      "name": "synthetic-python",
+      "mapping_basis": "unknown"
+    }
+  ],
+  "frames": [
+    {
+      "id": "frame-52d3ad007e313a6cd35e7a4d88bafe2bf1f5a1b490a694dd0e83b2b983f9134a",
+      "symbol": "\u003cmodule\u003e",
+      "display": "\u003cmodule\u003e",
+      "file": "/synthetic/generate_python.py",
+      "line": 26,
+      "language": "Python"
+    },
+    {
+      "id": "frame-3c6927400826f8333963b87e94a8d7856bcae6445086ca1691a75f31277e78c7",
+      "symbol": "run",
+      "display": "run",
+      "file": "/synthetic/runners.py",
+      "line": 204,
+      "language": "Python"
+    },
+    {
+      "id": "frame-98788ef2aebde0c7afbd919ca74e92703444601c333d786f3c05292b869e7a09",
+      "symbol": "run",
+      "display": "run",
+      "file": "/synthetic/runners.py",
+      "line": 127,
+      "language": "Python"
+    },
+    {
+      "id": "frame-8f3297ba06315614094748a9aea54a03392ebd1534fdcf442cf7b622073443c0",
+      "symbol": "run_until_complete",
+      "display": "run_until_complete",
+      "file": "/synthetic/base_events.py",
+      "line": 706,
+      "language": "Python"
+    },
+    {
+      "id": "frame-060e8c0514c6f76bdc865dd2983735aa6412e877e11afd67245557589418ed90",
+      "symbol": "run_forever",
+      "display": "run_forever",
+      "file": "/synthetic/base_events.py",
+      "line": 677,
+      "language": "Python"
+    },
+    {
+      "id": "frame-1c159864eeca0ca4588053d3a5ad8458783ca590a892e37292b272afcb0ebbbf",
+      "symbol": "_run_once",
+      "display": "_run_once",
+      "file": "/synthetic/base_events.py",
+      "line": 2057,
+      "language": "Python"
+    },
+    {
+      "id": "frame-77dfed2b46abb2132455d72b609ba9b6ac5f0705a0afcd59a9c4a2cad358a4d7",
+      "symbol": "_run",
+      "display": "_run",
+      "file": "/synthetic/events.py",
+      "line": 94,
+      "language": "Python"
+    },
+    {
+      "id": "frame-83619330e5972393b3814905d3989c50f14a841ae222c8bbb0a048770c6aa262",
+      "symbol": "main",
+      "display": "main",
+      "file": "/synthetic/generate_python.py",
+      "line": 10,
+      "language": "Python"
+    },
+    {
+      "id": "frame-65d6c6ff32e58137598dd418cf3cd5db186ab384eabc87284ae3368acca1b23c",
+      "symbol": "parked",
+      "display": "parked",
+      "file": "/synthetic/generate_python.py",
+      "line": 7,
+      "language": "Python"
+    },
+    {
+      "id": "frame-cb348c859c46553af701cd99a9cb99308f1a79737bd391f3f7e427db41638a69",
+      "symbol": "main",
+      "display": "main",
+      "file": "/synthetic/generate_python.py",
+      "line": 23,
+      "language": "Python"
+    },
+    {
+      "id": "frame-2fd3ad29cf3066c35a599b49a09a995f86711ef472af0d99a98d4e37a38ae018",
+      "symbol": "\u003callocation traceback\u003e",
+      "display": "\u003callocation traceback\u003e",
+      "file": "/synthetic/base_events.py",
+      "line": 706,
+      "language": "Python"
+    },
+    {
+      "id": "frame-5a6627e18148f14f238509fab6e88219be39cace739c2f0094c2f956e8bb3800",
+      "symbol": "\u003callocation traceback\u003e",
+      "display": "\u003callocation traceback\u003e",
+      "file": "/synthetic/base_events.py",
+      "line": 677,
+      "language": "Python"
+    },
+    {
+      "id": "frame-ec7488be950e268f3b534213b65fffe86474370e3d8e560ac38f899beabb0147",
+      "symbol": "\u003callocation traceback\u003e",
+      "display": "\u003callocation traceback\u003e",
+      "file": "/synthetic/base_events.py",
+      "line": 2057,
+      "language": "Python"
+    },
+    {
+      "id": "frame-9b2e792a4fc11c079408858c97911f2eba8957d9a96ba7720fffddd5237ba5a3",
+      "symbol": "\u003callocation traceback\u003e",
+      "display": "\u003callocation traceback\u003e",
+      "file": "/synthetic/events.py",
+      "line": 94,
+      "language": "Python"
+    },
+    {
+      "id": "frame-5362489786ead3874de669283e39374668fa9918043411d8ba7bc2816d23dacd",
+      "symbol": "\u003callocation traceback\u003e",
+      "display": "\u003callocation traceback\u003e",
+      "file": "/synthetic/generate_python.py",
+      "line": 9,
+      "language": "Python"
+    },
+    {
+      "id": "frame-619aeeea98e25e1b4622cceab6d47d848dd71339e8951fed4dc8191b156f2c75",
+      "symbol": "\u003callocation traceback\u003e",
+      "display": "\u003callocation traceback\u003e",
+      "file": "/synthetic/generate_python.py",
+      "line": 10,
+      "language": "Python"
+    },
+    {
+      "id": "frame-1de6b2f3e91715761381b7b820cdc8e153192bb5edc5d32b30a23e9da9eefcb4",
+      "symbol": "\u003callocation traceback\u003e",
+      "display": "\u003callocation traceback\u003e",
+      "file": "/synthetic/generate_python.py",
+      "line": 6,
+      "language": "Python"
+    },
+    {
+      "id": "frame-adde6ec47ae05f751024d4e2144b2eae4789ecd1a5e7fd63510f4c0c60e1ab4b",
+      "symbol": "\u003callocation traceback\u003e",
+      "display": "\u003callocation traceback\u003e",
+      "file": "/synthetic/base_tasks.py",
+      "line": 55,
+      "language": "Python"
+    }
+  ],
+  "stacks": [
+    {
+      "id": "stack-9e1c151f2f85f94be5b0c6388dfbcca89960dd84f14f8767d0dabe7d1cb1da26",
+      "frames": [
+        "frame-52d3ad007e313a6cd35e7a4d88bafe2bf1f5a1b490a694dd0e83b2b983f9134a",
+        "frame-3c6927400826f8333963b87e94a8d7856bcae6445086ca1691a75f31277e78c7",
+        "frame-98788ef2aebde0c7afbd919ca74e92703444601c333d786f3c05292b869e7a09",
+        "frame-8f3297ba06315614094748a9aea54a03392ebd1534fdcf442cf7b622073443c0",
+        "frame-060e8c0514c6f76bdc865dd2983735aa6412e877e11afd67245557589418ed90",
+        "frame-1c159864eeca0ca4588053d3a5ad8458783ca590a892e37292b272afcb0ebbbf",
+        "frame-77dfed2b46abb2132455d72b609ba9b6ac5f0705a0afcd59a9c4a2cad358a4d7",
+        "frame-83619330e5972393b3814905d3989c50f14a841ae222c8bbb0a048770c6aa262"
+      ]
+    },
+    {
+      "id": "stack-1ac149ba9611e9bd61b969fb23611216029caa884c3b836c37d96cf6b2652a75",
+      "frames": [
+        "frame-65d6c6ff32e58137598dd418cf3cd5db186ab384eabc87284ae3368acca1b23c"
+      ]
+    },
+    {
+      "id": "stack-d759066b715edec0824afcd2c6c70a2dd926514292c902ae6de84b53f9bbefda",
+      "frames": [
+        "frame-cb348c859c46553af701cd99a9cb99308f1a79737bd391f3f7e427db41638a69"
+      ]
+    },
+    {
+      "id": "stack-eda50a89ef2988bbadf1eb2df68d2b9d4024780aefd93406d7279b6bdd27ead9",
+      "frames": [
+        "frame-2fd3ad29cf3066c35a599b49a09a995f86711ef472af0d99a98d4e37a38ae018",
+        "frame-5a6627e18148f14f238509fab6e88219be39cace739c2f0094c2f956e8bb3800",
+        "frame-ec7488be950e268f3b534213b65fffe86474370e3d8e560ac38f899beabb0147",
+        "frame-9b2e792a4fc11c079408858c97911f2eba8957d9a96ba7720fffddd5237ba5a3",
+        "frame-5362489786ead3874de669283e39374668fa9918043411d8ba7bc2816d23dacd"
+      ]
+    },
+    {
+      "id": "stack-4423c20f56bc0259b30807cc2bf8bbabd3742cbc204c83ff8b81d3ae494a478c",
+      "frames": [
+        "frame-5a6627e18148f14f238509fab6e88219be39cace739c2f0094c2f956e8bb3800",
+        "frame-ec7488be950e268f3b534213b65fffe86474370e3d8e560ac38f899beabb0147",
+        "frame-9b2e792a4fc11c079408858c97911f2eba8957d9a96ba7720fffddd5237ba5a3",
+        "frame-619aeeea98e25e1b4622cceab6d47d848dd71339e8951fed4dc8191b156f2c75",
+        "frame-1de6b2f3e91715761381b7b820cdc8e153192bb5edc5d32b30a23e9da9eefcb4"
+      ]
+    },
+    {
+      "id": "stack-6648d88c6de6e1be3e575fdc0cfbc54f9fe9efe7513ada918955689958d60965",
+      "frames": [
+        "frame-5a6627e18148f14f238509fab6e88219be39cace739c2f0094c2f956e8bb3800",
+        "frame-ec7488be950e268f3b534213b65fffe86474370e3d8e560ac38f899beabb0147",
+        "frame-9b2e792a4fc11c079408858c97911f2eba8957d9a96ba7720fffddd5237ba5a3",
+        "frame-619aeeea98e25e1b4622cceab6d47d848dd71339e8951fed4dc8191b156f2c75",
+        "frame-adde6ec47ae05f751024d4e2144b2eae4789ecd1a5e7fd63510f4c0c60e1ab4b"
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "id": "runtime-observation-8cec87df3ac2597915906a182e44da37b32ac83f3a94d37fe512b80918c19dec",
+      "entity_id": "entity-1323153713b3462980fb5d7ab1ac7d8b25661c819bb9729039a8a3a7efa3ebe0",
+      "kind": "task_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "pending",
+      "population": "synthetic-warm",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-9e1c151f2f85f94be5b0c6388dfbcca89960dd84f14f8767d0dabe7d1cb1da26",
+      "ref": {
+        "source_id": "runtime-source-bc8133bf24be596396e403c2e5506dfd3b33f82796cf60c19634043b73194a7c",
+        "position": "/tasks/0"
+      }
+    },
+    {
+      "id": "runtime-observation-83079fd8f6f025f88d76734f9e04a3491ef726603f0a836d1db06086417a333d",
+      "entity_id": "entity-1d85d6d240896921d50e5a9f904b35bccf5e2c566fd63ebf9a6019efd847e86e",
+      "kind": "task_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "pending",
+      "population": "synthetic-warm",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-1ac149ba9611e9bd61b969fb23611216029caa884c3b836c37d96cf6b2652a75",
+      "ref": {
+        "source_id": "runtime-source-bc8133bf24be596396e403c2e5506dfd3b33f82796cf60c19634043b73194a7c",
+        "position": "/tasks/1"
+      }
+    },
+    {
+      "id": "runtime-observation-779107def1b4be2413faa7448fb4f4815d78ab67e250ac58538983164bab514a",
+      "entity_id": "entity-806ffdb45c96617c6b43be930fc0ec9e7b108c4ca1ae4129ebbefb45a690a11e",
+      "kind": "thread_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "unknown",
+      "population": "synthetic-warm",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-d759066b715edec0824afcd2c6c70a2dd926514292c902ae6de84b53f9bbefda",
+      "ref": {
+        "source_id": "runtime-source-bc8133bf24be596396e403c2e5506dfd3b33f82796cf60c19634043b73194a7c",
+        "position": "/workers/0"
+      }
+    },
+    {
+      "id": "runtime-observation-22f1217b49746529c2397d316f2d3ca2f479370ed5351e57eda32ed4ccb04074",
+      "entity_id": "entity-ed8985beaf93dbe9ad93f343352d7c6c6544a8fdb801fbd6be7bdbab0dd480da",
+      "kind": "allocation",
+      "metric": "live_bytes",
+      "value": "5212",
+      "unit": "bytes",
+      "measurement_basis": "snapshot",
+      "observed_state": "",
+      "population": "synthetic-warm",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-eda50a89ef2988bbadf1eb2df68d2b9d4024780aefd93406d7279b6bdd27ead9",
+      "ref": {
+        "source_id": "runtime-source-bc8133bf24be596396e403c2e5506dfd3b33f82796cf60c19634043b73194a7c",
+        "position": "/allocations/0/live_bytes"
+      }
+    },
+    {
+      "id": "runtime-observation-c45f31e44c183302f5681b910071dcf278c33ecad46c24580075923c16b414aa",
+      "entity_id": "entity-ed8985beaf93dbe9ad93f343352d7c6c6544a8fdb801fbd6be7bdbab0dd480da",
+      "kind": "allocation",
+      "metric": "live_blocks",
+      "value": "20",
+      "unit": "count",
+      "measurement_basis": "snapshot",
+      "observed_state": "",
+      "population": "synthetic-warm",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-eda50a89ef2988bbadf1eb2df68d2b9d4024780aefd93406d7279b6bdd27ead9",
+      "ref": {
+        "source_id": "runtime-source-bc8133bf24be596396e403c2e5506dfd3b33f82796cf60c19634043b73194a7c",
+        "position": "/allocations/0/live_blocks"
+      }
+    },
+    {
+      "id": "runtime-observation-3064366d522295e4c738bb751b91416ab4d734ac3289c1efbc509001f2c58bfa",
+      "entity_id": "entity-ed8985beaf93dbe9ad93f343352d7c6c6544a8fdb801fbd6be7bdbab0dd480da",
+      "kind": "allocation",
+      "metric": "live_bytes",
+      "value": "1857",
+      "unit": "bytes",
+      "measurement_basis": "snapshot",
+      "observed_state": "",
+      "population": "synthetic-warm",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-4423c20f56bc0259b30807cc2bf8bbabd3742cbc204c83ff8b81d3ae494a478c",
+      "ref": {
+        "source_id": "runtime-source-bc8133bf24be596396e403c2e5506dfd3b33f82796cf60c19634043b73194a7c",
+        "position": "/allocations/1/live_bytes"
+      }
+    },
+    {
+      "id": "runtime-observation-c1f6cefac5143bf29363b669bbfef742039626f10b7036a940d96f7ce6e9f5c4",
+      "entity_id": "entity-ed8985beaf93dbe9ad93f343352d7c6c6544a8fdb801fbd6be7bdbab0dd480da",
+      "kind": "allocation",
+      "metric": "live_blocks",
+      "value": "25",
+      "unit": "count",
+      "measurement_basis": "snapshot",
+      "observed_state": "",
+      "population": "synthetic-warm",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-4423c20f56bc0259b30807cc2bf8bbabd3742cbc204c83ff8b81d3ae494a478c",
+      "ref": {
+        "source_id": "runtime-source-bc8133bf24be596396e403c2e5506dfd3b33f82796cf60c19634043b73194a7c",
+        "position": "/allocations/1/live_blocks"
+      }
+    },
+    {
+      "id": "runtime-observation-913d510f2de13adf993c373f20d5c669180938b53de4f47c16c209b3e98b41cd",
+      "entity_id": "entity-ed8985beaf93dbe9ad93f343352d7c6c6544a8fdb801fbd6be7bdbab0dd480da",
+      "kind": "allocation",
+      "metric": "live_bytes",
+      "value": "1744",
+      "unit": "bytes",
+      "measurement_basis": "snapshot",
+      "observed_state": "",
+      "population": "synthetic-warm",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-6648d88c6de6e1be3e575fdc0cfbc54f9fe9efe7513ada918955689958d60965",
+      "ref": {
+        "source_id": "runtime-source-bc8133bf24be596396e403c2e5506dfd3b33f82796cf60c19634043b73194a7c",
+        "position": "/allocations/2/live_bytes"
+      }
+    },
+    {
+      "id": "runtime-observation-f84911e1e02ab3b6f62c08151ad3712ea1ce46698f5e61a6fe2e59e184d016c7",
+      "entity_id": "entity-ed8985beaf93dbe9ad93f343352d7c6c6544a8fdb801fbd6be7bdbab0dd480da",
+      "kind": "allocation",
+      "metric": "live_blocks",
+      "value": "7",
+      "unit": "count",
+      "measurement_basis": "snapshot",
+      "observed_state": "",
+      "population": "synthetic-warm",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-6648d88c6de6e1be3e575fdc0cfbc54f9fe9efe7513ada918955689958d60965",
+      "ref": {
+        "source_id": "runtime-source-bc8133bf24be596396e403c2e5506dfd3b33f82796cf60c19634043b73194a7c",
+        "position": "/allocations/2/live_blocks"
+      }
+    },
+    {
+      "id": "runtime-observation-8553277cbb15283bed4e7cfa2063795d950391ccfa77d6e5976721ea01898fe3",
+      "entity_id": "entity-ed8985beaf93dbe9ad93f343352d7c6c6544a8fdb801fbd6be7bdbab0dd480da",
+      "kind": "gc",
+      "metric": "pause_ns",
+      "value": null,
+      "unit": "nanoseconds",
+      "measurement_basis": "observed_interval",
+      "observed_state": "",
+      "population": "synthetic-warm",
+      "time_ns": null,
+      "from_ns": "1000017000",
+      "to_ns": "1001271000",
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-bc8133bf24be596396e403c2e5506dfd3b33f82796cf60c19634043b73194a7c",
+        "position": "/gc_events/0"
+      }
+    }
+  ],
+  "relations": [],
+  "profile_refs": [],
+  "plan_nodes": []
+}

@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/profilemodel"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/symbolinfo"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
 	"io"
 	"math/big"
@@ -237,6 +238,10 @@ func (b *sourceBuilder) frame(f profilemodel.Frame) string {
 	}
 	if f.Symbol == "" {
 		f.Symbol = f.Display
+	}
+	info := symbolinfo.Describe(f.Symbol, f.File, f.Language)
+	if info.Runtime == "Rust" && info.Confidence == "encoded" && (f.Display == "" || f.Display == f.Symbol) {
+		f.Display = info.Display
 	}
 	f.ID = profilemodel.FrameID(f)
 	if !b.frames[f.ID] {

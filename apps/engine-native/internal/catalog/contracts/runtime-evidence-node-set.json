@@ -1,0 +1,1082 @@
+{
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+      "sha256": "270e991ce60374db9915ac74a2c300968e3f40591be728af0124ea63d28441a4",
+      "format": "node-runtime-json",
+      "producer": "Node.js diagnostic report",
+      "producer_version": "v25.9.0",
+      "clock_id": "synthetic-node-clock"
+    }
+  ],
+  "processes": [
+    {
+      "id": "synthetic-node",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "pid_namespace": "synthetic-ns",
+      "pid": "600",
+      "process_start_ns": "0",
+      "runtime": "Node.js"
+    }
+  ],
+  "entities": [
+    {
+      "id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "process_id": "synthetic-node",
+      "kind": "event_loop",
+      "runtime_id": "0",
+      "native_id": "",
+      "native_encoding": "none",
+      "thread_start_ns": null,
+      "thread_end_ns": null,
+      "name": "main event loop",
+      "mapping_basis": "unknown"
+    },
+    {
+      "id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "process_id": "synthetic-node",
+      "kind": "worker",
+      "runtime_id": "1",
+      "native_id": "",
+      "native_encoding": "none",
+      "thread_start_ns": null,
+      "thread_end_ns": null,
+      "name": "worker 1",
+      "mapping_basis": "unknown"
+    }
+  ],
+  "frames": [
+    {
+      "id": "frame-f67659b1923bd7139735966b05d9fc70f566dc28e7d9f57496eead300a9a33d3",
+      "symbol": "Object.getReport",
+      "display": "Object.getReport",
+      "file": "node:internal/process/report",
+      "line": 39,
+      "language": "JavaScript"
+    },
+    {
+      "id": "frame-0a0108134ada7e0a13ba2ee53047f108a4c5ee0e4d97a563ab04a80bcd44f207",
+      "symbol": "node::GetNodeReport(node::Environment*, std::__1::basic_string_view\u003cchar, std::__1::char_traits\u003cchar\u003e\u003e, std::__1::basic_string_view\u003cchar, std::__1::char_traits\u003cchar\u003e\u003e, v8::Local\u003cv8::Value\u003e, std::__1::basic_ostream\u003cchar, std::__1::char_traits\u003cchar\u003e\u003e\u0026) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::GetNodeReport(node::Environment*, std::__1::basic_string_view\u003cchar, std::__1::char_traits\u003cchar\u003e\u003e, std::__1::basic_string_view\u003cchar, std::__1::char_traits\u003cchar\u003e\u003e, v8::Local\u003cv8::Value\u003e, std::__1::basic_ostream\u003cchar, std::__1::char_traits\u003cchar\u003e\u003e\u0026) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-1fa598089867373bfb0fa5be9ec13a0e004f034d156e6a74cd9529234d38b4ba",
+      "symbol": "node::report::GetReport(v8::FunctionCallbackInfo\u003cv8::Value\u003e const\u0026) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::report::GetReport(v8::FunctionCallbackInfo\u003cv8::Value\u003e const\u0026) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-6d9d72fca2060c9e81762373a976e00198393c2c31e47be774c56b8a04c65a38",
+      "symbol": "Builtins_CallApiCallbackGeneric [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "Builtins_CallApiCallbackGeneric [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-bf09ae5ac9049626ff7e6bf3fc76f17d88f81e21794ab9bf28ebbb0746257c8a",
+      "symbol": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-8876f635cf11872d88c9d33aa22b1d2144cb369d8f27bbb4f8dcfa9746915f76",
+      "symbol": "Builtins_AsyncFunctionAwaitResolveClosure [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "Builtins_AsyncFunctionAwaitResolveClosure [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-584d1d93ad8f65968951e829071af7946700ed228dd4d80239cfb7d2d688c6d4",
+      "symbol": "Builtins_PromiseFulfillReactionJob [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "Builtins_PromiseFulfillReactionJob [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-213b1054e50e4cd925ca6545072640a92a2cf781eea9930ade865bf91e5edcf2",
+      "symbol": "Builtins_RunMicrotasks [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "Builtins_RunMicrotasks [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-5b7b2f7188fa0c7115701dcd274c178324ac59e212d316b90b967070d57d45fe",
+      "symbol": "Builtins_JSRunMicrotasksEntry [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "Builtins_JSRunMicrotasksEntry [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-9e4ddbc7d4c5b657e4103f4ad839a88e9b79a26c8632503891ed36793abe60ef",
+      "symbol": "v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const\u0026) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const\u0026) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-0d5bc285201ae47788f0b3e4d4531c744c73003e25c627e058f841fb88d43dbd",
+      "symbol": "v8::internal::(anonymous namespace)::InvokeWithTryCatch(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const\u0026) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "v8::internal::(anonymous namespace)::InvokeWithTryCatch(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const\u0026) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-e924ea29416c8214853d0043e403bc4631a00d812d364c0231d82593e1aef900",
+      "symbol": "v8::internal::Execution::TryRunMicrotasks(v8::internal::Isolate*, v8::internal::MicrotaskQueue*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "v8::internal::Execution::TryRunMicrotasks(v8::internal::Isolate*, v8::internal::MicrotaskQueue*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-2a0cdc8457152a0c91d73a1ea2eed914d5ac3926c1a89a80007d1291ad795740",
+      "symbol": "v8::internal::MicrotaskQueue::RunMicrotasks(v8::internal::Isolate*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "v8::internal::MicrotaskQueue::RunMicrotasks(v8::internal::Isolate*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-3bb4b7e9701f8f1253b685aa4f4f99c2308be15b269daafb6e55a8df758e31fa",
+      "symbol": "v8::internal::MicrotaskQueue::PerformCheckpointInternal(v8::Isolate*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "v8::internal::MicrotaskQueue::PerformCheckpointInternal(v8::Isolate*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-8e846833bda57d4e71544bcce04d97931b225cdc82069e4036429cf947e2b25c",
+      "symbol": "node::InternalCallbackScope::Close() [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::InternalCallbackScope::Close() [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-4595a7fc33077e52c7a7af5625731211963a57c1c678df4760cce151b377a218",
+      "symbol": "node::InternalCallbackScope::~InternalCallbackScope() [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::InternalCallbackScope::~InternalCallbackScope() [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-fbd5cd610d87aec98b10f9a670a26e69b1e681b695b370d3e1776e37e94795ca",
+      "symbol": "node::Environment::RunTimers(uv_timer_s*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::Environment::RunTimers(uv_timer_s*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-3a0e02e5420c97852f5e6a5ac7dd88a2587cfcc55b4ec6ec962ced65127009f4",
+      "symbol": "uv__run_timers [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]",
+      "display": "uv__run_timers [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-3ec4cf8e3e1c65f12e2eb6abebfe9ebb25202fb1e2d8c3d60cb4acbfe39605dc",
+      "symbol": "uv_run [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]",
+      "display": "uv_run [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-e4fb98ef8e427416b15d9bde0ea81e48b37f1cc45cda07956f9ab7f15204112c",
+      "symbol": "node::SpinEventLoopInternal(node::Environment*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::SpinEventLoopInternal(node::Environment*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-812264074350175b6a10f91e0fd74c66eb5321aab0142b2d6bd196ca838fae18",
+      "symbol": "node::NodeMainInstance::Run(node::ExitCode*, node::Environment*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::NodeMainInstance::Run(node::ExitCode*, node::Environment*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-93786eb527cea5185eaf3b8370e3045cc7cc9f285fffdd5f37bed21156bf2605",
+      "symbol": "node::NodeMainInstance::Run() [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::NodeMainInstance::Run() [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-f061b7abb2ab8106ff5200001bdf28567ebc22ae72f6c0a872c45bcc070d2c6d",
+      "symbol": "node::Start(int, char**) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::Start(int, char**) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-85a749fbf3a35703921db6c8c2af47597082d3505474f65d547a4f8b3f7e7f50",
+      "symbol": "start [/usr/lib/dyld]",
+      "display": "start [/usr/lib/dyld]",
+      "language": "native"
+    },
+    {
+      "id": "frame-06670db64c46cb973867220a00fc4402784b20d379d2cfc4708f5341db50fa34",
+      "symbol": "runScriptInThisContext",
+      "display": "runScriptInThisContext",
+      "file": "node:internal/vm",
+      "line": 219,
+      "language": "JavaScript"
+    },
+    {
+      "id": "frame-d130cacafef1ee657c2986a7c48034ab51387878175e02197f616a48cff52dc4",
+      "symbol": "runScriptInContext",
+      "display": "runScriptInContext",
+      "file": "node:internal/process/execution",
+      "line": 481,
+      "language": "JavaScript"
+    },
+    {
+      "id": "frame-cc81e490ab7fcb29aae79810e67372530837adf7300742af1d9c8c7d9859c114",
+      "symbol": "evalFunction",
+      "display": "evalFunction",
+      "file": "node:internal/process/execution",
+      "line": 315,
+      "language": "JavaScript"
+    },
+    {
+      "id": "frame-e91f0c29c26166e5fd68254c7317d9eec104fc33f1ebbb5b84896b1ee800b106",
+      "symbol": "evalTypeScript",
+      "display": "evalTypeScript",
+      "file": "node:internal/process/execution",
+      "line": 327,
+      "language": "JavaScript"
+    },
+    {
+      "id": "frame-25854fb124fe5b450ed9bb7cef2ecf69599f421a91a7063e375363d2f61c64d1",
+      "symbol": "MessagePort.\u003canonymous\u003e",
+      "display": "MessagePort.\u003canonymous\u003e",
+      "file": "node:internal/main/worker_thread",
+      "line": 191,
+      "language": "JavaScript"
+    },
+    {
+      "id": "frame-f5888aaaf1eb88a06cb0fdc380bbf2296322f0003d4055d2acf3302f35525409",
+      "symbol": "Builtins_JSEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "Builtins_JSEntryTrampoline [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-e1c34dbf084e8f7fcb359d0425f2bf3c1887e96054afc094b7e25e7e55d539a4",
+      "symbol": "Builtins_JSEntry [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "Builtins_JSEntry [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-820f5aea8b4d2d24a8926a7e5317e44934e62af7ceab159cc2a0bd4c4f743d58",
+      "symbol": "v8::internal::Execution::CallScript(v8::internal::Isolate*, v8::internal::DirectHandle\u003cv8::internal::JSFunction\u003e, v8::internal::DirectHandle\u003cv8::internal::Object\u003e, v8::internal::DirectHandle\u003cv8::internal::Object\u003e) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "v8::internal::Execution::CallScript(v8::internal::Isolate*, v8::internal::DirectHandle\u003cv8::internal::JSFunction\u003e, v8::internal::DirectHandle\u003cv8::internal::Object\u003e, v8::internal::DirectHandle\u003cv8::internal::Object\u003e) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-eab8c331abe1952bb071e7cd20c180425bee91bc64f2ffd97a8755ccab09fdc4",
+      "symbol": "v8::Script::Run(v8::Local\u003cv8::Context\u003e, v8::Local\u003cv8::Data\u003e) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "v8::Script::Run(v8::Local\u003cv8::Context\u003e, v8::Local\u003cv8::Data\u003e) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-5bc3b9fc14c4e59e7cb7bde7fbbebc52dcfea2e063064a4eb0dc9f0dffda8642",
+      "symbol": "node::contextify::ContextifyScript::EvalMachine(v8::Local\u003cv8::Context\u003e, node::Environment*, long long, bool, bool, bool, v8::MicrotaskQueue*, v8::FunctionCallbackInfo\u003cv8::Value\u003e const\u0026) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::contextify::ContextifyScript::EvalMachine(v8::Local\u003cv8::Context\u003e, node::Environment*, long long, bool, bool, bool, v8::MicrotaskQueue*, v8::FunctionCallbackInfo\u003cv8::Value\u003e const\u0026) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-0b873534a18f545e458431fd3c63aa491962a29af7a389278fa90abbc40ba156",
+      "symbol": "node::contextify::ContextifyScript::RunInContext(v8::FunctionCallbackInfo\u003cv8::Value\u003e const\u0026) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::contextify::ContextifyScript::RunInContext(v8::FunctionCallbackInfo\u003cv8::Value\u003e const\u0026) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-a7e1e385bae45d7c6543767e5ee7711bff45396bf53218fee127c3f2bee2e37c",
+      "symbol": "v8::internal::Execution::Call(v8::internal::Isolate*, v8::internal::DirectHandle\u003cv8::internal::Object\u003e, v8::internal::DirectHandle\u003cv8::internal::Object\u003e, v8::base::Vector\u003cv8::internal::DirectHandle\u003cv8::internal::Object\u003e const\u003e) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "v8::internal::Execution::Call(v8::internal::Isolate*, v8::internal::DirectHandle\u003cv8::internal::Object\u003e, v8::internal::DirectHandle\u003cv8::internal::Object\u003e, v8::base::Vector\u003cv8::internal::DirectHandle\u003cv8::internal::Object\u003e const\u003e) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-1631bb217c796c5bdf5af08f851bcf527f7dbe1dd9e8f38ccdd62c7dff2deff4",
+      "symbol": "v8::Function::Call(v8::Isolate*, v8::Local\u003cv8::Context\u003e, v8::Local\u003cv8::Value\u003e, int, v8::Local\u003cv8::Value\u003e*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "v8::Function::Call(v8::Isolate*, v8::Local\u003cv8::Context\u003e, v8::Local\u003cv8::Value\u003e, int, v8::Local\u003cv8::Value\u003e*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-099b2a1ef1ef22bec1a1a14f7fddb9a08933de79b3c8289f83a2209c1e2783df",
+      "symbol": "node::InternalMakeCallback(node::Environment*, v8::Local\u003cv8::Object\u003e, v8::Local\u003cv8::Object\u003e, v8::Local\u003cv8::Function\u003e, int, v8::Local\u003cv8::Value\u003e*, node::async_context, v8::Local\u003cv8::Value\u003e) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::InternalMakeCallback(node::Environment*, v8::Local\u003cv8::Object\u003e, v8::Local\u003cv8::Object\u003e, v8::Local\u003cv8::Function\u003e, int, v8::Local\u003cv8::Value\u003e*, node::async_context, v8::Local\u003cv8::Value\u003e) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-36a5a593f22460ed0d7897cfb2c98a6257ca57c5caf521b1225ec4cee9793fdf",
+      "symbol": "node::AsyncWrap::MakeCallback(v8::Local\u003cv8::Function\u003e, int, v8::Local\u003cv8::Value\u003e*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::AsyncWrap::MakeCallback(v8::Local\u003cv8::Function\u003e, int, v8::Local\u003cv8::Value\u003e*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-452899692fcd564d324e3dff9b87337955de2abab373d4d656ccbcf8734dfc5e",
+      "symbol": "node::worker::MessagePort::OnMessage(node::worker::MessagePort::MessageProcessingMode) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::worker::MessagePort::OnMessage(node::worker::MessagePort::MessageProcessingMode) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-c43f65001b2787a42526ddee5a6e79d3c9e98b5fe49c609e5f0884f628e99b3a",
+      "symbol": "uv__async_io [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]",
+      "display": "uv__async_io [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-97c13e3272c1184b1c48e1bc90f470580a8cb3b61139c4841aebaa67c362126c",
+      "symbol": "uv__io_poll [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]",
+      "display": "uv__io_poll [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-2f55de0666e525923efbb417042247099a94bf2c453f930aa814330675fc0db4",
+      "symbol": "node::worker::Worker::Run() [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::worker::Worker::Run() [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-1436d9582a363a31cf859841e4904c3d9aeda6bd02167213bd635854f22ef51b",
+      "symbol": "node::worker::Worker::StartThread(v8::FunctionCallbackInfo\u003cv8::Value\u003e const\u0026)::$_0::__invoke(void*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "display": "node::worker::Worker::StartThread(v8::FunctionCallbackInfo\u003cv8::Value\u003e const\u0026)::$_0::__invoke(void*) [/opt/homebrew/Cellar/node/25.9.0_3/lib/libnode.141.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-98fd48151dbcf2a357b67bceb0b461f963eaee44f78507e3aa4a30b7669ae307",
+      "symbol": "_pthread_start [/usr/lib/system/libsystem_pthread.dylib]",
+      "display": "_pthread_start [/usr/lib/system/libsystem_pthread.dylib]",
+      "language": "native"
+    },
+    {
+      "id": "frame-d361ad038e00cf2ad4e2dc815fffcb34a5284f4b5f60e60f512bc264030be318",
+      "symbol": "thread_start [/usr/lib/system/libsystem_pthread.dylib]",
+      "display": "thread_start [/usr/lib/system/libsystem_pthread.dylib]",
+      "language": "native"
+    }
+  ],
+  "stacks": [
+    {
+      "id": "stack-e892b79f9a99a213e29c0c62afac2444ac663a20908a44eafd17205c7410e9e2",
+      "frames": [
+        "frame-f67659b1923bd7139735966b05d9fc70f566dc28e7d9f57496eead300a9a33d3"
+      ]
+    },
+    {
+      "id": "stack-27859dea5d39b23c41f4e0fa74854af4a1b1b2e1058b65bb8e2cf37a6f07559d",
+      "frames": [
+        "frame-0a0108134ada7e0a13ba2ee53047f108a4c5ee0e4d97a563ab04a80bcd44f207",
+        "frame-1fa598089867373bfb0fa5be9ec13a0e004f034d156e6a74cd9529234d38b4ba",
+        "frame-6d9d72fca2060c9e81762373a976e00198393c2c31e47be774c56b8a04c65a38",
+        "frame-bf09ae5ac9049626ff7e6bf3fc76f17d88f81e21794ab9bf28ebbb0746257c8a",
+        "frame-bf09ae5ac9049626ff7e6bf3fc76f17d88f81e21794ab9bf28ebbb0746257c8a",
+        "frame-8876f635cf11872d88c9d33aa22b1d2144cb369d8f27bbb4f8dcfa9746915f76",
+        "frame-584d1d93ad8f65968951e829071af7946700ed228dd4d80239cfb7d2d688c6d4",
+        "frame-213b1054e50e4cd925ca6545072640a92a2cf781eea9930ade865bf91e5edcf2",
+        "frame-5b7b2f7188fa0c7115701dcd274c178324ac59e212d316b90b967070d57d45fe",
+        "frame-9e4ddbc7d4c5b657e4103f4ad839a88e9b79a26c8632503891ed36793abe60ef",
+        "frame-0d5bc285201ae47788f0b3e4d4531c744c73003e25c627e058f841fb88d43dbd",
+        "frame-e924ea29416c8214853d0043e403bc4631a00d812d364c0231d82593e1aef900",
+        "frame-2a0cdc8457152a0c91d73a1ea2eed914d5ac3926c1a89a80007d1291ad795740",
+        "frame-3bb4b7e9701f8f1253b685aa4f4f99c2308be15b269daafb6e55a8df758e31fa",
+        "frame-8e846833bda57d4e71544bcce04d97931b225cdc82069e4036429cf947e2b25c",
+        "frame-4595a7fc33077e52c7a7af5625731211963a57c1c678df4760cce151b377a218",
+        "frame-fbd5cd610d87aec98b10f9a670a26e69b1e681b695b370d3e1776e37e94795ca",
+        "frame-3a0e02e5420c97852f5e6a5ac7dd88a2587cfcc55b4ec6ec962ced65127009f4",
+        "frame-3ec4cf8e3e1c65f12e2eb6abebfe9ebb25202fb1e2d8c3d60cb4acbfe39605dc",
+        "frame-e4fb98ef8e427416b15d9bde0ea81e48b37f1cc45cda07956f9ab7f15204112c",
+        "frame-812264074350175b6a10f91e0fd74c66eb5321aab0142b2d6bd196ca838fae18",
+        "frame-93786eb527cea5185eaf3b8370e3045cc7cc9f285fffdd5f37bed21156bf2605",
+        "frame-f061b7abb2ab8106ff5200001bdf28567ebc22ae72f6c0a872c45bcc070d2c6d",
+        "frame-85a749fbf3a35703921db6c8c2af47597082d3505474f65d547a4f8b3f7e7f50"
+      ]
+    },
+    {
+      "id": "stack-5825cb787fa054d131821327f66613ab9c0b245e2d9c72b7938f47f72bf44b6b",
+      "frames": [
+        "frame-f67659b1923bd7139735966b05d9fc70f566dc28e7d9f57496eead300a9a33d3",
+        "frame-06670db64c46cb973867220a00fc4402784b20d379d2cfc4708f5341db50fa34",
+        "frame-d130cacafef1ee657c2986a7c48034ab51387878175e02197f616a48cff52dc4",
+        "frame-cc81e490ab7fcb29aae79810e67372530837adf7300742af1d9c8c7d9859c114",
+        "frame-e91f0c29c26166e5fd68254c7317d9eec104fc33f1ebbb5b84896b1ee800b106",
+        "frame-25854fb124fe5b450ed9bb7cef2ecf69599f421a91a7063e375363d2f61c64d1"
+      ]
+    },
+    {
+      "id": "stack-40caeb92215746ce45a08341afba5df274c0a09fe2b58ec670cd8c9fc8e15115",
+      "frames": [
+        "frame-0a0108134ada7e0a13ba2ee53047f108a4c5ee0e4d97a563ab04a80bcd44f207",
+        "frame-1fa598089867373bfb0fa5be9ec13a0e004f034d156e6a74cd9529234d38b4ba",
+        "frame-6d9d72fca2060c9e81762373a976e00198393c2c31e47be774c56b8a04c65a38",
+        "frame-bf09ae5ac9049626ff7e6bf3fc76f17d88f81e21794ab9bf28ebbb0746257c8a",
+        "frame-bf09ae5ac9049626ff7e6bf3fc76f17d88f81e21794ab9bf28ebbb0746257c8a",
+        "frame-f5888aaaf1eb88a06cb0fdc380bbf2296322f0003d4055d2acf3302f35525409",
+        "frame-e1c34dbf084e8f7fcb359d0425f2bf3c1887e96054afc094b7e25e7e55d539a4",
+        "frame-9e4ddbc7d4c5b657e4103f4ad839a88e9b79a26c8632503891ed36793abe60ef",
+        "frame-820f5aea8b4d2d24a8926a7e5317e44934e62af7ceab159cc2a0bd4c4f743d58",
+        "frame-eab8c331abe1952bb071e7cd20c180425bee91bc64f2ffd97a8755ccab09fdc4",
+        "frame-5bc3b9fc14c4e59e7cb7bde7fbbebc52dcfea2e063064a4eb0dc9f0dffda8642",
+        "frame-0b873534a18f545e458431fd3c63aa491962a29af7a389278fa90abbc40ba156",
+        "frame-6d9d72fca2060c9e81762373a976e00198393c2c31e47be774c56b8a04c65a38",
+        "frame-bf09ae5ac9049626ff7e6bf3fc76f17d88f81e21794ab9bf28ebbb0746257c8a",
+        "frame-bf09ae5ac9049626ff7e6bf3fc76f17d88f81e21794ab9bf28ebbb0746257c8a",
+        "frame-bf09ae5ac9049626ff7e6bf3fc76f17d88f81e21794ab9bf28ebbb0746257c8a",
+        "frame-bf09ae5ac9049626ff7e6bf3fc76f17d88f81e21794ab9bf28ebbb0746257c8a",
+        "frame-bf09ae5ac9049626ff7e6bf3fc76f17d88f81e21794ab9bf28ebbb0746257c8a",
+        "frame-bf09ae5ac9049626ff7e6bf3fc76f17d88f81e21794ab9bf28ebbb0746257c8a",
+        "frame-bf09ae5ac9049626ff7e6bf3fc76f17d88f81e21794ab9bf28ebbb0746257c8a",
+        "frame-bf09ae5ac9049626ff7e6bf3fc76f17d88f81e21794ab9bf28ebbb0746257c8a",
+        "frame-bf09ae5ac9049626ff7e6bf3fc76f17d88f81e21794ab9bf28ebbb0746257c8a",
+        "frame-f5888aaaf1eb88a06cb0fdc380bbf2296322f0003d4055d2acf3302f35525409",
+        "frame-e1c34dbf084e8f7fcb359d0425f2bf3c1887e96054afc094b7e25e7e55d539a4",
+        "frame-9e4ddbc7d4c5b657e4103f4ad839a88e9b79a26c8632503891ed36793abe60ef",
+        "frame-a7e1e385bae45d7c6543767e5ee7711bff45396bf53218fee127c3f2bee2e37c",
+        "frame-1631bb217c796c5bdf5af08f851bcf527f7dbe1dd9e8f38ccdd62c7dff2deff4",
+        "frame-099b2a1ef1ef22bec1a1a14f7fddb9a08933de79b3c8289f83a2209c1e2783df",
+        "frame-36a5a593f22460ed0d7897cfb2c98a6257ca57c5caf521b1225ec4cee9793fdf",
+        "frame-452899692fcd564d324e3dff9b87337955de2abab373d4d656ccbcf8734dfc5e",
+        "frame-c43f65001b2787a42526ddee5a6e79d3c9e98b5fe49c609e5f0884f628e99b3a",
+        "frame-97c13e3272c1184b1c48e1bc90f470580a8cb3b61139c4841aebaa67c362126c",
+        "frame-3ec4cf8e3e1c65f12e2eb6abebfe9ebb25202fb1e2d8c3d60cb4acbfe39605dc",
+        "frame-e4fb98ef8e427416b15d9bde0ea81e48b37f1cc45cda07956f9ab7f15204112c",
+        "frame-2f55de0666e525923efbb417042247099a94bf2c453f930aa814330675fc0db4",
+        "frame-1436d9582a363a31cf859841e4904c3d9aeda6bd02167213bd635854f22ef51b",
+        "frame-98fd48151dbcf2a357b67bceb0b461f963eaee44f78507e3aa4a30b7669ae307",
+        "frame-d361ad038e00cf2ad4e2dc815fffcb34a5284f4b5f60e60f512bc264030be318"
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "id": "runtime-observation-a8a44fee8412ff8c36f940eb810c63f14832229af697eca3aa899456607f39df",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "thread_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "unknown",
+      "population": "synthetic-main-worker",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-e892b79f9a99a213e29c0c62afac2444ac663a20908a44eafd17205c7410e9e2",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/javascriptStack"
+      }
+    },
+    {
+      "id": "runtime-observation-9c1643a0c2d4552cd9305a59708984e6825f98848eb3f1090f13b0115819b0aa",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "thread_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "unknown",
+      "population": "synthetic-main-worker",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-27859dea5d39b23c41f4e0fa74854af4a1b1b2e1058b65bb8e2cf37a6f07559d",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/nativeStack (reporting thread, not a worker pool)"
+      }
+    },
+    {
+      "id": "runtime-observation-a68a2479bc297704701e612cfe69dfc1994be4866534fe4530deca1b5903f505",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: async",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/libuv/0"
+      }
+    },
+    {
+      "id": "runtime-observation-8b23bb1138f5951717d37bdfec8974cf8f5d3c3d5cf8c171ecc8f61082fa34e1",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: async",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/libuv/1"
+      }
+    },
+    {
+      "id": "runtime-observation-a2edd9a354535c375db5b6566d2056394e9dae96a8fd7a5ea47e331b10bf6784",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "inactive",
+      "population": "libuv handle inventory: timer",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/libuv/2"
+      }
+    },
+    {
+      "id": "runtime-observation-ffaf1379e379cf8c65059404908d07192053b37c6b860acb32e05a0895dd641c",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: check",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/libuv/3"
+      }
+    },
+    {
+      "id": "runtime-observation-8dc17adfc95197d34cdf9d2704a5dbc65bd33c4d4c10b901e1d34f56634fcbe8",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "inactive",
+      "population": "libuv handle inventory: idle",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/libuv/4"
+      }
+    },
+    {
+      "id": "runtime-observation-db94326297ff0ce0f05e65981f6f62cc7ed7ce3fd0cb72f161e648e2bc21dfdd",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: prepare",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/libuv/5"
+      }
+    },
+    {
+      "id": "runtime-observation-5d87a9c8dfda3abfcb64ab6328b92b06e43ff3689881a7ec17f14ac0f7eda067",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: check",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/libuv/6"
+      }
+    },
+    {
+      "id": "runtime-observation-64ee1ffe2591cfa3bf3afaa284372d4396ecc7a57facc5a45a61691f5921edc0",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: async",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/libuv/7"
+      }
+    },
+    {
+      "id": "runtime-observation-39f8a112170b76732c03ea21d31667452049051d23754751c489b68503fee7ec",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "inactive",
+      "population": "libuv handle inventory: pipe",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/libuv/8"
+      }
+    },
+    {
+      "id": "runtime-observation-a7fb75e959553c1dd9e38a416f0a8f4ab855a5de7b890baba5ca259ae4b1872f",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "inactive",
+      "population": "libuv handle inventory: pipe",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/libuv/9"
+      }
+    },
+    {
+      "id": "runtime-observation-7a51f5f60cf0209ca190700e9600c7093e91b26a79131e3ed7e46bef5ce802ad",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: timer",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/libuv/10"
+      }
+    },
+    {
+      "id": "runtime-observation-51cf118db59eeb37d72e209d50d89be66195f71ea856bf8189988699090a3649",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: timer",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/libuv/11"
+      }
+    },
+    {
+      "id": "runtime-observation-9a18601c98edeb50239b6da8e4ef52059f48703d0716c7a79aa7e5ea4e439be7",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "inactive",
+      "population": "libuv handle inventory: timer",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/libuv/12"
+      }
+    },
+    {
+      "id": "runtime-observation-9ccc3aa47eae3d39061bca487cc9fe7d6dfadc871338424469e592929eb3895d",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "inactive",
+      "population": "libuv handle inventory: loop",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/libuv/13"
+      }
+    },
+    {
+      "id": "runtime-observation-e2b138450f637c7050fd6bbff5f3ed883321b466636edb9800d681e50bfa8ce2",
+      "entity_id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "kind": "thread_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "unknown",
+      "population": "synthetic-main-worker",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-5825cb787fa054d131821327f66613ab9c0b245e2d9c72b7938f47f72bf44b6b",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/workers/0/javascriptStack"
+      }
+    },
+    {
+      "id": "runtime-observation-93f5c5056cb2b5a06b16438cc8653473fcce509dc5923b26c4e448f8ff6918b6",
+      "entity_id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "kind": "thread_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "unknown",
+      "population": "synthetic-main-worker",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-40caeb92215746ce45a08341afba5df274c0a09fe2b58ec670cd8c9fc8e15115",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/workers/0/nativeStack (reporting thread, not a worker pool)"
+      }
+    },
+    {
+      "id": "runtime-observation-3aecfa8e633d756b4938d6fb6135e16f38f0b7a320813be29d8e9d417c5c2bc6",
+      "entity_id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: async",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/workers/0/libuv/0"
+      }
+    },
+    {
+      "id": "runtime-observation-4d55ec842d4efdeb44d64b7e6e751877ffcde87ba0ff6c09e4ddb68d81a6a72d",
+      "entity_id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: async",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/workers/0/libuv/1"
+      }
+    },
+    {
+      "id": "runtime-observation-9ba57e3c7a0ecc713e46249a4c3833710987717ac0555c1f957e3e91e3473e1a",
+      "entity_id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "inactive",
+      "population": "libuv handle inventory: timer",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/workers/0/libuv/2"
+      }
+    },
+    {
+      "id": "runtime-observation-37bfb039b8f160032f31295c559f0d9f38eadca191451d0b9833196afd1dc647",
+      "entity_id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: check",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/workers/0/libuv/3"
+      }
+    },
+    {
+      "id": "runtime-observation-574aee6f8b4be0115a2aa2d51a4fc81efc70f7cca1942de5eb63b1d77abab1d7",
+      "entity_id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "inactive",
+      "population": "libuv handle inventory: idle",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/workers/0/libuv/4"
+      }
+    },
+    {
+      "id": "runtime-observation-4118ed65ec87b8906c7c65296f95bb643f8ef5350e81e59268f30ed77b853445",
+      "entity_id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: prepare",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/workers/0/libuv/5"
+      }
+    },
+    {
+      "id": "runtime-observation-afc1428b759eaba7058d63366cf2c25c16cf87a4100df4c1c42c5fa4b90d48c3",
+      "entity_id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: check",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/workers/0/libuv/6"
+      }
+    },
+    {
+      "id": "runtime-observation-82f133b867bb9b72ab90f5641a9e2e9c2c48c07f34411fbfb127e01edd126d4f",
+      "entity_id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: async",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/workers/0/libuv/7"
+      }
+    },
+    {
+      "id": "runtime-observation-86cc648107339cf82a519e1cf5407cf1d6d1fc9f19b8defc9baad90a4c095243",
+      "entity_id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: timer",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/workers/0/libuv/8"
+      }
+    },
+    {
+      "id": "runtime-observation-718d68ab48ee492fd747e25d6cf4921dfbc167415e5ce0f40129152f6e108298",
+      "entity_id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: async",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/workers/0/libuv/9"
+      }
+    },
+    {
+      "id": "runtime-observation-9f0b70ef512b9ebad547a9243d3e2617452fbd1d5a4ac2992e0c0a1ae3fc39e4",
+      "entity_id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "active",
+      "population": "libuv handle inventory: async",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/workers/0/libuv/10"
+      }
+    },
+    {
+      "id": "runtime-observation-7e6ee97676f6248ab9063bfb3d115568df805d2bdeeef5b41a077c1d020fa97e",
+      "entity_id": "entity-2788dac8c57bd49bd6ef847bcb46e6851c3484146671b6cc85230b24c7da9f36",
+      "kind": "handle_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "inactive",
+      "population": "libuv handle inventory: loop",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/report/workers/0/libuv/11"
+      }
+    },
+    {
+      "id": "runtime-observation-0adcd5cbbd28200453d8587c2dadf286dccb6d6a8a1c0c4255268a785920948f",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "event_loop",
+      "metric": "delay_mean_ns",
+      "value": "12043605.333333334",
+      "unit": "nanoseconds",
+      "measurement_basis": "distribution_statistic",
+      "observed_state": "",
+      "population": "synthetic-main-worker",
+      "time_ns": "1000000000",
+      "from_ns": "1000000000",
+      "to_ns": "1041435083",
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/event_loop/0/delay_mean_ns"
+      }
+    },
+    {
+      "id": "runtime-observation-ba7e3ebb4b720fc30fb9c716f9e670ff5614c5ccc61ec2fbf3de15d8744e57bf",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "event_loop",
+      "metric": "delay_p95_ns",
+      "value": "12050431",
+      "unit": "nanoseconds",
+      "measurement_basis": "distribution_statistic",
+      "observed_state": "",
+      "population": "synthetic-main-worker",
+      "time_ns": "1000000000",
+      "from_ns": "1000000000",
+      "to_ns": "1041435083",
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/event_loop/0/delay_p95_ns"
+      }
+    },
+    {
+      "id": "runtime-observation-2c86460331c45a38e13025cb9ca4ec702145906c67e174f6c3c79f5e709946bc",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "event_loop",
+      "metric": "delay_max_ns",
+      "value": "12050431",
+      "unit": "nanoseconds",
+      "measurement_basis": "distribution_statistic",
+      "observed_state": "",
+      "population": "synthetic-main-worker",
+      "time_ns": "1000000000",
+      "from_ns": "1000000000",
+      "to_ns": "1041435083",
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/event_loop/0/delay_max_ns"
+      }
+    },
+    {
+      "id": "runtime-observation-06582de36f497df3ca235abf2bb954ca2e14187885adaf138e9e0e22b308e028",
+      "entity_id": "entity-d0825a0520078295cfbc3ab7d9f0f0a9d8f4594689887560f9b4b44d9d5f4e9e",
+      "kind": "event_loop",
+      "metric": "utilization_ratio",
+      "value": "0.008848930924655",
+      "unit": "ratio",
+      "measurement_basis": "interval",
+      "observed_state": "",
+      "population": "synthetic-main-worker",
+      "time_ns": "1000000000",
+      "from_ns": "1000000000",
+      "to_ns": "1041435083",
+      "stack_id": "",
+      "ref": {
+        "source_id": "runtime-source-d3ee164bd66282eda0192f99093ea6ded081f39f8deed6d6036cdf977cd2e8f3",
+        "position": "/event_loop/0/utilization_ratio"
+      }
+    }
+  ],
+  "relations": [],
+  "profile_refs": [],
+  "plan_nodes": []
+}

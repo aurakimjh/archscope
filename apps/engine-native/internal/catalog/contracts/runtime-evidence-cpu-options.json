@@ -1,0 +1,33 @@
+{
+  "format": "ps-l-csv",
+  "producer": "explicit ps/top CSV exporter",
+  "producer_version": "synthetic-contract.v1",
+  "clock_id": "synthetic-jvm-clock",
+  "process": {
+    "id": "synthetic-jvm",
+    "host_id": "synthetic-host",
+    "boot_id": "synthetic-boot",
+    "pid_namespace": "synthetic-ns",
+    "pid": "700",
+    "process_start_ns": "0",
+    "runtime": "JVM"
+  },
+  "entities": [
+    {
+      "id": "os-main",
+      "process_id": "synthetic-jvm",
+      "kind": "os_thread",
+      "runtime_id": "500",
+      "native_id": "500",
+      "native_encoding": "os_tid_decimal",
+      "thread_start_ns": "0",
+      "thread_end_ns": null,
+      "name": "main OS thread",
+      "mapping_basis": "declared"
+    }
+  ],
+  "from_ns": "0",
+  "to_ns": "3000000000",
+  "measurement_basis": "interval_average",
+  "population": "synthetic-process-window"
+}

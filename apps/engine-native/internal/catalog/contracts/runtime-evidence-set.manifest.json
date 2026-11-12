@@ -1,0 +1,121 @@
+{
+  "id": "diagnostics.runtime-evidence.v1",
+  "version": "1.0.0",
+  "synthetic": true,
+  "qualification": "실제 CPython/Node/rustc 합성 API 표본과 명시적 ps/JVM/PostgreSQL 구조 표본; 수명/시계 선언은 원본 인증이 아님",
+  "files": [
+    {
+      "file": "LICENSE.txt",
+      "sha256": "1935e213884ff215b7147ccb89471130f9281d1f70fff802e5ed0a60d5ea6626"
+    },
+    {
+      "file": "README.md",
+      "sha256": "29eddebafad96e4ebb115d30b0b40117f0dd12d8e843e8ad8bae47308deb9245"
+    },
+    {
+      "file": "cpu-options.json",
+      "sha256": "35880e7f56f2383ebf09667145d78c1c0ecc9eb3df45d72104604fae566342f1"
+    },
+    {
+      "file": "cpu-set.json",
+      "sha256": "6fb4dea637b26fa9ccea0a5fc6185e09772ea72fb6eb49d05c65385fb3723cb3"
+    },
+    {
+      "file": "generate_node.mjs",
+      "sha256": "8c27570bd45a4851ce3f58f3107ca93626ba1a28b835bf443486b1ab52722f92"
+    },
+    {
+      "file": "generate_python.py",
+      "sha256": "84fa6cdd651c487f1ccdd0c9f90e47902007738a0079d63d88f4c083f7e27032"
+    },
+    {
+      "file": "generate_rust.py",
+      "sha256": "5fb296ba362bc8dc4d2ab8027d8db00ab2ad448fffa7efba78232f853c761e37"
+    },
+    {
+      "file": "jstack.txt",
+      "sha256": "18545ca77d51c2bdd715f9aebc10e98fe9d3d4b0cf3dc3f4fd167685d3a5ec15"
+    },
+    {
+      "file": "node-25.9.0.json",
+      "sha256": "270e991ce60374db9915ac74a2c300968e3f40591be728af0124ea63d28441a4"
+    },
+    {
+      "file": "node-options.json",
+      "sha256": "bdd4f04f71ce83e1551299c1f5927234294074ca4b3a8372aa9b9ea70f4a79f2"
+    },
+    {
+      "file": "node-set.json",
+      "sha256": "a72ffc9fff7dad345435c2dcae2d2d1be664a0f890f574de5b0165749cec8d94"
+    },
+    {
+      "file": "plan-actual-set.json",
+      "sha256": "6e7fae51f734a291754a4baaf5b3bfad68e5a00390328b4c4454efa81eefbb7f"
+    },
+    {
+      "file": "plan-estimated-set.json",
+      "sha256": "ba71182f6d060b36137879d7712f3670fb7c32bda2570fb8745934c41bd52d63"
+    },
+    {
+      "file": "postgres-actual.json",
+      "sha256": "4c23201de1b1d3d4ccc49ab0164a1a1556241d576620205590c16906ac0b6d7e"
+    },
+    {
+      "file": "postgres-estimated.json",
+      "sha256": "06ab80064930142c74486fcfe43c375d8976b246177b259bd233eb4dcba17424"
+    },
+    {
+      "file": "postgres-options.json",
+      "sha256": "04709b5b1f8a050197f3a76c9eb60445952f6173d1e49512c3e9e45dc8c140ae"
+    },
+    {
+      "file": "ps-l.csv",
+      "sha256": "7e2f5cd2c802f537c3d0f970305dfe5ff64dbcaaed739f5363373facdddd5ea9"
+    },
+    {
+      "file": "python-3.14.4.json",
+      "sha256": "dc4729ef9ae3ef89347690ab013b39521083c90773d2c8a48a0623c065b29f5a"
+    },
+    {
+      "file": "python-options.json",
+      "sha256": "24726800377ad5122c944d2a1c510d25a3d4a4c526506902a31c3f67f2cdac75"
+    },
+    {
+      "file": "python-set.json",
+      "sha256": "ac594a09e35c0964a60706b48cdb736c34fdbbce1c8795ca9feeda95b35d52d7"
+    },
+    {
+      "file": "runtime-evidence-set.json",
+      "sha256": "ffbf8afcb1f3cb92f0ea4355046f46a6ba68de51ee99f4a458f995e96b98968f"
+    },
+    {
+      "file": "runtime-evidence-set.schema.json",
+      "sha256": "069d4e3a932b554c6dae88ed6bc8c719fe053fc23bae596eaee916a2081dcf84"
+    },
+    {
+      "file": "rust-1.94.1-backtrace.txt",
+      "sha256": "7e3cce1a6934ecd9ad5257f575e4592b71243dfea082140d2f429b27158a05d1"
+    },
+    {
+      "file": "rust-options.json",
+      "sha256": "4066cc957478ca58805d8c92deef40bca3043f7a25adf7520f4a6017fb62c41b"
+    },
+    {
+      "file": "rust-set.json",
+      "sha256": "5f67c7d6ca2a657bfd80af02e3c6c2303a3c087f38d2729121c5255a16871d64"
+    },
+    {
+      "file": "rust-symbols.json",
+      "sha256": "e5b15ac2ce4c4764a4a8eee31b712cbe1ef1db9185572075427cfde9a1fbe877"
+    },
+    {
+      "file": "thread-options.json",
+      "sha256": "1b523c663815859ab66d128834ab05ae2a83038a0c204f2a3a2cba20436a148c"
+    },
+    {
+      "file": "thread-set.json",
+      "sha256": "5363dc7b40235430ba12a3081fe38636859078c9cb3dce85f4796c9dc054d623"
+    }
+  ],
+  "schema_sha256": "069d4e3a932b554c6dae88ed6bc8c719fe053fc23bae596eaee916a2081dcf84"
+}

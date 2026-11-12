@@ -17,7 +17,7 @@ def run(args):
 run(['/input/engine','offline','build','--engine','/input/engine','--out',str(bundle)])
 # Only the new bundle and synthetic corpus remain visible to the tested process.
 with zipfile.ZipFile(bundle/'resources/fixtures.zip') as z:
- for name in ('packs/input.jsonl','catalog/metric-history-set.json','catalog/metric-history-sdk-python-1.38.0.otlp.json','catalog/system-evidence-perf-script.txt','catalog/system-evidence-perf-capture.json','catalog/inference-evidence-set.json','catalog/inference-evidence-nvidia-set.json','catalog/inference-evidence-nvidia-query.csv','catalog/inference-evidence-nvidia-capture.json','catalog/llm-trace-sdk-python-1.38.0.otlp.json','catalog/llm-trace-neutral-options.json'):z.extract(name,'/sources')
+ for name in ('packs/input.jsonl','catalog/metric-history-set.json','catalog/metric-history-sdk-python-1.38.0.otlp.json','catalog/system-evidence-perf-script.txt','catalog/system-evidence-perf-capture.json','catalog/inference-evidence-set.json','catalog/inference-evidence-nvidia-set.json','catalog/inference-evidence-nvidia-query.csv','catalog/inference-evidence-nvidia-capture.json','catalog/llm-trace-sdk-python-1.38.0.otlp.json','catalog/llm-trace-neutral-options.json','catalog/runtime-evidence-set.json','catalog/runtime-evidence-python-3.14.4.json','catalog/runtime-evidence-python-options.json'):z.extract(name,'/sources')
 model=json.loads(pathlib.Path('/sources/catalog/metric-history-set.json').read_text())
 selection={'series_ids':[model['series'][0]['id']]}
 inference=json.loads(pathlib.Path('/sources/catalog/inference-evidence-nvidia-set.json').read_text())
@@ -50,6 +50,12 @@ commands.extend([
  ['trace','llm-normalize','--in','/sources/catalog/llm-trace-sdk-python-1.38.0.otlp.json','--options-file','/sources/catalog/llm-trace-neutral-options.json','--out','/evidence/llm-model.json'],
  ['evidence','import','--in','/evidence/llm-model.json','--importer','trace.llm-json','--options','{}','--out','/evidence/llm-result.json'],
  ['trace','llm-query','--in','/evidence/llm-result.json','--query','{"kind":"attempts","limit":1}'],
+])
+commands.extend([
+ ['runtime','inspect-source','--in','/sources/catalog/runtime-evidence-python-3.14.4.json','--options-file','/sources/catalog/runtime-evidence-python-options.json'],
+ ['runtime','normalize-source','--in','/sources/catalog/runtime-evidence-python-3.14.4.json','--options-file','/sources/catalog/runtime-evidence-python-options.json','--out','/evidence/runtime-model.json'],
+ ['runtime','import-source','--in','/sources/catalog/runtime-evidence-set.json','--out','/evidence/runtime-result.json'],
+ ['runtime','query','--in','/evidence/runtime-result.json','--query','{"kind":"frames","limit":1}'],
 ])
 reports=[]
 for i,args in enumerate(commands):

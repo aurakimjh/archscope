@@ -17,18 +17,22 @@ import (
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 	coreprofiler "github.com/aurakimjh/archscope/apps/engine-native/internal/profiler"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/symbolinfo"
 )
 
 type Frame struct {
-	Name     string `json:"name"`
-	Function string `json:"function,omitempty"`
-	File     string `json:"file,omitempty"`
-	Line     int    `json:"line,omitempty"`
-	Language string `json:"language,omitempty"`
-	Runtime  string `json:"runtime,omitempty"`
-	Kind     string `json:"kind,omitempty"`
-	Native   bool   `json:"native"`
-	Async    bool   `json:"async"`
+	Name              string `json:"name"`
+	Function          string `json:"function,omitempty"`
+	File              string `json:"file,omitempty"`
+	Line              int    `json:"line,omitempty"`
+	Language          string `json:"language,omitempty"`
+	Runtime           string `json:"runtime,omitempty"`
+	RuntimeBasis      string `json:"runtime_basis,omitempty"`
+	RuntimeConfidence string `json:"runtime_confidence,omitempty"`
+	Resolver          string `json:"symbol_resolver,omitempty"`
+	Kind              string `json:"kind,omitempty"`
+	Native            bool   `json:"native"`
+	Async             bool   `json:"async"`
 }
 
 type Sample struct {
@@ -790,6 +794,12 @@ func normalizeSample(sample *Sample, format string, allowZeroValue bool) {
 func makeFrame(name, function, file string, line int, format string) Frame {
 	name = strings.TrimSpace(firstNonEmpty(name, function, "unknown"))
 	frame := Frame{Name: name, Function: firstNonEmpty(strings.TrimSpace(function), name), File: strings.TrimSpace(file), Line: line}
+	info := symbolinfo.Describe(frame.Function, frame.File, "")
+	frame.RuntimeBasis, frame.RuntimeConfidence = info.Basis, info.Confidence
+	if info.Runtime == "Rust" {
+		frame.Name = info.Display
+		frame.Resolver = info.Resolver + "@" + info.Version
+	}
 	frame.Runtime = inferRuntime(frame.Name, frame.File, format)
 	frame.Language = inferLanguage(frame.Name, frame.File, format)
 	frame.Native = isNativeFrame(frame.Name, frame.File, format)
@@ -944,7 +954,7 @@ func inferRuntime(name, file, format string) string {
 		return "Go"
 	case strings.Contains(lower, "jfr"), strings.Contains(lower, "java"), strings.Contains(lower, "jvm"):
 		return "JVM"
-	case strings.Contains(lower, "rust"), strings.Contains(name, "::"):
+	case symbolinfo.Describe(name, file, "").Runtime == "Rust":
 		return "Rust"
 	case strings.Contains(lower, "perf"), strings.Contains(lower, "native"):
 		return "Native"

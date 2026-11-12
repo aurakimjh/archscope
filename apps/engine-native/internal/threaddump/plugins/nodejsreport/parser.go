@@ -1,58 +1,6 @@
-// Package nodejsreport ports archscope_engine.parsers.thread_dump.nodejs_report.
-//
-// Two plugins live here, mirroring the Python module:
-//
-//   - DiagnosticReportPlugin parses the JSON emitted by Node.js's
-//     `process.report.writeReport()` (Node 12+). The report's main JS
-//     thread becomes one snapshot tagged language="javascript"; the
-//     native worker-pool stack — when present — becomes a second
-//     snapshot tagged language="native" so JS-only enrichers can target
-//     just the JS frames. Active libuv handles drive a state-inference
-//     pass that promotes a plain RUNNABLE main thread to NETWORK_WAIT or
-//     IO_WAIT depending on the dominant handle kind.
-//
-//   - SampleTracePlugin parses the simpler "Sample #N\nError\n  at ..."
-//     text traces that Node emits via `--prof` style scripts and ad-hoc
-//     diagnostic samplers. Each Sample block becomes one snapshot.
-//
-// Format-id parity (`nodejs_diagnostic_report`, `nodejs_sample_trace`)
-// is preserved with the Python plugin so the registry detection +
-// FormatOverride wiring keeps working unchanged across the two engines.
-//
-// ─────────────────────────────────────────────────────────────────────
-// [한글] nodejsreport plugin — Node.js thread dump 파서 (2종).
-//
-// 1) DiagnosticReportPlugin
-//    입력: Node.js 12+ 의 `process.report.writeReport()` JSON.
-//    내용: 메인 JS 스레드의 콜스택 + 활성 libuv 핸들 + 환경 정보.
-//
-//    추출 규칙:
-//      • main JS 스레드 → 1 snapshot (language="javascript").
-//      • native worker-pool stack 존재 → 추가 snapshot (language="native").
-//        JS 전용 enricher 가 native frame 을 건드리지 않도록 분리.
-//      • 활성 libuv 핸들 종류 분포로 메인 스레드 상태 추론:
-//          tcp/udp/named-pipe 우세 → NETWORK_WAIT
-//          fs/file 우세           → IO_WAIT
-//          timer 우세             → TIMED_WAITING
-//          모두 0                 → RUNNABLE (본래 상태 유지)
-//
-// 2) SampleTracePlugin
-//    입력: `--prof` 또는 ad-hoc sampler 가 출력하는 텍스트.
-//    형식:
-//      Sample #1
-//      Error
-//        at funcA (file.js:10:5)
-//        at funcB (file.js:20:5)
-//
-//      Sample #2
-//      ...
-//
-//    각 Sample 블록 → 1 snapshot. thread name = "Sample #N".
-//
-// 두 plugin 분리 이유
-//   format detection 이 충돌하지 않도록. JSON 시그니처 (`{` 시작) vs
-//   "Sample #" 텍스트 시그니처는 매우 다르므로 각자 명확한 CanParse
-//   가능.
+// Package nodejsreport parses diagnostic reports and sampled text stacks.
+// Native stacks describe the reporting thread, not a worker-pool inventory.
+// Handle presence is retained as inventory and never implies scheduler/CPU state.
 package nodejsreport
 
 import (
@@ -96,7 +44,7 @@ var (
 		"pipe": {},
 	}
 	fileHandleKinds = map[string]struct{}{
-		"timer":   {},
+		"timer":    {},
 		"fs_event": {},
 		"fs_poll":  {},
 	}
@@ -183,7 +131,7 @@ func jsMainSnapshot(payload map[string]any) models.ThreadSnapshot {
 		}
 	}
 
-	state := InferJSState(models.ThreadStateRunnable, payload)
+	state := models.ThreadStateUnknown
 	threadID := "main"
 	category := string(state)
 	lang := Language
@@ -191,6 +139,8 @@ func jsMainSnapshot(payload map[string]any) models.ThreadSnapshot {
 
 	snap := models.NewThreadSnapshot("javascript::0::main", "main", state)
 	snap.ThreadID = &threadID
+	snap.Metadata["observed_state"] = "unknown"
+	snap.Metadata["inference_basis"] = "report stack and handle inventory do not observe scheduler/CPU state"
 	snap.Category = &category
 	snap.StackFrames = frames
 	snap.Language = &lang
@@ -201,7 +151,7 @@ func jsMainSnapshot(payload map[string]any) models.ThreadSnapshot {
 	return snap
 }
 
-// nativeSnapshot extracts the native worker-pool snapshot from the
+// nativeSnapshot extracts the native reporting-thread snapshot from the
 // payload. Returns (zero, false) when nativeStack is missing or empty.
 func nativeSnapshot(payload map[string]any) (models.ThreadSnapshot, bool) {
 	raw, ok := payload["nativeStack"].([]any)
@@ -240,7 +190,8 @@ func nativeSnapshot(payload map[string]any) (models.ThreadSnapshot, bool) {
 	threadID := "native"
 	lang := NativeLanguage
 	format := FormatIDDiagnosticReport
-	snap := models.NewThreadSnapshot("native::0::worker-pool", "native", models.ThreadStateUnknown)
+	snap := models.NewThreadSnapshot("native::0::reporting-thread", "native reporting thread", models.ThreadStateUnknown)
+	snap.Metadata["stack_owner"] = "reporting_thread; not a worker pool"
 	snap.ThreadID = &threadID
 	snap.StackFrames = frames
 	snap.Language = &lang
@@ -307,49 +258,9 @@ func normalizeJSFrame(frame models.StackFrame) models.StackFrame {
 	return out
 }
 
-// InferJSState mirrors `_infer_js_state`. The diagnostic report is
-// captured *because* something interesting was happening on the main
-// thread, so a plain RUNNABLE rarely tells the full story:
-//
-//   - Active TCP/UDP/pipe handles → NETWORK_WAIT (uv__io_poll).
-//   - Active timer/fs_event/fs_poll handles → IO_WAIT.
-//   - Otherwise the input state is preserved.
-//
-// Exported because the JS-enrichment plugin (T-201 follow-up) may want
-// to re-run inference when handle data is supplied out-of-band.
-func InferJSState(state models.ThreadState, payload map[string]any) models.ThreadState {
-	libuv, ok := payload["libuv"].([]any)
-	if !ok {
-		return state
-	}
-	networkActive := 0
-	fileActive := 0
-	for _, item := range libuv {
-		handle, ok := item.(map[string]any)
-		if !ok {
-			continue
-		}
-		// Python `if not handle.get("is_active"): continue` — falsy
-		// covers missing / false / 0 / empty alike.
-		if !truthy(handle["is_active"]) {
-			continue
-		}
-		kind, _ := handle["type"].(string)
-		kind = strings.ToLower(kind)
-		if _, hit := networkHandleKinds[kind]; hit {
-			networkActive++
-		} else if _, hit := fileHandleKinds[kind]; hit {
-			fileActive++
-		}
-	}
-	if networkActive > 0 {
-		return models.ThreadStateNetworkWait
-	}
-	if fileActive > 0 {
-		return models.ThreadStateIOWait
-	}
-	return state
-}
+// InferJSState preserves a caller-supplied state. Handle presence says which
+// resources are open/active, not whether this thread is blocked on them.
+func InferJSState(state models.ThreadState, payload map[string]any) models.ThreadState { return state }
 
 // ---------------------------------------------------------------------
 // Sample-trace plugin

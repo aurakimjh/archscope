@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "id": "runtime-source-0344c27a4e25e65e05df54a366d7acc1183a2f9a60b911663d8c801425e1fedc",
+      "sha256": "18545ca77d51c2bdd715f9aebc10e98fe9d3d4b0cf3dc3f4fd167685d3a5ec15",
+      "format": "thread-dump",
+      "producer": "jstack",
+      "producer_version": "21.0.8 layout; synthetic",
+      "clock_id": "synthetic-jvm-clock"
+    }
+  ],
+  "processes": [
+    {
+      "id": "synthetic-jvm",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "pid_namespace": "synthetic-ns",
+      "pid": "700",
+      "process_start_ns": "0",
+      "runtime": "JVM"
+    }
+  ],
+  "entities": [
+    {
+      "id": "java-main",
+      "process_id": "synthetic-jvm",
+      "kind": "runtime_thread",
+      "runtime_id": "0x00000000000000aa",
+      "native_id": "0x1f4",
+      "native_encoding": "jvm_nid_hex",
+      "thread_start_ns": "0",
+      "thread_end_ns": null,
+      "name": "main Java thread",
+      "mapping_basis": "declared"
+    }
+  ],
+  "frames": [
+    {
+      "id": "frame-5397ec03d01fc97fdd12c52f5d8c197699d94872dc6d6ba2c37f3e4abf3a2f55",
+      "symbol": "run",
+      "display": "run",
+      "file": "Work.java",
+      "line": 42
+    }
+  ],
+  "stacks": [
+    {
+      "id": "stack-f7830723f6327c471f2cde3500ba25fdbc969d03a0693fe23b7859e27800f5e8",
+      "frames": [
+        "frame-5397ec03d01fc97fdd12c52f5d8c197699d94872dc6d6ba2c37f3e4abf3a2f55"
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "inferred_category": "RUNNABLE",
+      "inference_basis": "legacy parser classification; not an observed CPU state",
+      "id": "runtime-observation-1b082f49e671f3555de71134417822935da0447740f9304d22de1b904bdec703",
+      "entity_id": "java-main",
+      "kind": "thread_snapshot",
+      "metric": "",
+      "value": null,
+      "unit": "",
+      "measurement_basis": "snapshot",
+      "observed_state": "RUNNABLE",
+      "population": "synthetic-main-thread",
+      "time_ns": "1000000000",
+      "from_ns": null,
+      "to_ns": null,
+      "stack_id": "stack-f7830723f6327c471f2cde3500ba25fdbc969d03a0693fe23b7859e27800f5e8",
+      "ref": {
+        "source_id": "runtime-source-0344c27a4e25e65e05df54a366d7acc1183a2f9a60b911663d8c801425e1fedc",
+        "position": "/dumps/0/snapshots/0"
+      }
+    }
+  ],
+  "relations": [],
+  "profile_refs": [],
+  "plan_nodes": []
+}

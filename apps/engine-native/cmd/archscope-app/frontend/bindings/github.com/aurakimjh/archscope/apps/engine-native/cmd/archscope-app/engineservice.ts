@@ -415,6 +415,10 @@ export function DescribeProfileQuery(handle: string): $CancellablePromise<string
     return $Call.ByID(2622781381, handle);
 }
 
+export function DescribeRuntimeEvidence(handle: string): $CancellablePromise<string> {
+    return $Call.ByID(1426356123, handle);
+}
+
 export function DescribeSystemEvidence(handle: string): $CancellablePromise<string> {
     return $Call.ByID(915212406, handle);
 }
@@ -640,6 +644,10 @@ export function InspectProfileSource(path: string, optionsJSON: string): $Cancel
     return $Call.ByID(200477639, path, optionsJSON);
 }
 
+export function InspectRuntimeSource(path: string, options: string): $CancellablePromise<string> {
+    return $Call.ByID(2728458186, path, options);
+}
+
 export function InspectSystemSource(path: string, options: string): $CancellablePromise<string> {
     return $Call.ByID(3188032445, path, options);
 }
@@ -684,8 +692,16 @@ export function MaterializeProfileView(handle: string, digest: string, selection
     return $Call.ByID(89147784, handle, digest, selectionJSON);
 }
 
+export function MaterializeRuntimeAllocation(handle: string, digest: string, entity: string, source: string, metric: string): $CancellablePromise<string> {
+    return $Call.ByID(3609020306, handle, digest, entity, source, metric);
+}
+
 export function MaterializeSystemProfile(handle: string, digest: string, metric: string, entitiesJSON: string): $CancellablePromise<string> {
     return $Call.ByID(757643586, handle, digest, metric, entitiesJSON);
+}
+
+export function MergeRuntimeModels(pathsJSON: string, output: string): $CancellablePromise<string> {
+    return $Call.ByID(1819890273, pathsJSON, output);
 }
 
 export function NormalizeInferenceSource(path: string, options: string, expectedSHA: string, output: string): $CancellablePromise<string> {
@@ -706,6 +722,10 @@ export function NormalizeMetricSource(path: string, optionsJSON: string, expecte
 
 export function NormalizeProfileSource(path: string, optionsJSON: string, expectedSHA256: string, output: string): $CancellablePromise<string> {
     return $Call.ByID(1868428930, path, optionsJSON, expectedSHA256, output);
+}
+
+export function NormalizeRuntimeSource(path: string, options: string, digest: string, output: string): $CancellablePromise<string> {
+    return $Call.ByID(2979418767, path, options, digest, output);
 }
 
 export function NormalizeSystemSource(path: string, options: string, expected: string, output: string): $CancellablePromise<string> {
@@ -780,6 +800,10 @@ export function QueryMetricHistory(handle: string, digest: string, requestJSON: 
 
 export function QueryProfileEvidence(handle: string, digest: string, requestJSON: string): $CancellablePromise<string> {
     return $Call.ByID(2616882255, handle, digest, requestJSON);
+}
+
+export function QueryRuntimeEvidence(handle: string, digest: string, query: string): $CancellablePromise<string> {
+    return $Call.ByID(2861090438, handle, digest, query);
 }
 
 export function QuerySystemHistogram(handle: string, digest: string, eventID: string, offset: number, limit: number): $CancellablePromise<string> {

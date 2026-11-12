@@ -251,7 +251,7 @@ func (s Set) Validate(ctx context.Context) error {
 		return e
 	}
 	if len(raw) > MaxBytes {
-		return fmt.Errorf("LLMTRACE_MODEL_BUDGET: bytes=%d limit=%d spans=%d; split or select original traces", len(raw), MaxBytes, len(s.Spans))
+		return fmt.Errorf("LLMTRACE_MODEL_BUDGET: bytes=%d limit=%d spans=%d; split the original export by trace before normalization", len(raw), MaxBytes, len(s.Spans))
 	}
 	return ctx.Err()
 }

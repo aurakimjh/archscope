@@ -1,22 +1,23 @@
 // [한글] multithread analyzer 회귀 테스트.
 //
 // 핵심 검증 포인트
-//   • 빈 bundles → ErrNoBundles.
-//   • 정상 bundles → AnalysisResult contract (type/summary/series/
+//   - 빈 bundles → ErrNoBundles.
+//   - 정상 bundles → AnalysisResult contract (type/summary/series/
 //     tables/metadata 모두 채워짐).
-//   • LONG_RUNNING_THREAD: 같은 RUNNABLE stack 이 N 연속 덤프 →
+//   - LONG_RUNNING_THREAD: 같은 RUNNABLE stack 이 N 연속 덤프 →
 //     finding + tables.long_running_stacks 행 발생.
-//   • PERSISTENT_BLOCKED_THREAD / LATENCY_SECTION_DETECTED /
+//   - PERSISTENT_BLOCKED_THREAD / LATENCY_SECTION_DETECTED /
 //     GROWING_LOCK_CONTENTION 도 같은 패턴으로 검증.
-//   • 다언어 fixture(Java/Go/Python) 가 같은 분석기에서 동일하게 처리.
-//   • Heuristic finding (THREAD_CONGESTION 등) 의 비율 임계점.
-//   • JVM 메타 finding (Carrier-pinning / SMR / Native method /
+//   - 다언어 fixture(Java/Go/Python) 가 같은 분석기에서 동일하게 처리.
+//   - Heuristic finding (THREAD_CONGESTION 등) 의 비율 임계점.
+//   - JVM 메타 finding (Carrier-pinning / SMR / Native method /
 //     INCOMPLETE_HISTOGRAM).
 //
 // fixture helper
-//   javaSnapshot / goSnapshot / pythonSnapshot 등으로 한 줄에 한 스냅샷
-//   을 만들 수 있게 함. 테스트는 명시적 입력 → 명시적 출력으로 흐름이
-//   짧고 예측 가능하게 유지.
+//
+//	javaSnapshot / goSnapshot / pythonSnapshot 등으로 한 줄에 한 스냅샷
+//	을 만들 수 있게 함. 테스트는 명시적 입력 → 명시적 출력으로 흐름이
+//	짧고 예측 가능하게 유지.
 package multithread
 
 import (
@@ -51,6 +52,16 @@ func javaSnapshot(name string, state models.ThreadState, frames ...string) model
 
 func makeBundle(dumpIndex int, snapshots []models.ThreadSnapshot) models.ThreadDumpBundle {
 	label := "dump-" + itoa(dumpIndex)
+	for i := range snapshots {
+		if snapshots[i].ThreadID == nil {
+			id := snapshots[i].SnapshotID
+			snapshots[i].ThreadID = &id
+		}
+		if snapshots[i].Metadata == nil {
+			snapshots[i].Metadata = map[string]any{}
+		}
+		snapshots[i].Metadata["thread_start_ns"] = "0"
+	}
 	return models.ThreadDumpBundle{
 		Snapshots:    snapshots,
 		SourceFile:   "dump-" + itoa(dumpIndex) + ".txt",
@@ -58,7 +69,7 @@ func makeBundle(dumpIndex int, snapshots []models.ThreadSnapshot) models.ThreadD
 		Language:     "java",
 		DumpIndex:    dumpIndex,
 		DumpLabel:    &label,
-		Metadata:     map[string]any{},
+		Metadata:     map[string]any{"correlation_context": map[string]string{"host_id": "synthetic-host", "boot_id": "synthetic-boot", "pid_namespace": "synthetic-ns", "pid": "500", "process_start_ns": "0"}},
 	}
 }
 
@@ -843,5 +854,26 @@ func TestRoundToEvenBankerRounding(t *testing.T) {
 		if got != c.want {
 			t.Fatalf("roundToEven(%v, %d) = %v, want %v", c.in, c.decimals, got, c.want)
 		}
+	}
+}
+
+func TestT641IdentityNeverJoinsNamesOrReusedThreads(t *testing.T) {
+	a := makeBundle(0, []models.ThreadSnapshot{models.NewThreadSnapshot("same-id", "same-name", models.ThreadStateRunnable)})
+	b := makeBundle(1, []models.ThreadSnapshot{models.NewThreadSnapshot("same-id", "same-name", models.ThreadStateRunnable)})
+	if len(buildTimelines([]models.ThreadDumpBundle{a, b})) != 1 {
+		t.Fatal("qualified identity separated")
+	}
+	b.Snapshots[0].Metadata["thread_start_ns"] = "1"
+	if len(buildTimelines([]models.ThreadDumpBundle{a, b})) != 2 {
+		t.Fatal("TID reuse joined")
+	}
+	b.Snapshots[0].Metadata["thread_start_ns"] = "0"
+	b.Metadata = nil
+	if len(buildTimelines([]models.ThreadDumpBundle{a, b})) != 2 {
+		t.Fatal("name joined missing context")
+	}
+	b = makeBundle(1, []models.ThreadSnapshot{models.NewThreadSnapshot("different-id", "same-name", models.ThreadStateRunnable)})
+	if len(buildTimelines([]models.ThreadDumpBundle{a, b})) != 2 {
+		t.Fatal("same name joined distinct runtime ID")
 	}
 }

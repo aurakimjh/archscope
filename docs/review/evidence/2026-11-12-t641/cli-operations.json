@@ -1,0 +1,501 @@
+{
+  "operations": [
+    {
+      "args": [
+        "runtime",
+        "inspect-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-python-3.14.4.json",
+        "--options-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-python-options.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "normalize-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-python-3.14.4.json",
+        "--options-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-python-options.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "inspect-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-node-25.9.0.json",
+        "--options-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-node-options.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "normalize-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-node-25.9.0.json",
+        "--options-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-node-options.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "inspect-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-rust-1.94.1-backtrace.txt",
+        "--options-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-rust-options.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "normalize-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-rust-1.94.1-backtrace.txt",
+        "--options-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-rust-options.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "inspect-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-jstack.txt",
+        "--options-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-thread-options.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "normalize-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-jstack.txt",
+        "--options-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-thread-options.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "inspect-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-ps-l.csv",
+        "--options-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-cpu-options.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "normalize-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-ps-l.csv",
+        "--options-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-cpu-options.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "inspect-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-postgres-actual.json",
+        "--options-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-postgres-options.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "normalize-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-postgres-actual.json",
+        "--options-file",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-postgres-options.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "merge-models",
+        "--inputs",
+        "/tmp/archscope-t641-cli-qa/python-model.json,/tmp/archscope-t641-cli-qa/node-model.json,/tmp/archscope-t641-cli-qa/rust-model.json,/tmp/archscope-t641-cli-qa/thread-model.json,/tmp/archscope-t641-cli-qa/cpu-model.json,/tmp/archscope-t641-cli-qa/plan-model.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "import-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-set.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "inspect-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-set.json"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"observations\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"allocation\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"task_snapshot\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"thread_snapshot\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"cpu\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"gc\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"event_loop\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"handle_snapshot\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"panic_snapshot\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"entities\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"processes\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"sources\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"frames\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"stacks\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"symbol_evidence\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"relations\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"profile_refs\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"plan_nodes\", \"limit\": 25}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"cpu_link\", \"limit\": 25, \"cpu_observation_id\": \"runtime-observation-b2a91f960ebdef5cdb7fb255ba7e95cb4f0ee7316021bd1fff8885c21fdb1a2e\", \"stack_observation_id\": \"runtime-observation-1b082f49e671f3555de71134417822935da0447740f9304d22de1b904bdec703\"}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "allocation-profile",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--entity-id",
+        "entity-ed8985beaf93dbe9ad93f343352d7c6c6544a8fdb801fbd6be7bdbab0dd480da",
+        "--source-id",
+        "runtime-source-bc8133bf24be596396e403c2e5506dfd3b33f82796cf60c19634043b73194a7c",
+        "--metric",
+        "live_bytes"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "allocation-profile",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--entity-id",
+        "entity-ed8985beaf93dbe9ad93f343352d7c6c6544a8fdb801fbd6be7bdbab0dd480da",
+        "--source-id",
+        "runtime-source-bc8133bf24be596396e403c2e5506dfd3b33f82796cf60c19634043b73194a7c",
+        "--metric",
+        "live_bytes"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "allocation-profile",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--entity-id",
+        "entity-ed8985beaf93dbe9ad93f343352d7c6c6544a8fdb801fbd6be7bdbab0dd480da",
+        "--source-id",
+        "runtime-source-bc8133bf24be596396e403c2e5506dfd3b33f82796cf60c19634043b73194a7c",
+        "--metric",
+        "live_blocks"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\":\"cpu_link\",\"limit\":1}"
+      ],
+      "exit": 1,
+      "stderr": "archscope-engine: RUNTIME_CPU_PAIR_REQUIRED\n"
+    },
+    {
+      "args": [
+        "runtime",
+        "import-source",
+        "--in",
+        "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-ps-l.csv"
+      ],
+      "exit": 1,
+      "stderr": "archscope-engine: invalid character 'p' looking for beginning of value\n"
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"observations\", \"limit\": 1}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "runtime",
+        "query",
+        "--in",
+        "/tmp/archscope-t641-cli-qa/result.json",
+        "--query",
+        "{\"kind\": \"observations\", \"limit\": 1, \"cursor\": \"eyJyZXN1bHQiOiI1NDNhMmVkOTE0NTQ4Y2VjNTk0MWI5N2FkYmJkNzkxODFiOGIyZmNhZDAyZDQ1ZmI1MjkxMTRkZmQ4YjlkNzc4IiwicXVlcnkiOiJiMmQyYTZiOTEwMTBlYjdjOGMxZjBhYzRiZWFmNjI3OGYxZTFlMzBhMDI5ZTkyYTMwZGVjMDQyMGFjNmNlNjkzIiwib2Zmc2V0IjoxfQ\"}"
+      ],
+      "exit": 0,
+      "stderr": ""
+    }
+  ],
+  "scope": "actual local CLI; synthetic/sanitized fixtures"
+}

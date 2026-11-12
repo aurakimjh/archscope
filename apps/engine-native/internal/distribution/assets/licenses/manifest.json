@@ -1,8 +1,22 @@
 {
   "version": "1.0.0",
-  "go_sum_sha256": "0e1fb1519159fb559217a044dbba1edcd5625494d05a4ae463b383415346c4d9",
+  "go_sum_sha256": "ea98b09a6bc6827b9406a4b48af83f6154515ba4c675ee9c2b70ee00cc9f2e7c",
   "npm_lock_sha256": "6b6353b9fb4d4b81e219eaf7b4b93618209671644f28bc87e34debb3f611419a",
   "dependencies": [
+    {
+      "ecosystem": "go",
+      "name": "github.com/google/pprof",
+      "version": "v0.0.0-20260402051712-545e8a4df936",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "1b0911e8122c8c1eb5ba.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ],
+      "notice_status": "included"
+    },
     {
       "ecosystem": "go",
       "name": "golang.org/x/text",
@@ -33,14 +47,14 @@
     },
     {
       "ecosystem": "go",
-      "name": "github.com/google/pprof",
-      "version": "v0.0.0-20260402051712-545e8a4df936",
+      "name": "github.com/ianlancetaylor/demangle",
+      "version": "v0.0.0-20261012173340-cbb8aaea4290",
       "declared_license": "",
       "notices": [
         {
-          "file": "1b0911e8122c8c1eb5ba.txt",
+          "file": "c92390ad32310ffc573f.txt",
           "upstream_name": "LICENSE",
-          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+          "sha256": "b73277f7730993ef8e7f80aed83e5309762fed4d77eced982abb2c00657c074d"
         }
       ],
       "notice_status": "included"

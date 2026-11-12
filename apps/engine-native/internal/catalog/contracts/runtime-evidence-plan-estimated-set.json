@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "id": "runtime-source-84051ede7f7d4902dafd6faf13411c04355ebc3debc2d2b6153781a3dbe68564",
+      "sha256": "06ab80064930142c74486fcfe43c375d8976b246177b259bd233eb4dcba17424",
+      "format": "postgres-explain-json",
+      "producer": "PostgreSQL EXPLAIN JSON",
+      "producer_version": "18.0 layout; synthetic",
+      "clock_id": "unknown"
+    }
+  ],
+  "processes": [],
+  "entities": [],
+  "frames": [],
+  "stacks": [],
+  "observations": [],
+  "relations": [],
+  "profile_refs": [],
+  "plan_nodes": [
+    {
+      "id": "plan-23d247afcd2bf40e1436ecb186cd9da2f11cdc485a889e9b50c3f5b779f6525a",
+      "parent_id": "",
+      "node_type": "Seq Scan",
+      "estimated_rows": "100",
+      "actual_rows_per_loop": null,
+      "actual_loops": null,
+      "actual_total_ms_per_loop": null,
+      "ref": {
+        "source_id": "runtime-source-84051ede7f7d4902dafd6faf13411c04355ebc3debc2d2b6153781a3dbe68564",
+        "position": "/0/Plan"
+      }
+    }
+  ]
+}

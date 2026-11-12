@@ -1,6 +1,6 @@
 # Offline GPU and inference serving evidence
 
-T-639 adds `inference_serving` 0.2.0 over the neutral InferenceEvidence 1.1.0
+T-639/T-641 add `inference_serving` 0.3.0 over the neutral InferenceEvidence 1.1.0
 contract. The common AnalysisResult envelope and existing MetricHistory readers,
 case persistence, generic providers and visual exports are reused. Source metrics
 are retained **once** in `inference_core.metrics`; signals refer to series IDs,
@@ -138,7 +138,7 @@ Primary definitions: [NVIDIA nvidia-smi](https://docs.nvidia.com/deploy/nvidia-s
 
 ## R16 input usability and compatibility (2026-11-12)
 
-New results use inference_serving 0.2.0; readers preserve 0.1.0 projection semantics. InferenceEvidence accepts 1.0.0 and 1.1.0; declared_metadata requires 1.1.0. Existing fixture and old result bytes are unchanged.
+New results use inference_serving 0.3.0; readers preserve 0.1.0/0.2.0 projection semantics. InferenceEvidence accepts 1.0.0 and 1.1.0; declared_metadata requires 1.1.0. Existing fixture and old result bytes are unchanged.
 
 A Prometheus range model has gauge kind and an empty unit because its response has no TYPE/unit metadata. For these untyped originals only, a binding can explicitly declare metadata:
 
@@ -159,3 +159,6 @@ The referenced event source must still be declared with its original hash and me
 NVIDIA CSV accepts [N/A] and trailing blank rows; timestamp arity counts actual data rows and source references keep physical line numbers. Interior blank rows followed by data are refused. Equal first/last multi-token boundaries yield null TPOT/status in new payloads.
 
 To reduce result size, pass repeated --retained-series-id to normalize-source/import-source, or add retained_series_ids at the top level of bindings JSON. Workspace also accepts that bindings sidecar. Every point of each selected series is retained for predecessor/reset context; original source ledgers and structured events remain. This selection is after input decoding, so inputs exceeding original/model budgets must be split before normalization. Byte limits remain authoritative; no record-count capacity promise.
+
+
+Payload 0.3.0 preserves exact rational counter rates through unit conversion (100 / 15 = 20/3), including scaled byte rates; failed conversion is an error. Saved 0.1.0/0.2.0 readers keep their original projections, including the old missing rational-rate cells. Explicit re-analysis creates 0.3.0.

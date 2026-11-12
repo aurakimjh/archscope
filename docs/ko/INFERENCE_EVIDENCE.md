@@ -1,6 +1,6 @@
 # 오프라인 GPU·추론 서빙 근거
 
-T-639는 중립 InferenceEvidence 1.1.0 모델과 `inference_serving` 0.2.0 결과를
+T-639/T-641은 중립 InferenceEvidence 1.1.0 모델과 `inference_serving` 0.3.0 결과를
 추가한다. 공통 AnalysisResult, 기존 MetricHistory reader·케이스 저장·provider·
 시각 자료 내보내기를 재사용한다. 원본 메트릭은 `inference_core.metrics`에 한 번만
 저장하고 signal은 series ID, 관측 행은 point ID를 참조한다. 연결되지 않은 series도
@@ -119,7 +119,7 @@ provenance는 별도 64 KiB 한도를 상속한다. 정규화는 2개 동시 호
 
 ## R16 입력 사용성과 호환 (2026-11-12)
 
-새 결과는 inference_serving 0.2.0이며 0.1.0 reader의 기존 projection 의미를 유지한다. InferenceEvidence 1.0.0/1.1.0을 읽고 declared_metadata는 1.1.0에서만 허용한다. 기존 fixture·결과 바이트는 유지한다.
+새 결과는 inference_serving 0.3.0이며 0.1.0/0.2.0 reader의 기존 projection 의미를 유지한다. InferenceEvidence 1.0.0/1.1.0을 읽고 declared_metadata는 1.1.0에서만 허용한다. 기존 fixture·결과 바이트는 유지한다.
 
 Prometheus range 응답에는 TYPE/unit이 없어 원본 gauge·빈 단위로 저장한다. 이 원본에 한해서 signal.declared_metadata로 unit/kind/temporality/monotonic과 선택적 start_ns·expected_step_ns를 직접 선언한다. 예: unit tokens, kind sum, temporality cumulative, monotonic true, start_ns "0". Gauge는 kind gauge / temporality unspecified / monotonic false다. 선언은 수집 근거로 작성하며 원격 TYPE/lifetime 진위를 인증하지 않는다. 시작 시각이 없으면 누적 rate는 unavailable이다. Raw range bucket을 histogram으로 조립하지 않는다.
 
@@ -130,3 +130,6 @@ Prometheus range 응답에는 TYPE/unit이 없어 원본 gauge·빈 단위로 �
 NVIDIA CSV는 [N/A]와 마지막 빈 줄을 허용한다. Timestamp 수는 실제 데이터 행에 맞추고 참조는 물리 행 번호를 보존한다. 중간 빈 줄 뒤 데이터는 거부한다. 새 payload의 다중 token 동일 first/last는 TPOT null/status다.
 
 결과가 클 때 normalize-source/import-source에 --retained-series-id를 반복하거나 bindings 최상위 retained_series_ids를 지정한다. Workspace도 bindings sidecar를 받는다. 선택 series의 모든 point를 남겨 predecessor/reset context를 유지하고 원본 source ledger·구조 event도 유지한다. 입력 해독 후 선택이므로 원본/모델 자체 byte 제한을 넘는 자료는 정규화 전에 분할해야 한다. 개수만으로 수용량을 보장하지 않는다.
+
+
+Payload 0.3.0은 단위 환산 뒤에도 정확한 유리수 counter rate(100 / 15 = 20/3)를 보존하며 환산 실패를 오류로 반환합니다. 저장된 0.1.0/0.2.0 reader는 과거 rate 누락 셀을 포함한 기존 projection을 유지합니다. 명시적 재분석만 0.3.0을 만듭니다.

@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "id": "runtime-source-e61290465d67d2f47dfa6bf4cdf7bbae2d9443a152e5494a7ab3ff1a78d62404",
+      "sha256": "4c23201de1b1d3d4ccc49ab0164a1a1556241d576620205590c16906ac0b6d7e",
+      "format": "postgres-explain-json",
+      "producer": "PostgreSQL EXPLAIN JSON",
+      "producer_version": "18.0 layout; synthetic",
+      "clock_id": "unknown"
+    }
+  ],
+  "processes": [],
+  "entities": [],
+  "frames": [],
+  "stacks": [],
+  "observations": [],
+  "relations": [],
+  "profile_refs": [],
+  "plan_nodes": [
+    {
+      "id": "plan-200307c5fe24aefca29d327b44600f4733aebbf28c26e6f5582a5db409628f1a",
+      "parent_id": "",
+      "node_type": "Nested Loop",
+      "estimated_rows": "100",
+      "actual_rows_per_loop": "5",
+      "actual_loops": "1",
+      "actual_total_ms_per_loop": "1.25",
+      "ref": {
+        "source_id": "runtime-source-e61290465d67d2f47dfa6bf4cdf7bbae2d9443a152e5494a7ab3ff1a78d62404",
+        "position": "/0/Plan"
+      }
+    },
+    {
+      "id": "plan-fc4441afc11de5fe21604207fca3525f01d97219ced19838ab2f855b38205605",
+      "parent_id": "plan-200307c5fe24aefca29d327b44600f4733aebbf28c26e6f5582a5db409628f1a",
+      "node_type": "Seq Scan",
+      "estimated_rows": "20",
+      "actual_rows_per_loop": "0",
+      "actual_loops": "1",
+      "actual_total_ms_per_loop": "0.125",
+      "ref": {
+        "source_id": "runtime-source-e61290465d67d2f47dfa6bf4cdf7bbae2d9443a152e5494a7ab3ff1a78d62404",
+        "position": "/0/Plan/Plans/0"
+      }
+    },
+    {
+      "id": "plan-a2cc1da793740f66f8fc654d6533cfd4a30ba9ce611592d1dc564ec3722f6236",
+      "parent_id": "plan-200307c5fe24aefca29d327b44600f4733aebbf28c26e6f5582a5db409628f1a",
+      "node_type": "Index Scan",
+      "estimated_rows": "5",
+      "actual_rows_per_loop": "1",
+      "actual_loops": "5",
+      "actual_total_ms_per_loop": "0.2",
+      "ref": {
+        "source_id": "runtime-source-e61290465d67d2f47dfa6bf4cdf7bbae2d9443a152e5494a7ab3ff1a78d62404",
+        "position": "/0/Plan/Plans/1"
+      }
+    }
+  ]
+}

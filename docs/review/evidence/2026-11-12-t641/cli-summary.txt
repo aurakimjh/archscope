@@ -1,0 +1,1 @@
+41 CLI operations passed, including explicit refusals

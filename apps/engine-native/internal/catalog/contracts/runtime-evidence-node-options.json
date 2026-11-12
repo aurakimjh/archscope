@@ -1,0 +1,14 @@
+{
+  "format": "node-runtime-json",
+  "clock_id": "synthetic-node-clock",
+  "process": {
+    "id": "synthetic-node",
+    "host_id": "synthetic-host",
+    "boot_id": "synthetic-boot",
+    "pid_namespace": "synthetic-ns",
+    "pid": "600",
+    "process_start_ns": "0",
+    "runtime": "Node.js"
+  },
+  "population": "synthetic-main-worker"
+}

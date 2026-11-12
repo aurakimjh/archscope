@@ -1,0 +1,6 @@
+{
+  "format": "postgres-explain-json",
+  "producer": "PostgreSQL EXPLAIN JSON",
+  "producer_version": "18.0 layout; synthetic",
+  "clock_id": "unknown"
+}

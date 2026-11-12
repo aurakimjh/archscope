@@ -1,0 +1,32 @@
+task: [darwin:common:go:mod:tidy] go mod tidy
+task: Task "darwin:common:generate:icons" is up to date
+task: [darwin:common:go:mod:tidy] go mod tidy
+task: [darwin:common:install:frontend:deps] npm install
+task: Task "generate:bindings (BUILD_FLAGS=)" is up to date
+
+up to date, audited 69 packages in 334ms
+
+13 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm warn allow-scripts 1 package has install scripts not yet covered by allowScripts:
+npm warn allow-scripts   fsevents@2.3.3 (install: (install scripts present))
+npm warn allow-scripts
+npm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.
+task: Task "build:frontend (DEV=)" is up to date
+task: [darwin:build:native] go build -tags production -trimpath -buildvcs=false -ldflags="-w -s" -o "bin/archscope"
+task: [darwin:create:app:bundle] mkdir -p "bin/archscope.app/Contents/MacOS"
+task: [darwin:create:app:bundle] mkdir -p "bin/archscope.app/Contents/Resources"
+task: [darwin:create:app:bundle] cp build/darwin/icons.icns "bin/archscope.app/Contents/Resources"
+task: [darwin:create:app:bundle] if [ -f build/darwin/Assets.car ]; then
+  cp build/darwin/Assets.car "bin/archscope.app/Contents/Resources"
+fi
+
+task: [darwin:create:app:bundle] cp "bin/archscope" "bin/archscope.app/Contents/MacOS"
+task: [darwin:create:app:bundle] cp build/darwin/Info.plist "bin/archscope.app/Contents"
+task: [darwin:codesign:adhoc] codesign --force --deep --sign - "bin/archscope.app"
+bin/archscope.app: replacing existing signature
+
+Need documentation? Run: ]8;;https://v3.wails.io/getting-started/your-first-app/\wails3 docs]8;;\
+ ♥   If Wails is useful to you or your company, please consider sponsoring the project: ]8;;https://github.com/sponsors/leaanthony\wails3 sponsor]8;;\

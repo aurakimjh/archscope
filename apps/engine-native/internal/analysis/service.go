@@ -75,6 +75,8 @@ type cleanupRef struct {
 	job  *job
 }
 type Service struct {
+	semanticMu       sync.Mutex
+	semanticCache    []semanticEntry
 	baselineMu       sync.Mutex
 	baselineCache    []baselineCacheEntry
 	projections      map[string]*projectionEntry
@@ -339,6 +341,9 @@ func (s *Service) close() {
 	s.wait.Wait()
 	s.baselineMu.Lock()
 	s.baselineCache = nil
+	s.semanticMu.Lock()
+	s.semanticCache = nil
+	s.semanticMu.Unlock()
 	s.baselineMu.Unlock()
 	s.mu.Lock()
 	pending := s.pending

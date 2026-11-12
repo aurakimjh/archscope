@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"reflect"
 	"strconv"
+	"strings"
 
 	n "github.com/aurakimjh/archscope/apps/engine-native/internal/inferencemodel"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
@@ -16,7 +17,8 @@ import (
 )
 
 const ResultType = "inference_serving"
-const PayloadVersion = "0.2.0"
+const PayloadVersion = "0.3.0"
+const CompactPayloadVersion = "0.2.0"
 const LegacyPayloadVersion = "0.1.0"
 
 type Observation struct {
@@ -85,6 +87,9 @@ func request(v n.Event, legacy bool) Request {
 	return r
 }
 func Observations(ctx context.Context, s n.Set) ([]Observation, error) {
+	return observations(ctx, s, true)
+}
+func observations(ctx context.Context, s n.Set, exactRate bool) ([]Observation, error) {
 	effective, mapping, e := n.EffectiveMetrics(ctx, s)
 	if e != nil {
 		return nil, e
@@ -133,19 +138,33 @@ func Observations(ctx context.Context, s n.Set) ([]Observation, error) {
 		d := definitions[signal.ID]
 		refs, _ := json.Marshal(v.Refs)
 		row := Observation{SignalID: signal.ID, PointID: originalPoints[v.PointID], Time: v.End, Raw: v.Value, Unit: d.Unit, Status: v.Status, Gap: v.Gap, Refs: string(refs)}
-		convert := func(value *string) *string {
+		var conversionError error
+		convert := func(value *string, rate bool) *string {
 			if value == nil {
 				return nil
 			}
 			x, e := m.Number(*value)
+			if e != nil && exactRate && rate && len(*value) <= 1024 {
+				x, e = parseExactRate(*value)
+			}
 			if e != nil {
+				if exactRate {
+					conversionError = fmt.Errorf("INFERENCE_VALUE_UNCONVERTIBLE: signal=%s: %w", signal.ID, e)
+				}
 				return nil
 			}
-			return m.Pointer(m.Text(new(big.Rat).Mul(x, d.Factor)))
+			scaled := new(big.Rat).Mul(x, d.Factor)
+			if exactRate && rate {
+				return m.Pointer(scaled.RatString())
+			}
+			return m.Pointer(m.Text(scaled))
 		}
-		row.Value = convert(v.Value)
-		row.Delta = convert(v.Delta)
-		row.Rate = convert(v.Rate)
+		row.Value = convert(v.Value, false)
+		row.Delta = convert(v.Delta, false)
+		row.Rate = convert(v.Rate, true)
+		if conversionError != nil {
+			return nil, conversionError
+		}
 		row.DeltaUnit = d.Unit
 		row.RateMeaning = v.RateMeaning
 		if row.Rate != nil {
@@ -187,7 +206,7 @@ func buildInferenceVersion(ctx context.Context, s n.Set, source, payload string)
 	if e := s.Validate(ctx); e != nil {
 		return r, e
 	}
-	rows, e := Observations(ctx, s)
+	rows, e := observations(ctx, s, payload == PayloadVersion)
 	if e != nil {
 		return r, e
 	}
@@ -235,7 +254,7 @@ func buildInferenceVersion(ctx context.Context, s n.Set, source, payload string)
 }
 func ReadCore(r models.AnalysisResult) (n.Set, error) {
 	var s n.Set
-	if r.Type != ResultType || (r.Metadata.SchemaVersion != PayloadVersion && r.Metadata.SchemaVersion != LegacyPayloadVersion) {
+	if r.Type != ResultType || (r.Metadata.SchemaVersion != PayloadVersion && r.Metadata.SchemaVersion != LegacyPayloadVersion && r.Metadata.SchemaVersion != CompactPayloadVersion) {
 		return s, fmt.Errorf("INFERENCE_RESULT_VERSION_UNSUPPORTED")
 	}
 	body, e := json.Marshal(r.Metadata.Extra["inference_core"])
@@ -267,7 +286,10 @@ func Validate(r models.AnalysisResult) error {
 	}
 	return nil
 }
-func Descriptor() resultcontract.Descriptor { return inferenceDescriptor(PayloadVersion, "0.2.1") }
+func Descriptor() resultcontract.Descriptor { return inferenceDescriptor(PayloadVersion, "0.3.1") }
+func CompactDescriptor() resultcontract.Descriptor {
+	return inferenceDescriptor(CompactPayloadVersion, "0.2.1")
+}
 func LegacyDescriptor() resultcontract.Descriptor {
 	return inferenceDescriptor(LegacyPayloadVersion, "0.1.1")
 }
@@ -299,4 +321,27 @@ type Inventory struct {
 
 func Inspect(s n.Set) Inventory {
 	return Inventory{Entities: s.Entities, Signals: s.Signals, Contexts: s.Contexts, Links: s.Links, UnmappedSeries: len(s.Metrics.Series) - len(s.Signals), MetricPoints: len(s.Metrics.Points), Events: len(s.Events), Warnings: []string{"Explicit declared scope only; no device/rank attribution by local index or name.", "Open original metric history for exact samples, interval/reset/gap status and original histogram buckets; no inferred percentile.", "Version-specific vLLM aliases and real GPU/serving runtime acceptance remain unqualified."}}
+}
+
+// Derived rate is an exact rational transport, unlike observed source decimals.
+func parseExactRate(value string) (*big.Rat, error) {
+	parts := strings.Split(value, "/")
+	if len(parts) != 2 || len(parts[0]) > 512 || len(parts[1]) > 512 {
+		return nil, fmt.Errorf("invalid exact rate")
+	}
+	for _, part := range parts {
+		if part == "" {
+			return nil, fmt.Errorf("invalid exact rate")
+		}
+		for _, c := range part {
+			if c < '0' || c > '9' {
+				return nil, fmt.Errorf("invalid exact rate")
+			}
+		}
+	}
+	n, ok := new(big.Rat).SetString(value)
+	if !ok {
+		return nil, fmt.Errorf("invalid exact rate")
+	}
+	return n, nil
 }

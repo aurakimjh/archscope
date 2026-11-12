@@ -1,0 +1,11 @@
+{
+  "producer": "rustc 1.94.1 (e408947bf 2026-03-25)",
+  "raw": [
+    "__RNvCsftTivVSi7yj_17synthetic_symbols16synthetic_worker",
+    "_ZN9synthetic4work17h0123456789abcdefE",
+    "_ZN9synthetic4work17h1123456789abcdefE",
+    "Math::work",
+    "trust::work",
+    "_Rinvalid"
+  ]
+}

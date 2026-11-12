@@ -1,0 +1,32 @@
+{
+  "format": "thread-dump",
+  "thread_format": "java_jstack",
+  "producer": "jstack",
+  "producer_version": "21.0.8 layout; synthetic",
+  "clock_id": "synthetic-jvm-clock",
+  "process": {
+    "id": "synthetic-jvm",
+    "host_id": "synthetic-host",
+    "boot_id": "synthetic-boot",
+    "pid_namespace": "synthetic-ns",
+    "pid": "700",
+    "process_start_ns": "0",
+    "runtime": "JVM"
+  },
+  "entities": [
+    {
+      "id": "java-main",
+      "process_id": "synthetic-jvm",
+      "kind": "runtime_thread",
+      "runtime_id": "0x00000000000000aa",
+      "native_id": "0x1f4",
+      "native_encoding": "jvm_nid_hex",
+      "thread_start_ns": "0",
+      "thread_end_ns": null,
+      "name": "main Java thread",
+      "mapping_basis": "declared"
+    }
+  ],
+  "time_ns": "1000000000",
+  "population": "synthetic-main-thread"
+}

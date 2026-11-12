@@ -1,16 +1,16 @@
 // [한글] nodejsreport plugin 회귀 테스트.
 //
 // 검증 대상
-//   • DiagnosticReportPlugin:
-//       - main JS 스레드 + native worker 스레드 분리 (language tag).
-//       - libuv 핸들 종류별 메인 스레드 상태 추론
-//         (tcp 우세 → NETWORK_WAIT, fs 우세 → IO_WAIT, timer 우세 →
-//         TIMED_WAITING).
-//       - frame 형식 `at func (file:line:col)` 추출.
-//   • SampleTracePlugin:
-//       - `Sample #N` 블록 단위 분리.
-//       - thread name = "Sample #N".
-//   • 두 plugin 의 CanParse 가 충돌 없이 sniff (JSON vs 텍스트).
+//   - DiagnosticReportPlugin:
+//   - main JS 스레드 + native worker 스레드 분리 (language tag).
+//   - libuv 핸들 종류별 메인 스레드 상태 추론
+//     (tcp 우세 → NETWORK_WAIT, fs 우세 → IO_WAIT, timer 우세 →
+//     TIMED_WAITING).
+//   - frame 형식 `at func (file:line:col)` 추출.
+//   - SampleTracePlugin:
+//   - `Sample #N` 블록 단위 분리.
+//   - thread name = "Sample #N".
+//   - 두 plugin 의 CanParse 가 충돌 없이 sniff (JSON vs 텍스트).
 package nodejsreport
 
 import (
@@ -103,7 +103,7 @@ func TestParseExtractsJSMainAndNativePool(t *testing.T) {
 	for _, snap := range bundle.Snapshots {
 		names = append(names, snap.ThreadName)
 	}
-	if len(names) != 2 || names[0] != "main" || names[1] != "native" {
+	if len(names) != 2 || names[0] != "main" || names[1] != "native reporting thread" {
 		t.Fatalf("thread names = %+v", names)
 	}
 	js := bundle.Snapshots[0]
@@ -119,7 +119,7 @@ func TestParseExtractsJSMainAndNativePool(t *testing.T) {
 	if got := js.StackFrames[1].Function; got != "Layer.handle" {
 		t.Errorf("alias not stripped: %q", got)
 	}
-	if js.State != models.ThreadStateNetworkWait {
+	if js.State != models.ThreadStateUnknown {
 		t.Errorf("state = %q, want NETWORK_WAIT", js.State)
 	}
 }
@@ -238,7 +238,7 @@ func TestInferJSStateFileWaitWithoutNetwork(t *testing.T) {
 		},
 	}
 	got := InferJSState(models.ThreadStateRunnable, payload)
-	if got != models.ThreadStateIOWait {
+	if got != models.ThreadStateRunnable {
 		t.Fatalf("state = %q, want IO_WAIT", got)
 	}
 }

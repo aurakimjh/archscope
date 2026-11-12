@@ -1,0 +1,701 @@
+{
+  "task": "T-641",
+  "date": "2026-11-12",
+  "base_commit": "8f277fc1c2d4322febe2a3e153ca5ea22d94360b",
+  "shared_asset_commit": "e717b27c26a8b254e8103e17a9c11b5d8213686b",
+  "status": "REVIEW: implementation and local verification complete; independent/native acceptance separate",
+  "scope": "Scoped runtime/thread/TA/DB depth inside common AnalysisResult, plus T-640 R17 remediation",
+  "implementation": [
+    "runtime_evidence 0.1.0 / runtime_core 1.0.0, limited runtime.evidence-json importer; bounded strict offline normalization before common consumers",
+    "Actual CPython 3.14.4, Node v25.9.0, rustc 1.94.1 synthetic API fixtures; synthetic JVM/CPU/PostgreSQL structural fixtures; 28 pinned shared file hashes and identical root mirror",
+    "Explicit process/thread lifetimes, host/boot/PID namespace, native ID encodings, clock and containing CPU interval; unknown=candidate, contradictions=incompatible, full context is not causal attribution",
+    "Task/worker/native identities and observed/inferred state remain separate; multi-dump 0.2.0 isolates unqualified observations instead of joining names",
+    "Bounded pinned Rust demangler; raw symbols and frame identity preserved; namespace syntax alone never Rust evidence",
+    "Exact live allocation byte/count profiles for one capture; existing profile tree/drilldown/visual pipeline, owned late-cancel cleanup",
+    "Scoped GC pause union/concurrent separation, PostgreSQL estimate versus actual per-loop rows/time, explicit profile references without replicated cost",
+    "CLI/Wails/Workspace custom pages with immutable ownership and digest cursors; existing providers, timeline, exports, cases and offline bundle reused"
+  ],
+  "checks": {
+    "go_test_race": {
+      "command": "go test -race -count=1 -json ./...",
+      "exit": 0,
+      "packages_passed": 114,
+      "packages_no_tests": 9,
+      "passed_tests_and_subtests": 1610,
+      "note": "Final process-lifetime/rational changes verified additionally with targeted -race; final profile-reference and plan-cycle/task-CPU tests verified in final-boundaries.txt"
+    },
+    "targeted_final": "PASS: symbol/runtime/parser/analyzer/inference, exact rational/scaled rate, immutable old reader, GC union, CPU lifetime/window, 20k runtime model, merge conflicts, profile references, cycles and task/CPU boundary",
+    "go_vet": "PASS host + GOOS=windows GOARCH=amd64/386 CGO_ENABLED=0",
+    "frontend": "PASS npm run build and npm run test:state; Wails bindings regenerated from app cwd",
+    "mac_package": "PASS wails3 task darwin:package; codesign --verify --deep --strict",
+    "windows_gui": "PASS amd64 and 386 production cross-builds via existing guarded build wrapper; no native execution",
+    "cli": {
+      "operations": 41,
+      "expected_refusals_included": true,
+      "record": "cli-operations.json"
+    },
+    "browser": {
+      "scope": "Actual React RuntimeEvidence components and actual CLI DTOs, custom mock Wails transport; no native WebView claim",
+      "verified": [
+        "Qualified CPU pair visible",
+        "Cancel while allocation materialization pending releases late-owned lease",
+        "Replacing parent resets old entity selection"
+      ],
+      "artifacts": [
+        "qualified-cpu-mock-ipc.png",
+        "browser-harness.tsx.txt",
+        "data.json"
+      ]
+    },
+    "offline": {
+      "fixture_cases": 9,
+      "manifest_and_dependency_notices": "PASS; 75 dependencies, no missing root notices",
+      "observer_operations": 33,
+      "success": 32,
+      "expected_converter_refusal": 1,
+      "inet_syscalls": 0,
+      "positive_control_inet_syscalls": 2,
+      "scope": "Clean Linux CLI process trees, Docker --network none, no sibling checkout; not native desktop/Windows"
+    },
+    "desktop_only": "PASS node scripts/verify-desktop-only.mjs --check-server-build",
+    "diff_check": "PASS staged and unstaged"
+  },
+  "review_remediation": {
+    "original": "docs/review/done/2026-11-12_claude-code_T-640_implementation-review.ko.md",
+    "original_sha256": "8100ae2a998a703d209e242562b55101e82be0eb0e2b6ac22149538c53dd8913",
+    "verdict_preserved": "CONDITIONAL: P2 1 / P3 4",
+    "closure": "T-640 DONE under explicit P2-remediation permission; final remediation is not independently PASS",
+    "findings": {
+      "R17-01": "Fixed: payload 0.3.0 exact 20/3 and scaled 20971520/3; actual old binary 0.2.0 saved fixture retains original null rate and Validate acceptance",
+      "R17-02": "Fixed locally: expanded known raw markers, escaped/gzip tests and intake caveat; best effort only",
+      "R17-03": "Fixed locally: page-only serialization, private digest/version cache 2 entries /2 min /96 MiB conservative JSON charge. 20k-span warm query 6.690291ms non-race, same decoded graph; restored-mtime corruption refused",
+      "R17-04": "Fixed docs/error: measured shape ~35k span may reach32MiB before nominal50k; split original traces, no nonexistent selection instruction",
+      "R17-05": "QUEUED P3: consistent TTFT/TPOT nulls for contradictory boundaries in future versioned LLM payload; per-profile custom boundary/event capabilities documented. Saved 0.3.0 meaning preserved"
+    }
+  },
+  "gates_preserved": [
+    "T-641 independent review",
+    "Q01 vendor JSON exports, Q02 Apple, Q03 vLLM versions, Q04 GenAI metric aliases",
+    "Native Windows/WebView/clipboard/Office/GPU/serving acceptance and actual producer versions beyond pinned fixtures"
+  ],
+  "unexecuted": [
+    "No live collection, arbitrary Python execution, heap graph, DB connection or SQL execution",
+    "No native task-specific Wails/WebView or Windows execution",
+    "No actual PostgreSQL/ps/JVM producer qualification beyond synthetic structural fixtures",
+    "No Memray, py-spy/faulthandler producer-wide qualification, vendor LLM export adapter, arbitrary-body complete privacy detection or retrospective raw-archive scrub",
+    "No R17-05 duration semantics remediation or independent PASS of these fixes"
+  ],
+  "warnings": [
+    "Known host linker SDK27.2/deployment11.0 warnings; build/signature do not establish minimum OS runtime",
+    "Browser preview warning expected with mock IPC; initial missing favicon did not affect UI",
+    "Canonical byte budget can precede record ceiling; model32MiB/result64MiB; no silent truncation",
+    "Cache charge is based on conservative JSON estimates, not measured RSS; CLI queries have separate cold process lifetimes",
+    "Evidence text log trailing blank lines normalized; source_index_files hash exact Git index bytes, excluding unrelated tracker block"
+  ],
+  "preservation": {
+    "unstaged": [
+      "docs/en/SYSTEM_HTTP_CAPTURE.md",
+      "docs/ko/SYSTEM_HTTP_CAPTURE.md",
+      "ten-line First implementation cycle block in work_status.md"
+    ],
+    "untracked": [
+      "scripts/verify-http-desktop.mjs"
+    ],
+    "local_only_AGENTS": "excluded",
+    "tracker_counts": {
+      "DONE": 223,
+      "TODO": 1,
+      "PENDING": 4,
+      "REVIEW": 4,
+      "IN_PROGRESS": 0,
+      "total": 232
+    },
+    "next": "T-642"
+  },
+  "binary_sha256": {
+    "archscope-t641-engine": {
+      "sha256": "37730eaa39035b418e688d1584b7c9352d6b6fecc613b3582be7264a7a15aee3",
+      "bytes": 34801906
+    },
+    "archscope-t641-linux": {
+      "sha256": "cf9a473fbcb07c153c284962bde15a0e99fec0966e897e463b53e5d2e7938b57",
+      "bytes": 36046403
+    },
+    "archscope-t641-amd64.exe": {
+      "sha256": "b5b7f594866f67831e57663ece6d0eb238d94213bf51a9ea6c490198036c55c6",
+      "bytes": 38407168
+    },
+    "archscope-t641-386.exe": {
+      "sha256": "ba721cad5f17891b4214054f609ddcd28d67eba8318e9c4c34812a7d04bb695b",
+      "bytes": 37021696
+    }
+  },
+  "source_index_files": {
+    ".gitattributes": {
+      "sha256": "6c6ba04fc7be14220527feaf88bf2ad45386dc4ae015f0e4a61a4772cb7d8804",
+      "bytes": 2281
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": {
+      "sha256": "894d15aaa09b33ffd07e5f88bf0a91d3e873b380ad6550ec24725d2e13d72d35",
+      "bytes": 35120
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/runtimeEvidence.ts": {
+      "sha256": "f09e39d2d522cf679e5653cbff5bde73dcfa2a1bd4ac685d8125dfd76bb62223",
+      "bytes": 2013
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/EvidenceResultPanel.tsx": {
+      "sha256": "cf09b900d7e705f9d8d343f96fcd5674e8042641288f46b24eef4b0723dbb25d",
+      "bytes": 26202
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/LLMTraceEvidence.tsx": {
+      "sha256": "aaccf3b5d14309f166cc92f6abd270b39914de7c3bc7e091725ec3bfeab8bff7",
+      "bytes": 10475
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/RuntimeEvidence.tsx": {
+      "sha256": "56da379ccf6bd7ccffde862a665c69412b011fb5100471351ee6de0141a84d40",
+      "bytes": 14017
+    },
+    "apps/engine-native/cmd/archscope-app/runtimesourceservice.go": {
+      "sha256": "d4cecc091ba8db21d2ad26b6cb7361c682c848e30b94866a39ab2c8c5ea66365",
+      "bytes": 3468
+    },
+    "apps/engine-native/cmd/archscope-engine/cmd_runtime_evidence.go": {
+      "sha256": "c31be762834be4711a37eb9c35214025ce933910ab521ddba7398a2585048fa5",
+      "bytes": 4567
+    },
+    "apps/engine-native/go.mod": {
+      "sha256": "94e91308adbc1bb3f108a885cce11d18705104901f288934a2d5887de8c6623c",
+      "bytes": 734
+    },
+    "apps/engine-native/go.sum": {
+      "sha256": "ea98b09a6bc6827b9406a4b48af83f6154515ba4c675ee9c2b70ee00cc9f2e7c",
+      "bytes": 3900
+    },
+    "apps/engine-native/internal/analysis/llm_trace.go": {
+      "sha256": "5819407ed3d275acd89ff24192a3cacca05e2cac267bb9a93e8305c9b8a0a46c",
+      "bytes": 3185
+    },
+    "apps/engine-native/internal/analysis/runtime_evidence.go": {
+      "sha256": "eb84061db6b16bc6f7e8d8c5a586ba3a610de1faae71fca8138f1b9fcd90f2cc",
+      "bytes": 4158
+    },
+    "apps/engine-native/internal/analysis/runtime_evidence_test.go": {
+      "sha256": "36d410554ba02806e7711899a96429318a4117b760adbb0e111513c2d22a9fe2",
+      "bytes": 2916
+    },
+    "apps/engine-native/internal/analysis/semantic_cache.go": {
+      "sha256": "06e676a51eeee20c545f784c14fcda698b417efade5c224fdd82031831d371ed",
+      "bytes": 2398
+    },
+    "apps/engine-native/internal/analysis/semantic_cache_test.go": {
+      "sha256": "24d2d4ff859b09c76c474ed303a7c7a04358b870f8ce7aff86947a321d1080c8",
+      "bytes": 2915
+    },
+    "apps/engine-native/internal/analysis/service.go": {
+      "sha256": "f645073f46c65cde9c5b204b0da02a920c630d311861a7e382b1cd47ab65de56",
+      "bytes": 24633
+    },
+    "apps/engine-native/internal/analyzers/inference/analyzer.go": {
+      "sha256": "740d0b9b304d5ca6bd55b7020a21622565caea0b54d3c081132bc90942d82163",
+      "bytes": 15388
+    },
+    "apps/engine-native/internal/analyzers/inference/analyzer_test.go": {
+      "sha256": "913dfb271b48b749aa16008914bdf1e799ef4aafdda41e84ac155d06a508fb80",
+      "bytes": 8285
+    },
+    "apps/engine-native/internal/analyzers/inference/rational_internal_test.go": {
+      "sha256": "e33912001a37ca1a16e60a4852b5e56419adcd60cddde54d57d7825e61b9e70b",
+      "bytes": 409
+    },
+    "apps/engine-native/internal/analyzers/inference/testdata/legacy-rational-0.2.0.json": {
+      "sha256": "2c4682f28b6de9e6e30a29abe043a2fea405c563644628f808288e81ef010f38",
+      "bytes": 25572
+    },
+    "apps/engine-native/internal/analyzers/multithread/analyzer.go": {
+      "sha256": "f4729c26fd913fa5877570ee0bc67b3893f682e95d5d05f4973f85f16e27399f",
+      "bytes": 18231
+    },
+    "apps/engine-native/internal/analyzers/multithread/analyzer_test.go": {
+      "sha256": "5c5f62ccb6e5afe7b66149237c164e16bd1093fb5a32ee768f16e6798c30c1e4",
+      "bytes": 34268
+    },
+    "apps/engine-native/internal/analyzers/multithread/correlator.go": {
+      "sha256": "82e7c78b36c383111c6a21dc14b4e54a9ddbaa969be4f410db43059eba220f85",
+      "bytes": 4659
+    },
+    "apps/engine-native/internal/analyzers/multithread/identity.go": {
+      "sha256": "70fa09f33c48cb064924acba1344262b5b428a527b3461d5f9140de924f49019",
+      "bytes": 1654
+    },
+    "apps/engine-native/internal/analyzers/runtimeevidence/allocation.go": {
+      "sha256": "bfdb2ca0514669841f52be6812e5bc5f4638e85c1eeb67ed9cd34a458bd45ae7",
+      "bytes": 3530
+    },
+    "apps/engine-native/internal/analyzers/runtimeevidence/analyzer.go": {
+      "sha256": "81940b572a61a845454e8f3bfb2f4663c8a15b982620234be4f0b516bd5491a2",
+      "bytes": 10275
+    },
+    "apps/engine-native/internal/analyzers/runtimeevidence/analyzer_test.go": {
+      "sha256": "6178bf68bef48eb39323c0671bbcd5c385abfa69bd123a4d36e6b239b3b35ee2",
+      "bytes": 7095
+    },
+    "apps/engine-native/internal/analyzers/runtimeevidence/query.go": {
+      "sha256": "639a08d307c268eece02d1dde4f690010415dee950e793b8b9879c8d14a23edf",
+      "bytes": 5035
+    },
+    "apps/engine-native/internal/analyzers/threaddump/analyzer.go": {
+      "sha256": "791d5e98956d35f2e6301fdee9c8eede6b36bb5ed3d0dcce159e34b792135c3e",
+      "bytes": 12203
+    },
+    "apps/engine-native/internal/analyzers/threaddump/analyzer_test.go": {
+      "sha256": "353e502f332115080e93186405b3c7d92dcb5af93879e3693c1d5c75c109f0c0",
+      "bytes": 15071
+    },
+    "apps/engine-native/internal/analyzers/traceimport/llm_query.go": {
+      "sha256": "0a02c7db3dd0186148a3da467d8d2977ec65e1664a8d454ef7137134b7eeb882",
+      "bytes": 4642
+    },
+    "apps/engine-native/internal/catalog/builtin.go": {
+      "sha256": "1a07f122d24ff76559b2ded79be81cbe2da39022e63e633684a852bf2fbebd8e",
+      "bytes": 16110
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-LICENSE.txt": {
+      "sha256": "1935e213884ff215b7147ccb89471130f9281d1f70fff802e5ed0a60d5ea6626",
+      "bytes": 132
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-README.md": {
+      "sha256": "29eddebafad96e4ebb115d30b0b40117f0dd12d8e843e8ad8bae47308deb9245",
+      "bytes": 2817
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-cpu-options.json": {
+      "sha256": "35880e7f56f2383ebf09667145d78c1c0ecc9eb3df45d72104604fae566342f1",
+      "bytes": 846
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-cpu-set.json": {
+      "sha256": "6fb4dea637b26fa9ccea0a5fc6185e09772ea72fb6eb49d05c65385fb3723cb3",
+      "bytes": 1742
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-generate_node.mjs": {
+      "sha256": "8c27570bd45a4851ce3f58f3107ca93626ba1a28b835bf443486b1ab52722f92",
+      "bytes": 2124
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-generate_python.py": {
+      "sha256": "84fa6cdd651c487f1ccdd0c9f90e47902007738a0079d63d88f4c083f7e27032",
+      "bytes": 2215
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-generate_rust.py": {
+      "sha256": "5fb296ba362bc8dc4d2ab8027d8db00ab2ad448fffa7efba78232f853c761e37",
+      "bytes": 1639
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-jstack.txt": {
+      "sha256": "18545ca77d51c2bdd715f9aebc10e98fe9d3d4b0cf3dc3f4fd167685d3a5ec15",
+      "bytes": 201
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-node-25.9.0.json": {
+      "sha256": "270e991ce60374db9915ac74a2c300968e3f40591be728af0124ea63d28441a4",
+      "bytes": 13883
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-node-options.json": {
+      "sha256": "bdd4f04f71ce83e1551299c1f5927234294074ca4b3a8372aa9b9ea70f4a79f2",
+      "bytes": 338
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-node-set.json": {
+      "sha256": "a72ffc9fff7dad345435c2dcae2d2d1be664a0f890f574de5b0165749cec8d94",
+      "bytes": 50903
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-plan-actual-set.json": {
+      "sha256": "6e7fae51f734a291754a4baaf5b3bfad68e5a00390328b4c4454efa81eefbb7f",
+      "bytes": 2051
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-plan-estimated-set.json": {
+      "sha256": "ba71182f6d060b36137879d7712f3670fb7c32bda2570fb8745934c41bd52d63",
+      "bytes": 1007
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-postgres-actual.json": {
+      "sha256": "4c23201de1b1d3d4ccc49ab0164a1a1556241d576620205590c16906ac0b6d7e",
+      "bytes": 652
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-postgres-estimated.json": {
+      "sha256": "06ab80064930142c74486fcfe43c375d8976b246177b259bd233eb4dcba17424",
+      "bytes": 150
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-postgres-options.json": {
+      "sha256": "04709b5b1f8a050197f3a76c9eb60445952f6173d1e49512c3e9e45dc8c140ae",
+      "bytes": 154
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-ps-l.csv": {
+      "sha256": "7e2f5cd2c802f537c3d0f970305dfe5ff64dbcaaed739f5363373facdddd5ea9",
+      "bytes": 35
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-python-3.14.4.json": {
+      "sha256": "dc4729ef9ae3ef89347690ab013b39521083c90773d2c8a48a0623c065b29f5a",
+      "bytes": 4978
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-python-options.json": {
+      "sha256": "24726800377ad5122c944d2a1c510d25a3d4a4c526506902a31c3f67f2cdac75",
+      "bytes": 336
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-python-set.json": {
+      "sha256": "ac594a09e35c0964a60706b48cdb736c34fdbbce1c8795ca9feeda95b35d52d7",
+      "bytes": 17382
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-rust-1.94.1-backtrace.txt": {
+      "sha256": "7e3cce1a6934ecd9ad5257f575e4592b71243dfea082140d2f429b27158a05d1",
+      "bytes": 562
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-rust-options.json": {
+      "sha256": "4066cc957478ca58805d8c92deef40bca3043f7a25adf7520f4a6017fb62c41b",
+      "bytes": 350
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-rust-set.json": {
+      "sha256": "5f67c7d6ca2a657bfd80af02e3c6c2303a3c087f38d2729121c5255a16871d64",
+      "bytes": 3334
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-rust-symbols.json": {
+      "sha256": "e5b15ac2ce4c4764a4a8eee31b712cbe1ef1db9185572075427cfde9a1fbe877",
+      "bytes": 281
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-set.json": {
+      "sha256": "ffbf8afcb1f3cb92f0ea4355046f46a6ba68de51ee99f4a458f995e96b98968f",
+      "bytes": 77278
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-set.manifest.json": {
+      "sha256": "920559e6c91bc264fa56d013d050fe5b254f599fd30488bac651d23814737c6f",
+      "bytes": 4030
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-set.schema.json": {
+      "sha256": "069d4e3a932b554c6dae88ed6bc8c719fe053fc23bae596eaee916a2081dcf84",
+      "bytes": 12147
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-thread-options.json": {
+      "sha256": "1b523c663815859ab66d128834ab05ae2a83038a0c204f2a3a2cba20436a148c",
+      "bytes": 825
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-thread-set.json": {
+      "sha256": "5363dc7b40235430ba12a3081fe38636859078c9cb3dce85f4796c9dc054d623",
+      "bytes": 2340
+    },
+    "apps/engine-native/internal/catalog/contracts_test.go": {
+      "sha256": "d8e1dad0b6814486d0c10acddcf7700efa512ed62307bef9eb531885eff80705",
+      "bytes": 1604
+    },
+    "apps/engine-native/internal/catalog/runtime_evidence.go": {
+      "sha256": "158dd13e23f72a62c0b1c80767bb09396bb87862bd8fec055070a35c24b11517",
+      "bytes": 9488
+    },
+    "apps/engine-native/internal/distribution/assets/docs/en/INFERENCE_EVIDENCE.md": {
+      "sha256": "a0b19ac6ed938c18bc2d7177541bdc7e5e76826330763852936bef4acc12a89e",
+      "bytes": 12933
+    },
+    "apps/engine-native/internal/distribution/assets/docs/en/LLM_TRACE_EVIDENCE.md": {
+      "sha256": "e715904cf6d5343172fbf8da91594548528141821db89322e28e011aaf936fd6",
+      "bytes": 9947
+    },
+    "apps/engine-native/internal/distribution/assets/docs/en/RUNTIME_EVIDENCE.md": {
+      "sha256": "a2cef9c396ec236d01d6b07e2536c9404c365f4e37cad35df8301f3910f1b1fa",
+      "bytes": 8655
+    },
+    "apps/engine-native/internal/distribution/assets/docs/ko/INFERENCE_EVIDENCE.md": {
+      "sha256": "cad8a037fb0194c045dd0f13e66af779e832df5855181734b2e81edc537ed87a",
+      "bytes": 12397
+    },
+    "apps/engine-native/internal/distribution/assets/docs/ko/LLM_TRACE_EVIDENCE.md": {
+      "sha256": "3322d0810e61982696781c24b07bf06267e3fa1486dd4df790f5e9ca6169416a",
+      "bytes": 9773
+    },
+    "apps/engine-native/internal/distribution/assets/docs/ko/RUNTIME_EVIDENCE.md": {
+      "sha256": "3d13241073287a2b83c068ff2e864ef33bef6a94c3c2b351bfb943f778ec4bfa",
+      "bytes": 8410
+    },
+    "apps/engine-native/internal/distribution/assets/fixtures.sha256": {
+      "sha256": "382745f4b3b62afcbf911d6310cc9fe4f9d838671753f60ae973d5206c2e2ef7",
+      "bytes": 65
+    },
+    "apps/engine-native/internal/distribution/assets/fixtures.zip": {
+      "sha256": "e6d5b04f0e7e84390a02b2cabbed1a876c377affe921c9e0d1409f6990fed065",
+      "bytes": 640912
+    },
+    "apps/engine-native/internal/distribution/assets/licenses/c92390ad32310ffc573f.txt": {
+      "sha256": "b73277f7730993ef8e7f80aed83e5309762fed4d77eced982abb2c00657c074d",
+      "bytes": 1479
+    },
+    "apps/engine-native/internal/distribution/assets/licenses/manifest.json": {
+      "sha256": "969a0ed5436a14fdc333ade217c45279a45e19c669842a45c6e5ae915197c85c",
+      "bytes": 30139
+    },
+    "apps/engine-native/internal/distribution/bundle_test.go": {
+      "sha256": "09354b216b116165eb4dd867dd03f2a2e0ca73aa215607adcc1c7336ae234ae6",
+      "bytes": 2974
+    },
+    "apps/engine-native/internal/llmmodel/model.go": {
+      "sha256": "ed6305fd295d49a0e70b3f4d2f4c82dba838bd1029878fbfa2d12dda8525d6e1",
+      "bytes": 10257
+    },
+    "apps/engine-native/internal/parsers/profile/parser.go": {
+      "sha256": "28d718208171fb457c423267bee397e505d26d4a17c4bc0e4507d878d7904026",
+      "bytes": 36656
+    },
+    "apps/engine-native/internal/parsers/profile/source.go": {
+      "sha256": "81b075b59e3d19fbf7981a4646b4ddde9dde04b0ebe0a9312e7ac93c86cc0846",
+      "bytes": 13547
+    },
+    "apps/engine-native/internal/parsers/runtimeevidence/cpu.go": {
+      "sha256": "4e4d7717ab07218b0baf56b6aca04571d2568c99ae0bd9f15714cf772e624b44",
+      "bytes": 3699
+    },
+    "apps/engine-native/internal/parsers/runtimeevidence/node.go": {
+      "sha256": "1c7e6a39ee5d1af8f67502b1a2a6c7542dec80f34f68929769ab7094f77ab3d7",
+      "bytes": 5229
+    },
+    "apps/engine-native/internal/parsers/runtimeevidence/plan_profile.go": {
+      "sha256": "b6d8f094e9a803fe4b3123d3553320d6eaba883d7787a9363bca97715503ed5c",
+      "bytes": 3066
+    },
+    "apps/engine-native/internal/parsers/runtimeevidence/python.go": {
+      "sha256": "6aa1528a7d9ad7f82f42b101261e5857a868c832bb569998d9b946ab25ef2f89",
+      "bytes": 3589
+    },
+    "apps/engine-native/internal/parsers/runtimeevidence/rust.go": {
+      "sha256": "f21c025d7d877b4b9aee996fcb67eaf820982482bac296a8a5bad08f7a5735c4",
+      "bytes": 1597
+    },
+    "apps/engine-native/internal/parsers/runtimeevidence/source.go": {
+      "sha256": "1977ed7a041054cf117f6a0b2716b6192fa70117be93bf82b9a2ab8884b951cd",
+      "bytes": 9569
+    },
+    "apps/engine-native/internal/parsers/runtimeevidence/source_test.go": {
+      "sha256": "5510435d3a703ce81231fe58499db6dee758f9f0c0dc7c2010e4f70ee3fde7c7",
+      "bytes": 3895
+    },
+    "apps/engine-native/internal/parsers/runtimeevidence/thread.go": {
+      "sha256": "a15e4fb9a4e1e22b40de56badff609c04a4fb4c0d7ebe002410b37f1608f0607",
+      "bytes": 1924
+    },
+    "apps/engine-native/internal/parsers/traceimport/llm.go": {
+      "sha256": "d25e4173fe9fe56e76bd35e5a09f61e4d57525260ea4290ab7ab5db5fee76fee",
+      "bytes": 14324
+    },
+    "apps/engine-native/internal/parsers/traceimport/r17_test.go": {
+      "sha256": "c271a70bfc05bd4a2d33be49ee05c23a70d4c15bfeb5a2a8dffc400f2cb9be6e",
+      "bytes": 684
+    },
+    "apps/engine-native/internal/resultcontract/projection.go": {
+      "sha256": "c855d836dfd348f73b812d9409b0dacd70a3650f611161348fa0b15e205ec19b",
+      "bytes": 8877
+    },
+    "apps/engine-native/internal/runtimemodel/correlation.go": {
+      "sha256": "8d396af298fd91063a804e2b54e20baf1e6c9120850d25086b38ef5626a6b137",
+      "bytes": 4218
+    },
+    "apps/engine-native/internal/runtimemodel/merge.go": {
+      "sha256": "72eb63252ff19c3e48296af989f21ca6a80ab45dcc7138f0f22b97ecac37a123",
+      "bytes": 2246
+    },
+    "apps/engine-native/internal/runtimemodel/model.go": {
+      "sha256": "4496e782896400ea3d4659970196ae04c30555cfba4afc69de435360b45580a1",
+      "bytes": 12411
+    },
+    "apps/engine-native/internal/symbolinfo/symbol.go": {
+      "sha256": "43ceb87a99124291c1a82dd5bf2286b5994c7facd263ce8feac6143eb4042ea7",
+      "bytes": 1929
+    },
+    "apps/engine-native/internal/symbolinfo/symbol_test.go": {
+      "sha256": "983b1aa0d90dd6234517d5c862607df3fc83a9b722939838b1e6d2e9c5d40fcc",
+      "bytes": 730
+    },
+    "apps/engine-native/internal/threaddump/plugins/javajstack/blocks.go": {
+      "sha256": "86db7dd28ed4b951b73eb48baa15913d2dc59e727fb440b1577c254a44599f52",
+      "bytes": 8630
+    },
+    "apps/engine-native/internal/threaddump/plugins/javajstack/parser.go": {
+      "sha256": "7b01a0e0e59f16a4495510a2680d02e2bbfac5c4b89afab7ca064c17eed5fe60",
+      "bytes": 13612
+    },
+    "apps/engine-native/internal/threaddump/plugins/nodejsreport/parser.go": {
+      "sha256": "e0d3a0b901f4e42c5f533e5226884f367de088ff6f4d4b52b79ff39194de28ab",
+      "bytes": 14185
+    },
+    "apps/engine-native/internal/threaddump/plugins/nodejsreport/parser_test.go": {
+      "sha256": "668cda749ed8a12a9442ebc23663fd8d58d1a2063407d535e863a206c9c6600d",
+      "bytes": 12204
+    },
+    "apps/engine-native/internal/threaddump/plugins/pythondump/pythondump.go": {
+      "sha256": "e1420bdee17b625cdaf74d4bfd59420b99fa4a77d80a9d6b474079ab05187d8a",
+      "bytes": 17224
+    },
+    "apps/engine-native/scripts/generate-runtime-fixtures.go": {
+      "sha256": "b4aac90491f8bdee8b138a2d1fd1262acc062bc4678506acb75ab02240569809",
+      "bytes": 1551
+    },
+    "docs/en/DATA_MODEL.md": {
+      "sha256": "977ac30c43f2c4052d3ef470d12f84a894029f13bea39b645ef4bbefa91b0627",
+      "bytes": 113884
+    },
+    "docs/en/IMPORTER_SUPPORT_MATRIX.md": {
+      "sha256": "2569c502b7e5acf3398b21de3bc055ffc681dc006398e0cf2e2a8512ec610856",
+      "bytes": 13498
+    },
+    "docs/en/INFERENCE_EVIDENCE.md": {
+      "sha256": "a0b19ac6ed938c18bc2d7177541bdc7e5e76826330763852936bef4acc12a89e",
+      "bytes": 12933
+    },
+    "docs/en/LLM_TRACE_EVIDENCE.md": {
+      "sha256": "e715904cf6d5343172fbf8da91594548528141821db89322e28e011aaf936fd6",
+      "bytes": 9947
+    },
+    "docs/en/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md": {
+      "sha256": "81a2fc101e36c9e5f2be986cd555125679252fbb3df8d37aad55886c14557a3b",
+      "bytes": 33052
+    },
+    "docs/en/PARSER_DESIGN.md": {
+      "sha256": "c09ec3de5ba26352b7ad20f534642e5bd781d392d767661faa01ebb95ca5e7e0",
+      "bytes": 63216
+    },
+    "docs/en/RUNTIME_EVIDENCE.md": {
+      "sha256": "a2cef9c396ec236d01d6b07e2536c9404c365f4e37cad35df8301f3910f1b1fa",
+      "bytes": 8655
+    },
+    "docs/ko/DATA_MODEL.md": {
+      "sha256": "bc85b695399028973efc60d48b68bb128e39452ed453eb614338e55b43d3855b",
+      "bytes": 124053
+    },
+    "docs/ko/IMPORTER_SUPPORT_MATRIX.md": {
+      "sha256": "b409b7bf46302171bb862f2847de5c8a214e29c9c9be90b2fcfe8ec56288c30f",
+      "bytes": 14262
+    },
+    "docs/ko/INFERENCE_EVIDENCE.md": {
+      "sha256": "cad8a037fb0194c045dd0f13e66af779e832df5855181734b2e81edc537ed87a",
+      "bytes": 12397
+    },
+    "docs/ko/LLM_TRACE_EVIDENCE.md": {
+      "sha256": "3322d0810e61982696781c24b07bf06267e3fa1486dd4df790f5e9ca6169416a",
+      "bytes": 9773
+    },
+    "docs/ko/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md": {
+      "sha256": "9717bed3959fc55aaf7383f6e3766a2d1f016220fe2eaa7b8bc0d27dc41215c1",
+      "bytes": 134996
+    },
+    "docs/ko/PARSER_DESIGN.md": {
+      "sha256": "5db3bf8143718a0f41bd2827415ede8b16b7f1a7c7f77f7034d8a88d04ce82cd",
+      "bytes": 71607
+    },
+    "docs/ko/RUNTIME_EVIDENCE.md": {
+      "sha256": "3d13241073287a2b83c068ff2e864ef33bef6a94c3c2b351bfb943f778ec4bfa",
+      "bytes": 8410
+    },
+    "docs/review/README.md": {
+      "sha256": "067e94a4ac11773680a67ad9c95d823e52e1ef45d77cba80a78b5cc480040d76",
+      "bytes": 7724
+    },
+    "docs/review/done/2026-11-12_claude-code_T-640_implementation-review.ko.md": {
+      "sha256": "8100ae2a998a703d209e242562b55101e82be0eb0e2b6ac22149538c53dd8913",
+      "bytes": 15641
+    },
+    "scripts/build-offline-assets.py": {
+      "sha256": "8f6c41490fad90a04ade531aecb838e695a20b5656c4b9c279efa83a7d5ba1dc",
+      "bytes": 3948
+    },
+    "scripts/verify-offline-syscalls.py": {
+      "sha256": "c8053928b449aa342a9a0d28c4c08ca96210b5d560de9f8492fc9a54d2f33a5e",
+      "bytes": 9518
+    },
+    "work_status.md": {
+      "sha256": "d1d90f646b09aad0c65f8b6ce4290e9dd66a5e753822b01fef67fe4ea6082eb4",
+      "bytes": 483567
+    }
+  },
+  "evidence_files": {
+    "bindings.txt": {
+      "sha256": "5ae6a2205a1b4aa302f4d9ca88704766ba50fcf6a7d57c35d87e9c1da8a8ec4f",
+      "bytes": 252
+    },
+    "browser-harness.tsx.txt": {
+      "sha256": "84da05ea1cdbd7d0686ee0ff9b61aaea6b4cfe9f2289265e57c3fa49c6c022e1",
+      "bytes": 1945
+    },
+    "cache-scale.txt": {
+      "sha256": "2134dd4b587a777e08f3dd7e95485863c2f7c43c07dbedda4f4a21aacb7c18c2",
+      "bytes": 310
+    },
+    "cli-operations.json": {
+      "sha256": "880f4e90f964a1914f8331313a0d0367b993868b58c97d5f2ecf867807ce9eb5",
+      "bytes": 13508
+    },
+    "cli-qa.py": {
+      "sha256": "de16e130105a26a087887aa19dd6d92cb87cafe6f2b164e0094f81fbe7cb5ef3",
+      "bytes": 3574
+    },
+    "cli-summary.txt": {
+      "sha256": "faff673684dd05d35262db4ee25660552885b3b2974f624dd45cf18101dadfdb",
+      "bytes": 54
+    },
+    "codesign.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "data.json": {
+      "sha256": "39e0bb3a067d06bb98525a6b0b0b6f75f1eba7d528d226a8898bac60e8161ee8",
+      "bytes": 84017
+    },
+    "desktop-only.txt": {
+      "sha256": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97",
+      "bytes": 57
+    },
+    "final-boundaries.txt": {
+      "sha256": "8c44e4b97a3f03a1ba9210824a5801783df222bd5b5627d803ad4eb9b4a843f2",
+      "bytes": 192
+    },
+    "final-targeted.txt": {
+      "sha256": "a2d3192df027acb403ef41ec9c0ff12e688f719d3327f08926620abbb79bd7bb",
+      "bytes": 459
+    },
+    "frontend-state.txt": {
+      "sha256": "034a4df9c8ce36619d03893d56460260cae9c1ac5f88328b91fafe075d8d7bc6",
+      "bytes": 165
+    },
+    "frontend.txt": {
+      "sha256": "13854152011223611c7d9b4805d0adecbb84bcd79ad8fdc3593987db7a67f7e8",
+      "bytes": 6168
+    },
+    "go-race-summary.json": {
+      "sha256": "15edd7bda394bc4722eb354b0940be4667d9376c7837eb8292c28d31d739b96e",
+      "bytes": 20639
+    },
+    "go-vet.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "mac-package.txt": {
+      "sha256": "14c4c169ca9257ad39524b977e3c618265e29a02c4e68564c481ea1e7b5398bc",
+      "bytes": 1842
+    },
+    "offline-network.json": {
+      "sha256": "deba9593cd34a0ad9adf4f3e50c5558a47d6756fc96d449d14fcdb8ab7c72da3",
+      "bytes": 5002
+    },
+    "offline-resources-tests.txt": {
+      "sha256": "a3e1ad2d39695aea0845fc83bf1a566540513009ba0061c2205677666417d864",
+      "bytes": 163
+    },
+    "qualified-cpu-mock-ipc.png": {
+      "sha256": "48047fab917117eb9c448310686a71305c6996d72f3b495d8c4695f86c02c1d6",
+      "bytes": 337817
+    },
+    "windows-386-build.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "windows-386-vet.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "windows-amd64-build.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "windows-amd64-vet.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

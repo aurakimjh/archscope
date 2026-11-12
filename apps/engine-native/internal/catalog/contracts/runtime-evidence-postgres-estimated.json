@@ -1,0 +1,9 @@
+[
+  {
+    "Plan": {
+      "Node Type": "Seq Scan",
+      "Plan Rows": 100,
+      "Filter": "(synthetic_id = 'PRIVATE_SYNTHETIC_LITERAL')"
+    }
+  }
+]

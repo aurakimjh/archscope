@@ -1,0 +1,14 @@
+{
+  "format": "python-runtime-json",
+  "clock_id": "synthetic-python-clock",
+  "process": {
+    "id": "synthetic-python",
+    "host_id": "synthetic-host",
+    "boot_id": "synthetic-boot",
+    "pid_namespace": "synthetic-ns",
+    "pid": "500",
+    "process_start_ns": "0",
+    "runtime": "Python"
+  },
+  "population": "synthetic-warm"
+}

@@ -1,0 +1,599 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "entities",
+    "frames",
+    "observations",
+    "plan_nodes",
+    "processes",
+    "profile_refs",
+    "relations",
+    "schema_version",
+    "sources",
+    "stacks"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": [
+        "string"
+      ]
+    },
+    "sources": {
+      "type": [
+        "array"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "clock_id",
+          "format",
+          "id",
+          "producer",
+          "producer_version",
+          "sha256"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "string"
+            ]
+          },
+          "sha256": {
+            "type": [
+              "string"
+            ]
+          },
+          "format": {
+            "type": [
+              "string"
+            ]
+          },
+          "producer": {
+            "type": [
+              "string"
+            ]
+          },
+          "producer_version": {
+            "type": [
+              "string"
+            ]
+          },
+          "clock_id": {
+            "type": [
+              "string"
+            ]
+          }
+        }
+      }
+    },
+    "processes": {
+      "type": [
+        "array"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "boot_id",
+          "host_id",
+          "id",
+          "pid",
+          "pid_namespace",
+          "process_start_ns",
+          "runtime"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "string"
+            ]
+          },
+          "host_id": {
+            "type": [
+              "string"
+            ]
+          },
+          "boot_id": {
+            "type": [
+              "string"
+            ]
+          },
+          "pid_namespace": {
+            "type": [
+              "string"
+            ]
+          },
+          "pid": {
+            "type": [
+              "string"
+            ]
+          },
+          "process_start_ns": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]+$"
+          },
+          "runtime": {
+            "type": [
+              "string"
+            ]
+          }
+        }
+      }
+    },
+    "entities": {
+      "type": [
+        "array"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "mapping_basis",
+          "name",
+          "native_encoding",
+          "native_id",
+          "process_id",
+          "runtime_id",
+          "thread_end_ns",
+          "thread_start_ns"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "string"
+            ]
+          },
+          "process_id": {
+            "type": [
+              "string"
+            ]
+          },
+          "kind": {
+            "type": [
+              "string"
+            ]
+          },
+          "runtime_id": {
+            "type": [
+              "string"
+            ]
+          },
+          "native_id": {
+            "type": [
+              "string"
+            ]
+          },
+          "native_encoding": {
+            "type": [
+              "string"
+            ]
+          },
+          "thread_start_ns": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]+$"
+          },
+          "thread_end_ns": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]+$"
+          },
+          "name": {
+            "type": [
+              "string"
+            ]
+          },
+          "mapping_basis": {
+            "type": [
+              "string"
+            ]
+          }
+        }
+      }
+    },
+    "frames": {
+      "type": [
+        "array"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "display",
+          "id",
+          "symbol"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "string"
+            ]
+          },
+          "symbol": {
+            "type": [
+              "string"
+            ]
+          },
+          "display": {
+            "type": [
+              "string"
+            ]
+          },
+          "file": {
+            "type": [
+              "string"
+            ]
+          },
+          "line": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "language": {
+            "type": "string"
+          },
+          "runtime": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "build_id": {
+            "type": "string"
+          },
+          "native": {
+            "type": "boolean"
+          },
+          "kernel": {
+            "type": "boolean"
+          },
+          "async": {
+            "type": "boolean"
+          },
+          "inline": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "stacks": {
+      "type": [
+        "array"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "frames",
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "string"
+            ]
+          },
+          "frames": {
+            "type": [
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "observations": {
+      "type": [
+        "array"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "entity_id",
+          "from_ns",
+          "id",
+          "kind",
+          "measurement_basis",
+          "metric",
+          "observed_state",
+          "population",
+          "ref",
+          "stack_id",
+          "time_ns",
+          "to_ns",
+          "unit",
+          "value"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "string"
+            ]
+          },
+          "entity_id": {
+            "type": [
+              "string"
+            ]
+          },
+          "kind": {
+            "type": [
+              "string"
+            ]
+          },
+          "metric": {
+            "type": [
+              "string"
+            ]
+          },
+          "value": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "unit": {
+            "type": [
+              "string"
+            ]
+          },
+          "measurement_basis": {
+            "type": [
+              "string"
+            ]
+          },
+          "observed_state": {
+            "type": [
+              "string"
+            ]
+          },
+          "population": {
+            "type": [
+              "string"
+            ]
+          },
+          "time_ns": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]+$"
+          },
+          "from_ns": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]+$"
+          },
+          "to_ns": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]+$"
+          },
+          "stack_id": {
+            "type": [
+              "string"
+            ]
+          },
+          "ref": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "position",
+              "source_id"
+            ],
+            "properties": {
+              "source_id": {
+                "type": [
+                  "string"
+                ]
+              },
+              "position": {
+                "type": [
+                  "string"
+                ]
+              }
+            }
+          },
+          "inferred_category": {
+            "type": "string"
+          },
+          "inference_basis": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "relations": {
+      "type": [
+        "array"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "from_entity",
+          "to_entity",
+          "kind",
+          "ref"
+        ],
+        "properties": {
+          "from_entity": {
+            "type": "string"
+          },
+          "to_entity": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "ref": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source_id",
+              "position"
+            ],
+            "properties": {
+              "source_id": {
+                "type": "string"
+              },
+              "position": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "profile_refs": {
+      "type": [
+        "array"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "entity_id",
+          "profile_id",
+          "original_sha256",
+          "model_sha256",
+          "clock_id",
+          "ref"
+        ],
+        "properties": {
+          "entity_id": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "original_sha256": {
+            "type": "string"
+          },
+          "model_sha256": {
+            "type": "string"
+          },
+          "clock_id": {
+            "type": "string"
+          },
+          "ref": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source_id",
+              "position"
+            ],
+            "properties": {
+              "source_id": {
+                "type": "string"
+              },
+              "position": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "plan_nodes": {
+      "type": [
+        "array"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "actual_loops",
+          "actual_rows_per_loop",
+          "actual_total_ms_per_loop",
+          "estimated_rows",
+          "id",
+          "node_type",
+          "parent_id",
+          "ref"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "string"
+            ]
+          },
+          "parent_id": {
+            "type": [
+              "string"
+            ]
+          },
+          "node_type": {
+            "type": [
+              "string"
+            ]
+          },
+          "estimated_rows": {
+            "type": [
+              "string"
+            ]
+          },
+          "actual_rows_per_loop": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "actual_loops": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "actual_total_ms_per_loop": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ref": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "position",
+              "source_id"
+            ],
+            "properties": {
+              "source_id": {
+                "type": [
+                  "string"
+                ]
+              },
+              "position": {
+                "type": [
+                  "string"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:diagnostics:runtime-evidence:1.0.0",
+  "title": "범위·수명·단위를 보존하는 런타임 관측 계약"
+}

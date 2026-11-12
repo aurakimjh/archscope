@@ -1,0 +1,2 @@
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/distribution	2.724s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/catalog	2.077s

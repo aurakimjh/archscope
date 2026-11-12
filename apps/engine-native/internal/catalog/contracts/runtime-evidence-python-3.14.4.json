@@ -1,0 +1,209 @@
+{
+  "schema": "python-runtime-export.v1",
+  "python_version": "3.14.4",
+  "pid": "500",
+  "time_ns": "1000000000",
+  "tasks": [
+    {
+      "id": "task-0",
+      "name": "synthetic-main",
+      "state": "pending",
+      "stack": [
+        {
+          "symbol": "<module>",
+          "file": "/synthetic/generate_python.py",
+          "line": 26,
+          "language": "Python"
+        },
+        {
+          "symbol": "run",
+          "file": "/synthetic/runners.py",
+          "line": 204,
+          "language": "Python"
+        },
+        {
+          "symbol": "run",
+          "file": "/synthetic/runners.py",
+          "line": 127,
+          "language": "Python"
+        },
+        {
+          "symbol": "run_until_complete",
+          "file": "/synthetic/base_events.py",
+          "line": 706,
+          "language": "Python"
+        },
+        {
+          "symbol": "run_forever",
+          "file": "/synthetic/base_events.py",
+          "line": 677,
+          "language": "Python"
+        },
+        {
+          "symbol": "_run_once",
+          "file": "/synthetic/base_events.py",
+          "line": 2057,
+          "language": "Python"
+        },
+        {
+          "symbol": "_run",
+          "file": "/synthetic/events.py",
+          "line": 94,
+          "language": "Python"
+        },
+        {
+          "symbol": "main",
+          "file": "/synthetic/generate_python.py",
+          "line": 10,
+          "language": "Python"
+        }
+      ]
+    },
+    {
+      "id": "task-1",
+      "name": "synthetic-waiter",
+      "state": "pending",
+      "stack": [
+        {
+          "symbol": "parked",
+          "file": "/synthetic/generate_python.py",
+          "line": 7,
+          "language": "Python"
+        }
+      ]
+    }
+  ],
+  "workers": [
+    {
+      "id": "main",
+      "name": "synthetic-main-thread",
+      "state": "unknown",
+      "native_tid": "500",
+      "stack": [
+        {
+          "symbol": "main",
+          "file": "/synthetic/generate_python.py",
+          "line": 23,
+          "language": "Python"
+        }
+      ]
+    }
+  ],
+  "allocations": [
+    {
+      "size_bytes": 5212,
+      "blocks": 20,
+      "traceback": [
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/base_events.py",
+          "line": 706,
+          "language": "Python"
+        },
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/base_events.py",
+          "line": 677,
+          "language": "Python"
+        },
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/base_events.py",
+          "line": 2057,
+          "language": "Python"
+        },
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/events.py",
+          "line": 94,
+          "language": "Python"
+        },
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/generate_python.py",
+          "line": 9,
+          "language": "Python"
+        }
+      ]
+    },
+    {
+      "size_bytes": 1857,
+      "blocks": 25,
+      "traceback": [
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/base_events.py",
+          "line": 677,
+          "language": "Python"
+        },
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/base_events.py",
+          "line": 2057,
+          "language": "Python"
+        },
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/events.py",
+          "line": 94,
+          "language": "Python"
+        },
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/generate_python.py",
+          "line": 10,
+          "language": "Python"
+        },
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/generate_python.py",
+          "line": 6,
+          "language": "Python"
+        }
+      ]
+    },
+    {
+      "size_bytes": 1744,
+      "blocks": 7,
+      "traceback": [
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/base_events.py",
+          "line": 677,
+          "language": "Python"
+        },
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/base_events.py",
+          "line": 2057,
+          "language": "Python"
+        },
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/events.py",
+          "line": 94,
+          "language": "Python"
+        },
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/generate_python.py",
+          "line": 10,
+          "language": "Python"
+        },
+        {
+          "symbol": "<allocation traceback>",
+          "file": "/synthetic/base_tasks.py",
+          "line": 55,
+          "language": "Python"
+        }
+      ]
+    }
+  ],
+  "gc_events": [
+    {
+      "from_ns": "1000017000",
+      "to_ns": "1001271000",
+      "phase": "pause"
+    }
+  ]
+}

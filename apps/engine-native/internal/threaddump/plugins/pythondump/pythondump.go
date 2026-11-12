@@ -5,49 +5,52 @@
 // is exposed as a separate threaddump.Plugin so format detection is
 // unambiguous:
 //
-//   - py-spy: ``py-spy dump --pid <pid>`` produces ``Process 12345:``
-//     followed by per-thread blocks ``Thread <id> (<state>): "name"``
-//     and indented ``func (file:line)`` frames.
-//   - faulthandler: ``faulthandler.dump_traceback`` (and SIGSEGV crash
-//     dumps) produces ``Thread 0x... (most recent call first):`` and
-//     ``  File "...", line N in func`` frames.
-//   - traceback: ``traceback.format_stack`` text prefixed with
-//     ``Thread ID: <n>`` and frames like ``  File "...", line N, in func``.
+//   - py-spy: “py-spy dump --pid <pid>“ produces “Process 12345:“
+//     followed by per-thread blocks “Thread <id> (<state>): "name"“
+//     and indented “func (file:line)“ frames.
+//   - faulthandler: “faulthandler.dump_traceback“ (and SIGSEGV crash
+//     dumps) produces “Thread 0x... (most recent call first):“ and
+//     “  File "...", line N in func“ frames.
+//   - traceback: “traceback.format_stack“ text prefixed with
+//     “Thread ID: <n>“ and frames like “  File "...", line N, in func“.
 //
 // All three share a single enrichment pass (T-199 in Python) that
 // strips Django/FastAPI/Flask middleware wrappers and promotes
-// ``select.*`` / ``socket.recv`` / async sleep frames to the proper
+// “select.*“ / “socket.recv“ / async sleep frames to the proper
 // ThreadState.
 //
 // ─────────────────────────────────────────────────────────────────────
 // [한글] pythondump plugin — Python 3종 thread dump 파서.
 //
 // 3종 변종을 별도 plugin 으로 분리한 이유
-//   세 형식이 외관이 비슷해 보이지만 헤더 / 프레임 grammar 가 다름.
-//   하나의 plugin 안에서 분기하면 CanParse 가 부정확해질 수 있어,
-//   각 변종이 자기 CanParse 를 가지도록 plugin 을 3개로 분리.
+//
+//	세 형식이 외관이 비슷해 보이지만 헤더 / 프레임 grammar 가 다름.
+//	하나의 plugin 안에서 분기하면 CanParse 가 부정확해질 수 있어,
+//	각 변종이 자기 CanParse 를 가지도록 plugin 을 3개로 분리.
 //
 // 변종별 형식
-//   1) py-spy (`py-spy dump --pid <pid>`):
-//        Process 12345:
-//        Thread 12345 (idle): "MainThread"
-//          time.sleep (file.py:10)
-//          run (file.py:20)
 //
-//   2) faulthandler (`faulthandler.dump_traceback`, SIGSEGV crash):
-//        Thread 0x7f1234 (most recent call first):
-//          File "/path/file.py", line N in func
+//  1. py-spy (`py-spy dump --pid <pid>`):
+//     Process 12345:
+//     Thread 12345 (idle): "MainThread"
+//     time.sleep (file.py:10)
+//     run (file.py:20)
 //
-//   3) traceback (`traceback.format_stack` 결과를 직접 출력):
-//        Thread ID: 12345
-//          File "/path/file.py", line N, in func
+//  2. faulthandler (`faulthandler.dump_traceback`, SIGSEGV crash):
+//     Thread 0x7f1234 (most recent call first):
+//     File "/path/file.py", line N in func
+//
+//  3. traceback (`traceback.format_stack` 결과를 직접 출력):
+//     Thread ID: 12345
+//     File "/path/file.py", line N, in func
 //
 // 공통 enrichment (T-199)
-//   세 변종 모두 같은 후처리 함수를 통과:
-//     • Django/FastAPI/Flask middleware wrapper 제거 (`@require_*` 등).
-//     • select.* / socket.recv / asyncio sleep 패턴 인식 → 적절한
-//       ThreadState (NETWORK_WAIT / IO_WAIT / TIMED_WAITING).
-//     • py-spy idle/sleeping → TIMED_WAITING.
+//
+//	세 변종 모두 같은 후처리 함수를 통과:
+//	  • Django/FastAPI/Flask middleware wrapper 제거 (`@require_*` 등).
+//	  • select.* / socket.recv / asyncio sleep 패턴 인식 → 적절한
+//	    ThreadState (NETWORK_WAIT / IO_WAIT / TIMED_WAITING).
+//	  • py-spy idle/sleeping → TIMED_WAITING.
 package pythondump
 
 import (
@@ -68,16 +71,16 @@ import (
 // Python uses re.MULTILINE; in Go we encode the same intent with `(?m)`.
 var pyspyBannerRE = regexp.MustCompile(`(?m)^Process\s+\d+:.*\n.*Python\s+v?\d+\.\d+`)
 
-// pyspyThreadRE matches ``Thread <tid> (<state>): "name"``. The name
+// pyspyThreadRE matches “Thread <tid> (<state>): "name"“. The name
 // portion is optional and is captured greedy through end-of-line.
 var pyspyThreadRE = regexp.MustCompile(`^Thread\s+(\d+)\s+\(([^)]+)\):\s*(.*)$`)
 
-// pyspyFrameRE matches ``    func (file:line)``. The function token
-// disallows whitespace and ``(`` so qualified names like ``Class.method``
+// pyspyFrameRE matches “    func (file:line)“. The function token
+// disallows whitespace and “(“ so qualified names like “Class.method“
 // still match.
 var pyspyFrameRE = regexp.MustCompile(`^\s+([^\s(]+)\s+\(([^:]+):(\d+)\)\s*$`)
 
-// PySpyPlugin parses ``py-spy dump`` text output.
+// PySpyPlugin parses “py-spy dump“ text output.
 type PySpyPlugin struct{}
 
 // FormatID returns the stable identifier used by ParseOptions.FormatOverride
@@ -149,7 +152,7 @@ func (p PySpyPlugin) Parse(path string) (models.ThreadDumpBundle, error) {
 // faulthandler
 // ---------------------------------------------------------------------------
 
-// faulthandlerThreadRE matches ``Thread 0x<hex> (most recent call first):``.
+// faulthandlerThreadRE matches “Thread 0x<hex> (most recent call first):“.
 var faulthandlerThreadRE = regexp.MustCompile(`(?m)^Thread\s+0x[0-9a-fA-F]+\s+\(most recent call first\):\s*$`)
 
 // faulthandlerThreadLineRE matches the same header at line start when
@@ -159,10 +162,10 @@ var faulthandlerThreadLineRE = regexp.MustCompile(`^Thread\s+0x[0-9a-fA-F]+\s+\(
 // faulthandlerHexRE pulls the hex tid for use as snapshot id.
 var faulthandlerHexRE = regexp.MustCompile(`0x[0-9a-fA-F]+`)
 
-// faulthandlerFrameRE matches ``  File "...", line N in func``.
+// faulthandlerFrameRE matches “  File "...", line N in func“.
 var faulthandlerFrameRE = regexp.MustCompile(`^\s+File\s+"([^"]+)",\s+line\s+(\d+)\s+in\s+(\S+)\s*$`)
 
-// FaulthandlerPlugin parses ``faulthandler.dump_traceback`` output.
+// FaulthandlerPlugin parses “faulthandler.dump_traceback“ output.
 type FaulthandlerPlugin struct{}
 
 // FormatID returns the stable identifier used by ParseOptions.FormatOverride.
@@ -171,7 +174,7 @@ func (FaulthandlerPlugin) FormatID() string { return "python_faulthandler" }
 // Language returns the runtime label.
 func (FaulthandlerPlugin) Language() string { return "python" }
 
-// CanParse sniffs the head for ``Thread 0x... (most recent call first):``.
+// CanParse sniffs the head for “Thread 0x... (most recent call first):“.
 func (FaulthandlerPlugin) CanParse(head string) bool { return faulthandlerThreadRE.MatchString(head) }
 
 // Parse reads `path` and returns one bundle of thread snapshots.
@@ -230,20 +233,20 @@ func (p FaulthandlerPlugin) Parse(path string) (models.ThreadDumpBundle, error) 
 // plain traceback (``Thread ID: <n>``)
 // ---------------------------------------------------------------------------
 
-// tracebackHeaderRE matches ``Thread ID: <n>`` headers. Python uses
+// tracebackHeaderRE matches “Thread ID: <n>“ headers. Python uses
 // MULTILINE for can_parse — we mirror with `(?m)`.
 var tracebackHeaderRE = regexp.MustCompile(`(?m)^Thread\s+ID:\s*(\d+)\s*$`)
 
 // tracebackHeaderLineRE matches the same header line-by-line.
 var tracebackHeaderLineRE = regexp.MustCompile(`^Thread\s+ID:\s*(\d+)\s*$`)
 
-// tracebackFrameRE matches ``  File "...", line N, in func`` (note
+// tracebackFrameRE matches “  File "...", line N, in func“ (note
 // the trailing comma + the function being any non-greedy text — Python
-// allows ``in <module>`` etc.).
+// allows “in <module>“ etc.).
 var tracebackFrameRE = regexp.MustCompile(`^\s+File\s+"([^"]+)",\s+line\s+(\d+),\s+in\s+(.+?)\s*$`)
 
-// TracebackPlugin parses ``traceback.format_stack()``-style dumps
-// prefixed with ``Thread ID: <n>`` headers. Used by simple test
+// TracebackPlugin parses “traceback.format_stack()“-style dumps
+// prefixed with “Thread ID: <n>“ headers. Used by simple test
 // fixtures that don't depend on py-spy or faulthandler.
 type TracebackPlugin struct{}
 
@@ -253,7 +256,7 @@ func (TracebackPlugin) FormatID() string { return "python_traceback" }
 // Language returns the runtime label.
 func (TracebackPlugin) Language() string { return "python" }
 
-// CanParse sniffs the head for ``Thread ID: <n>``.
+// CanParse sniffs the head for “Thread ID: <n>“.
 func (TracebackPlugin) CanParse(head string) bool { return tracebackHeaderRE.MatchString(head) }
 
 // Parse reads `path` and returns one bundle.
@@ -312,7 +315,7 @@ func (p TracebackPlugin) Parse(path string) (models.ThreadDumpBundle, error) {
 // readPythonDumpLines reads the file with the project's encoding-fallback
 // chain (utf-8 first, latin-1 last). Falls back to a raw os.ReadFile on
 // the rare path where textio's strict utf-8 mode would refuse — Python
-// uses ``errors="replace"`` and never raises here.
+// uses “errors="replace"“ and never raises here.
 func readPythonDumpLines(path string) ([]string, error) {
 	if lines, err := textio.IterTextLines(path, ""); err == nil {
 		return lines, nil
@@ -361,7 +364,7 @@ var pythonBoilerplateFunctions = map[string]struct{}{
 // pythonBoilerplateFiles matches paths inside known framework packages.
 // Mirrors the Python `_PYTHON_BOILERPLATE_FILES` regex (the trailing
 // `\b` anchors each name on a word boundary so `asgi` matches inside
-// ``my_asgi_pkg`` but not inside ``asgir``).
+// “my_asgi_pkg“ but not inside “asgir“).
 var pythonBoilerplateFiles = regexp.MustCompile(`(starlette|fastapi|django|flask|gunicorn|uvicorn|werkzeug|asgi)\b`)
 
 // stripPythonBoilerplate drops framework wrappers that obscure the
@@ -478,9 +481,12 @@ func inferPythonState(state models.ThreadState, frames []models.StackFrame) mode
 // specific state from the top frame, and updates the category to match
 // the new state. Mirrors `_finalize_python_snapshot` in Python.
 func finalizePythonSnapshot(snap models.ThreadSnapshot) models.ThreadSnapshot {
+	snap.Metadata["observed_state"] = string(snap.State)
 	cleaned := stripPythonBoilerplate(snap.StackFrames)
 	newState := inferPythonState(snap.State, cleaned)
 	snap.StackFrames = cleaned
+	snap.Metadata["inferred_category"] = string(newState)
+	snap.Metadata["inference_basis"] = "stack-name heuristic; not measured wait or GIL duration"
 	snap.State = newState
 	cat := string(newState)
 	snap.Category = &cat

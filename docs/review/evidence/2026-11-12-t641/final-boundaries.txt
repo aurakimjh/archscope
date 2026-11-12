@@ -1,0 +1,2 @@
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/runtimeevidence	1.396s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/runtimeevidence	6.223s

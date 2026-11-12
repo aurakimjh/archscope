@@ -1042,3 +1042,8 @@ SystemEvidence 1.0.0 / system_evidence 0.1.0 저장 reader는 유지하며 새 1
 ## T-640 구현 경계 (2026-11-12)
 
 제한 importer `trace.llm-json`은 LLMTrace 1.0.0을 기존 trace_import 0.3.0 / llm_core 1.0.0으로 분석한다. 기존 trace 0.2.0 reader는 유지한다. Parent/link·자식 합집합 경과 시간·명시적 논리/시도 accounting·token 경계·lifecycle 집단을 구분하고 본문 제외 정규화를 케이스 복사/색인보다 먼저 적용한다. 정확한 페이지 query/UI와 기존 provider/export를 재사용한다. Q01 제품 JSON adapter는 유지한다. [LLM trace 근거](LLM_TRACE_EVIDENCE.md) 참조. T-639 R16은 untyped range의 명시적 메타데이터와 입력 event ID 생성을 추가하며 1.0/1.1 모델·0.1/0.2 결과 reader를 유지한다. [추론 서빙 근거](INFERENCE_EVIDENCE.md) 참조.
+
+
+## T-641 런타임 근거
+
+런타임 근거는 AnalysisResult 안의 별도 정규 모델을 사용합니다. 고정 producer 형식·identity/window 확인·live allocation 프로파일 재사용·GC 합집합·실행계획 loop당 의미·저장 reader 경계는 [RUNTIME_EVIDENCE.md](RUNTIME_EVIDENCE.md)를 참고하세요.

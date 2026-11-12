@@ -20,23 +20,24 @@
 // [한글] threaddump 분석기 — 단일 Java jstack 덤프 분석기 (JVM 전용).
 //
 // multithread 분석기와의 차이
-//   • 본 패키지는 단일 dump → 한 시점의 스냅샷 분석.
-//   • multithread 분석기는 여러 dump → 시간 흐름 + 상관 분석.
-//   • 본 패키지는 JVM jstack 만 입력. 다른 런타임은 multithread 의
+//   - 본 패키지는 단일 dump → 한 시점의 스냅샷 분석.
+//   - multithread 분석기는 여러 dump → 시간 흐름 + 상관 분석.
+//   - 본 패키지는 JVM jstack 만 입력. 다른 런타임은 multithread 의
 //     자동 감지 경로 사용.
 //
 // 출력 envelope (type: "thread_dump")
-//   • summary: total_threads, RUNNABLE/BLOCKED/WAITING/... 비율.
-//   • series: state_distribution / category_distribution.
-//   • tables.threads : per-thread 행 (top frame, lock info, full stack).
-//   • tables.top_stack_signatures : 가장 흔한 signature 상위 N.
-//   • findings:
-//        BLOCKED_THREADS_PRESENT      : BLOCKED 1개 이상.
-//        WAITING_THREADS_DOMINATE     : WAITING/total > 50%.
+//   - summary: total_threads, RUNNABLE/BLOCKED/WAITING/... 비율.
+//   - series: state_distribution / category_distribution.
+//   - tables.threads : per-thread 행 (top frame, lock info, full stack).
+//   - tables.top_stack_signatures : 가장 흔한 signature 상위 N.
+//   - findings:
+//     BLOCKED_THREADS_PRESENT      : BLOCKED 1개 이상.
+//     WAITING_THREADS_DOMINATE     : WAITING/total > 50%.
 //
 // fallback 정책
-//   State 가 빈 enum / Category 가 nil → "UNKNOWN" 로 표시. Python 측
-//   과 동일.
+//
+//	State 가 빈 enum / Category 가 nil → "UNKNOWN" 로 표시. Python 측
+//	과 동일.
 package threaddump
 
 import (
@@ -52,7 +53,7 @@ const (
 	// DefaultTopN matches Python's `top_n=20` analyzer default.
 	DefaultTopN = 20
 	// SchemaVersion mirrors Python's `metadata.schema_version`.
-	SchemaVersion = "0.1.0"
+	SchemaVersion = "0.2.0"
 	// ParserName mirrors Python's `metadata.parser` literal.
 	ParserName = "java_thread_dump"
 	// ResultType mirrors Python's `AnalysisResult.type`.
@@ -238,13 +239,14 @@ func buildThreadsTable(snapshots []models.ThreadSnapshot, topN int) []map[string
 	for i := 0; i < limit; i++ {
 		snap := snapshots[i]
 		row := map[string]any{
-			"thread_name": snap.ThreadName,
-			"thread_id":   snap.ThreadID,
-			"state":       string(snap.State),
-			"category":    snap.Category,
-			"top_frame":   topFrame(snap),
-			"lock_info":   snap.LockInfo,
-			"stack":       renderStack(snap.StackFrames),
+			"thread_name":    snap.ThreadName,
+			"thread_id":      snap.ThreadID,
+			"state":          string(snap.State),
+			"observed_state": snap.Metadata["observed_state"], "inferred_category": snap.Metadata["inferred_category"], "inference_basis": snap.Metadata["inference_basis"],
+			"category":  snap.Category,
+			"top_frame": topFrame(snap),
+			"lock_info": snap.LockInfo,
+			"stack":     renderStack(snap.StackFrames),
 		}
 		rows = append(rows, row)
 	}
@@ -356,4 +358,3 @@ func defaultDiagnostics(parsed int) *diagnostics.ParserDiagnostics {
 	d.ParsedRecords = parsed
 	return d
 }
-
