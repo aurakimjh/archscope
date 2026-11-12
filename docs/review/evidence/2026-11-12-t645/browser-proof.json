@@ -1,0 +1,148 @@
+{
+  "scope": "Actual React and CLI DTOs; mock IPC/save dialogs; no native WebView/Windows",
+  "calls": [
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "aU-MDGYedZ22G2wBuXt_z",
+        "methodName": "main.EngineService.DescribeMetricQuery",
+        "args": [
+          "postgres"
+        ]
+      }
+    },
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "B5ojABglsV3uo1yUe0ybY",
+        "methodName": "main.EngineService.InspectMetricSource",
+        "args": [
+          "/manual/postgres-capture.json",
+          "{ \"format\": \"postgres-stat-database-json\", \"producer\": \"\", \"producer_version\": \"\", \"query\": {} }"
+        ]
+      }
+    },
+    {
+      "object": 5,
+      "method": 5,
+      "args": {
+        "Title": "새 메트릭 모델 저장",
+        "Filename": "metric-history-set.json"
+      }
+    },
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "nIBTJXAneW-OzQFOgxD9W",
+        "methodName": "main.EngineService.NormalizeMetricSource",
+        "args": [
+          "/manual/postgres-capture.json",
+          "{ \"format\": \"postgres-stat-database-json\", \"producer\": \"\", \"producer_version\": \"\", \"query\": {} }",
+          "dd9d4a76f921b4f110fde3aed6b77ec9308c05aceb077f3cc9ecad8c37d939ff",
+          "/tmp/t645-postgres-model.json"
+        ]
+      }
+    },
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "2zDRWEsitOJvI4I5JMHEa",
+        "methodName": "main.EngineService.QueryMetricHistory",
+        "args": [
+          "postgres",
+          "4f2abad862b98918f6765bc6536cde557daa9e749376d8ac8c4b41986ccf11df",
+          "{\"selection\":{\"series_ids\":[\"metric-300b8c9a08885ed8823e10e103ba26e86a17264a6005a8a419f467d7911df883\"]},\"cursor\":\"\",\"limit\":25}"
+        ]
+      }
+    },
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "bBozYnzrKmq9JgoMWGoJX",
+        "methodName": "main.EngineService.DescribeMetricQuery",
+        "args": [
+          "linux-ss"
+        ]
+      }
+    },
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "9x8FlASmCRw2LeRbs1IJr",
+        "methodName": "main.EngineService.InspectMetricSource",
+        "args": [
+          "/manual/linux-ss-capture.json",
+          "{ \"format\": \"linux-ss-summary-json\", \"producer\": \"\", \"producer_version\": \"\", \"query\": {} }"
+        ]
+      }
+    },
+    {
+      "object": 5,
+      "method": 5,
+      "args": {
+        "Title": "새 메트릭 모델 저장",
+        "Filename": "metric-history-set.json"
+      }
+    },
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "7dCx0aj8n65eO9ZL4BGvu",
+        "methodName": "main.EngineService.NormalizeMetricSource",
+        "args": [
+          "/manual/linux-ss-capture.json",
+          "{ \"format\": \"linux-ss-summary-json\", \"producer\": \"\", \"producer_version\": \"\", \"query\": {} }",
+          "c2aa8d9f0ee25fc7791089dc3c1fad2d5f9203ac6cdeaa96f2c5f8a0841e6fbc",
+          "/tmp/t645-linux-ss-model.json"
+        ]
+      }
+    },
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "wbnerwtFUsqBd3ShWxuyG",
+        "methodName": "main.EngineService.QueryMetricHistory",
+        "args": [
+          "linux-ss",
+          "a95bb49c512bf127975aad752dc3eb69e3fd8059b3cdc4d7c991bd325cd40c5c",
+          "{\"selection\":{\"series_ids\":[\"metric-1f3f468c7585caff6ec1d24bfb810498cded8df3b3662a24ba9a3608289bf752\"]},\"cursor\":\"\",\"limit\":25}"
+        ]
+      }
+    }
+  ],
+  "normalized": [
+    {
+      "stem": "postgres",
+      "path": "/tmp/t645-postgres-model.json",
+      "selection": "{\"series_ids\":[\"metric-300b8c9a08885ed8823e10e103ba26e86a17264a6005a8a419f467d7911df883\"]}"
+    },
+    {
+      "stem": "linux-ss",
+      "path": "/tmp/t645-linux-ss-model.json",
+      "selection": "{\"series_ids\":[\"metric-1f3f468c7585caff6ec1d24bfb810498cded8df3b3662a24ba9a3608289bf752\"]}"
+    }
+  ],
+  "rows": 3,
+  "values": [
+    "0",
+    "8",
+    "0"
+  ],
+  "alerts": [],
+  "bodyWidth": 1280,
+  "viewport": 1280,
+  "postgres": {
+    "rows": 5,
+    "unknown_and_reset_observed": true,
+    "no_alert_or_overflow": true
+  },
+  "source_pin_assertions": "both inspected source SHA values passed to normalize; both callbacks applied"
+}

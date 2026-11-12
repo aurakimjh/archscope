@@ -224,3 +224,39 @@ func TestStructuralTorchCUDAFlowScopeWithoutFalseProcessJoin(t *testing.T) {
 		}
 	}
 }
+
+func TestR2101IgnoredRawRecordsDoNotConsumeRetainedEventBudget(t *testing.T) {
+	var root map[string]json.RawMessage
+	if e := json.Unmarshal(fixture(t, "pytorch-rank-0.json"), &root); e != nil {
+		t.Fatal(e)
+	}
+	var events []json.RawMessage
+	if e := json.Unmarshal(root["traceEvents"], &events); e != nil {
+		t.Fatal(e)
+	}
+	for i := 0; i < 100001; i++ {
+		events = append(events, json.RawMessage(`{"ph":"M","name":"private-ignored-metadata"}`))
+	}
+	root["traceEvents"], _ = json.Marshal(events)
+	raw, _ := json.Marshal(root)
+	options, e := p.DecodeOptions(fixture(t, "pytorch-rank-0-options.json"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	set, e := p.ParseBytes(context.Background(), raw, options)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if len(set.Events) != 22 {
+		t.Fatal("raw ignored records changed retained budget", len(set.Events))
+	}
+	normalized, _ := json.Marshal(set)
+	if bytes.Contains(normalized, []byte("private-ignored-metadata")) {
+		t.Fatal("ignored name retained")
+	}
+	root["schemaVersion"] = json.RawMessage(`2`)
+	raw, _ = json.Marshal(root)
+	if _, e = p.ParseBytes(context.Background(), raw, options); e == nil || !strings.Contains(e.Error(), "GPU_TRACE_TORCH_SCHEMA_REQUIRED") {
+		t.Fatal("schema error not distinct", e)
+	}
+}

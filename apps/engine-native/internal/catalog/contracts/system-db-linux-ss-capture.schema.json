@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "collector_version",
+    "iproute2_version",
+    "kernel_release",
+    "host_id",
+    "boot_id",
+    "network_namespace",
+    "snapshots"
+  ],
+  "properties": {
+    "contract": {
+      "const": "linux-ss-summary.v1"
+    },
+    "collector_version": {
+      "const": "1.0.0"
+    },
+    "iproute2_version": {
+      "const": "6.1.0"
+    },
+    "kernel_release": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.+-]{0,127}$"
+    },
+    "host_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "boot_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "network_namespace": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "snapshots": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "capture_start_ns",
+          "capture_end_ns",
+          "summary"
+        ],
+        "properties": {
+          "capture_start_ns": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "capture_end_ns": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 16384
+          }
+        }
+      }
+    }
+  }
+}

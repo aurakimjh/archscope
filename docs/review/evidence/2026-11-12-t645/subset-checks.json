@@ -1,0 +1,53 @@
+{
+  "checks": [
+    {
+      "operation": "['gpu-trace', 'inspect-source']",
+      "expected_refusal": "IMPORT_BUDGET_EXCEEDED",
+      "exit_code": 1
+    },
+    {
+      "operation": "['gpu-trace', 'inspect-source']",
+      "expected_refusal": null,
+      "exit_code": 0
+    },
+    {
+      "operation": "['gpu-trace', 'normalize-source']",
+      "expected_refusal": null,
+      "exit_code": 0
+    },
+    {
+      "operation": "['/Users/aura/workspace/archscope/scripts/subset-nsight-sqlite.py', '--in']",
+      "expected_refusal": "OUTPUT_EXISTS_OR_ALIAS",
+      "exit_code": 1
+    },
+    {
+      "operation": "['/Users/aura/workspace/archscope/scripts/subset-nsight-sqlite.py', '--in']",
+      "expected_refusal": "physical supported tables required",
+      "exit_code": 1
+    },
+    {
+      "operation": "['/Users/aura/workspace/archscope/scripts/subset-nsight-sqlite.py', '--in']",
+      "expected_refusal": "sidecars refused",
+      "exit_code": 1
+    },
+    {
+      "operation": "['/Users/aura/workspace/archscope/scripts/subset-nsight-sqlite.py', '--in']",
+      "expected_refusal": "from must precede to",
+      "exit_code": 1
+    },
+    {
+      "operation": "['/Users/aura/workspace/archscope/scripts/subset-nsight-sqlite.py', '--in']",
+      "expected_refusal": "SUBSET_EVENT_BUDGET",
+      "exit_code": 1
+    },
+    {
+      "operation": "['/Users/aura/workspace/archscope/scripts/subset-nsight-sqlite.py', '--in']",
+      "expected_refusal": "three unique qualified metadata entries required",
+      "exit_code": 1
+    }
+  ],
+  "whole_intervals_and_rowids": "match original selected rows",
+  "events": 20,
+  "no_failed_outputs": true,
+  "large_actual_export_with_padding": true
+}

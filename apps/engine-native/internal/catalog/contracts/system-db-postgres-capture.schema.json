@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "collector_version",
+    "postgres_version",
+    "server_version_num",
+    "stats_fetch_consistency",
+    "track_counts",
+    "host_id",
+    "boot_id",
+    "instance_id",
+    "database_tag",
+    "database_oid",
+    "snapshots"
+  ],
+  "properties": {
+    "contract": {
+      "const": "postgres-stat-database.v1"
+    },
+    "collector_version": {
+      "const": "1.0.0"
+    },
+    "postgres_version": {
+      "const": "16.14"
+    },
+    "server_version_num": {
+      "const": "160014"
+    },
+    "stats_fetch_consistency": {
+      "const": "snapshot"
+    },
+    "track_counts": {
+      "const": true
+    },
+    "host_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "boot_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "instance_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "database_tag": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "database_oid": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,9}$"
+    },
+    "snapshots": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "capture_start_ns",
+          "capture_end_ns",
+          "postmaster_start_ns",
+          "numbackends",
+          "xact_commit",
+          "xact_rollback",
+          "blks_read",
+          "blks_hit",
+          "tup_returned",
+          "tup_fetched",
+          "tup_inserted",
+          "tup_updated",
+          "tup_deleted",
+          "conflicts",
+          "temp_files",
+          "temp_bytes",
+          "deadlocks",
+          "sessions"
+        ],
+        "properties": {
+          "capture_start_ns": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "capture_end_ns": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "postmaster_start_ns": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "stats_reset_ns": {
+            "oneOf": [
+              {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,19})$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "numbackends": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "xact_commit": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "xact_rollback": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "blks_read": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "blks_hit": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "tup_returned": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "tup_fetched": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "tup_inserted": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "tup_updated": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "tup_deleted": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "conflicts": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "temp_files": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "temp_bytes": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "deadlocks": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "sessions": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          }
+        }
+      }
+    }
+  }
+}

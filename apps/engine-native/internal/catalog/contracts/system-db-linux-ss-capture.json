@@ -1,0 +1,26 @@
+{
+  "contract": "linux-ss-summary.v1",
+  "collector_version": "1.0.0",
+  "iproute2_version": "6.1.0",
+  "kernel_release": "7.0.14-linuxkit",
+  "host_id": "fixture-linux-host",
+  "boot_id": "fixture-linux-boot",
+  "network_namespace": "fixture-isolated-netns",
+  "snapshots": [
+    {
+      "capture_start_ns": "1794485391537389970",
+      "capture_end_ns": "1794485391539124553",
+      "summary": "Total: 1\nTCP:   468 (estab 0, closed 468, orphaned 0, timewait 0)\n\nTransport Total     IP        IPv6\nRAW\t  0         0         0        \nUDP\t  0         0         0        \nTCP\t  0         0         0        \nINET\t  0         0         0        \nFRAG\t  0         0         0        \n\n"
+    },
+    {
+      "capture_start_ns": "1794485391539264803",
+      "capture_end_ns": "1794485391540138553",
+      "summary": "Total: 10\nTCP:   477 (estab 8, closed 468, orphaned 0, timewait 0)\n\nTransport Total     IP        IPv6\nRAW\t  0         0         0        \nUDP\t  0         0         0        \nTCP\t  9         9         0        \nINET\t  9         9         0        \nFRAG\t  0         0         0        \n\n"
+    },
+    {
+      "capture_start_ns": "1794485391540184803",
+      "capture_end_ns": "1794485391541637970",
+      "summary": "Total: 1\nTCP:   472 (estab 0, closed 472, orphaned 0, timewait 4)\n\nTransport Total     IP        IPv6\nRAW\t  0         0         0        \nUDP\t  0         0         0        \nTCP\t  0         0         0        \nINET\t  0         0         0        \nFRAG\t  0         0         0        \n\n"
+    }
+  ]
+}

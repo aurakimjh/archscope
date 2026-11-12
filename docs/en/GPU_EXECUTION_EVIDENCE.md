@@ -115,11 +115,14 @@ existing consumers. A saved snapshot is not original-source reimport verificatio
 
 Original/expanded input ≤64MiB, canonical JSON model ≤32MiB, model ≤50k events,
 4096 tracks/16 sources/4096 summary rows; result ≤64MiB. Earlier byte/record limits
-apply. Large SQLite exports need a smaller explicit window; no silent first-N
-truncation. Parsing has 2 admission slots, a 5-minute deadline and cancellation.
+apply. The64MiB raw/expanded byte cap is checked BEFORE selection. A window only
+reduces retained event/track counts; it cannot admit an oversized SQLite/PyTorch
+file. There is no silent first-N truncation. Parsing has 2 admission slots, a 5-minute deadline and cancellation.
 SQLite runs from an immutable read-only private copy, query_only/trusted_schema
-restrictions, fixed known table queries and bounded rows; views, virtual/generated
-columns and unqualified schema versions are refused. Ordinary SQLite files,
+restrictions, fixed known table queries and bounded rows. Required metadata/name
+tables must be physical; generated columns in selected physical tables and unknown
+schema versions are refused. Current optional-table absence/view skipping is the
+queued R21-02 limitation: an empty kernel result is not proof of no GPU activity. Ordinary SQLite files,
 .nsys-rep binaries, arbitrary SQL and installed tools are not executed as input.
 
 Evidence: actual producer fixtures and independent integer interval calculations,
@@ -133,3 +136,39 @@ Primary references: [PyTorch profiler](https://docs.pytorch.org/docs/2.15/profil
 [NVIDIA training report](https://github.com/NVIDIA/nsight-training/tree/b17c40eef23929d08ec42e66667b29ae336ea8ac/cuda/2021_gtc/x-ac-03-v1/task1/task/nsys/precollected_reports).
 
 The Nsight adapter selects runtime API/kernel/memcpy/closed NVTX tables only; OS runtime, driver API, memset, marker and hardware-counter tables are outside this slice. Memcpy supplies intervals, not byte/direction-derived bandwidth.
+
+
+## Large original capture workflow (R21-01)
+
+For a standalone qualified Nsight SQLite larger than64MiB, run the explicit
+manual helper before import (Python standard-library sqlite3 only):
+
+```sh
+python3 scripts/subset-nsight-sqlite.py --in full.sqlite --from-ns 80000000 --to-ns 80500000 --out selected.sqlite
+archscope-engine gpu-trace inspect-source --in selected.sqlite --options-file capture.json
+```
+
+The helper bounds original files at2GiB/300s, SQLite cache4MiB, selected whole
+intersecting intervals50k and output64MiB. It preserves original rowids and only
+supported integer columns, three version metadata entries and referenced technical
+names. Source DDL, environment/session/command line and NVTX text are excluded.
+Views/virtual/generated columns in selected tables, sidecars, unknown versions,
+changed source and existing output/receipt paths refuse. It emits an adjacent
+receipt with original/subset hashes, window and per-table retained counts. Review
+technical names before sharing. The imported source SHA identifies the new subset,
+not the large original; keep the receipt for that relationship. The app never runs
+this helper or bypasses its immutable64MiB intake. Above2GiB, acquire a shorter
+producer capture before preprocessing; nsys export is not assumed to provide a
+window option. Python/tool installation is a separate manual prerequisite.
+
+For PyTorch, use profiler schedule/activities to capture a shorter active phase
+and disable unnecessary stacks/record_shapes when appropriate. For example,
+`torch.profiler.schedule(wait=1,warmup=1,active=2,repeat=1)` with `prof.step()` and
+`on_trace_ready` exports each bounded active phase separately. Recheck each file's
+actual size; schedule does not guarantee a byte ceiling. Within64MiB, ignored
+metadata/python_function records do not consume the50k retained supported-event
+budget; the window is applied before that event budget. Supported events still
+preserve all whole intervals and refuse at the first overflow (`at_least`). Other
+R21 P3 table-presence/actual-flow fixture follow-ups remain separately recorded.
+
+The disconnected release bundle also ships the same manual helper at `resources/tools/subset-nsight-sqlite.py`; invoke it explicitly with Python.

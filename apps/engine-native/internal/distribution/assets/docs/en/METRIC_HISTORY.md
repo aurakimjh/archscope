@@ -156,3 +156,6 @@ the dedicated history query/explorer. A richer generic export projection remains
 a follow-up with R13-06.
 
 Apple Silicon / Ollama manual capture adapter: [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).
+
+
+T-645 bounded actual DB/OS snapshot batch: [Manual database and socket snapshots](SYSTEM_DB_SNAPSHOTS.md). Existing MetricHistory transport, exact epochs/gauges and common consumers; other adapters remain fixture-gated.

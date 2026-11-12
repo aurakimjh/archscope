@@ -1058,3 +1058,6 @@ T-643은 apple-ollama-capture.v1의 닫힌 제한된 입력을 검증하고 정�
 R19-01은 큰 JTL의 정확한 분포용 execution_core 1.1.0 / execution_evidence 0.2.0을 추가하며 저장된 1.0.0/0.1.0은 유지합니다. [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md).
 
 T-644: trace.gpu-execution-json / trace_import0.4.0 / gpu_execution_core1.0.0은 정확한 CPU/GPU/rank 구간·명시적 연결·kernel 합계/합집합·집계 전용 근거를 분리합니다. CLI/Wails/Workspace·제한된 선택 SVG와 기존 소비자를 사용하며 저장된 trace/LLM reader는 유지합니다. [GPU_EXECUTION_EVIDENCE.md](GPU_EXECUTION_EVIDENCE.md).
+
+
+T-645의 실제 DB·OS 첫 검증 배치: [수동 DB·소켓 스냅샷](SYSTEM_DB_SNAPSHOTS.md). 기존 MetricHistory·정확한 epoch/gauge·공통 소비자를 재사용하며 다른 어댑터는 실제 입력 검증 전까지 보류합니다.

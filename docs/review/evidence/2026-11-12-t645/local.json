@@ -1,0 +1,452 @@
+{
+  "task": "T-645",
+  "status": "REVIEW",
+  "date": "2026-11-12",
+  "scope": "User-activated bounded first D17 batch: PostgreSQL16.14 database statistics and Linux iproute2-6.1.0 socket-summary captures. Other optional adapters remain individually gated.",
+  "related_review": {
+    "task": "T-644",
+    "status": "DONE",
+    "original_verdict": "CONDITIONAL",
+    "review_target": "09413bf",
+    "original_sha256": "64ddac161130ed528acdd8341de149a4e2507f934ef73bf082966f49797994af",
+    "closure_permission": "Original independent review explicitly permits DONE after R21-01 with P3 follow-ups queued.",
+    "locally_fixed": [
+      "R21-01",
+      "R21-03"
+    ],
+    "queued": [
+      "R21-02 optional-table absence/view disclosure/refusal",
+      "R21-04 overlap/ambiguous-correlation and actual-flow fixtures"
+    ],
+    "final_fixes_independently_reviewed": false
+  },
+  "intake_head": "09413bfe7b07d9492291b83f92c2d52607bad217",
+  "head_before_task_commit": "98bcaf5a34a2d20e3c66ce65f38fa09db57f7547",
+  "remote_integration": {
+    "review_commit": "ce7925a",
+    "remote_commits": [
+      "7a1c1df",
+      "97501f8"
+    ],
+    "method": "Initial pulls current. Later fast-forward-only pull found remote divergence/concurrent ref update; merged origin/main with preserved explicit task snapshot, without rewriting reviewer history.",
+    "merged_head": "98bcaf5a34a2d20e3c66ce65f38fa09db57f7547",
+    "affected_rechecks": "gputrace/catalog/CLI/app race, host/Windows amd64/386 vet, final package/cross-builds and final CLI/offline workflows passed."
+  },
+  "shared_commit": "1d076496a7ded8ed00395ed189aaa0d6f227ccc0",
+  "shared_remote_verified": true,
+  "actual_inputs": {
+    "postgres": {
+      "producer": "PostgreSQL16.14 (Debian16.14-1.pgdg13+1)",
+      "server_version_num": "160014",
+      "collector": "1.0.0",
+      "snapshots": 5,
+      "series": 15,
+      "points": 75,
+      "states": "unknown stats_reset, explicit reset A, load, explicit reset B, load; source capture preserves reported values and reset/server/read times.",
+      "privacy": "single synthetic database; sanitized host/boot/instance/database tags and actual nonzero OID; no DB name, SQL/credentials/user/connection strings in raw capture. Separate collection recipe is read-only.",
+      "cleanup": "Owned disposable network-none container stopped/removed after capture. Synthetic resets/writes confined to that instance."
+    },
+    "socket": {
+      "producer": "iproute2-6.1.0",
+      "kernel": "7.0.14-linuxkit",
+      "collector": "1.0.0",
+      "snapshots": 3,
+      "series": 21,
+      "points": 63,
+      "actual_established_endpoints": [
+        "0",
+        "8",
+        "0"
+      ],
+      "workload": "4 owned loopback pairs inside network-none namespace; all owned endpoints closed.",
+      "scope": "Reported gauges only. TCP allocation fields may include shared-kernel accounting outside namespace. No packet/flow/throughput inference. FRAG units are fragment queues.",
+      "privacy": "Summary only; no address,port,process text retained."
+    },
+    "merged": {
+      "sources": 2,
+      "series": 36,
+      "points": 138
+    }
+  },
+  "implementation": {
+    "source_contracts": [
+      "postgres-stat-database.v1",
+      "linux-ss-summary.v1"
+    ],
+    "source_formats": [
+      "postgres-stat-database-json",
+      "linux-ss-summary-json"
+    ],
+    "model": "MetricHistory1.0.0",
+    "result": "metrics_timeseries0.2.0",
+    "canonical_importer": "metrics.history-json (existing)",
+    "surfaces": [
+      "closed bounded manual source intake and auto/explicit format detection",
+      "original SHA pinned normalize/no-overwrite",
+      "exact cumulative reset/unknown epochs and gauge semantics",
+      "existing paged query and Wails/React selection",
+      "common JSON/CSV/HTML/report-pack and saved case recovery"
+    ],
+    "limits": "4MiB per raw capture;1..256 ordered nonoverlapping read windows;ss summary16KiB; existing32MiB model/10k series/100k points/query1..200 rows/256KiB.",
+    "no_import_execution": "No SQL,tools,database/network collection or privileges during import.",
+    "compatibility": "Existing canonical/saved model and result readers unchanged. Other D17 vendors, Q01 and Q04 remain unqualified."
+  },
+  "r21_remediation": {
+    "raw_limit": "64MiB original/expanded byte limit precedes selection; truthful docs and shorter profiler schedule guidance.",
+    "pytorch": "Ignored metadata/python_function do not consume retained event budget. 100001 ignored metadata regression preserves22 supported events. Schema failures distinct and overflow uses at_least.",
+    "manual_helper": "Explicit Python/sqlite3 tool shipped as resources/tools/subset-nsight-sqlite.py; never automatically invoked. Original2GiB/300s/cache4MiB,selected50k intervals/output64MiB; no source DDL/environment/session/NVTX text copying.",
+    "actual_large_input_bytes": 114905088,
+    "actual_subset_bytes": 24576,
+    "actual_retained_events": 20,
+    "whole_intervals_and_rowids": "Independent sqlite3 query matches the original selected rows, including one pre-window-start API.",
+    "checks": 9,
+    "receipt": "subset-receipt.json retains original/subset hashes and selection. Import source digest identifies subset bytes.",
+    "queued_limitation": "Optional supported-table absence/view skipping remains R21-02 and is explicitly disclosed; empty kernel result is not no-activity proof."
+  },
+  "verification": {
+    "full_race": {
+      "passed_packages": 118,
+      "passed_test_events": 1690,
+      "failures": 0,
+      "scope": "full T-645 suite before R21 intake/remediation; final affected race rerun covers subsequent PyTorch changes"
+    },
+    "final_affected_race": "R21 parser/analyzer/catalog/distribution/CLI/app passed; post-merge gputrace/catalog/CLI/app passed. Later helper metadata uniqueness and documentation/resource-only changes covered by9 helper checks, resource consistency, fresh builds and final offline manual-helper invocation.",
+    "checks_passed": [
+      "host/Windows amd64/386 vet",
+      "frontend production build and state tests",
+      "Wails bindings",
+      "Mac package and strict signature check",
+      "both Windows production GUI cross-builds",
+      "offline resources and existing85 dependency notices",
+      "desktop-only/server-build refusal",
+      "Python helper/observer syntax",
+      "11 shared manifest entries and14 root/12 shared core.autocrlf=true checkout files",
+      "git diff --check and staged diff check"
+    ],
+    "cli": {
+      "operations": 39,
+      "expected_refusals": 6,
+      "independent_rational_rates": "matched",
+      "case_snapshot": "byte-identical after cache cleanup"
+    },
+    "offline": {
+      "operations": 70,
+      "inet_syscalls": 0,
+      "failed_connect_positive_control_inet_syscalls": 2,
+      "scope": "Linux CLI process trees and explicitly invoked manual Python subset helper; no desktop/Windows outbound claim",
+      "expected_refusals": 1,
+      "explicit_manual_helper_operations": 1,
+      "network": "none",
+      "no_sibling_checkout": true
+    },
+    "browser": {
+      "scope": "Actual React and CLI DTOs; mock IPC/save dialogs; no native WebView/Windows",
+      "both_source_SHA_handoffs": true,
+      "both_selection_callbacks": true,
+      "postgres_rows": 5,
+      "socket_rows": 3,
+      "socket_values": [
+        "0",
+        "8",
+        "0"
+      ],
+      "alerts": [],
+      "page_width": 1280,
+      "viewport_width": 1280,
+      "console_errors": 0,
+      "expected_development_warnings": 3
+    }
+  },
+  "boundaries": [
+    "T-645 awaits independent review; no independent final-fix PASS claim.",
+    "The two synthetic local producer environments do not qualify every PostgreSQL/kernel/version/vendor or production workload.",
+    "Producer/context tags are declarations; no authenticated identity, cross-source alignment or causality.",
+    "PostgreSQL delayed stats/read skew and unknown counter start remain explicit.",
+    "Socket shared-kernel/namespace mixed scope, overlapping gauges and fragment-queue units stay separate.",
+    "No native Windows/WebView or minimum-OS runtime claim; known SDK27.2/deployment11.0 linker warnings.",
+    "Unrelated HTTP documents/verifier and original ten-line tracker block excluded from task index/commit."
+  ],
+  "artifacts": {
+    "/tmp/archscope-t645-delivery-engine": "cfb2aa067220327027768b0f548a1a98d3ac6ad08873bde64f9bcc8fea6728d4",
+    "/tmp/archscope-t645-linux": "91a1eab3263bdf2ed960d98e4b46cedfd326e28eb62ab0f9a8b980cc7fddb284",
+    "/tmp/archscope-t645-amd64.exe": "a83e11e6bb08e56e9faa9f5236f627635733c11470c4b5413266fec3351245bb",
+    "/tmp/archscope-t645-386.exe": "32f88719d42d21e2854e237e8cdce9e1fe253ac4af544a4c876e6b2d10256ed2",
+    "/Users/aura/workspace/archscope/apps/engine-native/cmd/archscope-app/bin/archscope.app/Contents/MacOS/archscope": "51eda48cc5f78443e41d1ca88636714db58cb1d3f3591d5227f8f44cc10f08d4"
+  },
+  "source_index_files": [
+    {
+      "file": ".gitattributes",
+      "sha256": "9ea2dade292f7ec36069346ab25b4b6ce69d40ae1563e07a349d02a0941da7f5"
+    },
+    {
+      "file": "apps/engine-native/cmd/archscope-app/frontend/src/components/MetricSourceAssistance.tsx",
+      "sha256": "53d2779142517e6ddbec165dcbb8ff013a69403827910d31052ad8b28a953595"
+    },
+    {
+      "file": "apps/engine-native/cmd/archscope-app/systemdbservice_test.go",
+      "sha256": "34b468fc5d653a08afe7e5e9174b28536e8ce35a4928d3d4037105fce8afd8d5"
+    },
+    {
+      "file": "apps/engine-native/cmd/archscope-engine/cmd_metric_history.go",
+      "sha256": "6684664b1ed40cd58a5125b1dc7208b60a2c77fe203a529266700c41476ec78e"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/system-db-LICENSE.txt",
+      "sha256": "88ae2f0c8a6139ddf5ae7921424acf4e76f490016ab4e14d32bfe9e5a8d9e2e5"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/system-db-README.md",
+      "sha256": "0440a6bf77fb2a97363d0f7d28dbed0f9fdcc57122e66aba6014681fd8446237"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/system-db-generate-ss.py",
+      "sha256": "be6405e6ed7fcc95766fbdf76099efd7bf059ae7f1fdc32c81bc7d0c97d806a0"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/system-db-linux-ss-capture.json",
+      "sha256": "c2aa8d9f0ee25fc7791089dc3c1fad2d5f9203ac6cdeaa96f2c5f8a0841e6fbc"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/system-db-linux-ss-capture.schema.json",
+      "sha256": "4359c8397658fae47ac86b9d3fb42798f4c4fe755c1f95c5865a43be8f5a98fd"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/system-db-linux-ss-model.json",
+      "sha256": "3959695271335c1c40f6936e4184ef4589ed81c806fdad36d8fd65d528b46ef5"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/system-db-manifest.json",
+      "sha256": "30d14d9aafd05754c60f02449f5d7b179a88d39b5bde8427c90440212685bff9"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/system-db-postgres-capture.json",
+      "sha256": "dd9d4a76f921b4f110fde3aed6b77ec9308c05aceb077f3cc9ecad8c37d939ff"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/system-db-postgres-capture.schema.json",
+      "sha256": "6e1a522dde37d5167f32fbebbcd36202d5b7808b78d001684d75097c69972187"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/system-db-postgres-model.json",
+      "sha256": "888ce58a21927373b8b1a52bf530844046bef62ae450004ce9eaa45860b41656"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/system-db-postgres-snapshot.sql",
+      "sha256": "f8bd978e3b30135f2ec950146606290ba8fcc9c0ed1f3448db155c142fd59ca0"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/system-db-producer-provenance.json",
+      "sha256": "0a3c8bef9fb2dec80e4368c16b959f1e641c652350094bf2ab60d45166dccad1"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/metric_history.go",
+      "sha256": "145ededbe8c7d23bd3a479a02bcf6a264008ce8628802efbd275f2f03e10645d"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/system_db_test.go",
+      "sha256": "4b663e47e1568c00b4d29efd1307122e147a56b18d0d305a7bea207e987018c1"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/en/GPU_EXECUTION_EVIDENCE.md",
+      "sha256": "f12d66bc07e066fbe8045fe9227c828acb542db67b941c46d7312a418972a624"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/en/METRIC_HISTORY.md",
+      "sha256": "0e1647ad5bb091e46d44c8883f247a873763e36527db24d4f8aa62034052cef4"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/en/SYSTEM_DB_SNAPSHOTS.md",
+      "sha256": "043fcb339b3b2b1318889ed6f8c2402c4adafcc914e0014a901898d94e4f53e9"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/ko/GPU_EXECUTION_EVIDENCE.md",
+      "sha256": "2416a25365efb2fcf321f131c776913d37618e4e146a398e38ac6a610d6370b0"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/ko/METRIC_HISTORY.md",
+      "sha256": "163275c6379a48fe00b71247661bc36e1852ad794303e75437929de5f64594ff"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/ko/SYSTEM_DB_SNAPSHOTS.md",
+      "sha256": "f1d971fde7fc7f8f6c8becd64136bc79f7c2afc412787e4e04646a4b7a9b4124"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/fixtures.sha256",
+      "sha256": "bead41e6cb535963f5474d30d261f40b1e7a26b9159cc015915e55dfc937ca55"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/fixtures.zip",
+      "sha256": "bdefdc4ef7617f38d0a4465c92313a406e172d703b025dcd5721e365da639480"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/tools/subset-nsight-sqlite.py",
+      "sha256": "9d51a654ba6b626fa34209140e0add3cf5755e16495b4847fa1e72149a3c0520"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/gputrace/pytorch.go",
+      "sha256": "b562fe5e593e35b461bc933b18a484efdbbf87c770bab9bfbbbdec1c66b3a5b6"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/gputrace/source.go",
+      "sha256": "1e7a4d73da022b840350ce2db5a3ac9898743f1d8688454864cb0009a1f8f943"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/gputrace/source_test.go",
+      "sha256": "8164af013a2e92183c72608c35a8b2e8546f529f6da5258bc071e0bbf568967c"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/metrichistory/source.go",
+      "sha256": "dd6cac9a89a5e1ee3c8826b656dc992ab83f1303a70e622a3201682bc029896e"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/metrichistory/systemdb.go",
+      "sha256": "9fc0e5e4226c0d9ff65aaad2a158ba109a6ce1e88109740085dac674fd5e51ff"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/metrichistory/systemdb_test.go",
+      "sha256": "a052709d6d747f789f8ba90f103b4d82f90efb75afa61c305b9fe0aaa825d82e"
+    },
+    {
+      "file": "docs/en/DATA_MODEL.md",
+      "sha256": "6c1bb54841712d0a72a8a8662126a90578789cd73ee2786d21a09d632caf07a1"
+    },
+    {
+      "file": "docs/en/GPU_EXECUTION_EVIDENCE.md",
+      "sha256": "f12d66bc07e066fbe8045fe9227c828acb542db67b941c46d7312a418972a624"
+    },
+    {
+      "file": "docs/en/IMPORTER_SUPPORT_MATRIX.md",
+      "sha256": "aa046efed64dd1ee3d5ad56d8a7f4424ee0933fb90d26a2c06d640a22b9d6947"
+    },
+    {
+      "file": "docs/en/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md",
+      "sha256": "e854544afaa3773e2ba56dd92e435897f4048a95fc3490fbd6a000ee2b11ada2"
+    },
+    {
+      "file": "docs/en/METRIC_HISTORY.md",
+      "sha256": "0e1647ad5bb091e46d44c8883f247a873763e36527db24d4f8aa62034052cef4"
+    },
+    {
+      "file": "docs/en/PARSER_DESIGN.md",
+      "sha256": "5eb58ceea0b5d6a42e6e3bbe97c77372b986b12d7f32e8669062e298f472dc1a"
+    },
+    {
+      "file": "docs/en/SYSTEM_DB_SNAPSHOTS.md",
+      "sha256": "043fcb339b3b2b1318889ed6f8c2402c4adafcc914e0014a901898d94e4f53e9"
+    },
+    {
+      "file": "docs/ko/DATA_MODEL.md",
+      "sha256": "14f66c44923c4ae2509d85df2a61e9ec15a4f45c32e7cb7d4e84d149ddaba507"
+    },
+    {
+      "file": "docs/ko/GPU_EXECUTION_EVIDENCE.md",
+      "sha256": "2416a25365efb2fcf321f131c776913d37618e4e146a398e38ac6a610d6370b0"
+    },
+    {
+      "file": "docs/ko/IMPORTER_SUPPORT_MATRIX.md",
+      "sha256": "bdccc8ace0798f6ca057422f3625c2d43bb351b91fe80cc1d1aaa5d33461bf66"
+    },
+    {
+      "file": "docs/ko/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md",
+      "sha256": "a9c745acd3d01d5b7ce9fa0503a8d544ed4e1c6419227ec964a8298c0aed2a6e"
+    },
+    {
+      "file": "docs/ko/METRIC_HISTORY.md",
+      "sha256": "163275c6379a48fe00b71247661bc36e1852ad794303e75437929de5f64594ff"
+    },
+    {
+      "file": "docs/ko/PARSER_DESIGN.md",
+      "sha256": "dd84185009cd6bbfd2669e6982fac0675dbd44a49f05d06ed034624616eb2a83"
+    },
+    {
+      "file": "docs/ko/SYSTEM_DB_SNAPSHOTS.md",
+      "sha256": "f1d971fde7fc7f8f6c8becd64136bc79f7c2afc412787e4e04646a4b7a9b4124"
+    },
+    {
+      "file": "docs/review/README.md",
+      "sha256": "a53d0a455490e5ee25e7cdd0965c3dfd4fc13de41453db092de8351f3b9d717a"
+    },
+    {
+      "file": "docs/review/done/2026-11-12_claude-code_T-644_implementation-review.ko.md",
+      "sha256": "64ddac161130ed528acdd8341de149a4e2507f934ef73bf082966f49797994af"
+    },
+    {
+      "file": "scripts/build-offline-assets.py",
+      "sha256": "db289509eb21097bf680623a0508c49f42fd1a8b7082d4186195670de41f6ac2"
+    },
+    {
+      "file": "scripts/subset-nsight-sqlite.py",
+      "sha256": "9d51a654ba6b626fa34209140e0add3cf5755e16495b4847fa1e72149a3c0520"
+    },
+    {
+      "file": "scripts/verify-offline-syscalls.py",
+      "sha256": "09ea4fc2b76394cb8ef83b0ef1a73836e44378d18eac80ce086dd3ccf0614e45"
+    },
+    {
+      "file": "work_status.md",
+      "sha256": "f69108da5ff772849529a5c6ffb741294418552cce507a3f3622761e3c0aabef"
+    }
+  ],
+  "evidence_files": [
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/browser-linux-ss.png",
+      "sha256": "c0eeed205648926356afce718b55c54bcf88038567065a8ea0feadf7c243b78a"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/browser-postgres.png",
+      "sha256": "3ab2cf3b40b7dea64ef04ad131aa60b3f444315ce30a75defa9b781f4ccf092a"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/browser-proof.json",
+      "sha256": "e0cc699318734ccc72ee8242dbe2cf52327d545f6ebdbe438d9efae5a5276912"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/check-receipts.json",
+      "sha256": "c8dd256a8a4a3ea705688e75120a4bb93937b88f17fd469371fba2465bc5cbcc"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/cli-summary.json",
+      "sha256": "dbc6963be3ee2885919e577cd734d6f73949ddf6b2980e1af82412e82f234b9c"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/corpus-audit.json",
+      "sha256": "c1caaf4c604fa38d94e072a27494daa3d0f98f9a856e0f83109c760ea6620a20"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/independent-rates.json",
+      "sha256": "df87ddff9501bc1d18584299a5a345a297921ce93317e82ff2316a7f623419eb"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/offline-summary.json",
+      "sha256": "6447d615b5857ae327052326a0257958b29553d69cd86c9a7bf193d47a2068a9"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/post-merge-race.txt",
+      "sha256": "58a242e50b5a834aeb93bbfce7446da7f750aac1bf0d2dfaf624e6c4cb2b2577"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/producer-provenance.json",
+      "sha256": "0a3c8bef9fb2dec80e4368c16b959f1e641c652350094bf2ab60d45166dccad1"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/r21-affected-race.txt",
+      "sha256": "692602780c552165391434ad64ab921b7a5feddd9fd5328f9a39fc9adcc8767f"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/race-summary.json",
+      "sha256": "2517b828a7a9c2c06b196967c07220ac96553624c683eb82c6b9ffa388ef54ca"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/subset-checks.json",
+      "sha256": "2755425783ab933e7519028d6075834f1f0f01ea482c155f5890e89ff705c768"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/subset-receipt.json",
+      "sha256": "b9e87113d104bf6a71e0b199bd7bc31bafda9bc0bdedfbfdcfde0529572c4877"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t645/subset.sqlite",
+      "sha256": "690fc1d9c6be39e4913acc14a6e81267be1d0c01316f0d2085546171cf889e25"
+    }
+  ]
+}

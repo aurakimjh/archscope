@@ -1,0 +1,52 @@
+{
+  "id": "diagnostics.system-db-snapshots.v1",
+  "version": "1.0.0",
+  "synthetic": true,
+  "qualification": "실제 PostgreSQL16.14 / iproute2-6.1.0, Linux7.0.14-linuxkit의 격리 합성 실행",
+  "files": [
+    {
+      "file": "LICENSE.txt",
+      "sha256": "88ae2f0c8a6139ddf5ae7921424acf4e76f490016ab4e14d32bfe9e5a8d9e2e5"
+    },
+    {
+      "file": "README.md",
+      "sha256": "0440a6bf77fb2a97363d0f7d28dbed0f9fdcc57122e66aba6014681fd8446237"
+    },
+    {
+      "file": "generate-ss.py",
+      "sha256": "be6405e6ed7fcc95766fbdf76099efd7bf059ae7f1fdc32c81bc7d0c97d806a0"
+    },
+    {
+      "file": "linux-ss-capture.json",
+      "sha256": "c2aa8d9f0ee25fc7791089dc3c1fad2d5f9203ac6cdeaa96f2c5f8a0841e6fbc"
+    },
+    {
+      "file": "linux-ss-capture.schema.json",
+      "sha256": "4359c8397658fae47ac86b9d3fb42798f4c4fe755c1f95c5865a43be8f5a98fd"
+    },
+    {
+      "file": "linux-ss-model.json",
+      "sha256": "3959695271335c1c40f6936e4184ef4589ed81c806fdad36d8fd65d528b46ef5"
+    },
+    {
+      "file": "postgres-capture.json",
+      "sha256": "dd9d4a76f921b4f110fde3aed6b77ec9308c05aceb077f3cc9ecad8c37d939ff"
+    },
+    {
+      "file": "postgres-capture.schema.json",
+      "sha256": "6e1a522dde37d5167f32fbebbcd36202d5b7808b78d001684d75097c69972187"
+    },
+    {
+      "file": "postgres-model.json",
+      "sha256": "888ce58a21927373b8b1a52bf530844046bef62ae450004ce9eaa45860b41656"
+    },
+    {
+      "file": "postgres-snapshot.sql",
+      "sha256": "f8bd978e3b30135f2ec950146606290ba8fcc9c0ed1f3448db155c142fd59ca0"
+    },
+    {
+      "file": "producer-provenance.json",
+      "sha256": "0a3c8bef9fb2dec80e4368c16b959f1e641c652350094bf2ab60d45166dccad1"
+    }
+  ]
+}

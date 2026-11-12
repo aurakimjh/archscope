@@ -127,3 +127,6 @@ R14-07 정정: 0.2.0 generic 상세/HTML/Report Pack 표는 point ID·status와 
 history query/탐색기로 제공합니다. 더 풍부한 generic export는 R13-06과 함께 후속 처리합니다.
 
 Apple Silicon / Ollama 수동 캡처 어댑터: [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).
+
+
+T-645의 실제 DB·OS 첫 검증 배치: [수동 DB·소켓 스냅샷](SYSTEM_DB_SNAPSHOTS.md). 기존 MetricHistory·정확한 epoch/gauge·공통 소비자를 재사용하며 다른 어댑터는 실제 입력 검증 전까지 보류합니다.

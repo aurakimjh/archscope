@@ -1,0 +1,79 @@
+[
+  {
+    "check": "host_vet",
+    "command": "go vet ./...",
+    "exit_code": 0,
+    "local_log": "/tmp/archscope-t645-vet-final.log",
+    "local_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "check": "windows_amd64_vet",
+    "command": "GOOS=windows GOARCH=amd64 go vet ./...",
+    "exit_code": 0,
+    "local_log": "/tmp/archscope-t645-vet-amd64-final.log",
+    "local_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "check": "windows_386_vet",
+    "command": "GOOS=windows GOARCH=386 go vet ./...",
+    "exit_code": 0,
+    "local_log": "/tmp/archscope-t645-vet-386-final.log",
+    "local_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "check": "frontend_production",
+    "command": "npm run build",
+    "exit_code": 0,
+    "local_log": "/tmp/archscope-t645-frontend.log",
+    "local_log_sha256": "59a01781236ea3505d295eac133d56b0a7bc828fed7ef7091eb274c1b293b503"
+  },
+  {
+    "check": "frontend_state",
+    "command": "npm run test:state",
+    "exit_code": 0,
+    "local_log": "/tmp/archscope-t645-state.log",
+    "local_log_sha256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb"
+  },
+  {
+    "check": "bindings",
+    "command": "wails3 generate bindings -ts",
+    "exit_code": 0,
+    "local_log": "/tmp/archscope-t645-bindings.log",
+    "local_log_sha256": "97ffd055a9202cf5b3ded41094769977d59e2de6fc31c821c352903ed5c42807"
+  },
+  {
+    "check": "mac_package",
+    "command": "wails3 task darwin:package",
+    "exit_code": 0,
+    "local_log": "/tmp/archscope-t645-package-verified.log",
+    "local_log_sha256": "d0a703fe6c78f2e4e05ffaac90dc686d599d418e3942adb3e51e730f8d0b31d1"
+  },
+  {
+    "check": "mac_signature",
+    "command": "codesign --verify --deep --strict",
+    "exit_code": 0,
+    "local_log": "/tmp/archscope-t645-signature-verified.log",
+    "local_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "check": "windows_amd64_gui",
+    "command": "GOARCH=amd64 node build/windows/build.mjs production GUI",
+    "exit_code": 0,
+    "local_log": "/tmp/archscope-t645-amd64-verified.log",
+    "local_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "check": "windows_386_gui",
+    "command": "GOARCH=386 node build/windows/build.mjs production GUI",
+    "exit_code": 0,
+    "local_log": "/tmp/archscope-t645-386-verified.log",
+    "local_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "check": "desktop_guard",
+    "command": "verify-desktop-only.mjs --check-server-build",
+    "exit_code": 0,
+    "local_log": "/tmp/archscope-t645-desktop.log",
+    "local_log_sha256": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97"
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "tool": "manual-nsight-subset",
+  "version": "1.0.0",
+  "original_sha256": "0fb55cb55c011f14b248a74b00f47749aedca2022131853c42d2c620e9235579",
+  "original_bytes": 114905088,
+  "subset_sha256": "690fc1d9c6be39e4913acc14a6e81267be1d0c01316f0d2085546171cf889e25",
+  "subset_bytes": 24576,
+  "from_ns": "80000000",
+  "to_ns": "80500000",
+  "selection": "whole intersecting intervals, including zero-duration points; no clipping",
+  "retained_rows": 20,
+  "tables": {
+    "CUPTI_ACTIVITY_KIND_RUNTIME": {
+      "status": "present",
+      "retained_rows": 11
+    },
+    "CUPTI_ACTIVITY_KIND_KERNEL": {
+      "status": "present",
+      "retained_rows": 7
+    },
+    "CUPTI_ACTIVITY_KIND_MEMCPY": {
+      "status": "present",
+      "retained_rows": 2
+    },
+    "NVTX_EVENTS": {
+      "status": "absent",
+      "retained_rows": 0
+    }
+  },
+  "excluded": "environment/session/command-line/NVTX text/unreferenced strings; source DDL never executed",
+  "scope": "manual preprocessing; import source digest identifies subset bytes, not original report"
+}

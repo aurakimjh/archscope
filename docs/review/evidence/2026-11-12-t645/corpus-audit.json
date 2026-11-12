@@ -1,0 +1,11 @@
+{
+  "manifest_entries": 11,
+  "manifest_sha256": "30d14d9aafd05754c60f02449f5d7b179a88d39b5bde8427c90440212685bff9",
+  "worktree_and_index_mirrors": "byte-identical",
+  "core_autocrlf_true_checkout": {
+    "root_files": 14,
+    "shared_files": 12,
+    "byte_identical": true
+  },
+  "scope": "simulated checkout policy, not native Windows runtime"
+}

@@ -1,0 +1,18 @@
+{
+  "postgres_image": "sha256:95206741a5b214807675e14165369d05b93a9cf692223b616d07cca227e74b0b",
+  "postgres": "16.14 (Debian16.14-1.pgdg13+1)",
+  "iproute2": "6.1.0",
+  "kernel": "7.0.14-linuxkit",
+  "linux_image": "sha256:c81ac8a498c3d15850ebf17686c2d1bb8928804650321196d54b6f3a4e78d8d4",
+  "runtime": "network-none disposable containers; only synthetic database/loopback activity",
+  "postgres_observations": "5 snapshots: unknown reset epoch, explicit reset A, load, explicit reset B, load. Four batches each100 inserts/one rolled-back insert plus collector transactions; reported counts preserved, not workload counts. Temporary server stopped/removed after capture.",
+  "socket_observations": "3 snapshots: no owned TCP connections,4 loopback pairs (8 established endpoints),all owned endpoints closed. Reported TCP total/closed also include shared-kernel allocation outside namespace. No addresses/ports/process names retained.",
+  "postgres_source": "https://www.postgresql.org/docs/16/monitoring-stats.html#MONITORING-PG-STAT-DATABASE-VIEW",
+  "ss_source": "https://github.com/iproute2/iproute2/blob/v6.1.0/misc/ss.c",
+  "sha256": {
+    "postgres-capture.json": "dd9d4a76f921b4f110fde3aed6b77ec9308c05aceb077f3cc9ecad8c37d939ff",
+    "linux-ss-capture.json": "c2aa8d9f0ee25fc7791089dc3c1fad2d5f9203ac6cdeaa96f2c5f8a0841e6fbc",
+    "postgres-snapshot.sql": "f8bd978e3b30135f2ec950146606290ba8fcc9c0ed1f3448db155c142fd59ca0",
+    "generate-ss.py": "be6405e6ed7fcc95766fbdf76099efd7bf059ae7f1fdc32c81bc7d0c97d806a0"
+  }
+}

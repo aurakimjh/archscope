@@ -100,10 +100,13 @@ generic 정확한 표와 durable case snapshot을 재사용합니다. 저장 sna
 검증의 증거가 아닙니다.
 
 원본/확장 입력64MiB, 정규 JSON 모델32MiB, event50k/track4096/source16/summary4096,
-결과64MiB 한도 중 먼저 닿는 값이 적용됩니다. 큰 SQLite는 더 작은 명시적 창을 선택해야
-하며 조용한 first-N 절삭은 없습니다. 2-slot/5분·취소를 적용합니다. SQLite는 private
+결과64MiB 한도 중 먼저 닿는 값이 적용됩니다. 원본/확장64MiB는 시간 창 선택 전에
+검사합니다. 창은 보존할 event/track만 줄이고 큰 원본 자체를 허용하지 않습니다.
+조용한 first-N 절삭은 없습니다. 2-slot/5분·취소를 적용합니다. SQLite는 private
 불변 읽기 전용 복사본, query_only/trusted_schema 제한, 고정 테이블 query와 행 예산을
-사용하며 view·virtual/generated column·미검증 schema를 거부합니다. 일반 SQLite나
+사용합니다. 필수 metadata/name 테이블은 실제 테이블이어야 하며 선택된 실제 테이블의
+generated column·미검증 schema를 거부합니다. 선택 테이블의 누락/view를 건너뛰는
+R21-02는 후속 큐이므로 빈 kernel 결과를 GPU 활동이 없었다는 증거로 해석하지 않습니다. 일반 SQLite나
 .nsys-rep binary, 임의 SQL, 설치 도구를 실행하는 입력 경로가 아닙니다.
 
 검증 근거는 실제 producer fixture, 독립 정수 구간 계산, source/cursor/소유권/변조 테스트,
@@ -116,3 +119,34 @@ PyTorch CUDA/NCCL 실제 실행·다른 export 버전·hardware 튜닝은 별도
 [NVIDIA training 보고서](https://github.com/NVIDIA/nsight-training/tree/b17c40eef23929d08ec42e66667b29ae336ea8ac/cuda/2021_gtc/x-ac-03-v1/task1/task/nsys/precollected_reports).
 
 Nsight는 runtime API/kernel/memcpy/닫힌 NVTX 테이블만 선택합니다. OS runtime·driver API·memset·marker·hardware counter 테이블은 이번 범위 밖이며 memcpy도 byte/방향 기반 대역폭이 아닌 구간을 제공합니다.
+
+
+## 큰 원본을 줄이는 경로 (R21-01)
+
+64MiB를 넘는 검증 버전의 standalone Nsight SQLite는 먼저 Python 표준 sqlite3를
+사용하는 별도 수동 helper로 줄인 뒤 가져옵니다.
+
+```sh
+python3 scripts/subset-nsight-sqlite.py --in full.sqlite --from-ns 80000000 --to-ns 80500000 --out selected.sqlite
+archscope-engine gpu-trace inspect-source --in selected.sqlite --options-file capture.json
+```
+
+helper는 원본2GiB/300초, SQLite cache4MiB, 교차하는 전체 구간50k·출력64MiB를
+제한합니다. 원본 rowid, 지원 정수 열, 버전 metadata3개, 필요한 기술 이름만 보존합니다.
+입력 DDL·환경·session·command line·NVTX text는 실행/복사하지 않습니다. 선택 테이블의
+view·virtual/generated column, sidecar, 미지원 버전, 변경된 원본, 기존 출력/receipt를
+거절합니다. 원본/subset hash·선택 창·테이블별 행 수 receipt를 함께 출력합니다.
+기술 이름은 공유 전에 별도로 확인하세요. 가져온 source SHA는 subset 바이트의 것이며
+큰 원본과의 관계는 receipt로 보존합니다. 앱이 helper를 실행하거나 불변64MiB 제한을
+우회하지 않습니다. 2GiB가 넘으면 producer에서 더 짧게 수집하고, nsys export에 창
+옵션이 있다고 가정하지 않습니다. Python·도구 설치는 별도 수동 선행 조건입니다.
+
+PyTorch는 profiler schedule/activities로 짧은 active 구간을 수집하고 불필요한
+stack/record_shapes를 줄일 수 있습니다. 예를 들어 schedule(wait=1,warmup=1,active=2,
+repeat=1), prof.step(), on_trace_ready로 active 구간마다 export합니다. 실제 파일 크기를
+확인해야 하며 schedule이 바이트 상한을 보장하지는 않습니다. 64MiB 내에서는 무시되는
+metadata/python_function을50k 지원 event 예산에 포함하지 않습니다. 창을 먼저 적용하고
+보존할 지원 event가 넘을 때 at_least로 첫 초과를 명시합니다. 나머지 R21 P3의 테이블
+존재 고지·실제 flow 입력 등은 별도 후속 큐에 유지합니다.
+
+분리 배포 bundle에도 같은 수동 helper를 `resources/tools/subset-nsight-sqlite.py`로 포함합니다. Python에서 명시적으로 실행하며 앱이 자동 실행하지 않습니다.

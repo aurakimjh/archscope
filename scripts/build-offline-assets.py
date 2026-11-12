@@ -5,8 +5,9 @@ root=pathlib.Path(__file__).resolve().parents[1]
 app=root/'apps/engine-native'; dest=app/'internal/distribution/assets'
 outputs={}
 for lang in ('en','ko'):
- for name in ('OFFLINE_PACKS','INPUT_ASSISTANCE','SYSTEM_EVIDENCE','INFERENCE_EVIDENCE','LLM_TRACE_EVIDENCE','RUNTIME_EVIDENCE','EXECUTION_EVIDENCE','VISUAL_ARTIFACTS','METRIC_HISTORY','APPLE_SILICON_EVIDENCE','GPU_EXECUTION_EVIDENCE'):
+ for name in ('OFFLINE_PACKS','INPUT_ASSISTANCE','SYSTEM_EVIDENCE','INFERENCE_EVIDENCE','LLM_TRACE_EVIDENCE','RUNTIME_EVIDENCE','EXECUTION_EVIDENCE','VISUAL_ARTIFACTS','METRIC_HISTORY','APPLE_SILICON_EVIDENCE','GPU_EXECUTION_EVIDENCE','SYSTEM_DB_SNAPSHOTS'):
   outputs[f'docs/{lang}/{name}.md']=(root/f'docs/{lang}/{name}.md').read_bytes()
+outputs['tools/subset-nsight-sqlite.py']=(root/'scripts/subset-nsight-sqlite.py').read_bytes()
 files={}
 for p in sorted((app/'internal/catalog/contracts').iterdir()):
  if p.is_file():files['catalog/'+p.name]=p.read_bytes()

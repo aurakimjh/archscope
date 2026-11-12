@@ -1,0 +1,334 @@
+{
+  "operations": [
+    {
+      "operation": [
+        "metrics",
+        "history-inspect"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-inspect"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-normalize"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-normalize"
+      ],
+      "exit_code": 1,
+      "expected_refusal": "OUTPUT_EXISTS"
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-import"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "import"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-query"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-query"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-query"
+      ],
+      "exit_code": 1,
+      "expected_refusal": "METRIC_CURSOR_STALE"
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-import"
+      ],
+      "exit_code": 1,
+      "expected_refusal": "SNAPSHOT_CAPTURE_OPTIONS"
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-inspect"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-inspect"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-normalize"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-normalize"
+      ],
+      "exit_code": 1,
+      "expected_refusal": "OUTPUT_EXISTS"
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-import"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "import"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-query"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-query"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-query"
+      ],
+      "exit_code": 1,
+      "expected_refusal": "METRIC_CURSOR_STALE"
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-import"
+      ],
+      "exit_code": 1,
+      "expected_refusal": "SNAPSHOT_CAPTURE_OPTIONS"
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-merge"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "import"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "case",
+        "create"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "case",
+        "save-result"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "case",
+        "cleanup-cache"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "case",
+        "export-result"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    },
+    {
+      "operation": [
+        "offline",
+        "fixtures"
+      ],
+      "exit_code": 0,
+      "expected_refusal": null
+    }
+  ],
+  "count": 39,
+  "merged_series": 36,
+  "merged_points": 138,
+  "case_snapshot": "byte-identical after cache cleanup",
+  "postgres_states": [
+    "first_cumulative_point",
+    "start_time_unavailable",
+    "derived",
+    "reset",
+    "derived"
+  ],
+  "independent_rational_rates": "matched",
+  "socket_established": [
+    "0",
+    "8",
+    "0"
+  ],
+  "native_webview_windows": false
+}

@@ -1251,3 +1251,6 @@ T-631/T-633/T-635 범위이며 선택적 producer/Q01–Q04 결정이나 전체 
 ## T-642 실행 근거
 
 제한된 benchmark/crash 문맥은 공통 AnalysisResult의 execution_core 1.0.0 / execution_evidence 0.1.0을 사용합니다. 고정 k6/LLMPerf·합성 JTL/정제한 실제 HotSpot 입력을 정규화한 뒤 기존 provider/case/export를 사용합니다. 비교는 선언 조건 snapshot 검증이며 profile 원본 재수입 baseline과 구분합니다. [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md)를 참고하세요.
+
+
+T-645의 실제 DB·OS 첫 검증 배치: [수동 DB·소켓 스냅샷](SYSTEM_DB_SNAPSHOTS.md). 기존 MetricHistory·정확한 epoch/gauge·공통 소비자를 재사용하며 다른 어댑터는 실제 입력 검증 전까지 보류합니다.

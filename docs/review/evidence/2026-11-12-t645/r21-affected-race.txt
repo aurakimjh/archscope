@@ -1,0 +1,6 @@
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace	4.445s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/gputrace	12.439s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/catalog	22.091s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/distribution	30.601s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine	31.873s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app	91.561s

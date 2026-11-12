@@ -17,7 +17,7 @@ def run(args):
 run(['/input/engine','offline','build','--engine','/input/engine','--out',str(bundle)])
 # Only the new bundle and synthetic corpus remain visible to the tested process.
 with zipfile.ZipFile(bundle/'resources/fixtures.zip') as z:
- for name in ('packs/input.jsonl','catalog/metric-history-set.json','catalog/metric-history-sdk-python-1.38.0.otlp.json','catalog/system-evidence-perf-script.txt','catalog/system-evidence-perf-capture.json','catalog/inference-evidence-set.json','catalog/inference-evidence-nvidia-set.json','catalog/inference-evidence-nvidia-query.csv','catalog/inference-evidence-nvidia-capture.json','catalog/llm-trace-sdk-python-1.38.0.otlp.json','catalog/llm-trace-neutral-options.json','catalog/runtime-evidence-set.json','catalog/runtime-evidence-python-3.14.4.json','catalog/runtime-evidence-python-options.json','catalog/execution-evidence-k6-1.3.0.json','catalog/execution-evidence-k6-options.json','catalog/execution-evidence-set.json','catalog/execution-evidence-hs-err-21.0.10.txt','catalog/execution-evidence-llmperf-summary.json','catalog/execution-evidence-llmperf-options.json','catalog/execution-evidence-jmeter-5.6.3.csv','catalog/execution-evidence-jmeter-options.json','catalog/apple-ollama-capture.json','catalog/apple-ollama-metric-model.json','catalog/execution-evidence-jmeter-1001.csv','catalog/gpu-execution-set.json','catalog/gpu-execution-nsight-sanitized.sqlite','catalog/gpu-execution-nsight-options.json','catalog/gpu-execution-pytorch-rank-0.json','catalog/gpu-execution-pytorch-rank-0-options.json','catalog/gpu-execution-nsight-summary.csv','catalog/gpu-execution-nsight-summary-options.json'):z.extract(name,'/sources')
+ for name in ('packs/input.jsonl','catalog/metric-history-set.json','catalog/metric-history-sdk-python-1.38.0.otlp.json','catalog/system-evidence-perf-script.txt','catalog/system-evidence-perf-capture.json','catalog/inference-evidence-set.json','catalog/inference-evidence-nvidia-set.json','catalog/inference-evidence-nvidia-query.csv','catalog/inference-evidence-nvidia-capture.json','catalog/llm-trace-sdk-python-1.38.0.otlp.json','catalog/llm-trace-neutral-options.json','catalog/runtime-evidence-set.json','catalog/runtime-evidence-python-3.14.4.json','catalog/runtime-evidence-python-options.json','catalog/execution-evidence-k6-1.3.0.json','catalog/execution-evidence-k6-options.json','catalog/execution-evidence-set.json','catalog/execution-evidence-hs-err-21.0.10.txt','catalog/execution-evidence-llmperf-summary.json','catalog/execution-evidence-llmperf-options.json','catalog/execution-evidence-jmeter-5.6.3.csv','catalog/execution-evidence-jmeter-options.json','catalog/apple-ollama-capture.json','catalog/apple-ollama-metric-model.json','catalog/execution-evidence-jmeter-1001.csv','catalog/gpu-execution-set.json','catalog/gpu-execution-nsight-sanitized.sqlite','catalog/gpu-execution-nsight-options.json','catalog/gpu-execution-pytorch-rank-0.json','catalog/gpu-execution-pytorch-rank-0-options.json','catalog/gpu-execution-nsight-summary.csv','catalog/gpu-execution-nsight-summary-options.json','catalog/system-db-postgres-capture.json','catalog/system-db-postgres-model.json','catalog/system-db-linux-ss-capture.json','catalog/system-db-linux-ss-model.json'):z.extract(name,'/sources')
 model=json.loads(pathlib.Path('/sources/catalog/metric-history-set.json').read_text())
 selection={'series_ids':[model['series'][0]['id']]}
 inference=json.loads(pathlib.Path('/sources/catalog/inference-evidence-nvidia-set.json').read_text())
@@ -90,6 +90,21 @@ commands.extend([
  ['gpu-trace','import-source','--in','/sources/catalog/gpu-execution-nsight-summary.csv','--options-file','/sources/catalog/gpu-execution-nsight-summary-options.json','--out','/evidence/gpu-summary-result.json'],
  ['gpu-trace','query','--in','/evidence/gpu-summary-result.json','--query','{"kind":"summaries","limit":1}'],
 ])
+# Actual manually collected database/socket inputs reuse the metric pipeline.
+for stem,name in [('postgres','postgres.database.xact_commit'),('linux-ss','linux.ss.tcp.established')]:
+ source='/sources/catalog/system-db-'+stem+'-capture.json'
+ model_path='/sources/catalog/system-db-'+stem+'-model.json'
+ dbmodel=json.loads(pathlib.Path(model_path).read_text())
+ ids=[v['id'] for v in dbmodel['series'] if v['name']==name]
+ selected={'series_ids':ids}
+ commands.extend([
+  ['metrics','history-inspect','--in',source],
+  ['metrics','history-normalize','--in',source,'--out','/evidence/'+stem+'-normalized.json'],
+  ['metrics','history-import','--in',source,'--out','/evidence/'+stem+'-result.json'],
+  ['metrics','history-query','--in','/evidence/'+stem+'-result.json','--query',json.dumps({'selection':selected,'limit':1})],
+  ['evidence','import','--in',model_path,'--importer','metrics.history-json','--options',json.dumps(selected),'--out','/evidence/'+stem+'-selected.json'],
+  ['evidence','export','--in','/evidence/'+stem+'-result.json','--export-format','csv','--out','/evidence/'+stem+'.csv']
+ ])
 reports=[]
 for i,args in enumerate(commands):
  trace=out/f'operation-{i}.strace';report=out/f'operation-{i}.json'
@@ -100,6 +115,14 @@ for i,args in enumerate(commands):
  counts=json.loads(report.read_text())['denied_attempts']
  if any(counts.values()):raise RuntimeError('app-owned network attempt: '+str(counts))
  reports.append({'operation':args[:2],'inet_syscalls':len(lines),'app_denied_attempts':counts})
+# Explicitly invoked shipped manual helper is separate from automatic CLI intake.
+trace=out/'manual-subset.strace'
+manual=['strace','-f','-qq','-e','trace=network','-o',str(trace),'python3',str(bundle/'resources/tools/subset-nsight-sqlite.py'),'--in','/sources/catalog/gpu-execution-nsight-sanitized.sqlite','--from-ns','80000000','--to-ns','80500000','--out','/evidence/manual-subset.sqlite']
+run(manual)
+lines=[l for l in trace.read_text().splitlines() if re.search(r'AF_INET6?|sockaddr_in|inet_addr\(|inet_pton\(',l)]
+receipt=json.loads((out/'manual-subset.sqlite.receipt.json').read_text())
+if lines or receipt['retained_rows']!=19:raise RuntimeError('manual subset helper scope failed')
+reports.append({'operation':['manual-helper','nsight-subset'],'inet_syscalls':0,'app_denied_attempts':{},'manual_only':True})
 # Explicit installed-tool conversion remains denied offline before tool execution.
 trace=out/'conversion-denied.strace';report=out/'conversion-denied.json'
 args=['strace','-f','-qq','-e','trace=network','-o',str(trace)]+base+['--offline-report',str(report),'jfr','convert','--in','/sources/packs/input.jsonl','--cli','/must-not-execute-jfr','--out','/evidence/must-not-publish.json']
@@ -114,7 +137,7 @@ positive=out/'positive-control.strace'
 run(['strace','-f','-qq','-e','trace=network','-o',str(positive),'python3','-c',"import socket; s=socket.socket(); s.settimeout(.2); print(s.connect_ex(('192.0.2.1',443))); s.close()"])
 positive_lines=[l for l in positive.read_text().splitlines() if 'AF_INET' in l]
 if not any('connect(' in l for l in positive_lines):raise RuntimeError('observer positive control failed')
-summary={'scope':'Linux CLI process trees only; no desktop/Windows outbound claim','network':'none','clean_install':True,'no_sibling_checkout':True,'operations':reports,'failed_network_positive_control_inet_syscalls':len(positive_lines)}
+summary={'scope':'Linux CLI process trees and explicitly invoked manual Python subset helper; no desktop/Windows outbound claim','network':'none','clean_install':True,'no_sibling_checkout':True,'operations':reports,'failed_network_positive_control_inet_syscalls':len(positive_lines)}
 (out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary))
 '''
 with tempfile.TemporaryDirectory(prefix='archscope-offline-observer-') as d:

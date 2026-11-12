@@ -64,8 +64,8 @@ func (b *builder) pytorch(raw []byte) error {
 	if e := wirejson.DecodeWithLimits(raw, &input, wirejson.ResultLimits(64<<20, 128)); e != nil {
 		return e
 	}
-	if input.Schema.String() != "1" || input.Events == nil || len(input.Events) > 100000 {
-		return fmt.Errorf("GPU_TRACE_TORCH_SCHEMA_OR_RECORD_BUDGET")
+	if input.Schema.String() != "1" || input.Events == nil {
+		return fmt.Errorf("GPU_TRACE_TORCH_SCHEMA_REQUIRED: schemaVersion1 and traceEvents array required")
 	}
 	b.source.Producer = "pytorch"
 	b.source.Schema = "kineto.chrome.schema1"

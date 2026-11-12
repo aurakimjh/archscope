@@ -158,7 +158,7 @@ func (b *builder) add(t g.Track, e g.Event) error {
 		}
 	}
 	if len(b.set.Events) >= g.MaxEvents {
-		return fmt.Errorf("GPU_TRACE_EVENT_BUDGET: observed=%d limit=%d; supply a smaller explicit from_ns/to_ns window; intervals are never silently truncated", len(b.set.Events)+1, g.MaxEvents)
+		return fmt.Errorf("GPU_TRACE_EVENT_BUDGET: at_least=%d limit=%d; supply a smaller explicit from_ns/to_ns window; intervals are never silently truncated", len(b.set.Events)+1, g.MaxEvents)
 	}
 	t.Source = b.source.ID
 	t.ID = g.TrackID(t)

@@ -76,3 +76,11 @@ docs/review/evidence/2026-11-12-t644/*.json text eol=lf
 docs/review/evidence/2026-11-12-t644/*.txt text eol=lf
 docs/review/evidence/2026-11-12-t644/*.svg text eol=lf
 docs/review/evidence/2026-11-12-t644/*.png -text
+
+# Manual DB/OS documentation and evidence pin LF source hashes.
+docs/en/SYSTEM_DB_SNAPSHOTS.md text eol=lf
+docs/ko/SYSTEM_DB_SNAPSHOTS.md text eol=lf
+docs/review/evidence/2026-11-12-t645/*.json text eol=lf
+docs/review/evidence/2026-11-12-t645/*.txt text eol=lf
+docs/review/evidence/2026-11-12-t645/*.png -text
+docs/review/evidence/2026-11-12-t645/*.sqlite -text
