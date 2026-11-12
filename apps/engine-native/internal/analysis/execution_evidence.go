@@ -26,7 +26,11 @@ func InspectExecution(set e.Set) ExecutionInventory {
 	if set.Crash != nil {
 		frames = len(set.Crash.Frames)
 	}
-	return e.JSONCopy(ExecutionInventory{Kind: set.Kind, Source: set.Source, Context: set.Context, MetricCount: len(set.Metrics), SampleCount: len(set.Samples), CrashFrames: frames, ComparisonReasons: reasons, Warnings: set.Limitations})
+	count := len(set.Samples)
+	for _, d := range set.Distributions {
+		count += d.Count
+	}
+	return e.JSONCopy(ExecutionInventory{Kind: set.Kind, Source: set.Source, Context: set.Context, MetricCount: len(set.Metrics), SampleCount: count, CrashFrames: frames, ComparisonReasons: reasons, Warnings: set.Limitations})
 }
 func withExecution[T any](s *Service, parent context.Context, handle, digest string, run func(context.Context, e.Set, string) (T, error)) (T, error) {
 	return withSemantic(s, parent, handle, digest, a.ResultType, "execution_core", func(ctx context.Context, raw []byte) (any, int, error) {

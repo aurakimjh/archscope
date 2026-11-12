@@ -50,10 +50,10 @@ func next(identity string, offset int) string {
 }
 func QuerySet(ctx context.Context, s e.Set, digest string, q Query) (Page, error) {
 	out := Page{ResultSHA: digest, Rows: []json.RawMessage{}}
-	if !e.Digest(digest) || q.Limit < 1 || q.Limit > 100 || !e.In(q.Kind, "metrics", "samples", "contexts", "sources", "crash", "crash_frames") || !e.Text(q.Name) || q.GroupSHA != "" && !e.Digest(q.GroupSHA) {
+	if !e.Digest(digest) || q.Limit < 1 || q.Limit > 100 || !e.In(q.Kind, "metrics", "samples", "contexts", "sources", "crash", "crash_frames", "distributions") || !e.Text(q.Name) || q.GroupSHA != "" && !e.Digest(q.GroupSHA) {
 		return out, fmt.Errorf("EXECUTION_QUERY_INVALID")
 	}
-	if q.Name != "" && q.Kind != "metrics" || q.GroupSHA != "" && !e.In(q.Kind, "metrics", "samples") {
+	if q.Name != "" && q.Kind != "metrics" || q.GroupSHA != "" && !e.In(q.Kind, "metrics", "samples", "distributions") {
 		return out, fmt.Errorf("EXECUTION_FILTER_NOT_APPLICABLE")
 	}
 	identity := q
@@ -78,6 +78,15 @@ func QuerySet(ctx context.Context, s e.Set, digest string, q Query) (Page, error
 				return out, err
 			}
 			if (q.Name == "" || v.Name == q.Name) && (q.GroupSHA == "" || v.GroupSHA == q.GroupSHA) {
+				add(v)
+			}
+		}
+	case "distributions":
+		for _, v := range e.DistributionRows(s) {
+			if err := ctx.Err(); err != nil {
+				return out, err
+			}
+			if q.GroupSHA == "" || q.GroupSHA == v.GroupSHA {
 				add(v)
 			}
 		}

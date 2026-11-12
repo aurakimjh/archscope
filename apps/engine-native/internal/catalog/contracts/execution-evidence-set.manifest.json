@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "synthetic": true,
   "qualification": "고정 k6 loopback·LLMPerf 통계/직렬화 함수·정제한 실제 HotSpot 발췌와 합성 JMeter 구조",
-  "schema_sha256": "b9fbd7a50e09bd9544a49f409d9cdf8a63a81d4f4406a6634a82a102d8712d3a",
+  "schema_sha256": "163a2ff14ba0227ed33a035b4a58bcd25567a68291e17dc69beec171e35bb048",
   "files": [
     {
       "file": "LICENSE.txt",
@@ -11,7 +11,7 @@
     },
     {
       "file": "README.md",
-      "sha256": "8c5d9e061d7c13b0658d2dd3ada5aeddbcd495a1499f29bf39399565b62acd24"
+      "sha256": "7ca2ad6ed04c0294ddcad63020d774def3219e9d0607de78d15ee9f1014d4fc6"
     },
     {
       "file": "crash-options.json",
@@ -27,7 +27,7 @@
     },
     {
       "file": "execution-evidence-set.schema.json",
-      "sha256": "b9fbd7a50e09bd9544a49f409d9cdf8a63a81d4f4406a6634a82a102d8712d3a"
+      "sha256": "163a2ff14ba0227ed33a035b4a58bcd25567a68291e17dc69beec171e35bb048"
     },
     {
       "file": "generate_fixture.py",
@@ -36,6 +36,14 @@
     {
       "file": "hs-err-21.0.10.txt",
       "sha256": "99250a106a036e88dc6ed759ea318564f732e8ce652727870222b986098e4500"
+    },
+    {
+      "file": "jmeter-1001-set.json",
+      "sha256": "228ac22383cbbf3cc26f31defe45d2d6b29fff8bef13cdfbdaeb3c02b291afa4"
+    },
+    {
+      "file": "jmeter-1001.csv",
+      "sha256": "e5d9e84d0870dea6391f69105968146e1177da5db38c6c2f103fe46575697ba1"
     },
     {
       "file": "jmeter-5.6.3.csv",

@@ -117,7 +117,9 @@ func ParseBytes(ctx context.Context, original []byte, name string, options Optio
 		if e := wirejson.DecodeWithLimits(body, &root, wirejson.ResultLimits(MaxInputBytes, 128)); e != nil {
 			return m.Set{}, e
 		}
-		if _, ok := root["resourceMetrics"]; ok {
+		if _, ok := root["contract"]; ok && string(root["contract"]) == `"apple-ollama-capture.v1"` {
+			format = "apple-ollama-capture-json"
+		} else if _, ok := root["resourceMetrics"]; ok {
 			format = "otlp-json"
 		} else if _, ok := root["snapshots"]; ok {
 			format = "snapshot-sequence-json"
@@ -151,6 +153,8 @@ func ParseBytes(ctx context.Context, original []byte, name string, options Optio
 		b.origin += ":query:" + m.Hash(query)
 	}
 	switch format {
+	case "apple-ollama-capture-json":
+		e = b.apple(body, options)
 	case "otlp-json":
 		e = b.otlp(body)
 	case "snapshot-sequence-json":

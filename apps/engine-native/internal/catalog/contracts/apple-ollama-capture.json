@@ -1,0 +1,125 @@
+{
+  "contract": "apple-ollama-capture.v1",
+  "collector_version": "1.0.0",
+  "host_id": "fixture-host",
+  "boot_id": "fixture-boot",
+  "device_local_id": "apple-integrated-0",
+  "macos_version": "27.2.1",
+  "macos_build": "26B131",
+  "hardware_model": "Mac17,6",
+  "chip": "Apple M5 Max",
+  "ollama_version": "0.40.16",
+  "snapshots": [
+    {
+      "capture_start_ns": "1794474448169839000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "55836033024",
+      "vm_active_bytes": "36727275520",
+      "vm_inactive_bytes": "36083449856",
+      "vm_wired_bytes": "5614272512",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "capture_end_ns": "1794474448191197000"
+    },
+    {
+      "capture_start_ns": "1794474448395717000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "55834279936",
+      "vm_active_bytes": "36728995840",
+      "vm_inactive_bytes": "36083482624",
+      "vm_wired_bytes": "5614272512",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "capture_end_ns": "1794474448428902000"
+    },
+    {
+      "capture_start_ns": "1794474448635684000",
+      "memory_capacity_bytes": "137438953472",
+      "vm_free_bytes": "55833116672",
+      "vm_active_bytes": "36730142720",
+      "vm_inactive_bytes": "36083482624",
+      "vm_wired_bytes": "5614288896",
+      "vm_compressor_bytes": "0",
+      "swap_total_bytes": "0",
+      "swap_used_bytes": "0",
+      "pressure_level": {
+        "value": "1"
+      },
+      "thermal_warning_level": {
+        "value": null,
+        "unavailable_reason": "not_recorded"
+      },
+      "gpu_utilization": {
+        "value": null,
+        "unavailable_reason": "not_collected"
+      },
+      "power_watts": {
+        "value": null,
+        "unavailable_reason": "permission_required"
+      },
+      "models": [
+        {
+          "name": "gemma:2b",
+          "digest": "b50d6c999e592ae4f79acae23b4feaefbdfceaa7cd366df2610e3072c052a160",
+          "size": 1799817788,
+          "size_vram": 1799817788,
+          "context_length": 512,
+          "quantization_level": "Q4_0"
+        }
+      ],
+      "capture_end_ns": "1794474448671817000"
+    }
+  ]
+}

@@ -1,0 +1,277 @@
+{
+  "task": "T-643",
+  "status": "REVIEW",
+  "related_review": "R19-01 locally fixed; T-642 DONE under explicit conditional-review closure permission; R19-02..04 queued",
+  "head_before_task_commit": "6f4673519e723e6524e8ce4605cbce7220ce4d44",
+  "shared_commit": "460920fae4c1001c9a070bc0b2d64438455e6bd9",
+  "environment": {
+    "macos": "27.2.1",
+    "build": "26B131",
+    "hardware": "Mac17,6",
+    "chip": "Apple M5 Max",
+    "memory_capacity_bytes": "137438953472",
+    "ollama": "0.40.16",
+    "collector": "1.0.0"
+  },
+  "checks_passed": [
+    "host and Windows amd64/386 go vet ./...",
+    "frontend npm run build; npm run test:state",
+    "wails3 generate bindings -ts",
+    "wails3 task darwin:package; codesign --verify --deep --strict",
+    "Windows amd64/386 production GUI cross-builds",
+    "final embedded resource/catalog/Apple fixture tests",
+    "build-offline-assets.py --check",
+    "verify-desktop-only.mjs --check-server-build",
+    "git diff --check; git diff --cached --check",
+    "25 shared manifest file hashes and byte-identical mirrors"
+  ],
+  "api_test": "Existing gemma:2b, 8 synthetic tokens, context512, no downloads. Baseline /api/ps empty and returned to empty after owned model unload. No prompt/response body retained.",
+  "boundaries": [
+    "First implementation qualification target; user production engine undeclared.",
+    "GPU model residency estimate is not GPU utilization or dedicated VRAM.",
+    "No privileged collector, native Windows/WebView, minimum-OS or independent final-fix PASS claim.",
+    "Known host SDK27.2/deployment11.0 linker warnings.",
+    "Unrelated HTTP docs/verifier and original 10-line tracker block remain unstaged."
+  ],
+  "artifacts": {
+    "/tmp/archscope-t643-amd64.exe": "ecb009a25e45fe019929d217f45995a2ef7757268907f9184a94874e432629cb",
+    "/tmp/archscope-t643-386.exe": "4246c1bce5e647571ebecb2ee183056cb052ad0df63218946509788d9785ccb5",
+    "/tmp/archscope-t643-linux-final": "8243630f936f54673e5f4b90f9200823fe9c955d6854bae150452204f5bcab80"
+  },
+  "source_index_files": [
+    {
+      "file": "apps/engine-native/cmd/archscope-app/frontend/src/components/ExecutionEvidence.tsx",
+      "sha256": "ae1dec4a6cea7eb1c4937c36ea49f69d2638fb145cdbaee8aaefc971f99f9f5a"
+    },
+    {
+      "file": "apps/engine-native/cmd/archscope-app/frontend/src/components/MetricSourceAssistance.tsx",
+      "sha256": "9de5ede3c7f3ebab6f76a704633d2802ca19298653c28a313ffa10d956bd3012"
+    },
+    {
+      "file": "apps/engine-native/cmd/archscope-app/metricsourceservice_test.go",
+      "sha256": "56ce5c41bceca4e26b0e288925bbabbccb346f0107f59fe210294a00a182d006"
+    },
+    {
+      "file": "apps/engine-native/cmd/archscope-engine/cmd_metric_history.go",
+      "sha256": "a178f3783fb6cb5ccf5ca6c39438b613917a764bd818c40669038579336c1314"
+    },
+    {
+      "file": "apps/engine-native/internal/analysis/execution_evidence.go",
+      "sha256": "951813a72afe322332580c0ac12415aed288b327b0b65080b763877e80436f44"
+    },
+    {
+      "file": "apps/engine-native/internal/analyzers/execution/analyzer.go",
+      "sha256": "d13b98e3c04f0c775cee0000c5aba4932a19376e5d761ad1e9d5a39d02d2107d"
+    },
+    {
+      "file": "apps/engine-native/internal/analyzers/execution/query.go",
+      "sha256": "003a0b00ac69c7763cdaf9c739044a0d1f92351481873ab407e26c98bd4d7814"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/builtin.go",
+      "sha256": "bc7bf0dd6a2e2bc7e73bd1c938bd86a90c202b7f1b19dc4a244f87fef14c26a6"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-LICENSE.txt",
+      "sha256": "fbf9cca0134c743d657bf8bdd95974dcae393a3af20ae90d13714a2c989fa33e"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-README.md",
+      "sha256": "ac46ecc2b5b0c6210c1e07d6dfc45f2b92eba45cd659211592cee6cc2fdd29de"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-capture.json",
+      "sha256": "a7f438c5d4a8a2e209f0f97ca0823f621911613adb9112cb404f745c2fb89487"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-capture.schema.json",
+      "sha256": "4d7264edc1ab9e4318869131a80eebd192646bca221dc0ef5d7c5182d1e1d3fc"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-manifest.json",
+      "sha256": "b0292fe90487ef17c046453a11dd8ec2752b71f366923a4ee5eabb9166a4d98d"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-metric-model.json",
+      "sha256": "7b8adbebab29b524d4b62571ec6a44480f79dddccda4c87ff9fe2c95502ef08b"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/execution-evidence-README.md",
+      "sha256": "7ca2ad6ed04c0294ddcad63020d774def3219e9d0607de78d15ee9f1014d4fc6"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/execution-evidence-jmeter-1001-set.json",
+      "sha256": "228ac22383cbbf3cc26f31defe45d2d6b29fff8bef13cdfbdaeb3c02b291afa4"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/execution-evidence-jmeter-1001.csv",
+      "sha256": "e5d9e84d0870dea6391f69105968146e1177da5db38c6c2f103fe46575697ba1"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/execution-evidence-set.manifest.json",
+      "sha256": "6a7af4e8f1898a1f99a898c63f7336ac811a0ba4874462f6d9ba4ce8c70644f6"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/execution-evidence-set.schema.json",
+      "sha256": "163a2ff14ba0227ed33a035b4a58bcd25567a68291e17dc69beec171e35bb048"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/execution_evidence.go",
+      "sha256": "705c332b84e440134ddfb23882550e57c01122af0e2f58d2486d3e4765b9b3aa"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/en/APPLE_SILICON_EVIDENCE.md",
+      "sha256": "779cc8193df2cda4f637c48c061d640e4f4edda48839ae6d90361e0ec2542a52"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/en/EXECUTION_EVIDENCE.md",
+      "sha256": "4ca55fa3f11a7b9859ed0814bb8964ca2a451abf3987195d37d82fdc182a231b"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/en/METRIC_HISTORY.md",
+      "sha256": "3375189ddb4e4b1a04ce62bb9af223a44a6b6e06fb714ec8c565d4c669fdffc3"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/ko/APPLE_SILICON_EVIDENCE.md",
+      "sha256": "174510eb8d1473082e342a9c0457c73d84cd6d835757353b0690bc5a16f4f56a"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/ko/EXECUTION_EVIDENCE.md",
+      "sha256": "b9dc184b24261dd3ca808db77511a7cb46247f869ad36e2f3c7c24a07a53cefa"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/ko/METRIC_HISTORY.md",
+      "sha256": "6e36d926e07728d40a21f168c114b20c05d51325eb21f4369f712d632e8cc675"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/fixtures.sha256",
+      "sha256": "d5a67e8392a02ab01052185881431f89d592ad9b431d53d8281c7518866cd561"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/fixtures.zip",
+      "sha256": "989ab712d87a19d1ef1473287e2cfc33bd5f3c3d1d7208e81d3456fc54ee502b"
+    },
+    {
+      "file": "apps/engine-native/internal/executionmodel/distribution.go",
+      "sha256": "17e71ec20e973f93cf61a10d44ff7c5c58ce81b4c64ab73d83f31700f8f07644"
+    },
+    {
+      "file": "apps/engine-native/internal/executionmodel/model.go",
+      "sha256": "62213291e1f4270f096fa2adedbd7199b84c72260683b87edc88230a29026843"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/execution/distribution_test.go",
+      "sha256": "0ebfeeebe0d8ca7602f552afe21d025b0f81d83f50d70c9341078b247cfe25cd"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/execution/jtl.go",
+      "sha256": "c3ba66a9f93cabb57b73b076b7260ea095598f1527db395b6a365839eadc7d67"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/metrichistory/apple.go",
+      "sha256": "41cec9be1077821c15cf31fba32b6488db6c06be9c2abdcd33a8fb1749394a2e"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/metrichistory/apple_test.go",
+      "sha256": "6db5844984b4b046a7b19ba797a5e8c9cacd59c9c79623392187148fc4c90e26"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/metrichistory/source.go",
+      "sha256": "d4b0cb864b42ab418887a8bdb20b0e2e0f34fb10e341a985adf69cf987b7809b"
+    },
+    {
+      "file": "docs/en/APPLE_SILICON_EVIDENCE.md",
+      "sha256": "779cc8193df2cda4f637c48c061d640e4f4edda48839ae6d90361e0ec2542a52"
+    },
+    {
+      "file": "docs/en/DATA_MODEL.md",
+      "sha256": "614704799518c52361eee1649addf4eb7f2400afa39232b469afa6d301e5345c"
+    },
+    {
+      "file": "docs/en/EXECUTION_EVIDENCE.md",
+      "sha256": "4ca55fa3f11a7b9859ed0814bb8964ca2a451abf3987195d37d82fdc182a231b"
+    },
+    {
+      "file": "docs/en/IMPORTER_SUPPORT_MATRIX.md",
+      "sha256": "06e01664c2ff34b072ea9b3280359e6c646cb85415f822cac1054b80cbf72156"
+    },
+    {
+      "file": "docs/en/METRIC_HISTORY.md",
+      "sha256": "3375189ddb4e4b1a04ce62bb9af223a44a6b6e06fb714ec8c565d4c669fdffc3"
+    },
+    {
+      "file": "docs/en/PARSER_DESIGN.md",
+      "sha256": "7720328293260d2501d952e21e1018f2ab8ad45fd2f2be6b18aa70908d840a76"
+    },
+    {
+      "file": "docs/ko/APPLE_SILICON_EVIDENCE.md",
+      "sha256": "174510eb8d1473082e342a9c0457c73d84cd6d835757353b0690bc5a16f4f56a"
+    },
+    {
+      "file": "docs/ko/DATA_MODEL.md",
+      "sha256": "602fcf0967c521e3df394a917994564cbc5d241b86f253496b319d5c14335486"
+    },
+    {
+      "file": "docs/ko/EXECUTION_EVIDENCE.md",
+      "sha256": "b9dc184b24261dd3ca808db77511a7cb46247f869ad36e2f3c7c24a07a53cefa"
+    },
+    {
+      "file": "docs/ko/IMPORTER_SUPPORT_MATRIX.md",
+      "sha256": "6e36fadeb34c4c6be7bdceae7ea80a1ca761bfd32319c6f32f6561767cc45b30"
+    },
+    {
+      "file": "docs/ko/METRIC_HISTORY.md",
+      "sha256": "6e36d926e07728d40a21f168c114b20c05d51325eb21f4369f712d632e8cc675"
+    },
+    {
+      "file": "docs/ko/PARSER_DESIGN.md",
+      "sha256": "3a4eefc33daa19f4746af9f4690cff6fc9666bbed0dfb83eb9fd6974f536f00e"
+    },
+    {
+      "file": "docs/review/done/2026-11-12_claude-code_T-642_implementation-review.ko.md",
+      "sha256": "634e6a0441c3707daa44f5fe0e7c7e476326911c5cb5be7e9a0fac06da1f3978"
+    },
+    {
+      "file": "scripts/build-offline-assets.py",
+      "sha256": "deea2301284179d2b91f0f7074b0d38e04c2793c8404cbd3364b7e86576f22fa"
+    },
+    {
+      "file": "scripts/capture-apple-ollama.py",
+      "sha256": "a8d5628c5c7b226219eb92a2dd9f763c2967cb5b0ea98917bc6185f8be7a3ab0"
+    },
+    {
+      "file": "scripts/verify-offline-syscalls.py",
+      "sha256": "f567658185c1c814bffffb392aef7c22d60cfef12dbcb3144809bd497e4ac16d"
+    },
+    {
+      "file": "work_status.md",
+      "sha256": "697f0b2772be37795a08f224a8aeb28b5a43b37cdbaac8e6d28c709a344b8670"
+    }
+  ],
+  "evidence_files": [
+    {
+      "file": "apple-selection.png",
+      "sha256": "9ecadb3af94d10f5531cd3641f28fa08a8d8d280e99065ebf16196d1e89354f4"
+    },
+    {
+      "file": "browser.json",
+      "sha256": "64a0e88347331d43e66044f88e19426650bef952a1dbadee58299a934cd53fe0"
+    },
+    {
+      "file": "cli.json",
+      "sha256": "44d1a805d57424371c23741895892ea1c40bfea799da30bae691c7bf419b6a2b"
+    },
+    {
+      "file": "offline.json",
+      "sha256": "7d7a5b8616359a2f8d7fb4cf5969c279e7179a948ad0ed970d098d6c14c8a711"
+    },
+    {
+      "file": "race.json",
+      "sha256": "909e6d45e61b01858e1f6de8a0e0b2cd72efb47bf19b5e3ed9c347ccf2173fc3"
+    },
+    {
+      "file": "synthetic-generation-usage.json",
+      "sha256": "3a3bb249a24557353bd9df8409adea6c23df9a835a465b38cb624aa31b5b1e22"
+    }
+  ]
+}

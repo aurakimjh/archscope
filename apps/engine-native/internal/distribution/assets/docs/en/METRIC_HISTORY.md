@@ -154,3 +154,5 @@ IDs/status and time/clock/reference projections; they do not include metric
 name/unit/value/delta/rate rows. Exact values and buckets are available through
 the dedicated history query/explorer. A richer generic export projection remains
 a follow-up with R13-06.
+
+Apple Silicon / Ollama manual capture adapter: [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).

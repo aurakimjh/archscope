@@ -163,15 +163,16 @@ type Crash struct {
 	Frames       []Frame `json:"frames"`
 }
 type Set struct {
-	Version        string   `json:"schema_version"`
-	Kind           string   `json:"kind"`
-	Source         Source   `json:"source"`
-	Context        *Context `json:"context"`
-	Metrics        []Metric `json:"metrics"`
-	Samples        []Sample `json:"samples"`
-	Crash          *Crash   `json:"crash"`
-	IgnoredMetrics int      `json:"ignored_metric_count"`
-	Limitations    []string `json:"limitations"`
+	Version        string         `json:"schema_version"`
+	Kind           string         `json:"kind"`
+	Source         Source         `json:"source"`
+	Context        *Context       `json:"context"`
+	Metrics        []Metric       `json:"metrics"`
+	Samples        []Sample       `json:"samples"`
+	Distributions  []Distribution `json:"distributions,omitempty"`
+	Crash          *Crash         `json:"crash"`
+	IgnoredMetrics int            `json:"ignored_metric_count"`
+	Limitations    []string       `json:"limitations"`
 }
 
 func Empty() Set {
@@ -215,7 +216,7 @@ func (c Context) Validate() error {
 	return nil
 }
 func (s Set) Validate(ctx context.Context) error {
-	if s.Version != Version || !In(s.Kind, "benchmark", "jvm_crash") || !Digest(s.Source.SHA) || !Known(s.Source.Format) || !Known(s.Source.Producer) || !Known(s.Source.Version) || len(s.Metrics) > MaxMetrics || len(s.Samples) > MaxSamples || s.IgnoredMetrics < 0 || len(s.Limitations) > 32 {
+	if !In(s.Version, Version, DistributionVersion) || !In(s.Kind, "benchmark", "jvm_crash") || !Digest(s.Source.SHA) || !Known(s.Source.Format) || !Known(s.Source.Producer) || !Known(s.Source.Version) || len(s.Metrics) > MaxMetrics || len(s.Samples) > MaxSamples || s.IgnoredMetrics < 0 || len(s.Limitations) > 32 {
 		return fmt.Errorf("EXECUTION_MODEL_INVALID_OR_BUDGET")
 	}
 	for _, v := range s.Limitations {
@@ -318,12 +319,15 @@ func (s Set) Validate(ctx context.Context) error {
 		}
 		ids[v.ID] = true
 	}
+	if err := s.validateDistributions(ctx); err != nil {
+		return err
+	}
 	raw, e := json.Marshal(s)
 	if e != nil {
 		return e
 	}
 	if len(raw) > MaxBytes {
-		return fmt.Errorf("EXECUTION_MODEL_BYTES_BUDGET: split original export")
+		return fmt.Errorf("EXECUTION_MODEL_BYTES_BUDGET: bytes=%d limit=%d; reduce original run scope; split-file percentiles cannot be combined", len(raw), MaxBytes)
 	}
 	return ctx.Err()
 }

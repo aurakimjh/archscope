@@ -1,0 +1,27 @@
+{
+  "id": "diagnostics.apple-ollama-capture.v1",
+  "version": "1.0.0",
+  "qualification": "합성 8토큰 요청 직후 실제 Apple Silicon 관측; host/boot 태그 정제; 단일 환경 검증",
+  "files": [
+    {
+      "file": "LICENSE.txt",
+      "sha256": "fbf9cca0134c743d657bf8bdd95974dcae393a3af20ae90d13714a2c989fa33e"
+    },
+    {
+      "file": "README.md",
+      "sha256": "ac46ecc2b5b0c6210c1e07d6dfc45f2b92eba45cd659211592cee6cc2fdd29de"
+    },
+    {
+      "file": "capture.json",
+      "sha256": "a7f438c5d4a8a2e209f0f97ca0823f621911613adb9112cb404f745c2fb89487"
+    },
+    {
+      "file": "capture.schema.json",
+      "sha256": "4d7264edc1ab9e4318869131a80eebd192646bca221dc0ef5d7c5182d1e1d3fc"
+    },
+    {
+      "file": "metric-model.json",
+      "sha256": "7b8adbebab29b524d4b62571ec6a44480f79dddccda4c87ff9fe2c95502ef08b"
+    }
+  ]
+}

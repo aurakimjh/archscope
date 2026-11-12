@@ -2303,3 +2303,7 @@ Runtime evidence uses the separate bounded canonical model within AnalysisResult
 ## T-642 execution evidence
 
 Bounded benchmark/crash context uses execution_core 1.0.0 inside common AnalysisResult, execution_evidence 0.1.0. Pinned k6/LLMPerf and structural JTL/actual sanitized HotSpot inputs normalize before generic providers/cases/exports. Comparison is explicitly declared-condition snapshot verification, separate from profile original-reimport baselines. See [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md).
+
+T-643 retains the existing MetricHistory 1.0.0 / metrics_timeseries 0.2.0 contract; Apple host/boot/local-device, OS/hardware/collector/engine versions and unified-shared scope live in exact series identity. [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).
+
+R19-01 adds execution_core 1.1.0 / execution_evidence 0.2.0 for exact large-JTL distributions; saved 1.0.0/0.1.0 stays unchanged. [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md).

@@ -2,7 +2,7 @@
 
 T-642는 부하·LLM 벤치마크 export와 제한된 JVM 크래시 텍스트를 정규화합니다.
 제한적 `execution.evidence-json` importer(alias execution-evidence)는 기존
-AnalysisResult의 execution_evidence 0.1.0 / execution_core 1.0.0을 사용합니다.
+AnalysisResult의 execution_evidence 0.1.0/0.2.0 및 execution_core 1.0.0/1.1.0을 사용합니다. 새 generic 모델 가져오기는 기존 1.0.0 core도 0.2.0 projection으로 만들며 저장된 0.1.0 결과는 변경하지 않습니다.
 수집 조건·통계 population·crash 필드가 필요해 도메인 모델을 두지만 별도 envelope를
 만들거나 기존 profile/runtime 저장 reader를 바꾸지 않습니다. Parser는 사실 추출,
 analyzer는 공통 provider 제공, UI/exporter는 소비를 맡습니다.
@@ -56,7 +56,7 @@ LLM은 model/revision/tokenizer, 선언한 입출력 token 분포 hash, 요청 t
 supporting_records는 JTL 통계 산출에 조사한 원본 행 수이며 실패/성공 population의
 크기가 아닙니다. 원본 summary가 주지 않은 표본 개수는 unavailable입니다.
 
-JTL은 개별 표본을 유지하고 label별 전체 행의 count/error count와 nearest-rank latency
+1,000행 이하 JTL은 개별 표본을 유지하고 label별 전체 행의 count/error count와 nearest-rank latency
 min/max/mean/p50/p90/p95/p99를 만듭니다. 이미 집계한 percentile을 평균내거나 label을
 합치지 않고, 첫/마지막 timestamp로 throughput을 추론하지 않습니다. first-byte·connect는
 전체 요청 latency와 구분합니다. 중복 header·열 수 불일치는 거부하고 미사용 열은 제외합니다.
@@ -104,18 +104,40 @@ archscope-engine execution import-source --in hs_err_pid.txt --options '{"format
 
 두 import 명령 중 하나를 새 출력 경로에 사용하세요. CLI는 기존 파일·관리 case 저장소를
 덮어쓰지 않습니다. UI inspect의 raw source digest를 normalize 때 다시 확인합니다.
-취소·오래된 응답은 현재 결과를 교체하지 않습니다. Query kind는 metrics/samples/contexts/
+취소·오래된 응답은 현재 결과를 교체하지 않습니다. Query kind는 metrics/samples/distributions/contexts/
 sources/crash/crash_frames이며 metric/group filter는 관련 kind에만 적용합니다.
 
 ## 한도·검증 경계
 
-원본/해제 입력 64 MiB, 정규 모델 16 MiB, 결과 64 MiB, options 64 KiB입니다. 표본50k,
+원본/해제 입력 64 MiB, 정규 모델 16 MiB, 결과 64 MiB, options 64 KiB입니다. 과거 개별 표본 배열은50k, 새 JTL은 개별표본1000 또는 집계행100만/고유bin10만,
 지표8192, JTL label group128, crash frame128, 텍스트 줄1 MiB, crash줄500k 한도입니다.
 JSON depth/record 한도도 적용하며 byte 상한에 먼저 도달할 수 있습니다. 페이지100/UI25행,
-수집 슬롯2개·5분 예산·취소 확인을 적용합니다. 조용히 절삭하지 말고 원본을 분할하세요.
+수집 슬롯2개·5분 예산·취소 확인을 적용합니다. 조용히 절삭하지 말고 원래 실행/입력 범위를 줄이세요. 분할 파일 백분위는 합성할 수 없습니다.
 저장 파일 fingerprint·소유권을 확인한 뒤 기존 semantic cache를 재사용하며 2개/2분/
 96 MiB JSON charge 한도는 RSS 보장이 아닙니다. 로컬 테스트·build·Windows cross-build는
 독립 리뷰·native Windows/WebView·실제 운영 producer 수용을 대체하지 않습니다.
 Q01–Q04·Apple/PyTorch/Nsight·추가 adapter는 각 gate를 유지합니다.
 
 JTL 행 수·오류·elapsed 통계는 samples/sample_errors/sample_latency와 all_samples/failed_samples population으로 보존합니다. JMeter 행은 transaction이나 비HTTP sampler일 수 있어 HTTP 요청으로 자동 재명명하지 않습니다. Options 예제의 합성 ID/hash/값은 실제 정제한 수집 조건으로 모두 바꾸세요.
+
+## R19-01: 큰 JTL의 정확한 분포 보관
+
+1,000행 이하 JTL은 기존 1.0.0 / 0.1.0 개별 표본 경로를 유지합니다. 큰 JTL은
+label별 정확히 정렬된 latency→count 분포와 오류 수를 스트리밍 집계하여
+execution_core 1.1.0 / execution_evidence 0.2.0으로 저장합니다. 기존 저장 결과의
+1.0.0 / 0.1.0 projection/descriptor는 변경하지 않습니다. count/min/max/mean과
+nearest-rank p50/p90/p95/p99를 분포에서 정확하게 계산하며 백분위를 합성하지 않습니다.
+큰 결과의 `distributions` 조회는 bucket 한 개가 한 행입니다. 개별 표본의 timeline·
+first-byte/connect·thread count·response code는 보관하지 않는다는 제한을 표시합니다.
+`aggregated_samples`는 실제 집계 요청 수, `sample_records`는 남긴 개별 레코드 수(큰 결과는 0)입니다.
+
+한도는 JTL 1,000,000행, 전체 (label, latency) 고유 bin 100,000개, label 128개,
+원본/확장 입력 64 MiB, 모델 16 MiB, 결과 64 MiB 중 먼저 닿는 값입니다.
+행/bin 오류는 관측 수·한도·분할 파일 백분위의 합성 불가를 명시합니다. 한도에 닿으면
+원래 실행 범위를 줄여야 하며 임의 규모 집계 보장은 아닙니다. 60,000행/label 3개를
+독립 기대 count/error/7개 지연 통계와 대조합니다. 분포·통계 변조 및 버전 바꾸기를
+거부합니다. 50,000개 한도는 과거 개별 표본 배열의 읽기 검증에만 남습니다.
+
+R19-02(실제 hs_err elapsed/심볼/구역), R19-03(JTL 타당성 진단),
+R19-04(미검증 JMeter 버전 정책)는 후속 큐에 남겼으며 producer 버전 제한은 유지합니다.
+새 네이티브 Windows/WebView 검증을 주장하지 않습니다.

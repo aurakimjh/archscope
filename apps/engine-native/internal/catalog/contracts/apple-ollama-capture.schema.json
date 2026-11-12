@@ -1,0 +1,321 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "collector_version",
+    "host_id",
+    "boot_id",
+    "device_local_id",
+    "macos_version",
+    "macos_build",
+    "hardware_model",
+    "chip",
+    "ollama_version",
+    "snapshots"
+  ],
+  "properties": {
+    "contract": {
+      "const": "apple-ollama-capture.v1"
+    },
+    "collector_version": {
+      "const": "1.0.0"
+    },
+    "host_id": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "boot_id": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "device_local_id": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "macos_version": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "macos_build": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "hardware_model": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "chip": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "ollama_version": {
+      "const": "0.40.16"
+    },
+    "snapshots": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "capture_start_ns",
+          "memory_capacity_bytes",
+          "vm_free_bytes",
+          "vm_active_bytes",
+          "vm_inactive_bytes",
+          "vm_wired_bytes",
+          "vm_compressor_bytes",
+          "swap_total_bytes",
+          "swap_used_bytes",
+          "pressure_level",
+          "thermal_warning_level",
+          "gpu_utilization",
+          "power_watts",
+          "models",
+          "capture_end_ns"
+        ],
+        "properties": {
+          "capture_start_ns": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "maxLength": 20
+          },
+          "memory_capacity_bytes": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "maxLength": 20
+          },
+          "vm_free_bytes": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "maxLength": 20
+          },
+          "vm_active_bytes": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "maxLength": 20
+          },
+          "vm_inactive_bytes": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "maxLength": 20
+          },
+          "vm_wired_bytes": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "maxLength": 20
+          },
+          "vm_compressor_bytes": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "maxLength": 20
+          },
+          "swap_total_bytes": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "maxLength": 20
+          },
+          "swap_used_bytes": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "maxLength": 20
+          },
+          "pressure_level": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value"
+            ],
+            "properties": {
+              "value": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^(0|[1-9][0-9]*)$"
+              },
+              "unavailable_reason": {
+                "enum": [
+                  "not_recorded",
+                  "not_collected",
+                  "permission_required",
+                  "unsupported"
+                ]
+              }
+            },
+            "oneOf": [
+              {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "unavailable_reason"
+                ]
+              },
+              {
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "unavailable_reason"
+                  ]
+                }
+              }
+            ]
+          },
+          "thermal_warning_level": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value"
+            ],
+            "properties": {
+              "value": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^(0|[1-9][0-9]*)$"
+              },
+              "unavailable_reason": {
+                "enum": [
+                  "not_recorded",
+                  "not_collected",
+                  "permission_required",
+                  "unsupported"
+                ]
+              }
+            },
+            "oneOf": [
+              {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "unavailable_reason"
+                ]
+              },
+              {
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "not": {
+                  "required": [
+                    "unavailable_reason"
+                  ]
+                }
+              }
+            ]
+          },
+          "gpu_utilization": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "unavailable_reason"
+            ],
+            "properties": {
+              "value": {
+                "type": "null"
+              },
+              "unavailable_reason": {
+                "enum": [
+                  "not_recorded",
+                  "not_collected",
+                  "permission_required",
+                  "unsupported"
+                ]
+              }
+            }
+          },
+          "power_watts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "unavailable_reason"
+            ],
+            "properties": {
+              "value": {
+                "type": "null"
+              },
+              "unavailable_reason": {
+                "enum": [
+                  "not_recorded",
+                  "not_collected",
+                  "permission_required",
+                  "unsupported"
+                ]
+              }
+            }
+          },
+          "models": {
+            "type": "array",
+            "maxItems": 64,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "digest",
+                "size",
+                "size_vram",
+                "context_length",
+                "quantization_level"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "digest": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "size": {
+                  "type": [
+                    "integer",
+                    "string"
+                  ]
+                },
+                "size_vram": {
+                  "type": [
+                    "integer",
+                    "string"
+                  ]
+                },
+                "context_length": {
+                  "type": [
+                    "integer",
+                    "string"
+                  ]
+                },
+                "quantization_level": {
+                  "type": "string",
+                  "maxLength": 256
+                }
+              }
+            }
+          },
+          "capture_end_ns": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "maxLength": 20
+          }
+        }
+      },
+      "minItems": 1
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

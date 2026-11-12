@@ -128,7 +128,7 @@ func metricHistoryCommands() []*cobra.Command {
 		}}
 		command.Flags().StringVar(&input, "in", "", "original source or saved result")
 		command.Flags().StringVar(&output, "out", "-", "destination; normalization refuses existing output")
-		command.Flags().StringVar(&format, "format", "auto", "otlp-json, snapshot-sequence-json, prometheus-range-json")
+		command.Flags().StringVar(&format, "format", "auto", "otlp-json, snapshot-sequence-json, prometheus-range-json, apple-ollama-capture-json")
 		command.Flags().StringVar(&producer, "producer", "", "declared producer")
 		command.Flags().StringVar(&version, "producer-version", "", "declared producer version")
 		command.Flags().StringVar(&exportID, "export-id", "", "declared export identity for exact position deduplication")

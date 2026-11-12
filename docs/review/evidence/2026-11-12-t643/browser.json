@@ -1,0 +1,33 @@
+{
+  "normalized": {
+    "path": "/tmp/apple-model-browser.json",
+    "selection": "{\"series_ids\":[\"metric-731308d3f412e0894491dec27a567f4e23d374d2dee601f30117103468f358c2\",\"metric-9f85343c1d3da4879afd0457ad25e4353998198430fd135b5666a68b14c04564\",\"metric-b76e809c9fe2acec3dddf3fd5e040a1220b5776dd1f43ad26d773376c2d5dff3\"]}"
+  },
+  "methods": [
+    {
+      "method": "main.EngineService.InspectMetricSource",
+      "args": [
+        "/manual/apple-capture.json",
+        "{ \"format\": \"apple-ollama-capture-json\", \"producer\": \"\", \"producer_version\": \"\", \"query\": {} }"
+      ]
+    },
+    {
+      "method": "main.EngineService.NormalizeMetricSource",
+      "args": [
+        "/manual/apple-capture.json",
+        "{ \"format\": \"apple-ollama-capture-json\", \"producer\": \"\", \"producer_version\": \"\", \"query\": {} }",
+        "a7f438c5d4a8a2e209f0f97ca0823f621911613adb9112cb404f745c2fb89487",
+        "/tmp/apple-model-browser.json"
+      ]
+    }
+  ],
+  "scope": "Actual React MetricSourceAssistance / actual CLI inventory shaped as Wails service DTO; mocked IPC and save dialog. No native WebView/Windows claim.",
+  "assertions": {
+    "series": 14,
+    "points": 42,
+    "selected_series": 3,
+    "alerts_after_success": 0,
+    "normalization_original_sha_pinned": true
+  },
+  "harness_setup_notes": "Corrected CommonJS default imports and versioned Vite runtime module transport; final inspection/selection/save callback passed."
+}

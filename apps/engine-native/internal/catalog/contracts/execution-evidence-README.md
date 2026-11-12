@@ -37,3 +37,11 @@ llmperf-utils.py, llmperf-common_metrics.py, llmperf-revision.txt가 필요합�
 - https://jmeter.apache.org/usermanual/listeners.html
 
 JTL 행은 transaction/비HTTP sampler일 수도 있으므로 samples/sample_errors/sample_latency와 all_samples/failed_samples로 유지합니다. HTTP 요청 수로 자동 재명명하지 않습니다.
+
+정확한 큰 JTL 분포: `jmeter-1001.csv`는 최소 압축 경계를 넘는 합성 원본이며
+`jmeter-1001-set.json`은 1.1.0 모델이다. 1,000행 이하의 기존 모델은 유지한다.
+큰 파일은 label별 latency→count와 오류 수를 보존하고 개별 timestamp/first-byte/
+connect/응답 코드/thread/timeline은 보관하지 않는다. 전체 count/nearest-rank 통계는
+분포에서 정확히 다시 계산한다. 1,000,000행·100,000개 전체 고유 latency bin·128개
+label·16 MiB 모델/64 MiB 입력 한도가 먼저 적용된다. 한도를 넘으면 원래 실행 범위를
+줄여야 하며 나눈 파일의 백분위는 합성할 수 없다. 기존 1.0.0 schema/model은 읽기 호환된다.

@@ -47,7 +47,12 @@ func parseJTL(ctx context.Context, raw []byte, s *e.Set) error {
 			return fmt.Errorf("EXECUTION_JTL_HEADER_REQUIRED: %s", key)
 		}
 	}
-	groups := map[string][]e.Sample{}
+	type accumulator struct {
+		distribution e.Distribution
+		counts       map[string]int
+	}
+	groups := map[string]*accumulator{}
+	rows, bins := 0, 0
 	for line := 2; ; line++ {
 		row, err := r.Read()
 		if err == io.EOF {
@@ -59,8 +64,9 @@ func parseJTL(ctx context.Context, raw []byte, s *e.Set) error {
 		if err = ctx.Err(); err != nil {
 			return err
 		}
-		if len(s.Samples) >= e.MaxSamples {
-			return fmt.Errorf("EXECUTION_SAMPLE_BUDGET: split original JTL")
+		rows++
+		if rows > e.MaxJTLRows {
+			return fmt.Errorf("EXECUTION_SAMPLE_BUDGET: rows=%d limit=%d; reduce run scope; split-file percentiles cannot be combined", rows, e.MaxJTLRows)
 		}
 		get := func(key string) string {
 			if i, ok := cols[key]; ok {
@@ -120,14 +126,33 @@ func parseJTL(ctx context.Context, raw []byte, s *e.Set) error {
 			}
 		}
 		v := e.Sample{GroupSHA: Digest([]byte(get("label"))), Start: e.Ptr(strconv.FormatUint(n*1000000, 10)), Latency: elapsed, FirstByte: first, Connect: connect, Success: success == "true", Concurrency: concurrency, ResponseCode: code, Position: fmt.Sprintf("csv-row/%d", line)}
-		v.ID = e.SampleID(v)
-		s.Samples = append(s.Samples, v)
-		groups[v.GroupSHA] = append(groups[v.GroupSHA], v)
+		if rows <= e.RetainedJTLSamples {
+			v.ID = e.SampleID(v)
+			s.Samples = append(s.Samples, v)
+		} else if rows == e.RetainedJTLSamples+1 {
+			s.Samples = []e.Sample{}
+		}
+		group := groups[v.GroupSHA]
+		if group == nil {
+			group = &accumulator{distribution: e.Distribution{GroupSHA: v.GroupSHA}, counts: map[string]int{}}
+			groups[v.GroupSHA] = group
+		}
+		if group.counts[*elapsed] == 0 {
+			bins++
+			if bins > e.MaxJTLBins {
+				return fmt.Errorf("EXECUTION_DISTRIBUTION_BUDGET: rows=%d distinct_values=%d limit=%d; reduce run scope; split-file percentiles cannot be combined", rows, bins, e.MaxJTLBins)
+			}
+		}
+		group.counts[*elapsed]++
+		group.distribution.Count++
+		if !v.Success {
+			group.distribution.Errors++
+		}
 		if len(groups) > 128 {
 			return fmt.Errorf("EXECUTION_JTL_GROUP_BUDGET: split original labels")
 		}
 	}
-	if len(s.Samples) == 0 {
+	if rows == 0 {
 		return fmt.Errorf("EXECUTION_JTL_SAMPLES_REQUIRED")
 	}
 	keys := []string{}
@@ -136,33 +161,28 @@ func parseJTL(ctx context.Context, raw []byte, s *e.Set) error {
 	}
 	sort.Strings(keys)
 	for _, key := range keys {
-		rows := groups[key]
-		values := []*big.Rat{}
-		sum := new(big.Rat)
-		errors := 0
-		for _, row := range rows {
-			x, _ := e.Number(*row.Latency)
-			values = append(values, x)
-			sum.Add(sum, x)
-			if !row.Success {
-				errors++
-			}
+		group := groups[key]
+		d := group.distribution
+		for seconds, count := range group.counts {
+			d.Values = append(d.Values, e.DurationCount{Seconds: seconds, Count: count})
 		}
-		sort.Slice(values, func(i, j int) bool { return values[i].Cmp(values[j]) < 0 })
-		add := func(name, stat, unit, value, pop string) {
-			v := e.Metric{Name: name, Statistic: stat, Unit: unit, Population: pop, GroupSHA: key, Policy: "jtl-nearest-rank.v1", Value: e.Ptr(value), OriginalUnit: "derived from elapsed milliseconds", Samples: e.Ptr(strconv.Itoa(len(rows))), Position: "label-sha256/" + key}
-			v.ID = e.MetricID(v)
-			s.Metrics = append(s.Metrics, v)
+		sort.Slice(d.Values, func(i, j int) bool {
+			x, _ := e.Number(d.Values[i].Seconds)
+			y, _ := e.Number(d.Values[j].Seconds)
+			return x.Cmp(y) < 0
+		})
+		metrics, err := e.DistributionMetrics(ctx, d)
+		if err != nil {
+			return err
 		}
-		add("samples", "count", "count", strconv.Itoa(len(rows)), "all_samples")
-		add("sample_errors", "count", "count", strconv.Itoa(errors), "failed_samples")
-		add("sample_latency", "mean", "seconds", new(big.Rat).Quo(sum, big.NewRat(int64(len(rows)), 1)).RatString(), "all_samples")
-		add("sample_latency", "min", "seconds", values[0].RatString(), "all_samples")
-		add("sample_latency", "max", "seconds", values[len(values)-1].RatString(), "all_samples")
-		for _, p := range []int{50, 90, 95, 99} {
-			index := (len(values)*p+99)/100 - 1
-			add("sample_latency", fmt.Sprintf("p%d", p), "seconds", values[index].RatString(), "all_samples")
+		s.Metrics = append(s.Metrics, metrics...)
+		if rows > e.RetainedJTLSamples {
+			s.Distributions = append(s.Distributions, d)
 		}
+	}
+	if rows > e.RetainedJTLSamples {
+		s.Version = e.DistributionVersion
+		s.Limitations = append(s.Limitations, "Large JTL retains exact per-label latency distributions and error counts, not per-request timestamps/first-byte/connect/concurrency/code or timeline. No percentile composition across split files. Row limit 1000000, total distinct latency bins 100000, groups 128, model 16 MiB.")
 	}
 	s.Limitations = append(s.Limitations, "JTL timeStamp is explicitly epoch milliseconds. Label populations are SHA-256 scoped; response/failure messages, URL and thread names are excluded. Latency quantiles use nearest-rank.v1 per label; exported summary percentiles are never merged.")
 	return nil

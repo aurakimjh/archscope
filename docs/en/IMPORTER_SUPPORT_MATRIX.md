@@ -180,3 +180,7 @@ Runtime evidence uses the separate bounded canonical model within AnalysisResult
 ## T-642 execution evidence
 
 Bounded benchmark/crash context uses execution_core 1.0.0 inside common AnalysisResult, execution_evidence 0.1.0. Pinned k6/LLMPerf and structural JTL/actual sanitized HotSpot inputs normalize before generic providers/cases/exports. Comparison is explicitly declared-condition snapshot verification, separate from profile original-reimport baselines. See [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md).
+
+T-643: `apple-ollama-capture-json` normalizes manual Apple Silicon/Ollama 0.40.16 snapshots to the existing metrics.history-json path; shared system bytes, per-model residency estimates and explicit unavailable telemetry. No NVIDIA identity, dedicated VRAM, automatic collector or GPU-utilization inference. Actual fixture scope and bounds: [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).
+
+R19-01 adds execution_core 1.1.0 / execution_evidence 0.2.0 for exact large-JTL distributions; saved 1.0.0/0.1.0 stays unchanged. [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md).

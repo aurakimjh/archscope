@@ -74,10 +74,10 @@ func executionEvidenceRegistration() (ingestion.ImporterDescriptor, []ingestion.
 		return nil
 	}
 	schemas := []ingestion.Schema{
-		ingestion.NewSchema("execution-evidence.input", m.Version, definition, inputValidate),
+		ingestion.NewSchema("execution-evidence.input", m.DistributionVersion, definition, inputValidate),
 		ingestion.NewSchema("execution-evidence.options", m.Version, json.RawMessage(`{"type":"object","additionalProperties":false}`), selectionValidate),
 		ingestion.NewSchema("execution-evidence.chunk", m.Version, json.RawMessage(`{"type":"object","additionalProperties":false,"required":["offset","data"],"properties":{"offset":{"type":"integer","minimum":0},"data":{"type":"string","minLength":4,"maxLength":349528}}}`), func(raw json.RawMessage) error { _, e := decodeProfileChunk(raw); return e }),
-		ingestion.NewSchema("execution-evidence.result", a.PayloadVersion, json.RawMessage(`{"type":"object","required":["type","summary","series","tables","charts","metadata","source_files","created_at"]}`), func(raw json.RawMessage) error {
+		ingestion.NewSchema("execution-evidence.result", a.DistributionPayloadVersion, json.RawMessage(`{"type":"object","required":["type","summary","series","tables","charts","metadata","source_files","created_at"]}`), func(raw json.RawMessage) error {
 			result, e := resultcontract.Decode(raw)
 			if e != nil {
 				return e
@@ -92,7 +92,7 @@ func executionEvidenceRegistration() (ingestion.ImporterDescriptor, []ingestion.
 	selection := map[string]any{}
 	selectionJSON, _ := json.Marshal(selection)
 	chunkJSON, _ := json.Marshal(profileChunk{0, fixture})
-	sample, err := a.Build(context.Background(), set, "synthetic")
+	sample, err := a.BuildCurrent(context.Background(), set, "synthetic")
 	if err != nil {
 		return empty, nil, ingestion.Analyzer{}, err
 	}
@@ -105,9 +105,9 @@ func executionEvidenceRegistration() (ingestion.ImporterDescriptor, []ingestion.
 	schemas[1].Conformance = []ingestion.SchemaCase{{Value: selectionJSON, Valid: true}, {Value: json.RawMessage(`{"unknown":true}`), Valid: false}}
 	schemas[2].Family = executionEvidenceFamily
 	schemas[3].ResultType = a.ResultType
-	schemas[3].PayloadVersion = a.PayloadVersion
+	schemas[3].PayloadVersion = a.DistributionPayloadVersion
 	manifestSum := sha256.Sum256(manifest)
-	d := ingestion.ImporterDescriptor{ID: "execution.evidence-json", Aliases: []string{"execution-evidence"}, Family: "execution_evidence", Extensions: []string{".json"}, Producer: "internal ExecutionEvidence transport", AdapterVersion: m.Version, InputSchema: schemas[0].Ref, OptionSchema: schemas[1].Ref, RecordSchema: schemas[2].Ref, ResultSchema: schemas[3].Ref, RecordFamily: executionEvidenceFamily, NormalizerInput: executionEvidenceFamily, NormalizerOutput: executionEvidenceFamily, AnalyzerID: "execution-evidence.exact", MeasurementKinds: []string{"record_count"}, Capabilities: []string{"summary", "execution_metrics", "benchmark_context", "crash_context", "timeline"}, SupportStatus: "limited", Limitations: []string{"bounded offline benchmark/crash evidence; normalize before import", "pinned k6/LLMPerf, synthetic JMeter layout and sanitized actual HotSpot fragment only; no general producer qualification", "comparison checks declared conditions; no load generation, core/heap engine, causal or root-cause claim"}, FixtureManifest: "diagnostics.execution-evidence.v1", FixtureHash: hex.EncodeToString(manifestSum[:]), ConformanceVersion: m.Version, ProbeBudget: ingestion.MaxProbeBytes}
+	d := ingestion.ImporterDescriptor{ID: "execution.evidence-json", Aliases: []string{"execution-evidence"}, Family: "execution_evidence", Extensions: []string{".json"}, Producer: "internal ExecutionEvidence transport", AdapterVersion: m.DistributionVersion, InputSchema: schemas[0].Ref, OptionSchema: schemas[1].Ref, RecordSchema: schemas[2].Ref, ResultSchema: schemas[3].Ref, RecordFamily: executionEvidenceFamily, NormalizerInput: executionEvidenceFamily, NormalizerOutput: executionEvidenceFamily, AnalyzerID: "execution-evidence.exact", MeasurementKinds: []string{"record_count"}, Capabilities: []string{"summary", "execution_metrics", "benchmark_context", "crash_context", "timeline"}, SupportStatus: "limited", Limitations: []string{"bounded offline benchmark/crash evidence; normalize before import", "pinned k6/LLMPerf, synthetic JMeter layout and sanitized actual HotSpot fragment only; no general producer qualification", "comparison checks declared conditions; no load generation, core/heap engine, causal or root-cause claim"}, FixtureManifest: "diagnostics.execution-evidence.v1", FixtureHash: hex.EncodeToString(manifestSum[:]), ConformanceVersion: m.DistributionVersion, ProbeBudget: ingestion.MaxProbeBytes}
 	read := func(ctx context.Context, source ingestion.Source) ([]byte, error) {
 		if source.Info().Size > m.MaxBytes {
 			return nil, ingestion.BudgetProblem("execution_model_bytes", "execution_model_bytes", source.Info().Size, m.MaxBytes)
@@ -195,7 +195,7 @@ func executionEvidenceRegistration() (ingestion.ImporterDescriptor, []ingestion.
 		if e = selectionValidate(raw); e != nil {
 			return models.AnalysisResult{}, e
 		}
-		return a.Build(ctx, set, info.Name)
+		return a.BuildCurrent(ctx, set, info.Name)
 	}}
 	return d, schemas, analyzer, nil
 }

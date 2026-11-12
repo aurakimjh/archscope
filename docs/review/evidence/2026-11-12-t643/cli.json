@@ -1,0 +1,214 @@
+{
+  "operations": [
+    {
+      "operation": [
+        "metrics",
+        "history-import"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-inspect"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "import"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "query"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-query"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "case",
+        "create"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "case",
+        "save-result"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "case",
+        "cleanup-cache"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "case",
+        "export-result"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "import"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "query"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "execution",
+        "query"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "case",
+        "create"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "case",
+        "save-result"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "case",
+        "cleanup-cache"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "case",
+        "export-result"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "execution",
+        "normalize-source"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "evidence",
+        "import"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": [
+        "execution",
+        "query"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "count": 29,
+  "cases_exact_reopen": [
+    "apple",
+    "jtl"
+  ],
+  "sixty_thousand_result_bytes": 501965,
+  "sixty_thousand_distribution_bins": 3000
+}

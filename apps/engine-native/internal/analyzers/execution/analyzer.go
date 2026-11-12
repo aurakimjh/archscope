@@ -15,13 +15,25 @@ import (
 
 const ResultType = "execution_evidence"
 const PayloadVersion = "0.1.0"
+const DistributionPayloadVersion = "0.2.0"
 
 func Build(ctx context.Context, s e.Set, source string) (models.AnalysisResult, error) {
+	return build(ctx, s, source, s.Version == e.DistributionVersion)
+}
+
+// BuildCurrent publishes the latest projection for newly imported models.
+func BuildCurrent(ctx context.Context, s e.Set, source string) (models.AnalysisResult, error) {
+	return build(ctx, s, source, true)
+}
+func build(ctx context.Context, s e.Set, source string, current bool) (models.AnalysisResult, error) {
 	out := models.New(ResultType, "execution-evidence.v1")
 	if err := s.Validate(ctx); err != nil {
 		return out, err
 	}
 	out.Metadata.SchemaVersion = PayloadVersion
+	if current {
+		out.Metadata.SchemaVersion = DistributionPayloadVersion
+	}
 	out.SourceFiles = []string{source}
 	frames := []e.Frame{}
 	crashes := []e.Crash{}
@@ -44,8 +56,16 @@ func Build(ctx context.Context, s e.Set, source string) (models.AnalysisResult, 
 		}
 	}
 	out.Tables["timeline"] = timeline
+	if current {
+		out.Tables["distributions"] = e.DistributionRows(s)
+		total := 0
+		for _, d := range s.Distributions {
+			total += d.Count
+		}
+		out.Summary["aggregated_samples"] = strconv.Itoa(total)
+	}
 	out.Metadata.Extra["execution_core"] = s
-	out.Metadata.Extra["extensions"] = map[string]string{"execution_core": e.Version, "measurement": "1.0.0"}
+	out.Metadata.Extra["extensions"] = map[string]string{"execution_core": s.Version, "measurement": "1.0.0"}
 	out.Metadata.Extra["envelope_schema_version"] = "1.0.0"
 	out.Metadata.Extra["identity_basis"] = "declared"
 	out.Metadata.Extra["clock_ids"] = []string{"unix"}
@@ -65,21 +85,32 @@ func Build(ctx context.Context, s e.Set, source string) (models.AnalysisResult, 
 	return out, ctx.Err()
 }
 func ReadCore(ctx context.Context, result models.AnalysisResult) (e.Set, error) {
-	if result.Type != ResultType || result.Metadata.SchemaVersion != PayloadVersion {
+	if result.Type != ResultType || !e.In(result.Metadata.SchemaVersion, PayloadVersion, DistributionPayloadVersion) {
 		return e.Set{}, fmt.Errorf("EXECUTION_RESULT_VERSION_UNSUPPORTED")
 	}
 	raw, err := json.Marshal(result.Metadata.Extra["execution_core"])
 	if err != nil {
 		return e.Set{}, err
 	}
-	return e.Decode(ctx, raw)
+	set, err := e.Decode(ctx, raw)
+	if err == nil && result.Metadata.SchemaVersion == PayloadVersion && set.Version == e.DistributionVersion {
+		err = fmt.Errorf("EXECUTION_RESULT_CORE_VERSION_MISMATCH")
+	}
+	if err == nil {
+		extRaw, _ := json.Marshal(result.Metadata.Extra["extensions"])
+		var extensions map[string]string
+		if json.Unmarshal(extRaw, &extensions) != nil || extensions["execution_core"] != set.Version {
+			err = fmt.Errorf("EXECUTION_RESULT_CORE_VERSION_MISMATCH")
+		}
+	}
+	return set, err
 }
 func Validate(result models.AnalysisResult) error {
 	set, err := ReadCore(context.Background(), result)
 	if err != nil {
 		return err
 	}
-	expected, err := Build(context.Background(), set, "")
+	expected, err := build(context.Background(), set, "", result.Metadata.SchemaVersion == DistributionPayloadVersion)
 	if err != nil {
 		return err
 	}
@@ -104,4 +135,14 @@ func Descriptor() resultcontract.Descriptor {
 	}
 	providers = append(providers, resultcontract.Provider{ID: "execution:timeline", Version: "1.0.0", Kind: "timeline", Path: "/tables/timeline", Schema: "timeline-v1", Time: "time", Clock: "clock", Evidence: "sample_id"})
 	return resultcontract.Descriptor{Type: ResultType, Payload: resultcontract.Range{Min: PayloadVersion, Before: "0.1.1"}, Envelope: resultcontract.Range{Min: "1.0.0", Before: "2.0.0"}, Operations: []string{"display", "save", "compute", "json", "csv", "html", "report-pack"}, Extensions: map[string]resultcontract.Range{"execution_core": {Min: e.Version, Before: "1.0.1"}, "measurement": {Min: "1.0.0", Before: "1.1.0"}}, Required: map[string][]string{"save": {"execution_core", "measurement"}, "compute": {"execution_core", "measurement"}}, Scalars: scalars, Providers: providers, ValidatePayload: Validate}
+}
+
+// DistributionDescriptor is separate so saved 0.1.0 projections stay exact.
+func DistributionDescriptor() resultcontract.Descriptor {
+	d := Descriptor()
+	d.Payload = resultcontract.Range{Min: DistributionPayloadVersion, Before: "0.2.1"}
+	d.Extensions["execution_core"] = resultcontract.Range{Min: e.Version, Before: "1.2.0"}
+	d.Scalars["/summary/aggregated_samples"] = resultcontract.ValueSchema{Kinds: []string{"record_count"}, Units: []string{"count"}, Encodings: []string{"exact_integer_string"}, Aggregations: []string{"count"}}
+	d.Providers = append(d.Providers, resultcontract.Provider{ID: "execution:distributions", Version: "1.0.0", Kind: "detail", Path: "/tables/distributions", Schema: "object-rows-v1"})
+	return d
 }

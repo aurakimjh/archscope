@@ -1052,3 +1052,7 @@ SystemEvidence 1.0.0 / system_evidence 0.1.0 저장 reader는 유지하며 새 1
 ## T-642 실행 근거
 
 제한된 benchmark/crash 문맥은 공통 AnalysisResult의 execution_core 1.0.0 / execution_evidence 0.1.0을 사용합니다. 고정 k6/LLMPerf·합성 JTL/정제한 실제 HotSpot 입력을 정규화한 뒤 기존 provider/case/export를 사용합니다. 비교는 선언 조건 snapshot 검증이며 profile 원본 재수입 baseline과 구분합니다. [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md)를 참고하세요.
+
+T-643은 apple-ollama-capture.v1의 닫힌 제한된 입력을 검증하고 정확한 메트릭으로 정규화한 후 기존 generic import를 사용합니다. 가져오기에서 수동 수집을 실행하지 않습니다. [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).
+
+R19-01은 큰 JTL의 정확한 분포용 execution_core 1.1.0 / execution_evidence 0.2.0을 추가하며 저장된 1.0.0/0.1.0은 유지합니다. [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md).

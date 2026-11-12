@@ -17,7 +17,7 @@ def run(args):
 run(['/input/engine','offline','build','--engine','/input/engine','--out',str(bundle)])
 # Only the new bundle and synthetic corpus remain visible to the tested process.
 with zipfile.ZipFile(bundle/'resources/fixtures.zip') as z:
- for name in ('packs/input.jsonl','catalog/metric-history-set.json','catalog/metric-history-sdk-python-1.38.0.otlp.json','catalog/system-evidence-perf-script.txt','catalog/system-evidence-perf-capture.json','catalog/inference-evidence-set.json','catalog/inference-evidence-nvidia-set.json','catalog/inference-evidence-nvidia-query.csv','catalog/inference-evidence-nvidia-capture.json','catalog/llm-trace-sdk-python-1.38.0.otlp.json','catalog/llm-trace-neutral-options.json','catalog/runtime-evidence-set.json','catalog/runtime-evidence-python-3.14.4.json','catalog/runtime-evidence-python-options.json','catalog/execution-evidence-k6-1.3.0.json','catalog/execution-evidence-k6-options.json','catalog/execution-evidence-set.json','catalog/execution-evidence-hs-err-21.0.10.txt','catalog/execution-evidence-llmperf-summary.json','catalog/execution-evidence-llmperf-options.json','catalog/execution-evidence-jmeter-5.6.3.csv','catalog/execution-evidence-jmeter-options.json'):z.extract(name,'/sources')
+ for name in ('packs/input.jsonl','catalog/metric-history-set.json','catalog/metric-history-sdk-python-1.38.0.otlp.json','catalog/system-evidence-perf-script.txt','catalog/system-evidence-perf-capture.json','catalog/inference-evidence-set.json','catalog/inference-evidence-nvidia-set.json','catalog/inference-evidence-nvidia-query.csv','catalog/inference-evidence-nvidia-capture.json','catalog/llm-trace-sdk-python-1.38.0.otlp.json','catalog/llm-trace-neutral-options.json','catalog/runtime-evidence-set.json','catalog/runtime-evidence-python-3.14.4.json','catalog/runtime-evidence-python-options.json','catalog/execution-evidence-k6-1.3.0.json','catalog/execution-evidence-k6-options.json','catalog/execution-evidence-set.json','catalog/execution-evidence-hs-err-21.0.10.txt','catalog/execution-evidence-llmperf-summary.json','catalog/execution-evidence-llmperf-options.json','catalog/execution-evidence-jmeter-5.6.3.csv','catalog/execution-evidence-jmeter-options.json','catalog/apple-ollama-capture.json','catalog/apple-ollama-metric-model.json','catalog/execution-evidence-jmeter-1001.csv'):z.extract(name,'/sources')
 model=json.loads(pathlib.Path('/sources/catalog/metric-history-set.json').read_text())
 selection={'series_ids':[model['series'][0]['id']]}
 inference=json.loads(pathlib.Path('/sources/catalog/inference-evidence-nvidia-set.json').read_text())
@@ -69,6 +69,13 @@ commands.extend([
  ['execution','query','--in','/evidence/llm-benchmark-result.json','--query','{"kind":"metrics","limit":1}'],
  ['execution','import-source','--in','/sources/catalog/execution-evidence-jmeter-5.6.3.csv','--options-file','/sources/catalog/execution-evidence-jmeter-options.json','--out','/evidence/jtl-result.json'],
  ['execution','query','--in','/evidence/jtl-result.json','--query','{"kind":"samples","limit":1}'],
+])
+commands.extend([
+ ['metrics','history-inspect','--in','/sources/catalog/apple-ollama-capture.json'],
+ ['metrics','history-normalize','--in','/sources/catalog/apple-ollama-capture.json','--out','/evidence/apple-model.json'],
+ ['metrics','history-import','--in','/sources/catalog/apple-ollama-capture.json','--out','/evidence/apple-result.json'],
+ ['execution','import-source','--in','/sources/catalog/execution-evidence-jmeter-1001.csv','--options-file','/sources/catalog/execution-evidence-jmeter-options.json','--out','/evidence/jtl-compact-result.json'],
+ ['execution','query','--in','/evidence/jtl-compact-result.json','--query','{"kind":"distributions","limit":1}'],
 ])
 reports=[]
 for i,args in enumerate(commands):

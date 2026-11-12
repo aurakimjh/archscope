@@ -125,3 +125,5 @@ R13-07은 검색/페이지 없는 bounded 전체 series 목록입니다. 위 R13
 R14-07 정정: 0.2.0 generic 상세/HTML/Report Pack 표는 point ID·status와 time/clock/reference
 투영만 담으며 메트릭 이름·단위·값·delta·rate 행은 담지 않습니다. 정확한 값/bucket은 전용
 history query/탐색기로 제공합니다. 더 풍부한 generic export는 R13-06과 함께 후속 처리합니다.
+
+Apple Silicon / Ollama 수동 캡처 어댑터: [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).

@@ -2,7 +2,7 @@
 
 T-642 normalizes benchmark exports and bounded JVM crash text before import.
 The limited `execution.evidence-json` importer (`execution-evidence`) uses the
-existing `AnalysisResult` with `execution_evidence` 0.1.0 / `execution_core` 1.0.0.
+existing `AnalysisResult` with `execution_evidence` 0.1.0/0.2.0 and `execution_core` 1.0.0/1.1.0. New generic model imports publish 0.2.0, including legacy 1.0.0 cores; saved 0.1.0 projections remain unchanged.
 Its run conditions, statistic populations and crash fields require a domain model;
 it does not introduce another envelope or change saved profile/runtime readers.
 Parsers extract facts; the analyzer supplies common providers; UI/exporters consume them.
@@ -61,7 +61,7 @@ Counts differ from rates. Missing values remain null and observed zero remains z
 not the size of its failed/successful output population. It is unavailable for
 source summaries that do not supply that information.
 
-JTL preserves individual samples and computes count/error count plus nearest-rank
+Small JTL (≤1,000 rows) preserves individual samples and computes count/error count plus nearest-rank
 latency min/max/mean/p50/p90/p95/p99 per label over all rows. It does not average
 exported percentiles, merge labels or infer throughput from first/last timestamps.
 JTL first-byte and connect fields remain separate from request latency. Headers
@@ -120,15 +120,15 @@ archscope-engine execution import-source --in hs_err_pid.txt --options '{"format
 Use either import command with a fresh output path. CLI destination files never
 overwrite existing or managed case files. UI inspection pins the raw source digest
 and rechecks it during normalization. Cancelled/stale operations cannot replace the
-active result or retain late ownership. Query kinds are metrics/samples/contexts/
+active result or retain late ownership. Query kinds are metrics/samples/distributions/contexts/
 sources/crash/crash_frames; metric/group filters apply only to their relevant kinds.
 
 ## Bounds and acceptance
 
 Raw/expanded input ≤64 MiB, canonical model ≤16 MiB, result ≤64 MiB, options ≤64 KiB.
-At most 50k samples, 8192 metrics, 128 JTL label groups, 128 crash frames, 1 MiB text
+Legacy saved sample arrays allow at most 50k entries; new JTL retains ≤1000 individual samples or ≤1M aggregated rows / 100k distinct bins. Other limits: 8192 metrics, 128 JTL label groups, 128 crash frames, 1 MiB text
 lines and 500k crash lines. JSON decoder depth/record limits also apply. Byte ceilings
-can precede record ceilings. Pages ≤100 rows (UI25); split original exports rather
+can precede record ceilings. Pages ≤100 rows (UI25); reduce original run/export scope (split-file percentiles cannot be combined) rather
 than silently truncating. Two source slots, five-minute timeout and cancellation
 checks apply. Saved file fingerprints/ownership are verified before semantic cache
 reuse. The existing two-entry/two-minute/96 MiB JSON-charge cache is not an RSS bound.
@@ -138,3 +138,29 @@ review, native Windows/WebView or actual production producer captures. Q01–Q04
 Apple/PyTorch/Nsight and additional adapters retain their separate gates.
 
 JTL row counts/errors/elapsed statistics are named samples/sample_errors/sample_latency with all_samples/failed_samples populations. JMeter rows may be transactions or non-HTTP samplers; they are never automatically relabeled HTTP requests. Replace every synthetic option ID/hash/value with actual sanitized collection conditions.
+
+## R19-01: exact large JTL distributions
+
+JTL up to 1,000 rows retains the existing 1.0.0 / 0.1.0 sample projection.
+Larger JTL streams into exact per-label sorted latency→count distributions and
+error counts in execution_core 1.1.0 / execution_evidence 0.2.0. Old saved 1.0.0 /
+0.1.0 snapshots retain their exact projection and descriptor. Counts/min/max/mean
+and nearest-rank p50/p90/p95/p99 are recomputed from distribution counts; no
+sample duplication or percentile averaging. Large imports expose paged
+`distributions` detail (one bucket per row); per-request timeline, first-byte,
+connect, thread count and response code are intentionally absent with a limitation.
+`aggregated_samples` counts underlying requests; `sample_records` counts retained
+individual records (zero in compressed results).
+
+Bounds: 1,000,000 JTL rows, 100,000 distinct (label, latency) bins total, 128
+labels, original/expanded input 64 MiB, model 16 MiB and result 64 MiB. Whichever
+bound is reached first applies. Row/bin errors include observed count, limit and
+that split-file percentiles cannot be combined. Reduce the original run scope
+when limits apply; this is not a promise of arbitrary-size aggregation. A 60,000
+row / 3-label test checks exact independent expected counts/errors and all seven
+latency statistics. Distribution/metric tampering and version relabeling are
+refused. The 50,000 limit remains only for legacy saved sample-array validation.
+
+R19-02 (actual hs_err elapsed/symbol/section), R19-03 (JTL consistency diagnostics)
+and R19-04 (unverified JMeter version policy) remain explicitly queued; current
+pinned producer restrictions continue. No new native Windows/WebView claim.
