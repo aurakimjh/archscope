@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "platform": "win32",
+  "sourceCommit": "3b968ea97cfb81b3ebdb0454549d685dd7e649c0",
+  "binarySha256": "33cdce6ea519a4f02d4d34f0f9e10ebd220108e23e9df22782b1d5df99ac96e2",
+  "buildCommit": "3b968ea97cfb81b3ebdb0454549d685dd7e649c0",
+  "nativeWindowVerified": false,
+  "cases": [
+    {
+      "id": "CONTROL-01",
+      "task": "T-611",
+      "status": "PASS",
+      "evidenceType": "automation",
+      "reason": "Authenticated commands and fixture exchange reads completed",
+      "artifacts": [
+        "890ccea6e661d684088efb662b56bd24d0570619f6afca69db412ac4145618ca"
+      ]
+    },
+    {
+      "id": "PROCESS-01",
+      "task": "T-601",
+      "status": "PASS",
+      "evidenceType": "automation",
+      "reason": "PID/start-time identity compared on every fixture exchange",
+      "artifacts": [
+        "890ccea6e661d684088efb662b56bd24d0570619f6afca69db412ac4145618ca"
+      ]
+    },
+    {
+      "id": "EXCHANGE-01",
+      "task": "T-602",
+      "status": "PASS",
+      "evidenceType": "automation",
+      "reason": "103, redirect target and final response compared",
+      "artifacts": [
+        "890ccea6e661d684088efb662b56bd24d0570619f6afca69db412ac4145618ca"
+      ]
+    },
+    {
+      "id": "BODY-01",
+      "task": "T-606",
+      "status": "UNVERIFIED",
+      "evidenceType": "automation",
+      "reason": "Not observed by this run",
+      "artifacts": []
+    },
+    {
+      "id": "SESSION-01",
+      "task": "T-607",
+      "status": "PASS",
+      "evidenceType": "automation",
+      "reason": "Native stored IDs/selection compared after open",
+      "artifacts": [
+        "5e3cf7c2dc9457360ec8829de36d251a0b5dcaf1f82b900b349ad9b45b2e1c1c"
+      ]
+    },
+    {
+      "id": "WINDOW-01",
+      "task": "T-594",
+      "status": "UNVERIFIED",
+      "evidenceType": "native_observation",
+      "reason": "Not observed by this run",
+      "artifacts": []
+    },
+    {
+      "id": "GRID-01",
+      "task": "T-604",
+      "status": "UNVERIFIED",
+      "evidenceType": "native_observation",
+      "reason": "Not observed by this run",
+      "artifacts": []
+    },
+    {
+      "id": "TIMING-01",
+      "task": "T-605",
+      "status": "UNVERIFIED",
+      "evidenceType": "native_observation",
+      "reason": "Not observed by this run",
+      "artifacts": []
+    },
+    {
+      "id": "CONTENT-01",
+      "task": "T-606",
+      "status": "UNVERIFIED",
+      "evidenceType": "native_observation",
+      "reason": "Not observed by this run",
+      "artifacts": []
+    },
+    {
+      "id": "NOTES-01",
+      "task": "T-609",
+      "status": "UNVERIFIED",
+      "evidenceType": "native_observation",
+      "reason": "Not observed by this run",
+      "artifacts": []
+    },
+    {
+      "id": "BUILDER-01",
+      "task": "T-610",
+      "status": "UNVERIFIED",
+      "evidenceType": "native_observation",
+      "reason": "Not observed by this run",
+      "artifacts": []
+    },
+    {
+      "id": "LEGACY-VIEW-01",
+      "task": "T-612",
+      "status": "UNVERIFIED",
+      "evidenceType": "native_observation",
+      "reason": "Not observed by this run",
+      "artifacts": []
+    },
+    {
+      "id": "COVERAGE-01",
+      "task": "T-601",
+      "status": "UNVERIFIED",
+      "evidenceType": "native_observation",
+      "reason": "Not observed by this run",
+      "artifacts": []
+    },
+    {
+      "id": "HALOG-01",
+      "task": "T-608",
+      "status": "UNVERIFIED",
+      "evidenceType": "reference_interop",
+      "reason": "Not observed by this run",
+      "artifacts": []
+    },
+    {
+      "id": "COM-01",
+      "task": "T-611",
+      "status": "UNVERIFIED",
+      "evidenceType": "reference_interop",
+      "reason": "Not observed by this run",
+      "artifacts": []
+    },
+    {
+      "id": "LONG-01",
+      "task": "T-613",
+      "status": "UNVERIFIED",
+      "evidenceType": "native_observation",
+      "reason": "Not observed by this run",
+      "artifacts": []
+    }
+  ],
+  "assessment": {
+    "status": "UNVERIFIED",
+    "errors": []
+  }
+}

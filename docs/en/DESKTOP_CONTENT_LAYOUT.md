@@ -272,3 +272,20 @@ reach, the remaining vendor automation contract and full parity remain open.
 T-608 native `.halog` codec/reference interoperability is complete for the
 observed V7.6.4 format. See the [codec evidence](../review/evidence/2026-11-11-windows/HALOG_CODEC.md)
 for retained-text, encoding and timezone limits.
+
+### Native Windows menu follow-up (2026-11-12)
+
+The actual production Wails/WebView2 window reached all 21 routes through native
+menus in empty/form states and synchronized Korean/English page/menu labels.
+The current controller fixture was reopened through supported `--open`; selected
+POST Headers, Body-off disclosure and two saved rows after native menu reentry
+passed. This is sparse two-row evidence, not a 70% density verdict. The HAR file
+picker opened, but Computer Use could not address its input field; file selection
+and Analyze were not completed. Mixed Korean MSA Timeline labels in English mode
+and raw dialog-cancel error text remain follow-ups.
+
+T-627 remains REVIEW for populated/conditional/error coverage, exact CSS viewport
+and area, small-window and alternate OS DPI acceptance. Both native Windows full
+Go suites/vets, production builds, frontend checks and a 603.731-second service/
+proxy soak passed; this does not establish multi-hour native GUI parity.
+See [Windows evidence](../review/evidence/2026-11-12-windows/README.md).

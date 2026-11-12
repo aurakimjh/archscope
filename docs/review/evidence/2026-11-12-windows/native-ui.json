@@ -1,0 +1,168 @@
+{
+  "scope": "Native production amd64 Wails/WebView2; menu navigation and empty/form observations, not full layout/DPI acceptance",
+  "routes": [
+    {
+      "route": "profiler",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "access_log",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "gc_log",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "diff",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "jfr",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "exception",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "threaddump",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "jennifer",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS",
+      "note": "Navigation only; embedded tab and empty-state labels remain Korean."
+    },
+    {
+      "route": "trace_import",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "browser_cpu",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "browser_audit",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "analysis_workspace",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "export_center",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "report_diff",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "chart_studio",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "incident_timeline",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "slo",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "service_flow",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "evidence_board",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    },
+    {
+      "route": "settings",
+      "locale": "en",
+      "state": "form",
+      "result": "PASS"
+    },
+    {
+      "route": "http_capture",
+      "locale": "en",
+      "state": "empty",
+      "result": "PASS"
+    }
+  ],
+  "notes": [
+    "21 English routes reached through native Analyze/Workspace/Capture/View menus; empty/form state only.",
+    "Korean menu/page labels synchronized on HTTP Capture.",
+    "MSA Timeline retains Korean tab/empty-state labels under English locale.",
+    "Native HAR file dialog opened; Computer Use set_value twice reported element not available in cached app state for archscope.exe; input/Analyze not completed.",
+    "Cancel dismissed the dialog and returned to HTTP Capture, but showed a raw cancelled-by-user error."
+  ],
+  "navigationBuildCommit": "d9e62b1ddc22e5cc2150d981e0909a23c210d7c9",
+  "navigationBinarySha256": "2f9c0384092e46e6394905253642526be9ec085939249e33ec1931957b5512d1",
+  "populatedBuildCommit": "3b968ea97cfb81b3ebdb0454549d685dd7e649c0",
+  "populatedChecks": [
+    {
+      "action": "Launch --open with current synthetic fixture.httpsession",
+      "result": "PASS",
+      "observed": "2/2 persisted exchanges; selected GET 302 /redirect restored"
+    },
+    {
+      "action": "Select POST 201 /final?a=1&a=2 and open Headers",
+      "result": "PASS",
+      "observed": "Content-Length 34, application/json response, duplicate redacted Set-Cookie fields"
+    },
+    {
+      "action": "Open Body for persisted POST",
+      "result": "PASS",
+      "observed": "Both bodies disclose recording off; transferred sizes remain 34 B / 77 B."
+    },
+    {
+      "action": "Native Analyze → Profiler then Capture → HTTP Capture",
+      "result": "PASS",
+      "observed": "All 2 persisted rows restored; remount restores saved first GET selection/Raw tab rather than page-local POST/Body."
+    }
+  ],
+  "scopeLimits": [
+    "Only 2 synthetic rows; sparse, no 70% density verdict.",
+    "OS scale and exact CSS viewport not measured; no alternate DPI or small-window acceptance."
+  ]
+}
