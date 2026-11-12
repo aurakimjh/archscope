@@ -6,6 +6,7 @@
 
 | 날짜 | 문서 | 대상 | 판정 |
 |---|---|---|---|
+| 2026-11-12 | [T-645 PostgreSQL pg_stat_database·Linux ss -s 스냅샷 구현 독립 리뷰](2026-11-12_claude-code_T-645_implementation-review.ko.md) | `b36d83e` | CONDITIONAL(P3 3, P1·P2 없음, 차단 없음). R22-01 에폭 전이 파생 규칙 불일치, R22-02 불변식 검증 공백, R22-03 reset 이력 없는 DB 문서·수집 도구 공백은 후속 큐. 독립 PostgreSQL 16.14·ss -s 캡처와 T-644 R21 수정은 확인 |
 
 ## 처리 기록
 
