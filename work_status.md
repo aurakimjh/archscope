@@ -4535,7 +4535,7 @@ after R21-01 with R21-02..04 queued. Findings recorded before archival:
 | R21-01 | P2 | LOCALLY_FIXED | Correct the raw64MiB pre-window limit claim; provide and actually verify bounded offline SQLite subsetting and profiler schedule guidance. Count retained supported PyTorch events, not ignored metadata, against the event budget. |
 | R21-02 | P3 | LOCALLY_FIXED | Disclose missing supported SQLite tables and reject selected-table views consistently. |
 | R21-03 | P3 | LOCALLY_FIXED | Separate schema/record limits and report at_least for the first limit breach; raw count alone does not prove retained event count. |
-| R21-04 | P3 | TODO | Add actual/structural overlapping-stream SQLite and ambiguous correlation/flow fixture coverage without promoting structural CUDA shapes. |
+| R21-04 | P3 | LOCALLY_FIXED | Add actual/structural overlapping-stream SQLite and ambiguous correlation/flow fixture coverage without promoting structural CUDA shapes. |
 
 R21-01 is addressed with T-645; existing P3 queue remains dependency ordered.
 Original review SHA-256: 64ddac161130ed528acdd8341de149a4e2507f934ef73bf082966f49797994af. No independent PASS of final fixes is asserted.
@@ -4836,3 +4836,5 @@ R20-03 LOCALLY_FIXED: JTL byte-before-row capacity guidance added with reviewed 
 R20-04 EVIDENCE_PARTIAL: Actual 12-sample/two-second multi-load capture added; matched/excluded1/1 throughout, owned models unloaded and empty state restored. swap_used0/raw pressure1 is not elevated-pressure evidence. Explicit qualification matrix retains missing natural nonzero-swap/elevated-pressure input, other platforms and long-duration qualification. Parser/catalog tests passed. User input requested; full batch push remains held until required input is resolved. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
 
 R21-02 LOCALLY_FIXED: Nsight now discloses present/absent coverage for all four supported optional tables; absent never proves zero activity. Selected-name views/virtual tables refused before querying; generated columns remain refused. All optional-table missing/view regressions and catalog passed; legacy saved warnings preserved. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
+
+R21-04 LOCALLY_FIXED: Added shared deterministic overlapping-stream SQLite mutation with independent exact sum77888/union51968 ns, duplicate launch candidates and ambiguous/orphan/valid Chrome flow endpoints. Structural qualification explicitly distinguished from actual CUDA/NCCL. Parser/analyzer/catalog passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.

@@ -174,3 +174,5 @@ R21 P3 table-presence/actual-flow fixture follow-ups remain separately recorded.
 The disconnected release bundle also ships the same manual helper at `resources/tools/subset-nsight-sqlite.py`; invoke it explicitly with Python.
 
 Nsight import records present/absent status for each supported runtime, kernel, memcpy and NVTX table. An absent table means unavailable coverage, never proven zero activity. Any selected table name backed by a view or virtual table is refused before reading it; generated columns are also refused. Historical saved models retain their original warnings.
+
+Additional structural regression fixtures distinguish overlapping streams (kernel sum 77,888 ns, union 51,968 ns), duplicate launch candidates and ambiguous/orphan/valid flow endpoints. They are deterministic mutations of an actual sanitized SQLite export and synthetic Chrome flow records, not new CUDA/NCCL runtime qualification.

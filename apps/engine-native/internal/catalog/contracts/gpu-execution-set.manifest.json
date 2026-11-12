@@ -11,7 +11,7 @@
     },
     {
       "file": "README.md",
-      "sha256": "494742411802101b02ea90b57ece82626ac45f6ae9cfa2652b8b76cff614c518"
+      "sha256": "36205e9718ae2b3c103b812b3721d77a51e45c7667fd9e566336e0071c8fb2d6"
     },
     {
       "file": "generate-torch.py",
@@ -28,6 +28,10 @@
     {
       "file": "nsight-options.json",
       "sha256": "2b0596a054a9abc9d4f3e36337405852cff3aad0deb8661427f184a9a6263ab1"
+    },
+    {
+      "file": "nsight-overlap-ambiguous.sqlite",
+      "sha256": "7e337c74d5213444455764628c3be8e055f0b87ea6e5376dea350fe81cdbbe7d"
     },
     {
       "file": "nsight-sanitized.sqlite",
@@ -76,6 +80,14 @@
     {
       "file": "pytorch-rank-1.json",
       "sha256": "d6cbd779791cb2578ed33aceb66cedb7d718a788a3a058c82126bc75525291b0"
+    },
+    {
+      "file": "structural-expected.json",
+      "sha256": "64d50f56ad6790c7c92dae2d170d9a6fccca15a69e26f63bcd42b5094c3c0910"
+    },
+    {
+      "file": "structural-flow.json",
+      "sha256": "c9d96cc5e280e304d97fda7bd5914bbb433968cc962b04c743da563da4f0b990"
     }
   ]
 }

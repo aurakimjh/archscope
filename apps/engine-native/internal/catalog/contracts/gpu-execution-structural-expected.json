@@ -1,0 +1,8 @@
+{
+  "qualification": "실제 정제 SQLite의 구조적 변형. 새 실제 CUDA 실행 증거가 아니다. kernel/runtime 복제 +2000ns, stream+1; 동일 correlation API 후보 중복.",
+  "source_sha256": "2c9faa00f616e7f0f41bdd87e3d6ad29c94043f34d443dbd5d59d13f76a1f9a4",
+  "variant_sha256": "7e337c74d5213444455764628c3be8e055f0b87ea6e5376dea350fe81cdbbe7d",
+  "kernel_count": 14,
+  "kernel_sum_ns": "77888",
+  "kernel_union_ns": "51968"
+}

@@ -303,3 +303,54 @@ func TestR2102OptionalTablePresenceAndViewRefusal(t *testing.T) {
 		}
 	}
 }
+
+func TestR2104StructuralOverlapAmbiguousLaunchAndFlow(t *testing.T) {
+	ctx := context.Background()
+	o, _ := p.DecodeOptions(fixture(t, "nsight-options.json"))
+	s, e := p.ParseBytes(ctx, fixture(t, "nsight-overlap-ambiguous.sqlite"), o)
+	if e != nil {
+		t.Fatal(e)
+	}
+	projection, e := a.Project(ctx, s)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if len(projection.Busy) != 1 || projection.Busy[0].KernelCount != "14" || projection.Busy[0].KernelSum != "77888" || projection.Busy[0].Busy != "51968" {
+		t.Fatal(projection.Busy)
+	}
+	count := 0
+	ambiguous := 0
+	for _, v := range projection.Relations {
+		if v.Kind == "cuda_launch" {
+			count++
+			if v.Status == "ambiguous_launch" {
+				ambiguous++
+				if v.From != "" {
+					t.Fatal(v)
+				}
+			}
+			if v.Status != "ambiguous_launch" && v.Status != "unresolved_launch" {
+				t.Fatal(v)
+			}
+		}
+	}
+	if count != 16 || ambiguous != 15 {
+		t.Fatal("expected kernel+memcpy relations", count, ambiguous, projection.Relations)
+	}
+	o, _ = p.DecodeOptions(fixture(t, "pytorch-rank-0-options.json"))
+	s, e = p.ParseBytes(ctx, fixture(t, "structural-flow.json"), o)
+	if e != nil {
+		t.Fatal(e)
+	}
+	projection, e = a.Project(ctx, s)
+	if e != nil {
+		t.Fatal(e)
+	}
+	counts := map[string]int{}
+	for _, v := range projection.Relations {
+		counts[v.Status]++
+	}
+	if counts["orphan_or_ambiguous_flow"] != 2 || counts["explicit_flow_endpoints"] != 1 {
+		t.Fatal(projection.Relations)
+	}
+}

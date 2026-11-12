@@ -152,3 +152,5 @@ metadata/python_function을50k 지원 event 예산에 포함하지 않습니다.
 분리 배포 bundle에도 같은 수동 helper를 `resources/tools/subset-nsight-sqlite.py`로 포함합니다. Python에서 명시적으로 실행하며 앱이 자동 실행하지 않습니다.
 
 Nsight 가져오기는 지원 runtime/kernel/memcpy/NVTX 테이블 각각의 present/absent 상태를 경고에 기록합니다. absent는 관측 범위 미확보이며 활동 0의 증명이 아닙니다. 선택 테이블 이름이 VIEW/가상 테이블이면 읽기 전에 거절하고 생성 열도 거절합니다. 기존 저장 모델의 경고는 유지됩니다.
+
+추가 구조 회귀 표본은 겹치는 스트림의 kernel 합 77,888 ns/합집합 51,968 ns, 중복 launch 후보, 모호/orphan/정상 flow endpoint를 구분합니다. 실제 정제 SQLite의 결정적 변형과 합성 Chrome flow이며 새로운 CUDA/NCCL 실측 검증이 아닙니다.

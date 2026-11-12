@@ -33,3 +33,5 @@ Parser는 collector나 nsys를 실행하지 않는다. 이미 집계된 CSV는 s
 https://docs.nvidia.com/nsight-systems/AnalysisGuide/index.html#sqlite-schema-reference.
 
 지원 SQLite 테이블 4종의 present/absent를 명시하며 누락을 활동 0으로 해석하지 않는다. 선택 이름의 VIEW/가상 테이블 및 생성 열은 거절한다. 기존 저장 모델 경고는 변경하지 않는다.
+
+nsight-overlap-ambiguous.sqlite는 실측 정제본에서 kernel/runtime을 +2000ns 복제하고 stream을 분리한 구조적 변형이다. 독립 SQLite 구간 병합의 합/합집합 기대값은 structural-expected.json에 고정한다. 중복 launch 후보는 ambiguous_launch이며 임의 연결하지 않는다. structural-flow.json은 중복 시작·orphan·명시적 한 쌍을 구분한다. 두 변형은 실제 CUDA/NCCL 실행 검증이 아니다.
