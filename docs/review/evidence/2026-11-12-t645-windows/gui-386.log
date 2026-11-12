@@ -1,0 +1,6 @@
+Starting GUI smoke target: C:/workspace/archscope/.tmp/t645-windows-20261112/t645-archscope-386.exe
+Working directory: C:\workspace\archscope\.tmp\t645-windows-20261112
+Binary size: 53578752 bytes
+GUI process stayed alive for 15 seconds. PID=10920
+Requesting graceful shutdown.
+Forcing process shutdown.

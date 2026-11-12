@@ -1,0 +1,42 @@
+{
+  "amd64": {
+    "status": "PASS",
+    "results": [
+      {
+        "source": "postgres",
+        "bytes": 67738,
+        "sha256": "ad9d44cba2d8871a1a6cd9ae7116a78bf5fa9831b7de92444614ce37ec496d9c",
+        "exact_readback": true,
+        "availability": "snapshot-only"
+      },
+      {
+        "source": "linux-ss",
+        "bytes": 66156,
+        "sha256": "f1aa0a4d82f9b24c6de16e81a1065faacc802e28b1596c223f85651e668d7e11",
+        "exact_readback": true,
+        "availability": "snapshot-only"
+      }
+    ],
+    "scope": "result snapshot only; no original source intake or portable pack claim"
+  },
+  "386": {
+    "status": "PASS",
+    "results": [
+      {
+        "source": "postgres",
+        "bytes": 67736,
+        "sha256": "e04511a66ee64d365676aa568c63c92c788b25b42579be29e5dbb89df5e18176",
+        "exact_readback": true,
+        "availability": "snapshot-only"
+      },
+      {
+        "source": "linux-ss",
+        "bytes": 66155,
+        "sha256": "a01558a2d1900054d7d666315c01898eda8d3a9c439b753792481dd17bdac1e3",
+        "exact_readback": true,
+        "availability": "snapshot-only"
+      }
+    ],
+    "scope": "result snapshot only; no original source intake or portable pack claim"
+  }
+}

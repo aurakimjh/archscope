@@ -1,0 +1,2218 @@
+{
+  "amd64": {
+    "status": "PASS",
+    "packages": [
+      {
+        "Package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "Action": "pass",
+        "Elapsed": 1.272
+      },
+      {
+        "Package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "Action": "pass",
+        "Elapsed": 6.058
+      },
+      {
+        "Package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "Action": "pass",
+        "Elapsed": 88.791
+      },
+      {
+        "Package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "Action": "pass",
+        "Elapsed": 105.14
+      },
+      {
+        "Package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "Action": "pass",
+        "Elapsed": 2.218
+      },
+      {
+        "Package": "github.com/aurakimjh/archscope/apps/engine-native/internal/distribution",
+        "Action": "pass",
+        "Elapsed": 11.486
+      },
+      {
+        "Package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "Action": "pass",
+        "Elapsed": 40.278
+      }
+    ],
+    "passed_test_completion_events_including_subtests": 261,
+    "skips": [
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestWindowsBodyCaptureE2E"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestWindowsCaptureClientHelper"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestWindowsTransparentDirectClientE2E"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestWritePrivateJSONAnyUsesOwnerOnlyPermissions"
+      }
+    ],
+    "passed_tests": [
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleActualCaptureScopeAvailabilityAndCommonResult"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/swap"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/negative"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/budget"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/version"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/missing"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/duplicate-model"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/clock-overlap"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/identity"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/unknown"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/fake-utilization"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/time"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleMirroredManifestAndNormalization"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestR20ActualSelectionCoverageAndLegacyProjection"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestPinnedSDKAndImmutableRoundTrip"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotExactResetGapOrderAndWindow"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestProvenanceDedupAndFormatPopulations"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAmbiguityResetsUnknownAndNoRecord"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestDeltaIntervalsAndHistogramSeparation"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestStrictOTLPBoundsCursorAndGzip"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestEpochZeroAndIdentityBoundaries"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestMissingEndAndDedupClaimsRemainConservative"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestActualPostgresEpochsAndExactCommonConsumers"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestActualSocketSummaryScopeAndGaugeChanges"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/postgres/unknown-field"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/postgres/version"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/postgres/path-id"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/postgres/overlap"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/postgres/missing-end"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/postgres/empty"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/postgres/count-bound"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/linux-ss/unknown-field"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/linux-ss/version"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/linux-ss/path-id"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/linux-ss/overlap"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/linux-ss/missing-end"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/linux-ss/empty"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/linux-ss/count-bound"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestBundledConformanceAssetsMatchManifest"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestC4SameFamilyAdapterNeedsNoServiceCLIRendererSwitch"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR08RetentionByteAndCountBudgets"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR08LoadQueueCancellationAndShutdown"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestJobCatalogAndPackProvenanceRemainPinnedAfterDeactivation"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestLocalAliasConflictRequiresChoiceWithoutMutatingBase"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestR4ProfileChunkBoundsAndOrder"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestR4BoundedDetectionKeepsLargeDocumentsAsHints"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestProfileSetBundledConformance"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestProfileSetManifestExpectedValuesAndOrigin"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestR901BuiltinImportsContinueAfterRevocationAndRestart"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestR904NewMetricControlNamesFailWhileSavedMetricsStayReadable"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestActualSystemDBCorpusSchemaManifestAndModels"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT635CaseBaselineCLIPreservesServiceRefusal"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR602FullStoreReserveReopenAndExplicitOwnedCleanup"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR602ReserveBoundsRestartAndAtomicOwnership"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR605PartialLegacyAndActionableCorruptRecovery/false"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR605PartialLegacyAndActionableCorruptRecovery/true"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR605PartialLegacyAndActionableCorruptRecovery"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR701LegacyBusyHasNoRenameGuidanceAndCorruptionNamesHandle"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestR6ActualCLISaveAliasGuardCorruptPlanAndCacheCleanup"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR802LargeTableCacheReuseCopiesAndLeaseLifetime"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR802TamperRestoredMtimeRemovalAndLRUBounds"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR804ComparisonTargetRefusalAndWarmOriginalDigests"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR803SourceAndTableEscapingDoesNotChangeExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestC4ActualCLIImportReopenExportsAndSelection"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestReviewR01ActualCLIDeepProfilerReportsAndEvidenceExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT629ActualCLIProfileSetImportQueriesAndExports"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR17WarmLLMCacheIntegrityAndReleasedOwner"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT635VerifiedDurableBaselineReimportPolicyAndTamper"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT644ActualCLIAndCommonConsumers"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT635ProfileQueryMaterializesNewImmutableSelection"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT642CommonConsumersCacheOwnershipCaseAndBaseline"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT640GenericProvidersExportsAndCaseRoundTrip"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT638GenericImportQueryMaterializeCaseAndExports"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT638MetricTimelineScaleAndUntimedAvailability/8000"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT639ActualCLIImportsQueriesExportsAndRefusals"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT638MetricTimelineScaleAndUntimedAvailability/16000"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT638MetricTimelineScaleAndUntimedAvailability"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT630SharedHandleOwnershipAndSavedSnapshotRecovery"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT630CacheMigrationRetryMarkerAndSourcePreservation"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT630CacheMigrationNeverMarksInvalidSnapshotsComplete"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR5ProfileOversizedStringHasBudgetJobDetail"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT633ActualCLIDiscoveryKitAndConversion"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestJenniferDrilldownCLIJSONAndReportParity"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT638ActualCLIMetricHistoryRoundtripAndLegacy"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR4LargeProfileChunkImportOverFiftyThousandNodes"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR4QualityCopyTamperRefusedAfterValidationCache"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR4TransportCeilingHasNumericJobDetail"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR4ChunkedModelHonorsLoweredStackDepth"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT629CanonicalImportSaveReadQueryExportAndTamperRefusal"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT629LargeIntegerCountsAndUnavailableSelection"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N01DifferentLogSourcesNonzeroDeltaAndSavedReferences"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N03MaxLinesExactEOF/[true,2]"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N03MaxLinesExactEOF/[true,3]"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N03MaxLinesExactEOF/[true,4]"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N03MaxLinesExactEOF/[false,2]"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N03MaxLinesExactEOF/[false,3]"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N03MaxLinesExactEOF/[false,4]"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N03MaxLinesExactEOF"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestR901CLIReviewedRevocationAndRecoveryAcrossProcesses"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestProfilerCLIExplicitLockUnit"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N01ProfileCompareAndScalarRoundtripWithOldSnapshots"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage/exact_EOF"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage/final_newline"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage/blank_line"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage/CRLF_blank"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage/Unicode_whitespace"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage/large_whitespace_tail"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage/nonblank_suffix"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3EditedSavedIdentityRemainsDeclared"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR02TerminalHistoryReclaimedWithoutLosingRevisions"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR03CompositionRejectedBeforeServiceStarts"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR04PilotPopulationAndR11ManifestExpectations"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR07ExplicitImporterSurvivesUnrelatedDetectorFailure"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR08LoadDedupReleaseAndExclusiveCrashCleanup"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR01DeepResultLoadAndAllEvidenceExports"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT631ActualCLIProviderCommands"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR13QueueAndExecutionHaveSeparateDeadlines"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR05R10RequestedSelectionAndLegacyKeyParity"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR02ActiveJobSurvivesHistoryPressure"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR09RetryabilityAndSanitizedValidationFailure"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT641RuntimeCommonConsumersOwnershipAndCache"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC4LegacyParityAtomicResultAndReopen"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2PartialRequiresSafeRecordsImporterAndCaller/refused"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2PartialRequiresSafeRecordsImporterAndCaller/allowed"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2PartialRequiresSafeRecordsImporterAndCaller/wrong"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2PartialRequiresSafeRecordsImporterAndCaller/server-log.record.v1"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2PartialRequiresSafeRecordsImporterAndCaller"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2CancellationDuringParserAndStaleGeneration"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2OwnedSnapshotTamperCannotBecomePartial"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC1C2SelectionIsExplicitIdempotentAndNotParsing"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2ResultSchemaFailureNeverPublishesEvenWithPartialConsent"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestVisualProfileAndProviderFreezeExactSelection"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestWindowsLiveCaptureE2E"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestWindowsCaptureProcessSelectionE2E/both_selected_false"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestWindowsCaptureProcessSelectionE2E/both_selected_true"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestWindowsCaptureProcessSelectionE2E"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureAdmissionCancellationDuringLifecycle/stop"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureAdmissionCancellationDuringLifecycle/clear"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureAdmissionCancellationDuringLifecycle/pause"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureAdmissionCancellationDuringLifecycle"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestAnnotationsKeepIdentityAcrossSaveReopen"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestAutomationURLCleanupRejectsInvalidTargetsBeforeBackend"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestDesktopControlCapturesSavesAndReloadsFixture"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestLaunchOnMacFailsWithoutSideEffectsAndRunsOnlyOnce"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestShutdownRejectsLaterCaptureCommands"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestInvalidShortcutDoesNotAllocateCaptureSession"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestLegacyBridgeReturnsInertTreeAndErrors"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestStaleStopCannotRemoveNewSessionAuthority"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestRestartWaitsForPreviousTrustCleanup"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT637ActualCLISourcesProfilesAndExistingExports"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestRepeatedDesktopReentryUsesOneCurrentSession"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCanceledDesktopControlDoesNotStartSession"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestShutdownRemovesPreparedAuthorityAndRejectsLateInstall"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestRemoveAuthorityWhileRunningRequiresStop"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCapturePhysicalRetentionCountersAnalysisAndPortableExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureServiceSessionCanBeAnalyzedAfterStop"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureServiceFinalizedAnalysisUsesLiveProvenanceAndPersistedRedaction"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT581LiveCaptureAcceptanceFixture"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureServiceSelectedExchangeDuringCapture"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureServiceRecordingControls"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestStoredSearchFindsExchangesOutsideLiveWindow"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestNativeCaptureOpenExportReferenceFixture"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureFileFilteredOrderReopenAndCancel"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureProxySoakAcrossClearPauseAndReentry"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestTransparentNativeClient"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT636ActualCLIPinnedSpecsAndExplicitDesktopRefusals"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/nodejs"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/jfr"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/trace-import"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/thread-dump-analyze-multi"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/thread-dump"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/python-traceback"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/http-capture"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/go-panic"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/thread-dump-analyze-locks"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/dotnet"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/gc-log"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/otel"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/access-log"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/exception"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLIThreadDumpToCollapsed"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestR602WailsFullCacheSavedCaseReopenCleanupAndFreshImport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLIDemoSiteList"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT630WailsSavedCaseExactReopenAfterCacheLoss"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestSaveChartArtifactFormatsAndErrors/png"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestSaveChartArtifactFormatsAndErrors/svg"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestSaveChartArtifactFormatsAndErrors/csv"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestSaveChartArtifactFormatsAndErrors"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestDesktopMenuUpdatesContextAndLocale/en"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestDesktopMenuUpdatesContextAndLocale/ko"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestDesktopMenuUpdatesContextAndLocale"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestProfilerServiceLoadsV8ThroughUnifiedParser"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeAccessLog"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeHttpCaptureUsesBoundedRequestContract"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_HttpCaptureDiffContractRoutingAndStoreFreeAnalysis"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_HttpEvidenceCorrelationContractAndAnalysis"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeBrowserAuditSupportsWorkspaceEvidenceAndReportExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeServerLog"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeException"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeJfr"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeRuntimeStack_Variants/nodejs"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeRuntimeStack_Variants/python"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeRuntimeStack_Variants/go"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeRuntimeStack_Variants/dotnet"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeRuntimeStack_Variants"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeThreadDump"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeMultiThread_TaskID"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeLockContention_TaskID"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_ConvertToCollapsed"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_ClassifyStack"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_ExportJSON_Roundtrip"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_PathRequired"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestJenniferDrilldownServiceExportParity"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT635WailsSourceSavedQueryBaselineSearchAndLinks"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestC4WailsJobBridgeAndBackendRevisionExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestW10LegacyProfilerThroughOpaqueBridgeAndReportPack"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestW07NullZeroAbsentThroughBridgeCSVHTMLAndExactDiff"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestActualProducerFixturesAndNoRawContent/pytorch-rank-0"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestActualProducerFixturesAndNoRawContent/pytorch-rank-1"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestActualProducerFixturesAndNoRawContent/nsight"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestActualProducerFixturesAndNoRawContent/nsight-summary"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestActualProducerFixturesAndNoRawContent"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestSourceRefusalsCancellationAndExactDecimal"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestSQLiteRejectsViewsSchemaSpoofAndSelectsWholeIntervals"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestCallerCaptureOwnership"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestStructuralTorchCUDAFlowScopeWithoutFalseProcessJoin"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestReviewR01DeepWailsLoadEvidenceResultBridge"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestR2N02SharedResultHasNoPublicWailsDeletion"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestR2101IgnoredRawRecordsDoNotConsumeRetainedEventBudget"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestR3WailsCompareErrorCauseHasStableCode"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT642WailsSourcePinAndComparisonPageExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT644GPUBridgeSourcePinOwnershipSavedReadAndSVG"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT639BridgeOriginalOwnershipRefusalsAndSourceBinding"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestR16DeclaredWorkspaceViewKeepsOriginalAndDeclaration"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT633BridgeDiscoveryDraftKitAndConversion"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT640BridgeSourceDigestOpaqueQueryAndCancellation"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT638MetricWailsNormalizeSavedReadAndQuery"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT638OpaqueMetricIdentityRetainsLargeNumericAttributes"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/distribution",
+        "test": "TestStandaloneFixturesRequiredAndComplete"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT643AppleWailsNormalizeSavedReadAndQuery"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestR901PackBridgeReviewsImpactAndReopensRevokedBootstrap"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestDrilldownFiltersCanonicalEvidenceBeforePruning"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestProfilerServiceUnitFlowsThroughDrilldownAndExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT629WailsProfileSetExactHandleFlow"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestR4WailsProfileQualityAndEntityRefusal"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT634OriginalSourceWailsSavedCompareAndExactExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestDesktopProgressLogsStayOutsideExecutableBundle"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT631GenericBridgeProvidersJobsComparisonAndReopen"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT645SnapshotCaptureUsesPinnedMetricWailsAndSavedReaders/postgres"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT645SnapshotCaptureUsesPinnedMetricWailsAndSavedReaders/linux-ss"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT645SnapshotCaptureUsesPinnedMetricWailsAndSavedReaders"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT637BridgeInspectNormalizeOwnedProfileAndRefusals"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/distribution",
+        "test": "TestCleanBundleAndPreflightRefuseMissingTamperAndUndeclared"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/distribution",
+        "test": "TestFixedRuntimeMustBeCompleteAndArchitectureMatched"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/distribution",
+        "test": "TestOfflineGuardBeforeNetworkAndConverterAllocation"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT636SeparateRenderSessionSnapshotAndRegeneration"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT636NoDesktopAndInvalidBudgetRefusals"
+      }
+    ],
+    "raw_jsonl_sha256": "5e0cdfba773585f97272d4a2428a9cf281201569892a4eb8f8ffff9222a39d41",
+    "stderr_bytes": 0,
+    "vet_exit": 0
+  },
+  "386": {
+    "status": "PASS",
+    "packages": [
+      {
+        "Package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "Action": "pass",
+        "Elapsed": 1.424
+      },
+      {
+        "Package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "Action": "pass",
+        "Elapsed": 8.554
+      },
+      {
+        "Package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "Action": "pass",
+        "Elapsed": 101.79
+      },
+      {
+        "Package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "Action": "pass",
+        "Elapsed": 113.253
+      },
+      {
+        "Package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "Action": "pass",
+        "Elapsed": 2.05
+      },
+      {
+        "Package": "github.com/aurakimjh/archscope/apps/engine-native/internal/distribution",
+        "Action": "pass",
+        "Elapsed": 13.101
+      },
+      {
+        "Package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "Action": "pass",
+        "Elapsed": 41.959
+      }
+    ],
+    "passed_test_completion_events_including_subtests": 261,
+    "skips": [
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestWritePrivateJSONAnyUsesOwnerOnlyPermissions"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestWindowsBodyCaptureE2E"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestWindowsCaptureClientHelper"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestWindowsTransparentDirectClientE2E"
+      }
+    ],
+    "passed_tests": [
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleActualCaptureScopeAvailabilityAndCommonResult"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/version"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/identity"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/missing"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/fake-utilization"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/time"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/swap"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/negative"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/clock-overlap"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/unknown"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/duplicate-model"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals/budget"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleExactIdentityBoundsAndRefusals"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAppleMirroredManifestAndNormalization"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestR20ActualSelectionCoverageAndLegacyProjection"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestPinnedSDKAndImmutableRoundTrip"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotExactResetGapOrderAndWindow"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestProvenanceDedupAndFormatPopulations"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestAmbiguityResetsUnknownAndNoRecord"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestDeltaIntervalsAndHistogramSeparation"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestStrictOTLPBoundsCursorAndGzip"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestEpochZeroAndIdentityBoundaries"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestMissingEndAndDedupClaimsRemainConservative"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestActualPostgresEpochsAndExactCommonConsumers"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestActualSocketSummaryScopeAndGaugeChanges"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/postgres/unknown-field"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/postgres/version"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/postgres/path-id"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/postgres/overlap"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/postgres/missing-end"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/postgres/empty"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/postgres/count-bound"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/linux-ss/unknown-field"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/linux-ss/version"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/linux-ss/path-id"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/linux-ss/overlap"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/linux-ss/missing-end"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/linux-ss/empty"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation/linux-ss/count-bound"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory",
+        "test": "TestSnapshotCaptureRefusalsAndCancellation"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestBundledConformanceAssetsMatchManifest"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestC4SameFamilyAdapterNeedsNoServiceCLIRendererSwitch"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR08RetentionByteAndCountBudgets"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR08LoadQueueCancellationAndShutdown"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestJobCatalogAndPackProvenanceRemainPinnedAfterDeactivation"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestLocalAliasConflictRequiresChoiceWithoutMutatingBase"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestR4ProfileChunkBoundsAndOrder"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestR4BoundedDetectionKeepsLargeDocumentsAsHints"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestProfileSetBundledConformance"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestProfileSetManifestExpectedValuesAndOrigin"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestR901BuiltinImportsContinueAfterRevocationAndRestart"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestR904NewMetricControlNamesFailWhileSavedMetricsStayReadable"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+        "test": "TestActualSystemDBCorpusSchemaManifestAndModels"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT635CaseBaselineCLIPreservesServiceRefusal"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR602FullStoreReserveReopenAndExplicitOwnedCleanup"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR602ReserveBoundsRestartAndAtomicOwnership"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR605PartialLegacyAndActionableCorruptRecovery/false"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR605PartialLegacyAndActionableCorruptRecovery/true"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR605PartialLegacyAndActionableCorruptRecovery"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR701LegacyBusyHasNoRenameGuidanceAndCorruptionNamesHandle"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR802LargeTableCacheReuseCopiesAndLeaseLifetime"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR802TamperRestoredMtimeRemovalAndLRUBounds"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR804ComparisonTargetRefusalAndWarmOriginalDigests"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR803SourceAndTableEscapingDoesNotChangeExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestR6ActualCLISaveAliasGuardCorruptPlanAndCacheCleanup"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestC4ActualCLIImportReopenExportsAndSelection"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestReviewR01ActualCLIDeepProfilerReportsAndEvidenceExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT629ActualCLIProfileSetImportQueriesAndExports"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR17WarmLLMCacheIntegrityAndReleasedOwner"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT635VerifiedDurableBaselineReimportPolicyAndTamper"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT635ProfileQueryMaterializesNewImmutableSelection"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT642CommonConsumersCacheOwnershipCaseAndBaseline"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT640GenericProvidersExportsAndCaseRoundTrip"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT638GenericImportQueryMaterializeCaseAndExports"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT644ActualCLIAndCommonConsumers"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT638MetricTimelineScaleAndUntimedAvailability/8000"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT638MetricTimelineScaleAndUntimedAvailability/16000"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT638MetricTimelineScaleAndUntimedAvailability"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT630SharedHandleOwnershipAndSavedSnapshotRecovery"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT630CacheMigrationRetryMarkerAndSourcePreservation"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT630CacheMigrationNeverMarksInvalidSnapshotsComplete"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR5ProfileOversizedStringHasBudgetJobDetail"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT639ActualCLIImportsQueriesExportsAndRefusals"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT633ActualCLIDiscoveryKitAndConversion"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestJenniferDrilldownCLIJSONAndReportParity"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT638ActualCLIMetricHistoryRoundtripAndLegacy"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR4LargeProfileChunkImportOverFiftyThousandNodes"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR4QualityCopyTamperRefusedAfterValidationCache"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR4TransportCeilingHasNumericJobDetail"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR4ChunkedModelHonorsLoweredStackDepth"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestR901CLIReviewedRevocationAndRecoveryAcrossProcesses"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT629CanonicalImportSaveReadQueryExportAndTamperRefusal"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestProfilerCLIExplicitLockUnit"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT629LargeIntegerCountsAndUnavailableSelection"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N01DifferentLogSourcesNonzeroDeltaAndSavedReferences"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N03MaxLinesExactEOF/[true,2]"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N03MaxLinesExactEOF/[true,3]"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N03MaxLinesExactEOF/[true,4]"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N03MaxLinesExactEOF/[false,2]"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N03MaxLinesExactEOF/[false,3]"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N03MaxLinesExactEOF/[false,4]"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N03MaxLinesExactEOF"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR2N01ProfileCompareAndScalarRoundtripWithOldSnapshots"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage/exact_EOF"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage/final_newline"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage/blank_line"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage/CRLF_blank"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage/Unicode_whitespace"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage/large_whitespace_tail"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage/nonblank_suffix"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3WhitespaceSuffixKeepsCompleteCoverage"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestR3EditedSavedIdentityRemainsDeclared"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR02TerminalHistoryReclaimedWithoutLosingRevisions"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR03CompositionRejectedBeforeServiceStarts"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR04PilotPopulationAndR11ManifestExpectations"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR07ExplicitImporterSurvivesUnrelatedDetectorFailure"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT631ActualCLIProviderCommands"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR08LoadDedupReleaseAndExclusiveCrashCleanup"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR01DeepResultLoadAndAllEvidenceExports"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR13QueueAndExecutionHaveSeparateDeadlines"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR05R10RequestedSelectionAndLegacyKeyParity"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR02ActiveJobSurvivesHistoryPressure"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestReviewR09RetryabilityAndSanitizedValidationFailure"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestT641RuntimeCommonConsumersOwnershipAndCache"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC4LegacyParityAtomicResultAndReopen"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2PartialRequiresSafeRecordsImporterAndCaller/refused"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2PartialRequiresSafeRecordsImporterAndCaller/allowed"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2PartialRequiresSafeRecordsImporterAndCaller/wrong"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2PartialRequiresSafeRecordsImporterAndCaller/server-log.record.v1"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2PartialRequiresSafeRecordsImporterAndCaller"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2CancellationDuringParserAndStaleGeneration"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2OwnedSnapshotTamperCannotBecomePartial"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC1C2SelectionIsExplicitIdempotentAndNotParsing"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestC2ResultSchemaFailureNeverPublishesEvenWithPartialConsent"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+        "test": "TestVisualProfileAndProviderFreezeExactSelection"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT637ActualCLISourcesProfilesAndExistingExports"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestT636ActualCLIPinnedSpecsAndExplicitDesktopRefusals"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestWindowsLiveCaptureE2E"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestWindowsCaptureProcessSelectionE2E/both_selected_false"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestWindowsCaptureProcessSelectionE2E/both_selected_true"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestWindowsCaptureProcessSelectionE2E"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureAdmissionCancellationDuringLifecycle/stop"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureAdmissionCancellationDuringLifecycle/clear"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureAdmissionCancellationDuringLifecycle/pause"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureAdmissionCancellationDuringLifecycle"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestAnnotationsKeepIdentityAcrossSaveReopen"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestAutomationURLCleanupRejectsInvalidTargetsBeforeBackend"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestDesktopControlCapturesSavesAndReloadsFixture"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestLaunchOnMacFailsWithoutSideEffectsAndRunsOnlyOnce"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestShutdownRejectsLaterCaptureCommands"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestInvalidShortcutDoesNotAllocateCaptureSession"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestLegacyBridgeReturnsInertTreeAndErrors"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestStaleStopCannotRemoveNewSessionAuthority"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestRestartWaitsForPreviousTrustCleanup"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/thread-dump-analyze-locks"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/jfr"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/thread-dump"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/http-capture"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/trace-import"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/nodejs"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/python-traceback"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/thread-dump-analyze-multi"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/gc-log"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/dotnet"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/go-panic"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/exception"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/otel"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands/access-log"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLISubcommands"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestRepeatedDesktopReentryUsesOneCurrentSession"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCanceledDesktopControlDoesNotStartSession"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestShutdownRemovesPreparedAuthorityAndRejectsLateInstall"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestRemoveAuthorityWhileRunningRequiresStop"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCapturePhysicalRetentionCountersAnalysisAndPortableExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureServiceSessionCanBeAnalyzedAfterStop"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureServiceFinalizedAnalysisUsesLiveProvenanceAndPersistedRedaction"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT581LiveCaptureAcceptanceFixture"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureServiceSelectedExchangeDuringCapture"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLIThreadDumpToCollapsed"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureServiceRecordingControls"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestStoredSearchFindsExchangesOutsideLiveWindow"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestNativeCaptureOpenExportReferenceFixture"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureFileFilteredOrderReopenAndCancel"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestCaptureProxySoakAcrossClearPauseAndReentry"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestTransparentNativeClient"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+        "test": "TestCLIDemoSiteList"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestActualProducerFixturesAndNoRawContent/pytorch-rank-0"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestActualProducerFixturesAndNoRawContent/pytorch-rank-1"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestActualProducerFixturesAndNoRawContent/nsight"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestActualProducerFixturesAndNoRawContent/nsight-summary"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestActualProducerFixturesAndNoRawContent"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestSourceRefusalsCancellationAndExactDecimal"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestSQLiteRejectsViewsSchemaSpoofAndSelectsWholeIntervals"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestCallerCaptureOwnership"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestStructuralTorchCUDAFlowScopeWithoutFalseProcessJoin"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace",
+        "test": "TestR2101IgnoredRawRecordsDoNotConsumeRetainedEventBudget"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/distribution",
+        "test": "TestStandaloneFixturesRequiredAndComplete"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestR602WailsFullCacheSavedCaseReopenCleanupAndFreshImport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT630WailsSavedCaseExactReopenAfterCacheLoss"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestSaveChartArtifactFormatsAndErrors/png"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestSaveChartArtifactFormatsAndErrors/svg"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestSaveChartArtifactFormatsAndErrors/csv"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestSaveChartArtifactFormatsAndErrors"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestDesktopMenuUpdatesContextAndLocale/en"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestDesktopMenuUpdatesContextAndLocale/ko"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestDesktopMenuUpdatesContextAndLocale"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestProfilerServiceLoadsV8ThroughUnifiedParser"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeAccessLog"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeHttpCaptureUsesBoundedRequestContract"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_HttpCaptureDiffContractRoutingAndStoreFreeAnalysis"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_HttpEvidenceCorrelationContractAndAnalysis"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeBrowserAuditSupportsWorkspaceEvidenceAndReportExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeServerLog"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeException"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeJfr"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeRuntimeStack_Variants/nodejs"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeRuntimeStack_Variants/python"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeRuntimeStack_Variants/go"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeRuntimeStack_Variants/dotnet"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeRuntimeStack_Variants"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeThreadDump"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeMultiThread_TaskID"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_AnalyzeLockContention_TaskID"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_ConvertToCollapsed"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_ClassifyStack"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_ExportJSON_Roundtrip"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestEngineService_PathRequired"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestJenniferDrilldownServiceExportParity"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT635WailsSourceSavedQueryBaselineSearchAndLinks"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestC4WailsJobBridgeAndBackendRevisionExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestW10LegacyProfilerThroughOpaqueBridgeAndReportPack"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestW07NullZeroAbsentThroughBridgeCSVHTMLAndExactDiff"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestReviewR01DeepWailsLoadEvidenceResultBridge"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestR2N02SharedResultHasNoPublicWailsDeletion"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestR3WailsCompareErrorCauseHasStableCode"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT642WailsSourcePinAndComparisonPageExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT644GPUBridgeSourcePinOwnershipSavedReadAndSVG"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT639BridgeOriginalOwnershipRefusalsAndSourceBinding"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/distribution",
+        "test": "TestCleanBundleAndPreflightRefuseMissingTamperAndUndeclared"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/distribution",
+        "test": "TestFixedRuntimeMustBeCompleteAndArchitectureMatched"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestR16DeclaredWorkspaceViewKeepsOriginalAndDeclaration"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/distribution",
+        "test": "TestOfflineGuardBeforeNetworkAndConverterAllocation"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT633BridgeDiscoveryDraftKitAndConversion"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT640BridgeSourceDigestOpaqueQueryAndCancellation"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT638MetricWailsNormalizeSavedReadAndQuery"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT638OpaqueMetricIdentityRetainsLargeNumericAttributes"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT643AppleWailsNormalizeSavedReadAndQuery"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestR901PackBridgeReviewsImpactAndReopensRevokedBootstrap"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestDrilldownFiltersCanonicalEvidenceBeforePruning"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestProfilerServiceUnitFlowsThroughDrilldownAndExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT629WailsProfileSetExactHandleFlow"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestR4WailsProfileQualityAndEntityRefusal"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT634OriginalSourceWailsSavedCompareAndExactExport"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestDesktopProgressLogsStayOutsideExecutableBundle"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT631GenericBridgeProvidersJobsComparisonAndReopen"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT645SnapshotCaptureUsesPinnedMetricWailsAndSavedReaders/postgres"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT645SnapshotCaptureUsesPinnedMetricWailsAndSavedReaders/linux-ss"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT645SnapshotCaptureUsesPinnedMetricWailsAndSavedReaders"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT637BridgeInspectNormalizeOwnedProfileAndRefusals"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT636SeparateRenderSessionSnapshotAndRegeneration"
+      },
+      {
+        "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+        "test": "TestT636NoDesktopAndInvalidBudgetRefusals"
+      }
+    ],
+    "raw_jsonl_sha256": "271df86aed3872989c3ec39af6ea848333acd91b1106245f425e6a8c7ad730b7",
+    "stderr_bytes": 0,
+    "vet_exit": 0
+  }
+}

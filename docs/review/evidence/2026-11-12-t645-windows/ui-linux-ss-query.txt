@@ -1,0 +1,359 @@
+Window: "ArchScope", App: t645-archscope-amd64.exe.
+	0 window (창) ArchScope Secondary Actions: Raise
+		15 pane (창) ArchScope
+			16 pane (창) (disabled)
+			17 pane (영역) ArchScope - 웹 콘텐츠
+				18 pane (영역)
+					19 pane (영역)
+					20 pane (영역)
+						21 pane (영역)
+							22 pane (영역)
+							23 pane (영역)
+								24 pane (영역)
+									25 pane (영역)
+										26 pane (영역)
+											27 pane (영역)
+											28 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												39 group (그룹) ID: root
+													40 group (머리글)
+														41 text (텍스트) 분석 작업 공간
+													71 group (기본)
+														72 text (제목) 분석 작업 공간 도움말 보기
+															73 button (단추) 도움말 보기
+														74 group (세부정보)
+															75 button (펼치기/접기 삼각형) 저장된 케이스 Description: 저장된 케이스
+														76 button (단추) (disabled) 작업 공간 비우기
+														77 group (세부정보)
+															78 button (펼치기/접기 삼각형) 케이스 검색과 재사용 baseline
+																79 text (텍스트) 케이스 검색과 재사용 baseline
+														80 group (지역) 근거 결과
+															81 text (제목) 근거 가져오기 및 조회
+															82 text field (편집) (settable, string) 로컬 근거 경로 Description: 로컬 파일 Value: C:\workspace\archscope\.tmp\t645-windows-20261112\CLI 한글 amd64 7hw30v0q\linux-ss 결과.json
+															83 button (단추) 파일 선택
+															84 combo box (콤보 상자) (settable, string) 가져오기 형식 Value: 형식 감지
+															85 button (단추) 분석
+															86 button (단추) 저장 결과 열기
+															87 button (단추) (disabled) 취소
+															88 group (세부정보)
+																89 button (펼치기/접기 삼각형) CPU/GPU 실행: PyTorch / Nsight / rank 문맥
+																	90 text (텍스트) CPU/GPU 실행: PyTorch / Nsight / rank 문맥
+															91 group (세부정보)
+																92 button (펼치기/접기 삼각형) 부하 / LLM 벤치마크 / JVM 크래시 원본
+																	93 text (텍스트) 부하 / LLM 벤치마크 / JVM 크래시 원본
+															94 group (세부정보)
+																95 button (펼치기/접기 삼각형) 런타임 / 스레드 / TA / 실행계획 근거
+																	96 text (텍스트) 런타임 / 스레드 / TA / 실행계획 근거
+															97 group (세부정보)
+																98 button (펼치기/접기 삼각형) LLM / gateway trace 근거
+																	99 text (텍스트) LLM / gateway trace 근거
+															100 group (세부정보)
+																101 button (펼치기/접기 삼각형) GPU / 추론 서빙 근거
+																	102 text (텍스트) GPU / 추론 서빙 근거
+															103 group (세부정보)
+																104 button (펼치기/접기 삼각형) perf / 제한된 BPF 근거
+																	105 text (텍스트) perf / 제한된 BPF 근거
+															106 group (세부정보)
+																107 button (펼치기/접기 삼각형) 메트릭 이력: OTLP / snapshots / Prometheus / Apple / DB / Linux
+																	108 text (텍스트) 메트릭 이력: OTLP / snapshots / Prometheus / Apple / DB / Linux
+																119 text (텍스트) 수동 저장한 PostgreSQL16.14 또는 iproute2-6.1.0 스냅샷을 여세요. Counter 초기화 시각·읽기 구간과 host/boot/instance/namespace는 파일에서 읽습니다. PostgreSQL epoch가 없으면 rate를 만들지 않고, ss 요약은 커널 공용 수치가 포함될 수 있는 gauge로 유지합니다. 가져오기 중 SQL·도구를 실행하지 않습니다.
+																120 text (텍스트) 원본 형식
+																121 combo box (콤보 상자) (settable, string) 원본 형식 Value: linux-ss-summary-json
+																128 button (단추) 메트릭 원본 확인
+															109 group (세부정보)
+																110 button (펼치기/접기 삼각형) 원본 py-spy / Speedscope / pprof 프로파일
+																	111 text (텍스트) 원본 py-spy / Speedscope / pprof 프로파일
+															112 group (세부정보)
+																113 button (펼치기/접기 삼각형) 입력 안내와 수동 수집
+																	114 text (텍스트) 입력 안내와 수동 수집
+															115 group (세부정보)
+																116 button (펼치기/접기 삼각형) 가져오기 옵션
+																	117 text (텍스트) 가져오기 옵션
+															327 text (텍스트) metrics_timeseries
+															328 button (단추) Workspace에 추가
+															329 button (단추) 결과 JSON 저장
+															330 group (세부정보)
+																331 button (펼치기/접기 삼각형) 정확한 메트릭 구간과 출처
+																	332 text (텍스트) 정확한 메트릭 구간과 출처
+																367 text (텍스트) 시간창은 관측 종료 시각 [시작, 끝)을 선택하며 구간 전체를 유지합니다. Rate는 초당 정확한 분수이고 gap을 보간하지 않습니다. 시각 누락·reset·모호한 관측을 표시하며 시계열을 자동 합산하지 않습니다.
+																368 checkbox (확인란) (settable, string) linux.ss.transport.raw.total · {socket} · gauge/unspecified
+																369 group (세부정보)
+																	370 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		371 text (텍스트) Resource / scope / 속성
+																372 checkbox (확인란) (settable, string) linux.ss.transport.tcp.total · {socket} · gauge/unspecified
+																373 group (세부정보)
+																	374 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		375 text (텍스트) Resource / scope / 속성
+																376 checkbox (확인란) (settable, string) linux.ss.tcp.established · {socket} · gauge/unspecified
+																377 group (세부정보)
+																	378 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		379 text (텍스트) Resource / scope / 속성
+																380 checkbox (확인란) (settable, string) linux.ss.reported_total · {socket} · gauge/unspecified
+																381 group (세부정보)
+																	382 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		383 text (텍스트) Resource / scope / 속성
+																384 checkbox (확인란) (settable, string) linux.ss.transport.inet.ipv6 · {socket} · gauge/unspecified
+																385 group (세부정보)
+																	386 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		387 text (텍스트) Resource / scope / 속성
+																388 checkbox (확인란) (settable, string) linux.ss.transport.udp.total · {socket} · gauge/unspecified
+																389 group (세부정보)
+																	390 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		391 text (텍스트) Resource / scope / 속성
+																392 checkbox (확인란) (settable, string) linux.ss.transport.inet.ipv4 · {socket} · gauge/unspecified
+																393 group (세부정보)
+																	394 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		395 text (텍스트) Resource / scope / 속성
+																396 checkbox (확인란) (settable, string) linux.ss.tcp.orphaned · {socket} · gauge/unspecified
+																397 group (세부정보)
+																	398 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		399 text (텍스트) Resource / scope / 속성
+																400 checkbox (확인란) (settable, string) linux.ss.transport.frag.ipv6 · {fragment_queue} · gauge/unspecified
+																401 group (세부정보)
+																	402 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		403 text (텍스트) Resource / scope / 속성
+																404 checkbox (확인란) (settable, string) linux.ss.transport.frag.ipv4 · {fragment_queue} · gauge/unspecified
+																405 group (세부정보)
+																	406 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		407 text (텍스트) Resource / scope / 속성
+																408 checkbox (확인란) (settable, string) linux.ss.transport.udp.ipv4 · {socket} · gauge/unspecified
+																409 group (세부정보)
+																	410 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		411 text (텍스트) Resource / scope / 속성
+																412 checkbox (확인란) (settable, string) linux.ss.transport.frag.total · {fragment_queue} · gauge/unspecified
+																413 group (세부정보)
+																	414 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		415 text (텍스트) Resource / scope / 속성
+																416 checkbox (확인란) (settable, string) linux.ss.tcp.timewait · {socket} · gauge/unspecified
+																417 group (세부정보)
+																	418 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		419 text (텍스트) Resource / scope / 속성
+																420 checkbox (확인란) (settable, string) linux.ss.tcp.reported_total · {socket} · gauge/unspecified
+																421 group (세부정보)
+																	422 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		423 text (텍스트) Resource / scope / 속성
+																424 checkbox (확인란) (settable, string) linux.ss.transport.raw.ipv4 · {socket} · gauge/unspecified
+																425 group (세부정보)
+																	426 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		427 text (텍스트) Resource / scope / 속성
+																428 checkbox (확인란) (settable, string) linux.ss.transport.raw.ipv6 · {socket} · gauge/unspecified
+																429 group (세부정보)
+																	430 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		431 text (텍스트) Resource / scope / 속성
+																432 checkbox (확인란) (settable, string) linux.ss.tcp.reported_closed · {socket} · gauge/unspecified
+																433 group (세부정보)
+																	434 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		435 text (텍스트) Resource / scope / 속성
+																436 checkbox (확인란) (settable, string) linux.ss.transport.inet.total · {socket} · gauge/unspecified
+																437 group (세부정보)
+																	438 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		439 text (텍스트) Resource / scope / 속성
+																440 checkbox (확인란) (settable, string) linux.ss.transport.tcp.ipv6 · {socket} · gauge/unspecified
+																441 group (세부정보)
+																	442 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		443 text (텍스트) Resource / scope / 속성
+																444 checkbox (확인란) (settable, string) linux.ss.transport.tcp.ipv4 · {socket} · gauge/unspecified
+																445 group (세부정보)
+																	446 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		447 text (텍스트) Resource / scope / 속성
+																448 checkbox (확인란) (settable, string) linux.ss.transport.udp.ipv6 · {socket} · gauge/unspecified
+																449 group (세부정보)
+																	450 button (펼치기/접기 삼각형) Resource / scope / 속성
+																		451 text (텍스트) Resource / scope / 속성
+																452 text field (편집) (settable, string) 메트릭 시간창 시작 나노초 Description: 포함 시작 Unix 나노초
+																453 text field (편집) (settable, string) 메트릭 시간창 끝 나노초 Description: 미포함 끝 Unix 나노초
+																454 button (단추) 구간 조회
+																455 button (단추) 선택을 새 결과로 추가
+																456 text (텍스트) Source producer/export/query identity is declared; no original-publisher authentication or GenAI alias qualification.
+																457 text (텍스트) iproute2-6.1.0 ss -s is a sequential /proc summary, not packet/flow evidence or cumulative counters. All fields remain gauges without rates. Linux qualification is the recorded kernel/environment, not netstat/per-process/Windows support.
+																458 text (텍스트) TCP reported total/closed/orphan allocation may include shared-kernel accounting outside the declared network namespace; context does not prove every value is namespace-local. Never sum overlapping totals/transport rows or infer throughput, drops, RTT, bandwidth, local ownership or causation. Signed reported_closed is retained because separately read counts enter the producer calculation.
+																459 text (텍스트) Queries use only series retained in this result; reopen the original to add omitted series.
+																460 text (텍스트) 63
+																461 text (텍스트) ·
+																462 text (텍스트) 1299c688bb88b1dd2aa4d41114ee7dd17f7c9719685fbc3ad0dd0cc00759b625
+																463 table (TABLE)
+																	464 data item (행)
+																		465 button (단추) 메트릭 / 단위 Description: Sort by this column
+																		466 button (단추) 관측 값 Description: Sort by this column
+																		467 button (단추) 구간 / rate Description: Sort by this column
+																		468 button (단추) 상태 / 근거 Description: Sort by this column
+																	469 data item (행)
+																		470 data item (항목) linux.ss.transport.raw.total · {socket}
+																		471 data item (항목) 0
+																		472 data item (항목) 1794485391537389970 → 1794485391539124553 Δ — · — /s
+																		473 data item (항목) observed_gauge point-ae0f8e21f0db198eb4a577e49febc93c9b5ef6a38b4cabd92fe88a8769e9f92b source-0: snapshots/0/summary/transport.raw.total
+																	474 data item (행)
+																		475 data item (항목) linux.ss.transport.raw.total · {socket}
+																		476 data item (항목) 0
+																		477 data item (항목) 1794485391539264803 → 1794485391540138553 Δ — · — /s
+																		478 data item (항목) observed_gauge point-433a184ddf57a95e068d008838a9272f1fe00c0b5d99e4522d717e60295ec450 source-0: snapshots/1/summary/transport.raw.total
+																	479 data item (행)
+																		480 data item (항목) linux.ss.transport.raw.total · {socket}
+																		481 data item (항목) 0
+																		482 data item (항목) 1794485391540184803 → 1794485391541637970 Δ — · — /s
+																		483 data item (항목) observed_gauge point-e5b71c061d51f2a8fb90a7b5ce6832964c0adf57f35c951411f51bdde8141be8 source-0: snapshots/2/summary/transport.raw.total
+																	484 data item (행)
+																		485 data item (항목) linux.ss.transport.tcp.total · {socket}
+																		486 data item (항목) 0
+																		487 data item (항목) 1794485391537389970 → 1794485391539124553 Δ — · — /s
+																		488 data item (항목) observed_gauge point-db027f1b27641cd0e9e54a960fb61499fdf95ab53422726221a452beb1ca2cff source-0: snapshots/0/summary/transport.tcp.total
+																	489 data item (행)
+																		490 data item (항목) linux.ss.transport.tcp.total · {socket}
+																		491 data item (항목) 9
+																		492 data item (항목) 1794485391539264803 → 1794485391540138553 Δ — · — /s
+																		493 data item (항목) observed_gauge point-5203b1065c1202e8be45be2b84d7b03df49643a2eab7fdab9c607dfb92aa04b2 source-0: snapshots/1/summary/transport.tcp.total
+																	494 data item (행)
+																		495 data item (항목) linux.ss.transport.tcp.total · {socket}
+																		496 data item (항목) 0
+																		497 data item (항목) 1794485391540184803 → 1794485391541637970 Δ — · — /s
+																		498 data item (항목) observed_gauge point-d76913044d1731bb6b43090660ac8f78a06d4bf891224ede59a9d0c5f45f1865 source-0: snapshots/2/summary/transport.tcp.total
+																	499 data item (행)
+																		500 data item (항목) linux.ss.tcp.established · {socket}
+																		501 data item (항목) 0
+																		502 data item (항목) 1794485391537389970 → 1794485391539124553 Δ — · — /s
+																		503 data item (항목) observed_gauge point-26100b8cbc08940ec254329192c09e6f449ee60883d21e93e6a736e10404c608 source-0: snapshots/0/summary/tcp.established
+																	504 data item (행)
+																		505 data item (항목) linux.ss.tcp.established · {socket}
+																		506 data item (항목) 8
+																		507 data item (항목) 1794485391539264803 → 1794485391540138553 Δ — · — /s
+																		508 data item (항목) observed_gauge point-04dd7493888aa06370fb8ee87c021c56abc156a42cad49e543fe53822d9ae263 source-0: snapshots/1/summary/tcp.established
+																	509 data item (행)
+																		510 data item (항목) linux.ss.tcp.established · {socket}
+																		511 data item (항목) 0
+																		512 data item (항목) 1794485391540184803 → 1794485391541637970 Δ — · — /s
+																		513 data item (항목) observed_gauge point-28e9a907742a32754b9c35f99b3d28d9b20c69e54b3c3764b98c5aa7ee6a78f1 source-0: snapshots/2/summary/tcp.established
+																	514 data item (행)
+																		515 data item (항목) linux.ss.reported_total · {socket}
+																		516 data item (항목) 1
+																		517 data item (항목) 1794485391537389970 → 1794485391539124553 Δ — · — /s
+																		518 data item (항목) observed_gauge point-981a89b4b93e00b634e8874d07d58a3620053f9545e5a4cb62ba89c8089df83c source-0: snapshots/0/summary/reported_total
+																	519 data item (행)
+																		520 data item (항목) linux.ss.reported_total · {socket}
+																		521 data item (항목) 10
+																		522 data item (항목) 1794485391539264803 → 1794485391540138553 Δ — · — /s
+																		523 data item (항목) observed_gauge point-70f4e6280df00f21880bbd50ea3446afec662a50b018f4cc7cf105ebd92d9996 source-0: snapshots/1/summary/reported_total
+																	524 data item (행)
+																		525 data item (항목) linux.ss.reported_total · {socket}
+																		526 data item (항목) 1
+																		527 data item (항목) 1794485391540184803 → 1794485391541637970 Δ — · — /s
+																		528 data item (항목) observed_gauge point-ff647aa6d6275b2f7ea50bb7fda940436e7356b2984d12945865a9ffe40beeac source-0: snapshots/2/summary/reported_total
+																	529 data item (행)
+																		530 data item (항목) linux.ss.transport.inet.ipv6 · {socket}
+																		531 data item (항목) 0
+																		532 data item (항목) 1794485391537389970 → 1794485391539124553 Δ — · — /s
+																		533 data item (항목) observed_gauge point-44844b9c6f94cef99d41b6b565b72f43fbab42db6730a51e5fe289504f2632c4 source-0: snapshots/0/summary/transport.inet.ipv6
+																	534 data item (행)
+																		535 data item (항목) linux.ss.transport.inet.ipv6 · {socket}
+																		536 data item (항목) 0
+																		537 data item (항목) 1794485391539264803 → 1794485391540138553 Δ — · — /s
+																		538 data item (항목) observed_gauge point-6fb2e15abf5ecd8222ee96ddd050f4908b5262c6c773ba3bd4a4274d0cbf9469 source-0: snapshots/1/summary/transport.inet.ipv6
+																	539 data item (행)
+																		540 data item (항목) linux.ss.transport.inet.ipv6 · {socket}
+																		541 data item (항목) 0
+																		542 data item (항목) 1794485391540184803 → 1794485391541637970 Δ — · — /s
+																		543 data item (항목) observed_gauge point-ef38b386d9c0e314faafadb70e0049e99d8839d90a78291cba0b858dc5c44cda source-0: snapshots/2/summary/transport.inet.ipv6
+																	544 data item (행)
+																		545 data item (항목) linux.ss.transport.udp.total · {socket}
+																		546 data item (항목) 0
+																		547 data item (항목) 1794485391537389970 → 1794485391539124553 Δ — · — /s
+																		548 data item (항목) observed_gauge point-91a5f72fcae92378e9b01ee5b4aaec5a84146c10667ace4fd5e45de168adfd2c source-0: snapshots/0/summary/transport.udp.total
+																	549 data item (행)
+																		550 data item (항목) linux.ss.transport.udp.total · {socket}
+																		551 data item (항목) 0
+																		552 data item (항목) 1794485391539264803 → 1794485391540138553 Δ — · — /s
+																		553 data item (항목) observed_gauge point-16b2e2b8e8c34cd7202563156492ffe549e6cd740e7a211bc2a664a7c3311b5b source-0: snapshots/1/summary/transport.udp.total
+																	554 data item (행)
+																		555 data item (항목) linux.ss.transport.udp.total · {socket}
+																		556 data item (항목) 0
+																		557 data item (항목) 1794485391540184803 → 1794485391541637970 Δ — · — /s
+																		558 data item (항목) observed_gauge point-1902fde61ab75ba15819eb5badf75fdfae60c2623d099a1591f8d13f624cbd27 source-0: snapshots/2/summary/transport.udp.total
+																	559 data item (행)
+																		560 data item (항목) linux.ss.transport.inet.ipv4 · {socket}
+																		561 data item (항목) 0
+																		562 data item (항목) 1794485391537389970 → 1794485391539124553 Δ — · — /s
+																		563 data item (항목) observed_gauge point-580d34a271dded08957f4a76cc3b89fa14b27be4462669d422c71be317f8ccea source-0: snapshots/0/summary/transport.inet.ipv4
+																	564 data item (행)
+																		565 data item (항목) linux.ss.transport.inet.ipv4 · {socket}
+																		566 data item (항목) 9
+																		567 data item (항목) 1794485391539264803 → 1794485391540138553 Δ — · — /s
+																		568 data item (항목) observed_gauge point-51769ff10bccb0c3a3bee344c29a66fc70a80c29cc0cdd09451d3375136d68bd source-0: snapshots/1/summary/transport.inet.ipv4
+																	569 data item (행)
+																		570 data item (항목) linux.ss.transport.inet.ipv4 · {socket}
+																		571 data item (항목) 0
+																		572 data item (항목) 1794485391540184803 → 1794485391541637970 Δ — · — /s
+																		573 data item (항목) observed_gauge point-946ad1ae701cf88adf1076a43c24fe9d1419e2304e13c9abc1abe5dd0225c39f source-0: snapshots/2/summary/transport.inet.ipv4
+																	574 data item (행)
+																		575 data item (항목) linux.ss.tcp.orphaned · {socket}
+																		576 data item (항목) 0
+																		577 data item (항목) 1794485391537389970 → 1794485391539124553 Δ — · — /s
+																		578 data item (항목) observed_gauge point-ed3eb499b0aa4c48f4cc0f052dbbfd3ab9a074419696e602d468340054068df8 source-0: snapshots/0/summary/tcp.orphaned
+																	579 data item (행)
+																		580 data item (항목) linux.ss.tcp.orphaned · {socket}
+																		581 data item (항목) 0
+																		582 data item (항목) 1794485391539264803 → 1794485391540138553 Δ — · — /s
+																		583 data item (항목) observed_gauge point-3faa82cd0d287bfbc94c9718863bbaf3ff53a57ccb40a2d65b640e24662032f8 source-0: snapshots/1/summary/tcp.orphaned
+																	584 data item (행)
+																		585 data item (항목) linux.ss.tcp.orphaned · {socket}
+																		586 data item (항목) 0
+																		587 data item (항목) 1794485391540184803 → 1794485391541637970 Δ — · — /s
+																		588 data item (항목) observed_gauge point-815337faf4e71d466e81375da868472da11eb5ba49bfff916e4c125348a85a59 source-0: snapshots/2/summary/tcp.orphaned
+																	589 data item (행)
+																		590 data item (항목) linux.ss.transport.frag.ipv6 · {fragment_queue}
+																		591 data item (항목) 0
+																		592 data item (항목) 1794485391537389970 → 1794485391539124553 Δ — · — /s
+																		593 data item (항목) observed_gauge point-1dfd8216058ebe06147441cbe36fac3c1e61235b5819af79bfa028315d8ad9d8 source-0: snapshots/0/summary/transport.frag.ipv6
+																594 button (단추) 다음
+															333 text (텍스트) 선언된 식별 정보이며 원본 재가져오기로 검증한 상태가 아닙니다.
+															334 group (세부정보)
+																335 button (펼치기/접기 삼각형) 출처 및 리비전
+																	336 text (텍스트) 출처 및 리비전
+															337 combo box (콤보 상자) (settable, string) 결과 보기 Value: 요약
+															338 group (세부정보)
+																339 button (펼치기/접기 삼각형) 보고서용 이미지·표
+																	340 text (텍스트) 보고서용 이미지·표
+															341 table (TABLE)
+																342 data item (행)
+																	343 button (단추) key Description: Sort by this column
+																	344 button (단추) value Description: Sort by this column
+																345 data item (행)
+																	346 data item (항목) deduplicated_point_count
+																	347 data item (항목) 0 count observed
+																348 data item (행)
+																	349 data item (항목) derived_interval_count
+																	350 data item (항목) 0 count observed
+																351 data item (행)
+																	352 data item (항목) point_count
+																	353 data item (항목) 63 count observed
+																354 data item (행)
+																	355 data item (항목) series_count
+																	356 data item (항목) 21 count observed
+																357 data item (행)
+																	358 data item (항목) untimed_point_count
+																	359 data item (항목) 0 count observed
+															360 button (단추) (disabled) 이전
+															361 text (텍스트) 1
+															362 text (텍스트) –
+															363 text (텍스트) 5
+															364 text (텍스트) /
+															365 text (텍스트) 5
+															366 button (단추) (disabled) 다음
+														118 text (텍스트) 아직 작업 공간에 분석 결과가 없습니다.
+							29 pane (영역)
+					30 pane (영역)
+		1 title bar (제목 표시줄) (settable, string) Value: ArchScope
+			2 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				3 menu item (메뉴 항목) 시스템
+			4 button (단추) 최소화
+			5 button (단추) 최대화
+			6 button (단추) 닫기
+		31 menu bar (메뉴 모음) 응용 프로그램 ID: MenuBar
+			32 menu item (메뉴 항목) 파일
+			33 menu item (메뉴 항목) 편집
+			34 menu item (메뉴 항목) 분석
+			35 menu item (메뉴 항목) 워크스페이스
+			36 menu item (메뉴 항목) 캡처
+			37 menu item (메뉴 항목) 보기
+			38 menu item (메뉴 항목) 도움말
+
+Document text: ```
+메트릭 시간창 끝 나노초
+```

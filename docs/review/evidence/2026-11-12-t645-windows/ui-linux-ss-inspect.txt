@@ -1,0 +1,185 @@
+Window: "ArchScope", App: t645-archscope-amd64.exe.
+	0 window (창) ArchScope Secondary Actions: Raise
+		15 pane (창) ArchScope
+			16 pane (창) (disabled)
+			17 pane (영역) ArchScope - 웹 콘텐츠
+				18 pane (영역)
+					19 pane (영역)
+					20 pane (영역)
+						21 pane (영역)
+							22 pane (영역)
+							23 pane (영역)
+								24 pane (영역)
+									25 pane (영역)
+										26 pane (영역)
+											27 pane (영역)
+											28 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												39 group (그룹) ID: root
+													40 group (머리글)
+														41 text (텍스트) 분석 작업 공간
+													71 group (기본)
+														72 text (제목) 분석 작업 공간 도움말 보기
+															73 button (단추) 도움말 보기
+														74 group (세부정보)
+															75 button (펼치기/접기 삼각형) 저장된 케이스 Description: 저장된 케이스
+														76 button (단추) (disabled) 작업 공간 비우기
+														77 group (세부정보)
+															78 button (펼치기/접기 삼각형) 케이스 검색과 재사용 baseline
+																79 text (텍스트) 케이스 검색과 재사용 baseline
+														80 group (지역) 근거 결과
+															81 text (제목) 근거 가져오기 및 조회
+															82 text field (편집) (settable, string) 로컬 근거 경로 Description: 로컬 파일 Value: C:\workspace\archscope\apps\engine-native\internal\catalog\contracts\system-db-linux-ss-capture.json
+															83 button (단추) 파일 선택
+															84 combo box (콤보 상자) (settable, string) 가져오기 형식 Value: 형식 감지
+															85 button (단추) 분석
+															86 button (단추) 저장 결과 열기
+															87 button (단추) (disabled) 취소
+															88 group (세부정보)
+																89 button (펼치기/접기 삼각형) CPU/GPU 실행: PyTorch / Nsight / rank 문맥
+																	90 text (텍스트) CPU/GPU 실행: PyTorch / Nsight / rank 문맥
+															91 group (세부정보)
+																92 button (펼치기/접기 삼각형) 부하 / LLM 벤치마크 / JVM 크래시 원본
+																	93 text (텍스트) 부하 / LLM 벤치마크 / JVM 크래시 원본
+															94 group (세부정보)
+																95 button (펼치기/접기 삼각형) 런타임 / 스레드 / TA / 실행계획 근거
+																	96 text (텍스트) 런타임 / 스레드 / TA / 실행계획 근거
+															97 group (세부정보)
+																98 button (펼치기/접기 삼각형) LLM / gateway trace 근거
+																	99 text (텍스트) LLM / gateway trace 근거
+															100 group (세부정보)
+																101 button (펼치기/접기 삼각형) GPU / 추론 서빙 근거
+																	102 text (텍스트) GPU / 추론 서빙 근거
+															103 group (세부정보)
+																104 button (펼치기/접기 삼각형) perf / 제한된 BPF 근거
+																	105 text (텍스트) perf / 제한된 BPF 근거
+															106 group (세부정보)
+																107 button (펼치기/접기 삼각형) 메트릭 이력: OTLP / snapshots / Prometheus / Apple / DB / Linux
+																	108 text (텍스트) 메트릭 이력: OTLP / snapshots / Prometheus / Apple / DB / Linux
+																119 text (텍스트) 수동 저장한 PostgreSQL16.14 또는 iproute2-6.1.0 스냅샷을 여세요. Counter 초기화 시각·읽기 구간과 host/boot/instance/namespace는 파일에서 읽습니다. PostgreSQL epoch가 없으면 rate를 만들지 않고, ss 요약은 커널 공용 수치가 포함될 수 있는 gauge로 유지합니다. 가져오기 중 SQL·도구를 실행하지 않습니다.
+																120 text (텍스트) 원본 형식
+																121 combo box (콤보 상자) (settable, string) 원본 형식 Value: linux-ss-summary-json
+																128 button (단추) 메트릭 원본 확인
+																231 text (텍스트) SHA-256
+																232 text (텍스트) c2aa8d9f0ee25fc7791089dc3c1fad2d5f9203ac6cdeaa96f2c5f8a0841e6fbc
+																233 text (텍스트) ·
+																234 text (텍스트) 63
+																235 text (텍스트)
+																236 text (텍스트) 관측점
+																237 checkbox (확인란) (settable, string) linux.ss.transport.raw.total · {socket} · gauge/unspecified
+																238 group (세부정보)
+																	239 button (펼치기/접기 삼각형) 식별자
+																		240 text (텍스트) 식별자
+																241 checkbox (확인란) (settable, string) linux.ss.transport.tcp.total · {socket} · gauge/unspecified
+																242 group (세부정보)
+																	243 button (펼치기/접기 삼각형) 식별자
+																		244 text (텍스트) 식별자
+																245 checkbox (확인란) (settable, string) linux.ss.tcp.established · {socket} · gauge/unspecified
+																246 group (세부정보)
+																	247 button (펼치기/접기 삼각형) 식별자
+																		248 text (텍스트) 식별자
+																249 checkbox (확인란) (settable, string) linux.ss.reported_total · {socket} · gauge/unspecified
+																250 group (세부정보)
+																	251 button (펼치기/접기 삼각형) 식별자
+																		252 text (텍스트) 식별자
+																253 checkbox (확인란) (settable, string) linux.ss.transport.inet.ipv6 · {socket} · gauge/unspecified
+																254 group (세부정보)
+																	255 button (펼치기/접기 삼각형) 식별자
+																		256 text (텍스트) 식별자
+																257 checkbox (확인란) (settable, string) linux.ss.transport.udp.total · {socket} · gauge/unspecified
+																258 group (세부정보)
+																	259 button (펼치기/접기 삼각형) 식별자
+																		260 text (텍스트) 식별자
+																261 checkbox (확인란) (settable, string) linux.ss.transport.inet.ipv4 · {socket} · gauge/unspecified
+																262 group (세부정보)
+																	263 button (펼치기/접기 삼각형) 식별자
+																		264 text (텍스트) 식별자
+																265 checkbox (확인란) (settable, string) linux.ss.tcp.orphaned · {socket} · gauge/unspecified
+																266 group (세부정보)
+																	267 button (펼치기/접기 삼각형) 식별자
+																		268 text (텍스트) 식별자
+																269 checkbox (확인란) (settable, string) linux.ss.transport.frag.ipv6 · {fragment_queue} · gauge/unspecified
+																270 group (세부정보)
+																	271 button (펼치기/접기 삼각형) 식별자
+																		272 text (텍스트) 식별자
+																273 checkbox (확인란) (settable, string) linux.ss.transport.frag.ipv4 · {fragment_queue} · gauge/unspecified
+																274 group (세부정보)
+																	275 button (펼치기/접기 삼각형) 식별자
+																		276 text (텍스트) 식별자
+																277 checkbox (확인란) (settable, string) linux.ss.transport.udp.ipv4 · {socket} · gauge/unspecified
+																278 group (세부정보)
+																	279 button (펼치기/접기 삼각형) 식별자
+																		280 text (텍스트) 식별자
+																281 checkbox (확인란) (settable, string) linux.ss.transport.frag.total · {fragment_queue} · gauge/unspecified
+																282 group (세부정보)
+																	283 button (펼치기/접기 삼각형) 식별자
+																		284 text (텍스트) 식별자
+																285 checkbox (확인란) (settable, string) linux.ss.tcp.timewait · {socket} · gauge/unspecified
+																286 group (세부정보)
+																	287 button (펼치기/접기 삼각형) 식별자
+																		288 text (텍스트) 식별자
+																289 checkbox (확인란) (settable, string) linux.ss.tcp.reported_total · {socket} · gauge/unspecified
+																290 group (세부정보)
+																	291 button (펼치기/접기 삼각형) 식별자
+																		292 text (텍스트) 식별자
+																293 checkbox (확인란) (settable, string) linux.ss.transport.raw.ipv4 · {socket} · gauge/unspecified
+																294 group (세부정보)
+																	295 button (펼치기/접기 삼각형) 식별자
+																		296 text (텍스트) 식별자
+																297 checkbox (확인란) (settable, string) linux.ss.transport.raw.ipv6 · {socket} · gauge/unspecified
+																298 group (세부정보)
+																	299 button (펼치기/접기 삼각형) 식별자
+																		300 text (텍스트) 식별자
+																301 checkbox (확인란) (settable, string) linux.ss.tcp.reported_closed · {socket} · gauge/unspecified
+																302 group (세부정보)
+																	303 button (펼치기/접기 삼각형) 식별자
+																		304 text (텍스트) 식별자
+																305 checkbox (확인란) (settable, string) linux.ss.transport.inet.total · {socket} · gauge/unspecified
+																306 group (세부정보)
+																	307 button (펼치기/접기 삼각형) 식별자
+																		308 text (텍스트) 식별자
+																309 checkbox (확인란) (settable, string) linux.ss.transport.tcp.ipv6 · {socket} · gauge/unspecified
+																310 group (세부정보)
+																	311 button (펼치기/접기 삼각형) 식별자
+																		312 text (텍스트) 식별자
+																313 checkbox (확인란) (settable, string) linux.ss.transport.tcp.ipv4 · {socket} · gauge/unspecified
+																314 group (세부정보)
+																	315 button (펼치기/접기 삼각형) 식별자
+																		316 text (텍스트) 식별자
+																317 checkbox (확인란) (settable, string) linux.ss.transport.udp.ipv6 · {socket} · gauge/unspecified
+																318 group (세부정보)
+																	319 button (펼치기/접기 삼각형) 식별자
+																		320 text (텍스트) 식별자
+																321 text (텍스트) Source producer/export/query identity is declared; no original-publisher authentication or GenAI alias qualification.
+																322 text (텍스트) iproute2-6.1.0 ss -s is a sequential /proc summary, not packet/flow evidence or cumulative counters. All fields remain gauges without rates. Linux qualification is the recorded kernel/environment, not netstat/per-process/Windows support.
+																323 text (텍스트) TCP reported total/closed/orphan allocation may include shared-kernel accounting outside the declared network namespace; context does not prove every value is namespace-local. Never sum overlapping totals/transport rows or infer throughput, drops, RTT, bandwidth, local ownership or causation. Signed reported_closed is retained because separately read counts enter the producer calculation.
+																324 button (단추) (disabled) 새 모델 저장 후 선택 적용
+															109 group (세부정보)
+																110 button (펼치기/접기 삼각형) 원본 py-spy / Speedscope / pprof 프로파일
+																	111 text (텍스트) 원본 py-spy / Speedscope / pprof 프로파일
+															112 group (세부정보)
+																113 button (펼치기/접기 삼각형) 입력 안내와 수동 수집
+																	114 text (텍스트) 입력 안내와 수동 수집
+															115 group (세부정보)
+																116 button (펼치기/접기 삼각형) 가져오기 옵션
+																	117 text (텍스트) 가져오기 옵션
+														118 text (텍스트) 아직 작업 공간에 분석 결과가 없습니다.
+							29 pane (영역)
+					30 pane (영역)
+		1 title bar (제목 표시줄) (settable, string) Value: ArchScope
+			2 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				3 menu item (메뉴 항목) 시스템
+			4 button (단추) 최소화
+			5 button (단추) 최대화
+			6 button (단추) 닫기
+		31 menu bar (메뉴 모음) 응용 프로그램 ID: MenuBar
+			32 menu item (메뉴 항목) 파일
+			33 menu item (메뉴 항목) 편집
+			34 menu item (메뉴 항목) 분석
+			35 menu item (메뉴 항목) 워크스페이스
+			36 menu item (메뉴 항목) 캡처
+			37 menu item (메뉴 항목) 보기
+			38 menu item (메뉴 항목) 도움말
+
+Document text: ```
+C:\workspace\archscope\apps\engine-native\internal\catalog\contracts\system-db-linux-ss-capture.json
+```

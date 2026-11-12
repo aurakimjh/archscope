@@ -1,0 +1,81 @@
+{
+  "status": "PASS",
+  "source_unchanged": true,
+  "original_sha256": "2c9faa00f616e7f0f41bdd87e3d6ad29c94043f34d443dbd5d59d13f76a1f9a4",
+  "checks": [
+    {
+      "check": "source/output alias",
+      "exit_code": 1,
+      "expected": "OUTPUT_EXISTS_OR_ALIAS",
+      "status": "PASS"
+    },
+    {
+      "check": "no overwrite",
+      "exit_code": 1,
+      "expected": "OUTPUT_EXISTS_OR_ALIAS",
+      "status": "PASS"
+    },
+    {
+      "check": "reversed window",
+      "exit_code": 1,
+      "expected": "from must precede to",
+      "status": "PASS"
+    },
+    {
+      "check": "noncanonical time",
+      "exit_code": 1,
+      "expected": "canonical signed-range nanoseconds required",
+      "status": "PASS"
+    },
+    {
+      "check": "sidecar refusal",
+      "exit_code": 1,
+      "expected": "sidecars refused",
+      "status": "PASS"
+    },
+    {
+      "check": "unqualified producer",
+      "exit_code": 1,
+      "expected": "qualified Nsight2024.2.3.38/schema3.11.1 required",
+      "status": "PASS"
+    },
+    {
+      "check": "receipt no overwrite",
+      "exit_code": 1,
+      "expected": "OUTPUT_EXISTS_OR_ALIAS",
+      "status": "PASS"
+    }
+  ],
+  "positive": {
+    "tool": "manual-nsight-subset",
+    "version": "1.0.0",
+    "original_sha256": "2c9faa00f616e7f0f41bdd87e3d6ad29c94043f34d443dbd5d59d13f76a1f9a4",
+    "original_bytes": 32768,
+    "subset_sha256": "d184a499d86999fc934a6a694e9b929441d6646025cbd60df27569dbde956f51",
+    "subset_bytes": 24576,
+    "from_ns": "80000000",
+    "to_ns": "80500000",
+    "selection": "whole intersecting intervals, including zero-duration points; no clipping",
+    "retained_rows": 19,
+    "tables": {
+      "CUPTI_ACTIVITY_KIND_RUNTIME": {
+        "status": "present",
+        "retained_rows": 10
+      },
+      "CUPTI_ACTIVITY_KIND_KERNEL": {
+        "status": "present",
+        "retained_rows": 7
+      },
+      "CUPTI_ACTIVITY_KIND_MEMCPY": {
+        "status": "present",
+        "retained_rows": 2
+      },
+      "NVTX_EVENTS": {
+        "status": "absent",
+        "retained_rows": 0
+      }
+    },
+    "excluded": "environment/session/command-line/NVTX text/unreferenced strings; source DDL never executed",
+    "scope": "manual preprocessing; import source digest identifies subset bytes, not original report"
+  }
+}

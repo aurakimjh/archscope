@@ -1,0 +1,104 @@
+{
+  "recorded_utc": "2026-11-12T13:10:06.392060+00:00",
+  "status": "PASS within stated local Windows scope",
+  "source_commit": "b36d83e038dd42abbae0e488dc9083083763ad4c",
+  "tested_build_commit": "c83740a1ae4c2a0d921768f7d78804dc06cc8cfa",
+  "fix_commit": "6317b8040cebb0d19acbe4b82d6dd3159121ebe2",
+  "engine_tree_at_all_three_commits": "cce8f67f4ba69d35a0a84a27e2f59b5ce2f91cfb",
+  "host": {
+    "os": "Microsoft Windows 11 Pro",
+    "version": "10.0.26300",
+    "build": "26300",
+    "go": "go1.26.10 windows/amd64",
+    "node": "v22.15.1",
+    "python": "3.10.11"
+  },
+  "packages": [
+    "./internal/parsers/metrichistory",
+    "./internal/catalog",
+    "./internal/analysis",
+    "./cmd/archscope-engine",
+    "./cmd/archscope-app",
+    "./internal/parsers/gputrace",
+    "./internal/distribution"
+  ],
+  "commands": {
+    "amd64_tests": "go test -json -count=1 -p 2 -timeout 10m <packages>",
+    "386_tests": "GOARCH=386 node cmd/archscope-app/build/windows/test.mjs -json -count=1 -p 2 -timeout 10m <packages>",
+    "vet": "GOARCH=<amd64|386> go vet <packages>",
+    "frontend": [
+      "npm run test:state",
+      "npm run build"
+    ],
+    "cli_build": "GOARCH=<arch> go build -o <private-temp>/engine-<arch>.exe ./cmd/archscope-engine",
+    "gui_build": "GOARCH=<arch> node build/windows/build.mjs -tags production -trimpath -ldflags \"-H windowsgui -X main.desktopBuildCommit=c83740a1ae4c2a0d921768f7d78804dc06cc8cfa\" -o <private-temp>/t645-archscope-<arch>.exe .",
+    "offline": [
+      "python scripts/build-offline-assets.py --check",
+      "engine-amd64.exe offline fixtures"
+    ],
+    "checkout": "git -c core.autocrlf=true checkout-index --prefix=<private-temp>/committed-checkout/ -- scripts/subset-nsight-sqlite.py"
+  },
+  "fix": {
+    "before": "source checkout CRLF; source 6632 bytes versus embedded 6553; build-offline-assets.py --check failed",
+    "after": "scripts/subset-nsight-sqlite.py text eol=lf; new committed checkout exact matches embedded bytes",
+    "sha256": "9d51a654ba6b626fa34209140e0add3cf5755e16495b4847fa1e72149a3c0520",
+    "bytes": 6553,
+    "embedded_bytes_unchanged": true
+  },
+  "native_ui": {
+    "arch": "amd64",
+    "postgres_inspect": {
+      "series": 15,
+      "points": 75
+    },
+    "linux_ss_inspect": {
+      "series": 21,
+      "points": 63
+    },
+    "saved_result_readback": "PASS using a Unicode/space path",
+    "metric_query": "PASS: total63, observed_gauge, values/source refs, next page changed to frag.ipv6 snapshots/1 onward",
+    "native_save_dialog": "not exercised in this follow-up; normalization/pin/no-overwrite covered by Wails service tests and CLI",
+    "layout_scope": "one 1266x793 window; not a complete conditional/DPI audit"
+  },
+  "gui_386": {
+    "startup_seconds": 15,
+    "survived": true,
+    "shutdown": "existing smoke requested close then forced owned process after 8 seconds; graceful shutdown not claimed"
+  },
+  "binaries": {
+    "engine-amd64.exe": {
+      "kind": "cli",
+      "arch": "amd64",
+      "bytes": 44440064,
+      "sha256": "4e219d033dd7ba9b57f9b06584c2cd0fe44b19c7759cd919b1e7b280bf4cc1ee",
+      "machine": "0x8664"
+    },
+    "t645-archscope-amd64.exe": {
+      "kind": "gui",
+      "arch": "amd64",
+      "bytes": 55528448,
+      "sha256": "a70fa62f44a7890e1880d57c082d39a83776429695ceadb5ce46af0b0f8581b2",
+      "machine": "0x8664"
+    },
+    "engine-386.exe": {
+      "kind": "cli",
+      "arch": "386",
+      "bytes": 43147776,
+      "sha256": "fb93da41fc5e81da73a52bd47cf0cd034edaf3e8d432cbdcbfc7e3c2b60c4564",
+      "machine": "0x14c"
+    },
+    "t645-archscope-386.exe": {
+      "kind": "gui",
+      "arch": "386",
+      "bytes": 53578752,
+      "sha256": "543faa8c778f4dbdfea7f741e9829f0c62aba480cfefd4ad9de2a44ff0e892b8",
+      "machine": "0x14c"
+    }
+  },
+  "boundaries": [
+    "Imports the supplied qualified Linux/PostgreSQL captures on Windows; no native Windows producer/capture support claim",
+    "No new local race/full-suite/live/body/crash run; source-equivalent hosted full CI is recorded separately",
+    "Four local test skips per architecture; POSIX permission case and opt-in body/helper/transparent tests",
+    "T-645 remains REVIEW pending independent review; no optional adapter/DPI/long-duration parity closure"
+  ]
+}
