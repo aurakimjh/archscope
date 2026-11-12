@@ -141,3 +141,5 @@ first-byte/connect·thread count·response code는 보관하지 않는다는 제
 R19-02(실제 hs_err elapsed/심볼/구역), R19-03(JTL 타당성 진단),
 R19-04(미검증 JMeter 버전 정책)는 후속 큐에 남겼으며 producer 버전 제한은 유지합니다.
 새 네이티브 Windows/WebView 검증을 주장하지 않습니다.
+
+HotSpot은 독립 elapsed 줄과 Time 헤더에 붙은 elapsed를 읽고 공백을 포함한 제한된 native 심볼을 보존하며 명령 offset·절대 경로 주석을 제거합니다. frame에 선택적 section=problematic/native/java를 기록해 다른 구역의 같은 심볼을 좌표와 함께 별도 관측으로 유지합니다. section 없는 과거 frame도 읽습니다. core dump를 끈 별도 Temurin21.0.10+7 실제 합성 crash에서 inline elapsed·세 구역만 정제한 표본을 추가했으며 환경·인자·사용자 경로를 저장하지 않습니다.

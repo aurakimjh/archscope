@@ -12,7 +12,10 @@ import (
 
 var crashHeader = regexp.MustCompile(`^#\s+(SIGSEGV|SIGBUS|SIGILL|SIGFPE|SIGABRT|EXCEPTION_ACCESS_VIOLATION)\b.*pid=([0-9]+),\s*tid=([0-9]+)`)
 var jreVersion = regexp.MustCompile(`^# JRE version:.*?\(([0-9][A-Za-z0-9.+_-]*)\)`)
-var moduleFrame = regexp.MustCompile(`^([CJjVv])\s+\[([^\]\s/\\+]+)(?:\+0x[0-9a-fA-F]+)?\](?:\s+([A-Za-z0-9_.$:<>()/\[\];,+~?*=&!@%-]+))?`)
+var moduleFrame = regexp.MustCompile(`^([CJjVv])\s+\[([^\]\s/\\+]+)(?:\+0x[0-9a-fA-F]+)?\](?:\s+([A-Za-z0-9_.$:<>()/\[\];,+~?*=&!@% \t-]+))?`)
+var nativeOffset = regexp.MustCompile(`\+0x[0-9a-fA-F]+.*$`)
+var elapsedTime = regexp.MustCompile(`elapsed time:\s*([0-9]+(?:\.[0-9]+)?)\s+seconds?\b`)
+var symbolPath = regexp.MustCompile(`(^|[\s(])(/|[A-Za-z]:\\)`)
 var javaFrame = regexp.MustCompile(`^([JjVv])\s+([A-Za-z0-9_.$:/<>]+)(?:\([^\r\n]*\))?`)
 
 func parseCrash(ctx context.Context, raw []byte, s *e.Set) error {
@@ -28,6 +31,7 @@ func parseCrash(ctx context.Context, raw []byte, s *e.Set) error {
 	signature := false
 	wantProblem := false
 	stack := false
+	section := ""
 	for line := 1; scan.Scan(); line++ {
 		if line > 500000 {
 			return fmt.Errorf("EXECUTION_CRASH_LINE_BUDGET")
@@ -53,21 +57,26 @@ func parseCrash(ctx context.Context, raw []byte, s *e.Set) error {
 		if text == "END." {
 			c.Completeness = "end_marker_present"
 		}
-		if strings.HasPrefix(text, "elapsed time:") {
-			parts := strings.Fields(strings.TrimPrefix(text, "elapsed time:"))
-			if len(parts) > 1 && strings.HasPrefix(parts[1], "second") {
-				v, err := decimal(parts[0])
+		if strings.HasPrefix(text, "Time:") || strings.HasPrefix(text, "elapsed time:") {
+			if v := elapsedTime.FindStringSubmatch(text); v != nil {
+				parsed, err := decimal(v[1])
 				if err == nil {
-					c.Elapsed = v
+					c.Elapsed = parsed
 				}
 			}
 		}
 		if strings.HasPrefix(text, "# Problematic frame:") {
 			wantProblem = true
+			section = "problematic"
 			continue
 		}
 		if strings.HasPrefix(text, "Native frames:") || strings.HasPrefix(text, "Java frames:") {
 			stack = true
+			if strings.HasPrefix(text, "Native frames:") {
+				section = "native"
+			} else {
+				section = "java"
+			}
 			continue
 		}
 		clean := strings.TrimSpace(strings.TrimPrefix(text, "#"))
@@ -80,11 +89,14 @@ func parseCrash(ctx context.Context, raw []byte, s *e.Set) error {
 			if len(c.Frames) >= 128 {
 				return fmt.Errorf("EXECUTION_CRASH_FRAME_BUDGET")
 			}
-			f := e.Frame{Position: fmt.Sprintf("line/%d", line)}
+			f := e.Frame{Section: section, Position: fmt.Sprintf("line/%d", line)}
 			if v := moduleFrame.FindStringSubmatch(clean); v != nil {
 				f.Kind = v[1]
 				f.Module = v[2]
-				f.Symbol = v[3]
+				f.Symbol = strings.TrimSpace(nativeOffset.ReplaceAllString(v[3], ""))
+				if symbolPath.MatchString(f.Symbol) {
+					f.Symbol = ""
+				}
 			} else if v := javaFrame.FindStringSubmatch(clean); v != nil {
 				f.Kind = v[1]
 				f.Symbol = v[2]

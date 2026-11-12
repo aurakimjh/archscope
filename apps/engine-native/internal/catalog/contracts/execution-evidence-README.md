@@ -45,3 +45,5 @@ connect/응답 코드/thread/timeline은 보관하지 않는다. 전체 count/ne
 분포에서 정확히 다시 계산한다. 1,000,000행·100,000개 전체 고유 latency bin·128개
 label·16 MiB 모델/64 MiB 입력 한도가 먼저 적용된다. 한도를 넘으면 원래 실행 범위를
 줄여야 하며 나눈 파일의 백분위는 합성할 수 없다. 기존 1.0.0 schema/model은 읽기 호환된다.
+
+`hs-err-21.0.10-full-sections.txt`는 core dump를 끈 별도 JVM의 실제 합성 crash에서 header·inline elapsed·problematic/native/java frame만 허용 목록으로 남긴 정제 발췌입니다. wallclock/PID를 치환하고 환경·인자·사용자 경로·원시 메모리를 제외했습니다. `producer-provenance.json`에 원본·발췌 SHA를 기록합니다. 구역이 다른 동일 심볼은 별도 관측으로 보존합니다.

@@ -4314,7 +4314,7 @@ T-642 DONE after R19-01 remediation with R19-02..04 queued. Priority order:
 | Finding | Priority | Status | Action |
 |---|---|---|---|
 | R19-01 | P2 | LOCALLY_FIXED | Replace per-sample JTL repetition with bounded exact per-label distributions; retain exact nearest-rank statistics at ordinary 60k+ loads. Report observed/limit and non-composable percentile limits. Preserve old saved results. |
-| R19-02 | P3 | TODO | Handle inline hs_err elapsed, native symbols containing spaces, and problematic/native/java section identity or deduplication; qualify actual producer fixture. |
+| R19-02 | P3 | LOCALLY_FIXED | Handle inline hs_err elapsed, native symbols containing spaces, and problematic/native/java section identity or deduplication; qualify actual producer fixture. |
 | R19-03 | P3 | TODO | Disclose suspect epoch-ms timestamps and inconsistent first-byte/connect durations without silently changing units. |
 | R19-04 | P3 | TODO | Explicit unverified JMeter-version policy; never require false version declarations. |
 
@@ -4822,3 +4822,5 @@ R15-04 LOCALLY_FIXED: Explicit ignored_tids excludes declared lifetimes from int
 R15-05 LOCALLY_FIXED: Added explicit off_cpu/sleeping and off_cpu/runnable projections with distinct identities/capture context; aggregate off_cpu unchanged. Stackless endpoint attribution and runqueue overlap disclosed; exact partition/legacy/projection tests passed. No inferred lock or blocked call tree. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
 
 R17-05 LOCALLY_FIXED: New explicit token-boundaries.1.1.0 policy nulls both TTFT/TPOT for supplied contradictory span/token boundaries; old models without policy keep saved projections. Profile capability/custom event table added. Five contradiction cases, canonical revision/privacy and service integration passed. Shared optional schema mirrored; repaired prior system README/offline mirrors in their own unpublished commits. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
+
+R19-02 LOCALLY_FIXED: HotSpot inline elapsed/full bounded native symbols and optional problematic/native/java section identities implemented; old frames remain readable. Actual isolated Temurin21.0.10+7 synthetic crash captured with core dumps disabled; only allowlisted sanitized excerpt/producer hashes shared. Parser/canonical/privacy/actual CLI and full catalog tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.

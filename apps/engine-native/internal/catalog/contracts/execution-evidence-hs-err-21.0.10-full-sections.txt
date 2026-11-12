@@ -1,0 +1,29 @@
+# A fatal error has been detected by the Java Runtime Environment:
+#  SIGSEGV (0xb) at pc=0x0000000111b8cb34, pid=500, tid=501
+# JRE version: OpenJDK Runtime Environment Temurin-21.0.10+7 (21.0.10+7) (build 21.0.10+7-LTS)
+# Problematic frame:
+# V  [libjvm.dylib+0xa2cb34]  Unsafe_PutLong(JNIEnv_*, _jobject*, _jobject*, long, long)+0x124
+Time: [wallclock omitted] elapsed time: 0.019933 seconds (0d 0h 0m 0s)
+
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [libjvm.dylib+0xa2cb34]  Unsafe_PutLong(JNIEnv_*, _jobject*, _jobject*, long, long)+0x124
+j  jdk.internal.misc.Unsafe.putLong(Ljava/lang/Object;JJ)V+0 java.base@21.0.10
+j  jdk.internal.misc.Unsafe.putAddress(Ljava/lang/Object;JJ)V+24 java.base@21.0.10
+j  jdk.internal.misc.Unsafe.putAddress(JJ)V+4 java.base@21.0.10
+j  sun.misc.Unsafe.putAddress(JJ)V+5 jdk.unsupported@21.0.10
+j  SyntheticCrash.main([Ljava/lang/String;)V+23
+v  ~StubRoutines::call_stub 0x0000000121dbc154
+V  [libjvm.dylib+0x4b0abc]  JavaCalls::call_helper(JavaValue*, methodHandle const&, JavaCallArguments*, JavaThread*)+0x3d8
+V  [libjvm.dylib+0x525284]  jni_invoke_static(JNIEnv_*, JavaValue*, _jobject*, JNICallType, _jmethodID*, JNI_ArgumentPusher*, JavaThread*)+0x170
+V  [libjvm.dylib+0x528af4]  jni_CallStaticVoidMethod+0x108
+C  [libjli.dylib+0xaa70]  JavaMain+0x910
+C  [libjli.dylib+0xd5e8]  ThreadJavaMain+0xc
+C  [libsystem_pthread.dylib+0x6ce4]  _pthread_start+0x88
+
+Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
+j  jdk.internal.misc.Unsafe.putLong(Ljava/lang/Object;JJ)V+0 java.base@21.0.10
+j  jdk.internal.misc.Unsafe.putAddress(Ljava/lang/Object;JJ)V+24 java.base@21.0.10
+j  jdk.internal.misc.Unsafe.putAddress(JJ)V+4 java.base@21.0.10
+j  sun.misc.Unsafe.putAddress(JJ)V+5 jdk.unsupported@21.0.10
+j  SyntheticCrash.main([Ljava/lang/String;)V+23
+v  ~StubRoutines::call_stub 0x0000000121dbc154

@@ -148,6 +148,7 @@ type Sample struct {
 func SampleID(v Sample) string { v.ID = ""; return "sample-" + Hash(v) }
 
 type Frame struct {
+	Section  string `json:"section,omitempty"`
 	Kind     string `json:"kind"`
 	Module   string `json:"module"`
 	Symbol   string `json:"symbol"`
@@ -246,7 +247,7 @@ func (s Set) Validate(ctx context.Context) error {
 			}
 		}
 		for _, f := range c.Frames {
-			if !In(f.Kind, "C", "J", "j", "V", "v") || !Text(f.Module) || !Text(f.Symbol) || !Known(f.Position) {
+			if !In(f.Section, "", "problematic", "native", "java") || !In(f.Kind, "C", "J", "j", "V", "v") || !Text(f.Module) || !Text(f.Symbol) || !Known(f.Position) {
 				return fmt.Errorf("EXECUTION_CRASH_FRAME_INVALID")
 			}
 		}

@@ -164,3 +164,5 @@ refused. The 50,000 limit remains only for legacy saved sample-array validation.
 R19-02 (actual hs_err elapsed/symbol/section), R19-03 (JTL consistency diagnostics)
 and R19-04 (unverified JMeter version policy) remain explicitly queued; current
 pinned producer restrictions continue. No new native Windows/WebView claim.
+
+HotSpot parsing reads elapsed time from standalone or inline Time headers, retains bounded native symbols including spaces while stripping instruction offsets/absolute-path annotations, and records optional frame section=problematic/native/java. Repeated symbols in different sections remain separate observations with source coordinates. Old frames without section remain readable. Added a sanitized actual Temurin21.0.10+7 isolated crash excerpt, including inline elapsed and all three sections; no core dump, environment, command line or user paths are stored.

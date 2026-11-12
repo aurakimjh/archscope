@@ -36,6 +36,12 @@ func TestPinnedBenchmarkAndActualCrashNormalization(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			if c.name == "crash" {
+				for i := range want.Crash.Frames {
+					want.Crash.Frames[i].Section = "problematic"
+					want.Crash.Frames[i].Symbol = "Unsafe_PutLong(JNIEnv_*, _jobject*, _jobject*, long, long)"
+				}
+			}
 			expected, _ := json.Marshal(want)
 			if !bytes.Equal(raw, expected) {
 				t.Fatal("normalization drift")
@@ -122,5 +128,36 @@ func TestRefusalsAndImmutableGzipSourceIdentity(t *testing.T) {
 	bad := strings.Replace(string(fixture(t, "jmeter-5.6.3.csv")), "1700000000000", "2026-01-01", 1)
 	if _, err = p.ParseBytes(context.Background(), []byte(bad), o); err == nil {
 		t.Fatal("timestamp format guessed")
+	}
+}
+
+func TestR1902InlineElapsedFullSymbolsAndSections(t *testing.T) {
+	raw := append(fixture(t, "hs-err-21.0.10.txt"), []byte("\nTime: synthetic elapsed time: 0.627140 seconds (0d 0h 0m 0s)\nNative frames:\nV  [libjvm.dylib+0xa2cb34]  Unsafe_PutLong(JNIEnv_*, _jobject*, _jobject*, long, long)+0x124\nj  C.level3()V+0\n\nJava frames:\nj  C.level3()V+0\n\n")...)
+	set, err := p.ParseBytes(context.Background(), raw, p.Options{Format: "hs-err-text"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if set.Crash.Elapsed == nil || *set.Crash.Elapsed != "0.62714" || len(set.Crash.Frames) != 4 {
+		t.Fatal(set.Crash)
+	}
+	if set.Crash.Frames[0].Section != "problematic" || set.Crash.Frames[1].Section != "native" || set.Crash.Frames[3].Section != "java" || set.Crash.Frames[1].Symbol != "Unsafe_PutLong(JNIEnv_*, _jobject*, _jobject*, long, long)" {
+		t.Fatal(set.Crash.Frames)
+	}
+}
+
+func TestR1902ActualHotSpotSectionExcerpt(t *testing.T) {
+	raw := fixture(t, "hs-err-21.0.10-full-sections.txt")
+	set, err := p.ParseBytes(context.Background(), raw, p.Options{Format: "hs-err-text"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	sections := map[string]bool{}
+	full := false
+	for _, f := range set.Crash.Frames {
+		sections[f.Section] = true
+		full = full || strings.Contains(f.Symbol, "_jobject*, long, long")
+	}
+	if set.Source.Version != "21.0.10+7" || set.Crash.Elapsed == nil || !sections["problematic"] || !sections["native"] || !sections["java"] || !full {
+		t.Fatal(set.Crash)
 	}
 }

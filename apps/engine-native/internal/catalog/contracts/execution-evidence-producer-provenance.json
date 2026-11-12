@@ -5,5 +5,12 @@
   "llmperf_summary_source_sha256": "f7fb3c8cbb7018add4b209f047a3925d145c5bc7d8defb8b73e3744a805f722f",
   "llmperf_utils_source_sha256": "d32782862da74ccd509916f9e02a4e11a17139158519c9c0727b03ee00dad5bf",
   "pandas": "3.1.1",
-  "qualification": "k6 실제 loopback 실행; hs_err 실제 합성 JVM crash의 정제 발췌; LLMPerf 실제 통계/JSON 함수에 합성 수치 입력. 모델·GPU·벤치마크 클라이언트 실행 아님; JMeter는 합성 CSV 구조 예제."
+  "qualification": "k6 실제 loopback 실행; hs_err 실제 합성 JVM crash의 정제 발췌; LLMPerf 실제 통계/JSON 함수에 합성 수치 입력. 모델·GPU·벤치마크 클라이언트 실행 아님; JMeter는 합성 CSV 구조 예제.",
+  "section_capture": {
+    "producer": "Temurin21.0.10+7",
+    "scope": "actual isolated synthetic JVM crash; core dump disabled; allowlisted header/time/frame excerpt; wallclock/PIDs sanitized",
+    "original_sha256": "a67b5b1412c0f2f22e571e32a0bec2c1df8da5f99e9d8027adfb2dffacfa8c48",
+    "fixture": "hs-err-21.0.10-full-sections.txt",
+    "fixture_sha256": "25d0dbfaf6bbe8fa65a2ecb0b24ac2c130bc807eb96cab85ac1dddb574567a4c"
+  }
 }

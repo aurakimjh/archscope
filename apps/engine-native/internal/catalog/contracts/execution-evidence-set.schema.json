@@ -222,6 +222,13 @@
               "symbol": {
                 "type": "string",
                 "maxLength": 1024
+              },
+              "section": {
+                "enum": [
+                  "problematic",
+                  "native",
+                  "java"
+                ]
               }
             }
           }
