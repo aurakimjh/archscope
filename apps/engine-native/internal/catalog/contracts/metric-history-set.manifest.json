@@ -1,0 +1,49 @@
+{
+  "id": "diagnostics.metric-history.v1",
+  "version": "1.0.0",
+  "synthetic": true,
+  "producer": "opentelemetry-python",
+  "producer_version": "1.38.0",
+  "schema_sha256": "b5fbc193683aafe569b23ed8097850f0c8b09970e50e2d1df056508714b4e766",
+  "files": [
+    {
+      "file": "LICENSE.txt",
+      "sha256": "99323b13e770aa1507cbfe17b82219278788ca8b7edfcb02a6a3ecbfe29182a1"
+    },
+    {
+      "file": "README.md",
+      "sha256": "fbfc363233a7aabf548918de3d67a7885b7fb655f96b440a9f606cb850c474f4"
+    },
+    {
+      "file": "generate_sdk.py",
+      "sha256": "310774a193fc79c73288bf328265171999806ade9a03b5335255b3efb927c2b9"
+    },
+    {
+      "file": "metric-history-set.json",
+      "sha256": "38fffe098fb50bc3dd2317a7d4ec245a99824b1c15bed5cafa216ffcc8d938bf"
+    },
+    {
+      "file": "metric-history-set.schema.json",
+      "sha256": "b5fbc193683aafe569b23ed8097850f0c8b09970e50e2d1df056508714b4e766"
+    },
+    {
+      "file": "prometheus-query.json",
+      "sha256": "6ee993652ad2eac946187a9ec582f78373d66187c013359f1dbe18341d5ee6cc"
+    },
+    {
+      "file": "prometheus-range.json",
+      "sha256": "53e9c28a246e71d511523b90c8e78c7ef6c67e8e9f7d32e51c7a50b954bb3ab0"
+    },
+    {
+      "file": "sdk-python-1.38.0.otlp.json",
+      "sha256": "6dfa5439a2780d28ceda8af4e2058c1e7e3651ed28addf2969901c368d16b9b2"
+    },
+    {
+      "file": "snapshots.json",
+      "sha256": "ea5e576ce8e6e3e9e8f97fd89ba125ca9d1f7d9066aca4a2fbd5c834cfca2818"
+    }
+  ],
+  "scenario": "metric-history-contract",
+  "description": "SDK 실출력과 중립 snapshot/range 시계열의 exact 구간·bucket·출처 계약 합성 표본",
+  "normalizer": "1.0.0"
+}

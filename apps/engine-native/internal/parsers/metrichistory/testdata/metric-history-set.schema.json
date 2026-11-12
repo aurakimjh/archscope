@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Exact metric history transport v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "normalizer",
+    "sources",
+    "series",
+    "points",
+    "deduplicated_points",
+    "warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "normalizer": {
+      "const": "1.0.0"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "type": "object"
+      }
+    },
+    "series": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": {
+        "type": "object"
+      }
+    },
+    "points": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {
+        "type": "object"
+      }
+    },
+    "deduplicated_points": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "warnings": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$comment": "Identity hashes, exact number and histogram semantics are additionally enforced by the compiled validator."
+}

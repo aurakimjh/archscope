@@ -16,6 +16,8 @@ for p in sorted((app/'internal/packs/assets').iterdir()):
 # facades outside this registry retain their independent regression suites.
 cases=[{'importer':'server.tomcat','input':'catalog/server.log','options':{},'summary':{'total_events':'3'}}, {'importer':'profile.set-json','input':'catalog/profile-set.json','options':{'profile_ids':['worker-a','worker-b'],'metric_id':'duration'},'summary':{}}, {'importer':'data.synthetic-metrics','input':'packs/fixture-input.jsonl','options':{},'summary':{'total_samples':'2'}}]
 cases.append({'importer':'profile.source-set-json','input':'catalog/profile-source-set.json','options':{'profile_ids':['profile-0','profile-1'],'metric_id':'sampled-seconds'},'summary':{}})
+metric_model=json.loads(files['catalog/metric-history-set.json'])
+cases.append({'importer':'metrics.history-json','input':'catalog/metric-history-set.json','options':{'series_ids':[metric_model['series'][0]['id']]},'summary':{'point_count':'2'}})
 # Keep names aligned with the signed bootstrap pack's human-readable fixtures.
 for c in cases:
  if c['importer']=='data.synthetic-metrics':

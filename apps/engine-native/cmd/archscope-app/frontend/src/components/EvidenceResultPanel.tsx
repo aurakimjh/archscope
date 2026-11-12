@@ -1,3 +1,5 @@
+import { MetricSourceAssistance } from "@/components/MetricSourceAssistance";
+import { MetricHistoryExplorer } from "@/components/MetricHistoryExplorer";
 import { ProfileEvidenceExplorer } from "@/components/ProfileEvidenceExplorer";
 import { ProfileSourceAssistance } from "@/components/ProfileSourceAssistance";
 import { InputAssistance } from "@/components/InputAssistance";
@@ -172,6 +174,7 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
       <Button variant="outline" disabled={busy || !path} onClick={() => void openSaved()}>{words("Open saved result", "저장 결과 열기")}</Button>
       <Button variant="outline" disabled={!busy && !job} onClick={cancel}>{words("Cancel", "취소")}</Button>
     </div>
+    <MetricSourceAssistance path={path} disabled={busy} useNormalized={(file, selection) => { setPath(file); setImporter("metrics.history-json"); setOptions(selection); }} />
     <ProfileSourceAssistance path={path} disabled={busy} useNormalized={(file, selection) => { setPath(file); setImporter("profile.source-set-json"); setOptions(selection); }} />
     <InputAssistance path={path} scope={presetScope} chooseImporter={setImporter} />
     <details><summary>{words("Import options", "가져오기 옵션")}</summary>
@@ -192,6 +195,7 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
       <div className="flex flex-wrap items-center gap-2"><strong>{safeDisplayText(caps.type)}</strong><Button size="sm" variant="outline" disabled={busy} onClick={() => void addToWorkspace()}>{words("Add to Workspace", "Workspace에 추가")}</Button>
         <Button size="sm" variant="outline" disabled={busy} onClick={() => void (async () => { try { const destination = await Dialogs.SaveFile({ Title: words("Save exact result", "원본 정밀도 결과 저장"), Filename: "evidence.json" }); if (destination) await bridge.exportEvidenceResult(caps.handle, destination, "raw-json"); } catch (error) { setProblem(resultProblem(error)); } })()}>{words("Save result JSON", "결과 JSON 저장")}</Button>
       </div>
+      {caps.type === "metrics_timeseries" && caps.payload_version === "0.1.0" && <MetricHistoryExplorer handle={caps.handle} />}
       {caps.type === "profile_evidence" && ["0.2.0", "0.3.0", "0.4.0"].includes(caps.payload_version ?? "") && <ProfileEvidenceExplorer handle={caps.handle} caseRef={active?.saved_case} />}
       <p className="text-xs">{words("Declared identity; original sources have not been verified by reimport.", "선언된 식별 정보이며 원본 재가져오기로 검증한 상태가 아닙니다.")}</p>
       {!caps.compatibility.allowed && <p role="status">{words("Read-only fallback", "읽기 전용 기본 표시")}: {safeDisplayText(caps.compatibility.reason || "")}</p>}

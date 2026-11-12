@@ -387,6 +387,10 @@ export function DescribeEvidenceResult(handle: string): $CancellablePromise<anal
     });
 }
 
+export function DescribeMetricQuery(handle: string): $CancellablePromise<string> {
+    return $Call.ByID(612923626, handle);
+}
+
 export function DescribeProfileQuery(handle: string): $CancellablePromise<string> {
     return $Call.ByID(2622781381, handle);
 }
@@ -572,6 +576,14 @@ export function ImportEvidence(req: $models.EvidenceImportRequest): $Cancellable
  * Sources stay backend-owned; inspection returns bounded inventory only, and
  * normalization writes a new model file for the existing generic import jobs.
  */
+export function InspectMetricSource(path: string, optionsJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(438350944, path, optionsJSON);
+}
+
+/**
+ * Sources stay backend-owned; inspection returns bounded inventory only, and
+ * normalization writes a new model file for the existing generic import jobs.
+ */
 export function InspectProfileSource(path: string, optionsJSON: string): $CancellablePromise<string> {
     return $Call.ByID(200477639, path, optionsJSON);
 }
@@ -600,12 +612,20 @@ export function LoadEvidenceResult(path: string): $CancellablePromise<analysis$0
     });
 }
 
+export function MaterializeMetricView(handle: string, digest: string, selectionJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(4111896941, handle, digest, selectionJSON);
+}
+
 export function MaterializeProfileView(handle: string, digest: string, selectionJSON: string): $CancellablePromise<string> {
     return $Call.ByID(89147784, handle, digest, selectionJSON);
 }
 
 export function NormalizeLegacyProfileSet(path: string, format: string): $CancellablePromise<string> {
     return $Call.ByID(3489070610, path, format);
+}
+
+export function NormalizeMetricSource(path: string, optionsJSON: string, expectedSHA256: string, output: string): $CancellablePromise<string> {
+    return $Call.ByID(1477521459, path, optionsJSON, expectedSHA256, output);
 }
 
 export function NormalizeProfileSource(path: string, optionsJSON: string, expectedSHA256: string, output: string): $CancellablePromise<string> {
@@ -660,6 +680,10 @@ export function QueryEvidenceProvider(handle: string, provider: string, offset: 
     return $Call.ByID(2161125665, handle, provider, offset, limit).then(($result: any) => {
         return $$createType18($result);
     });
+}
+
+export function QueryMetricHistory(handle: string, digest: string, requestJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(1461655219, handle, digest, requestJSON);
 }
 
 export function QueryProfileEvidence(handle: string, digest: string, requestJSON: string): $CancellablePromise<string> {

@@ -1,0 +1,27 @@
+{
+  "id": "diagnostics.text-index-redaction",
+  "version": "0.2.0",
+  "scope": "파생 검색 본문과 근거 표시 전용. 원본 및 기존 저장 결과는 변경하지 않는다.",
+  "rules": [
+    {
+      "id": "authorization",
+      "pattern": "(?i)(\\bAuthorization:\\s*(?:Bearer|Basic)\\s+)(?:<TOKEN len=\\d+>(?: len=\\d+>)*|<REDACTED_AUTH>|[^\\s\"']+)",
+      "replacement": "${1}<REDACTED_AUTH>"
+    },
+    {
+      "id": "key-value",
+      "pattern": "(?i)(\\b(?:[a-z0-9_.-]*[_.-])?(?:password|passwd|secret|token|api[_-]?key|access[_-]?key)[\"']?\\s*[:=]\\s*)(?:\"[^\"\\n]*\"|'[^'\\n]*'|<REDACTED>|[^\\s,;\\]}]+)",
+      "replacement": "${1}<REDACTED>"
+    },
+    {
+      "id": "jwt",
+      "pattern": "\\beyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\b",
+      "replacement": "<REDACTED_JWT>"
+    },
+    {
+      "id": "aws-access-key",
+      "pattern": "\\b(?:AKIA|ASIA)[A-Z0-9]{16}\\b",
+      "replacement": "<REDACTED_AWS_KEY>"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+=== RUN   TestT638GenericImportQueryMaterializeCaseAndExports
+--- PASS: TestT638GenericImportQueryMaterializeCaseAndExports (0.12s)
+=== RUN   TestT638MetricTimelineScaleAndUntimedAvailability
+=== RUN   TestT638MetricTimelineScaleAndUntimedAvailability/8000
+    metric_history_test.go:154: points=8000 untimed=1 bytes=13429170 cold=470.737167ms warm3=618.25µs
+=== RUN   TestT638MetricTimelineScaleAndUntimedAvailability/16000
+    metric_history_test.go:154: points=16000 untimed=1 bytes=26897176 cold=958.720625ms warm3=686.583µs
+--- PASS: TestT638MetricTimelineScaleAndUntimedAvailability (5.76s)
+    --- PASS: TestT638MetricTimelineScaleAndUntimedAvailability/8000 (1.90s)
+    --- PASS: TestT638MetricTimelineScaleAndUntimedAvailability/16000 (3.86s)
+PASS
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analysis	6.227s

@@ -89,6 +89,9 @@ func init() {
 			return nil, e
 		}
 		defer f.Close()
+		if stat, err := f.Stat(); err == nil && stat.Size() > cases.MaxObjectBytes {
+			return nil, cases.ResultSizeError(stat.Size())
+		}
 		body, e := io.ReadAll(io.LimitReader(f, cases.MaxObjectBytes+1))
 		if e != nil {
 			return nil, e

@@ -4,14 +4,13 @@
 
 ## 미처리
 
-| 날짜 | 문서 | 대상 | 판정 |
-|---|---|---|---|
-| 2026-11-12 | [T-635 정규 프로파일 조회·케이스 검색·재분석 검증 baseline 구현 독립 리뷰](2026-11-12_claude-code_T-635_implementation-review.ko.md) | `befd5f3` | 조건부 (P1·P2 없음, P3 4). 위조 pin·원본 변조·stale·매핑 우회 시나리오가 모두 거부되고 T-634 R11 수정도 확인. R12-01 비교 쪽마다 전체 재분석(쪽당 약 3.4 s), R12-02 top 정렬, R12-03 `password=` 색인 저장, R12-04 결과 64 MiB 상한. T-635 DONE 복귀 허용. |
+없음.
 
 ## 처리 기록
 
 | 날짜 | 문서 | 대상 | 판정·처리 |
 |---|---|---|---|
+| 2026-11-12 | [T-635 정규 조회·케이스 검색·재분석 baseline 독립 리뷰](done/2026-11-12_claude-code_T-635_implementation-review.ko.md) | `befd5f3` | CONDITIONAL(P3 4, 차단 없음). R12-01→R12-03→R12-02→R12-04를 작업표에 기록한 뒤 원문 보관. T-638 진행 중 R12-01–R12-04 로컬 수정·검증 완료. 원 리뷰의 후속 큐 기록 후 종결 허용에 따라 T-635 DONE. 원 CONDITIONAL 및 네이티브 UI/Windows 범위 보존, 최종 독립 PASS 주장 없음. 근거: evidence/2026-11-12-t638/local.json. |
 | 2026-11-12 | [T-634 원본 측정 의미 독립 리뷰](done/2026-11-12_claude-code_T-634_implementation-review.ko.md) | `eaa8c54` | CONDITIONAL(P2 1/P3 3). R11-01→R11-02→R11-03/R11-04를 작업표에 기록 후 원문 보관. T-635 baseline 선행 조건으로 normalizer 1.1.0 / payload 0.4.0의 원본 type·unit 및 정책 독립 비교 identity를 추가하고 기존 0.3.0 hash/저장 reader는 보존, 비교는 재분석 필요로 제한. 수치 한도·정책 basis/경고·none 단위도 로컬 수정. 원 R11-01 처리 후 종결 허용에 따라 T-634 DONE; 원 판정은 CONDITIONAL, 최종 독립 PASS는 주장하지 않음. 근거: evidence/2026-11-12-t635/local.json. |
 | 2026-11-12 | [T-633 입력 안내·수동 수집·로컬 JFR 변환 구현 독립 리뷰](done/2026-11-12_claude-code_T-633_implementation-review.ko.md) | `3d443d3` | CONDITIONAL(P2 1/P3 4). R10-01→R10-04/R10-03→R10-02→R10-05를 작업표에 반영 후 원문 보관. R10-01–R10-05 로컬 수정·검증 완료. 원 리뷰의 R10-01 수정 후 종결 허용에 따라 T-633 DONE. 원 CONDITIONAL 유지, 최종 수정의 독립 재리뷰·Windows 네이티브 관측은 별도. 근거: evidence/2026-11-12-t633-r10/local.json. |
 | 2026-11-12 | [T-632 구현 독립 리뷰](done/2026-11-12_claude-code_T-632_implementation-review.ko.md) | `34dbd8f` | CONDITIONAL(P2 1/P3 3). R9-01→R9-02→R9-03→R9-04를 작업표에 반영 후 원문 보관. R9-01–R9-04 로컬 수정/검증 완료. 원 리뷰의 R9-01 수정 후 종결 허용에 따라 T-632 DONE. 원 CONDITIONAL 유지; 최종 수정의 독립 재리뷰 및 Windows 네이티브 관측은 별도. 근거: evidence/2026-11-12-t632-r9/local.json. |

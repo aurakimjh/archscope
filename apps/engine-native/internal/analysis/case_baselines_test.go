@@ -69,8 +69,19 @@ func TestT635VerifiedDurableBaselineReimportPolicyAndTamper(t *testing.T) {
 	}
 	compare.Cursor = diff.Next
 	next, e := service.CompareCaseBaseline(ctx, store, compare)
-	if e != nil || next.Difference.Rows[0].ID == diff.Difference.Rows[0].ID {
+	if e != nil || !next.CacheHit || next.VerificationScope == "" || diff.CacheHit || next.Difference.Rows[0].ID == diff.Difference.Rows[0].ID {
 		t.Fatal(next, e)
+	}
+	// Warm pages must still hash originals. Restoring bytes permits the same
+	// query, but a changed original must never borrow the cached verification.
+	if err := os.WriteFile(rightPath, []byte("changed"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if _, e = service.CompareCaseBaseline(ctx, store, compare); e == nil {
+		t.Fatal("cache hid changed original")
+	}
+	if err := os.WriteFile(rightPath, []byte("root;leaf 0.5\nroot 0\n"), 0600); err != nil {
+		t.Fatal(err)
 	}
 	compare.Cursor = ""
 	forged, forgedSource, _ := save("forged", "root 1\n", `{"rate":100}`, true)

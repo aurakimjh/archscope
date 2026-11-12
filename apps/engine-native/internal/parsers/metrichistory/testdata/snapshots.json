@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0.0",
+  "snapshots": [
+    {
+      "time_unix_nano": "1000000000",
+      "metrics": [
+        {
+          "name": "requests",
+          "unit": "{request}",
+          "kind": "sum",
+          "temporality": "cumulative",
+          "monotonic": true,
+          "start_time_unix_nano": "1000000000",
+          "attributes": {
+            "role": "server"
+          },
+          "value": "9007199254740993"
+        }
+      ]
+    },
+    {
+      "time_unix_nano": "2000000000",
+      "metrics": [
+        {
+          "name": "requests",
+          "unit": "{request}",
+          "kind": "sum",
+          "temporality": "cumulative",
+          "monotonic": true,
+          "start_time_unix_nano": "1000000000",
+          "attributes": {
+            "role": "server"
+          },
+          "value": "9007199254741000"
+        }
+      ]
+    },
+    {
+      "time_unix_nano": "4000000000",
+      "metrics": [
+        {
+          "name": "requests",
+          "unit": "{request}",
+          "kind": "sum",
+          "temporality": "cumulative",
+          "monotonic": true,
+          "start_time_unix_nano": "3000000000",
+          "attributes": {
+            "role": "server"
+          },
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "time_unix_nano": "5000000000",
+      "metrics": [
+        {
+          "name": "requests",
+          "unit": "{request}",
+          "kind": "sum",
+          "temporality": "cumulative",
+          "monotonic": true,
+          "start_time_unix_nano": "3000000000",
+          "attributes": {
+            "role": "server"
+          },
+          "value": "4"
+        }
+      ]
+    }
+  ]
+}

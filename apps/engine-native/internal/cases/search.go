@@ -82,7 +82,7 @@ type searchCursor struct {
 }
 
 func cleanSearch(s string) (string, bool) {
-	s = common.RedactText(s).Text
+	s = common.RedactIndexText(s)
 	cut := len(s) > 2048
 	if cut {
 		s = s[:2048]
@@ -130,7 +130,7 @@ func (s *Store) Search(ctx context.Context, q SearchQuery) (SearchPage, error) {
 	}
 	// Even a cache hit must recheck original bytes. Missing/changed sources are
 	// coverage gaps and invalidate prior cursors, never stale successful links.
-	state := []any{SearchVersion, common.RedactionVersion, m}
+	state := []any{SearchVersion, common.IndexRedactionVersion, common.IndexRedactionSHA256, m}
 	available := map[string]bool{}
 	for _, v := range m.Sources {
 		if e = ctx.Err(); e != nil {
@@ -406,7 +406,7 @@ func (s *Store) OpenEvidence(ctx context.Context, caseID, revision, sourceID, di
 		return page, problem("CASE_LINK_OUTSIDE_INDEX", "line is outside indexed prefix; no coordinate is invented")
 	}
 	for i := range page.Lines {
-		page.Lines[i].Text = common.RedactText(page.Lines[i].Text).Text
+		page.Lines[i].Text = common.RedactIndexText(page.Lines[i].Text)
 	}
 	return page, nil
 }

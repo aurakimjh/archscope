@@ -1,0 +1,28 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "matrix",
+    "result": [
+      {
+        "metric": {
+          "__name__": "request_count",
+          "role": "server"
+        },
+        "values": [
+          [
+            1,
+            "9007199254740993"
+          ],
+          [
+            2,
+            "NaN"
+          ],
+          [
+            4,
+            "9007199254741000"
+          ]
+        ]
+      }
+    ]
+  }
+}

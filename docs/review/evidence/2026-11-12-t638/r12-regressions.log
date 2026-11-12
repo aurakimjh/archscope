@@ -1,0 +1,4 @@
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/common	0.340s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/cases	3.750s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/profilemodel	0.452s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analysis	18.580s

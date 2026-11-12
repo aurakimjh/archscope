@@ -10,18 +10,19 @@ export function ProfileEvidenceExplorer({ handle, caseRef }: { handle: string; c
   const scope = useRef(new ResultRequestScope());
   const [inventory, setInventory] = useState<bridge.ProfileQueryInventory | null>(null);
   const [selection, setSelection] = useState<bridge.ProfileSelection>({ profile_ids: [], metric_id: "" });
+  const [sort, setSort] = useState("self");
   const [view, setView] = useState("top"); const [frame, setFrame] = useState(""); const [text, setText] = useState("");
   const [filters, setFilters] = useState("[]"); const [from, setFrom] = useState(""); const [to, setTo] = useState("");
   const [original, setOriginal] = useState<Awaited<ReturnType<typeof bridge.openProfileEvidence>> | null>(null);
   const [page, setPage] = useState<bridge.ProfileQueryPage | null>(null); const [busy, setBusy] = useState(false); const [error, setError] = useState("");
   useEffect(() => { const r = scope.current.begin(); setInventory(null); setPage(null); setOriginal(null); setBusy(true); setError(""); void scope.current.wait(r, bridge.describeProfileQuery(handle)).then(value => { setInventory(value); setSelection(value.selection); setFilters(JSON.stringify(value.selection.filters ?? [])); }).catch(e => { if (scope.current.current(r)) setError(String(e)); }).finally(() => { if (scope.current.current(r)) setBusy(false); }); return () => scope.current.cancel(); }, [handle]);
-  const key = JSON.stringify([selection, view, frame, text, filters, from, to]);
+  const key = JSON.stringify([selection, view, sort, frame, text, filters, from, to]);
   useEffect(() => { if (!inventory) return; scope.current.cancel(); setPage(null); setOriginal(null); setBusy(false); }, [key]);
   async function query(cursor = ""): Promise<void> {
     if (!inventory) return; const r = scope.current.begin(); setBusy(true); setError("");
     try {
       // Filter paths are IDs only. No weights or unknown metadata pass through JS.
-      const q = { selection: { ...selection, filters: JSON.parse(filters) as unknown }, view, frame_id: frame, text, cursor, limit: 25, ...(from ? { time_from: from } : {}), ...(to ? { time_to: to } : {}) };
+      const q = { selection: { ...selection, filters: JSON.parse(filters) as unknown }, view, ...(view === "top" ? { sort } : {}), frame_id: frame, text, cursor, limit: 25, ...(from ? { time_from: from } : {}), ...(to ? { time_to: to } : {}) };
       const value = await scope.current.wait(r, bridge.queryProfileEvidence(handle, inventory.result_sha256, JSON.stringify(q)));
       if (value.version !== "1.0.0" || value.result_sha256 !== inventory.result_sha256) throw new Error("stale_profile_query"); setPage(value);
     } catch (e) { if (scope.current.current(r)) setError(String(e)); }
@@ -50,6 +51,7 @@ export function ProfileEvidenceExplorer({ handle, caseRef }: { handle: string; c
         {inventory.profiles.map(p => <label className="block" key={p.id}><input type="checkbox" checked={selection.profile_ids.includes(p.id)} onChange={e => setSelection(s => ({ ...s, profile_ids: e.target.checked ? [...s.profile_ids, p.id] : s.profile_ids.filter(id => id !== p.id) }))} /> {safeDisplayText(p.worker || p.id)} · {safeDisplayText(p.process || "")}</label>)}
         <label className="block">{w("Ordered conjunctive frame-ID filters (JSON)", "순서 있는 frame-ID 결합 필터 (JSON)")}<textarea className="w-full rounded border border-border bg-background p-2" value={filters} onChange={e => setFilters(e.target.value)} /></label>
         <select aria-label={w("Profile view", "프로파일 보기")} value={view} onChange={e => setView(e.target.value)}>{["top", "tree", "callers", "callees", "evidence"].map(id => <option key={id}>{id}</option>)}</select>
+        {view === "top" && <select aria-label={w("Top sort", "Top 정렬")} value={sort} onChange={e => setSort(e.target.value)}><option value="self">Top self</option><option value="inclusive">Top inclusive</option></select>}
         <input aria-label={w("Frame ID", "Frame ID")} value={frame} onChange={e => setFrame(e.target.value)} placeholder={w("Frame ID for callers/callees/evidence", "callers/callees/evidence의 frame ID")} className="w-full" />
         <input aria-label={w("Profile search", "프로파일 검색")} value={text} onChange={e => setText(e.target.value)} placeholder={w("Literal frame / ID / reference search", "frame·ID·근거 참조 문자열 검색")} />
         <input aria-label={w("Evidence window start", "근거 시간창 시작")} value={from} onChange={e => setFrom(e.target.value)} placeholder={w("Start (evidence only)", "시작 (evidence만)")} /> <input aria-label={w("Evidence window end", "근거 시간창 끝")} value={to} onChange={e => setTo(e.target.value)} placeholder={w("Exclusive end", "끝 (미포함)")} />

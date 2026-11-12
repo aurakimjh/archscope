@@ -979,8 +979,22 @@ part of metric identity without a producer policy; unitless Speedscope weights
 are generic count, not proven samples. Source 0.3.0 snapshots keep old bytes and
 hashes/read/save/query/export, but comparisons require new original reimport.
 New compiled policy snapshots disclose declared/file-exporter basis and warnings.
-Durable verified reuse replays both original sources every time and preserves
-identity_basis=declared. Existing generic scalar comparison stays strict; the new
+Durable verified reuse replays both originals on a new query and rechecks both
+original/result byte hashes and full case bindings on every page, preserving
+identity_basis=declared. R12 permits only a bounded process-local validated diff
+cache; imported receipts never grant verification. Existing generic scalar comparison stays strict; the new
 canonical/baseline consumer uses qualified policies. Clock alignment and unknown
 producer promotion are not inferred. Native Windows/UI and independent review
 remain separate from local implementation verification.
+
+### T-638 metric history
+
+[Exact metric history](METRIC_HISTORY.md) defines MetricHistory model/normalizer
+1.0.0, `metrics.history-json` transport and `metrics_timeseries` payload 0.1.0.
+Neutral snapshot sequences, explicit-provenance Prometheus range matrices and
+OTLP JSON preserve exact values, resource/scope/schema/attribute identity and
+temporality. Delta/cumulative/reset/gap/overlap and explicit/exponential buckets
+remain distinct. Generic detail/timeline and saved-result query/export share the
+common envelope. SDK Python 1.38.0 synthetic fixtures qualify only that slice;
+Q04/GenAI aliases and native acceptance stay separate. Legacy metrics_snapshot
+semantics are unchanged; there is no automatic cross-series sum or quantile math.

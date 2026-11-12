@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analysis"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/cases"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/profilemodel"
 )
 
@@ -103,4 +105,51 @@ func (s *EngineService) OpenProfileEvidence(ctx context.Context, caseID, revisio
 		return "", e
 	}
 	return caseJSON(service.OpenProfileEvidence(ctx, store, caseID, revision, resultID, resultSHA, sourceID, sourceSHA, reference))
+}
+
+func (s *EngineService) DescribeMetricQuery(ctx context.Context, handle string) (string, error) {
+	service, e := s.evidence()
+	if e != nil {
+		return "", e
+	}
+	return metricInventoryJSON(service.MetricInventory(ctx, handle))
+}
+func (s *EngineService) QueryMetricHistory(ctx context.Context, handle, digest, requestJSON string) (string, error) {
+	q, e := decodeMetricQuery([]byte(requestJSON))
+	if e != nil {
+		return "", e
+	}
+	service, e := s.evidence()
+	if e != nil {
+		return "", e
+	}
+	return caseJSON(service.QueryMetricHistory(ctx, handle, digest, q))
+}
+
+func decodeMetricQuery(body []byte) (metricmodel.Query, error) {
+	var q metricmodel.Query
+	if len(body) > 64<<10 {
+		return q, fmt.Errorf("METRIC_QUERY_BUDGET")
+	}
+	return q, metricmodel.Strict(body, &q)
+}
+
+func (s *EngineService) MaterializeMetricView(ctx context.Context, handle, digest, selectionJSON string) (string, error) {
+	var selection metricmodel.Selection
+	e := metricmodel.Strict([]byte(selectionJSON), &selection)
+	if e != nil {
+		return "", e
+	}
+	service, e := s.evidence()
+	if e != nil {
+		return "", e
+	}
+	view, lease, e := service.MaterializeMetricSelection(ctx, handle, digest, selection)
+	if e != nil {
+		return "", e
+	}
+	return caseJSON(struct {
+		View  analysis.ResultView  `json:"view"`
+		Lease analysis.ResultLease `json:"lease"`
+	}{view, lease}, nil)
 }

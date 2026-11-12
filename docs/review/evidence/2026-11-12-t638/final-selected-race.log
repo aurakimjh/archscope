@@ -1,0 +1,7 @@
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analysis	69.618s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory	1.243s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/catalog	1.313s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/distribution	3.891s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/common	1.275s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/cases	1.354s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/profilemodel	1.305s

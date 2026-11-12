@@ -3,7 +3,6 @@ package analysis
 import (
 	"context"
 	"crypto/sha256"
-	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -56,6 +55,8 @@ type BaselineComparisonRequest struct {
 	Mapping        []profilemodel.EntityMapping `json:"mapping,omitempty"`
 }
 type BaselineComparison struct {
+	CacheHit           bool                         `json:"cache_hit"`
+	VerificationScope  string                       `json:"verification_scope"`
 	ContextMapping     *ContextMapping              `json:"context_mapping,omitempty"`
 	Next               string                       `json:"next"`
 	Total              int                          `json:"total"`
@@ -229,13 +230,8 @@ func (s *Service) PinCaseBaseline(parent context.Context, store *cases.Store, re
 	body, _ := json.Marshal(binding)
 	return store.Apply(ctx, cases.Edit{CaseID: req.CaseID, ExpectedRevision: req.Revision, Operation: "baseline", ResultID: req.ResultID, Conditions: body})
 }
-func (s *Service) CompareCaseBaseline(parent context.Context, store *cases.Store, req BaselineComparisonRequest) (BaselineComparison, error) {
+func (s *Service) computeCaseBaseline(ctx context.Context, store *cases.Store, req BaselineComparisonRequest) (BaselineComparison, error) {
 	out := BaselineComparison{Version: BaselineVersion, CaseID: req.CaseID, Revision: req.Revision, BaselineID: req.BaselineID}
-	ctx, finish, e := s.beginLoad(parent)
-	if e != nil {
-		return out, e
-	}
-	defer finish()
 	m, e := store.Get(req.CaseID)
 	if e != nil {
 		return out, e
@@ -290,51 +286,16 @@ func (s *Service) CompareCaseBaseline(parent context.Context, store *cases.Store
 	if _, e = store.SourceSnapshot(ctx, m.ID, m.Revision, target.SourceID); e != nil {
 		return out, e
 	}
-	limit := req.Limit
-	if limit == 0 {
-		limit = 50
-	}
-	if limit < 1 || limit > 200 || len(req.Cursor) > 2048 {
-		return out, fmt.Errorf("BASELINE_QUERY_INVALID")
-	}
 	query := req
 	query.Cursor = ""
 	out.QuerySHA256, _ = canonicalDigest(query)
-	offset := 0
-	if req.Cursor != "" {
-		var cursor struct {
-			Query  string
-			Offset int
-		}
-		raw, e := base64.RawURLEncoding.DecodeString(req.Cursor)
-		if e != nil || json.Unmarshal(raw, &cursor) != nil || cursor.Query != out.QuerySHA256 || cursor.Offset < 0 {
-			return out, fmt.Errorf("BASELINE_CURSOR_STALE")
-		}
-		offset = cursor.Offset
-	}
 	out.Total = len(difference.Rows)
-	if offset > out.Total {
-		return out, fmt.Errorf("BASELINE_CURSOR_STALE")
-	}
-	end := min(offset+limit, out.Total)
-	difference.Rows = difference.Rows[offset:end]
-	if end < out.Total {
-		body, _ := json.Marshal(struct {
-			Query  string
-			Offset int
-		}{out.QuerySHA256, end})
-		out.Next = base64.RawURLEncoding.EncodeToString(body)
-	}
 	out.SourceVerification = "verified_by_reimport"
 	out.Baseline = verified
 	out.Target = target
 	out.Difference = difference
 	out.ContextMapping = req.ContextMapping
 	out.Mapping = req.Mapping
-	body, _ := json.Marshal(out)
-	if len(body) > 1<<20 {
-		return BaselineComparison{}, fmt.Errorf("BASELINE_RESPONSE_BUDGET: reduce selected profiles or capture metadata")
-	}
 	return out, nil
 }
 

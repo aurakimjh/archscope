@@ -14,6 +14,7 @@ import (
 const QueryVersion = "1.0.0"
 
 type Query struct {
+	Sort      string    `json:"sort,omitempty"`
 	Selection Selection `json:"selection"`
 	View      string    `json:"view"`
 	FrameID   string    `json:"frame_id,omitempty"`
@@ -66,7 +67,7 @@ type queryCursor struct {
 // source hash and format-specific reference, never a fabricated line number.
 func QuerySet(ctx context.Context, set ProfileSet, resultSHA string, q Query) (QueryPage, error) {
 	out := QueryPage{Version: QueryVersion, ResultSHA256: resultSHA, Rows: []QueryRow{}, Selection: CopySelection(q.Selection)}
-	if len(resultSHA) != 64 || q.Limit < 1 || q.Limit > 200 || len(q.Text) > 1024 {
+	if len(resultSHA) != 64 || q.Limit < 1 || q.Limit > 200 || len(q.Text) > 1024 || (q.Sort != "" && q.Sort != "self" && q.Sort != "inclusive") || (q.Sort != "" && q.View != "top" && q.View != "callers" && q.View != "callees") {
 		return out, fmt.Errorf("PROFILE_QUERY_INVALID")
 	}
 	identity := q
@@ -214,8 +215,12 @@ func QuerySet(ctx context.Context, set ProfileSet, resultSHA string, q Query) (Q
 			rows = append(rows, QueryRow{ID: id, FrameID: id, Name: queryName(frames[id].Display), Inclusive: Text(n), Self: Text(self[id])})
 		}
 		sort.Slice(rows, func(i, j int) bool {
-			a, _ := Number(rows[i].Inclusive)
-			b, _ := Number(rows[j].Inclusive)
+			left, right := rows[i].Inclusive, rows[j].Inclusive
+			if q.Sort == "self" {
+				left, right = rows[i].Self, rows[j].Self
+			}
+			a, _ := Number(left)
+			b, _ := Number(right)
 			if c := a.Cmp(b); c != 0 {
 				return c > 0
 			}

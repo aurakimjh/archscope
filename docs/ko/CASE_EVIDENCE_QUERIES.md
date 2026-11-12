@@ -64,7 +64,7 @@ time_to, clock, time_unit을 선택적으로 받으며 시간창에는 result_id
 Case store의 `indexes`에 저장하는 파생 색인은 indexer·마스킹 정책·manifest
 리비전·원본 가용성/digest·결과 digest를 고정합니다. Cache hit에서도 원본 바이트와
 결과 object 무결성을 검사합니다. 누락·손상 색인은 재생성하며 정리·재시작이 저장
-결과나 pin을 지우지 않습니다. 파생 본문은 기존 text-mask 0.1.0을 적용한 뒤
+결과나 pin을 지우지 않습니다. 파생 본문은 별도 index-mask 0.2.0을 적용한 뒤
 최대 2 KiB snippet으로 저장합니다. 이 정책은 알려진 패턴만 처리하므로 다른 민감
 값은 입력 전에 제거해야 합니다. 구조화한 ID/digest/좌표는 마스킹 본문과 분리하며
 새 producer 파서를 추가하는 기능이 아닙니다.
@@ -119,3 +119,28 @@ capture 조건이나 unknown/no-policy strict 동등성을 우회할 수 없습�
 pin을 보존하되 검증 권한을 부여하지 않으며 현재 원본이 다시 일치해야 합니다.
 Windows 네이티브/UI 수용 및 독립 리뷰는 로컬 backend/state/build/cross-build 근거와
 구분합니다.
+
+## R12 조회 보완
+
+Top query는 `sort: "self" | "inclusive"`를 받고 query hash/cursor에 고정합니다. 화면의
+Top 기본값은 self이며 API에서 생략하면 기존 inclusive 정렬입니다. 검색은 선택 분모를
+변경하지 않습니다.
+
+Index-mask 0.2.0은 password/secret/token/api-key 대입, JWT, AWS access-key와
+반복 적용 가능한 Authorization 마스킹을 추가합니다. 정책 버전과 내용 digest가 기존
+파생 색인을 무효화합니다. 기존 저장 결과/수집의 text-mask 0.1.0은 유지합니다. 알려진
+패턴만 처리하므로 공유 전에 입력과 본문을 확인해야 합니다. 원본/저장 결과를 수정하지 않습니다.
+
+Baseline은 새 query에서 두 원본을 재분석합니다. 현재 서비스 프로세스에만 존재하는 캐시
+(2항목·합계 128 MiB·2분 만료)가 검증된 전체 차이를 재사용합니다. 페이지마다 원본/결과
+바이트 hash와 전체 case/query/policy binding을 다시 검사합니다. Case receipt나 disk에서
+검증 권한을 읽지 않고 종료 때 캐시를 해제합니다. 만료/miss는 재분석하며 새 CLI 명령은
+별도 프로세스라 매번 재분석합니다. 응답은 cache_hit·verification_scope를 공개하며
+identity_basis는 declared입니다. 정규화/전체 diff를 반복하지 않지만 제한된 diff 복사와
+바이트 해시는 페이지마다 남습니다.
+
+Case 결과 한도는 67,108,864바이트(64 MiB)입니다. 고유 경로가 많은 프로파일은 원본보다
+훨씬 큰 결과를 만들 수 있어 저장/pin이 불가합니다. 오류는 실제 크기·한도·알려진 sample
+수를 표시하며 bounded decode 이전이면 sample 수 미상을 명시합니다. CLI는 읽기 전에
+파일 크기를 검사합니다. Profile/metric 선택이나 수집 시간을 줄여 새 결과를 만드세요.
+관측을 몰래 합치거나 한도를 높이지 않습니다. 네이티브 WebView/Windows와 독립 검토는 별도입니다.

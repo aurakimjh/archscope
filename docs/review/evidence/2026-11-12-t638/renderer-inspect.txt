@@ -1,0 +1,63 @@
+### Page
+- Page URL: http://127.0.0.1:5198/.tmp/t638-renderer.html
+- Page Title: T638 renderer check
+- Console: 0 errors, 1 warnings
+### Snapshot
+```yaml
+- main [ref=f4e3]:
+  - heading "T-638 actual components / synthetic Go outputs" [level=1] [ref=f4e4]
+  - group [ref=f4e5]:
+    - 'generic "Metric history: OTLP / snapshot sequence / Prometheus range" [ref=f4e6]'
+    - paragraph [ref=f4e280]: Select exact series, save a new model, then Analyze. Range exports require query provenance. Identities are declared; client/server and OTLP/Prometheus series stay separate.
+    - group [ref=f4e281]:
+      - generic [ref=f4e282]:
+        - text: Source format
+        - combobox "Source format" [ref=f4e283]:
+          - option "auto" [selected]
+          - option "otlp-json"
+          - option "snapshot-sequence-json"
+          - option "prometheus-range-json"
+      - generic [ref=f4e284]:
+        - text: Declared producer (optional)
+        - textbox "Declared producer (optional)" [ref=f4e285]:
+          - /placeholder: opentelemetry-python
+      - generic [ref=f4e286]:
+        - text: Declared version (optional)
+        - textbox "Declared version (optional)" [ref=f4e287]:
+          - /placeholder: 1.38.0
+      - generic [ref=f4e288]:
+        - text: Query provenance (JSON)
+        - textbox "Query provenance (JSON)" [ref=f4e289]: "{}"
+      - button "Inspect metric source" [ref=f4e290]
+      - generic [ref=f4e291]:
+        - paragraph [ref=f4e292]: SHA-256 6dfa5439a2780d28ceda8af4e2058c1e7e3651ed28addf2969901c368d16b9b2 · 8 points
+        - generic [ref=f4e293]:
+          - generic [ref=f4e294]:
+            - checkbox "payload.size · By · exponential_histogram/cumulative" [ref=f4e295]
+            - text: payload.size · By · exponential_histogram/cumulative
+          - group [ref=f4e296]:
+            - generic "Identity" [ref=f4e297]
+        - generic [ref=f4e298]:
+          - generic [ref=f4e299]:
+            - 'checkbox "request.count · {request} · sum/cumulative" [ref=f4e300]'
+            - text: "request.count · {request} · sum/cumulative"
+          - group [ref=f4e301]:
+            - generic "Identity" [ref=f4e302]
+        - generic [ref=f4e303]:
+          - generic [ref=f4e304]:
+            - 'checkbox "request.active · {request} · sum/cumulative" [ref=f4e305]'
+            - text: "request.active · {request} · sum/cumulative"
+          - group [ref=f4e306]:
+            - generic "Identity" [ref=f4e307]
+        - generic [ref=f4e308]:
+          - generic [ref=f4e309]:
+            - checkbox "request.duration · ms · histogram/cumulative" [ref=f4e310]
+            - text: request.duration · ms · histogram/cumulative
+          - group [ref=f4e311]:
+            - generic "Identity" [ref=f4e312]
+        - paragraph [ref=f4e313]: Source producer/export/query identity is declared; no original-publisher authentication or GenAI alias qualification.
+        - button "Save new model and use selection" [disabled]
+  - group [ref=f4e7]:
+    - generic "Exact metric intervals and provenance" [ref=f4e8]
+    - paragraph [ref=f4e9]: Time windows select point end times [start, end). Intervals are retained whole. Rates are exact fractions per second; gaps are not interpolated. Missing timestamps, resets and ambiguous points remain explicit. Series are never summed automatically.
+```

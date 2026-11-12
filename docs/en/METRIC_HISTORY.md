@@ -1,0 +1,121 @@
+# Exact metric history
+
+T-638 adds `metrics_timeseries` payload 0.1.0 and MetricHistory model / normalizer
+1.0.0. Legacy `metrics_snapshot` import and saved readers retain their semantics.
+The common AnalysisResult envelope, parser/analyzer/exporter separation and
+backend-owned exact values remain unchanged.
+
+## Inputs and qualification
+
+- Timestamped neutral snapshot sequences explicitly declare type, unit,
+  monotonicity, temporality, attributes and optional start time.
+- Prometheus HTTP API range **matrix** JSON requires supplied query provenance
+  (`{"query":"...","step_ns":"1000000000"}`). Query results are gauges with
+  unknown physical unit; names do not prove raw counter type. Query/step enter
+  identity. Missing query metadata is refused. Native histogram matrix values
+  are refused, not interpreted as OTLP exponential histograms.
+- OTLP lowerCamelCase JSON preserves gauge/sum, explicit histogram and exponential
+  histogram structures. Integer enum values, exact integer strings/numbers,
+  resource/scope attributes, scope version and both schema URLs are retained.
+  Unknown message fields are ignored; ambiguous oneofs, duplicate attribute
+  keys, malformed buckets and summary points are refused. Binary OTLP is outside
+  this slice. Finite histogram sum/min/max are supported; non-finite values there
+  are explicitly refused. Scalar NaN/±Inf and no-recorded-value flags remain
+  unavailable observations, not zero values.
+
+The pinned synthetic fixture was actually collected with OpenTelemetry Python
+SDK 1.38.0 and serialized with its official OTLP encoder and protobuf JSON
+mapping. It covers cumulative counter, up/down counter, explicit and exponential
+histograms, exact large integers and resource/scope identity. This qualifies that
+fixture slice only. Q04 still gates the user's export route, instrumentation
+version and GenAI aliases. No source publisher authentication is asserted.
+
+References: [OTel metric model](https://opentelemetry.io/docs/specs/otel/metrics/data-model/),
+[OTLP JSON](https://opentelemetry.io/docs/specs/otlp/#json-protobuf-encoding),
+[Prometheus range API](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries).
+
+## Interval rules
+
+All values, bucket counts, nanosecond times and deltas stay strings. Rates use
+exact rational strings per second. Cumulative sums/histograms are differenced
+only within the same start-time lifetime. The first cumulative point has no
+inferred zero predecessor. An explicit new lifetime after the previous end can
+produce a reset interval; an unexplained monotonic decrease, lifetime overlap,
+conflicting end time, unknown start or missing predecessor produces no rate.
+Non-monotonic sums retain signed changes. Delta points use their supplied value
+once over their own interval. Every overlapping delta interval is unavailable.
+
+Points are ordered by end time for calculation, with original positions and
+reordering flags retained. Explicit cadence gaps expose an average across the
+whole interval without interpolation. Missing delta intervals are disclosed as
+gaps. No cadence is invented for arbitrary cumulative exports. OTLP zero/absent
+time means unavailable; neutral snapshots/range exports can retain Unix epoch
+zero. Untimed points remain in detail and are excluded from timeline projection.
+
+Explicit histogram boundaries/counts and exponential scale, signed offsets,
+positive/negative counts, zero count/threshold remain distinct. Cumulative bucket
+differences require matching schemas and nondecreasing count in every bucket;
+changed exponential scale/threshold is refused for derivation, not silently
+rebucketed. Interval min/max are never subtracted. Original histograms remain
+available separately from derived buckets. No percentile averaging or quantile
+estimation is performed.
+
+A selection filters point **end times** in `[from_ns,to_ns)`. It retains entire
+intervals, including an interval start outside the selection. It never clips or
+rescales values. Series are never summed: units, resource/scope, attributes,
+type/temporality, origin and query distinguish populations. Client/server and
+OTLP/Prometheus copies remain separate. Exemplars preserve explicit IDs as
+optional evidence, without inferred trace correlation.
+
+## Provenance and bounds
+
+Original SHA-256 covers compressed bytes when gzip is used. Normalization keeps
+format coordinates and exact point references. Merge deduplicates only the same
+source hash/position/payload, or a declared export ID bound to format,
+producer/version/position and identical payload. Conflicting payloads remain
+visible; different exports are not deduplicated by matching timestamps alone.
+Original/source/result identity is declared, not a reimport-verified baseline.
+
+Original and gzip-decoded inputs are bounded to 64 MiB (neutral snapshot JSON
+validation currently also applies the 32 MiB model JSON ceiling). Models are
+32 MiB, 128 source references, 10,000 series, 100,000 points, 4,096 buckets per
+side and 500,000 total buckets. Explicit histograms allow 4,096 boundaries and
+4,097 counts. Merges also cap expanded provenance references at 100,000. Result
+and case objects remain 64 MiB. Original imports allow two concurrent operations
+and a five-minute deadline. Common jobs retain their independent lower configured
+budgets and use ≤256 KiB chunks, not a single oversized record. Queries allow
+1–200 rows and 1 MiB; generic providers retain 100 rows / 256 KiB. Requests and
+options are bounded; very large selections may require a smaller series set.
+Limits fail explicitly without dropping observations to fit.
+
+## CLI and desktop
+
+```
+archscope-engine metrics history-inspect --in export.json --producer opentelemetry-python --producer-version 1.38.0
+archscope-engine metrics history-normalize --in export.json --out model.json
+archscope-engine evidence import --in model.json --importer metrics.history-json --options '{"series_ids":["metric-..."]}' --out result.json
+archscope-engine metrics history-query --in result.json --query '{"selection":{"series_ids":["metric-..."]},"limit":25}'
+archscope-engine metrics history-merge --inputs model-a.json,model-b.json --out merged.json
+```
+
+`metrics history-import` directly creates a result from an original, selecting
+all retained series unless `--selection` is supplied. `--query` supplies range
+provenance on original imports. Normalization/merge publish a new file and refuse
+existing destinations and managed-store paths. No receiver or network fetch runs.
+
+In Workspace, open **Metric history**, inspect the original, explicitly select
+series, save a new model, then Analyze. The generic importer is
+`metrics.history-json` (alias `metric-history`). **Exact metric intervals and
+provenance** exposes identity, exact values/rates, original and derived buckets,
+status, coordinates, windows and paged queries. **Add selection as new result**
+creates a new owned result; late canceled results release their leases. Query
+cursors bind result digest and selection/window/page identity. Saved case bytes
+and JSON exports remain unchanged. Generic detail/timeline, CSV/HTML/report-pack
+work without adding a product-specific result envelope. Metric comparison/SLI
+policy, automatic source alignment and native UI/Windows acceptance remain separate.
+
+Exact decimal literals are limited to 1,024 characters, exponent ±128 and
+128 fractional places; values outside these numeric bounds are explicitly refused.
+
+Desktop series identities travel as opaque `identity_json` strings, keeping large
+numeric attributes exact during JavaScript display. Selection uses backend IDs.

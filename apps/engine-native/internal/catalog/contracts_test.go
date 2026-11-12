@@ -46,7 +46,13 @@ func TestBundledConformanceAssetsMatchManifest(t *testing.T) {
 		t.Fatal(e)
 	}
 	list := c.List()
-	if len(list) != 3 || list[0].ID != "profile.set-json" || list[1].ID != "profile.source-set-json" || list[2].ID != "server.tomcat" || list[0].SupportStatus != "limited" || list[1].SupportStatus != "limited" || list[2].SupportStatus != "limited" {
-		t.Fatal("unqualified products were activated", list)
+	want := []string{"metrics.history-json", "profile.set-json", "profile.source-set-json", "server.tomcat"}
+	if len(list) != len(want) {
+		t.Fatal("unexpected importer count", len(list))
+	}
+	for i, id := range want {
+		if list[i].ID != id || list[i].SupportStatus != "limited" {
+			t.Fatal("unqualified product activated", list[i])
+		}
 	}
 }

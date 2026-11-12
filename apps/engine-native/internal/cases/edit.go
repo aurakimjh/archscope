@@ -385,7 +385,7 @@ type SaveResult struct {
 
 func (s *Store) SaveResult(req SaveResult, body []byte) (Manifest, error) {
 	if len(body) > MaxObjectBytes {
-		return Manifest{}, problem("CASE_BUDGET_EXCEEDED", "result byte limit")
+		return Manifest{}, ResultSizeError(int64(len(body)))
 	}
 	r, e := resultcontract.DecodeWithLimits(body, wirejson.ResultLimits(MaxObjectBytes, ingestion.DefaultBudgets().StackDepth))
 	if e != nil {

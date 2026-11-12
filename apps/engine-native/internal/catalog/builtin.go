@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	metricanalyzer "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/metrichistory"
 	profileanalyzer "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/profile"
 	analyzer "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/serverlog"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
@@ -120,7 +121,7 @@ func ResultRegistry() (*resultcontract.Registry, error) {
 		}
 		return nil
 	}, Type: "server_log", Payload: resultcontract.Range{Min: "0.1.0", Before: "0.2.0"}, Envelope: resultcontract.Range{Min: "1.0.0", Before: "2.0.0"}, Extensions: map[string]resultcontract.Range{"measurement": {Min: "1.0.0", Before: "1.1.0"}}, Scalars: map[string]resultcontract.ValueSchema{"/summary/total_events": scalar, "/summary/error_count": scalar, "/summary/warning_count": scalar}})
-	descriptors = append(descriptors, profileanalyzer.ModelDescriptor(), profileanalyzer.LegacySourceModelDescriptor(), profileanalyzer.SourceModelDescriptor(), MappedMetricDescriptor())
+	descriptors = append(descriptors, profileanalyzer.ModelDescriptor(), profileanalyzer.LegacySourceModelDescriptor(), profileanalyzer.SourceModelDescriptor(), MappedMetricDescriptor(), metricanalyzer.Descriptor())
 	return resultcontract.New(descriptors...)
 }
 func Analyzer() ingestion.Analyzer {
@@ -206,7 +207,13 @@ func Builtin() (*ingestion.Catalog, *resultcontract.Registry, error) {
 	}
 	descriptors = append(descriptors, sourceDescriptor)
 	schemas = append(schemas, sourceSchemas...)
-	c, e := ingestion.NewCatalog(descriptors, schemas, []ingestion.Analyzer{Analyzer(), profileAnalyzer, sourceAnalyzer})
+	metricDescriptor, metricSchemas, metricAnalyzer, e := metricHistoryRegistration()
+	if e != nil {
+		return nil, nil, fmt.Errorf("metric history catalog: %w", e)
+	}
+	descriptors = append(descriptors, metricDescriptor)
+	schemas = append(schemas, metricSchemas...)
+	c, e := ingestion.NewCatalog(descriptors, schemas, []ingestion.Analyzer{Analyzer(), profileAnalyzer, sourceAnalyzer, metricAnalyzer})
 	if e != nil {
 		return nil, nil, e
 	}

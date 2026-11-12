@@ -1,0 +1,4 @@
+{
+  "query": "request_count{role=\"server\"}",
+  "step_ns": "1000000000"
+}

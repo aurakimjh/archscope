@@ -16,9 +16,18 @@ def run(args):
  return r.stdout
 run(['/input/engine','offline','build','--engine','/input/engine','--out',str(bundle)])
 # Only the new bundle and synthetic corpus remain visible to the tested process.
-with zipfile.ZipFile(bundle/'resources/fixtures.zip') as z:z.extract('packs/input.jsonl','/sources')
+with zipfile.ZipFile(bundle/'resources/fixtures.zip') as z:
+ for name in ('packs/input.jsonl','catalog/metric-history-set.json','catalog/metric-history-sdk-python-1.38.0.otlp.json'):z.extract(name,'/sources')
+model=json.loads(pathlib.Path('/sources/catalog/metric-history-set.json').read_text())
+selection={'series_ids':[model['series'][0]['id']]}
 cli=str(bundle/'archscope-engine');base=[cli,'--offline-root',str(bundle)]
 commands=[['offline','fixtures'],['evidence','formats','--pack-store','/state/packs'],['evidence','import','--pack-store','/state/packs','--importer','data.synthetic-metrics','--in','/sources/packs/input.jsonl'],['packs','list','--store','/state/packs'],['evidence','discover','--pack-store','/state/packs','--in','/sources/packs/input.jsonl'],['evidence','collection-kit','--out','/evidence/manual-collection.zip']]
+commands.extend([
+ ['metrics','history-inspect','--in','/sources/catalog/metric-history-sdk-python-1.38.0.otlp.json'],
+ ['metrics','history-normalize','--in','/sources/catalog/metric-history-sdk-python-1.38.0.otlp.json','--out','/evidence/normalized.json'],
+ ['evidence','import','--importer','metrics.history-json','--in','/sources/catalog/metric-history-set.json','--options',json.dumps(selection),'--out','/evidence/history-result.json'],
+ ['metrics','history-query','--in','/evidence/history-result.json','--query',json.dumps({'selection':selection,'limit':1})],
+])
 reports=[]
 for i,args in enumerate(commands):
  trace=out/f'operation-{i}.strace';report=out/f'operation-{i}.json'

@@ -32,6 +32,7 @@ func init() {
 	importMetrics.Flags().IntVar(&metricsTopN, "top-n", metrics.DefaultTopN, "maximum rows per table")
 	importMetrics.Flags().IntVar(&metricsMaxLines, "max-lines", 0, "stop after N lines (0 = unlimited)")
 	metricsGroup.AddCommand(importMetrics)
+	metricsGroup.AddCommand(metricHistoryCommands()...)
 	rootCmd.AddCommand(metricsGroup)
 
 	obsGroup := &cobra.Command{Use: "observability", Short: "LGTM and Grafana export import commands."}

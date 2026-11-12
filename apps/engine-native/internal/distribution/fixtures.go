@@ -209,8 +209,8 @@ func CheckFixtures(ctx context.Context) ([]string, error) {
 			return nil, e
 		}
 		for k, w := range f.Summary {
-			n, e := resultcontract.ExactNumber(result.Summary[k], "json_number")
-			if e != nil || n.RatString() != w {
+			n, e := resultcontract.Scalar(result, "/summary/"+k)
+			if e != nil || n.Value == nil || *n.Value != w {
 				return nil, fmt.Errorf("fixture summary %s/%s", f.Importer, k)
 			}
 		}

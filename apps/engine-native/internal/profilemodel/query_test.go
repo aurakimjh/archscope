@@ -146,3 +146,29 @@ func TestT635PagedFlamegraphDoesNotRenormalizeHiddenNodes(t *testing.T) {
 		}
 	}
 }
+
+func TestR1202SelfSortAndCursorBinding(t *testing.T) {
+	s, sel := fixture(t)
+	q := m.Query{Selection: sel, View: "top", Limit: 1}
+	legacy, e := m.QuerySet(context.Background(), s, strings.Repeat("a", 64), q)
+	if e != nil {
+		t.Fatal(e)
+	}
+	q.Sort = "self"
+	self, e := m.QuerySet(context.Background(), s, strings.Repeat("a", 64), q)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if legacy.Rows[0].ID == self.Rows[0].ID || legacy.QuerySHA256 == self.QuerySHA256 || self.Rows[0].Self == "0" {
+		t.Fatal("self sort ineffective", legacy, self)
+	}
+	q.Cursor = legacy.Next
+	if _, e = m.QuerySet(context.Background(), s, strings.Repeat("a", 64), q); e == nil {
+		t.Fatal("sort change reused cursor")
+	}
+	q.Cursor = ""
+	q.Sort = "typo"
+	if _, e = m.QuerySet(context.Background(), s, strings.Repeat("a", 64), q); e == nil {
+		t.Fatal("unknown sort accepted")
+	}
+}

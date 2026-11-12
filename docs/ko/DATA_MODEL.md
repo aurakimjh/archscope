@@ -2310,3 +2310,16 @@ file-exporter basis와 경고를 공개합니다. 영속 baseline 검증은 매�
 분석하고 identity_basis=declared를 유지합니다. 일반 scalar 비교는 계속 strict이며
 새 canonical/baseline 화면이 검증 정책을 소비합니다. 시계 정렬·미검증 producer 지원을
 추정하지 않습니다. Windows 네이티브/UI 및 독립 리뷰는 별도입니다.
+
+### T-638 메트릭 이력
+
+[정확한 메트릭 이력](METRIC_HISTORY.md)은 모델/normalizer 1.0.0,
+`metrics.history-json` transport와 `metrics_timeseries` payload 0.1.0을 정의합니다.
+중립 snapshot sequence·명시적 query 출처의 Prometheus range matrix·OTLP JSON에서
+정확한 값, resource/scope/schema/속성 식별자와 temporality를 유지합니다.
+Delta/cumulative/reset/gap/overlap과 explicit/exponential bucket은 별도 의미입니다.
+공통 envelope로 상세/timeline·저장 조회·export를 연결하고 기존 metrics_snapshot 의미는
+유지합니다. SDK Python 1.38.0 합성 표본 범위만 검증하며 Q04/GenAI alias와 네이티브
+수용 검증은 별도입니다. 자동 합산/quantile 계산은 없습니다. R12 baseline 캐시는 새 query
+재분석 결과만 프로세스 내 제한 보관하고 페이지마다 원본/결과 hash와 case binding을
+재검사합니다. 기존의 매번 전체 재분석 설명은 이 범위에서 대체합니다.

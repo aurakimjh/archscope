@@ -1,0 +1,4 @@
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory	0.360s
+?   	github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel	[no test files]
+?   	github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/metrichistory	[no test files]
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/catalog	0.713s

@@ -1,0 +1,316 @@
+### Page
+- Page URL: http://127.0.0.1:5198/.tmp/t638-renderer.html
+- Page Title: T638 renderer check
+- Console: 1 errors, 1 warnings
+### Snapshot
+```yaml
+- main [ref=f1e3]:
+  - heading "T-638 actual components / synthetic Go outputs" [level=1] [ref=f1e4]
+  - group [ref=f1e5]:
+    - 'generic "Metric history: OTLP / snapshot sequence / Prometheus range" [ref=f1e6]'
+    - option "auto" [selected]
+    - option "otlp-json"
+    - option "snapshot-sequence-json"
+    - option "prometheus-range-json"
+  - group [ref=f1e7]:
+    - generic "Exact metric intervals and provenance" [ref=f1e8]
+    - paragraph [ref=f1e9]: Time windows select point end times [start, end). Intervals are retained whole. Rates are exact fractions per second; gaps are not interpolated. Missing timestamps, resets and ambiguous points remain explicit. Series are never summed automatically.
+    - group [ref=f1e10]:
+      - generic [ref=f1e11]:
+        - generic [ref=f1e12]:
+          - checkbox "synthetic.counter · count · sum/cumulative" [checked] [ref=f1e13]
+          - text: synthetic.counter · count · sum/cumulative
+        - group [ref=f1e14]:
+          - generic "Resource / scope / attributes" [ref=f1e15]
+      - textbox "Metric window start nanoseconds" [ref=f1e16]:
+        - /placeholder: Inclusive Unix nanoseconds
+      - textbox "Metric window end nanoseconds" [ref=f1e17]:
+        - /placeholder: Exclusive Unix nanoseconds
+      - button "Query intervals" [ref=f1e18]
+      - button "Add selection as new result" [ref=f1e19]
+      - paragraph [ref=f1e20]: Source producer/export/query identity is declared; no original-publisher authentication or GenAI alias qualification.
+    - paragraph [ref=f1e21]: 31 · f51c757b780ec0cefb517fe0ff326d65526a8a7cbaff50e41c7ba4a1960976bb
+    - table [ref=f1e23]:
+      - rowgroup [ref=f1e24]:
+        - row [ref=f1e25]:
+          - columnheader "Metric / unit" [ref=f1e26]
+          - columnheader "Observed value" [ref=f1e27]
+          - columnheader "Interval / rate" [ref=f1e28]
+          - columnheader "Status / evidence" [ref=f1e29]
+      - rowgroup [ref=f1e30]:
+        - row [ref=f1e31]:
+          - cell "synthetic.counter · count" [ref=f1e32]
+          - cell "9007199254740993" [ref=f1e33]
+          - cell [ref=f1e34]:
+            - text: 0 → 1000000000
+            - paragraph [ref=f1e35]: Δ — · — /s
+          - cell [ref=f1e36]:
+            - text: first_cumulative_point
+            - code [ref=f1e37]: point-24cca7306015ce258a54dac56f8e6ad23104c22a57c6ffc1377bbba07f2a6920
+            - paragraph [ref=f1e38]: "source-0: snapshots/0/metrics/0"
+        - row [ref=f1e39]:
+          - cell "synthetic.counter · count" [ref=f1e40]
+          - cell "9007199254740994" [ref=f1e41]
+          - cell [ref=f1e42]:
+            - text: 1000000000 → 2000000000
+            - paragraph [ref=f1e43]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e44]:
+            - text: derived
+            - code [ref=f1e45]: point-2c7be997530b8da20b08196d43f219319eab5f06f8f151de2c7d72dccbba36b4
+            - paragraph [ref=f1e46]: "source-0: snapshots/1/metrics/0"
+        - row [ref=f1e47]:
+          - cell "synthetic.counter · count" [ref=f1e48]
+          - cell "9007199254740995" [ref=f1e49]
+          - cell [ref=f1e50]:
+            - text: 2000000000 → 3000000000
+            - paragraph [ref=f1e51]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e52]:
+            - text: derived
+            - code [ref=f1e53]: point-326d84d0ba223a88093fa80b587e23c8c3a2d149917497bfa242530226d784be
+            - paragraph [ref=f1e54]: "source-0: snapshots/2/metrics/0"
+        - row [ref=f1e55]:
+          - cell "synthetic.counter · count" [ref=f1e56]
+          - cell "9007199254740996" [ref=f1e57]
+          - cell [ref=f1e58]:
+            - text: 3000000000 → 4000000000
+            - paragraph [ref=f1e59]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e60]:
+            - text: derived
+            - code [ref=f1e61]: point-aaab62d42fae1bbb9db27a3d1b27a12581017a12abc2b30b3a8a6e6a0daadba8
+            - paragraph [ref=f1e62]: "source-0: snapshots/3/metrics/0"
+        - row [ref=f1e63]:
+          - cell "synthetic.counter · count" [ref=f1e64]
+          - cell "9007199254740997" [ref=f1e65]
+          - cell [ref=f1e66]:
+            - text: 4000000000 → 5000000000
+            - paragraph [ref=f1e67]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e68]:
+            - text: derived
+            - code [ref=f1e69]: point-8582c9e3ab1615c6599ec45cf979643bb3728100d2f5ea31f06a88239963c0c4
+            - paragraph [ref=f1e70]: "source-0: snapshots/4/metrics/0"
+        - row [ref=f1e71]:
+          - cell "synthetic.counter · count" [ref=f1e72]
+          - cell "9007199254740998" [ref=f1e73]
+          - cell [ref=f1e74]:
+            - text: 5000000000 → 6000000000
+            - paragraph [ref=f1e75]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e76]:
+            - text: derived
+            - code [ref=f1e77]: point-2a69ea962058b70c244a0cf8b8079af3f10863fc5d8581297896c3892ffe49fd
+            - paragraph [ref=f1e78]: "source-0: snapshots/5/metrics/0"
+        - row [ref=f1e79]:
+          - cell "synthetic.counter · count" [ref=f1e80]
+          - cell "9007199254740999" [ref=f1e81]
+          - cell [ref=f1e82]:
+            - text: 6000000000 → 7000000000
+            - paragraph [ref=f1e83]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e84]:
+            - text: derived
+            - code [ref=f1e85]: point-9d23c8023b07c569cec5c83933355cf6b5dc01b8740febba79221f8e563356ba
+            - paragraph [ref=f1e86]: "source-0: snapshots/6/metrics/0"
+        - row [ref=f1e87]:
+          - cell "synthetic.counter · count" [ref=f1e88]
+          - cell "9007199254741000" [ref=f1e89]
+          - cell [ref=f1e90]:
+            - text: 7000000000 → 8000000000
+            - paragraph [ref=f1e91]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e92]:
+            - text: derived
+            - code [ref=f1e93]: point-d5be471a016ef4cb39f1d0b52e511c2e746471f32e16034d6df2523964670c91
+            - paragraph [ref=f1e94]: "source-0: snapshots/7/metrics/0"
+        - row [ref=f1e95]:
+          - cell "synthetic.counter · count" [ref=f1e96]
+          - cell "9007199254741001" [ref=f1e97]
+          - cell [ref=f1e98]:
+            - text: 8000000000 → 9000000000
+            - paragraph [ref=f1e99]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e100]:
+            - text: derived
+            - code [ref=f1e101]: point-0e6fe37fda4e4823826502f07f1361e71ac6d382fa48b2d557ed77f76b12ddbf
+            - paragraph [ref=f1e102]: "source-0: snapshots/8/metrics/0"
+        - row [ref=f1e103]:
+          - cell "synthetic.counter · count" [ref=f1e104]
+          - cell "9007199254741002" [ref=f1e105]
+          - cell [ref=f1e106]:
+            - text: 9000000000 → 10000000000
+            - paragraph [ref=f1e107]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e108]:
+            - text: derived
+            - code [ref=f1e109]: point-07cc22ec46e27b74d64440f2b4993e0ea060cb7e89f6c64ec390cd189323565b
+            - paragraph [ref=f1e110]: "source-0: snapshots/9/metrics/0"
+        - row [ref=f1e111]:
+          - cell "synthetic.counter · count" [ref=f1e112]
+          - cell "9007199254741003" [ref=f1e113]
+          - cell [ref=f1e114]:
+            - text: 10000000000 → 11000000000
+            - paragraph [ref=f1e115]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e116]:
+            - text: derived
+            - code [ref=f1e117]: point-c41be1834e7a6cc27c41fbccac12b277a50ecc1662154d68b8d7cf63c4d20556
+            - paragraph [ref=f1e118]: "source-0: snapshots/10/metrics/0"
+        - row [ref=f1e119]:
+          - cell "synthetic.counter · count" [ref=f1e120]
+          - cell "9007199254741004" [ref=f1e121]
+          - cell [ref=f1e122]:
+            - text: 11000000000 → 12000000000
+            - paragraph [ref=f1e123]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e124]:
+            - text: derived
+            - code [ref=f1e125]: point-689fd28966532bfb21d2d2e442c04714ebc66546cc4bcf76693e4b2b28a44a79
+            - paragraph [ref=f1e126]: "source-0: snapshots/11/metrics/0"
+        - row [ref=f1e127]:
+          - cell "synthetic.counter · count" [ref=f1e128]
+          - cell "9007199254741005" [ref=f1e129]
+          - cell [ref=f1e130]:
+            - text: 12000000000 → 13000000000
+            - paragraph [ref=f1e131]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e132]:
+            - text: derived
+            - code [ref=f1e133]: point-84e2d906544e06a37d0c8fd635ba011253dfc8a4e3a3f5bbc4c9d9fdf858f9e7
+            - paragraph [ref=f1e134]: "source-0: snapshots/12/metrics/0"
+        - row [ref=f1e135]:
+          - cell "synthetic.counter · count" [ref=f1e136]
+          - cell "9007199254741006" [ref=f1e137]
+          - cell [ref=f1e138]:
+            - text: 13000000000 → 14000000000
+            - paragraph [ref=f1e139]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e140]:
+            - text: derived
+            - code [ref=f1e141]: point-2fc6aab04a4dc237817959123970a987a9d06e979dcf2ff1dd7119f35c9ec89b
+            - paragraph [ref=f1e142]: "source-0: snapshots/13/metrics/0"
+        - row [ref=f1e143]:
+          - cell "synthetic.counter · count" [ref=f1e144]
+          - cell "9007199254741007" [ref=f1e145]
+          - cell [ref=f1e146]:
+            - text: 14000000000 → 15000000000
+            - paragraph [ref=f1e147]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e148]:
+            - text: derived
+            - code [ref=f1e149]: point-e5a34ba71b2c4e64fe68b607cbda50a41c8ad448cfeae5a9e9576a821b992e9f
+            - paragraph [ref=f1e150]: "source-0: snapshots/14/metrics/0"
+        - row [ref=f1e151]:
+          - cell "synthetic.counter · count" [ref=f1e152]
+          - cell "9007199254741008" [ref=f1e153]
+          - cell [ref=f1e154]:
+            - text: 15000000000 → 16000000000
+            - paragraph [ref=f1e155]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e156]:
+            - text: derived
+            - code [ref=f1e157]: point-03e0bc3e279dbe98c65b3571ef153e016610cfe6e761799cac0a840c41671cab
+            - paragraph [ref=f1e158]: "source-0: snapshots/15/metrics/0"
+        - row [ref=f1e159]:
+          - cell "synthetic.counter · count" [ref=f1e160]
+          - cell "9007199254741009" [ref=f1e161]
+          - cell [ref=f1e162]:
+            - text: 16000000000 → 17000000000
+            - paragraph [ref=f1e163]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e164]:
+            - text: derived
+            - code [ref=f1e165]: point-fd42f02f26e88962895d71cc9073b4d231ce37e98a20ae95af7665b52672f845
+            - paragraph [ref=f1e166]: "source-0: snapshots/16/metrics/0"
+        - row [ref=f1e167]:
+          - cell "synthetic.counter · count" [ref=f1e168]
+          - cell "9007199254741010" [ref=f1e169]
+          - cell [ref=f1e170]:
+            - text: 17000000000 → 18000000000
+            - paragraph [ref=f1e171]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e172]:
+            - text: derived
+            - code [ref=f1e173]: point-0f85250043c9311e2f1dd6b7b7a8dffb21480a6c13ee0a1aab66515a8b1ed45d
+            - paragraph [ref=f1e174]: "source-0: snapshots/17/metrics/0"
+        - row [ref=f1e175]:
+          - cell "synthetic.counter · count" [ref=f1e176]
+          - cell "9007199254741011" [ref=f1e177]
+          - cell [ref=f1e178]:
+            - text: 18000000000 → 19000000000
+            - paragraph [ref=f1e179]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e180]:
+            - text: derived
+            - code [ref=f1e181]: point-2000ca6476c721a351672dd2ee4c1e5436a5bc93d5b1e89b9bcf05bdc48c20d5
+            - paragraph [ref=f1e182]: "source-0: snapshots/18/metrics/0"
+        - row [ref=f1e183]:
+          - cell "synthetic.counter · count" [ref=f1e184]
+          - cell "9007199254741012" [ref=f1e185]
+          - cell [ref=f1e186]:
+            - text: 19000000000 → 20000000000
+            - paragraph [ref=f1e187]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e188]:
+            - text: derived
+            - code [ref=f1e189]: point-06be9547f89819b39d5551b97d59b1fb69ef4277ef08a2ae242d44a9a493144c
+            - paragraph [ref=f1e190]: "source-0: snapshots/19/metrics/0"
+        - row [ref=f1e191]:
+          - cell "synthetic.counter · count" [ref=f1e192]
+          - cell "9007199254741013" [ref=f1e193]
+          - cell [ref=f1e194]:
+            - text: 20000000000 → 21000000000
+            - paragraph [ref=f1e195]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e196]:
+            - text: derived
+            - code [ref=f1e197]: point-dbeef01319142c6a1e3d50c82a4ff89d1e9f00e513f3b703523c6b551aec422f
+            - paragraph [ref=f1e198]: "source-0: snapshots/20/metrics/0"
+        - row [ref=f1e199]:
+          - cell "synthetic.counter · count" [ref=f1e200]
+          - cell "9007199254741014" [ref=f1e201]
+          - cell [ref=f1e202]:
+            - text: 21000000000 → 22000000000
+            - paragraph [ref=f1e203]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e204]:
+            - text: derived
+            - code [ref=f1e205]: point-c0818de1ff3a6af0ffe13242d1388e4413c299b8ed5a362226f9b2eb4c212d24
+            - paragraph [ref=f1e206]: "source-0: snapshots/21/metrics/0"
+        - row [ref=f1e207]:
+          - cell "synthetic.counter · count" [ref=f1e208]
+          - cell "9007199254741015" [ref=f1e209]
+          - cell [ref=f1e210]:
+            - text: 22000000000 → 23000000000
+            - paragraph [ref=f1e211]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e212]:
+            - text: derived
+            - code [ref=f1e213]: point-135044dfe778fa4f46cc776b813f0f451e5c59a532575a1245bdd2181c45e095
+            - paragraph [ref=f1e214]: "source-0: snapshots/22/metrics/0"
+        - row [ref=f1e215]:
+          - cell "synthetic.counter · count" [ref=f1e216]
+          - cell "9007199254741016" [ref=f1e217]
+          - cell [ref=f1e218]:
+            - text: 23000000000 → 24000000000
+            - paragraph [ref=f1e219]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e220]:
+            - text: derived
+            - code [ref=f1e221]: point-b0d03a3fa78ad70f4c93d97c000fbfb4a9dafe7b4cecb92de1752cd68220b5b5
+            - paragraph [ref=f1e222]: "source-0: snapshots/23/metrics/0"
+        - row [ref=f1e223]:
+          - cell "synthetic.counter · count" [ref=f1e224]
+          - cell "9007199254741017" [ref=f1e225]
+          - cell [ref=f1e226]:
+            - text: 24000000000 → 25000000000
+            - paragraph [ref=f1e227]: Δ 1 · 1 /s
+            - text: increment_per_second
+          - cell [ref=f1e228]:
+            - text: derived
+            - code [ref=f1e229]: point-e529cf57580afa242d30eee4ff4bb202cae2f440c6df6419ccec6a64a53c4d53
+            - paragraph [ref=f1e230]: "source-0: snapshots/24/metrics/0"
+    - button "Next" [ref=f1e231]
+```

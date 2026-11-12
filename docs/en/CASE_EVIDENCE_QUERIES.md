@@ -70,7 +70,7 @@ The disposable index under the case store's `indexes` directory pins indexer (1.
 redaction, manifest revision, source availability/digests and result digests. Each
 query checks original bytes, even on cache hits, and result object integrity.
 Missing/corrupt indexes rebuild; cleanup/restart cannot erase snapshots or pins.
-Derived text is masked by existing text-mask 0.1.0 before persistence, then bounded
+Derived text is masked by the separate index-mask 0.2.0 policy before persistence, then bounded
 to 2 KiB per snippet. That policy covers known patterns, not every possible secret;
 sanitize other sensitive input before intake. Structured IDs/digests/coordinates
 remain separate from masked snippets. This is not a new producer parser.
@@ -101,8 +101,10 @@ The existing Baseline.conditions JSON stores `profile-baseline` 1.0.0: immutable
 result/source/model/options hashes, selection, comparison identity, capture/clock
 hashes and compiled policy snapshot including both semantic and incidental option
 projections. The context remains bounded to 64 KiB. Imported/edited “verified”
-claims grant no capability. Every reuse repeats original reimport for baseline
-and target, checks the full pinned binding, rechecks source/current revision and
+claims grant no capability. A new query repeats original reimport for baseline and target. A process-local
+cache (two entries / 128 MiB total / two-minute expiry) can reuse that validated
+difference for subsequent pages. Every page checks original/result byte hashes
+and the complete case/query/policy binding again and
 only then returns `source_verification=verified_by_reimport`. This verifies the
 model against those bytes/options, not the publisher, capture authenticity or
 process lifetime. Comparison `identity_basis` stays `declared`.
@@ -130,3 +132,31 @@ rewrite historical pins or upgrade saved hashes. Portable restore preserves pins
 but supplies no verification authority: current originals must replay successfully
 again. Native Windows/UI acceptance and independent review are separate from
 local backend/state/build/cross-build evidence.
+
+## R12 query refinements
+
+Top queries accept `sort: "self" | "inclusive"`, bound into the query hash and
+cursor. Desktop Top defaults to self; omitted API sort preserves inclusive
+ordering. Search keeps the selected denominator unchanged.
+
+Index-mask 0.2.0 adds common password/secret/token/api-key assignments, JWT and
+AWS access-key patterns and stable Authorization placeholders. Policy version
+and content digest invalidate old disposable indexes. Legacy snapshot/capture
+text-mask 0.1.0 remains unchanged. Only known patterns are covered; inspect input
+and snippets before sharing. Source bytes and saved results are never rewritten.
+
+The verified comparison cache lives only in the current service process, is
+never loaded from case receipts or disk, and releases on shutdown. A cache miss
+or expiry replays originals. New CLI processes remain stateless and perform
+reimport for each command. Responses expose cache_hit and verification_scope;
+identity_basis remains declared. This cache avoids repeated normalization and
+full diff calculation, but still copies a bounded diff and hashes source/result
+bytes each page. It does not remove all large-input costs.
+
+Case results are limited to 67,108,864 bytes (64 MiB). High-cardinality profiles
+can produce larger results even from much smaller originals. Save/pin is then
+unavailable. Errors report actual bytes and limit plus sample count when known;
+the pre-decode boundary explicitly reports sample count unavailable. CLI uses
+file size before bounded reading. Select fewer profiles/metrics or shorten the
+capture, then create a new result. Do not silently coalesce observations or raise
+the ceiling. Native WebView/Windows and independent review remain separate.
