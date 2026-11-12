@@ -1,0 +1,12 @@
+{
+  "contract": "nvidia-smi.query-csv.v1",
+  "host_id": "synthetic-host",
+  "boot_id": "synthetic-boot",
+  "producer_version": "535.104.05",
+  "query_fields": "uuid,pci.bus_id,name,driver_version,utilization.gpu,utilization.memory,memory.used,memory.total,temperature.gpu,power.draw,clocks.sm",
+  "timestamps_ns": [
+    "1000000000",
+    "1000000000",
+    "2000000000"
+  ]
+}

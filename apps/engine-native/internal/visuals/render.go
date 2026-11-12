@@ -74,7 +74,7 @@ func htmlTableText(s string) string { return headerText(s) }
 func tableText(s string) string {
 	s = transportText(s)
 	t := strings.TrimSpace(s)
-	if formulaRisk(s) || spreadsheetFraction.MatchString(t) || spreadsheetDate.MatchString(t) {
+	if formulaRisk(s) || spreadsheetFraction.MatchString(t) || (spreadsheetDate.MatchString(t) && !spreadsheetNumber.MatchString(t)) {
 		return "'" + s
 	}
 	if spreadsheetNumber.MatchString(t) {
@@ -101,7 +101,10 @@ type Protection struct {
 
 // Counts refer to currently exported/clipboard table encodings, never alter view values.
 func TableProtection(view View) Protection {
-	out := Protection{Version: "spreadsheet-text-0.2.0"}
+	return protectionForVersion(view, "spreadsheet-text-0.2.1")
+}
+func protectionForVersion(view View, version string) Protection {
+	out := Protection{Version: version}
 	for _, name := range view.Columns {
 		if headerText(clean(name)) != clean(name) {
 			out.Headers++
@@ -110,7 +113,7 @@ func TableProtection(view View) Protection {
 	for _, row := range view.Rows {
 		for _, cell := range row {
 			text := cellText(cell)
-			if tableText(text) != text {
+			if tableText(text) != text || version == "spreadsheet-text-0.2.0" && spreadsheetDate.MatchString(strings.TrimSpace(transportText(text))) {
 				out.TSVCells++
 			}
 			if htmlTableText(text) != text {

@@ -158,3 +158,6 @@ bundles, and report byte ceilings permit about two, even though 1–4 artifacts 
 be selected. R14-07 tracks richer generic metric value exports with R13-06.
 R14-01 is locally fixed; original CONDITIONAL is retained under explicit closure
 permission, without a new independent PASS.
+
+
+R15-06: spreadsheet-text-0.2.1 leaves ordinary decimal numbers (0.1, 1.5, 3.14, 12.5) numeric in TSV. Dotted dates with a full year still receive protection. Historical 0.2.0 receipts are validated using their original counts; current exports/descriptors use 0.2.1 without rewriting archived bytes.

@@ -146,9 +146,23 @@ semantics are unchanged; there is no automatic cross-series sum or quantile math
 ## T-637 file-only system evidence
 
 Limited canonical importer `system.evidence-json` / payload `system_evidence`
-0.1.0: actual perf 6.1.190 synthetic-data sample export, constrained scheduler
+0.2.0: actual perf 6.1.190 synthetic-data sample export, constrained scheduler
 text grammar, explicit event JSONL, and pinned bpftrace 0.22 histogram JSON shape.
 Native scheduler/BPF collection, other layouts/versions and arbitrary scripts
 remain unqualified. Sample count, period, scheduler durations and aggregate
 buckets are separate. No binary perf decoder or live attach.
 [Workflow, conditions and bounds](SYSTEM_EVIDENCE.md).
+
+
+## T-639 device and serving evidence
+
+Limited `inference.evidence-json` carries InferenceEvidence 1.0.0 into common
+`inference_serving` 0.1.0. Original MetricHistory is stored once, signals bind
+explicit series/entity/context/unit/form/population, and missing values remain
+unavailable. Native NVIDIA CSV uses an explicit fixed query contract; fixtures
+are synthetic and Q03 version-specific vLLM aliases remain gated. Parser, semantic
+analyzer and generic/export consumers remain separate. See
+[offline device/serving contract](INFERENCE_EVIDENCE.md) for bounds, precise
+request formulas, original metric drilldown and unexecuted native acceptance.
+
+SystemEvidence 1.0.0 / system_evidence 0.1.0 saved readers remain supported; new 1.1.0 models deduplicate frames/stacks and 0.2.0 results retain old snapshots unchanged.

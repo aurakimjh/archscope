@@ -399,6 +399,10 @@ export function DescribeEvidenceResult(handle: string): $CancellablePromise<anal
     });
 }
 
+export function DescribeInferenceEvidence(handle: string): $CancellablePromise<string> {
+    return $Call.ByID(1830062688, handle);
+}
+
 export function DescribeMetricQuery(handle: string): $CancellablePromise<string> {
     return $Call.ByID(612923626, handle);
 }
@@ -608,6 +612,10 @@ export function ImportVisualArtifact(path: string): $CancellablePromise<string> 
     return $Call.ByID(4018931032, path);
 }
 
+export function InspectInferenceSource(path: string, options: string): $CancellablePromise<string> {
+    return $Call.ByID(688608261, path, options);
+}
+
 /**
  * Sources stay backend-owned; inspection returns bounded inventory only, and
  * normalization writes a new model file for the existing generic import jobs.
@@ -656,6 +664,10 @@ export function LoadEvidenceResult(path: string): $CancellablePromise<analysis$0
     });
 }
 
+export function MaterializeInferenceMetrics(handle: string, digest: string, signalsJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(4164776856, handle, digest, signalsJSON);
+}
+
 export function MaterializeMetricView(handle: string, digest: string, selectionJSON: string): $CancellablePromise<string> {
     return $Call.ByID(4111896941, handle, digest, selectionJSON);
 }
@@ -666,6 +678,10 @@ export function MaterializeProfileView(handle: string, digest: string, selection
 
 export function MaterializeSystemProfile(handle: string, digest: string, metric: string, entitiesJSON: string): $CancellablePromise<string> {
     return $Call.ByID(757643586, handle, digest, metric, entitiesJSON);
+}
+
+export function NormalizeInferenceSource(path: string, options: string, expectedSHA: string, output: string): $CancellablePromise<string> {
+    return $Call.ByID(3169941220, path, options, expectedSHA, output);
 }
 
 export function NormalizeLegacyProfileSet(path: string, format: string): $CancellablePromise<string> {
@@ -736,6 +752,10 @@ export function QueryEvidenceProvider(handle: string, provider: string, offset: 
     return $Call.ByID(2161125665, handle, provider, offset, limit).then(($result: any) => {
         return $$createType18($result);
     });
+}
+
+export function QueryInferenceMetric(handle: string, digest: string, signal: string, cursor: string, limit: number): $CancellablePromise<string> {
+    return $Call.ByID(2840542848, handle, digest, signal, cursor, limit);
 }
 
 export function QueryMetricHistory(handle: string, digest: string, requestJSON: string): $CancellablePromise<string> {

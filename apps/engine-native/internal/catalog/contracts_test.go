@@ -46,7 +46,7 @@ func TestBundledConformanceAssetsMatchManifest(t *testing.T) {
 		t.Fatal(e)
 	}
 	list := c.List()
-	want := []string{"metrics.history-json", "profile.set-json", "profile.source-set-json", "server.tomcat", "system.evidence-json"}
+	want := []string{"inference.evidence-json", "metrics.history-json", "profile.set-json", "profile.source-set-json", "server.tomcat", "system.evidence-json"}
 	if len(list) != len(want) {
 		t.Fatal("unexpected importer count", len(list))
 	}

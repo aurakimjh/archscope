@@ -1,0 +1,62 @@
+{
+  "scope": "Actual final React components with actual CLI DTOs and synthetic Wails IPC; no native execution claim",
+  "captureRefusal": true,
+  "qualifiedNvidiaInspection": true,
+  "migScopeSeparated": true,
+  "missingScopeDisabled": true,
+  "integerExact": true,
+  "resetGapVisible": true,
+  "canceledLateOwnedLeaseReleased": true,
+  "calls": [
+    {
+      "object": 0,
+      "name": "main.EngineService.DescribeInferenceEvidence",
+      "args": [
+        "synthetic-result"
+      ]
+    },
+    {
+      "object": 0,
+      "name": "main.EngineService.InspectInferenceSource",
+      "args": [
+        "synthetic-gpu.csv",
+        "{\"format\":\"nvidia-smi-csv\",\"capture\":{}}"
+      ]
+    },
+    {
+      "object": 0,
+      "name": "main.EngineService.InspectInferenceSource",
+      "args": [
+        "synthetic-gpu.csv",
+        "{\"format\":\"nvidia-smi-csv\",\"capture\":{\"contract\":\"nvidia-smi.query-csv.v1\",\"host_id\":\"synthetic-host\",\"boot_id\":\"synthetic-boot\",\"producer_version\":\"535.104.05\",\"query_fields\":\"uuid,pci.bus_id,name,driver_version,utilization.gpu,utilization.memory,memory.used,memory.total,temperature.gpu,power.draw,clocks.sm\",\"timestamps_ns\":[\"1000000000\",\"1000000000\",\"2000000000\"]}}"
+      ]
+    },
+    {
+      "object": 0,
+      "name": "main.EngineService.QueryInferenceMetric",
+      "args": [
+        "synthetic-result",
+        "1b620b762f96ffa256129ae300d06cf14fd68877cf14c4e364683aebf93e6479",
+        "signal-output_tokens",
+        "",
+        25
+      ]
+    },
+    {
+      "object": 0,
+      "name": "main.EngineService.MaterializeInferenceMetrics",
+      "args": [
+        "synthetic-result",
+        "1b620b762f96ffa256129ae300d06cf14fd68877cf14c4e364683aebf93e6479",
+        "[\"signal-output_tokens\"]"
+      ]
+    },
+    {
+      "object": 0,
+      "name": "main.EngineService.ReleaseEvidenceLease",
+      "args": [
+        "synthetic-owned-lease"
+      ]
+    }
+  ]
+}

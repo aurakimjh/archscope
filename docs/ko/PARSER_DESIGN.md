@@ -1019,9 +1019,22 @@ Delta/cumulative/reset/gap/overlap과 explicit/exponential bucket은 별도 의�
 
 ## T-637 시스템 근거 adapter
 
-`system.evidence-json`은 SystemEvidence 1.0.0 JSON을 256 KiB 이하 chunk로 받고 compiled
+`system.evidence-json`은 SystemEvidence 1.1.0 JSON을 256 KiB 이하 chunk로 받고 compiled
 형태/의미 검사와 digest 고정 fixture를 사용합니다. 원본은 capture 문맥을 갖춘 명시적
 perf-script/events-jsonl/bpftrace-jsonl 정규화로 받으며 도구를 실행하지 않습니다.
-`system_evidence` 0.1.0에 원본 관측·별도 scheduler 구간 분석·집계 bucket을 보존합니다.
+`system_evidence` 0.2.0에 원본 관측·별도 scheduler 구간 분석·집계 bucket을 보존합니다.
 [시스템 근거](SYSTEM_EVIDENCE.md)에 fields/버전 범위·수명/loss/clock 거부·한도·원본
 drilldown을 정의합니다. 기존 profile/metric 저장 reader는 유지합니다.
+
+
+## T-639 장치·서빙 근거
+
+제한 지원 `inference.evidence-json`은 InferenceEvidence 1.0.0을 공통
+`inference_serving` 0.1.0으로 처리한다. 원본 MetricHistory를 한 번만 저장하고
+signal은 series/entity/context/unit/통계 형식/모집단을 명시적으로 연결한다.
+누락 값은 unavailable이다. NVIDIA CSV는 고정 query 계약을 요구하고 fixture는
+합성이며 Q03의 특정 vLLM 버전 alias gate는 유지한다. Parser·의미 analyzer·
+generic/export 책임은 분리한다. 한도·정확한 요청 공식·원본 메트릭 상세와 미실행
+native 수용 범위는 [오프라인 장치·서빙 계약](INFERENCE_EVIDENCE.md)을 참고한다.
+
+SystemEvidence 1.0.0 / system_evidence 0.1.0 저장 reader는 유지하며 새 1.1.0은 frame/stack을 중복 제거하고 0.2.0 결과와 과거 snapshot을 분리한다.

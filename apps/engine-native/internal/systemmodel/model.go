@@ -16,7 +16,8 @@ import (
 	"unicode/utf8"
 )
 
-const Version = "1.0.0"
+const Version = "1.1.0"
+const LegacyVersion = "1.0.0"
 const MaxBytes = 16 << 20
 const MaxRecords = 50000
 const PerfFields = "comm,pid,tid,cpu,time,period,event,ip,sym,dso"
@@ -233,7 +234,7 @@ func Sub(a, b string) string {
 	return x.Sub(x, y).String()
 }
 func (s Set) Validate(ctx context.Context) error {
-	if s.Version != Version || !hashPattern.MatchString(s.SourceSHA256) || len(s.Records) > MaxRecords {
+	if s.Version != Version && s.Version != LegacyVersion || !hashPattern.MatchString(s.SourceSHA256) || len(s.Records) > MaxRecords {
 		return fmt.Errorf("SYSTEM_MODEL_INVALID_OR_BUDGET")
 	}
 	if e := s.Capture.Validate(); e != nil {
@@ -350,7 +351,7 @@ func (s Set) Validate(ctx context.Context) error {
 		return e
 	}
 	if len(raw) > MaxBytes {
-		return fmt.Errorf("SYSTEM_MODEL_BUDGET: %d bytes exceeds %d; split original, no truncated result", len(raw), MaxBytes)
+		return ModelBudget(len(raw), len(s.Records))
 	}
 	return ctx.Err()
 }

@@ -1,6 +1,6 @@
 {
   "id": "diagnostics.system-evidence.v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "synthetic": true,
   "perf_exporter": "perf 6.1.190, actually executed against generated data; no host event collection",
   "bpftrace_shape": "v0.22.0 hist JSON, synthetic fixture only; live attach not executed",
@@ -11,7 +11,7 @@
     },
     {
       "file": "README.md",
-      "sha256": "eee335f292e0319ce7b0d9eb786dbe67c17466044a9e0620161c0ab95f4d7f0a"
+      "sha256": "3c0857e62d350a88f0a817c78667260cf7386d140e7788ddd6a50efaf78233bc"
     },
     {
       "file": "bpftrace-capture.json",
@@ -20,6 +20,10 @@
     {
       "file": "bpftrace-hist.jsonl",
       "sha256": "b7e0bc8be8dbffdfde42f1762e66f4c81cc38e3dfa2ce4bab0ce47190b210973"
+    },
+    {
+      "file": "bpftrace-keyed-hist.jsonl",
+      "sha256": "54ee1b562024fcf444fc3249c978080da814fec6ab1a0e65a46878b29d225332"
     },
     {
       "file": "event-emitter.txt",
@@ -39,7 +43,7 @@
     },
     {
       "file": "histogram-set.json",
-      "sha256": "782c824ad16d58862efe80cf6f82ed352c42d3e6b485e5183b740800d1ec8d42"
+      "sha256": "9c5647bbaabea7fe2912195e430c23b1301ada6f202318fcc6c0fb34ddc45c35"
     },
     {
       "file": "histogram.bt",
@@ -55,7 +59,7 @@
     },
     {
       "file": "perf-set.json",
-      "sha256": "10e0d64a4498e11cc44cecbafc4f35db38fef7ff20debbc3e23b5ff3af900a59"
+      "sha256": "a6c9a4796769ca00413bade00bd65c8b5d2d0cb4d291659c47979ae1acd5da94"
     },
     {
       "file": "synthetic-perf.data",
@@ -63,12 +67,12 @@
     },
     {
       "file": "system-evidence-set.json",
-      "sha256": "1089bb984e1d539c7742c3141f1d41907c34f50fc3c3f698b36deb3c6787fc18"
+      "sha256": "02ed5b4b49a6ba045fcbfbf3d0b7e6ccd052743c6168fb1c6bed16781384b464"
     },
     {
       "file": "system-evidence-set.schema.json",
-      "sha256": "f6609d2f7450f08e0dc3a4137c74ce7814194a2d16cbb83beda514b4209d7500"
+      "sha256": "bbb7c4916b567dc0cc3c9fc148c575cd798d4e95d839dddfbf6959a17f87f2f1"
     }
   ],
-  "schema_sha256": "f6609d2f7450f08e0dc3a4137c74ce7814194a2d16cbb83beda514b4209d7500"
+  "schema_sha256": "bbb7c4916b567dc0cc3c9fc148c575cd798d4e95d839dddfbf6959a17f87f2f1"
 }

@@ -137,8 +137,21 @@ Delta/cumulative/reset/gap/overlap과 explicit/exponential bucket은 별도 의�
 
 ## T-637 파일 기반 시스템 근거
 
-`system.evidence-json` / `system_evidence` 0.1.0은 제한 지원입니다. 실제 perf 6.1.190의
+`system.evidence-json` / `system_evidence` 0.2.0은 제한 지원입니다. 실제 perf 6.1.190의
 합성 data→sample text 출력, 제한 scheduler text 문법, 명시적 event JSONL과 bpftrace 0.22
 histogram JSON shape를 검증했습니다. Native scheduler/BPF 수집, 다른 layout/버전과 임의
 script는 별도입니다. Sample count·period·scheduler duration·집계 bucket을 구분하고
 perf binary decoder/live attach는 추가하지 않습니다. [흐름·조건·한도](SYSTEM_EVIDENCE.md).
+
+
+## T-639 장치·서빙 근거
+
+제한 지원 `inference.evidence-json`은 InferenceEvidence 1.0.0을 공통
+`inference_serving` 0.1.0으로 처리한다. 원본 MetricHistory를 한 번만 저장하고
+signal은 series/entity/context/unit/통계 형식/모집단을 명시적으로 연결한다.
+누락 값은 unavailable이다. NVIDIA CSV는 고정 query 계약을 요구하고 fixture는
+합성이며 Q03의 특정 vLLM 버전 alias gate는 유지한다. Parser·의미 analyzer·
+generic/export 책임은 분리한다. 한도·정확한 요청 공식·원본 메트릭 상세와 미실행
+native 수용 범위는 [오프라인 장치·서빙 계약](INFERENCE_EVIDENCE.md)을 참고한다.
+
+SystemEvidence 1.0.0 / system_evidence 0.1.0 저장 reader는 유지하며 새 1.1.0은 frame/stack을 중복 제거하고 0.2.0 결과와 과거 snapshot을 분리한다.

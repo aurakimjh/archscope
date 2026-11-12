@@ -300,8 +300,10 @@ func ReadArtifact(body []byte) (Artifact, error) {
 	if e = Strict(out.Files["spec.json"], &spec, 128<<10); e != nil {
 		return out, e
 	}
-	if out.Receipt.TableProtection != nil && *out.Receipt.TableProtection != TableProtection(out.View) {
-		return out, fmt.Errorf("VISUAL_TABLE_PROTECTION_MISMATCH")
+	if p := out.Receipt.TableProtection; p != nil {
+		if (p.Version != "spreadsheet-text-0.2.0" && p.Version != "spreadsheet-text-0.2.1") || *p != protectionForVersion(out.View, p.Version) {
+			return out, fmt.Errorf("VISUAL_TABLE_PROTECTION_MISMATCH")
+		}
 	}
 	if Hash(spec) != Hash(out.Receipt.Spec) {
 		return out, fmt.Errorf("VISUAL_ARTIFACT_SPEC_MISMATCH")

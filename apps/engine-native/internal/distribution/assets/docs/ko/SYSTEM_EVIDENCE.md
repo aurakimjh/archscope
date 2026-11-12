@@ -1,6 +1,6 @@
 # 파일 기반 perf와 제한된 BPF 근거
 
-T-637은 SystemEvidence 1.0.0 모델 위에 `system_evidence` 0.1.0을 추가합니다.
+T-637은 SystemEvidence 1.1.0 모델 위에 `system_evidence` 0.2.0을 추가합니다.
 공통 AnalysisResult를 유지하며 parser·analyzer·generic 소비자를 분리합니다.
 기존 folded stack·ProfileSet·case/index·Visual Artifact 계약도 유지합니다.
 BPF attach, 권한 변경, perf 실행, symbol 수신이나 converter 다운로드를 하지 않습니다.
@@ -98,3 +98,25 @@ Record 수만으로 모든 입력의 수용을 보장하지 않습니다. 검증
 기준: [Linux perf fields](https://raw.githubusercontent.com/torvalds/linux/v6.12/tools/perf/Documentation/perf-script.txt),
 [bpftrace 0.22 JSON](https://bpftrace.org/docs/0.22),
 [고정 histogram fixture](https://github.com/bpftrace/bpftrace/blob/v0.22.0/tests/runtime/outputs/hist.json).
+
+
+## R15 저장 형식과 scheduler 한정
+
+SystemEvidence 1.1.0은 frame/stack 공유 표와 record의 제한된 정수 `stack_id` 참조로
+중복을 제거한다. 결과 payload는 0.2.0이며 기존 1.0.0 모델과 0.1.0 저장 reader를
+유지한다. 과거 byte/hash를 재작성하지 않는다. 로컬 합성 25-frame 20k/24k sample은
+모델 5,913,811/7,101,811 bytes, 결과 17,933,051/21,533,051 bytes로 저장했다.
+고유 stack·더 깊은 frame·label은 여전히 한도를 소모한다. 한도 오류는 charged bytes·
+limit·처리 record 수와 `perf script --time` 구간 분할을 안내한다. Keyed histogram은
+새 map으로 분기하고 shape 오류 코드를 고정했으며 0.22.0 formatter source와 합성
+형태를 대조했다.
+
+Capture `original_sha256`은 변환 전 provenance 선언(예: binary perf.data hash)이다.
+실제 가져온 text/gzip의 `source_sha256`과 다를 수 있고 강제 text hash assertion이
+아니다. 현재 waker/idle도 entity 선언이 필요하며 시스템 전체 idle TID 0은 CPU 공유로
+모호한 행을 만들 수 있다. 명시적 idle/ignore 정책은 후속 큐다. Scheduler trace
+레이아웃에는 stack이 없어 profile은 `[unattributed]` 비용만 보인다. Stack을 포함한
+event 입력만 off-CPU 호출 구조를 갖는다. 현재 off_cpu는 sleeping/runnable 비용을
+함께 보존하고 state label을 남기며 runqueue와 겹칠 수 있다. State별 선택은 후속이다.
+
+고정 keyed formatter: [bpftrace 0.22 output.cpp](https://github.com/bpftrace/bpftrace/blob/v0.22.0/src/output.cpp).

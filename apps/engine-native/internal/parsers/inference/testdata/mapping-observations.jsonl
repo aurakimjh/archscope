@@ -1,0 +1,4 @@
+{"from":"synthetic-mig","to":"device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468","kind":"mig_parent","ref":{"source_id":"mapping-source","position":"line:1"}}
+{"from":"synthetic-worker-0","to":"synthetic-mig","kind":"uses_device","ref":{"source_id":"mapping-source","position":"line:2"}}
+{"from":"synthetic-worker-0","to":"synthetic-process","kind":"hosted_by","ref":{"source_id":"mapping-source","position":"line:3"}}
+{"from":"synthetic-worker-1","to":"device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468","kind":"uses_device","ref":{"source_id":"mapping-source","position":"line:4"}}

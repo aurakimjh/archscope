@@ -176,6 +176,8 @@ remain separate; exemplars and trace IDs provide optional explicit links.
 
 ## 11 GPU evidence
 
+T-639 implementation and its explicit scope/producer gates: [Offline GPU and inference serving evidence](INFERENCE_EVIDENCE.md).
+
 Start with NVIDIA telemetry/errors, then PyTorch/Nsight execution evidence. Device,
 host, process, container, rank, and MIG identities require explicit mapping. Keep
 device utilization, memory capacity/usage, framework allocated/reserved memory,

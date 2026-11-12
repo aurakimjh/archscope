@@ -1,3 +1,4 @@
+import { InferenceSourceAssistance, InferenceEvidenceActions } from "@/components/InferenceEvidence";
 import { SystemSourceAssistance, SystemEvidenceActions } from "@/components/SystemEvidence";
 import { VisualArtifactActions } from "@/components/VisualArtifactActions";
 import { MetricSourceAssistance } from "@/components/MetricSourceAssistance";
@@ -176,6 +177,7 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
       <Button variant="outline" disabled={busy || !path} onClick={() => void openSaved()}>{words("Open saved result", "저장 결과 열기")}</Button>
       <Button variant="outline" disabled={!busy && !job} onClick={cancel}>{words("Cancel", "취소")}</Button>
     </div>
+    <InferenceSourceAssistance path={path} disabled={busy} useNormalized={file=>{setPath(file);setImporter("inference.evidence-json");setOptions("{}");}} />
     <SystemSourceAssistance path={path} disabled={busy} useNormalized={file=>{setPath(file);setImporter("system.evidence-json");setOptions("{}");}} />
     <MetricSourceAssistance path={path} disabled={busy} useNormalized={(file, selection) => { setPath(file); setImporter("metrics.history-json"); setOptions(selection); }} />
     <ProfileSourceAssistance path={path} disabled={busy} useNormalized={(file, selection) => { setPath(file); setImporter("profile.source-set-json"); setOptions(selection); }} />
@@ -198,7 +200,8 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
       <div className="flex flex-wrap items-center gap-2"><strong>{safeDisplayText(caps.type)}</strong><Button size="sm" variant="outline" disabled={busy} onClick={() => void addToWorkspace()}>{words("Add to Workspace", "Workspace에 추가")}</Button>
         <Button size="sm" variant="outline" disabled={busy} onClick={() => void (async () => { try { const destination = await Dialogs.SaveFile({ Title: words("Save exact result", "원본 정밀도 결과 저장"), Filename: "evidence.json" }); if (destination) await bridge.exportEvidenceResult(caps.handle, destination, "raw-json"); } catch (error) { setProblem(resultProblem(error)); } })()}>{words("Save result JSON", "결과 JSON 저장")}</Button>
       </div>
-      {caps.type==="system_evidence"&&caps.payload_version==="0.1.0"&&<SystemEvidenceActions handle={caps.handle} caseRef={active?.saved_case} histogramView={provider==="system:histograms"} eventIDs={[...new Set(page?.rows.flatMap(row=>page.columns.flatMap((name,i)=>["event_id","start_ref","end_ref"].includes(name)&&row[i].text?[row[i].text]:[]))??[])]}/>}
+      {caps.type==="system_evidence"&&["0.1.0","0.2.0"].includes(caps.payload_version??"")&&<SystemEvidenceActions handle={caps.handle} caseRef={active?.saved_case} histogramView={provider==="system:histograms"} eventIDs={[...new Set(page?.rows.flatMap(row=>page.columns.flatMap((name,i)=>["event_id","start_ref","end_ref"].includes(name)&&row[i].text?[row[i].text]:[]))??[])]}/>}
+      {caps.type === "inference_serving" && caps.payload_version === "0.1.0" && <InferenceEvidenceActions handle={caps.handle} />}
       {caps.type === "metrics_timeseries" && ["0.1.0", "0.2.0"].includes(caps.payload_version ?? "") && <MetricHistoryExplorer handle={caps.handle} />}
       {caps.type === "profile_evidence" && ["0.2.0", "0.3.0", "0.4.0"].includes(caps.payload_version ?? "") && <ProfileEvidenceExplorer handle={caps.handle} caseRef={active?.saved_case} />}
       <p className="text-xs">{words("Declared identity; original sources have not been verified by reimport.", "선언된 식별 정보이며 원본 재가져오기로 검증한 상태가 아닙니다.")}</p>

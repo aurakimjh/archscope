@@ -1,0 +1,532 @@
+{
+  "task": "T-639",
+  "date": "2026-11-12",
+  "base_commit": "1a97ff8da5a262d23eb78cef0c003de65ba59dcf",
+  "shared_asset_commit": "cc7fd5cae6c3a07ae3ff5b5a61cf0bbbd8cc55f4",
+  "status": "REVIEW",
+  "scope": "Neutral device/serving implementation with synthetic qualified layouts and explicit bindings; not native GPU/vLLM or independent approval",
+  "implementation": {
+    "model": "InferenceEvidence 1.0.0",
+    "result": "inference_serving 0.1.0",
+    "storage": "One original MetricHistory model; signal/point references; no metric model nested in every signal",
+    "formats": [
+      "nvidia-smi-csv with explicit nvidia-smi.query-csv.v1 capture",
+      "metric-bindings-json over canonical MetricHistory",
+      "inference-evidence-json canonical model"
+    ],
+    "identity": "Declared host/boot, device/MIG/process lifetime/worker/rank and source-referenced links; no local-index join or device-to-worker allocation",
+    "measurements": "Exact strings and explicit units/conversions/forms/populations/boundaries; missing/unsupported/permission values remain unavailable; reset/gap/counter intervals reuse T-638",
+    "histograms": "Original/interval buckets queried without inferred quantile; histogram count/rate never scaled by physical bucket units",
+    "requests": "Observed token-boundary TTFT and >=2-token request TPOT, exact rational ns when needed, null/status for missing/invalid boundary or single token",
+    "runtime": "Explicit typed lifecycle/OOM/Xid/ECC/reset observations; not vendor free-form log parser or raw-log semantic authentication",
+    "consumers": "CLI, bounded Wails original metric queries, owned Workspace metric history, common provider/HTML/Report Pack and selected visual tables; existing CSV summary scope",
+    "bounds": "64 MiB original/expanded; 32 MiB model, 64 MiB result, 1024 entities/contexts, 2048 signals, 4096 links, 20k events; metric and options/page limits remain explicit"
+  },
+  "checks": {
+    "race": "111 tested packages + 7 no-test packages =118; 1562 passed/7 skipped test completion events; no failures",
+    "vet": [
+      "host",
+      "Windows amd64",
+      "Windows 386"
+    ],
+    "frontend": [
+      "state regressions",
+      "TypeScript/Vite production build, final table spacing verified",
+      "Wails bindings:180 methods"
+    ],
+    "build": [
+      "macOS package and ad-hoc deep strict codesign",
+      "Windows amd64/386 production PE GUI subsystem 2 cross-builds",
+      "desktop-only guard with server-build refusal"
+    ],
+    "scale": "Synthetic 10k/20k original-point saved-result build/readback = 7685924/15405924 bytes; single metric core",
+    "offline": "24 successful clean-install CLI process trees +1 expected converter guard refusal; zero INET; failed-network positive control 2",
+    "browser": "Actual final React + CLI DTOs with synthetic Wails IPC, capture error/inspection, separate MIG/worker/missing capability, exact 9007199254740993, reset/gap and canceled late lease release; not native acceptance",
+    "resources": "Standalone seven-importer fixture bundle rebuilt/checked; all shared/catalog/parser manifest bytes match",
+    "markdown": "20 scoped Markdown files, balanced fences and 130 local destination links; staged whitespace check passed"
+  },
+  "review_remediation": {
+    "T-637": "DONE under original R15 explicit P2-remediation closure permission",
+    "original_review_sha256": "f631d0d79e510fd81fbedc1f3a1ce1c7d1ae168c37c3fe9dc77778a60bd0169b",
+    "verdict": "CONDITIONAL preserved; no independent verification of final fixes or new PASS",
+    "R15-01": "Fixed fresh keyed-map decode and stable malformed shape code; synthetic fixture checked against pinned 0.22 formatter source",
+    "R15-02": "SystemEvidence 1.1.0 frame/stack sharing and result 0.2.0; bounded pool references/expansion, actionable bytes/limit/records/split errors; legacy 1.0/0.1 reader and actual 20k/24k 25-frame CLI proven",
+    "R15-06": "Decimal TSV protection corrected in policy 0.2.1; old 0.2.0 receipt counts retain original validation, archived bytes not rewritten",
+    "R15-03_04_05": "Three P3 follow-ups queued: imported-source assertion distinct from binary provenance, idle/ignore policy and sleeping/runnable selection. Current limitations documented."
+  },
+  "gates_preserved": [
+    "Q01 product trace adapters",
+    "Q02 actual Apple input",
+    "Q03 specific vLLM versions/aliases",
+    "Q04 actual OTel/GenAI aliases"
+  ],
+  "unexecuted": [
+    "Independent T-639 review",
+    "Native NVIDIA GPU/driver and vLLM execution/collection",
+    "Native new Wails/Windows/Office/clipboard flows",
+    "Hosted CI for this commit"
+  ],
+  "warnings": "macOS C object deployment-target warnings remain; package success does not certify minimum-OS runtime. Runtime/source mapping and calculation provenance remain declared. No causal inference or physical fault verdict.",
+  "preservation": "Unrelated HTTP docs/verifier and exact 10-line tracker history excluded; work_status hash below covers scoped index bytes only",
+  "browser_reproduction": "Copy browser-index.html -> frontend/.tmp/t639/index.html, browser-harness.tsx -> harness.tsx and browser-*.json -> corresponding names without prefix, then use a temporary Vite server; transport remains synthetic. Never use these receipts as native IPC evidence.",
+  "source_index_files": {
+    ".gitattributes": {
+      "sha256": "46a580528e3cd0ce421a72140b88f4fa03a9f662209927458d6714bcf38e666a",
+      "bytes": 1842
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": {
+      "sha256": "d53cfe1892148b8ba6320dcf01339d05960e90c6d10420b83a8893c623f99e4b",
+      "bytes": 33416
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/inferenceEvidence.ts": {
+      "sha256": "f3436f2a4ffc2e46e3ca1944affa243212cbe9e6f410f9e1d29da5aca7e4c09a",
+      "bytes": 2209
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/EvidenceResultPanel.tsx": {
+      "sha256": "36219cbc072d83e052fe3cc29ae26b05822a6e0d1f9d961e89eba9d9037ba83e",
+      "bytes": 25432
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/InferenceEvidence.tsx": {
+      "sha256": "70531774299303aa0e13e9e094e2aa305fe6d27aad8b0875e72626d414d2b37b",
+      "bytes": 11707
+    },
+    "apps/engine-native/cmd/archscope-app/inferencesourceservice.go": {
+      "sha256": "14cded16356ef0355646fb293e648bce86a008b565b09e44b3c40c7518881167",
+      "bytes": 2475
+    },
+    "apps/engine-native/cmd/archscope-app/inferencesourceservice_test.go": {
+      "sha256": "5cf6018d993a06ddcf03e20a02494677b3e40f20f5031c67a6d09f5e38c4fec8",
+      "bytes": 4271
+    },
+    "apps/engine-native/cmd/archscope-engine/cmd_inference.go": {
+      "sha256": "c5b47a8994beae049ef10b3cc8bb3d598a9508c092cbbd4e26793a9b58c6e73c",
+      "bytes": 4763
+    },
+    "apps/engine-native/cmd/archscope-engine/cmd_inference_test.go": {
+      "sha256": "116a06dafd2c927b855509163b6c007c1f0447ed5193f269480462e0b2078420",
+      "bytes": 3440
+    },
+    "apps/engine-native/internal/analysis/inference_evidence.go": {
+      "sha256": "2705e0c40c4c25f6f17312fb4cf9b9890492940a6365d6bfc4f3ad36edb1e2a6",
+      "bytes": 3511
+    },
+    "apps/engine-native/internal/analyzers/inference/analyzer.go": {
+      "sha256": "8ccb6a6c91a5d9a0abe7627ad393fe8c377a4db2c0c181550460b54c792a8697",
+      "bytes": 12879
+    },
+    "apps/engine-native/internal/analyzers/inference/analyzer_test.go": {
+      "sha256": "c7eff58950d594d5b1fabfab048563a73913dbcc4923faee58c8e9948e53e82d",
+      "bytes": 6858
+    },
+    "apps/engine-native/internal/analyzers/systemtrace/analyzer.go": {
+      "sha256": "afbcd44871c3221fdd0bd96858e1d5486f462bca35d16ad62ebcd1ca2364d667",
+      "bytes": 9137
+    },
+    "apps/engine-native/internal/analyzers/systemtrace/scale_test.go": {
+      "sha256": "0f542029c094db76cd5511e05b4d54240616e51e9b875432e31f34a5b9a509ff",
+      "bytes": 3593
+    },
+    "apps/engine-native/internal/analyzers/systemtrace/testdata/payload-0.1.0.saved.json": {
+      "sha256": "96246864d04a65b8f9858cd0dc7b30522466242ee4fd886ceea8b778bdbaf2be",
+      "bytes": 7716
+    },
+    "apps/engine-native/internal/catalog/builtin.go": {
+      "sha256": "ee9dc3ddaa5d6946ac495de62bb8ff635b051e39b91198691a4c664265ad1a45",
+      "bytes": 15280
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-LICENSE.txt": {
+      "sha256": "f88da07682eaf302aadf898dc16299d843e3d340d033ca8392b94c4a1152c22b",
+      "bytes": 128
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-README.md": {
+      "sha256": "a19d549027146c3c1cc698089e5d2bdcba97381a72f96d81d5df6f2a06050126",
+      "bytes": 1773
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-bindings.json": {
+      "sha256": "efb03b79ce5848440dfc29f406b0c463084b5c4331ab5bcda55ced589e607978",
+      "bytes": 20612
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-mapping-observations.jsonl": {
+      "sha256": "77308670df9eb60e34f3ac6b811fe1fa8dcc4d6f8492022ff4071f2d456d9235",
+      "bytes": 628
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-metric-model.json": {
+      "sha256": "826427cde97c6b4fe53b8627343d5c796b6a04525787dff60b86295b811479c3",
+      "bytes": 44232
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-nvidia-capture.json": {
+      "sha256": "3c000376af400c1aed7a65beb8222081f76a41893657d6a7706e3e597bfac89a",
+      "bytes": 375
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-nvidia-query.csv": {
+      "sha256": "85ca5c4278798e3e9831a376ba6b08d81fbe1476eb05bae4462c8be621075df0",
+      "bytes": 333
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-nvidia-set.json": {
+      "sha256": "94209d5d83d73224daacdfdd6fc6bc48f36bdc080578ff963027445fb8a8d542",
+      "bytes": 29993
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-runtime-observations.jsonl": {
+      "sha256": "cb88786c7078960210982f62abf5e25f994be6468b8a487b72134f53e14ff975",
+      "bytes": 4301
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-serving-snapshots.json": {
+      "sha256": "892744c874468576c762e300ad6446eb0987faab60d71f28a36ff34d27c823de",
+      "bytes": 11097
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-set.json": {
+      "sha256": "42c9e1fcec78ae9e495f7226788a228464c08b3c05ec3fff221b385c95235e99",
+      "bytes": 67944
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-set.manifest.json": {
+      "sha256": "f442d709574fce3ce531f32ffb94f8757d8e54490342d19cd946785a1eda4e04",
+      "bytes": 1922
+    },
+    "apps/engine-native/internal/catalog/contracts/inference-evidence-set.schema.json": {
+      "sha256": "fa0c93786523d3fa763b6f796a9595997380add3b259d73d3d23519fdc0c6fb7",
+      "bytes": 1637
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-README.md": {
+      "sha256": "3c0857e62d350a88f0a817c78667260cf7386d140e7788ddd6a50efaf78233bc",
+      "bytes": 2155
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-bpftrace-keyed-hist.jsonl": {
+      "sha256": "54ee1b562024fcf444fc3249c978080da814fec6ab1a0e65a46878b29d225332",
+      "bytes": 150
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-histogram-set.json": {
+      "sha256": "9c5647bbaabea7fe2912195e430c23b1301ada6f202318fcc6c0fb34ddc45c35",
+      "bytes": 1464
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-perf-set.json": {
+      "sha256": "a6c9a4796769ca00413bade00bd65c8b5d2d0cb4d291659c47979ae1acd5da94",
+      "bytes": 2151
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-set.json": {
+      "sha256": "02ed5b4b49a6ba045fcbfbf3d0b7e6ccd052743c6168fb1c6bed16781384b464",
+      "bytes": 3936
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-set.manifest.json": {
+      "sha256": "680e7563ec0a67d5abadabfb460496441f2a313fddfc480c48fc2b098cbb129a",
+      "bytes": 2622
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-set.schema.json": {
+      "sha256": "bbb7c4916b567dc0cc3c9fc148c575cd798d4e95d839dddfbf6959a17f87f2f1",
+      "bytes": 2675
+    },
+    "apps/engine-native/internal/catalog/contracts_test.go": {
+      "sha256": "c199ef2719d0bff24da17a8e07dd58a8a99f8492bd103209f861914b3fb8de0c",
+      "bytes": 1561
+    },
+    "apps/engine-native/internal/catalog/inference_evidence.go": {
+      "sha256": "1b6b948a223b12c3034a816a563e7de74a01a00f1d42ecd63df3a57a5079a62f",
+      "bytes": 9418
+    },
+    "apps/engine-native/internal/distribution/assets/docs/en/INFERENCE_EVIDENCE.md": {
+      "sha256": "7429727627960d592e4dc8bf05dcffbfbcf3836fc945c8c63b73cbac330de797",
+      "bytes": 9715
+    },
+    "apps/engine-native/internal/distribution/assets/docs/en/SYSTEM_EVIDENCE.md": {
+      "sha256": "0b00efb4dd36ba04a836b9039dec0f104f2a1b3e25a2dc83a353d828ebf374e8",
+      "bytes": 10373
+    },
+    "apps/engine-native/internal/distribution/assets/docs/en/VISUAL_ARTIFACTS.md": {
+      "sha256": "d2ba1aab8ace28c3fac462c4b61a33a2db1b6fc5d031a57af620b9220722276c",
+      "bytes": 11081
+    },
+    "apps/engine-native/internal/distribution/assets/docs/ko/INFERENCE_EVIDENCE.md": {
+      "sha256": "2978441e18ccd4596be1e8dd078251511ab314d2ed2291aafb729d7b55e342fa",
+      "bytes": 9564
+    },
+    "apps/engine-native/internal/distribution/assets/docs/ko/SYSTEM_EVIDENCE.md": {
+      "sha256": "cd72be5432a2266802aec690ba2daf17c7656e85dfd918076347cdba9aafeb72",
+      "bytes": 10690
+    },
+    "apps/engine-native/internal/distribution/assets/docs/ko/VISUAL_ARTIFACTS.md": {
+      "sha256": "c36dc9a7565bacb0733e3f27dc2f126f105135334e9ffec8debf61820dfa94d7",
+      "bytes": 11380
+    },
+    "apps/engine-native/internal/distribution/assets/fixtures.sha256": {
+      "sha256": "c573d9d569b7e8ceadd3af6d910a08d2d2b8b6f0898f8bb471fdc35a44e1b849",
+      "bytes": 65
+    },
+    "apps/engine-native/internal/distribution/assets/fixtures.zip": {
+      "sha256": "f4bf3f15e3682ea9a145d72c62708b1057dcde66aca9101859eaf8f98557be3c",
+      "bytes": 300878
+    },
+    "apps/engine-native/internal/distribution/bundle_test.go": {
+      "sha256": "73aa1044f944a51b1abf440600de7bf88322d11a4b2a704a04fd85de5088f268",
+      "bytes": 2974
+    },
+    "apps/engine-native/internal/inferencemodel/model.go": {
+      "sha256": "e7858982ac1f0449474a239f49743ff7768afcd33719e3123eabb2a85f6a2782",
+      "bytes": 19167
+    },
+    "apps/engine-native/internal/parsers/inference/source.go": {
+      "sha256": "34d0dd8ab15c4fdbdd4fc77da1bc3585336aa7ddab44626a6436a4c02f9144f0",
+      "bytes": 9795
+    },
+    "apps/engine-native/internal/parsers/inference/source_test.go": {
+      "sha256": "baf313efa48543130e0f76d4d42ff87b3b1a0cfea3ec5bd1c73e211c146ecfe2",
+      "bytes": 3780
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/LICENSE.txt": {
+      "sha256": "f88da07682eaf302aadf898dc16299d843e3d340d033ca8392b94c4a1152c22b",
+      "bytes": 128
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/README.md": {
+      "sha256": "a19d549027146c3c1cc698089e5d2bdcba97381a72f96d81d5df6f2a06050126",
+      "bytes": 1773
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/bindings.json": {
+      "sha256": "efb03b79ce5848440dfc29f406b0c463084b5c4331ab5bcda55ced589e607978",
+      "bytes": 20612
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/inference-evidence-set.json": {
+      "sha256": "42c9e1fcec78ae9e495f7226788a228464c08b3c05ec3fff221b385c95235e99",
+      "bytes": 67944
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/inference-evidence-set.schema.json": {
+      "sha256": "fa0c93786523d3fa763b6f796a9595997380add3b259d73d3d23519fdc0c6fb7",
+      "bytes": 1637
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/manifest.json": {
+      "sha256": "f442d709574fce3ce531f32ffb94f8757d8e54490342d19cd946785a1eda4e04",
+      "bytes": 1922
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/mapping-observations.jsonl": {
+      "sha256": "77308670df9eb60e34f3ac6b811fe1fa8dcc4d6f8492022ff4071f2d456d9235",
+      "bytes": 628
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/metric-model.json": {
+      "sha256": "826427cde97c6b4fe53b8627343d5c796b6a04525787dff60b86295b811479c3",
+      "bytes": 44232
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/nvidia-capture.json": {
+      "sha256": "3c000376af400c1aed7a65beb8222081f76a41893657d6a7706e3e597bfac89a",
+      "bytes": 375
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/nvidia-query.csv": {
+      "sha256": "85ca5c4278798e3e9831a376ba6b08d81fbe1476eb05bae4462c8be621075df0",
+      "bytes": 333
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/nvidia-set.json": {
+      "sha256": "94209d5d83d73224daacdfdd6fc6bc48f36bdc080578ff963027445fb8a8d542",
+      "bytes": 29993
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/runtime-observations.jsonl": {
+      "sha256": "cb88786c7078960210982f62abf5e25f994be6468b8a487b72134f53e14ff975",
+      "bytes": 4301
+    },
+    "apps/engine-native/internal/parsers/inference/testdata/serving-snapshots.json": {
+      "sha256": "892744c874468576c762e300ad6446eb0987faab60d71f28a36ff34d27c823de",
+      "bytes": 11097
+    },
+    "apps/engine-native/internal/parsers/systemtrace/source.go": {
+      "sha256": "a8f866e6db0946ff036609f729bc35f9b296d9249756d9e4aad3e4b059d05870",
+      "bytes": 12408
+    },
+    "apps/engine-native/internal/parsers/systemtrace/source_test.go": {
+      "sha256": "a66189d560d0f0a49376b0b07e7ba3fefe8bb69e2272f7728971963fd7e51f7f",
+      "bytes": 6767
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/README.md": {
+      "sha256": "3c0857e62d350a88f0a817c78667260cf7386d140e7788ddd6a50efaf78233bc",
+      "bytes": 2155
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/bpftrace-keyed-hist.jsonl": {
+      "sha256": "54ee1b562024fcf444fc3249c978080da814fec6ab1a0e65a46878b29d225332",
+      "bytes": 150
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/histogram-set.json": {
+      "sha256": "9c5647bbaabea7fe2912195e430c23b1301ada6f202318fcc6c0fb34ddc45c35",
+      "bytes": 1464
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/manifest.json": {
+      "sha256": "680e7563ec0a67d5abadabfb460496441f2a313fddfc480c48fc2b098cbb129a",
+      "bytes": 2622
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/perf-set.json": {
+      "sha256": "a6c9a4796769ca00413bade00bd65c8b5d2d0cb4d291659c47979ae1acd5da94",
+      "bytes": 2151
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/system-evidence-set.json": {
+      "sha256": "02ed5b4b49a6ba045fcbfbf3d0b7e6ccd052743c6168fb1c6bed16781384b464",
+      "bytes": 3936
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/system-evidence-set.schema.json": {
+      "sha256": "bbb7c4916b567dc0cc3c9fc148c575cd798d4e95d839dddfbf6959a17f87f2f1",
+      "bytes": 2675
+    },
+    "apps/engine-native/internal/systemmodel/compact.go": {
+      "sha256": "515043e2376b8d5eb8714b999136cdd92a4f92dc17874da982ef2c29b35b7f32",
+      "bytes": 4702
+    },
+    "apps/engine-native/internal/systemmodel/model.go": {
+      "sha256": "14b704cd0dfa0556d8a1848da7db5e2d255a0401c2ecbf8add6025327e672cc0",
+      "bytes": 13959
+    },
+    "apps/engine-native/internal/visuals/artifact.go": {
+      "sha256": "6833c6f06ca432712579aec7ed55e944eb653fa7a08e04376b61012c3aa07da1",
+      "bytes": 14445
+    },
+    "apps/engine-native/internal/visuals/protection_test.go": {
+      "sha256": "15a6c55266a4615c5a7b5745580e31dc3fd8fdb9cd51d54d430bebef9bc3b22f",
+      "bytes": 1997
+    },
+    "apps/engine-native/internal/visuals/protection_version_test.go": {
+      "sha256": "86b20df443b8762f02a751e711c57ade79d6d71df39aa7a3d40281c2e8266d9a",
+      "bytes": 617
+    },
+    "apps/engine-native/internal/visuals/render.go": {
+      "sha256": "feaf35ffa60d2ddafdca32ff75e6b24036961c582734fa21948def072882174c",
+      "bytes": 10817
+    },
+    "apps/engine-native/scripts/generate-inference-fixtures.go": {
+      "sha256": "5eb7e01bb54b5515b0eda256ac3e318fdd16ee086785af6e4b048e3b1bb3a1a7",
+      "bytes": 7301
+    },
+    "docs/en/DATA_MODEL.md": {
+      "sha256": "4a3b310de66a96263d6db8bbb98f823a6b8dc48f1935817df6a33e243fbd75ff",
+      "bytes": 112827
+    },
+    "docs/en/IMPORTER_SUPPORT_MATRIX.md": {
+      "sha256": "01d4e61b94d3046ccbb81d957bd3da6edf340804a02fdcb12bcdf6cba5b12882",
+      "bytes": 12441
+    },
+    "docs/en/INFERENCE_EVIDENCE.md": {
+      "sha256": "7429727627960d592e4dc8bf05dcffbfbcf3836fc945c8c63b73cbac330de797",
+      "bytes": 9715
+    },
+    "docs/en/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md": {
+      "sha256": "b4b4642d4b91617355d7f419e63928ed6ac9cc3ef1fea2d16a3964d2ff3f8647",
+      "bytes": 31995
+    },
+    "docs/en/PARSER_DESIGN.md": {
+      "sha256": "0e6ec7fc554c1440e93ea55de3ca8bb49f2a9085c44d3e8092d5065a542d291c",
+      "bytes": 62159
+    },
+    "docs/en/SYSTEM_EVIDENCE.md": {
+      "sha256": "0b00efb4dd36ba04a836b9039dec0f104f2a1b3e25a2dc83a353d828ebf374e8",
+      "bytes": 10373
+    },
+    "docs/en/VISUAL_ARTIFACTS.md": {
+      "sha256": "d2ba1aab8ace28c3fac462c4b61a33a2db1b6fc5d031a57af620b9220722276c",
+      "bytes": 11081
+    },
+    "docs/ko/DATA_MODEL.md": {
+      "sha256": "c1639d898198681d8c938704cd9e0ef0bf9a568f425c98426168f179eb0aacb1",
+      "bytes": 122946
+    },
+    "docs/ko/IMPORTER_SUPPORT_MATRIX.md": {
+      "sha256": "24d840e53394865a4379760762924892e30bfec8272e901de2953cabb3ad3a33",
+      "bytes": 13155
+    },
+    "docs/ko/INFERENCE_EVIDENCE.md": {
+      "sha256": "2978441e18ccd4596be1e8dd078251511ab314d2ed2291aafb729d7b55e342fa",
+      "bytes": 9564
+    },
+    "docs/ko/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md": {
+      "sha256": "39aa7010affa720f7f9b6ef643b143bd2d57c1894b0028e314eeb4aac9a1084c",
+      "bytes": 133889
+    },
+    "docs/ko/PARSER_DESIGN.md": {
+      "sha256": "213254e5654819c06ff59fbc668a602085734d0c05a8e597c27014646b94bca0",
+      "bytes": 70500
+    },
+    "docs/ko/SYSTEM_EVIDENCE.md": {
+      "sha256": "cd72be5432a2266802aec690ba2daf17c7656e85dfd918076347cdba9aafeb72",
+      "bytes": 10690
+    },
+    "docs/ko/VISUAL_ARTIFACTS.md": {
+      "sha256": "c36dc9a7565bacb0733e3f27dc2f126f105135334e9ffec8debf61820dfa94d7",
+      "bytes": 11380
+    },
+    "docs/review/README.md": {
+      "sha256": "1e387cec429c470539ec86828ba86a393ef82d72e43d3c04672ae9a51893d787",
+      "bytes": 7338
+    },
+    "docs/review/done/2026-11-12_claude-code_T-637_implementation-review.ko.md": {
+      "sha256": "f631d0d79e510fd81fbedc1f3a1ce1c7d1ae168c37c3fe9dc77778a60bd0169b",
+      "bytes": 15929
+    },
+    "scripts/build-offline-assets.py": {
+      "sha256": "7f2d6661b6e59619fe73ba19d196333c65b504a163542f1a4fc4f70397d734e5",
+      "bytes": 3643
+    },
+    "scripts/verify-offline-syscalls.py": {
+      "sha256": "15a108eb353399aa978543d0a28b837688740d08d8fc0f6e2ac8ea7c37c756fd",
+      "bytes": 8069
+    },
+    "work_status.md": {
+      "sha256": "110f133dd3ca5b434a90108214cfa2500f69e46e7e75ebdbb6061465999ebb2d",
+      "bytes": 462966
+    }
+  },
+  "evidence_files": {
+    "browser-harness.tsx": {
+      "sha256": "6579068975d06b690b9d2142885a6616b86358b8f8815b555183a270e161e7d4",
+      "bytes": 1559
+    },
+    "browser-index.html": {
+      "sha256": "da72aebcb423eafc9c0ad300c18b7875b9a0868688ebb9954784d33a3cf907e8",
+      "bytes": 366
+    },
+    "browser-inventory.json": {
+      "sha256": "b8cf2c0d494dcfa00b4f7f578b4dc394acc0b8f60f0ae411ed1153314aa5934d",
+      "bytes": 12164
+    },
+    "browser-nvidia-capture.json": {
+      "sha256": "3c000376af400c1aed7a65beb8222081f76a41893657d6a7706e3e597bfac89a",
+      "bytes": 375
+    },
+    "browser-nvidia-inventory.json": {
+      "sha256": "9ab07e6516162b36d0a2e874f0124911cb9c926781623ed2f68b8cc2c30e74fa",
+      "bytes": 6435
+    },
+    "browser-page.json": {
+      "sha256": "ba3d7869885ed81d7aded7d3ad0d10b5e928d029e226c6b9a2d1412d61b0de30",
+      "bytes": 2592
+    },
+    "browser.json": {
+      "sha256": "6937cf3471e7ed9f23ca334ea1704254fedaa30aab6bea3c250b8e86dd667266",
+      "bytes": 1935
+    },
+    "build-checks.json": {
+      "sha256": "26bc2820f410949476b6d93baac5d28f08d509cebb8b8b27a3025f0f08ba4940",
+      "bytes": 3856
+    },
+    "offline-syscalls.json": {
+      "sha256": "b73565625b4e02b21ed2a37b21000eab365370cbc3627a5cab38c0da018ca187",
+      "bytes": 3872
+    },
+    "r15-compatibility.json": {
+      "sha256": "c1b388cd0b0e70a6ecc063bec94660b7b189e74d6d575d5df197e07927c77c2b",
+      "bytes": 1090
+    },
+    "r15-deep-cli.json": {
+      "sha256": "aef15debc276a2e5d6eebfead1c854c65d66d8b7e3da6994e2b29526ed174a1a",
+      "bytes": 975
+    },
+    "r15-deep-generator.py": {
+      "sha256": "0993440228436f5611a517bdc3828ca4486b20b58c27b1a48f153f851702189e",
+      "bytes": 682
+    },
+    "race-summary.json": {
+      "sha256": "40e266020c0abbdde4537a651eefd2021f5b6ae1f2f51150f738e7459e062a8c",
+      "bytes": 18824
+    },
+    "scale.txt": {
+      "sha256": "307d33d8760dc43dd5e5df693a3f1bde1451072f140cd2a6c2401c1dd9403260",
+      "bytes": 329
+    },
+    "t639-exact-original.png": {
+      "sha256": "611661c47fb5a2d465cf95576ea371a8ab30327e3169717cc2297c4b7ce4e999",
+      "bytes": 524876
+    },
+    "t639-scope-cancel.png": {
+      "sha256": "594e4ecb630898399ebf4adb211d93b41e3495cfb45248deaf38e794b6d6aafd",
+      "bytes": 402907
+    }
+  }
+}

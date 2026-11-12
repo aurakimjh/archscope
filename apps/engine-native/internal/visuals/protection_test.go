@@ -10,7 +10,7 @@ import (
 func TestR1401TransportProtectionPreservesPathsAndHeaders(t *testing.T) {
 	view, spec, _, _ := sample(t)
 	view.Columns = []string{"Frame / evidence", "Value"}
-	paths := []string{"runtime/pprof.StartCPUProfile", "compress/flate.NewWriter", "/usr/lib/module.so", "https://example.invalid/a/b", "한글 이름", `C:\a\b`}
+	paths := []string{"0.1", "1.5", "3.14", "12.5", "100.25", "-0.5", "runtime/pprof.StartCPUProfile", "compress/flate.NewWriter", "/usr/lib/module.so", "https://example.invalid/a/b", "한글 이름", `C:\a\b`}
 	view.Rows = nil
 	for _, path := range paths {
 		view.Rows = append(view.Rows, []resultcontract.Cell{{Text: path}, {Text: "-5"}})

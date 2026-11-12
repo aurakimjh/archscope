@@ -1,0 +1,57 @@
+{
+  "id": "diagnostics.inference-evidence.v1",
+  "version": "1.0.0",
+  "synthetic": true,
+  "qualification": "Synthetic declared layout and semantic bindings only; no native GPU/vLLM execution or version aliases",
+  "files": [
+    {
+      "file": "LICENSE.txt",
+      "sha256": "f88da07682eaf302aadf898dc16299d843e3d340d033ca8392b94c4a1152c22b"
+    },
+    {
+      "file": "README.md",
+      "sha256": "a19d549027146c3c1cc698089e5d2bdcba97381a72f96d81d5df6f2a06050126"
+    },
+    {
+      "file": "bindings.json",
+      "sha256": "efb03b79ce5848440dfc29f406b0c463084b5c4331ab5bcda55ced589e607978"
+    },
+    {
+      "file": "inference-evidence-set.json",
+      "sha256": "42c9e1fcec78ae9e495f7226788a228464c08b3c05ec3fff221b385c95235e99"
+    },
+    {
+      "file": "inference-evidence-set.schema.json",
+      "sha256": "fa0c93786523d3fa763b6f796a9595997380add3b259d73d3d23519fdc0c6fb7"
+    },
+    {
+      "file": "mapping-observations.jsonl",
+      "sha256": "77308670df9eb60e34f3ac6b811fe1fa8dcc4d6f8492022ff4071f2d456d9235"
+    },
+    {
+      "file": "metric-model.json",
+      "sha256": "826427cde97c6b4fe53b8627343d5c796b6a04525787dff60b86295b811479c3"
+    },
+    {
+      "file": "nvidia-capture.json",
+      "sha256": "3c000376af400c1aed7a65beb8222081f76a41893657d6a7706e3e597bfac89a"
+    },
+    {
+      "file": "nvidia-query.csv",
+      "sha256": "85ca5c4278798e3e9831a376ba6b08d81fbe1476eb05bae4462c8be621075df0"
+    },
+    {
+      "file": "nvidia-set.json",
+      "sha256": "94209d5d83d73224daacdfdd6fc6bc48f36bdc080578ff963027445fb8a8d542"
+    },
+    {
+      "file": "runtime-observations.jsonl",
+      "sha256": "cb88786c7078960210982f62abf5e25f994be6468b8a487b72134f53e14ff975"
+    },
+    {
+      "file": "serving-snapshots.json",
+      "sha256": "892744c874468576c762e300ad6446eb0987faab60d71f28a36ff34d27c823de"
+    }
+  ],
+  "schema_sha256": "fa0c93786523d3fa763b6f796a9595997380add3b259d73d3d23519fdc0c6fb7"
+}

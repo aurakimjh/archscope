@@ -2334,7 +2334,7 @@ VisualArtifactSpec에 view hash·실제 query·template/renderer/font/masking �
 새 리비전을 만듭니다. 공유 schema는 offline 검증을 위해 embed합니다.
 한도·native/CLI 경계·남은 Office 수용은 [시각 자료 안내](VISUAL_ARTIFACTS.md)를 참고하세요.
 
-## SystemEvidence 1.0.0 / system_evidence 0.1.0
+## SystemEvidence 1.1.0 / system_evidence 0.2.0
 
 압축 원본 hash·해제 line/byte 좌표, 명시적 capture/tool/script/clock/boot/namespace/entity
 수명, 정확한 event 시각/period·양끝 포함 bucket/count를 고정합니다. Scheduler 구간은
@@ -2344,3 +2344,16 @@ nullable duration과 availability/status·양 끝 event ID를 가지며, 한 rec
 frame 식별을 가진 기존 profile_evidence 0.2.0의 명시적 새 결과입니다. Clock이 없으면
 샘플의 chronology 없이 투영합니다. Duration cell은 measurement의 행별 availability/reason을
 쓰고 bucket의 물리 단위와 count 단위를 구분합니다. [SYSTEM_EVIDENCE](SYSTEM_EVIDENCE.md) 참고.
+
+
+## T-639 장치·서빙 근거
+
+제한 지원 `inference.evidence-json`은 InferenceEvidence 1.0.0을 공통
+`inference_serving` 0.1.0으로 처리한다. 원본 MetricHistory를 한 번만 저장하고
+signal은 series/entity/context/unit/통계 형식/모집단을 명시적으로 연결한다.
+누락 값은 unavailable이다. NVIDIA CSV는 고정 query 계약을 요구하고 fixture는
+합성이며 Q03의 특정 vLLM 버전 alias gate는 유지한다. Parser·의미 analyzer·
+generic/export 책임은 분리한다. 한도·정확한 요청 공식·원본 메트릭 상세와 미실행
+native 수용 범위는 [오프라인 장치·서빙 계약](INFERENCE_EVIDENCE.md)을 참고한다.
+
+SystemEvidence 1.0.0 / system_evidence 0.1.0 저장 reader는 유지하며 새 1.1.0은 frame/stack을 중복 제거하고 0.2.0 결과와 과거 snapshot을 분리한다.

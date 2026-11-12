@@ -13,9 +13,13 @@ import (
 )
 
 const ResultType = "system_evidence"
-const PayloadVersion = "0.1.0"
+const PayloadVersion = "0.2.0"
+const LegacyPayloadVersion = "0.1.0"
 
 func Build(ctx context.Context, s m.Set, source string) (models.AnalysisResult, error) {
+	return buildVersion(ctx, s, source, PayloadVersion)
+}
+func buildVersion(ctx context.Context, s m.Set, source, payload string) (models.AnalysisResult, error) {
 	if e := s.Validate(ctx); e != nil {
 		return models.AnalysisResult{}, e
 	}
@@ -24,7 +28,7 @@ func Build(ctx context.Context, s m.Set, source string) (models.AnalysisResult, 
 		return models.AnalysisResult{}, e
 	}
 	r := models.New(ResultType, "system-evidence.v1")
-	r.Metadata.SchemaVersion = PayloadVersion
+	r.Metadata.SchemaVersion = payload
 	r.SourceFiles = []string{source}
 	events := []map[string]any{}
 	histograms := []map[string]any{}
@@ -69,7 +73,7 @@ func Build(ctx context.Context, s m.Set, source string) (models.AnalysisResult, 
 	r.Series = map[string]any{}
 	r.Charts = map[string]any{}
 	r.Metadata.Extra["envelope_schema_version"] = "1.0.0"
-	r.Metadata.Extra["extensions"] = map[string]string{"system_core": m.Version, "measurement": "1.0.0"}
+	r.Metadata.Extra["extensions"] = map[string]string{"system_core": s.Version, "measurement": "1.0.0"}
 	r.Metadata.Extra["system_core"] = s
 	r.Metadata.Extra["quality"] = s.Capture
 	r.Metadata.Extra["identity_basis"] = "declared"
@@ -94,7 +98,7 @@ func Build(ctx context.Context, s m.Set, source string) (models.AnalysisResult, 
 }
 func ReadCore(r models.AnalysisResult) (m.Set, error) {
 	var s m.Set
-	if r.Type != ResultType || r.Metadata.SchemaVersion != PayloadVersion {
+	if r.Type != ResultType || (r.Metadata.SchemaVersion != PayloadVersion && r.Metadata.SchemaVersion != LegacyPayloadVersion) {
 		return s, fmt.Errorf("SYSTEM_RESULT_VERSION_UNSUPPORTED")
 	}
 	body, e := json.Marshal(r.Metadata.Extra["system_core"])
@@ -108,7 +112,7 @@ func Validate(r models.AnalysisResult) error {
 	if e != nil {
 		return e
 	}
-	expected, e := Build(context.Background(), s, "")
+	expected, e := buildVersion(context.Background(), s, "", r.Metadata.SchemaVersion)
 	if e != nil {
 		return e
 	}
@@ -126,10 +130,12 @@ func Validate(r models.AnalysisResult) error {
 	}
 	return nil
 }
-func Descriptor() resultcontract.Descriptor {
+func Descriptor() resultcontract.Descriptor       { return descriptor(PayloadVersion, "0.2.1") }
+func LegacyDescriptor() resultcontract.Descriptor { return descriptor(LegacyPayloadVersion, "0.1.1") }
+func descriptor(payload, before string) resultcontract.Descriptor {
 	scalars := map[string]resultcontract.ValueSchema{}
 	for _, key := range []string{"record_count", "sample_records", "interval_count", "qualified_intervals", "unavailable_intervals", "histogram_bucket_count"} {
 		scalars["/summary/"+key] = resultcontract.ValueSchema{Nullable: false, Encodings: []string{"exact_integer_string"}, Kinds: []string{"record_count"}, Units: []string{"count"}, Aggregations: []string{"count"}}
 	}
-	return resultcontract.Descriptor{Type: ResultType, Payload: resultcontract.Range{Min: PayloadVersion, Before: "0.1.1"}, Envelope: resultcontract.Range{Min: "1.0.0", Before: "2.0.0"}, Operations: []string{"display", "save", "compute", "json", "csv", "html", "report-pack"}, Extensions: map[string]resultcontract.Range{"system_core": {Min: m.Version, Before: "1.0.1"}, "measurement": {Min: "1.0.0", Before: "1.1.0"}}, Required: map[string][]string{"save": {"system_core", "measurement"}, "compute": {"system_core", "measurement"}}, Scalars: scalars, Collections: map[string]map[string]resultcontract.ValueSchema{"/tables/intervals": {"duration_ns": {Nullable: true, Encodings: []string{"exact_integer_string"}, Kinds: []string{"duration"}, Units: []string{"nanoseconds"}, Aggregations: []string{"none"}}, "availability": {}, "status": {}}, "/tables/histograms": {"count": {Nullable: false, Encodings: []string{"exact_integer_string"}, Kinds: []string{"count"}, Units: []string{"count"}, Aggregations: []string{"none"}}}}, Providers: []resultcontract.Provider{{ID: "system:events", Version: "1.0.0", Kind: "detail", Path: "/tables/events", Schema: "object-rows-v1"}, {ID: "system:intervals", Version: "1.0.0", Kind: "detail", Path: "/tables/intervals", Schema: "object-rows-v1"}, {ID: "system:histograms", Version: "1.0.0", Kind: "detail", Path: "/tables/histograms", Schema: "object-rows-v1"}, {ID: "system:timeline", Version: "1.0.0", Kind: "timeline", Path: "/tables/timeline", Schema: "timeline-v1", Time: "time", Clock: "clock", Evidence: "event_id"}}, ValidatePayload: Validate}
+	return resultcontract.Descriptor{Type: ResultType, Payload: resultcontract.Range{Min: payload, Before: before}, Envelope: resultcontract.Range{Min: "1.0.0", Before: "2.0.0"}, Operations: []string{"display", "save", "compute", "json", "csv", "html", "report-pack"}, Extensions: map[string]resultcontract.Range{"system_core": {Min: m.LegacyVersion, Before: "1.1.1"}, "measurement": {Min: "1.0.0", Before: "1.1.0"}}, Required: map[string][]string{"save": {"system_core", "measurement"}, "compute": {"system_core", "measurement"}}, Scalars: scalars, Collections: map[string]map[string]resultcontract.ValueSchema{"/tables/intervals": {"duration_ns": {Nullable: true, Encodings: []string{"exact_integer_string"}, Kinds: []string{"duration"}, Units: []string{"nanoseconds"}, Aggregations: []string{"none"}}, "availability": {}, "status": {}}, "/tables/histograms": {"count": {Nullable: false, Encodings: []string{"exact_integer_string"}, Kinds: []string{"count"}, Units: []string{"count"}, Aggregations: []string{"none"}}}}, Providers: []resultcontract.Provider{{ID: "system:events", Version: "1.0.0", Kind: "detail", Path: "/tables/events", Schema: "object-rows-v1"}, {ID: "system:intervals", Version: "1.0.0", Kind: "detail", Path: "/tables/intervals", Schema: "object-rows-v1"}, {ID: "system:histograms", Version: "1.0.0", Kind: "detail", Path: "/tables/histograms", Schema: "object-rows-v1"}, {ID: "system:timeline", Version: "1.0.0", Kind: "timeline", Path: "/tables/timeline", Schema: "timeline-v1", Time: "time", Clock: "clock", Evidence: "event_id"}}, ValidatePayload: Validate}
 }

@@ -24,3 +24,7 @@ apps/engine-native/internal/catalog/contracts/*.data -text
 # Preserve exact native perf export bytes, including trailing separator spaces.
 apps/engine-native/internal/parsers/systemtrace/testdata/perf-script.txt whitespace=-blank-at-eol,-blank-at-eof
 apps/engine-native/internal/catalog/contracts/system-evidence-perf-script.txt whitespace=-blank-at-eol,-blank-at-eof
+
+# Synthetic device/serving contracts use manifest-pinned LF bytes.
+apps/engine-native/internal/parsers/inference/testdata/* text eol=lf
+apps/engine-native/internal/analyzers/systemtrace/testdata/*.json text eol=lf

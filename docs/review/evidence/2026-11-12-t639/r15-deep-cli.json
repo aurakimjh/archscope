@@ -1,0 +1,26 @@
+[
+  {
+    "samples": 20000,
+    "stack_depth": 25,
+    "source_bytes": 35790000,
+    "source_sha256": "997be68ef8daa09b5b2e86bab817ba03629c34534cf423782f260bc8fc499ce7",
+    "model_bytes": 5942538,
+    "result_bytes": 18016161,
+    "result_sha256": "3ff20bd9194e82969d7150e1bc1102dc4d89dedcd7ab7de131c8395a1179ea5c",
+    "denominator_ns": "20000000000",
+    "elapsed_seconds": 18.933,
+    "scope": "Synthetic actual perf-text CLI normalize/import/project/tree; no native collection"
+  },
+  {
+    "samples": 24000,
+    "stack_depth": 25,
+    "source_bytes": 42950000,
+    "source_sha256": "f496a9ee079b42f50b549869aad15a8af8bfbf3623803d5cfe674bb95de3f466",
+    "model_bytes": 7134538,
+    "result_bytes": 21628161,
+    "result_sha256": "1c7ca113b08b47510eecf26485657f434270d3d9c7ac81eb3976469dd8274d79",
+    "denominator_ns": "24000000000",
+    "elapsed_seconds": 22.734,
+    "scope": "Synthetic actual perf-text CLI normalize/import/project/tree; no native collection"
+  }
+]

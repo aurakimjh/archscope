@@ -1,0 +1,881 @@
+{
+  "schema_version": "1.0.0",
+  "metrics": {
+    "schema_version": "1.0.0",
+    "normalizer": "1.0.0",
+    "sources": [
+      {
+        "id": "nvidia-source",
+        "sha256": "85ca5c4278798e3e9831a376ba6b08d81fbe1476eb05bae4462c8be621075df0",
+        "name": "nvidia-query.csv",
+        "format": "nvidia-smi.query-csv.v1",
+        "producer": "nvidia-smi",
+        "producer_version": "535.104.05",
+        "query": {
+          "contract": "nvidia-smi.query-csv.v1",
+          "host_id": "synthetic-host",
+          "boot_id": "synthetic-boot",
+          "producer_version": "535.104.05",
+          "query_fields": "uuid,pci.bus_id,name,driver_version,utilization.gpu,utilization.memory,memory.used,memory.total,temperature.gpu,power.draw,clocks.sm",
+          "timestamps_ns": [
+            "1000000000",
+            "1000000000",
+            "2000000000"
+          ]
+        }
+      }
+    ],
+    "series": [
+      {
+        "id": "metric-55e0bb2f778358b05e45640627dd825bdabe89f9842513c8f9b01bac2c1f8f08",
+        "name": "utilization.gpu",
+        "description": "",
+        "unit": "%",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-a",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:01:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-24eb32617eb324e3bb7cfe43dbf94cf334b28a593879f456272d6c227d35c5c6",
+        "name": "utilization.memory",
+        "description": "",
+        "unit": "%",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-a",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:01:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-21377e50a4a03c7d78d96f9129486a8539cf6378041be160eeb57d128c4e0356",
+        "name": "memory.used",
+        "description": "",
+        "unit": "MiB",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-a",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:01:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-7a50ae5f296b50ed69c6806a9c54e9b79c5148d611937134e0e7a8ac5e7c29ba",
+        "name": "memory.total",
+        "description": "",
+        "unit": "MiB",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-a",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:01:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-6c2ba0b4a7d67f079ba754896f445d45582981f332e45c23a24294d0031649e4",
+        "name": "temperature.gpu",
+        "description": "",
+        "unit": "Cel",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-a",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:01:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-8d6909356181c99948dd7f276bbfe46226cc347c224a3d2f2afd0e45eb7af46e",
+        "name": "power.draw",
+        "description": "",
+        "unit": "W",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-a",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:01:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-584a6f4ac973d4791dd6b2a9c4ce8c59376225d336a3f1d8f793eb90286d0d1a",
+        "name": "clocks.sm",
+        "description": "",
+        "unit": "MHz",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-a",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:01:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-f8c59ca06f57db2df1b95ef4553c68e0612d401fc8723ea64af87dd2c31aebb7",
+        "name": "utilization.gpu",
+        "description": "",
+        "unit": "%",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-b",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:02:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-1ace24ca888691686a7ef0f38d4b437ac9b42a9130154289ff3eb5fc8142de52",
+        "name": "utilization.memory",
+        "description": "",
+        "unit": "%",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-b",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:02:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-e013e2c05f127d7ff07b8e267190a4b371158472fcf3fd442e15fdad73add15f",
+        "name": "memory.used",
+        "description": "",
+        "unit": "MiB",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-b",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:02:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-1bf24d6e0117b4b45b3f38b362ef4b985a32972d487d3be1876f3bebb53cc667",
+        "name": "memory.total",
+        "description": "",
+        "unit": "MiB",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-b",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:02:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-9dbad07103ad9713101ad8898cccb15135423ef818231802ef4b53002007d7ec",
+        "name": "temperature.gpu",
+        "description": "",
+        "unit": "Cel",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-b",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:02:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-965722bb765783f7eb9ac67272a659b7b46f578a487c559bcabf227e12b38f37",
+        "name": "power.draw",
+        "description": "",
+        "unit": "W",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-b",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:02:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-13c1c92d11e55f10b040cc90098fc39db45dbbe5f029bdfde7e1594ef3f47893",
+        "name": "clocks.sm",
+        "description": "",
+        "unit": "MHz",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-b",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:02:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      }
+    ],
+    "points": [
+      {
+        "id": "point-ef0dd9148cff03ef54db04c82ad24bad454ecc99e50b95ef0e17d8e587ff8ba3",
+        "series_id": "metric-55e0bb2f778358b05e45640627dd825bdabe89f9842513c8f9b01bac2c1f8f08",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "75",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:1/column:5"
+          }
+        ]
+      },
+      {
+        "id": "point-df8023e52f14c94dcd47b8eee6a0eebf09e2a4f644d38bdb02025d35f365ac50",
+        "series_id": "metric-24eb32617eb324e3bb7cfe43dbf94cf334b28a593879f456272d6c227d35c5c6",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "20",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:1/column:6"
+          }
+        ]
+      },
+      {
+        "id": "point-fa074f54da2c5f70f4d9955842c72a09c511f83b256cf12b77704b8cdc974730",
+        "series_id": "metric-21377e50a4a03c7d78d96f9129486a8539cf6378041be160eeb57d128c4e0356",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "8192",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:1/column:7"
+          }
+        ]
+      },
+      {
+        "id": "point-814dfb2cdf9923134c4416d70e25acf570535e7e9f8082ace0b957dc1fbe40f9",
+        "series_id": "metric-7a50ae5f296b50ed69c6806a9c54e9b79c5148d611937134e0e7a8ac5e7c29ba",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "16384",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:1/column:8"
+          }
+        ]
+      },
+      {
+        "id": "point-e93932c7937750bb76147b4ef513c77fad3c621e31bf9e761d432b291815bd35",
+        "series_id": "metric-6c2ba0b4a7d67f079ba754896f445d45582981f332e45c23a24294d0031649e4",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "60",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:1/column:9"
+          }
+        ]
+      },
+      {
+        "id": "point-ea27ac344ebcd6145c11ae68bcdf1e04b99b39dd70487c492dff0488956321d7",
+        "series_id": "metric-8d6909356181c99948dd7f276bbfe46226cc347c224a3d2f2afd0e45eb7af46e",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "123.50",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:1/column:10"
+          }
+        ]
+      },
+      {
+        "id": "point-02460bd13bffba937fa7acddcd1cb8d7f70cb5574cc8d6949ef608376d0a1e7c",
+        "series_id": "metric-584a6f4ac973d4791dd6b2a9c4ce8c59376225d336a3f1d8f793eb90286d0d1a",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "1200",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:1/column:11"
+          }
+        ]
+      },
+      {
+        "id": "point-c5e33bb56fd33fab6105aa6ae9b53445feef976528ae4ee102dbd47c987a6d9d",
+        "series_id": "metric-f8c59ca06f57db2df1b95ef4553c68e0612d401fc8723ea64af87dd2c31aebb7",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": null,
+        "special": "no_recorded_value",
+        "flags": 1,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:2/column:5"
+          }
+        ]
+      },
+      {
+        "id": "point-0ba3e2a11075f4b236658d6bb2f712d33e41cf0e81c017638733af8000b23ad8",
+        "series_id": "metric-1ace24ca888691686a7ef0f38d4b437ac9b42a9130154289ff3eb5fc8142de52",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": null,
+        "special": "no_recorded_value",
+        "flags": 1,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:2/column:6"
+          }
+        ]
+      },
+      {
+        "id": "point-2f136251115d45c305bc01cfdf86bee72888c8e405f990c5fc3f372bfacd1889",
+        "series_id": "metric-e013e2c05f127d7ff07b8e267190a4b371158472fcf3fd442e15fdad73add15f",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "1024",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:2/column:7"
+          }
+        ]
+      },
+      {
+        "id": "point-4b12271e3ea1077ad350b540eaaa964b09e0b52285b0ce80733bb0f17bde3556",
+        "series_id": "metric-1bf24d6e0117b4b45b3f38b362ef4b985a32972d487d3be1876f3bebb53cc667",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "16384",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:2/column:8"
+          }
+        ]
+      },
+      {
+        "id": "point-17df70c5de1fb3368910d200a6be31529cd23593d66ab38d30dd17cc63686292",
+        "series_id": "metric-9dbad07103ad9713101ad8898cccb15135423ef818231802ef4b53002007d7ec",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "50",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:2/column:9"
+          }
+        ]
+      },
+      {
+        "id": "point-db1db5d2f4442236e24c71c3131fbf024c421a663fac54570ac0d328c046ed3a",
+        "series_id": "metric-965722bb765783f7eb9ac67272a659b7b46f578a487c559bcabf227e12b38f37",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": null,
+        "special": "no_recorded_value",
+        "flags": 1,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:2/column:10"
+          }
+        ]
+      },
+      {
+        "id": "point-1e9584c04274ef651f3357e799bfc9b452ed183c6d63bc401f0d341754258e8f",
+        "series_id": "metric-13c1c92d11e55f10b040cc90098fc39db45dbbe5f029bdfde7e1594ef3f47893",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "900",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:2/column:11"
+          }
+        ]
+      },
+      {
+        "id": "point-d04143b0380dbaac4110badaf7ea718422146584549e4d70180b5b1540406d13",
+        "series_id": "metric-55e0bb2f778358b05e45640627dd825bdabe89f9842513c8f9b01bac2c1f8f08",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "80",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:3/column:5"
+          }
+        ]
+      },
+      {
+        "id": "point-de5622eaa40bfd8b1122c7e24fcb00fb6e5583c1550478504a330c1dc6623f94",
+        "series_id": "metric-24eb32617eb324e3bb7cfe43dbf94cf334b28a593879f456272d6c227d35c5c6",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "25",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:3/column:6"
+          }
+        ]
+      },
+      {
+        "id": "point-986c618709ae3559a40bce8f9e2885bad62f661cd222b57e31b98a84ad933931",
+        "series_id": "metric-21377e50a4a03c7d78d96f9129486a8539cf6378041be160eeb57d128c4e0356",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "8193",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:3/column:7"
+          }
+        ]
+      },
+      {
+        "id": "point-adcdca49aab2526d1c27995361267754d93a1405cfff73bf59f069a3bca6b797",
+        "series_id": "metric-7a50ae5f296b50ed69c6806a9c54e9b79c5148d611937134e0e7a8ac5e7c29ba",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "16384",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:3/column:8"
+          }
+        ]
+      },
+      {
+        "id": "point-7c5bd9f707d72a02b498263cadf9b758694ca827599985ffb50696131a060fb9",
+        "series_id": "metric-6c2ba0b4a7d67f079ba754896f445d45582981f332e45c23a24294d0031649e4",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "61",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:3/column:9"
+          }
+        ]
+      },
+      {
+        "id": "point-f7f0a18ce5d708f6cab4c0ca26177049cb17021e9c7b7972d39c58c6620ae405",
+        "series_id": "metric-8d6909356181c99948dd7f276bbfe46226cc347c224a3d2f2afd0e45eb7af46e",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "125.25",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:3/column:10"
+          }
+        ]
+      },
+      {
+        "id": "point-03973f6ae1075866c19f252f5b547ea634c4746edc61d3226668005693f8c1a9",
+        "series_id": "metric-584a6f4ac973d4791dd6b2a9c4ce8c59376225d336a3f1d8f793eb90286d0d1a",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "1190",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:3/column:11"
+          }
+        ]
+      }
+    ],
+    "deduplicated_points": 0,
+    "warnings": [
+      "Declared driver/version/query layout; synthetic fixture qualification only, no native GPU execution. No mtime clock, workload attribution or utilization efficiency inference."
+    ]
+  },
+  "entities": [
+    {
+      "id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "kind": "device",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "vendor": "nvidia",
+      "device_uuid": "GPU-synthetic-a",
+      "pci_bus_id": "00000000:01:00.0"
+    },
+    {
+      "id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "kind": "device",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "vendor": "nvidia",
+      "device_uuid": "GPU-synthetic-b",
+      "pci_bus_id": "00000000:02:00.0"
+    }
+  ],
+  "links": [],
+  "contexts": [],
+  "signals": [
+    {
+      "id": "signal-metric-55e0bb2f778358b05e45640627dd825bdabe89f9842513c8f9b01bac2c1f8f08",
+      "series_id": "metric-55e0bb2f778358b05e45640627dd825bdabe89f9842513c8f9b01bac2c1f8f08",
+      "semantic": "gpu_utilization",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "percent_to_ratio"
+    },
+    {
+      "id": "signal-metric-24eb32617eb324e3bb7cfe43dbf94cf334b28a593879f456272d6c227d35c5c6",
+      "series_id": "metric-24eb32617eb324e3bb7cfe43dbf94cf334b28a593879f456272d6c227d35c5c6",
+      "semantic": "memory_io_utilization",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "percent_to_ratio"
+    },
+    {
+      "id": "signal-metric-21377e50a4a03c7d78d96f9129486a8539cf6378041be160eeb57d128c4e0356",
+      "series_id": "metric-21377e50a4a03c7d78d96f9129486a8539cf6378041be160eeb57d128c4e0356",
+      "semantic": "device_memory_used",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "mib_to_bytes"
+    },
+    {
+      "id": "signal-metric-7a50ae5f296b50ed69c6806a9c54e9b79c5148d611937134e0e7a8ac5e7c29ba",
+      "series_id": "metric-7a50ae5f296b50ed69c6806a9c54e9b79c5148d611937134e0e7a8ac5e7c29ba",
+      "semantic": "device_memory_capacity",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "mib_to_bytes"
+    },
+    {
+      "id": "signal-metric-6c2ba0b4a7d67f079ba754896f445d45582981f332e45c23a24294d0031649e4",
+      "series_id": "metric-6c2ba0b4a7d67f079ba754896f445d45582981f332e45c23a24294d0031649e4",
+      "semantic": "temperature",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-metric-8d6909356181c99948dd7f276bbfe46226cc347c224a3d2f2afd0e45eb7af46e",
+      "series_id": "metric-8d6909356181c99948dd7f276bbfe46226cc347c224a3d2f2afd0e45eb7af46e",
+      "semantic": "power",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-metric-584a6f4ac973d4791dd6b2a9c4ce8c59376225d336a3f1d8f793eb90286d0d1a",
+      "series_id": "metric-584a6f4ac973d4791dd6b2a9c4ce8c59376225d336a3f1d8f793eb90286d0d1a",
+      "semantic": "clock",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-metric-f8c59ca06f57db2df1b95ef4553c68e0612d401fc8723ea64af87dd2c31aebb7",
+      "series_id": "metric-f8c59ca06f57db2df1b95ef4553c68e0612d401fc8723ea64af87dd2c31aebb7",
+      "semantic": "gpu_utilization",
+      "entity_id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "percent_to_ratio"
+    },
+    {
+      "id": "signal-metric-1ace24ca888691686a7ef0f38d4b437ac9b42a9130154289ff3eb5fc8142de52",
+      "series_id": "metric-1ace24ca888691686a7ef0f38d4b437ac9b42a9130154289ff3eb5fc8142de52",
+      "semantic": "memory_io_utilization",
+      "entity_id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "percent_to_ratio"
+    },
+    {
+      "id": "signal-metric-e013e2c05f127d7ff07b8e267190a4b371158472fcf3fd442e15fdad73add15f",
+      "series_id": "metric-e013e2c05f127d7ff07b8e267190a4b371158472fcf3fd442e15fdad73add15f",
+      "semantic": "device_memory_used",
+      "entity_id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "mib_to_bytes"
+    },
+    {
+      "id": "signal-metric-1bf24d6e0117b4b45b3f38b362ef4b985a32972d487d3be1876f3bebb53cc667",
+      "series_id": "metric-1bf24d6e0117b4b45b3f38b362ef4b985a32972d487d3be1876f3bebb53cc667",
+      "semantic": "device_memory_capacity",
+      "entity_id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "mib_to_bytes"
+    },
+    {
+      "id": "signal-metric-9dbad07103ad9713101ad8898cccb15135423ef818231802ef4b53002007d7ec",
+      "series_id": "metric-9dbad07103ad9713101ad8898cccb15135423ef818231802ef4b53002007d7ec",
+      "semantic": "temperature",
+      "entity_id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-metric-965722bb765783f7eb9ac67272a659b7b46f578a487c559bcabf227e12b38f37",
+      "series_id": "metric-965722bb765783f7eb9ac67272a659b7b46f578a487c559bcabf227e12b38f37",
+      "semantic": "power",
+      "entity_id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-metric-13c1c92d11e55f10b040cc90098fc39db45dbbe5f029bdfde7e1594ef3f47893",
+      "series_id": "metric-13c1c92d11e55f10b040cc90098fc39db45dbbe5f029bdfde7e1594ef3f47893",
+      "semantic": "clock",
+      "entity_id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    }
+  ],
+  "event_sources": [],
+  "events": [],
+  "quality": [
+    {
+      "point_id": "point-c5e33bb56fd33fab6105aa6ae9b53445feef976528ae4ee102dbd47c987a6d9d",
+      "status": "not_available",
+      "raw": "N/A"
+    },
+    {
+      "point_id": "point-0ba3e2a11075f4b236658d6bb2f712d33e41cf0e81c017638733af8000b23ad8",
+      "status": "not_supported",
+      "raw": "[Not Supported]"
+    },
+    {
+      "point_id": "point-db1db5d2f4442236e24c71c3131fbf024c421a663fac54570ac0d328c046ed3a",
+      "status": "permission_denied",
+      "raw": "[Insufficient Permissions]"
+    }
+  ]
+}

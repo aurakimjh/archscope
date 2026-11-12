@@ -125,3 +125,19 @@ func TestConstrainedPerfSchedulerTextUsesTraceFieldContract(t *testing.T) {
 		t.Fatal("trace data accepted under sample field contract")
 	}
 }
+
+func TestR1501KeyedHistogramAndStableMalformedShape(t *testing.T) {
+	s := load(t, "bpftrace-hist.jsonl", "bpftrace-jsonl", "bpftrace-capture.json")
+	raw := []byte(`{"type":"hist","data":{"@latency":{"nginx":[{"min":1,"max":1,"count":3},{"min":2,"max":3,"count":4}],"worker":[{"min":2,"count":9007199254740993}]}}}`)
+	got, e := p.ParseBytes(context.Background(), raw, p.Options{Format: s.Format, Capture: s.Capture})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if len(got.Records) != 2 || got.Records[0].Histogram.Key != "nginx" || got.Records[1].Histogram.Key != "worker" || got.Records[1].Histogram.Buckets[0].Count != "9007199254740993" {
+		t.Fatal(got)
+	}
+	_, e = p.ParseBytes(context.Background(), []byte(`{"type":"hist","data":{"@latency":{"bad":{}}}}`), p.Options{Format: s.Format, Capture: s.Capture})
+	if e == nil || !strings.Contains(e.Error(), "SYSTEM_BPFTRACE_BUCKET_SHAPE") {
+		t.Fatal(e)
+	}
+}

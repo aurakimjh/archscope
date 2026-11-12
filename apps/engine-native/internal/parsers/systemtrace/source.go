@@ -102,16 +102,16 @@ func ParseBytes(ctx context.Context, original []byte, o Options) (m.Set, error) 
 	line := 0
 	offset := int64(0)
 	var current *m.Record
-	charge := 0
+	pool := m.Pool{}
+	captureBytes, _ := json.Marshal(o.Capture)
 	appendRecord := func(r m.Record) error {
 		r.ID = m.RecordID(s.SourceSHA256, r)
 		if len(s.Records) >= m.MaxRecords {
 			return fmt.Errorf("SYSTEM_RECORD_BUDGET: more than %d; split original", m.MaxRecords)
 		}
-		b, _ := json.Marshal(r)
-		charge += len(b)
-		if charge > m.MaxBytes {
-			return fmt.Errorf("SYSTEM_MODEL_BUDGET: split original; no records dropped")
+		pool.Add(r)
+		if pool.Bytes+len(captureBytes)+512 > m.MaxBytes {
+			return m.ModelBudget(pool.Bytes+len(captureBytes)+512, len(s.Records))
 		}
 		s.Records = append(s.Records, r)
 		return nil
@@ -271,8 +271,9 @@ func ParseBytes(ctx context.Context, original []byte, o Options) (m.Set, error) 
 				raw := msg.Data[name]
 				rows := map[string]json.RawMessage{"": raw}
 				if bytes.HasPrefix(bytes.TrimSpace(raw), []byte("{")) {
+					rows = map[string]json.RawMessage{}
 					if e := m.Strict(raw, &rows, 1<<20); e != nil {
-						return fail(e)
+						return fail(fmt.Errorf("SYSTEM_BPFTRACE_BUCKET_SHAPE: %w", e))
 					}
 				}
 				for _, key := range sortedKeys(rows) {
@@ -282,7 +283,7 @@ func ParseBytes(ctx context.Context, original []byte, o Options) (m.Set, error) 
 						Count json.RawMessage `json:"count"`
 					}
 					if e := m.Strict(rows[key], &input, 1<<20); e != nil {
-						return fail(e)
+						return fail(fmt.Errorf("SYSTEM_BPFTRACE_BUCKET_SHAPE: %w", e))
 					}
 					h := m.Histogram{Name: name, Key: key, Buckets: []m.Bucket{}}
 					for _, b := range input {

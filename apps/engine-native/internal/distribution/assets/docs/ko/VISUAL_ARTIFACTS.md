@@ -126,3 +126,6 @@ R14-02는 diff 정렬·0 변화 제외·inclusive 열 표시, R14-03은 profile�
 byte 한도상 이런 큰 묶음은 약2건까지입니다. R14-07은 R13-06과 함께 generic 메트릭 값 투영을
 후속 처리합니다. R14-01은 로컬 수정했으며 원 CONDITIONAL과 명시적 종결 허용을 유지하고 새로운
 독립 PASS를 주장하지 않습니다.
+
+
+R15-06: spreadsheet-text-0.2.1은 0.1·1.5·3.14·12.5 같은 일반 소수를 TSV 숫자로 유지한다. 연도가 있는 dotted date는 보호한다. 과거 0.2.0 receipt는 당시 count로 검증하고 현재 export/descriptor는 0.2.1을 사용하며 보관 byte는 재작성하지 않는다.

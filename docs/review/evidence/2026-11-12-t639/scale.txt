@@ -1,0 +1,4 @@
+analyzer_test.go:210: points=10000 one-metric-model result_bytes=7685924
+analyzer_test.go:210: points=20000 one-metric-model result_bytes=15405924
+scale_test.go:94: samples=20000 depth=25 compact_model_bytes=5913811 result_bytes=17933051
+scale_test.go:94: samples=24000 depth=25 compact_model_bytes=7101811 result_bytes=21533051

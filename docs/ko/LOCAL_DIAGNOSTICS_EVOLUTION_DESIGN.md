@@ -452,6 +452,8 @@ OTLP **메트릭**은 trace의 부속 필드가 아니라 `metrics_timeseries`�
 
 ## 11 GPU 자료 분석
 
+T-639 구현과 명시적 범위·producer gate는 [오프라인 GPU·추론 서빙 근거](INFERENCE_EVIDENCE.md)를 참고한다.
+
 ### 11.1 GPU 로그를 하나의 형식으로 취급하지 않기
 
 GPU 자료는 장치 상태, 오류 사건, 실제 실행 trace로 나뉜다. 사용자가 `GPU 로그`를 가져왔을 때 종류와 가능한 분석부터 설명한다.

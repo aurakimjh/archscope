@@ -2261,7 +2261,7 @@ regeneration, and explicit upgrades create a new revision. Shared schema is
 embedded for offline validation. See [visual artifacts](VISUAL_ARTIFACTS.md) for
 bounds, native/CLI boundaries and unobserved Office acceptance.
 
-## SystemEvidence 1.0.0 / system_evidence 0.1.0
+## SystemEvidence 1.1.0 / system_evidence 0.2.0
 
 The system core pins compressed-source hash, decoded line/byte coordinates,
 explicit capture/tool/script/clock/boot/namespace/entity lifetime, exact event
@@ -2275,3 +2275,17 @@ module/context frame identity. Unknown-clock samples project without chronology.
 Generic duration cells use measurement-column availability/reason; histogram count
 units stay count while physical bucket units remain separate. See
 [SYSTEM_EVIDENCE](SYSTEM_EVIDENCE.md).
+
+
+## T-639 device and serving evidence
+
+Limited `inference.evidence-json` carries InferenceEvidence 1.0.0 into common
+`inference_serving` 0.1.0. Original MetricHistory is stored once, signals bind
+explicit series/entity/context/unit/form/population, and missing values remain
+unavailable. Native NVIDIA CSV uses an explicit fixed query contract; fixtures
+are synthetic and Q03 version-specific vLLM aliases remain gated. Parser, semantic
+analyzer and generic/export consumers remain separate. See
+[offline device/serving contract](INFERENCE_EVIDENCE.md) for bounds, precise
+request formulas, original metric drilldown and unexecuted native acceptance.
+
+SystemEvidence 1.0.0 / system_evidence 0.1.0 saved readers remain supported; new 1.1.0 models deduplicate frames/stacks and 0.2.0 results retain old snapshots unchanged.

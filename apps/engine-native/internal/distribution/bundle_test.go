@@ -16,7 +16,7 @@ func TestStandaloneFixturesRequiredAndComplete(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if len(ids) != 6 {
+	if len(ids) != 7 {
 		t.Fatal(ids)
 	}
 	b, _ := Assets.ReadFile("assets/fixtures.zip")

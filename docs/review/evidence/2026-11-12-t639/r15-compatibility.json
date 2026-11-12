@@ -1,0 +1,16 @@
+{
+  "original_review_sha256": "f631d0d79e510fd81fbedc1f3a1ce1c7d1ae168c37c3fe9dc77778a60bd0169b",
+  "legacy_fixture": {
+    "source_commit": "662b56d",
+    "generation": "Actual archived-commit CLI system import-source against its bundled perf capture; output copied as fixture",
+    "sha256": "96246864d04a65b8f9858cd0dc7b30522466242ee4fd886ceea8b778bdbaf2be",
+    "bytes": 7716,
+    "validation": "New reader validation passed without mutating saved payload 0.1.0/model 1.0.0"
+  },
+  "new_model": "SystemEvidence 1.1.0 frame/stack pools",
+  "new_result": "system_evidence 0.2.0",
+  "keyed_shape": "Synthetic fixture compared with bpftrace v0.22.0 src/output.cpp map_hist and key formatting; live attach unexecuted",
+  "table_policy": "spreadsheet-text-0.2.1 leaves ordinary decimal values unchanged; old 0.2.0 receipt counts retain their original interpretation",
+  "R15-03_04_05": "Queued; pre-conversion hash provenance, idle handling and state selection limitations explicitly documented",
+  "independent_verdict": "Original CONDITIONAL preserved; final fixes locally verified only"
+}

@@ -17,9 +17,11 @@ def run(args):
 run(['/input/engine','offline','build','--engine','/input/engine','--out',str(bundle)])
 # Only the new bundle and synthetic corpus remain visible to the tested process.
 with zipfile.ZipFile(bundle/'resources/fixtures.zip') as z:
- for name in ('packs/input.jsonl','catalog/metric-history-set.json','catalog/metric-history-sdk-python-1.38.0.otlp.json','catalog/system-evidence-perf-script.txt','catalog/system-evidence-perf-capture.json'):z.extract(name,'/sources')
+ for name in ('packs/input.jsonl','catalog/metric-history-set.json','catalog/metric-history-sdk-python-1.38.0.otlp.json','catalog/system-evidence-perf-script.txt','catalog/system-evidence-perf-capture.json','catalog/inference-evidence-set.json','catalog/inference-evidence-nvidia-set.json','catalog/inference-evidence-nvidia-query.csv','catalog/inference-evidence-nvidia-capture.json'):z.extract(name,'/sources')
 model=json.loads(pathlib.Path('/sources/catalog/metric-history-set.json').read_text())
 selection={'series_ids':[model['series'][0]['id']]}
+inference=json.loads(pathlib.Path('/sources/catalog/inference-evidence-nvidia-set.json').read_text())
+signal=inference['signals'][0]
 cli=str(bundle/'archscope-engine');base=[cli,'--offline-root',str(bundle)]
 commands=[['offline','fixtures'],['evidence','formats','--pack-store','/state/packs'],['evidence','import','--pack-store','/state/packs','--importer','data.synthetic-metrics','--in','/sources/packs/input.jsonl'],['packs','list','--store','/state/packs'],['evidence','discover','--pack-store','/state/packs','--in','/sources/packs/input.jsonl'],['evidence','collection-kit','--out','/evidence/manual-collection.zip']]
 commands.extend([
@@ -34,6 +36,13 @@ commands.extend([
  ['evidence','import','--in','/evidence/system-model.json','--importer','system.evidence-json','--options','{}','--out','/evidence/system-result.json'],
  ['system','project-profile','--in','/evidence/system-result.json','--metric-id','period/cpu-clock:HG','--out','/evidence/system-profile.json'],
  ['profile-set','tree','--in','/evidence/system-profile.json'],
+ ['inference','inspect-source','--in','/sources/catalog/inference-evidence-nvidia-query.csv','--format','nvidia-smi-csv','--capture-file','/sources/catalog/inference-evidence-nvidia-capture.json'],
+ ['inference','normalize-source','--in','/sources/catalog/inference-evidence-nvidia-query.csv','--format','nvidia-smi-csv','--capture-file','/sources/catalog/inference-evidence-nvidia-capture.json','--out','/evidence/inference-model.json'],
+ ['evidence','import','--in','/evidence/inference-model.json','--importer','inference.evidence-json','--options','{}','--out','/evidence/inference-result.json'],
+ ['inference','query-metric','--in','/evidence/inference-result.json','--signal-id',signal['id']],
+ ['inference','open-metrics','--in','/evidence/inference-result.json','--signal-id',signal['id'],'--out','/evidence/inference-metric.json'],
+ ['metrics','history-query','--in','/evidence/inference-metric.json','--query',json.dumps({'selection':{'series_ids':[signal['series_id']]},'limit':1})],
+ ['inference','import-source','--in','/sources/catalog/inference-evidence-set.json','--out','/evidence/serving-result.json'],
 
 ])
 reports=[]

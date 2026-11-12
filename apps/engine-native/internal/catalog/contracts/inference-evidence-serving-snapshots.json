@@ -1,0 +1,452 @@
+{
+  "schema_version": "1.0.0",
+  "snapshots": [
+    {
+      "time_unix_nano": "1000000000",
+      "metrics": [
+        {
+          "name": "vllm:num_requests_waiting",
+          "unit": "requests",
+          "kind": "gauge",
+          "value": "1",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:num_requests_running",
+          "unit": "requests",
+          "kind": "gauge",
+          "value": "2",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:gpu_cache_usage_perc",
+          "unit": "1",
+          "kind": "gauge",
+          "value": "0.5",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "framework_allocated",
+          "unit": "bytes",
+          "kind": "gauge",
+          "value": "1073741824",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "framework_reserved",
+          "unit": "bytes",
+          "kind": "gauge",
+          "value": "2147483648",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "unmapped_similar_cache_perc",
+          "unit": "1",
+          "kind": "gauge",
+          "value": "0.2",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:generation_tokens_total",
+          "unit": "tokens",
+          "kind": "sum",
+          "temporality": "cumulative",
+          "monotonic": true,
+          "start_time_unix_nano": "0",
+          "value": "9007199254740993",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:time_to_first_token_seconds",
+          "unit": "s",
+          "kind": "histogram",
+          "temporality": "cumulative",
+          "start_time_unix_nano": "0",
+          "histogram": {
+            "count": "1",
+            "sum": "0.05",
+            "bounds": [
+              "0.1",
+              "1"
+            ],
+            "counts": [
+              "1",
+              "0",
+              "0"
+            ]
+          },
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:time_per_output_token_seconds",
+          "unit": "s",
+          "kind": "histogram",
+          "temporality": "cumulative",
+          "start_time_unix_nano": "0",
+          "histogram": {
+            "count": "1",
+            "sum": "0.05",
+            "bounds": [
+              "0.1",
+              "1"
+            ],
+            "counts": [
+              "1",
+              "0",
+              "0"
+            ]
+          },
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:request_queue_time_seconds",
+          "unit": "s",
+          "kind": "histogram",
+          "temporality": "cumulative",
+          "start_time_unix_nano": "0",
+          "histogram": {
+            "count": "1",
+            "sum": "0.05",
+            "bounds": [
+              "0.1",
+              "1"
+            ],
+            "counts": [
+              "1",
+              "0",
+              "0"
+            ]
+          },
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "synthetic:mig_used_bytes",
+          "unit": "bytes",
+          "kind": "gauge",
+          "value": "1048576",
+          "attributes": {
+            "mig_uuid": "MIG-synthetic-1"
+          }
+        }
+      ]
+    },
+    {
+      "time_unix_nano": "2000000000",
+      "metrics": [
+        {
+          "name": "vllm:num_requests_waiting",
+          "unit": "requests",
+          "kind": "gauge",
+          "value": "2",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:num_requests_running",
+          "unit": "requests",
+          "kind": "gauge",
+          "value": "3",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:gpu_cache_usage_perc",
+          "unit": "1",
+          "kind": "gauge",
+          "value": "0.75",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "framework_allocated",
+          "unit": "bytes",
+          "kind": "gauge",
+          "value": "2147483648",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "framework_reserved",
+          "unit": "bytes",
+          "kind": "gauge",
+          "value": "3221225472",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "unmapped_similar_cache_perc",
+          "unit": "1",
+          "kind": "gauge",
+          "value": "0.3",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:generation_tokens_total",
+          "unit": "tokens",
+          "kind": "sum",
+          "temporality": "cumulative",
+          "monotonic": true,
+          "start_time_unix_nano": "0",
+          "value": "9007199254741003",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:time_to_first_token_seconds",
+          "unit": "s",
+          "kind": "histogram",
+          "temporality": "cumulative",
+          "start_time_unix_nano": "0",
+          "histogram": {
+            "count": "2",
+            "sum": "0.1",
+            "bounds": [
+              "0.1",
+              "1"
+            ],
+            "counts": [
+              "2",
+              "0",
+              "0"
+            ]
+          },
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:time_per_output_token_seconds",
+          "unit": "s",
+          "kind": "histogram",
+          "temporality": "cumulative",
+          "start_time_unix_nano": "0",
+          "histogram": {
+            "count": "2",
+            "sum": "0.1",
+            "bounds": [
+              "0.1",
+              "1"
+            ],
+            "counts": [
+              "2",
+              "0",
+              "0"
+            ]
+          },
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:request_queue_time_seconds",
+          "unit": "s",
+          "kind": "histogram",
+          "temporality": "cumulative",
+          "start_time_unix_nano": "0",
+          "histogram": {
+            "count": "2",
+            "sum": "0.1",
+            "bounds": [
+              "0.1",
+              "1"
+            ],
+            "counts": [
+              "2",
+              "0",
+              "0"
+            ]
+          },
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "synthetic:mig_used_bytes",
+          "unit": "bytes",
+          "kind": "gauge",
+          "value": "2097152",
+          "attributes": {
+            "mig_uuid": "MIG-synthetic-1"
+          }
+        }
+      ]
+    },
+    {
+      "time_unix_nano": "4000000000",
+      "metrics": [
+        {
+          "name": "vllm:num_requests_waiting",
+          "unit": "requests",
+          "kind": "gauge",
+          "value": "0",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:num_requests_running",
+          "unit": "requests",
+          "kind": "gauge",
+          "value": "1",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:gpu_cache_usage_perc",
+          "unit": "1",
+          "kind": "gauge",
+          "value": "0.8",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "framework_allocated",
+          "unit": "bytes",
+          "kind": "gauge",
+          "value": "2147483648",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "framework_reserved",
+          "unit": "bytes",
+          "kind": "gauge",
+          "value": "3221225472",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "unmapped_similar_cache_perc",
+          "unit": "1",
+          "kind": "gauge",
+          "value": "0.1",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:generation_tokens_total",
+          "unit": "tokens",
+          "kind": "sum",
+          "temporality": "cumulative",
+          "monotonic": true,
+          "start_time_unix_nano": "3000000000",
+          "value": "2",
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:time_to_first_token_seconds",
+          "unit": "s",
+          "kind": "histogram",
+          "temporality": "cumulative",
+          "start_time_unix_nano": "0",
+          "histogram": {
+            "count": "3",
+            "sum": "0.15",
+            "bounds": [
+              "0.1",
+              "1"
+            ],
+            "counts": [
+              "3",
+              "0",
+              "0"
+            ]
+          },
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:time_per_output_token_seconds",
+          "unit": "s",
+          "kind": "histogram",
+          "temporality": "cumulative",
+          "start_time_unix_nano": "0",
+          "histogram": {
+            "count": "3",
+            "sum": "0.15",
+            "bounds": [
+              "0.1",
+              "1"
+            ],
+            "counts": [
+              "3",
+              "0",
+              "0"
+            ]
+          },
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "vllm:request_queue_time_seconds",
+          "unit": "s",
+          "kind": "histogram",
+          "temporality": "cumulative",
+          "start_time_unix_nano": "0",
+          "histogram": {
+            "count": "3",
+            "sum": "0.15",
+            "bounds": [
+              "0.1",
+              "1"
+            ],
+            "counts": [
+              "3",
+              "0",
+              "0"
+            ]
+          },
+          "attributes": {
+            "worker": "synthetic-worker-0"
+          }
+        },
+        {
+          "name": "synthetic:mig_used_bytes",
+          "unit": "bytes",
+          "kind": "gauge",
+          "value": "3145728",
+          "attributes": {
+            "mig_uuid": "MIG-synthetic-1"
+          }
+        }
+      ]
+    }
+  ]
+}

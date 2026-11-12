@@ -1,0 +1,96 @@
+{
+  "logs": {
+    "vet": {
+      "result": "passed",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Local test/build/static validation; no native GPU/vLLM/Windows/Office acceptance"
+    },
+    "windows-amd64-vet": {
+      "result": "passed",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Local test/build/static validation; no native GPU/vLLM/Windows/Office acceptance"
+    },
+    "windows-386-vet": {
+      "result": "passed",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Local test/build/static validation; no native GPU/vLLM/Windows/Office acceptance"
+    },
+    "frontend-final": {
+      "result": "passed",
+      "bytes": 6168,
+      "sha256": "2ff90f44c23fba7c6b5059d99f4eee0c1f3acc81a81a9b18f8669aa02c1d0502",
+      "scope": "Local test/build/static validation; no native GPU/vLLM/Windows/Office acceptance"
+    },
+    "state": {
+      "result": "passed",
+      "bytes": 166,
+      "sha256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb",
+      "scope": "Local test/build/static validation; no native GPU/vLLM/Windows/Office acceptance"
+    },
+    "bindings": {
+      "result": "passed",
+      "bytes": 252,
+      "sha256": "b958733c448c0de5ae69a80b6c43171853e65003832ac03c611565cf212a3b43",
+      "scope": "Local test/build/static validation; no native GPU/vLLM/Windows/Office acceptance"
+    },
+    "package-final": {
+      "result": "passed",
+      "bytes": 8008,
+      "sha256": "25fc248a90c0421bf6e5cb29e922cba61e63696b5a7076ac1158f905c9c3da1b",
+      "scope": "Local test/build/static validation; no native GPU/vLLM/Windows/Office acceptance"
+    },
+    "codesign-final": {
+      "result": "passed",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Local test/build/static validation; no native GPU/vLLM/Windows/Office acceptance"
+    },
+    "windows-amd64-build-final": {
+      "result": "passed",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Local test/build/static validation; no native GPU/vLLM/Windows/Office acceptance"
+    },
+    "windows-386-build-final": {
+      "result": "passed",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Local test/build/static validation; no native GPU/vLLM/Windows/Office acceptance"
+    },
+    "desktop-only": {
+      "result": "passed",
+      "bytes": 57,
+      "sha256": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97",
+      "scope": "Local test/build/static validation; no native GPU/vLLM/Windows/Office acceptance"
+    },
+    "focused": {
+      "result": "passed",
+      "bytes": 3917,
+      "sha256": "ac5027d7c52fc1ab16dc0bf6008922751ebc3b37f0dca9198897d7dde9f63a19",
+      "scope": "Local test/build/static validation; no native GPU/vLLM/Windows/Office acceptance"
+    }
+  },
+  "binaries": {
+    "amd64": {
+      "bytes": 36481536,
+      "sha256": "3e5732e58fb627c071c6242b3cd1dc5ba90ace9a53366f62ef806a3bc880feb8",
+      "pe_machine": "0x8664",
+      "subsystem": 2
+    },
+    "386": {
+      "bytes": 35196416,
+      "sha256": "453afba0ed44e27805dc4c4b4b3deba3e306510adc2b6a88b5183c4966ea8f4c",
+      "pe_machine": "0x14c",
+      "subsystem": 2
+    },
+    "macOS": {
+      "sha256": "7016118112c93bed10d6dfa6cfa68e2eab880a19201512e6fa79cef6593a6447",
+      "bytes": 33127280,
+      "signature": "local ad-hoc, strict deep verification passed; notarization not claimed"
+    }
+  },
+  "warnings": "Local macOS linker targets 11.0 while some C objects were built for 27.2. Build success is not minimum-OS runtime qualification."
+}
