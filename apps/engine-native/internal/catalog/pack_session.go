@@ -54,5 +54,5 @@ func (p *PackSession) Provider(scope string) (analysis.CatalogSnapshot, error) {
 	for _, ref := range snapshot.Refs {
 		refs = append(refs, ingestion.PackPin{ID: ref.ID, Version: ref.Version, SHA256: ref.SHA256, Origin: ref.Origin, Scope: ref.Scope})
 	}
-	return analysis.CatalogSnapshot{Catalog: compiled, Packs: refs, Revision: snapshot.Revision, TrustSequence: snapshot.TrustSequence}, nil
+	return analysis.CatalogSnapshot{Mappings: snapshot.Mappings, Catalog: compiled, Packs: refs, Revision: snapshot.Revision, TrustSequence: snapshot.TrustSequence}, nil
 }

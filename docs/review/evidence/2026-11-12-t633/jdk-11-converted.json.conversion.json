@@ -1,0 +1,14 @@
+{
+  "tool": "jdk.jfr",
+  "version": "1.0",
+  "executable_sha256": "0514c29bd43e78178ec6a90c27d9adf597c45130c70e56cb757e9555cf51ba3a",
+  "arguments": [
+    "print",
+    "--json",
+    "\u003cowned-input\u003e"
+  ],
+  "input_sha256": "054feb9b386b740fce5ee359e03a5f676f64d7509292da8b2251e70d285fa116",
+  "output_sha256": "e440f0283dc55a5ab143bd2e139c25010965574a1db63a35c27980a1cf7f45d9",
+  "output_bytes": 8167,
+  "location": "local"
+}

@@ -74,6 +74,7 @@
 package jfr
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"regexp"
@@ -197,8 +198,11 @@ type Options struct {
 // Analyze parses `path` (binary .jfr or jfr-print JSON) and returns the
 // populated AnalysisResult. Mirrors `analyze_jfr_print_json`.
 func Analyze(path string, opts Options) (models.AnalysisResult, error) {
+	return AnalyzeContext(context.Background(), path, opts)
+}
+func AnalyzeContext(ctx context.Context, path string, opts Options) (models.AnalysisResult, error) {
 	diags := diagnostics.New("jfr")
-	events, info, err := jfrparser.ParseRecording(path, diags)
+	events, info, err := jfrparser.ParseRecordingContext(ctx, path, diags)
 	if err != nil {
 		// Surface CLI-missing as a regular error — the caller (CLI /
 		// API) decides how to render. The Python analyzer wraps it in
@@ -342,6 +346,9 @@ func Build(events []jfrparser.Event, sourceFile string, info jfrparser.SourceInf
 	}
 	result.Metadata.Extra["filter_window"] = windowToDict(window)
 	result.Metadata.Extra["source_format"] = info.SourceFormat
+	if info.Conversion != nil {
+		result.Metadata.Extra["conversion"] = info.Conversion
+	}
 	result.Metadata.Extra["async_profile"] = map[string]any{
 		"frame_source":           "stackTrace.frames",
 		"sample_event_count":     asyncProfile.SampleEventCount,

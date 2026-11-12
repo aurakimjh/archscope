@@ -349,6 +349,10 @@ export function CompareProfileSets(before: string, after: string): $CancellableP
     return $Call.ByID(3893760870, before, after);
 }
 
+export function ConvertEvidenceJFR(path: string, tool: string, output: string): $CancellablePromise<string> {
+    return $Call.ByID(434817255, path, tool, output);
+}
+
 /**
  * ConvertToCollapsed parses each path through the engine plugin
  * registry and folds the snapshots into the FlameGraph collapsed
@@ -390,6 +394,10 @@ export function DiffReports(req: $models.EngineDiffRequest): $CancellablePromise
     });
 }
 
+export function DiscoverEvidenceInput(path: string, sidecar: string, scope: string): $CancellablePromise<string> {
+    return $Call.ByID(383235015, path, sidecar, scope);
+}
+
 export function DrilldownProfileSet(handle: string, filtersJSON: string): $CancellablePromise<string> {
     return $Call.ByID(1290249415, handle, filtersJSON);
 }
@@ -424,12 +432,20 @@ export function ExportCSVDir(req: $models.ExportCSVRequest): $CancellablePromise
     return $Call.ByID(3982576166, req);
 }
 
+export function ExportCaptureDraft(path: string, sidecar: string, scope: string, output: string): $CancellablePromise<void> {
+    return $Call.ByID(132456576, path, sidecar, scope, output);
+}
+
 export function ExportCaseArchive(caseID: string, optionsJSON: string, path: string): $CancellablePromise<void> {
     return $Call.ByID(103594753, caseID, optionsJSON, path);
 }
 
 export function ExportCaseResult(caseID: string, resultID: string, path: string): $CancellablePromise<void> {
     return $Call.ByID(3517398760, caseID, resultID, path);
+}
+
+export function ExportCollectionKit(path: string): $CancellablePromise<void> {
+    return $Call.ByID(3545299147, path);
 }
 
 export function ExportDataPack(scope: string, hash: string, destination: string): $CancellablePromise<void> {

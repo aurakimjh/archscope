@@ -164,7 +164,8 @@ func TestConvertJFRToJSONReturnsCLIMissingWithoutBinary(t *testing.T) {
 // end. Skipped when no `jfr` binary is on PATH (the common case in CI
 // and on dev machines without a JDK).
 func TestConvertJFRToJSONIntegration(t *testing.T) {
-	if _, err := exec.LookPath("jfr"); err != nil {
+	cli, err := exec.LookPath("jfr")
+	if err != nil {
 		t.Skip("jfr binary not on PATH")
 	}
 
@@ -178,7 +179,7 @@ func TestConvertJFRToJSONIntegration(t *testing.T) {
 		t.Fatalf("write: %v", err)
 	}
 
-	_, err := ConvertJFRToJSON(bogus, "")
+	_, err = ConvertJFRToJSON(bogus, cli)
 	if err == nil {
 		t.Fatalf("expected error from jfr CLI on bogus input")
 	}

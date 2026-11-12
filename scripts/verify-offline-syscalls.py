@@ -18,7 +18,7 @@ run(['/input/engine','offline','build','--engine','/input/engine','--out',str(bu
 # Only the new bundle and synthetic corpus remain visible to the tested process.
 with zipfile.ZipFile(bundle/'resources/fixtures.zip') as z:z.extract('packs/input.jsonl','/sources')
 cli=str(bundle/'archscope-engine');base=[cli,'--offline-root',str(bundle)]
-commands=[['offline','fixtures'],['evidence','formats','--pack-store','/state/packs'],['evidence','import','--pack-store','/state/packs','--importer','data.synthetic-metrics','--in','/sources/packs/input.jsonl'],['packs','list','--store','/state/packs']]
+commands=[['offline','fixtures'],['evidence','formats','--pack-store','/state/packs'],['evidence','import','--pack-store','/state/packs','--importer','data.synthetic-metrics','--in','/sources/packs/input.jsonl'],['packs','list','--store','/state/packs'],['evidence','discover','--pack-store','/state/packs','--in','/sources/packs/input.jsonl'],['evidence','collection-kit','--out','/evidence/manual-collection.zip']]
 reports=[]
 for i,args in enumerate(commands):
  trace=out/f'operation-{i}.strace';report=out/f'operation-{i}.json'
@@ -29,6 +29,15 @@ for i,args in enumerate(commands):
  counts=json.loads(report.read_text())['denied_attempts']
  if any(counts.values()):raise RuntimeError('app-owned network attempt: '+str(counts))
  reports.append({'operation':args[:2],'inet_syscalls':len(lines),'app_denied_attempts':counts})
+# Explicit installed-tool conversion remains denied offline before tool execution.
+trace=out/'conversion-denied.strace';report=out/'conversion-denied.json'
+args=['strace','-f','-qq','-e','trace=network','-o',str(trace)]+base+['--offline-report',str(report),'jfr','convert','--in','/sources/packs/input.jsonl','--cli','/must-not-execute-jfr','--out','/evidence/must-not-publish.json']
+refused=subprocess.run(args,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+if refused.returncode==0 or 'OFFLINE_OPERATION_DENIED' not in refused.stderr:raise RuntimeError('offline converter refusal missing: '+refused.stderr)
+lines=[l for l in trace.read_text().splitlines() if re.search(r'AF_INET6?|sockaddr_in|inet_addr\(|inet_pton\(',l)]
+counts=json.loads(report.read_text())['denied_attempts']
+if lines or counts!={'converter.jfr':1} or (out/'must-not-publish.json').exists():raise RuntimeError('offline converter guard failed')
+reports.append({'operation':['jfr','convert'],'expected_refusal':'OFFLINE_OPERATION_DENIED','inet_syscalls':0,'app_denied_attempts':counts})
 # Observer must detect a failed connection: no Internet is ever enabled here.
 positive=out/'positive-control.strace'
 run(['strace','-f','-qq','-e','trace=network','-o',str(positive),'python3','-c',"import socket; s=socket.socket(); s.settimeout(.2); print(s.connect_ex(('192.0.2.1',443))); s.close()"])

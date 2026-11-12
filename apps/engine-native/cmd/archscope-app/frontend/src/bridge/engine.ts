@@ -419,7 +419,7 @@ configureCasePersistence({
 
 // Generic result consumers enumerate backend-validated providers, with no
 // importer/type switches. Cancellation propagates through Wails call context.
-import type { ImportJob, ProviderComparison, ProviderPage, ResultCapabilities } from "../state/resultProviders";
+import type { Cancelable, ImportJob, ProviderComparison, ProviderPage, ResultCapabilities } from "../state/resultProviders";
 export const listEvidenceImporters = () => call<Array<{ id: string; limitations: string[] }>>("ListEvidenceImporters");
 export const analyzeEvidence = (path: string, importer: string, optionsJSON: string, allowPartial: boolean, presetScope = "") => call<ImportJob>("AnalyzeEvidence", { path, importer, optionsJSON, budgets: {}, allowPartial, presetScope });
 export const getImportJob = (id: string, generation: number) => call<ImportJob>("GetImportJob", id, generation);
@@ -452,3 +452,31 @@ export const listScopedEvidenceImporters = async (scope: string): Promise<Array<
 
 export const previewOfflinePackTrust = async (revision: string, bodyPath: string, signaturePath: string): Promise<PackTrustPreview> => JSON.parse(await call<string>("PreviewOfflinePackTrust", revision, bodyPath, signaturePath));
 export const commitOfflinePackTrust = (preview: PackTrustPreview, bodyPath: string, signaturePath: string) => call<void>("CommitOfflinePackTrust", preview.expected_revision, bodyPath, signaturePath, preview.review_sha256);
+
+export type InputDiscovery = {
+ mapping_previews: Array<{ importer: string; pack_sha256: string; status: string; code?: string; metric?: string; source_value?: string; normalized_value?: string; unit?: string; kind?: string; escaped: boolean }>;
+  version: string;
+  source: { name: string; size: number; sha256: string };
+  probe_bytes: number;
+  detection: { state: string; selected?: string; candidates: Array<{ importerId: string; grade: string; confidence: number; reason: string }> };
+  importers: Array<{ id: string; supportStatus: string; capabilities: string[]; limitations: string[]; converterRequirement?: string; verifiedVersions: string[] }>;
+  context: { status: string; missing: string[] };
+  advice: Array<{ code: string; route: string; recipe: string }>;
+};
+export function discoverEvidenceInput(path: string, capture: string, scope: string): Cancelable<InputDiscovery> {
+  return parseAssistance(call<string>("DiscoverEvidenceInput", path, capture, scope));
+}
+export function exportCaptureDraft(path: string, capture: string, scope: string, output: string): Cancelable<void> {
+  return call<void>("ExportCaptureDraft", path, capture, scope, output);
+}
+export function exportCollectionKit(output: string): Cancelable<void> {
+  return call<void>("ExportCollectionKit", output);
+}
+export function convertEvidenceJFR(path: string, tool: string, output: string): Cancelable<{ version: string; input_sha256: string; output_sha256: string; executable_sha256: string }> {
+  return parseAssistance(call<string>("ConvertEvidenceJFR", path, tool, output));
+}
+
+function parseAssistance<T>(request: CancellablePromise<string>): Cancelable<T> {
+  const parsed = request.then(text => JSON.parse(text) as T);
+  return Object.assign(parsed, { cancel: () => request.cancel() });
+}

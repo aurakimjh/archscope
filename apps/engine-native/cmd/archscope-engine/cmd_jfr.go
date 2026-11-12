@@ -1,40 +1,13 @@
-// `jfr` group — mirrors typer's jfr_app surface plus the
-// native-memory variant (T-340 added that on the Go side; the typer
-// counterpart is `jfr analyze-native-memory`).
-//
-// ─────────────────────────────────────────────────────────────────────
-// [한글] `jfr` 명령 그룹 — JDK Flight Recorder 분석기.
-//
-// 입력
-//   `jfr print --json` 출력(JSON). 바이너리 .jfr 자체의 자동 변환은
-//   Go 포트에서 의도적으로 미지원 — JDK CLI 의존성을 부수효과로 끌고
-//   오지 않기 위함입니다(데스크톱 바이너리 사이즈/시작 시간을 위해).
-//   따라서 사용자는 사전에 `jfr print --json recording.jfr > out.json`
-//   으로 변환 후 이 명령에 입력해야 합니다.
-//
-// 2개 리프 명령
-//   analyze-json          : 일반 분석. mode/from/to/state/min-duration
-//                           필터로 슬라이싱한 결과를 AnalysisResult 로 출력.
-//   analyze-native-memory : Native memory leak heuristic 전용 진입점.
-//                           기본값 leak_only=true, tail_ratio=0.10
-//                           (Python analyze_native_memory 와 동일).
-//
-// 시간 필터 문법 (--from / --to)
-//   ISO 8601 (예: 2026-05-08T09:00:00Z)
-//   HH:MM[:SS]            : 레코딩 시작 자정 기준의 시각
-//   상대 표기 (+30s, -2m, 500ms): 레코딩 시작 또는 끝 기준 오프셋.
-//
-// mode 필터
-//   all / cpu / wall / alloc / lock / gc / exception / io / nativemem.
-//   summary 와 charts 가 mode 에 맞게 강조점을 바꿉니다.
-//
-// 출력
-//   AnalysisResult JSON. UI 의 wall-clock heatmap 등은 series 의
-//   시계열 배열을 그대로 렌더합니다.
+// JFR commands preserve JSON analysis and expose explicit installed-tool conversion.
+// Binary analysis requires absolute ARCHSCOPE_JFR_CLI configuration; conversion
+// uses fixed argv, bounded streaming, cancellation and recorded provenance.
 package main
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/spf13/cobra"
 
@@ -71,6 +44,8 @@ filters.`,
     --in examples/jfr/sample-jfr-print.json \
     --top-n 20 --out result.json`,
 			RunE: func(cmd *cobra.Command, args []string) error {
+				ctx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt, syscall.SIGTERM)
+				defer stop()
 				if in == "" {
 					return fmt.Errorf("--in is required")
 				}
@@ -85,7 +60,7 @@ filters.`,
 					v := minDur
 					opts.MinDurationMS = &v
 				}
-				result, err := jfr.Analyze(in, opts)
+				result, err := jfr.AnalyzeContext(ctx, in, opts)
 				if err != nil {
 					return err
 				}
@@ -119,10 +94,12 @@ leak_only=true, tail_ratio=0.10.`,
     --in examples/jfr/sample-jfr-print.json \
     --out native-memory.json`,
 			RunE: func(cmd *cobra.Command, args []string) error {
+				ctx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt, syscall.SIGTERM)
+				defer stop()
 				if in == "" {
 					return fmt.Errorf("--in is required")
 				}
-				result, err := jfr.AnalyzeNativeMemory(in, jfr.NewNativeMemoryOptions())
+				result, err := jfr.AnalyzeNativeMemoryContext(ctx, in, jfr.NewNativeMemoryOptions())
 				if err != nil {
 					return err
 				}
@@ -134,5 +111,6 @@ leak_only=true, tail_ratio=0.10.`,
 		group.AddCommand(nativeMem)
 	}
 
+	group.AddCommand(jfrConversionCommand())
 	rootCmd.AddCommand(group)
 }

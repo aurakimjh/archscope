@@ -207,9 +207,11 @@ type JfrNativeMemoryOptions = jfr.NativeMemoryOptions
 
 // AnalyzeJfr wraps jfr.Analyze.
 var AnalyzeJfr = jfr.Analyze
+var AnalyzeJfrContext = jfr.AnalyzeContext
 
 // AnalyzeJfrNativeMemory wraps jfr.AnalyzeNativeMemory.
 var AnalyzeJfrNativeMemory = jfr.AnalyzeNativeMemory
+var AnalyzeJfrNativeMemoryContext = jfr.AnalyzeNativeMemoryContext
 
 // NewJfrNativeMemoryOptions returns the Python-default native memory
 // options (LeakOnly=true, TailRatio=0.10, with the user-set flags so

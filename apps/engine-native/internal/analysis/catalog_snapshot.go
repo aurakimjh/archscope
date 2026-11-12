@@ -1,8 +1,12 @@
 package analysis
 
-import "github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
+import (
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/packs"
+)
 
 type CatalogSnapshot struct {
+	Mappings                []packs.Mapping
 	Catalog                 *ingestion.Catalog
 	Packs                   []ingestion.PackPin
 	Revision, TrustSequence string

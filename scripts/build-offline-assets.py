@@ -5,7 +5,8 @@ root=pathlib.Path(__file__).resolve().parents[1]
 app=root/'apps/engine-native'; dest=app/'internal/distribution/assets'
 outputs={}
 for lang in ('en','ko'):
- outputs[f'docs/{lang}/OFFLINE_PACKS.md']=(root/f'docs/{lang}/OFFLINE_PACKS.md').read_bytes()
+ for name in ('OFFLINE_PACKS','INPUT_ASSISTANCE'):
+  outputs[f'docs/{lang}/{name}.md']=(root/f'docs/{lang}/{name}.md').read_bytes()
 files={}
 for p in sorted((app/'internal/catalog/contracts').iterdir()):
  if p.is_file():files['catalog/'+p.name]=p.read_bytes()

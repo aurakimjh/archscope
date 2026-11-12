@@ -143,3 +143,7 @@ took 64.170 ms / 0.057 ms (5,184 allocated bytes), 2,877,780-byte JSONL and
 of analytical queries or Windows runtime. Pure-Go Windows 386 cross-build passes.
 Retain JSON/compact indexes in production for this slice; no SQLite production
 dependency is added. Revisit with T-635 query/memory/concurrency requirements.
+
+Input inspection, separate manual collection kit and explicit bounded installed-tool
+conversion are documented in [Input assistance](INPUT_ASSISTANCE.md). Offline
+sessions still require preconverted JSON; no converter is silently authorized.

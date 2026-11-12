@@ -157,6 +157,7 @@ func init() {
 	reopen.Flags().StringVar(&kind, "export-format", "json", "json, raw-json, csv, html or report-pack")
 	run.Aliases = []string{"analyze"}
 	group.AddCommand(list, run, reopen)
+	group.AddCommand(inputAssistanceCommands()...)
 	group.AddCommand(resultProviderCommands()...)
 	group.AddCommand(evidenceCleanupCommand())
 	rootCmd.AddCommand(group)

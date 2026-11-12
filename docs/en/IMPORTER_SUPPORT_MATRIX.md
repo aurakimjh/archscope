@@ -83,3 +83,11 @@ pack. With an explicit `evidence --pack-store` or the desktop catalog it emits
 metrics_snapshot 0.1.1. Only synthetic.metrics 1.0.0 JSONL fixture conformance is
 qualified. Literal guards/aliases/exact scaling are fixed interpreter operations;
 this does not add vendor, time-series or arbitrary-script support. See [Offline packs](OFFLINE_PACKS.md).
+
+### Input assistance and JFR conversion
+
+Input inspection enumerates the current generic catalog separately from these
+legacy entry points. It adds no producer support claim. Binary JFR uses explicit
+absolute installed JDK configuration with bounded execution and provenance; JSON
+analysis remains available without a converter. Offline sessions require
+preconverted JSON. See [Input assistance](INPUT_ASSISTANCE.md).

@@ -1,0 +1,10 @@
+{
+  "asset_id": "diagnostics.manual-evidence.v1",
+  "version": "1.0.0",
+  "source": "collection/manual-evidence-v1/recipes.json",
+  "files": {
+    "INPUT_ASSISTANCE.en.md": "ef0c333b679c2d6be9fd8a5e34762c39d4f47cfaeb1142ebec86066c8376ff06",
+    "INPUT_ASSISTANCE.ko.md": "46e4b376c7d80de2f5b057debd62029863b11dadddceedf936e03cf1e84d515d",
+    "recipes.json": "a8d198ef9b8b38436e53421b6df255b48f98928202e65aa65d65253ee76c846b"
+  }
+}

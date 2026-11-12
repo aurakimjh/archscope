@@ -943,3 +943,13 @@ result contract and analysis service, not parsers or analyzers. Display-only
 control escaping never rewrites normalized records, metric names, source identity
 or original exports. The cache is transient; durable source/search/baseline indexes
 remain T-635. See [Data model](DATA_MODEL.md#t-631-r8-review-remediation-2026-11-12).
+
+## T-633 input assistance boundary (2026-11-12)
+
+`inputassist` owns bounded, snapshot-backed hints and explicit capture-file binding.
+It does not parse results or grant support from an extension/recipe. `localconvert`
+owns installed-tool execution, fixed arguments, streaming limits, cancellation and
+provenance; JFR parsing and analysis retain their separate responsibilities.
+The generic catalog and common AnalysisResult contract remain unchanged.
+See [Input assistance](INPUT_ASSISTANCE.md) for limits, refusal codes and manual
+kit/CLI/UI usage. Runtime assets are embedded; no sibling checkout is needed.

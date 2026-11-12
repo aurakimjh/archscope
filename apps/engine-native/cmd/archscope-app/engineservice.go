@@ -38,6 +38,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analysis"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/cases"
@@ -464,11 +465,11 @@ func (s *EngineService) AnalyzeGcLog(req GcLogRequest) (engineapi.AnalysisResult
 }
 
 // AnalyzeJfr wraps engineapi.AnalyzeJfr.
-func (s *EngineService) AnalyzeJfr(req JfrRequest) (engineapi.AnalysisResult, error) {
+func (s *EngineService) AnalyzeJfr(ctx context.Context, req JfrRequest) (engineapi.AnalysisResult, error) {
 	if strings.TrimSpace(req.Path) == "" {
 		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
 	}
-	return engineapi.AnalyzeJfr(req.Path, engineapi.JfrOptions{
+	return engineapi.AnalyzeJfrContext(ctx, req.Path, engineapi.JfrOptions{
 		TopN:     req.TopN,
 		Mode:     req.Mode,
 		FromTime: req.FromTime,
@@ -478,7 +479,7 @@ func (s *EngineService) AnalyzeJfr(req JfrRequest) (engineapi.AnalysisResult, er
 }
 
 // AnalyzeNativeMemory wraps engineapi.AnalyzeJfrNativeMemory.
-func (s *EngineService) AnalyzeNativeMemory(req JfrRequest) (engineapi.AnalysisResult, error) {
+func (s *EngineService) AnalyzeNativeMemory(ctx context.Context, req JfrRequest) (engineapi.AnalysisResult, error) {
 	if strings.TrimSpace(req.Path) == "" {
 		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")
 	}
@@ -490,7 +491,7 @@ func (s *EngineService) AnalyzeNativeMemory(req JfrRequest) (engineapi.AnalysisR
 	if req.TailRatio > 0 {
 		opts.TailRatio = req.TailRatio
 	}
-	return engineapi.AnalyzeJfrNativeMemory(req.Path, opts)
+	return engineapi.AnalyzeJfrNativeMemoryContext(ctx, req.Path, opts)
 }
 
 // AnalyzeException wraps engineapi.AnalyzeException.

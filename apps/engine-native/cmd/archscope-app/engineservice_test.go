@@ -14,6 +14,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -353,7 +354,7 @@ func TestEngineService_AnalyzeException(t *testing.T) {
 func TestEngineService_AnalyzeJfr(t *testing.T) {
 	svc := &EngineService{}
 	path := filepath.Join(fixturesDir(t), "jfr", "sample-jfr-print.json")
-	res, err := svc.AnalyzeJfr(JfrRequest{Path: path})
+	res, err := svc.AnalyzeJfr(context.Background(), JfrRequest{Path: path})
 	if err != nil {
 		t.Fatalf("AnalyzeJfr: %v", err)
 	}

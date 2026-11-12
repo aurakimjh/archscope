@@ -8,6 +8,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/requestbuilder"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/session"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/localconvert"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/netpolicy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/jfr"
 	"os"
@@ -53,7 +54,7 @@ func TestOfflineGuardBeforeNetworkAndConverterAllocation(t *testing.T) {
 	if _, e := (&proxy.Server{}).Start(context.Background(), capture.Config{}, nil); e == nil {
 		t.Fatal("proxy accepted")
 	}
-	if _, e := jfr.ConvertJFRToJSON("unused.jfr", "must-not-execute"); e == nil {
+	if _, e := jfr.ConvertJFRToJSON("unused.jfr", "must-not-execute"); e == nil || localconvert.Code(e) != "OFFLINE_OPERATION_DENIED" {
 		t.Fatal("unqualified subprocess accepted")
 	}
 	if len(netpolicy.Snapshot().Attempts) != 6 {

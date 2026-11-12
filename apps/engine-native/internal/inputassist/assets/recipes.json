@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0.0",
+  "asset_id": "diagnostics.manual-evidence.v1",
+  "execution": "manual_only",
+  "recipes": [
+    {
+      "id": "jdk.jfr",
+      "title_en": "Collect and convert JFR manually",
+      "title_ko": "JFR 수동 수집과 변환",
+      "commands": [
+        "jcmd <PID> help JFR.start",
+        "jcmd <PID> JFR.start name=diagnostic settings=profile duration=60s filename=<ABS_OUTPUT>.jfr",
+        "jfr --version",
+        "jfr print --json <INPUT>.jfr > <OUTPUT>.json"
+      ],
+      "context": [
+        "producer_version",
+        "collection_start",
+        "collection_end",
+        "timezone",
+        "clock_domain",
+        "host_identity",
+        "process_lifetime",
+        "sample_interval",
+        "loss"
+      ],
+      "limitations_en": "Use a compatible JDK in the collection environment. Inspect sensitive events before sharing. Imported JSON does not imply a native binary decoder or complete event coverage.",
+      "limitations_ko": "수집 환경의 호환 JDK를 사용하고 공유 전 민감 이벤트를 검토하세요. JSON 가져오기는 네이티브 바이너리 디코더나 전체 이벤트 지원을 의미하지 않습니다.",
+      "sources": [
+        "https://docs.oracle.com/en/java/javase/26/docs/specs/man/jcmd.html",
+        "https://docs.oracle.com/en/java/javase/21/docs/specs/man/jfr.html"
+      ]
+    },
+    {
+      "id": "manual.review",
+      "title_en": "Prepare existing exports and capture context",
+      "title_ko": "기존 내보내기와 수집 맥락 준비",
+      "commands": [],
+      "context": [
+        "producer",
+        "producer_version",
+        "collection_start",
+        "collection_end",
+        "clock_domain",
+        "timezone",
+        "host_identity",
+        "process_lifetime",
+        "units",
+        "loss"
+      ],
+      "limitations_en": "Export with installed producer tools. Preserve original values, units, clocks and per-profile identities. A filename or extension alone never proves support; check the consumer support matrix.",
+      "limitations_ko": "설치된 생성 도구로 내보내고 원본 값·단위·시계·프로파일 식별을 보존하세요. 파일명이나 확장자만으로 지원을 판정하지 말고 소비자의 지원표를 확인하세요.",
+      "sources": []
+    }
+  ]
+}
