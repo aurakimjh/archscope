@@ -14,10 +14,7 @@ import (
 func TestT644ActualCLIAndCommonConsumers(t *testing.T) {
 	t.Setenv("ARCHSCOPE_STATE_ROOT", t.TempDir())
 	dir := t.TempDir()
-	engine := filepath.Join(dir, "engine")
-	if out, err := exec.Command("go", "build", "-o", engine, ".").CombinedOutput(); err != nil {
-		t.Fatal(err, string(out))
-	}
+	engine := buildBinary(t)
 	run := func(args ...string) []byte {
 		t.Helper()
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
