@@ -6,6 +6,7 @@
 
 | 날짜 | 문서 | 대상 | 판정 |
 |---|---|---|---|
+| 2026-11-12 | [T-644 CPU/GPU 실행 구간 근거(PyTorch·Nsight) 구현 독립 리뷰](2026-11-12_claude-code_T-644_implementation-review.ko.md) | `09413bf` | CONDITIONAL(P2 1/P3 3, P1 없음). R21-01(원본 크기·이벤트 수 한도가 시간 창보다 먼저 적용되어 큰 Nsight/PyTorch 캡처를 가져올 수 없음)을 먼저 처리한 뒤 DONE 복귀 허용, 나머지는 후속 큐. 실제 PyTorch 2.15.0 2-rank 트레이스와 T-643 R20-01 수정은 독립 입력으로 확인 |
 
 ## 처리 기록
 
