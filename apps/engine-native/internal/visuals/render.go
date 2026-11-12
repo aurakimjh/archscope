@@ -9,8 +9,8 @@ import (
 	"html"
 	"math"
 	"math/big"
+	"regexp"
 	"strings"
-	"unicode"
 	"unicode/utf8"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/profilemodel"
@@ -48,26 +48,79 @@ func cellText(c resultcontract.Cell) string {
 	}
 	return clean(s)
 }
-func tableText(s string) string {
-	s = strings.NewReplacer("\t", " ", "\r", " ", "\n", " ", "\x00", "").Replace(s)
-	trimmed := strings.TrimLeftFunc(s, unicode.IsSpace)
-	dangerous := trimmed != "" && strings.ContainsRune("=+@-", []rune(trimmed)[0])
-	number, e := profilemodel.Number(trimmed)
-	if dangerous && !(e == nil && number.Sign() < 0) {
-		return "'" + s
+
+var spreadsheetNumber = regexp.MustCompile(`^-?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$`)
+var spreadsheetFraction = regexp.MustCompile(`^[+-]?[0-9]+/[0-9]+(?:/[0-9]+)?$`)
+var spreadsheetDate = regexp.MustCompile(`^(?:[0-9]{4}[-/.][0-9]{1,2}[-/.][0-9]{1,2}|[0-9]{1,2}[-/.][0-9]{1,2}(?:[-/.][0-9]{2,4})?)(?:[ T][0-9]{1,2}:[0-9]{2}(?::[0-9]{2})?)?$`)
+
+func transportText(s string) string {
+	return strings.NewReplacer("\t", " ", "\r", " ", "\n", " ", "\x00", "").Replace(s)
+}
+func formulaRisk(s string) bool {
+	t := strings.TrimSpace(s)
+	if t == "" {
+		return false
 	}
-	// Spreadsheets otherwise round long numeric cells or turn fractions into dates.
-	digits := 0
-	for _, r := range trimmed {
-		if r >= '0' && r <= '9' {
-			digits++
-		}
-	}
-	if (e == nil && digits > 15) || strings.Contains(trimmed, "/") {
+	return strings.ContainsRune("=+@", rune(t[0])) || (t[0] == '-' && !spreadsheetNumber.MatchString(t))
+}
+func headerText(s string) string {
+	s = transportText(s)
+	if formulaRisk(s) {
 		return "'" + s
 	}
 	return s
 }
+func htmlTableText(s string) string { return headerText(s) }
+func tableText(s string) string {
+	s = transportText(s)
+	t := strings.TrimSpace(s)
+	if formulaRisk(s) || spreadsheetFraction.MatchString(t) || spreadsheetDate.MatchString(t) {
+		return "'" + s
+	}
+	if spreadsheetNumber.MatchString(t) {
+		digits := 0
+		for _, r := range t {
+			if r >= '0' && r <= '9' {
+				digits++
+			}
+		}
+		integer := strings.TrimPrefix(t, "-")
+		if digits > 15 || strings.ContainsAny(t, "eE") || (len(integer) > 1 && integer[0] == '0' && integer[1] >= '0' && integer[1] <= '9') {
+			return "'" + s
+		}
+	}
+	return s
+}
+
+type Protection struct {
+	Version   string `json:"version"`
+	TSVCells  int    `json:"tsv_changed_cells"`
+	HTMLCells int    `json:"html_changed_cells"`
+	Headers   int    `json:"formula_headers"`
+}
+
+// Counts refer to currently exported/clipboard table encodings, never alter view values.
+func TableProtection(view View) Protection {
+	out := Protection{Version: "spreadsheet-text-0.2.0"}
+	for _, name := range view.Columns {
+		if headerText(clean(name)) != clean(name) {
+			out.Headers++
+		}
+	}
+	for _, row := range view.Rows {
+		for _, cell := range row {
+			text := cellText(cell)
+			if tableText(text) != text {
+				out.TSVCells++
+			}
+			if htmlTableText(text) != text {
+				out.HTMLCells++
+			}
+		}
+	}
+	return out
+}
+
 func TSV(view View) []byte {
 	var b bytes.Buffer
 	writer := csv.NewWriter(&b)
@@ -75,7 +128,7 @@ func TSV(view View) []byte {
 	writer.UseCRLF = true
 	headers := []string{}
 	for _, name := range view.Columns {
-		headers = append(headers, tableText(clean(name)))
+		headers = append(headers, headerText(clean(name)))
 	}
 	writer.Write(headers)
 	for _, row := range view.Rows {
@@ -95,13 +148,13 @@ func TableHTML(view View, spec Spec) string {
 	var b strings.Builder
 	b.WriteString(`<table style="border-collapse:collapse;font-family:'Noto Sans KR','Malgun Gothic',Arial,sans-serif;font-size:11pt"><caption>` + html.EscapeString(clean(spec.Presentation.Title)) + ` · rows ` + fmt.Sprintf("%d–%d / %d", view.Offset+min(1, len(view.Rows)), view.Offset+len(view.Rows), view.Total) + ` · ` + html.EscapeString(view.Unit) + ` · denominator ` + html.EscapeString(view.Denominator) + `</caption><thead><tr>`)
 	for _, name := range view.Columns {
-		b.WriteString(`<th style="border:1px solid #777;padding:5px;background:#edf2f7">` + html.EscapeString(tableText(clean(name))) + `</th>`)
+		b.WriteString(`<th style="border:1px solid #777;padding:5px;background:#edf2f7">` + html.EscapeString(headerText(clean(name))) + `</th>`)
 	}
 	b.WriteString(`</tr></thead><tbody>`)
 	for _, row := range view.Rows {
 		b.WriteString(`<tr>`)
 		for _, cell := range row {
-			b.WriteString(`<td style="border:1px solid #aaa;padding:5px;mso-number-format:'\@'">` + html.EscapeString(tableText(cellText(cell))) + `</td>`)
+			b.WriteString(`<td style="border:1px solid #aaa;padding:5px;mso-number-format:'\@'">` + html.EscapeString(htmlTableText(cellText(cell))) + `</td>`)
 		}
 		b.WriteString(`</tr>`)
 	}

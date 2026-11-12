@@ -1,0 +1,74 @@
+{
+  "id": "diagnostics.system-evidence.v1",
+  "version": "1.0.0",
+  "synthetic": true,
+  "perf_exporter": "perf 6.1.190, actually executed against generated data; no host event collection",
+  "bpftrace_shape": "v0.22.0 hist JSON, synthetic fixture only; live attach not executed",
+  "files": [
+    {
+      "file": "LICENSE.txt",
+      "sha256": "7d914a31656ed1beb2085e4729702a56345007b12c702c824bf8b8a7030e880d"
+    },
+    {
+      "file": "README.md",
+      "sha256": "eee335f292e0319ce7b0d9eb786dbe67c17466044a9e0620161c0ab95f4d7f0a"
+    },
+    {
+      "file": "bpftrace-capture.json",
+      "sha256": "cd91e2cc4c6ae2ba89032f565e1b9dd12028a8a9667fe1eb04687b27ac315bea"
+    },
+    {
+      "file": "bpftrace-hist.jsonl",
+      "sha256": "b7e0bc8be8dbffdfde42f1762e66f4c81cc38e3dfa2ce4bab0ce47190b210973"
+    },
+    {
+      "file": "event-emitter.txt",
+      "sha256": "cef05b3b47ecf95e88dda4775ea3118bd942270b8d62a0442640e0ac20d574b0"
+    },
+    {
+      "file": "events-capture.json",
+      "sha256": "f8a6f356f197336baf6e89e7d28bd736ccb2103f4f03b95844da43a97e08a9e8"
+    },
+    {
+      "file": "events.jsonl",
+      "sha256": "c2af8a7682a7af2d5e9741f0f16549ec9239fc171b195a00a8041b0c8387ef83"
+    },
+    {
+      "file": "generate_perf.py",
+      "sha256": "e9e583c9ac28bfa28b814525d9b1f0fd90d3bd6c7a1e5518a79daa75a79d1fb5"
+    },
+    {
+      "file": "histogram-set.json",
+      "sha256": "782c824ad16d58862efe80cf6f82ed352c42d3e6b485e5183b740800d1ec8d42"
+    },
+    {
+      "file": "histogram.bt",
+      "sha256": "b473bc526b823d4875e533b8e38692c937ecd5a526271611d1eaf1989ef81270"
+    },
+    {
+      "file": "perf-capture.json",
+      "sha256": "db9afd019be51f6d4e3175b14c5d8ba93db8614c403b4815a4a3fb763e440f02"
+    },
+    {
+      "file": "perf-script.txt",
+      "sha256": "c65c362433c9c5dc4abc8473597952a08cb94c25e66108e71f6a2e1c19224888"
+    },
+    {
+      "file": "perf-set.json",
+      "sha256": "10e0d64a4498e11cc44cecbafc4f35db38fef7ff20debbc3e23b5ff3af900a59"
+    },
+    {
+      "file": "synthetic-perf.data",
+      "sha256": "5a48154e118ca263c7192460c7bf6561c79a59434eec9138de53e79c61bbb92e"
+    },
+    {
+      "file": "system-evidence-set.json",
+      "sha256": "1089bb984e1d539c7742c3141f1d41907c34f50fc3c3f698b36deb3c6787fc18"
+    },
+    {
+      "file": "system-evidence-set.schema.json",
+      "sha256": "f6609d2f7450f08e0dc3a4137c74ce7814194a2d16cbb83beda514b4209d7500"
+    }
+  ],
+  "schema_sha256": "f6609d2f7450f08e0dc3a4137c74ce7814194a2d16cbb83beda514b4209d7500"
+}

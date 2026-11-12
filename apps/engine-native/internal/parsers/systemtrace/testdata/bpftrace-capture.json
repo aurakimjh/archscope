@@ -1,0 +1,40 @@
+{
+  "schema": "system-evidence.v1",
+  "id": "synthetic-capture-1",
+  "tool": "bpftrace",
+  "tool_version": "0.22.0",
+  "clock": "monotonic:synthetic",
+  "boot_id": "synthetic-boot",
+  "pid_namespace": "synthetic-ns",
+  "lost": "0",
+  "unwind_failures": null,
+  "kernel_symbols": "unknown",
+  "frequency_hz": null,
+  "entities": [
+    {
+      "id": "worker-generation-a",
+      "pid": "123",
+      "tid": "124",
+      "process_start_ns": "0"
+    },
+    {
+      "id": "worker-generation-b",
+      "pid": "125",
+      "tid": "126",
+      "process_start_ns": "0"
+    }
+  ],
+  "events": [],
+  "histograms": [
+    {
+      "name": "@latency",
+      "unit": "nanoseconds",
+      "population": "synthetic-latency-observations",
+      "aggregation": "cumulative",
+      "reset_id": "synthetic-lifetime-1",
+      "from_ns": "0",
+      "to_ns": "1000"
+    }
+  ],
+  "script_sha256": "b473bc526b823d4875e533b8e38692c937ecd5a526271611d1eaf1989ef81270"
+}

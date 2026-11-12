@@ -142,3 +142,13 @@ remain distinct. Generic detail/timeline and saved-result query/export share the
 common envelope. SDK Python 1.38.0 synthetic fixtures qualify only that slice;
 Q04/GenAI aliases and native acceptance stay separate. Legacy metrics_snapshot
 semantics are unchanged; there is no automatic cross-series sum or quantile math.
+
+## T-637 file-only system evidence
+
+Limited canonical importer `system.evidence-json` / payload `system_evidence`
+0.1.0: actual perf 6.1.190 synthetic-data sample export, constrained scheduler
+text grammar, explicit event JSONL, and pinned bpftrace 0.22 histogram JSON shape.
+Native scheduler/BPF collection, other layouts/versions and arbitrary scripts
+remain unqualified. Sample count, period, scheduler durations and aggregate
+buckets are separate. No binary perf decoder or live attach.
+[Workflow, conditions and bounds](SYSTEM_EVIDENCE.md).

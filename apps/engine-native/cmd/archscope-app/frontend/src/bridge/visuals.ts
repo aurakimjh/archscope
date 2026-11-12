@@ -1,10 +1,11 @@
+export type TableProtection = {version:string;tsv_changed_cells:number;html_changed_cells:number;formula_headers:number};
 import { Call, type CancellablePromise } from "@wailsio/runtime";
 export type VisualQuery = { kind: string; provider?: string; offset: number; limit: number; columns?: string[]; profile?: unknown };
 export type VisualPresentation = { width: number; height: number; font_size: number; rows_per_page: number; transparent: boolean; title: string; annotation: string };
 export type VisualSpec = { version: string; template: string; template_version: string; renderer: string; font_sha256: string; redaction_profile: string; view_sha256: string; sources: {sha256: string; type: string; payload_version: string}[]; query: VisualQuery; presentation: VisualPresentation; parent?: string };
-export type VisualDescriptor = { id: string; title: string; pages: number; spec: VisualSpec; reproducible: boolean; created_at: string };
+export type VisualDescriptor = { table_protection?:TableProtection; id: string; title: string; pages: number; spec: VisualSpec; reproducible: boolean; created_at: string };
 export type VisualCapabilities = { version: string; renderer: boolean; native_clipboard: boolean; font_sha256: string; templates: string[]; notes: string[] };
-export type VisualPreview = { id: string; spec: VisualSpec; pages: number; reproducible: boolean; png: string };
+export type VisualPreview = { table_protection?:TableProtection; id: string; spec: VisualSpec; pages: number; reproducible: boolean; png: string };
 const call = <T>(name: string, ...args: unknown[]): CancellablePromise<T> => Call.ByName(`main.EngineService.${name}`, ...args);
 export const capabilities = (): CancellablePromise<string> => call("VisualCapabilities");
 export const render = (request: string): CancellablePromise<string> => call("RenderVisual", request);

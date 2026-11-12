@@ -1,0 +1,30 @@
+{
+  "scope": "Actual React components and CLI-generated histogram DTO, synthetic Wails IPC",
+  "checks": {
+    "aggregateHasNoProfileMetric": true,
+    "aggregateProfileDisabled": true,
+    "inclusiveOriginalBucketBoundsVisible": true,
+    "exactCountsVisible": true,
+    "windowResetDisclosed": true
+  },
+  "calls": [
+    {
+      "object": 0,
+      "name": "main.EngineService.DescribeSystemEvidence",
+      "args": [
+        "synthetic-result"
+      ]
+    },
+    {
+      "object": 0,
+      "name": "main.EngineService.QuerySystemHistogram",
+      "args": [
+        "synthetic-result",
+        "6b84259ad6fd0e1663844191cf5dd29cb1a4d263f09682a506eacf1bf83d43c6",
+        "event-859d52e6867680db0c6cf5b08cb170b81b2850a321a8c6829f85b631a5652926",
+        0,
+        25
+      ]
+    }
+  ]
+}

@@ -998,3 +998,14 @@ remain distinct. Generic detail/timeline and saved-result query/export share the
 common envelope. SDK Python 1.38.0 synthetic fixtures qualify only that slice;
 Q04/GenAI aliases and native acceptance stay separate. Legacy metrics_snapshot
 semantics are unchanged; there is no automatic cross-series sum or quantile math.
+
+## T-637 system evidence adapters
+
+`system.evidence-json` accepts SystemEvidence 1.0.0 canonical JSON through ≤256 KiB
+chunks, with compiled shape/semantic checks and digest-pinned bundled fixtures.
+Original sources use explicit perf-script/events-jsonl/bpftrace-jsonl normalization
+with capture context; parsing never executes tools. `system_evidence` 0.1.0 owns
+raw observations, separate scheduler interval analysis and original aggregate
+buckets. [System evidence](SYSTEM_EVIDENCE.md) defines exact fields/version slices,
+lifetime/loss/clock refusals, bounds and source drilldown. Existing profile and
+metric readers are preserved.

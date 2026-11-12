@@ -1,0 +1,12 @@
+synthetic   123/124   [000]     1.000000001:    1000000 cpu-clock:HG: 
+	          400000 [unknown] ([unknown])
+	          400100 [unknown] ([unknown])
+
+synthetic   123/124   [001]     2.000000001:    2000000 cpu-clock:HG: 
+	          400010 [unknown] ([unknown])
+	          400100 [unknown] ([unknown])
+
+synthetic   123/124   [000]     3.000000001:    3000000 cpu-clock:HG: 
+	          400020 [unknown] ([unknown])
+	          400100 [unknown] ([unknown])
+

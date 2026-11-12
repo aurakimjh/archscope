@@ -17,7 +17,7 @@ def run(args):
 run(['/input/engine','offline','build','--engine','/input/engine','--out',str(bundle)])
 # Only the new bundle and synthetic corpus remain visible to the tested process.
 with zipfile.ZipFile(bundle/'resources/fixtures.zip') as z:
- for name in ('packs/input.jsonl','catalog/metric-history-set.json','catalog/metric-history-sdk-python-1.38.0.otlp.json'):z.extract(name,'/sources')
+ for name in ('packs/input.jsonl','catalog/metric-history-set.json','catalog/metric-history-sdk-python-1.38.0.otlp.json','catalog/system-evidence-perf-script.txt','catalog/system-evidence-perf-capture.json'):z.extract(name,'/sources')
 model=json.loads(pathlib.Path('/sources/catalog/metric-history-set.json').read_text())
 selection={'series_ids':[model['series'][0]['id']]}
 cli=str(bundle/'archscope-engine');base=[cli,'--offline-root',str(bundle)]
@@ -29,6 +29,12 @@ commands.extend([
  ['metrics','history-query','--in','/evidence/history-result.json','--query',json.dumps({'selection':selection,'limit':1})],
  ['visual','create-spec','--in','/evidence/history-result.json','--query',json.dumps({'kind':'provider_table','provider':'generic:summary','offset':0,'limit':25}),'--out','/evidence/visual-spec.json'],
  ['visual','validate','--in','/evidence/visual-spec.json'],
+ ['system','inspect-source','--in','/sources/catalog/system-evidence-perf-script.txt','--format','perf-script','--capture-file','/sources/catalog/system-evidence-perf-capture.json'],
+ ['system','normalize-source','--in','/sources/catalog/system-evidence-perf-script.txt','--format','perf-script','--capture-file','/sources/catalog/system-evidence-perf-capture.json','--out','/evidence/system-model.json'],
+ ['evidence','import','--in','/evidence/system-model.json','--importer','system.evidence-json','--options','{}','--out','/evidence/system-result.json'],
+ ['system','project-profile','--in','/evidence/system-result.json','--metric-id','period/cpu-clock:HG','--out','/evidence/system-profile.json'],
+ ['profile-set','tree','--in','/evidence/system-profile.json'],
+
 ])
 reports=[]
 for i,args in enumerate(commands):

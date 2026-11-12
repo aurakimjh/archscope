@@ -1,0 +1,11 @@
+{"kind":"sched_in","name":"sched:sched_switch","entity_id":"worker-generation-a","time_ns":"100","cpu":"0"}
+{"kind":"sample","name":"cycles:u","entity_id":"worker-generation-a","time_ns":"120","cpu":"0","period":"9007199254740993","context":"user","stack":[{"address":"400100","symbol":"合成 호출자","module":"synthetic-app","context":"user"},{"address":"400110","symbol":"synthetic.block","module":"synthetic-app","context":"user"}]}
+{"kind":"sched_out","name":"sched:sched_switch","entity_id":"worker-generation-a","time_ns":"200","cpu":"0","state":"sleeping","stack":[{"address":"400100","symbol":"合成 호출자","module":"synthetic-app","context":"user"},{"address":"400110","symbol":"synthetic.block","module":"synthetic-app","context":"user"}]}
+{"kind":"wakeup","name":"sched:sched_wakeup","entity_id":"worker-generation-a","time_ns":"350","cpu":"0"}
+{"kind":"sched_in","name":"sched:sched_switch","entity_id":"worker-generation-a","time_ns":"500","cpu":"0"}
+{"kind":"sched_out","name":"sched:sched_switch","entity_id":"worker-generation-a","time_ns":"600","cpu":"0","state":"runnable"}
+{"kind":"sched_in","name":"sched:sched_switch","entity_id":"worker-generation-a","time_ns":"650","cpu":"0"}
+{"kind":"sched_out","name":"sched:sched_switch","entity_id":"worker-generation-a","time_ns":"700","cpu":"0","state":"unknown","stack":[{"address":"400100","symbol":"合成 호출자","module":"synthetic-app","context":"user"},{"address":"400110","symbol":"synthetic.block","module":"synthetic-app","context":"user"}]}
+{"kind":"duration","name":"block:complete","entity_id":"worker-generation-a","time_ns":"800","cpu":"0","end_ns":"900","fields":{"device":"synthetic-device","operation":"read","phase":"total","bytes":"4096"},"stack":[{"address":"400100","symbol":"合成 호출자","module":"synthetic-app","context":"user"},{"address":"400110","symbol":"synthetic.block","module":"synthetic-app","context":"user"}]}
+{"kind":"duration","name":"syscall:complete","entity_id":"worker-generation-a","time_ns":"950","cpu":"0","end_ns":"950","fields":{"operation":"synthetic_wait","phase":"total"}}
+{"kind":"duration","name":"network:complete","entity_id":"worker-generation-a","time_ns":"1000","cpu":"0","end_ns":"1100","fields":{"operation":"retransmit","phase":"observed_local"}}

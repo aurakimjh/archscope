@@ -1,0 +1,3 @@
+Synthetic fixture data and generator authored for this workspace: CC0-1.0.
+perf-script.txt was emitted by Linux perf 6.1.190 from the generated synthetic perf.data. No host workload was captured.
+The bpftrace histogram shape was checked against the upstream v0.22.0 JSON fixture contract; this is synthetic data, not a live BPF execution claim.

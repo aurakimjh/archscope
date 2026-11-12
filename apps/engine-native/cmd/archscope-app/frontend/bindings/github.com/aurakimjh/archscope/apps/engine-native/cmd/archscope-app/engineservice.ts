@@ -407,6 +407,10 @@ export function DescribeProfileQuery(handle: string): $CancellablePromise<string
     return $Call.ByID(2622781381, handle);
 }
 
+export function DescribeSystemEvidence(handle: string): $CancellablePromise<string> {
+    return $Call.ByID(915212406, handle);
+}
+
 /**
  * DiffReports loads two AnalysisResult JSON files from disk and
  * returns the comparison_report payload. Mirrors Python's
@@ -620,6 +624,10 @@ export function InspectProfileSource(path: string, optionsJSON: string): $Cancel
     return $Call.ByID(200477639, path, optionsJSON);
 }
 
+export function InspectSystemSource(path: string, options: string): $CancellablePromise<string> {
+    return $Call.ByID(3188032445, path, options);
+}
+
 export function InstallDataPack(path: string, optionsJSON: string): $CancellablePromise<string> {
     return $Call.ByID(3784751023, path, optionsJSON);
 }
@@ -656,6 +664,10 @@ export function MaterializeProfileView(handle: string, digest: string, selection
     return $Call.ByID(89147784, handle, digest, selectionJSON);
 }
 
+export function MaterializeSystemProfile(handle: string, digest: string, metric: string, entitiesJSON: string): $CancellablePromise<string> {
+    return $Call.ByID(757643586, handle, digest, metric, entitiesJSON);
+}
+
 export function NormalizeLegacyProfileSet(path: string, format: string): $CancellablePromise<string> {
     return $Call.ByID(3489070610, path, format);
 }
@@ -666,6 +678,10 @@ export function NormalizeMetricSource(path: string, optionsJSON: string, expecte
 
 export function NormalizeProfileSource(path: string, optionsJSON: string, expectedSHA256: string, output: string): $CancellablePromise<string> {
     return $Call.ByID(1868428930, path, optionsJSON, expectedSHA256, output);
+}
+
+export function NormalizeSystemSource(path: string, options: string, expected: string, output: string): $CancellablePromise<string> {
+    return $Call.ByID(476996182, path, options, expected, output);
 }
 
 export function OpenCaseEvidence(caseID: string, revision: string, sourceID: string, sourceSHA: string, line: string): $CancellablePromise<string> {
@@ -684,6 +700,10 @@ export function OpenEvidenceResult(path: string): $CancellablePromise<analysis$0
 
 export function OpenProfileEvidence(caseID: string, revision: string, resultID: string, resultSHA: string, sourceID: string, sourceSHA: string, reference: string): $CancellablePromise<string> {
     return $Call.ByID(3521847889, caseID, revision, resultID, resultSHA, sourceID, sourceSHA, reference);
+}
+
+export function OpenSystemEvidence(caseID: string, revision: string, resultID: string, resultSHA: string, sourceID: string, sourceSHA: string, eventID: string): $CancellablePromise<string> {
+    return $Call.ByID(2381818907, caseID, revision, resultID, resultSHA, sourceID, sourceSHA, eventID);
 }
 
 export function PinVerifiedCaseBaseline(requestJSON: string): $CancellablePromise<string> {
@@ -724,6 +744,10 @@ export function QueryMetricHistory(handle: string, digest: string, requestJSON: 
 
 export function QueryProfileEvidence(handle: string, digest: string, requestJSON: string): $CancellablePromise<string> {
     return $Call.ByID(2616882255, handle, digest, requestJSON);
+}
+
+export function QuerySystemHistogram(handle: string, digest: string, eventID: string, offset: number, limit: number): $CancellablePromise<string> {
+    return $Call.ByID(297322870, handle, digest, eventID, offset, limit);
 }
 
 export function RebuildCaseIndex(): $CancellablePromise<string> {

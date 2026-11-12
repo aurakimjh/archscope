@@ -1,0 +1,1 @@
+BEGIN { @latency = hist(2); @latency = hist(1025); exit(); }

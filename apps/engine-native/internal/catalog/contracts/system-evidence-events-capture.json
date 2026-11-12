@@ -1,0 +1,60 @@
+{
+  "schema": "system-evidence.v1",
+  "id": "synthetic-capture-1",
+  "tool": "synthetic.system-events",
+  "tool_version": "1.0.0",
+  "clock": "monotonic:synthetic",
+  "boot_id": "synthetic-boot",
+  "pid_namespace": "synthetic-ns",
+  "lost": "0",
+  "unwind_failures": null,
+  "kernel_symbols": "unknown",
+  "frequency_hz": null,
+  "entities": [
+    {
+      "id": "worker-generation-a",
+      "pid": "123",
+      "tid": "124",
+      "process_start_ns": "0"
+    },
+    {
+      "id": "worker-generation-b",
+      "pid": "125",
+      "tid": "126",
+      "process_start_ns": "0"
+    }
+  ],
+  "events": [
+    {
+      "name": "cycles:u",
+      "kind": "sample",
+      "period_kind": "cycles",
+      "period_unit": "cycles"
+    },
+    {
+      "name": "sched:sched_switch",
+      "kind": "sched_switch"
+    },
+    {
+      "name": "sched:sched_wakeup",
+      "kind": "wakeup"
+    },
+    {
+      "name": "block:complete",
+      "kind": "block_io",
+      "phase": "total"
+    },
+    {
+      "name": "syscall:complete",
+      "kind": "syscall",
+      "phase": "total"
+    },
+    {
+      "name": "network:complete",
+      "kind": "network",
+      "phase": "observed_local"
+    }
+  ],
+  "histograms": [],
+  "script_sha256": "cef05b3b47ecf95e88dda4775ea3118bd942270b8d62a0442640e0ac20d574b0"
+}

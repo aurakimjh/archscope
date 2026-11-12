@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "시스템 성능 근거 모델",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "format",
+    "source_sha256",
+    "capture",
+    "records"
+  ],
+  "properties": {
+    "version": {
+      "const": "1.0.0"
+    },
+    "format": {
+      "enum": [
+        "perf-script",
+        "events-jsonl",
+        "bpftrace-jsonl"
+      ]
+    },
+    "source_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "capture": {
+      "type": "object",
+      "required": [
+        "schema",
+        "id",
+        "tool",
+        "tool_version",
+        "clock",
+        "boot_id",
+        "pid_namespace",
+        "lost",
+        "unwind_failures",
+        "kernel_symbols",
+        "frequency_hz",
+        "entities",
+        "events",
+        "histograms"
+      ]
+    },
+    "records": {
+      "type": "array",
+      "maxItems": 50000,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "line",
+          "kind"
+        ]
+      }
+    }
+  },
+  "$comment": "정확한 문자열 수치·입력별 선언·entity 수명·bucket 순서·출처 ID와 전체 용량은 compiled validator가 추가 검증한다. 집계 histogram을 이벤트로 만들지 않는다."
+}

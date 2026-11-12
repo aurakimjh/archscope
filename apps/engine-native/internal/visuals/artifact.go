@@ -26,6 +26,7 @@ type Page struct {
 	SVG []byte
 }
 type Receipt struct {
+	TableProtection *Protection       `json:"table_protection,omitempty"`
 	Version         string            `json:"version"`
 	CreatedAt       string            `json:"created_at"`
 	Spec            Spec              `json:"spec"`
@@ -40,12 +41,13 @@ type Artifact struct {
 	Files   map[string][]byte
 }
 type Descriptor struct {
-	ID           string `json:"id"`
-	Title        string `json:"title"`
-	Pages        int    `json:"pages"`
-	Spec         Spec   `json:"spec"`
-	Reproducible bool   `json:"reproducible"`
-	CreatedAt    string `json:"created_at"`
+	TableProtection Protection `json:"table_protection"`
+	ID              string     `json:"id"`
+	Title           string     `json:"title"`
+	Pages           int        `json:"pages"`
+	Spec            Spec       `json:"spec"`
+	Reproducible    bool       `json:"reproducible"`
+	CreatedAt       string     `json:"created_at"`
 }
 
 func ValidatePNG(body []byte, width, height int) error {
@@ -202,7 +204,8 @@ func BuildArtifact(ctx context.Context, view View, spec Spec, pages []Page, envi
 	files["table.tsv"] = TSV(view)
 	files["table.html"] = []byte(StandaloneHTML(view, spec))
 	files["font-OFL.txt"] = license
-	receipt := Receipt{Version: Version, CreatedAt: time.Now().UTC().Format(time.RFC3339Nano), Spec: spec, Files: map[string]string{}, Pages: len(pages), Environment: environment, Reproducibility: "Exact numeric strings and selected layout inputs are pinned. Raster byte identity is only comparable within the same fixed WebView/platform environment."}
+	protection := TableProtection(view)
+	receipt := Receipt{TableProtection: &protection, Version: Version, CreatedAt: time.Now().UTC().Format(time.RFC3339Nano), Spec: spec, Files: map[string]string{}, Pages: len(pages), Environment: environment, Reproducibility: "Exact numeric strings and selected layout inputs are pinned. Raster byte identity is only comparable within the same fixed WebView/platform environment."}
 	expanded := 0
 	for name, body := range files {
 		receipt.Files[name] = Digest(body)
@@ -296,6 +299,9 @@ func ReadArtifact(body []byte) (Artifact, error) {
 	var spec Spec
 	if e = Strict(out.Files["spec.json"], &spec, 128<<10); e != nil {
 		return out, e
+	}
+	if out.Receipt.TableProtection != nil && *out.Receipt.TableProtection != TableProtection(out.View) {
+		return out, fmt.Errorf("VISUAL_TABLE_PROTECTION_MISMATCH")
 	}
 	if Hash(spec) != Hash(out.Receipt.Spec) {
 		return out, fmt.Errorf("VISUAL_ARTIFACT_SPEC_MISMATCH")
@@ -429,7 +435,7 @@ func (s *Store) SaveContext(ctx context.Context, body []byte) (Descriptor, error
 	return describe(id, a), nil
 }
 func describe(id string, a Artifact) Descriptor {
-	return Descriptor{id, a.Receipt.Spec.Presentation.Title, a.Receipt.Pages, a.Receipt.Spec, a.Receipt.Spec.Reproducible(), a.Receipt.CreatedAt}
+	return Descriptor{TableProtection(a.View), id, a.Receipt.Spec.Presentation.Title, a.Receipt.Pages, a.Receipt.Spec, a.Receipt.Spec.Reproducible(), a.Receipt.CreatedAt}
 }
 func (s *Store) List() ([]Descriptor, error) {
 	s.mu.Lock()

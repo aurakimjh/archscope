@@ -49,9 +49,12 @@ appears only after the native clipboard write completes; a busy/unavailable
 clipboard returns an error. Save PNG/SVG/HTML/TSV instead when paste is unavailable.
 Linux/headless builds explicitly lack native clipboard support.
 
-HTML cells request spreadsheet text formatting. HTML/TSV prefix dangerous
-formula-like text, long numeric strings and fractions/date-like strings with a
-text-protection apostrophe where needed. This transport protection can be visible
+HTML cells request spreadsheet text formatting and prefix only formula-like
+strings. TSV selectively prefixes formula-like strings, numeric fractions/date
+forms, scientific notation, leading-zero numeric strings and >15-digit numbers.
+Ordinary paths, URLs and headers remain unchanged; formula-like headers are
+protected. Manifest `table_protection` records the policy revision and changed
+TSV/HTML cell counts plus formula-header counts, also shown in the copy UI. This transport protection can be visible
 in applications that do not interpret it. Exact original selected strings remain
 in `view.json`; no numeric coercion or formula execution is requested. PNG is the
 primary Office paste format. SVG insertion depends on the Office/WebView build;
@@ -63,7 +66,7 @@ certification, and explicit query identities/provenance are part of the artifact
 visual library** stores actual immutable image/spec/view/manifest bytes separately
 from case lifecycle, with explicit deletion (32 artifacts, 512 MiB total). Export
 its ZIP before moving computers. Identical ZIP bytes deduplicate; saving a new
-revision never overwrites an existing snapshot. The Library can import a verified
+revision never overwrites an existing snapshot. The Library can import an integrity-checked
 ZIP, open historical PNG, save the bundle or export 1–4 selected artifacts in a
 visual Report Pack. An optional appendix uses existing backend result JSON/
 HTML/export contracts for up to eight active results. No original source data or
@@ -137,3 +140,21 @@ Use synthetic input containing Korean, long labels, negative deltas,
 Local evidence is under `docs/review/evidence/2026-11-12-t636/`. Chromium raster
 checks, contract tests, clipboard wire-format tests and cross-builds are not
 native Windows/Office acceptance. The Mac desktop was locked during this run.
+
+## Recorded R14 follow-ups and verification scope
+
+Checksums/structural checks detect corruption and partial alteration. A consistent
+replacement of image plus manifest can pass: the ZIP is not signed publisher
+identity or proof that PNG pixels depict the pinned view. Spec validation proves
+internal spec/view binding, not source truth. R14-05 queues stronger provenance/
+SVG correspondence. Native Office behavior remains unobserved.
+
+R14-02 queues explicit diff sorting/zero-delta and inclusive-column labels;
+R14-03 queues refusal/conversion of nonzero profile offset (only profile cursor
+currently controls paging); R14-04 queues ≤5-image validation at spec creation
+(currently enforced at render); R14-06 queues font-size optimization. A five-image
+bundle is about 33 MB with current embedded fonts: 512 MiB holds roughly 16 such
+bundles, and report byte ceilings permit about two, even though 1–4 artifacts may
+be selected. R14-07 tracks richer generic metric value exports with R13-06.
+R14-01 is locally fixed; original CONDITIONAL is retained under explicit closure
+permission, without a new independent PASS.

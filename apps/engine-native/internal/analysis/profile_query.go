@@ -13,6 +13,7 @@ import (
 )
 
 type ProfileInventory struct {
+	Format       string                      `json:"format"`
 	ResultSHA256 string                      `json:"result_sha256"`
 	Selection    profilemodel.Selection      `json:"selection"`
 	Profiles     []profilemodel.Profile      `json:"profiles"`
@@ -24,7 +25,7 @@ func (s *Service) ProfileInventory(ctx context.Context, handle string) (ProfileI
 	return withProfile(s, ctx, handle, "compute", func(ctx context.Context, core analyzer.CoreEvidence) (ProfileInventory, error) {
 		body, _, e := s.Read(handle)
 		sum := sha256.Sum256(body)
-		out := ProfileInventory{ResultSHA256: hex.EncodeToString(sum[:]), Selection: core.Selection, Metrics: core.Model.Metrics, Profiles: []profilemodel.Profile{}, Policy: core.Model.CapturePolicy(core.Selection.MetricID)}
+		out := ProfileInventory{Format: core.Model.Format, ResultSHA256: hex.EncodeToString(sum[:]), Selection: core.Selection, Metrics: core.Model.Metrics, Profiles: []profilemodel.Profile{}, Policy: core.Model.CapturePolicy(core.Selection.MetricID)}
 		for _, p := range core.Model.Profiles {
 			p.Samples = nil
 			out.Profiles = append(out.Profiles, p)

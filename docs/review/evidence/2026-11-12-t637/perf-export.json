@@ -1,0 +1,32 @@
+{
+  "scope": "Converter-layout proof only: generated synthetic PERF_RECORD_SAMPLE fixture; no Linux host recording or BPF attach",
+  "tool_version": "perf version 6.1.190",
+  "command": [
+    "perf",
+    "script",
+    "--ns",
+    "-i",
+    "/fixtures/perf.data",
+    "-F",
+    "comm,pid,tid,cpu,time,period,event,ip,sym,dso"
+  ],
+  "container_network": "none",
+  "files": {
+    "generate_perf.py": {
+      "sha256": "e9e583c9ac28bfa28b814525d9b1f0fd90d3bd6c7a1e5518a79daa75a79d1fb5",
+      "bytes": 815
+    },
+    "perf.data": {
+      "sha256": "5a48154e118ca263c7192460c7bf6561c79a59434eec9138de53e79c61bbb92e",
+      "bytes": 496
+    },
+    "perf-script.txt": {
+      "sha256": "c65c362433c9c5dc4abc8473597952a08cb94c25e66108e71f6a2e1c19224888",
+      "bytes": 456
+    }
+  },
+  "sample_count": 3,
+  "sample_count_denominator": "3",
+  "cpu_time_denominator_ns": "6000000",
+  "native_scheduler_and_bpftrace_execution": "not performed; scheduler grammar/events and pinned upstream histogram shape have synthetic tests"
+}

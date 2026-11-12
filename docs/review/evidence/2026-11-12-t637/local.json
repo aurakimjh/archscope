@@ -1,0 +1,522 @@
+{
+  "task": "T-637",
+  "date": "2026-11-12",
+  "base_commit": "6033d5bf1985d6a9d2e890759ed614feb2431e0f",
+  "shared_asset_commit": "2ca24f803c56ce13fe573f470c551b6320cb2796",
+  "status": "REVIEW",
+  "scope": "File-only perf and constrained BPF evidence implementation; local verification, no independent T-637 approval",
+  "implementation": {
+    "model": "SystemEvidence 1.0.0",
+    "result": "system_evidence 0.1.0",
+    "projection": "system-projection.v1 into profile_evidence 0.2.0",
+    "formats": [
+      "perf-script",
+      "events-jsonl",
+      "bpftrace-jsonl"
+    ],
+    "source_bounds": "64 MiB original/expanded, 1 MiB line, 16 MiB canonical model, 50k records",
+    "qualification": "Actual perf 6.1.190 export of generated synthetic PERF_RECORD_SAMPLE data; native scheduler grammar and pinned bpftrace 0.22.0 hist shape have synthetic tests only",
+    "precision": "Integer timestamps, periods, duration, bucket bounds and counts remain exact strings; count and period units are separate",
+    "scheduler": "Incomplete/ambiguous/loss/clock/lifetime statuses preserved; no off-CPU lock inference",
+    "original_link": "Case revision/result/source digests plus original reparse verify event ID and coordinates",
+    "histogram": "Aggregate only, no request timeline/quantile/differencing; full-retained-max scale with bounded pages"
+  },
+  "checks": {
+    "race": "109 tested packages + 6 with no tests; 1538 passed/7 skipped test completion events; no failure",
+    "vet": [
+      "host",
+      "windows/amd64",
+      "windows/386"
+    ],
+    "frontend": [
+      "state tests",
+      "TypeScript production build",
+      "Wails bindings"
+    ],
+    "package": [
+      "macOS ad-hoc strict codesign",
+      "Windows GUI subsystem 2 amd64 and 386 cross-builds"
+    ],
+    "offline": "17 successful CLI process trees plus one expected converter refusal, zero INET syscalls; positive control 2",
+    "resources": "deterministic offline resources --check passed; test/catalog/shared corpus matches all 17 files",
+    "browser": "Actual React components + CLI DTOs in isolated Chromium with synthetic Wails IPC; capture error/inspection, explicit units, aggregate histogram and canceled late lease cleanup",
+    "markdown": "18 scoped files, balanced fences, 122 local destination links; staged whitespace check passed",
+    "scale": {
+      "10000": {
+        "bytes": 10536821,
+        "result_sha256": "18ab3d7389bd432a5518a57cdb9027089a1c8ce8a4d3fab1c24f70073a85cb32",
+        "denominator_ns": "10000000000"
+      },
+      "20000": {
+        "bytes": 21146821,
+        "result_sha256": "134d63c657cf45eea07b6091fd72aaa34d3425ab520a9df2a797402816a1dbe4",
+        "denominator_ns": "20000000000"
+      }
+    }
+  },
+  "review_remediation": {
+    "T-636": "DONE under original R14 explicit P2-remediation closure permission",
+    "verdict_preserved": "CONDITIONAL; final P2 not independently re-reviewed",
+    "original_sha256": "8d4fc9a82b842592feb1649ca8795f146908c0c0a66948ee0c9434840fb3349c",
+    "R14-01": "Locally fixed/tested narrow formula/coercion protection with TSV/HTML/header distinction and changed-cell counts",
+    "R14-02_to_07": "Six nonblocking P3 findings queued in work_status.md; R14-05/06/07 limitations documented now, code work remains",
+    "T-638": "R13-01 independently reconfirmed by R14; DONE and P3 queue unchanged"
+  },
+  "unexecuted": [
+    "Independent T-637 review",
+    "Native Linux recording/scheduler collection and BPF attachment",
+    "Native Wails/WebView runtime for new system controls",
+    "Native Windows/clipboard/Office acceptance",
+    "Hosted CI for this commit"
+  ],
+  "warnings": "Local macOS linker reports some objects built for newer macOS than deployment target; package success does not certify minimum-OS runtime compatibility. Large bundled font practical limits and generic metric table value limits remain documented.",
+  "preservation": "Pre-existing HTTP docs, verifier and 10-line work_status history block excluded from commit; tracker hash here covers scoped index bytes",
+  "source_index_files": {
+    ".gitattributes": {
+      "sha256": "40b9da321085bd45b1c51f89950ca6758d4e749cb068edb96d7bf3c1e5654ac5",
+      "bytes": 1627
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": {
+      "sha256": "d20dd29712d20f985e0dbdb2ec389a450aa23fe97d7fd410df87369403ec2a77",
+      "bytes": 32495
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/engine.ts": {
+      "sha256": "6c8908406e7bc9b73e95aa13c7a7956b30b0bb857a624b2409a08a7e8d16ae4e",
+      "bytes": 32524
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/systemEvidence.ts": {
+      "sha256": "8d7bb3090c7ad864846bc5ce6cfe59a5f2ae59d2d9482c08af69c4e2e2733649",
+      "bytes": 2217
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/visuals.ts": {
+      "sha256": "dfe07fb210454efbe78c5b093e457bc3609f4b2653480a88aa047bbab94bc461",
+      "bytes": 2785
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/EvidenceResultPanel.tsx": {
+      "sha256": "6bc9fefefac5f192593d1b20d8100a621a03c2ec004d49cceb2a47e7368753be",
+      "bytes": 25020
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/ProfileEvidenceExplorer.tsx": {
+      "sha256": "76b80adfec2b9e0742c8fbb94757e88196b933387c116c5b57cdd65c0d77b928",
+      "bytes": 12984
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/SystemEvidence.tsx": {
+      "sha256": "157443f8a3a7e00a19bdb087b9ae122efe201189009724a8e7cb117cdb78563d",
+      "bytes": 13603
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/VisualArtifactActions.tsx": {
+      "sha256": "b00f2f96815863bd3f8a3bfd5eeea737ac125940f59147a7522c0719c36c2d5d",
+      "bytes": 10597
+    },
+    "apps/engine-native/cmd/archscope-app/systemsourceservice.go": {
+      "sha256": "549393f886a070435ff53a1d21731539b488823c9e8f5cef1eb296ce75104cf8",
+      "bytes": 2959
+    },
+    "apps/engine-native/cmd/archscope-app/systemsourceservice_test.go": {
+      "sha256": "e91d05d278d365113c6778a11c4bc26ac65591d5610cec7d2edf2f92ab878ef5",
+      "bytes": 5652
+    },
+    "apps/engine-native/cmd/archscope-app/visualservice.go": {
+      "sha256": "0d7b268d8ad6b490fd49f249bc58365812b48ab2ff403730ad4ae2e8503109ba",
+      "bytes": 13328
+    },
+    "apps/engine-native/cmd/archscope-engine/cmd_system.go": {
+      "sha256": "8d979e62b9f9a55eed9dc34f11e72df2c92e07bf6ac2a902a520c2c932c8ab96",
+      "bytes": 4058
+    },
+    "apps/engine-native/cmd/archscope-engine/cmd_system_test.go": {
+      "sha256": "703f974a08f1d845fccda9ae6c31a4b35abd673a7667163f7fe16dfaa3e837fd",
+      "bytes": 2980
+    },
+    "apps/engine-native/internal/analysis/profile_query.go": {
+      "sha256": "0ecb3567caa7f3655908932062f881ae8bd2dee430496ef58423a4f1f0dca048",
+      "bytes": 3542
+    },
+    "apps/engine-native/internal/analysis/system_evidence.go": {
+      "sha256": "4d491c640a32e3f5c7d1117602e7637d444d45e744c55099e20c7c49304653d2",
+      "bytes": 5763
+    },
+    "apps/engine-native/internal/analyzers/systemtrace/analyzer.go": {
+      "sha256": "569f35b4985f074127e0577c3ccd20d1d6a5b855609a47f0f9e93b281d70380b",
+      "bytes": 8640
+    },
+    "apps/engine-native/internal/analyzers/systemtrace/analyzer_test.go": {
+      "sha256": "33a3b26e83e64de7d8670f58019fd4ef2de21c81c9ca9e99967e956d2eb193f4",
+      "bytes": 5957
+    },
+    "apps/engine-native/internal/analyzers/systemtrace/histogram.go": {
+      "sha256": "7a1cf958590e75bdfa3498cd56e91f3de4364c8fed998f6202635e44f5e5c5ca",
+      "bytes": 2956
+    },
+    "apps/engine-native/internal/analyzers/systemtrace/intervals.go": {
+      "sha256": "b7c8e921170daabf0490bce84f7be796c9beb2508596c52d51b8edaaee7b119b",
+      "bytes": 4969
+    },
+    "apps/engine-native/internal/analyzers/systemtrace/inventory.go": {
+      "sha256": "c33f91d7ae96c176adff6109cff49296075fa80b5e70ad1ec53b68ee77b35558",
+      "bytes": 1074
+    },
+    "apps/engine-native/internal/analyzers/systemtrace/project.go": {
+      "sha256": "5dc52ab627df90bc3b027a6ccf4cccd9fc7431de59d8e7a466558cea5d003d93",
+      "bytes": 8123
+    },
+    "apps/engine-native/internal/analyzers/systemtrace/scale_test.go": {
+      "sha256": "194204bfa760e30f3b2540e9751f785ff89dd1aca0c9da683c77c50a1eef9276",
+      "bytes": 1653
+    },
+    "apps/engine-native/internal/catalog/builtin.go": {
+      "sha256": "81541af856cbfc288337163f7b45ae9ca4bc6a12654f00cfcf24f54fbd557da8",
+      "bytes": 14809
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-LICENSE.txt": {
+      "sha256": "7d914a31656ed1beb2085e4729702a56345007b12c702c824bf8b8a7030e880d",
+      "bytes": 345
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-README.md": {
+      "sha256": "eee335f292e0319ce7b0d9eb786dbe67c17466044a9e0620161c0ab95f4d7f0a",
+      "bytes": 1608
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-bpftrace-capture.json": {
+      "sha256": "cd91e2cc4c6ae2ba89032f565e1b9dd12028a8a9667fe1eb04687b27ac315bea",
+      "bytes": 939
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-bpftrace-hist.jsonl": {
+      "sha256": "b7e0bc8be8dbffdfde42f1762e66f4c81cc38e3dfa2ce4bab0ce47190b210973",
+      "bytes": 345
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-event-emitter.txt": {
+      "sha256": "cef05b3b47ecf95e88dda4775ea3118bd942270b8d62a0442640e0ac20d574b0",
+      "bytes": 75
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-events-capture.json": {
+      "sha256": "f8a6f356f197336baf6e89e7d28bd736ccb2103f4f03b95844da43a97e08a9e8",
+      "bytes": 1277
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-events.jsonl": {
+      "sha256": "c2af8a7682a7af2d5e9741f0f16549ec9239fc171b195a00a8041b0c8387ef83",
+      "bytes": 2287
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-generate_perf.py": {
+      "sha256": "e9e583c9ac28bfa28b814525d9b1f0fd90d3bd6c7a1e5518a79daa75a79d1fb5",
+      "bytes": 815
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-histogram-set.json": {
+      "sha256": "782c824ad16d58862efe80cf6f82ed352c42d3e6b485e5183b740800d1ec8d42",
+      "bytes": 1440
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-histogram.bt": {
+      "sha256": "b473bc526b823d4875e533b8e38692c937ecd5a526271611d1eaf1989ef81270",
+      "bytes": 61
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-perf-capture.json": {
+      "sha256": "db9afd019be51f6d4e3175b14c5d8ba93db8614c403b4815a4a3fb763e440f02",
+      "bytes": 1006
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-perf-script.txt": {
+      "sha256": "c65c362433c9c5dc4abc8473597952a08cb94c25e66108e71f6a2e1c19224888",
+      "bytes": 456
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-perf-set.json": {
+      "sha256": "10e0d64a4498e11cc44cecbafc4f35db38fef7ff20debbc3e23b5ff3af900a59",
+      "bytes": 2268
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-set.json": {
+      "sha256": "1089bb984e1d539c7742c3141f1d41907c34f50fc3c3f698b36deb3c6787fc18",
+      "bytes": 4439
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-set.manifest.json": {
+      "sha256": "3aa35ea24d6ea7e76f3e42d1a3959d39d2345921f063edd77eb6c03dcbdf2f64",
+      "bytes": 2483
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-set.schema.json": {
+      "sha256": "f6609d2f7450f08e0dc3a4137c74ce7814194a2d16cbb83beda514b4209d7500",
+      "bytes": 1325
+    },
+    "apps/engine-native/internal/catalog/contracts/system-evidence-synthetic-perf.data": {
+      "sha256": "5a48154e118ca263c7192460c7bf6561c79a59434eec9138de53e79c61bbb92e",
+      "bytes": 496
+    },
+    "apps/engine-native/internal/catalog/contracts_test.go": {
+      "sha256": "28dc8bca42b06e4ef8f2a73e2e62dfde9a8752d2a19ddca9f0dd3b58470d31d0",
+      "bytes": 1534
+    },
+    "apps/engine-native/internal/catalog/system_evidence.go": {
+      "sha256": "92e921ebc3f6ed34122c342455b458f177a3789168197c890af3725af991a847",
+      "bytes": 9320
+    },
+    "apps/engine-native/internal/distribution/assets/docs/en/METRIC_HISTORY.md": {
+      "sha256": "69814d686c39ae3daebd9d0adc7aa41058657a23227a421c5468bb72893c5a50",
+      "bytes": 10144
+    },
+    "apps/engine-native/internal/distribution/assets/docs/en/SYSTEM_EVIDENCE.md": {
+      "sha256": "a3092d4b52fd6f9656824b836e36c83a71a8d464749506ced027f36b89e7740d",
+      "bytes": 8805
+    },
+    "apps/engine-native/internal/distribution/assets/docs/en/VISUAL_ARTIFACTS.md": {
+      "sha256": "65c0eb743dfd627d0cb10b169680379689574873e977bb904b56c5c8ed6abe58",
+      "bytes": 10780
+    },
+    "apps/engine-native/internal/distribution/assets/docs/ko/METRIC_HISTORY.md": {
+      "sha256": "a2d595264e89dfe6e5b2b2db381e1d2a888b1edcddb14adff229693f14b1d1b8",
+      "bytes": 10289
+    },
+    "apps/engine-native/internal/distribution/assets/docs/ko/SYSTEM_EVIDENCE.md": {
+      "sha256": "247471ebbf01f66629ca85edfcb7f1b2e06a95aa97a9e166ee8209971cd96836",
+      "bytes": 9103
+    },
+    "apps/engine-native/internal/distribution/assets/docs/ko/VISUAL_ARTIFACTS.md": {
+      "sha256": "5bd2c873c0332aeaa9fe911d8dc8eb0348e1b64ba30494801e675a151a99cbe0",
+      "bytes": 11080
+    },
+    "apps/engine-native/internal/distribution/assets/fixtures.sha256": {
+      "sha256": "62098db720931c66530e2a850ca8bc194569b87364a1757c2b65bfebf9ed1d06",
+      "bytes": 65
+    },
+    "apps/engine-native/internal/distribution/assets/fixtures.zip": {
+      "sha256": "4269c6281f9ce3a163409f03f6d1ef6b390202bfce3d70e673f4e7473c2c967f",
+      "bytes": 110125
+    },
+    "apps/engine-native/internal/distribution/bundle_test.go": {
+      "sha256": "1fe822a439fd5e76aa2b172603b9b5523fc737bb449aa52f55099ac16c2c5c03",
+      "bytes": 2974
+    },
+    "apps/engine-native/internal/parsers/systemtrace/source.go": {
+      "sha256": "f8fb1116d6498574a0a81fe6a9f285f1d89aa53cecc6c09b61d8c98309a5f3d0",
+      "bytes": 12233
+    },
+    "apps/engine-native/internal/parsers/systemtrace/source_test.go": {
+      "sha256": "ea090bcbd8c11e9e811591e206a693450b85868f90e4841ce2480ee5c6fff5c6",
+      "bytes": 5872
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/LICENSE.txt": {
+      "sha256": "7d914a31656ed1beb2085e4729702a56345007b12c702c824bf8b8a7030e880d",
+      "bytes": 345
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/README.md": {
+      "sha256": "eee335f292e0319ce7b0d9eb786dbe67c17466044a9e0620161c0ab95f4d7f0a",
+      "bytes": 1608
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/bpftrace-capture.json": {
+      "sha256": "cd91e2cc4c6ae2ba89032f565e1b9dd12028a8a9667fe1eb04687b27ac315bea",
+      "bytes": 939
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/bpftrace-hist.jsonl": {
+      "sha256": "b7e0bc8be8dbffdfde42f1762e66f4c81cc38e3dfa2ce4bab0ce47190b210973",
+      "bytes": 345
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/event-emitter.txt": {
+      "sha256": "cef05b3b47ecf95e88dda4775ea3118bd942270b8d62a0442640e0ac20d574b0",
+      "bytes": 75
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/events-capture.json": {
+      "sha256": "f8a6f356f197336baf6e89e7d28bd736ccb2103f4f03b95844da43a97e08a9e8",
+      "bytes": 1277
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/events.jsonl": {
+      "sha256": "c2af8a7682a7af2d5e9741f0f16549ec9239fc171b195a00a8041b0c8387ef83",
+      "bytes": 2287
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/generate_perf.py": {
+      "sha256": "e9e583c9ac28bfa28b814525d9b1f0fd90d3bd6c7a1e5518a79daa75a79d1fb5",
+      "bytes": 815
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/histogram-set.json": {
+      "sha256": "782c824ad16d58862efe80cf6f82ed352c42d3e6b485e5183b740800d1ec8d42",
+      "bytes": 1440
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/histogram.bt": {
+      "sha256": "b473bc526b823d4875e533b8e38692c937ecd5a526271611d1eaf1989ef81270",
+      "bytes": 61
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/manifest.json": {
+      "sha256": "3aa35ea24d6ea7e76f3e42d1a3959d39d2345921f063edd77eb6c03dcbdf2f64",
+      "bytes": 2483
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/perf-capture.json": {
+      "sha256": "db9afd019be51f6d4e3175b14c5d8ba93db8614c403b4815a4a3fb763e440f02",
+      "bytes": 1006
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/perf-script.txt": {
+      "sha256": "c65c362433c9c5dc4abc8473597952a08cb94c25e66108e71f6a2e1c19224888",
+      "bytes": 456
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/perf-set.json": {
+      "sha256": "10e0d64a4498e11cc44cecbafc4f35db38fef7ff20debbc3e23b5ff3af900a59",
+      "bytes": 2268
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/synthetic-perf.data": {
+      "sha256": "5a48154e118ca263c7192460c7bf6561c79a59434eec9138de53e79c61bbb92e",
+      "bytes": 496
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/system-evidence-set.json": {
+      "sha256": "1089bb984e1d539c7742c3141f1d41907c34f50fc3c3f698b36deb3c6787fc18",
+      "bytes": 4439
+    },
+    "apps/engine-native/internal/parsers/systemtrace/testdata/system-evidence-set.schema.json": {
+      "sha256": "f6609d2f7450f08e0dc3a4137c74ce7814194a2d16cbb83beda514b4209d7500",
+      "bytes": 1325
+    },
+    "apps/engine-native/internal/systemmodel/model.go": {
+      "sha256": "73128d69998ae81b3be1802ee9930a753e0781ecac95910693710a762f5ae4ba",
+      "bytes": 13973
+    },
+    "apps/engine-native/internal/visuals/artifact.go": {
+      "sha256": "4aa72947e0dfa893777bba1e98b584e184a996cb85de9091d81e1be4d22c6de9",
+      "bytes": 14354
+    },
+    "apps/engine-native/internal/visuals/protection_test.go": {
+      "sha256": "9387632b199fc16a9a8bfc0330dc94778af77bfc3ca138db6bcdb9c4d300da2d",
+      "bytes": 1949
+    },
+    "apps/engine-native/internal/visuals/render.go": {
+      "sha256": "3e4513bcb1d4e6e15d9f111d520e7c9b711ddb7f2523d1f246fd89792fe9d17a",
+      "bytes": 10556
+    },
+    "apps/engine-native/scripts/generate-system-fixtures.go": {
+      "sha256": "f65afc55d62fee7779b3e80c6d43b8f42c4a5983c1a04a7d30c12e63239ee0bd",
+      "bytes": 1104
+    },
+    "docs/en/DATA_MODEL.md": {
+      "sha256": "570718bdeff74135f36d4e3a057a2dc8fca53cef2d06eae81fc4797315c499ad",
+      "bytes": 112004
+    },
+    "docs/en/IMPORTER_SUPPORT_MATRIX.md": {
+      "sha256": "e46c1e164d157567cbd5c7adbf18648ead0986c0a63a3c64c39f3e60febaf08e",
+      "bytes": 11618
+    },
+    "docs/en/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md": {
+      "sha256": "898ff68bbdb7df77d2c3ab8b2f7c4d5d91d4a1f8fefb5e32a18218aefcec7ef7",
+      "bytes": 31865
+    },
+    "docs/en/METRIC_HISTORY.md": {
+      "sha256": "69814d686c39ae3daebd9d0adc7aa41058657a23227a421c5468bb72893c5a50",
+      "bytes": 10144
+    },
+    "docs/en/PARSER_DESIGN.md": {
+      "sha256": "d9f253f07e47d67fabd63ae93b2cd56530ba27b7780fa648a5c81519418da064",
+      "bytes": 61336
+    },
+    "docs/en/SYSTEM_EVIDENCE.md": {
+      "sha256": "a3092d4b52fd6f9656824b836e36c83a71a8d464749506ced027f36b89e7740d",
+      "bytes": 8805
+    },
+    "docs/en/VISUAL_ARTIFACTS.md": {
+      "sha256": "65c0eb743dfd627d0cb10b169680379689574873e977bb904b56c5c8ed6abe58",
+      "bytes": 10780
+    },
+    "docs/ko/DATA_MODEL.md": {
+      "sha256": "d961f5e3644aca3ed2a892adeedc63c427d23972d1f0738422e921346d7946a0",
+      "bytes": 122077
+    },
+    "docs/ko/IMPORTER_SUPPORT_MATRIX.md": {
+      "sha256": "9a093119cecfd1f8723fb2f685303dee270abf94ab3f7e7f2b2bcf4c6a480430",
+      "bytes": 12286
+    },
+    "docs/ko/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md": {
+      "sha256": "ec11b33b8ef79a61b8b036a08bfc801bb2ea6219242bbe760b53cf454844d582",
+      "bytes": 133756
+    },
+    "docs/ko/METRIC_HISTORY.md": {
+      "sha256": "a2d595264e89dfe6e5b2b2db381e1d2a888b1edcddb14adff229693f14b1d1b8",
+      "bytes": 10289
+    },
+    "docs/ko/PARSER_DESIGN.md": {
+      "sha256": "155b47f42d58af8dd35ab805c547a957a77d2b03864edc3dbbd360fb10d74982",
+      "bytes": 69631
+    },
+    "docs/ko/SYSTEM_EVIDENCE.md": {
+      "sha256": "247471ebbf01f66629ca85edfcb7f1b2e06a95aa97a9e166ee8209971cd96836",
+      "bytes": 9103
+    },
+    "docs/ko/VISUAL_ARTIFACTS.md": {
+      "sha256": "5bd2c873c0332aeaa9fe911d8dc8eb0348e1b64ba30494801e675a151a99cbe0",
+      "bytes": 11080
+    },
+    "docs/review/README.md": {
+      "sha256": "514ce7d6fb79919dbec1e118a0b5396368c5d349faf5bf53482ceb19ba510f41",
+      "bytes": 7319
+    },
+    "docs/review/done/2026-11-12_claude-code_T-636_implementation-review.ko.md": {
+      "sha256": "8d4fc9a82b842592feb1649ca8795f146908c0c0a66948ee0c9434840fb3349c",
+      "bytes": 17510
+    },
+    "scripts/build-offline-assets.py": {
+      "sha256": "af225ef5c2935e94426c79b4f0dc0620b27acc395a2f067d777057cd0c6c09c9",
+      "bytes": 3459
+    },
+    "scripts/verify-offline-syscalls.py": {
+      "sha256": "7b0417ff0ebcc4f18af3967d929d6ae60bf2f49afbcd0a9b11aa628e97d341c5",
+      "bytes": 6637
+    },
+    "work_status.md": {
+      "sha256": "bc087255c0abee4160f3c79ce6d821bd96c461f046a563c40ddba9ab5d78345b",
+      "bytes": 451772
+    }
+  },
+  "evidence_files": {
+    "browser-harness.tsx": {
+      "sha256": "b0cd7183100fe53d5f86767d114c2418e7b98587f31239423b7df154339d4979",
+      "bytes": 1746
+    },
+    "browser-hist.json": {
+      "sha256": "1fa218fb5cb946f7e2f78eca1f0d707a21a72b13c89387b88f88dc142d16f55e",
+      "bytes": 787
+    },
+    "browser-perf.json": {
+      "sha256": "88d9c0085869e686373d0b25fb0853ef84d25ac991753704965a1e09cc07808b",
+      "bytes": 2163
+    },
+    "build-checks.json": {
+      "sha256": "13a35afc83ebbeae0120b368275a488341b919fac79a9c920d5f296b32f1c8a2",
+      "bytes": 3851
+    },
+    "hist-inventory.json": {
+      "sha256": "894c80fabf625dee80b408d8f52f05bf5b602655d5f40a33658a77ccc1281caf",
+      "bytes": 822
+    },
+    "hist-page.json": {
+      "sha256": "995b094a3d4aaf4776671d7e0404e3f5b0809fae7c7cd3942008a9be3115f1ed",
+      "bytes": 1430
+    },
+    "offline-syscalls.json": {
+      "sha256": "124abb179a20d8ee139a4addc50eee8d8d4f0aa40ea16cdeee16e24718bf6c42",
+      "bytes": 2858
+    },
+    "perf-capture.json": {
+      "sha256": "db9afd019be51f6d4e3175b14c5d8ba93db8614c403b4815a4a3fb763e440f02",
+      "bytes": 1006
+    },
+    "perf-export.json": {
+      "sha256": "16ebf7b076298b8f011836c1c0908584c175a6f2cf2ff73ad8a1a4bea02be5dc",
+      "bytes": 1020
+    },
+    "perf-export.txt": {
+      "sha256": "d1b34679b2accb85d9551d06d311bd7a56bae4c6550a28b93058b0054f9a6b3e",
+      "bytes": 21
+    },
+    "perf-inventory.json": {
+      "sha256": "7e855517aaf6a582f5bb157ccfdb6b34993f55382aed22df459d765f04013afb",
+      "bytes": 961
+    },
+    "r14-focused.txt": {
+      "sha256": "b5b4c7ac9a0357d132323feaa4bd6aa92b9a1025a30164ef4ec3a1d7f3e305f9",
+      "bytes": 3737
+    },
+    "race-summary.json": {
+      "sha256": "a53cbf92055b890f1df2ddcb1d1a426289e0973e447a5f916a8c4e85f1c5ac39",
+      "bytes": 18385
+    },
+    "scale.txt": {
+      "sha256": "09d61df675c59874d5ad0ac6ed964ac47119a75c1b1b992393ff946e1899289f",
+      "bytes": 382
+    },
+    "t637-histogram.png": {
+      "sha256": "ade229808f3d686cb82ea2091b345082fc840ae47a23b2ca154494152b095179",
+      "bytes": 153024
+    },
+    "t637-perf-controls.png": {
+      "sha256": "4ee347d18d18a13527e56c97562adbe4b5f1c622dda44380b6976b7395d45240",
+      "bytes": 195982
+    }
+  }
+}

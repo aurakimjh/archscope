@@ -2333,3 +2333,14 @@ VisualArtifactSpec에 view hash·실제 query·template/renderer/font/masking �
 과거 이미지는 불변이며 고정 의존성 누락 시 원버전 재생성을 거부하고 명시적 업그레이드만
 새 리비전을 만듭니다. 공유 schema는 offline 검증을 위해 embed합니다.
 한도·native/CLI 경계·남은 Office 수용은 [시각 자료 안내](VISUAL_ARTIFACTS.md)를 참고하세요.
+
+## SystemEvidence 1.0.0 / system_evidence 0.1.0
+
+압축 원본 hash·해제 line/byte 좌표, 명시적 capture/tool/script/clock/boot/namespace/entity
+수명, 정확한 event 시각/period·양끝 포함 bucket/count를 고정합니다. Scheduler 구간은
+nullable duration과 availability/status·양 끝 event ID를 가지며, 한 record의 완결 duration은
+다른 이벤트 손실과 구분합니다. 집계 record는 event timeline에 넣지 않습니다.
+프로파일 투영은 같은 source hash·시간 단위·별도 metric·sample label·address/module/context
+frame 식별을 가진 기존 profile_evidence 0.2.0의 명시적 새 결과입니다. Clock이 없으면
+샘플의 chronology 없이 투영합니다. Duration cell은 measurement의 행별 availability/reason을
+쓰고 bucket의 물리 단위와 count 단위를 구분합니다. [SYSTEM_EVIDENCE](SYSTEM_EVIDENCE.md) 참고.

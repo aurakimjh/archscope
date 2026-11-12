@@ -2260,3 +2260,18 @@ files. Saved images stay immutable; missing pinned dependencies refuse exact
 regeneration, and explicit upgrades create a new revision. Shared schema is
 embedded for offline validation. See [visual artifacts](VISUAL_ARTIFACTS.md) for
 bounds, native/CLI boundaries and unobserved Office acceptance.
+
+## SystemEvidence 1.0.0 / system_evidence 0.1.0
+
+The system core pins compressed-source hash, decoded line/byte coordinates,
+explicit capture/tool/script/clock/boot/namespace/entity lifetime, exact event
+times/periods and inclusive histogram bounds/counts. Derived scheduler spans
+carry nullable duration plus availability/status and start/end evidence IDs;
+complete emitted duration records retain their own interval independently of
+missing other events. Aggregate records never populate the event timeline.
+Profile projection creates an explicitly selected existing profile_evidence 0.2.0
+with the same source hash, clock units, separate metric, sample labels and address/
+module/context frame identity. Unknown-clock samples project without chronology.
+Generic duration cells use measurement-column availability/reason; histogram count
+units stay count while physical bucket units remain separate. See
+[SYSTEM_EVIDENCE](SYSTEM_EVIDENCE.md).

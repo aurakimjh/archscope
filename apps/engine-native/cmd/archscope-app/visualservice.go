@@ -310,7 +310,7 @@ func (s *EngineService) GetVisualArtifact(id string, page int) (string, error) {
 	if page < 0 || page >= a.Receipt.Pages {
 		return "", fmt.Errorf("VISUAL_PAGE_INVALID")
 	}
-	return caseJSON(map[string]any{"id": id, "spec": a.Receipt.Spec, "pages": a.Receipt.Pages, "reproducible": a.Receipt.Spec.Reproducible(), "png": "data:image/png;base64," + base64.StdEncoding.EncodeToString(a.Files[fmt.Sprintf("image-%02d.png", page+1)])}, nil)
+	return caseJSON(map[string]any{"id": id, "table_protection": visuals.TableProtection(a.View), "spec": a.Receipt.Spec, "pages": a.Receipt.Pages, "reproducible": a.Receipt.Spec.Reproducible(), "png": "data:image/png;base64," + base64.StdEncoding.EncodeToString(a.Files[fmt.Sprintf("image-%02d.png", page+1)])}, nil)
 }
 func (s *EngineService) ExportVisualArtifact(ctx context.Context, id string, page int, format, path string) error {
 	store, e := s.visualStore()

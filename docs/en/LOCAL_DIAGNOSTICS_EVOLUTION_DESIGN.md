@@ -83,6 +83,8 @@ maps are optional; unresolved frames and symbol quality remain visible.
 
 ## 5 perf, BPF, and conversion
 
+T-637 implementation/qualification is recorded in [System evidence](SYSTEM_EVIDENCE.md).
+
 Separate stack samples, scheduler/on-off-CPU events, and aggregate histograms.
 Capture event type, period/frequency, lost records, kernel/user context, CPU and
 process identity. Off-CPU time is not automatically lock contention. An aggregated

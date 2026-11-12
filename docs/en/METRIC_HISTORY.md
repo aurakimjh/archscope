@@ -148,3 +148,9 @@ picker lists the bounded full inventory without search/pagination. These are
 R13-02/04/05/07 follow-ups, not completed features. R13-03 and R13-06 limitations
 are stated above. Native WebView/Windows and real user export acceptance remain
 separate from local unit/CLI and synthetic SDK qualification.
+
+R14-07 clarification: 0.2.0 generic detail/HTML/Report Pack tables retain point
+IDs/status and time/clock/reference projections; they do not include metric
+name/unit/value/delta/rate rows. Exact values and buckets are available through
+the dedicated history query/explorer. A richer generic export projection remains
+a follow-up with R13-06.

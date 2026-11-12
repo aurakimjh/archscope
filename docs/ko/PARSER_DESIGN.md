@@ -1016,3 +1016,12 @@ Delta/cumulative/reset/gap/overlap과 explicit/exponential bucket은 별도 의�
 수용 검증은 별도입니다. 자동 합산/quantile 계산은 없습니다. R12 baseline 캐시는 새 query
 재분석 결과만 프로세스 내 제한 보관하고 페이지마다 원본/결과 hash와 case binding을
 재검사합니다. 기존의 매번 전체 재분석 설명은 이 범위에서 대체합니다.
+
+## T-637 시스템 근거 adapter
+
+`system.evidence-json`은 SystemEvidence 1.0.0 JSON을 256 KiB 이하 chunk로 받고 compiled
+형태/의미 검사와 digest 고정 fixture를 사용합니다. 원본은 capture 문맥을 갖춘 명시적
+perf-script/events-jsonl/bpftrace-jsonl 정규화로 받으며 도구를 실행하지 않습니다.
+`system_evidence` 0.1.0에 원본 관측·별도 scheduler 구간 분석·집계 bucket을 보존합니다.
+[시스템 근거](SYSTEM_EVIDENCE.md)에 fields/버전 범위·수명/loss/clock 거부·한도·원본
+drilldown을 정의합니다. 기존 profile/metric 저장 reader는 유지합니다.

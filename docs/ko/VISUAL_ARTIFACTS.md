@@ -40,8 +40,10 @@ WebView에서 글꼴 SHA-256을 검증하고 로딩을 기다린 뒤 SVG를 고�
 OS 쓰기가 끝난 뒤 성공을 알리고 clipboard 사용 중/미지원 상태는 오류로 돌려줍니다.
 실패하면 PNG/SVG/HTML/TSV 파일을 저장하세요. Linux/headless는 native clipboard를 지원하지 않습니다.
 
-HTML은 spreadsheet 텍스트 서식을 요청합니다. 두 표 형식 모두 필요한 수식 시작 문자열·
-긴 숫자·분수/날짜처럼 보이는 문자열에 텍스트 보호용 apostrophe를 붙입니다. 이를 해석하지 않는
+HTML은 spreadsheet 텍스트 서식을 요청하고 수식형 문자열만 보호합니다. TSV는 수식·숫자 분수/날짜·
+지수 표기·앞자리 0 숫자·15자리 초과 숫자에만 선택적으로 apostrophe를 붙입니다. 일반 경로/URL과
+머리글은 유지하고 수식형 머리글만 별도로 보호합니다. Manifest의 `table_protection`에 정책 버전과
+TSV/HTML의 변경 셀 수·수식형 머리글 수를 기록하며 복사 UI에도 보여 줍니다. 이를 해석하지 않는
 앱에는 보호 문자가 보일 수 있습니다. 원래 선택 문자열은 `view.json`에 유지하며 숫자 강제 변환이나
 수식 실행을 요청하지 않습니다. Office는 PNG를 기본으로 사용하세요. SVG 삽입은 Office/WebView
 버전에 따라 다르며 파일 자체에 글꼴·style·OFL license를 넣고 외부 참조를 쓰지 않습니다.
@@ -51,7 +53,7 @@ query 식별자와 출처도 아티팩트에 포함됩니다.
 **Evidence Board에 보관**은 참조를 카드에 저장합니다. Board의 **시각 자료 보관함**은 실제
 이미지/spec/view/manifest를 케이스와 별도로 불변 보관하며 명시적으로 삭제합니다(32건/총512 MiB).
 다른 PC로 옮기려면 ZIP을 저장하세요. 동일 ZIP 바이트는 중복 저장하지 않고 새 리비전은 과거
-파일을 덮어쓰지 않습니다. 보관함에서 검증된 ZIP 열기·과거 PNG 열기·묶음 저장과 선택 1–4건의
+파일을 덮어쓰지 않습니다. 보관함에서 무결성 확인된 ZIP 열기·과거 PNG 열기·묶음 저장과 선택 1–4건의
 시각 자료 Report Pack을 제공합니다. 선택하면 현재 결과 최대 8개의 기존 backend JSON/HTML
 계약을 부록으로 넣습니다. 원본 데이터나 새 분석을 자동 포함하지 않습니다.
 관리 경로·기존 파일 덮어쓰기, ZIP 경로 탈출·symlink·hash 누락/변조, SVG script/외부 참조는 거부합니다.
@@ -110,3 +112,17 @@ artifact/view hash를 기록하세요. 한글·긴 이름·음수 delta·`900719
 로컬 근거는 `docs/review/evidence/2026-11-12-t636/`에 둡니다. Chromium raster·계약 테스트·
 clipboard wire format·cross-build를 네이티브 Windows/Office 수용으로 주장하지 않습니다.
 이번 실행에서는 Mac 데스크톱이 잠겨 있었습니다.
+
+## R14 후속과 검증 범위
+
+Checksum/구조 검사는 손상·부분 변조를 감지합니다. 그림과 manifest를 일관되게 바꾸면 통과할 수
+있으며 생성자 서명/인증이나 PNG가 view를 그렸다는 증명은 아닙니다. Spec 검증은 spec/view 내부
+binding의 확인이며 입력의 진실성을 증명하지 않습니다. R14-05에 생성자/SVG 대응 검증을 남깁니다.
+실제 Office 동작은 여전히 별도입니다.
+
+R14-02는 diff 정렬·0 변화 제외·inclusive 열 표시, R14-03은 profile의 0 아닌 offset 거부/변환
+(현재 cursor만 실제 paging), R14-04는 spec 생성 시 5장 검사(현재 render 때 적용), R14-06은
+글꼴 용량 보완입니다. 현 5장 묶음은 약33 MB라 총512 MiB에 약16건, Report Pack은 선택1–4건이어도
+byte 한도상 이런 큰 묶음은 약2건까지입니다. R14-07은 R13-06과 함께 generic 메트릭 값 투영을
+후속 처리합니다. R14-01은 로컬 수정했으며 원 CONDITIONAL과 명시적 종결 허용을 유지하고 새로운
+독립 PASS를 주장하지 않습니다.

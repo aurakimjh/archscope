@@ -134,3 +134,11 @@ Delta/cumulative/reset/gap/overlap과 explicit/exponential bucket은 별도 의�
 수용 검증은 별도입니다. 자동 합산/quantile 계산은 없습니다. R12 baseline 캐시는 새 query
 재분석 결과만 프로세스 내 제한 보관하고 페이지마다 원본/결과 hash와 case binding을
 재검사합니다. 기존의 매번 전체 재분석 설명은 이 범위에서 대체합니다.
+
+## T-637 파일 기반 시스템 근거
+
+`system.evidence-json` / `system_evidence` 0.1.0은 제한 지원입니다. 실제 perf 6.1.190의
+합성 data→sample text 출력, 제한 scheduler text 문법, 명시적 event JSONL과 bpftrace 0.22
+histogram JSON shape를 검증했습니다. Native scheduler/BPF 수집, 다른 layout/버전과 임의
+script는 별도입니다. Sample count·period·scheduler duration·집계 bucket을 구분하고
+perf binary decoder/live attach는 추가하지 않습니다. [흐름·조건·한도](SYSTEM_EVIDENCE.md).

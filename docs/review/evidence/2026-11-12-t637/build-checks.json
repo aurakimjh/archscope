@@ -1,0 +1,102 @@
+{
+  "logs": {
+    "vet-final": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "result": "passed",
+      "scope": "Local build/static/test validation; not native Windows/Office runtime"
+    },
+    "windows-amd64-vet": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "result": "passed",
+      "scope": "Local build/static/test validation; not native Windows/Office runtime"
+    },
+    "windows-386-vet": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "result": "passed",
+      "scope": "Local build/static/test validation; not native Windows/Office runtime"
+    },
+    "frontend-final": {
+      "sha256": "bd3f6e65d0b535c37ea76ea9826aba8c4725c104c18da104d859dee8f919a616",
+      "bytes": 6168,
+      "result": "passed",
+      "scope": "Local build/static/test validation; not native Windows/Office runtime"
+    },
+    "state-final": {
+      "sha256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb",
+      "bytes": 166,
+      "result": "passed",
+      "scope": "Local build/static/test validation; not native Windows/Office runtime"
+    },
+    "bindings": {
+      "sha256": "57941633c97398aafd8c8684c2198b0ab22d5712af7bb6dc4fc920821ea9cddd",
+      "bytes": 252,
+      "result": "passed",
+      "scope": "Local build/static/test validation; not native Windows/Office runtime"
+    },
+    "package": {
+      "sha256": "82cb0d08d17d4039a899bc48750b40480c82c8f5196230b3dfdd0c71c2e381b0",
+      "bytes": 8282,
+      "result": "passed",
+      "scope": "Local build/static/test validation; not native Windows/Office runtime"
+    },
+    "codesign": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "result": "passed",
+      "scope": "Local build/static/test validation; not native Windows/Office runtime"
+    },
+    "desktop-only": {
+      "sha256": "0ac55b144184ea143826749c827ed73e0fbfe9759117269e4513df88c9fdc94a",
+      "bytes": 27,
+      "result": "passed",
+      "scope": "Local build/static/test validation; not native Windows/Office runtime"
+    },
+    "offline-assets-final": {
+      "sha256": "b237aab6933e107d0914aef8fe030700763c64bd65f9f1dd8fc8ddd548624089",
+      "bytes": 51,
+      "result": "passed",
+      "scope": "Local build/static/test validation; not native Windows/Office runtime"
+    },
+    "windows-amd64-build": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "result": "passed",
+      "scope": "Local build/static/test validation; not native Windows/Office runtime"
+    },
+    "windows-386-build": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "result": "passed",
+      "scope": "Local build/static/test validation; not native Windows/Office runtime"
+    },
+    "bridge-cli-scale": {
+      "sha256": "0e0d209cece50febcd36c49535d91b832403a8e7cbb9c2365c162e2350148322",
+      "bytes": 4316,
+      "result": "passed",
+      "scope": "Local build/static/test validation; not native Windows/Office runtime"
+    }
+  },
+  "binaries": {
+    "amd64": {
+      "sha256": "029d55d8908737f5a1c6a54698a524791b1a7e2aa9e3ab55d489e035f7d461a7",
+      "bytes": 35857920,
+      "pe_machine": "0x8664",
+      "subsystem": 2
+    },
+    "386": {
+      "sha256": "d11840876823bed5334286e6e8e5413770be10d2f4ae4491defcf4f92a27f62a",
+      "bytes": 34591232,
+      "pe_machine": "0x14c",
+      "subsystem": 2
+    },
+    "macOS": {
+      "sha256": "bd2c44b3d6d7dd5447c9e89449398dcc3f04b096f31e314c2d13c3cb04a3b56c",
+      "bytes": 32552576,
+      "signature": "local ad-hoc; codesign --verify --deep --strict succeeded",
+      "notarization": "not claimed"
+    }
+  }
+}

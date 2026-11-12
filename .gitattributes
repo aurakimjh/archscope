@@ -16,3 +16,11 @@ apps/engine-native/cmd/archscope-app/frontend/package-lock.json text eol=lf
 apps/engine-native/internal/visuals/assets/* -text whitespace=-blank-at-eol
 # Clipboard TSV evidence intentionally uses CRLF and exact transport bytes.
 docs/review/evidence/2026-11-12-t636/*.tsv -text whitespace=cr-at-eol
+
+# Pinned source fixtures must keep their manifest bytes across platforms.
+apps/engine-native/internal/parsers/systemtrace/testdata/* text eol=lf
+apps/engine-native/internal/parsers/systemtrace/testdata/*.data -text
+apps/engine-native/internal/catalog/contracts/*.data -text
+# Preserve exact native perf export bytes, including trailing separator spaces.
+apps/engine-native/internal/parsers/systemtrace/testdata/perf-script.txt whitespace=-blank-at-eol,-blank-at-eof
+apps/engine-native/internal/catalog/contracts/system-evidence-perf-script.txt whitespace=-blank-at-eol,-blank-at-eof

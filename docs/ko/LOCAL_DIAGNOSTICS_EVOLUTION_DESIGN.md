@@ -243,6 +243,8 @@ Python pickle/marshal, Ruby Marshal 등 실행 환경 의존 직렬화는 메인
 
 ## 5 perf와 eBPF 분석
 
+T-637 구현과 검증 범위는 [시스템 근거](SYSTEM_EVIDENCE.md)를 참고한다.
+
 ### 5.1 입력을 세 종류로 구분
 
 | 입력 | ArchScope의 처리 | 복원할 수 없는 정보 |

@@ -1,0 +1,44 @@
+{
+  "schema": "system-evidence.v1",
+  "id": "synthetic-capture-1",
+  "tool": "perf",
+  "tool_version": "6.1.190",
+  "clock": "monotonic:synthetic",
+  "boot_id": "synthetic-boot",
+  "pid_namespace": "synthetic-ns",
+  "lost": "0",
+  "unwind_failures": null,
+  "kernel_symbols": "unknown",
+  "frequency_hz": null,
+  "entities": [
+    {
+      "id": "worker-generation-a",
+      "pid": "123",
+      "tid": "124",
+      "process_start_ns": "0"
+    },
+    {
+      "id": "worker-generation-b",
+      "pid": "125",
+      "tid": "126",
+      "process_start_ns": "0"
+    }
+  ],
+  "events": [
+    {
+      "name": "cpu-clock:HG",
+      "kind": "sample",
+      "period_kind": "cpu_time",
+      "period_unit": "nanoseconds"
+    }
+  ],
+  "histograms": [],
+  "fields": "comm,pid,tid,cpu,time,period,event,ip,sym,dso",
+  "original_sha256": "5a48154e118ca263c7192460c7bf6561c79a59434eec9138de53e79c61bbb92e",
+  "export_options": [
+    "script",
+    "--ns",
+    "-F",
+    "comm,pid,tid,cpu,time,period,event,ip,sym,dso"
+  ]
+}

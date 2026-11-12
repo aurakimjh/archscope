@@ -1,0 +1,6 @@
+=== RUN   TestT637Bounded10k20kSampleScale
+    scale_test.go:48: synthetic samples=10000 result bytes=10536821 denominator=10000000000 ns
+    scale_test.go:48: synthetic samples=20000 result bytes=21146821 denominator=20000000000 ns
+--- PASS: TestT637Bounded10k20kSampleScale (0.64s)
+PASS
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/systemtrace	0.729s
