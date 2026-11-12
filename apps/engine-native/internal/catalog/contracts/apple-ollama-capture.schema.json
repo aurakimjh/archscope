@@ -26,15 +26,18 @@
     },
     "host_id": {
       "type": "string",
-      "maxLength": 256
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
     },
     "boot_id": {
       "type": "string",
-      "maxLength": 256
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
     },
     "device_local_id": {
       "type": "string",
-      "maxLength": 256
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
     },
     "macos_version": {
       "type": "string",

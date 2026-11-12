@@ -4393,7 +4393,7 @@ refusals. Original permits T-643 DONE after R20-01 with R20-02..04 queued.
 | Finding | Priority | Status | Action |
 |---|---|---|---|
 | R20-01 | P2 | LOCALLY_FIXED | Version capture selection coverage: excluded model count and selected model match/load state; reveal missing selector without retaining excluded names/digests; retain saved 1.0 normalization. |
-| R20-02 | P3 | TODO | Qualify single-category physical bounds, tag hygiene and lowercase digest handling without silently rewriting saved identities. |
+| R20-02 | P3 | LOCALLY_FIXED | Qualify single-category physical bounds, tag hygiene and lowercase digest handling without silently rewriting saved identities. |
 | R20-03 | P3 | TODO | Explain byte-before-row JTL bounds with observed default-column example and actionable acquisition byte errors; split percentiles cannot be combined. |
 | R20-04 | P3 | TODO | Add actual multi-load and later nonzero swap/pressure / other producer-platform fixtures without forced memory stress. |
 
@@ -4828,3 +4828,5 @@ R19-02 LOCALLY_FIXED: HotSpot inline elapsed/full bounded native symbols and opt
 R19-03 LOCALLY_FIXED: Pinned reusable epoch-ms plausibility policy; suspect units warned without guessing, contradictory first-byte/connect values nulled with sample warnings and aggregate affected-row counts even in distribution mode. Elapsed distributions and legacy saved semantics preserved. Parser/distribution/catalog tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
 
 R19-04 LOCALLY_FIXED: Explicit JMeter unverified-version opt-in preserves true/unknown producer version and source qualification; UI guidance and closed schema mirrored. Full execution/parser/catalog tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
+
+R20-02 LOCALLY_FIXED: New Apple capture input enforces individual VM/capacity and residency/size bounds, sanitized local tags, control-free text and lowercase digests. No saved identity rewriting. Full parser/catalog tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.

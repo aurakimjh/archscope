@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"unicode"
 
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
 )
@@ -59,7 +60,7 @@ type appleModel struct {
 }
 
 func appleText(s string) bool {
-	return s != "" && s != "unknown" && len(s) <= 256 && !strings.ContainsAny(s, "\x00\r\n")
+	return s != "" && s != "unknown" && len(s) <= 256 && !strings.ContainsFunc(s, unicode.IsControl)
 }
 func appleJSON(v any) json.RawMessage { raw, _ := json.Marshal(v); return raw }
 
@@ -77,6 +78,11 @@ func (b *builder) apple(body []byte, options Options) error {
 	for _, s := range []string{c.Host, c.Boot, c.Device, c.OS, c.Build, c.Hardware, c.Chip} {
 		if !appleText(s) {
 			return fmt.Errorf("APPLE_CAPTURE_IDENTITY: local host/boot/device and platform versions required")
+		}
+	}
+	for _, tag := range []string{c.Host, c.Boot, c.Device} {
+		if !captureTag.MatchString(tag) {
+			return fmt.Errorf("APPLE_CAPTURE_TAG: sanitized local tags required")
 		}
 	}
 	if !strings.HasPrefix(c.Chip, "Apple ") || len(c.Snapshots) == 0 || len(c.Snapshots) > 256 {
@@ -174,6 +180,12 @@ func (b *builder) apple(body []byte, options Options) error {
 		if e != nil || capacity.Sign() == 0 {
 			return fmt.Errorf("APPLE_CAPTURE_CAPACITY")
 		}
+		for name, value := range map[string]string{"vm_free": snapshot.Free, "vm_active": snapshot.Active, "vm_inactive": snapshot.Inactive, "vm_wired": snapshot.Wired, "vm_compressor": snapshot.Compressor} {
+			v, err := m.Uint(value)
+			if err != nil || v.Cmp(capacity) > 0 {
+				return fmt.Errorf("APPLE_CAPTURE_PHYSICAL_BOUND: snapshots/%d/%s exceeds capacity", i, name)
+			}
+		}
 		swapTotal, _ := m.Uint(snapshot.SwapTotal)
 		swapUsed, _ := m.Uint(snapshot.SwapUsed)
 		if swapUsed.Cmp(swapTotal) > 0 {
@@ -212,10 +224,15 @@ func (b *builder) apple(body []byte, options Options) error {
 		seen := map[string]bool{}
 		for _, model := range snapshot.Models {
 			_, e := hex.DecodeString(model.Digest)
-			if !appleText(model.Name) || !appleText(model.Quantization) || len(model.Digest) != 64 || e != nil || seen[model.Digest] {
+			if !appleText(model.Name) || !appleText(model.Quantization) || len(model.Digest) != 64 || strings.ToLower(model.Digest) != model.Digest || e != nil || seen[model.Digest] {
 				return fmt.Errorf("APPLE_CAPTURE_MODEL_IDENTITY")
 			}
 			seen[model.Digest] = true
+			size, sizeErr := m.Uint(string(model.Size))
+			gpuSize, gpuErr := m.Uint(string(model.GPUSize))
+			if sizeErr != nil || gpuErr != nil || gpuSize.Cmp(size) > 0 {
+				return fmt.Errorf("APPLE_CAPTURE_MODEL_BOUND: size_vram must not exceed size")
+			}
 			modelAttrs := map[string]string{"scope": "model_estimate", "model": model.Name, "model_digest": model.Digest, "quantization": model.Quantization, "context_length": string(model.Context)}
 			contextLength, e := m.Uint(string(model.Context))
 			if e != nil || contextLength.Sign() == 0 {

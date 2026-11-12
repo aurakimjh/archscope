@@ -245,3 +245,33 @@ func TestR20ActualSelectionCoverageAndLegacyProjection(t *testing.T) {
 		t.Fatal("legacy mutated or no coverage notice")
 	}
 }
+
+func TestR2002AppleInvariantsWithoutIdentityRewriting(t *testing.T) {
+	for name, edit := range map[string]func(map[string]any){
+		"path-tag": func(c map[string]any) { c["host_id"] = "/Users/private" },
+		"model-control": func(c map[string]any) {
+			c["snapshots"].([]any)[0].(map[string]any)["models"].([]any)[0].(map[string]any)["name"] = "model\tprivate"
+		},
+		"upper-digest": func(c map[string]any) {
+			x := c["snapshots"].([]any)[0].(map[string]any)["models"].([]any)[0].(map[string]any)
+			x["digest"] = strings.ToUpper(x["digest"].(string))
+		},
+		"gpu-exceeds-size": func(c map[string]any) {
+			c["snapshots"].([]any)[0].(map[string]any)["models"].([]any)[0].(map[string]any)["size_vram"] = json.Number("99999999999")
+		},
+		"category-exceeds-capacity": func(c map[string]any) {
+			x := c["snapshots"].([]any)[0].(map[string]any)
+			x["vm_free_bytes"] = "18446744073709551615"
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			var c map[string]any
+			json.Unmarshal(appleFixture(t), &c)
+			edit(c)
+			raw, _ := json.Marshal(c)
+			if _, err := p.ParseBytes(ctx, raw, "capture.json", p.Options{}); err == nil {
+				t.Fatal("invalid capture accepted")
+			}
+		})
+	}
+}

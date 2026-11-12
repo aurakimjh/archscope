@@ -47,3 +47,5 @@ https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/sysctl.h.
 출력한다. 1.0.0 원본/모델의 정규화와 저장 projection은 유지한다. 1.0.0은 선택 범위의
 누락 개수를 알 수 없다는 read-time warning을 inspection에 추가하며 전체 inventory로
 해석하면 안 된다. 실제 다중 로드는 확인했지만 pressure/swap 상승·타장비는 미검증이다.
+
+가져오기는 각 VM 범주 ≤ 물리 capacity, size_vram ≤ size, swap_used ≤ total을 개별 확인한다. 범주는 합산하지 않는다. host/boot/device는 정제 태그만, 모든 텍스트는 제어 문자 없이, 모델 digest는 소문자 hex만 허용한다. 기존 저장 모델의 identity를 재작성하지 않으며 새 입력을 거절한다.
