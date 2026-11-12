@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	e "github.com/aurakimjh/archscope/apps/engine-native/internal/executionmodel"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
@@ -18,6 +19,8 @@ import (
 	"strings"
 	"time"
 )
+
+const executionByteGuidance = "byte limits apply before row limits (up to 1M JTL rows); reduce exported unused columns or select a new complete population; split-file percentiles cannot be combined"
 
 const LLMPerfRevision = "f1d6bed47e4501b0e371082b41601b59ab55269f"
 
@@ -49,6 +52,12 @@ func ParseFile(parent context.Context, path string, o Options) (e.Set, string, e
 	defer os.RemoveAll(dir)
 	lease, err := ingestion.Acquire(ctx, path, dir, "original", ingestion.DefaultBudgets())
 	if err != nil {
+		var budget *ingestion.ImportError
+		if errors.As(err, &budget) && budget.Detail != nil && budget.Detail.Resource == "input_bytes" {
+			clone := *budget
+			clone.Message += "; " + executionByteGuidance
+			return e.Set{}, "", &clone
+		}
 		return e.Set{}, "", err
 	}
 	defer lease.Close()
@@ -73,7 +82,7 @@ func ParseBytes(ctx context.Context, original []byte, o Options) (e.Set, error) 
 		return s, fmt.Errorf("EXECUTION_UNVERIFIED_OPTION_NOT_APPLICABLE")
 	}
 	if len(original) > 64<<20 {
-		return s, fmt.Errorf("EXECUTION_SOURCE_BYTES_BUDGET")
+		return s, fmt.Errorf("EXECUTION_SOURCE_BYTES_BUDGET: observed=%d limit=%d; %s", len(original), 64<<20, executionByteGuidance)
 	}
 	raw := original
 	if bytes.HasPrefix(raw, []byte{31, 139}) {
@@ -87,7 +96,7 @@ func ParseBytes(ctx context.Context, original []byte, o Options) (e.Set, error) 
 			return s, err
 		}
 		if len(raw) > 64<<20 {
-			return s, fmt.Errorf("EXECUTION_EXPANDED_BYTES_BUDGET")
+			return s, fmt.Errorf("EXECUTION_EXPANDED_BYTES_BUDGET: at_least=%d limit=%d; %s", len(raw), 64<<20, executionByteGuidance)
 		}
 	}
 	if o.Format == "execution-evidence-json" {

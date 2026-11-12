@@ -4394,7 +4394,7 @@ refusals. Original permits T-643 DONE after R20-01 with R20-02..04 queued.
 |---|---|---|---|
 | R20-01 | P2 | LOCALLY_FIXED | Version capture selection coverage: excluded model count and selected model match/load state; reveal missing selector without retaining excluded names/digests; retain saved 1.0 normalization. |
 | R20-02 | P3 | LOCALLY_FIXED | Qualify single-category physical bounds, tag hygiene and lowercase digest handling without silently rewriting saved identities. |
-| R20-03 | P3 | TODO | Explain byte-before-row JTL bounds with observed default-column example and actionable acquisition byte errors; split percentiles cannot be combined. |
+| R20-03 | P3 | LOCALLY_FIXED | Explain byte-before-row JTL bounds with observed default-column example and actionable acquisition byte errors; split percentiles cannot be combined. |
 | R20-04 | P3 | TODO | Add actual multi-load and later nonzero swap/pressure / other producer-platform fixtures without forced memory stress. |
 
 R20-01 is prioritized with T-644. Existing P3 queues precede R20-02, R20-03,
@@ -4830,3 +4830,5 @@ R19-03 LOCALLY_FIXED: Pinned reusable epoch-ms plausibility policy; suspect unit
 R19-04 LOCALLY_FIXED: Explicit JMeter unverified-version opt-in preserves true/unknown producer version and source qualification; UI guidance and closed schema mirrored. Full execution/parser/catalog tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
 
 R20-02 LOCALLY_FIXED: New Apple capture input enforces individual VM/capacity and residency/size bounds, sanitized local tags, control-free text and lowercase digests. No saved identity rewriting. Full parser/catalog tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
+
+R20-03 LOCALLY_FIXED: JTL byte-before-row capacity guidance added with reviewed default-column observation; acquisition keeps typed exact budget details and adds population/split-percentile guidance. Original/decompressed byte refusals state exact/lower-bound counts. Parser/catalog tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.

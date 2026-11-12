@@ -5,9 +5,12 @@ import (
 	"compress/gzip"
 	"context"
 	"encoding/json"
+	"errors"
 	e "github.com/aurakimjh/archscope/apps/engine-native/internal/executionmodel"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
 	p "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/execution"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -206,5 +209,25 @@ func TestR1904UnverifiedJMeterRequiresExplicitHonestOptIn(t *testing.T) {
 	o.Format = "k6-handle-summary-json"
 	if _, err = p.ParseBytes(context.Background(), raw, o); err == nil {
 		t.Fatal("ack used for another producer")
+	}
+}
+
+func TestR2003AcquisitionByteBudgetGuidance(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "large.csv")
+	f, err := os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = f.Truncate((64 << 20) + 1); err != nil {
+		t.Fatal(err)
+	}
+	f.Close()
+	_, _, err = p.ParseFile(context.Background(), path, p.Options{Format: "jmeter-jtl-csv"})
+	if err == nil || !strings.Contains(err.Error(), "67108865") || !strings.Contains(err.Error(), "split-file percentiles cannot be combined") {
+		t.Fatal(err)
+	}
+	var budget *ingestion.ImportError
+	if !errors.As(err, &budget) || budget.Detail == nil || *budget.Detail.Actual != "67108865" {
+		t.Fatal("structured budget lost", err)
 	}
 }

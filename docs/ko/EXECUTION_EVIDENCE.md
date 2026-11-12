@@ -147,3 +147,5 @@ HotSpot은 독립 elapsed 줄과 Time 헤더에 붙은 elapsed를 읽고 공백�
 공유 계약의 epoch-ms-plausibility.1.0.0 정책을 포함합니다. 2000년 이전/2100년 이후 epoch-ms는 단위를 추정하지 않고 경고하며 원래 선언된 ms→ns 시각을 보존합니다. first-byte>elapsed 또는 Connect>first-byte/elapsed는 해당 수치를 null로 하고 timing_warnings와 전체 affected_rows 수에 기록합니다. 큰 입력의 분포 전용 모드에서도 경고 수를 유지하며 정상 elapsed 분포·백분위와 과거 저장 표본은 재해석하지 않습니다.
 
 JMeter 5.6.3 외 버전은 기본 거절합니다. 필요한 경우 source options에 `allow_unverified_version:true`와 실제 `producer_version`을 지정하세요. 미선언 버전은 `unknown`으로 보존하며 `qualification:unverified_version` 경고가 남습니다. 필수 열/값 구조만 확인하며 해당 생산자 버전을 검증했다는 뜻이 아닙니다.
+
+행 한도보다 바이트 한도가 먼저 적용됩니다. 원본과 압축 해제 입력 각각 64 MiB 이하가 필요하며 100만 JTL 행은 별도 최대치입니다. 리뷰에서 기본 열 약 150바이트/행 입력은 약 44만 행이 상한이었고 35만 행/52.8 MiB 통과, 45만 행/67.8 MiB 거절이 관측되었습니다. 실제 용량은 열 텍스트에 따라 다릅니다. 전체 모집단을 유지하면서 불필요한 열을 줄이세요. 시간/모집단을 다시 선택하면 근거 범위가 달라집니다. 분할 파일의 백분위를 합산/평균하여 전체 실행 백분위를 복원할 수 없습니다. 바이트 오류에는 실제 획득 바이트 또는 명시적 하한과 조치가 포함됩니다.

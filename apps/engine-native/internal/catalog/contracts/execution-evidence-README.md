@@ -51,3 +51,5 @@ label·16 MiB 모델/64 MiB 입력 한도가 먼저 적용된다. 한도를 넘�
 JTL timing 정책은 `jtl-timing-policy.json`에 고정합니다. 선언된 epoch ms가 2000~2100 범위 밖이면 단위 추정 없이 경고하고 원래 ms→ns 값을 보존합니다. first-byte>elapsed 또는 Connect>first-byte/elapsed는 해당 모순 수치를 null로 하고 sample.timing_warnings와 전체 affected_rows에 기록합니다. 큰 입력의 분포 압축 뒤에도 경고 수를 유지하며 elapsed 통계는 바꾸지 않습니다.
 
 JMeter 5.6.3 외 버전은 기본 거절한다. `allow_unverified_version:true`를 명시하면 필수 열/값 구조만 확인한다. 실제 `producer_version`을 유지하며 미선언은 `unknown`, source `qualification:unverified_version`과 제한사항을 기록한다. 생산자 버전 검증을 통과했다는 뜻이 아니다.
+
+원본/해제 후 64 MiB 한도가 100만 JTL 행보다 먼저 적용된다. 기본 열 구성 리뷰 예는 약 44만 행이며 열 길이에 따라 달라진다. 필요 없는 열을 제외해도 모집단은 유지하고, 분할 백분위는 합산/평균하지 않는다.
