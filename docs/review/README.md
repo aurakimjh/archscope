@@ -4,7 +4,9 @@
 
 ## 미처리
 
-없음.
+| 날짜 | 문서 | 대상 | 판정 |
+|---|---|---|---|
+| 2026-11-12 | [T-634 py-spy·Speedscope·pprof 원본 측정 의미 구현 독립 리뷰](2026-11-12_claude-code_T-634_implementation-review.ko.md) | `eaa8c54` | 조건부 (P1 없음, P2 1, P3 3). R11-01 pprof metric이 위치 번호로만 식별되고 원본 sample type이 숨겨져, 정책 없는 조합에서 alloc_space↔inuse_space diff가 경고 없이 성공(닫기 전·T-635 전 해소). 실제 Go pprof 합계는 go tool pprof와 정확히 일치. T-634 DONE은 R11-01 처리 후 가능. |
 
 ## 처리 기록
 
