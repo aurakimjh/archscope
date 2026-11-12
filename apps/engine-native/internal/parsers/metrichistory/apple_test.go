@@ -191,6 +191,8 @@ func TestAppleMirroredManifestAndNormalization(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// The immutable fixture retains original semantics; current parsing records its revision.
+	want.Normalizer = m.ObservationNormalizer
 	got, _ := json.Marshal(set)
 	canonical, _ := json.Marshal(want)
 	if !bytes.Equal(got, canonical) {

@@ -350,22 +350,44 @@ func Intervals(ctx context.Context, set Set) ([]Interval, error) {
 			}
 			out = append(out, row)
 		}
-		// Conflicting equal timestamps never select an arbitrary writer/predecessor.
-		for i := startIndex; i < len(out); i++ {
-			if i > startIndex && out[i].End != nil && out[i-1].End != nil && *out[i].End == *out[i-1].End {
-				for _, j := range []int{i - 1, i} {
-					out[j].Status = "conflicting_timestamp"
-					out[j].Delta = nil
-					out[j].Rate = nil
-					out[j].Histogram = nil
+		// Equal-time cohorts retain every observation/ref. No arbitrary writer or
+		// predecessor is selected, even when independent exports agree exactly.
+		for first := 0; first < len(points); {
+			last := first + 1
+			for last < len(points) && points[first].End != nil && points[last].End != nil && *points[first].End == *points[last].End {
+				last++
+			}
+			if last-first > 1 {
+				status := "conflicting_timestamp"
+				if set.Normalizer == ObservationNormalizer {
+					identical := true
+					key := payloadID(points[first])
+					for j := first + 1; j < last; j++ {
+						if payloadID(points[j]) != key {
+							identical = false
+							break
+						}
+					}
+					if identical {
+						status = "duplicate_observation"
+					}
 				}
-				if i+1 < len(out) && series.Temporality == "cumulative" {
-					out[i+1].Status = "ambiguous_predecessor"
-					out[i+1].Delta = nil
-					out[i+1].Rate = nil
-					out[i+1].Histogram = nil
+				for j := first; j < last; j++ {
+					row := &out[startIndex+j]
+					row.Status = status
+					row.Delta = nil
+					row.Rate = nil
+					row.Histogram = nil
+				}
+				if last < len(points) && series.Temporality == "cumulative" {
+					row := &out[startIndex+last]
+					row.Status = "ambiguous_predecessor"
+					row.Delta = nil
+					row.Rate = nil
+					row.Histogram = nil
 				}
 			}
+			first = last
 		}
 		if series.Temporality == "delta" {
 			indices := []int{}
@@ -390,7 +412,9 @@ func Intervals(ctx context.Context, set Set) ([]Interval, error) {
 				b, _ := Time(out[index].End)
 				if maxIndex >= 0 && a < maximum {
 					for _, j := range []int{maxIndex, index} {
-						out[j].Status = "overlap"
+						if set.Normalizer != ObservationNormalizer || (out[j].Status != "duplicate_observation" && out[j].Status != "conflicting_timestamp") {
+							out[j].Status = "overlap"
+						}
 						out[j].Delta = nil
 						out[j].Rate = nil
 						out[j].Histogram = nil

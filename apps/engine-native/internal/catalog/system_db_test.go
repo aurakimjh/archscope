@@ -56,6 +56,10 @@ func TestActualSystemDBCorpusSchemaManifestAndModels(t *testing.T) {
 		if e != nil {
 			t.Fatal(e)
 		}
+		if model.Normalizer != m.Normalizer || set.Normalizer != m.ObservationNormalizer {
+			t.Fatal("normalizer revisions")
+		}
+		model.Normalizer = m.ObservationNormalizer
 		a, _ := json.Marshal(set)
 		b, _ := json.Marshal(model)
 		if !bytes.Equal(a, b) {

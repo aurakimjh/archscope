@@ -157,3 +157,5 @@ neutral·실제 PostgreSQL/Linux·SDK histogram의 기존/인덱스 페이지 �
 100k point warm 재사용, mtime 복원 변조, owner/cleanup, 만료·바이트 퇴출, 동시 반환값
 격리·취소·legacy 저장 바이트 보존을 회귀로 확인합니다. 백엔드 검증이며 native WebView/
 Windows·일반적인 latency/RSS 수용을 뜻하지 않습니다. R13-03/04/05/06/07 후속 큐는 유지합니다.
+
+새 원본 가져오기는 normalizer 1.2.0입니다. 같은 종료 시각의 전체 관측 내용(start·flags·histogram·exemplars 포함)이 모두 같으면 `duplicate_observation`, 하나라도 다르면 전체 묶음이 `conflicting_timestamp`입니다. 모든 export와 ref를 보존하며 해당 묶음과 다음 cumulative 관측의 rate를 만들거나 임의 writer를 선택하지 않습니다. 겹치는 delta 묶음도 동일/충돌 상태를 유지하고 파생 계산을 억제합니다. 저장된 1.0.0/1.1.0 결과는 종전 동일 시각 판정을 유지합니다.

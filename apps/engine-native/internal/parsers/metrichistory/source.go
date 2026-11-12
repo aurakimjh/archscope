@@ -147,7 +147,7 @@ func ParseBytes(ctx context.Context, original []byte, name string, options Optio
 	if e != nil {
 		return m.Set{}, e
 	}
-	b := builder{ctx: ctx, set: m.Set{Version: m.Version, Normalizer: m.Normalizer, Sources: []m.Source{{ID: "source-0", SHA256: hex.EncodeToString(sum[:]), Name: name, Format: format, Producer: producer, ProducerVersion: options.ProducerVersion, ExportID: options.ExportID, Query: query}}, Series: []m.Series{}, Points: []m.Point{}, Warnings: []string{"Source producer/export/query identity is declared; no original-publisher authentication or GenAI alias qualification."}}, series: map[string]bool{}, origin: options.Namespace}
+	b := builder{ctx: ctx, set: m.Set{Version: m.Version, Normalizer: m.ObservationNormalizer, Sources: []m.Source{{ID: "source-0", SHA256: hex.EncodeToString(sum[:]), Name: name, Format: format, Producer: producer, ProducerVersion: options.ProducerVersion, ExportID: options.ExportID, Query: query}}, Series: []m.Series{}, Points: []m.Point{}, Warnings: []string{"Source producer/export/query identity is declared; no original-publisher authentication or GenAI alias qualification."}}, series: map[string]bool{}, origin: options.Namespace}
 	if b.origin == "" {
 		b.origin = format + ":" + producer + ":" + options.ProducerVersion
 	} else {

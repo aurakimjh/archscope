@@ -48,7 +48,7 @@ once over their own interval. Every overlapping delta interval is unavailable.
 Points are ordered by end time for calculation, with original positions and
 reordering flags retained. Declared cadence gaps in sum/histogram intervals expose
 an average across the whole interval without interpolation. Missing delta
-intervals are disclosed as gaps. New range-query models use normalizer 1.1.0: `gap=true` when consecutive observed
+intervals are disclosed as gaps. Range-query models at normalizer 1.1.0 and later use: `gap=true` when consecutive observed
 end times differ by more than the declared positive `step_ns`. Values and statuses
 (including unavailable/conflicting observations) are retained; no missing samples,
 interpolation or gauge rates are invented. Selection windows retain predecessor
@@ -197,3 +197,11 @@ tampering with restored mtime, owner/cleanup, lazy expiry/byte eviction, concurr
 caller isolation, cancellation and unchanged legacy saved bytes. These are backend
 checks, not native WebView/Windows or general latency/RSS acceptance. Remaining
 R13-03/04/05/06/07 follow-ups retain their separate queues.
+
+New source imports use normalizer 1.2.0. Equal-time cohorts whose complete
+observation payloads agree (including start, flags, histogram and exemplars) are
+`duplicate_observation`; any differing payload makes the entire cohort
+`conflicting_timestamp`. Every export/ref is retained. Neither cohort nor its
+next cumulative point produces a derived rate; no writer is selected. Overlapping
+delta cohorts also retain the duplicate/conflict status with derivation suppressed.
+Saved 1.0.0/1.1.0 results keep the original equal-time classification.
