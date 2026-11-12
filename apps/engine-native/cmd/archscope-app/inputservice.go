@@ -64,13 +64,9 @@ func (s *EngineService) ConvertEvidenceJFR(ctx context.Context, path, tool, outp
 	if e != nil {
 		return "", e
 	}
-	converted, e := localconvert.JFR(ctx, path, tool)
+	converted, e := localconvert.ConvertNew(ctx, path, tool, output, roots...)
 	if e != nil {
-		return "", &localconvert.Error{Code: localconvert.Code(e), Message: "Conversion stopped. Select a compatible installed JDK or preconvert in the collection environment."}
-	}
-	defer os.Remove(converted.Path)
-	if e = localconvert.SaveNew(ctx, converted, output, roots...); e != nil {
 		return "", e
 	}
-	return caseJSON(converted.Provenance, nil)
+	return caseJSON(converted, nil)
 }

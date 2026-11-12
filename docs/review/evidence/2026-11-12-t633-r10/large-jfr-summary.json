@@ -1,0 +1,69 @@
+{
+  "scope": "Generated native JDK 21 custom-event recording, 30,000 events with sanitized payloads. This exercises the real installed JDK binary/JSON expansion and legacy path, not production workload or broad producer qualification. Large raw artifacts remain temporary; hashes and generator retained.",
+  "generator": "LargeRecording.java",
+  "input": {
+    "bytes": 10521805,
+    "sha256": "1a6932771fa60ff9d5427e59f5d5a7bc31be00c0add1c53de77a027dccb1a44b"
+  },
+  "conversion": {
+    "provenance": {
+      "invocation_profile": "jfr.print-json.v1",
+      "identity_basis": "owner_selected_hash_not_publisher_verified",
+      "stderr_bytes": 0,
+      "stderr_omitted": false,
+      "tool": "declared_unverified",
+      "version": "21.0.10",
+      "executable_sha256": "3f28d5871304ea9a1ffe9280b331be8694ebf9e6978ee8a5cdba311e5a621258",
+      "arguments": [
+        "print",
+        "--json",
+        "<owned-input>"
+      ],
+      "input_sha256": "1a6932771fa60ff9d5427e59f5d5a7bc31be00c0add1c53de77a027dccb1a44b",
+      "output_sha256": "922695b6c8b73b2819089bb79c58c16ef578d06a53d0a9241d3268c635620f26",
+      "output_bytes": 529956916,
+      "location": "local"
+    },
+    "measurement": {
+      "real_seconds": 6.58,
+      "maximum_rss_bytes": 326320128,
+      "scope": "one macOS arm64 CLI process-tree measurement, includes installed tool; not broad benchmark/RSS guarantee"
+    }
+  },
+  "legacy_binary_analysis": {
+    "result_type": "native_memory",
+    "result_bytes": 1909,
+    "measurement": {
+      "real_seconds": 10.19,
+      "maximum_rss_bytes": 2693971968,
+      "scope": "one macOS arm64 CLI process-tree measurement, includes installed tool; not broad benchmark/RSS guarantee"
+    },
+    "unverified_tool_identity_preserved": true
+  },
+  "synthetic_large_output": {
+    "provenance": {
+      "invocation_profile": "jfr.print-json.v1",
+      "identity_basis": "owner_selected_hash_not_publisher_verified",
+      "stderr_bytes": 0,
+      "stderr_omitted": false,
+      "tool": "declared_unverified",
+      "version": "21.0.1",
+      "executable_sha256": "e2496bbba2eb7213131ffb378372a3c932b60d617daceb7bf31b35d64f68b1c4",
+      "arguments": [
+        "print",
+        "--json",
+        "<owned-input>"
+      ],
+      "input_sha256": "1a6932771fa60ff9d5427e59f5d5a7bc31be00c0add1c53de77a027dccb1a44b",
+      "output_sha256": "b1bc979e88b37e156d308b9e8fdf0903058a9ba9a9f30d2be52ca2c979625c69",
+      "output_bytes": 107718026,
+      "location": "local"
+    },
+    "measurement": {
+      "real_seconds": 1.4,
+      "maximum_rss_bytes": 26984448,
+      "scope": "one macOS arm64 CLI process-tree measurement, includes installed tool; not broad benchmark/RSS guarantee"
+    },
+    "scope": "synthetic stand-in executable, not JDK; validates streaming conversion/publication without retaining a JSON tree"
+  }
+}

@@ -98,15 +98,11 @@ func convertCLI(ctx context.Context, input, tool, output string) error {
 	if e != nil {
 		return e
 	}
-	result, e := localconvert.JFR(ctx, input, tool)
+	result, e := localconvert.ConvertNew(ctx, input, tool, output, roots...)
 	if e != nil {
-		return &localconvert.Error{Code: localconvert.Code(e), Message: "Conversion stopped; select a compatible installed JDK or preconvert at collection."}
-	}
-	defer os.Remove(result.Path)
-	if e = localconvert.SaveNew(ctx, result, output, roots...); e != nil {
 		return e
 	}
-	return writeJSONAny(result.Provenance, "-")
+	return writeJSONAny(result, "-")
 }
 
 func cliAssistanceRoots() ([]string, error) {

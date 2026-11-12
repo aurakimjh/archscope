@@ -134,7 +134,7 @@ func ParseRecordingContext(ctx context.Context, path string, diags *diagnostics.
 		jsonPath := conversion.Path
 		defer os.Remove(jsonPath)
 		info.Conversion = &conversion.Provenance
-		tool := "jdk.jfr"
+		tool := conversion.Provenance.Tool
 		info.JFRCli = &tool
 
 		events, err := ParseJSONFile(jsonPath, diags)

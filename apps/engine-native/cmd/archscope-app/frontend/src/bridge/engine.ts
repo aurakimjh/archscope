@@ -472,7 +472,7 @@ export function exportCaptureDraft(path: string, capture: string, scope: string,
 export function exportCollectionKit(output: string): Cancelable<void> {
   return call<void>("ExportCollectionKit", output);
 }
-export function convertEvidenceJFR(path: string, tool: string, output: string): Cancelable<{ version: string; input_sha256: string; output_sha256: string; executable_sha256: string }> {
+export function convertEvidenceJFR(path: string, tool: string, output: string): Cancelable<{ tool: string; identity_basis: string; stderr_bytes: number; stderr_omitted: boolean; version: string; input_sha256: string; output_sha256: string; executable_sha256: string }> {
   return parseAssistance(call<string>("ConvertEvidenceJFR", path, tool, output));
 }
 

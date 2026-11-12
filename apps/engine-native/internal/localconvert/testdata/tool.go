@@ -18,6 +18,10 @@ func main() {
 		}
 	}
 	if len(os.Args) > 1 && os.Args[1] == "--version" {
+		if strings.Contains(mode, "versionflood") {
+			fmt.Print(strings.Repeat("9", 8192))
+			return
+		}
 		fmt.Println("21.0.1")
 		return
 	}
@@ -36,6 +40,23 @@ func main() {
 		for {
 			time.Sleep(time.Second)
 		}
+	case strings.Contains(mode, "large"):
+		fmt.Print(`{"recording":{"events":[`)
+		row := `{"type":"synthetic.test","values":{"text":"` + strings.Repeat("x", 4096) + `"}}`
+		count := 26000
+		if strings.Contains(mode, "overlimit") {
+			count = 140000
+		}
+		for i := 0; i < count; i++ {
+			if i > 0 {
+				fmt.Print(",")
+			}
+			fmt.Print(row)
+		}
+		fmt.Print("]}}")
+	case strings.Contains(mode, "warn"):
+		fmt.Fprint(os.Stderr, strings.Repeat("private-canary", 2000))
+		fmt.Print(`{"recording":{"events":[]}}`)
 	case strings.Contains(mode, "flood"):
 		for i := 0; i < 70; i++ {
 			fmt.Print(strings.Repeat("x", 1<<20))

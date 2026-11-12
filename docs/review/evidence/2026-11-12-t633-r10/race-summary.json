@@ -1,0 +1,617 @@
+{
+  "command": "go test -race -count=1 -json ./...",
+  "host": "darwin/arm64",
+  "tests": {
+    "pass": 1465,
+    "skip": 6
+  },
+  "packages": {
+    "skip": 5,
+    "pass": 102
+  },
+  "skip_tests": [
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/comautomation",
+      "test": "TestReferencePresetFiltersWhenProvided"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog",
+      "test": "TestPrivateReferenceSample"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile",
+      "test": "TestLargeXLSIndependentReader"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/transparent",
+      "test": "TestOfficialDriverFingerprints"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/jfr",
+      "test": "TestConvertJFRToJSONIntegration"
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/cases",
+      "test": "TestR606LargePageMeasurement"
+    }
+  ],
+  "package_results": [
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/api",
+      "result": "skip",
+      "elapsed_seconds": 0
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-control",
+      "result": "skip",
+      "elapsed_seconds": 0
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/exception",
+      "result": "pass",
+      "elapsed_seconds": 1.291
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/httpcorrelation",
+      "result": "pass",
+      "elapsed_seconds": 1.315
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/aiinterpretation",
+      "result": "pass",
+      "elapsed_seconds": 1.316
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/gclog",
+      "result": "pass",
+      "elapsed_seconds": 1.428
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/lockcontention",
+      "result": "pass",
+      "elapsed_seconds": 1.625
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/archdoc",
+      "result": "pass",
+      "elapsed_seconds": 1.638
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/apicontract",
+      "result": "pass",
+      "elapsed_seconds": 1.638
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/brokerlog",
+      "result": "pass",
+      "elapsed_seconds": 1.638
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/databaselog",
+      "result": "pass",
+      "elapsed_seconds": 1.642
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/metrics",
+      "result": "pass",
+      "elapsed_seconds": 1.642
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jfr",
+      "result": "pass",
+      "elapsed_seconds": 1.651
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/lighthouse",
+      "result": "pass",
+      "elapsed_seconds": 1.655
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/httpcapture",
+      "result": "pass",
+      "elapsed_seconds": 1.697
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/jenniferprofile",
+      "result": "pass",
+      "elapsed_seconds": 1.709
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/accesslog",
+      "result": "pass",
+      "elapsed_seconds": 2.093
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/multithread",
+      "result": "pass",
+      "elapsed_seconds": 1.279
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/observability",
+      "result": "pass",
+      "elapsed_seconds": 1.279
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/otel",
+      "result": "pass",
+      "elapsed_seconds": 1.313
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/platform",
+      "result": "pass",
+      "elapsed_seconds": 1.275
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/runtime",
+      "result": "pass",
+      "elapsed_seconds": 1.278
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/profileclassification",
+      "result": "pass",
+      "elapsed_seconds": 1.278
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/threaddumpcollapsed",
+      "result": "pass",
+      "elapsed_seconds": 1.271
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/serverlog",
+      "result": "pass",
+      "elapsed_seconds": 1.289
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/stitching",
+      "result": "pass",
+      "elapsed_seconds": 1.286
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture",
+      "result": "pass",
+      "elapsed_seconds": 1.2610000000000001
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/threaddump",
+      "result": "pass",
+      "elapsed_seconds": 1.326
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/traceimport",
+      "result": "pass",
+      "elapsed_seconds": 1.322
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance",
+      "result": "pass",
+      "elapsed_seconds": 1.335
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/profile",
+      "result": "pass",
+      "elapsed_seconds": 1.458
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/admission",
+      "result": "pass",
+      "elapsed_seconds": 1.298
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/backend",
+      "result": "pass",
+      "elapsed_seconds": 1.276
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate",
+      "result": "pass",
+      "elapsed_seconds": 1.374
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/browsercache",
+      "result": "pass",
+      "elapsed_seconds": 1.263
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation",
+      "result": "pass",
+      "elapsed_seconds": 1.466
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore",
+      "result": "pass",
+      "elapsed_seconds": 1.267
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/content",
+      "result": "pass",
+      "elapsed_seconds": 1.274
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy",
+      "result": "pass",
+      "elapsed_seconds": 1.2690000000000001
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/comautomation",
+      "result": "pass",
+      "elapsed_seconds": 1.315
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/legacy",
+      "result": "pass",
+      "elapsed_seconds": 1.29
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/procmap",
+      "result": "pass",
+      "elapsed_seconds": 1.279
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/common",
+      "result": "skip",
+      "elapsed_seconds": 0
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog",
+      "result": "pass",
+      "elapsed_seconds": 1.428
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/processlaunch",
+      "result": "pass",
+      "elapsed_seconds": 1.392
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy",
+      "result": "pass",
+      "elapsed_seconds": 1.432
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact",
+      "result": "pass",
+      "elapsed_seconds": 1.449
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/summary",
+      "result": "pass",
+      "elapsed_seconds": 1.271
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile",
+      "result": "pass",
+      "elapsed_seconds": 1.546
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/transparent",
+      "result": "pass",
+      "elapsed_seconds": 1.305
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics",
+      "result": "pass",
+      "elapsed_seconds": 1.2770000000000001
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/exporters/csv",
+      "result": "pass",
+      "elapsed_seconds": 1.377
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/demosite",
+      "result": "pass",
+      "elapsed_seconds": 1.5659999999999998
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/exporters/html",
+      "result": "pass",
+      "elapsed_seconds": 1.3679999999999999
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/exporters/json",
+      "result": "pass",
+      "elapsed_seconds": 1.371
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/session",
+      "result": "pass",
+      "elapsed_seconds": 2.503
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store",
+      "result": "pass",
+      "elapsed_seconds": 2.566
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/exporters/reportdiff",
+      "result": "pass",
+      "elapsed_seconds": 1.299
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/exporters/pptx",
+      "result": "pass",
+      "elapsed_seconds": 1.3860000000000001
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/stream",
+      "result": "pass",
+      "elapsed_seconds": 2.909
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/localfiles",
+      "result": "pass",
+      "elapsed_seconds": 1.279
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/models",
+      "result": "pass",
+      "elapsed_seconds": 1.278
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion",
+      "result": "pass",
+      "elapsed_seconds": 1.623
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/netpolicy",
+      "result": "pass",
+      "elapsed_seconds": 1.3599999999999999
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/catalog",
+      "result": "pass",
+      "elapsed_seconds": 3.071
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/inputassist",
+      "result": "pass",
+      "elapsed_seconds": 1.8
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/accesslog",
+      "result": "pass",
+      "elapsed_seconds": 1.315
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/apicontract",
+      "result": "pass",
+      "elapsed_seconds": 1.293
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/observability",
+      "result": "skip",
+      "elapsed_seconds": 0
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/brokerlog",
+      "result": "pass",
+      "elapsed_seconds": 1.366
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/databaselog",
+      "result": "pass",
+      "elapsed_seconds": 1.296
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/exception",
+      "result": "pass",
+      "elapsed_seconds": 1.346
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/jenniferprofile",
+      "result": "pass",
+      "elapsed_seconds": 1.331
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gclog",
+      "result": "pass",
+      "elapsed_seconds": 1.526
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/httpcapture",
+      "result": "pass",
+      "elapsed_seconds": 1.529
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/lighthouse",
+      "result": "pass",
+      "elapsed_seconds": 1.3439999999999999
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/profilelegacy",
+      "result": "skip",
+      "elapsed_seconds": 0.023
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/jfr",
+      "result": "pass",
+      "elapsed_seconds": 1.476
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/distribution",
+      "result": "pass",
+      "elapsed_seconds": 4.477
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrics",
+      "result": "pass",
+      "elapsed_seconds": 1.274
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/platform",
+      "result": "pass",
+      "elapsed_seconds": 1.291
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/otel",
+      "result": "pass",
+      "elapsed_seconds": 1.682
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/packs",
+      "result": "pass",
+      "elapsed_seconds": 3.406
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/profile",
+      "result": "pass",
+      "elapsed_seconds": 1.6219999999999999
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/serverlog",
+      "result": "pass",
+      "elapsed_seconds": 1.301
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/runtimestack",
+      "result": "pass",
+      "elapsed_seconds": 1.508
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/traceimport",
+      "result": "pass",
+      "elapsed_seconds": 1.319
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/statistics",
+      "result": "pass",
+      "elapsed_seconds": 1.2770000000000001
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/textio",
+      "result": "pass",
+      "elapsed_seconds": 1.342
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/profiler",
+      "result": "pass",
+      "elapsed_seconds": 1.827
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump",
+      "result": "pass",
+      "elapsed_seconds": 1.326
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump/plugins/dotnetclrstack",
+      "result": "pass",
+      "elapsed_seconds": 1.323
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump/plugins/gogoroutine",
+      "result": "pass",
+      "elapsed_seconds": 1.314
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump/plugins/javajcmdjson",
+      "result": "pass",
+      "elapsed_seconds": 1.3479999999999999
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump/plugins/javajstack",
+      "result": "pass",
+      "elapsed_seconds": 1.335
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump/plugins/nodejsreport",
+      "result": "pass",
+      "elapsed_seconds": 1.317
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump/plugins/pythondump",
+      "result": "pass",
+      "elapsed_seconds": 1.334
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/timeutil",
+      "result": "pass",
+      "elapsed_seconds": 1.267
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/cases",
+      "result": "pass",
+      "elapsed_seconds": 7.448
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/capture/requestbuilder",
+      "result": "pass",
+      "elapsed_seconds": 8.306
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/profilemodel",
+      "result": "pass",
+      "elapsed_seconds": 3.045
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine",
+      "result": "pass",
+      "elapsed_seconds": 13.039
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract",
+      "result": "pass",
+      "elapsed_seconds": 6.18
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app",
+      "result": "pass",
+      "elapsed_seconds": 16.663
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson",
+      "result": "pass",
+      "elapsed_seconds": 7.672
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/localconvert",
+      "result": "pass",
+      "elapsed_seconds": 18.41
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/analysis",
+      "result": "pass",
+      "elapsed_seconds": 121.215
+    }
+  ],
+  "r10_tests": [
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/localconvert",
+      "test": "TestR1001ExpandedOutputAbove100MiBStreamsAndKeepsHash",
+      "elapsed_seconds": 11.68
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/localconvert",
+      "test": "TestR1001ExpandedOutputCeilingAndMessages",
+      "elapsed_seconds": 0.85
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/localconvert",
+      "test": "TestR1002OwnerSelectedToolHasUnverifiedIdentity",
+      "elapsed_seconds": 0.21
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/localconvert",
+      "test": "TestR1003WarningsDoNotFailSuccessfulConversionOrExposeText",
+      "elapsed_seconds": 0.21
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/localconvert",
+      "test": "TestR1004PreflightBeforeToolExecutionAndRecheckPublication",
+      "elapsed_seconds": 0.2
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/localconvert",
+      "test": "TestR1004StreamValidationShapeAndScalarBudgets",
+      "elapsed_seconds": 0.12
+    },
+    {
+      "package": "github.com/aurakimjh/archscope/apps/engine-native/internal/localconvert",
+      "test": "TestR1001ConverterAndLegacyJSONReaderShareOutputCeiling",
+      "elapsed_seconds": 0
+    }
+  ],
+  "focused_after_full_suite": {
+    "command": "go test -race -v ./internal/localconvert ./internal/parsers/jfr -run 'TestR1001Version|TestR1002Legacy'",
+    "result": "PASS",
+    "reason": "Final legacy unverified identity and 4 KiB version-response diagnostic alignment; all large-output/ceiling behaviors passed the full suite."
+  }
+}

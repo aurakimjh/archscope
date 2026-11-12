@@ -1,0 +1,74 @@
+{
+  "type": "native_memory",
+  "source_files": [
+    "/tmp/archscope-r10-real-jdk/large.jfr"
+  ],
+  "created_at": "2026-11-12T00:50:19.616868Z",
+  "summary": {
+    "alloc_bytes_total": 0,
+    "alloc_event_count": 0,
+    "free_bytes_total": 0,
+    "free_event_count": 0,
+    "leak_only": true,
+    "tail_cutoff": null,
+    "tail_ratio": 0.1,
+    "unfreed_bytes_total": 0,
+    "unfreed_event_count": 0
+  },
+  "series": {},
+  "tables": {
+    "top_call_sites": []
+  },
+  "charts": {
+    "flamegraph": {
+      "category": null,
+      "children": [],
+      "color": null,
+      "id": "root",
+      "name": "All",
+      "parentId": null,
+      "path": [],
+      "ratio": 0,
+      "samples": 0
+    }
+  },
+  "metadata": {
+    "conversion": {
+      "invocation_profile": "jfr.print-json.v1",
+      "identity_basis": "owner_selected_hash_not_publisher_verified",
+      "stderr_bytes": 0,
+      "stderr_omitted": false,
+      "tool": "declared_unverified",
+      "version": "21.0.10",
+      "executable_sha256": "3f28d5871304ea9a1ffe9280b331be8694ebf9e6978ee8a5cdba311e5a621258",
+      "arguments": [
+        "print",
+        "--json",
+        "\u003cowned-input\u003e"
+      ],
+      "input_sha256": "1a6932771fa60ff9d5427e59f5d5a7bc31be00c0add1c53de77a027dccb1a44b",
+      "output_sha256": "922695b6c8b73b2819089bb79c58c16ef578d06a53d0a9241d3268c635620f26",
+      "output_bytes": 529956916,
+      "location": "local"
+    },
+    "diagnostics": {
+      "source_file": null,
+      "format": "jfr",
+      "total_lines": 30000,
+      "parsed_records": 30000,
+      "skipped_lines": 0,
+      "skipped_by_reason": {},
+      "samples": [],
+      "warning_count": 0,
+      "error_count": 0,
+      "warnings": [],
+      "errors": []
+    },
+    "findings": [],
+    "jfr_cli": "declared_unverified",
+    "parser": "jdk_jfr_native_memory",
+    "schema_version": "0.1.0",
+    "source_format": "binary_jfr",
+    "unit": "bytes"
+  }
+}

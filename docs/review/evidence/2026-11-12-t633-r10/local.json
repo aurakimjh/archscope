@@ -1,0 +1,180 @@
+{
+  "task": "T-633 R10-01 to R10-05",
+  "status": "DONE under original independent review after-R10-01 conditional closure permission",
+  "recorded_at": "2026-11-12T09:52:51.681155+09:00",
+  "pull_before_edits": {
+    "head": "e1a0340e6594584c5a70f51718ccb33d04d6f576",
+    "result": "Already up to date; local HEAD already contained review commit (remote main was 3d443d3). Pull repeated before commit."
+  },
+  "source_base_commit": "e1a0340e6594584c5a70f51718ccb33d04d6f576",
+  "source_sha256": {
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/engine.ts": "87bf795f058a32ae069ac3dda998dce168fc89c81b30144960c7e3bd9dd1be95",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/InputAssistance.tsx": "6cd3890bf57f304b3b501c0896ab1ac18f705f145ca31738f4147b8d91069121",
+    "apps/engine-native/cmd/archscope-app/inputservice.go": "4c61c841ce8229010f7472ace778d477745d136ba665f41b8b4a182b0bd1a66d",
+    "apps/engine-native/cmd/archscope-engine/cmd_inputassist.go": "8bdf226d93707ef3e96d867e840310ad21b6cfeb7a6763eac15f1b57e7f10bd0",
+    "apps/engine-native/internal/distribution/assets/docs/en/INPUT_ASSISTANCE.md": "f9e84cbee226326ff550cef36126b59868e63b0fa4e8b25ebefefb0ce61df343",
+    "apps/engine-native/internal/distribution/assets/docs/ko/INPUT_ASSISTANCE.md": "53871652a7fdb4f8a0badd495b3fc7484faae363b0a4e8b0ae4ac88f30caecf4",
+    "apps/engine-native/internal/inputassist/assets/INPUT_ASSISTANCE.en.md": "f9e84cbee226326ff550cef36126b59868e63b0fa4e8b25ebefefb0ce61df343",
+    "apps/engine-native/internal/inputassist/assets/INPUT_ASSISTANCE.ko.md": "53871652a7fdb4f8a0badd495b3fc7484faae363b0a4e8b0ae4ac88f30caecf4",
+    "apps/engine-native/internal/inputassist/assets/manifest.json": "08b1aa0dd6c98de853681257887345ea133ebc2b69a45245973a91f466db2c75",
+    "apps/engine-native/internal/localconvert/jfr.go": "8959d571f633be0ecd2a8844be94c1226dee69a4ae7309dd015864a03f72e650",
+    "apps/engine-native/internal/localconvert/limits_external_test.go": "f76b8762da41b7488e05ef33c697e6c543a7c14e896ff0091267b6caede5ca50",
+    "apps/engine-native/internal/localconvert/review_r10_test.go": "f32f66f14eee2e0653371c744227f4e04779d11311b59e4baa397e6af73a7a17",
+    "apps/engine-native/internal/localconvert/save.go": "bdc56a2841169a205eb1396116f0154ede6fbb47067e38e576ebd487f61ad836",
+    "apps/engine-native/internal/localconvert/testdata/tool.go": "adae76e1eaba61bd891c542ea21fcb17d756aa8675d5824e280f883ce8cccfb4",
+    "apps/engine-native/internal/localconvert/validate.go": "632f22bea2145e3e37f77f0655f5ffefa0241501bfaad9ee2b835fc3bb181fa4",
+    "apps/engine-native/internal/localfiles/publish.go": "4f1ae5f8fc4b0bcd669102d1245a673ec92ff37f6046139375ae057e4b9c1a71",
+    "apps/engine-native/internal/parsers/jfr/recording.go": "9c6002c5917aa49bc371388a0dcc56f8ece24f681eb1de58f70dac79fc9fdeec",
+    "apps/engine-native/internal/parsers/jfr/review_r10_test.go": "bd0301a53ead66bea0eb7f200ff2fa3942ca09aa5e24f4b0424f583653eb372c",
+    "docs/en/INPUT_ASSISTANCE.md": "f9e84cbee226326ff550cef36126b59868e63b0fa4e8b25ebefefb0ce61df343",
+    "docs/en/PARSER_DESIGN.md": "4df2a35ad64e3dd63c2e0b675481b06b32f895bb4403e76aa4dbc955864af5ee",
+    "docs/ko/INPUT_ASSISTANCE.md": "53871652a7fdb4f8a0badd495b3fc7484faae363b0a4e8b0ae4ac88f30caecf4",
+    "docs/ko/PARSER_DESIGN.md": "2ab34e6cb5e0e87ce4308c4bf737fcc4b35e9dbdde51526ab0f444dad226d237",
+    "docs/review/README.md": "207f32ade893acddf44199a5d076154406b2f1e76cc8f1a9057943a4cad81342",
+    "docs/review/done/2026-11-12_claude-code_T-633_implementation-review.ko.md": "90c72337c0aaf7299c2fddbb0205a3a52b8b12721a152c42999cafe7f3af00be",
+    "work_status.md": "3cc1603a0dc14b9c342e8ef1ab618613a3bd36a4f05aef21c442ed8b7b5d35f2"
+  },
+  "review_archive": {
+    "path": "docs/review/done/2026-11-12_claude-code_T-633_implementation-review.ko.md",
+    "sha256": "90c72337c0aaf7299c2fddbb0205a3a52b8b12721a152c42999cafe7f3af00be",
+    "original_preserved": true,
+    "workflow": "All actionable findings recorded in work_status.md before unchanged archival. Initial local index/summary removals reconciled into intake."
+  },
+  "review_verdict": "Original CONDITIONAL unchanged. Explicit DONE permission after R10-01 locally satisfied; all P3 findings also locally fixed. No independent final re-review or self-awarded PASS.",
+  "findings": {
+    "R10-01": "Independent 64 MiB binary input / 512 MiB disk-spooled JSON ceiling aligns legacy reader; expansion cannot be guaranteed from input size. Byte/depth/scalar/time/I/O refusal messages preserve cause. Native event-rich JFR and >100 MiB plus over-ceiling regressions pass.",
+    "R10-04": "Output and provenance names preflight before executable access, with atomic no-replace recheck. Stable output codes hide internal temporary paths. Scalar-bounded lexical + streaming token validation and streamed hashed publication retain no whole JSON tree.",
+    "R10-03": "Stderr continuously drained/discarded with bytes/omitted metadata; successful warning-heavy exit succeeds. Timeout, cancellation, nonzero exit and stdout cap remain authoritative.",
+    "R10-02": "Owner-selected executable remains declared_unverified; jfr.print-json.v1 is invocation profile, executable hash/version is not publisher/JDK authentication. Legacy jfr_cli metadata uses the same unverified identity.",
+    "R10-05": "Old EN/KO JFR discovery paragraphs corrected; paired embedded manuals/UI budgets, disk space, warnings and identity disclosure consistent."
+  },
+  "checks": [
+    {
+      "check": "Full uncached Go race (102 packages, 1465 passing tests, six explicit skips, no failures)",
+      "result": "PASS"
+    },
+    {
+      "check": "Additional focused legacy identity and 4 KiB version-output cause race regressions after final metadata/diagnostic alignment",
+      "result": "PASS"
+    },
+    {
+      "check": "Host Go vet/build",
+      "result": "PASS"
+    },
+    {
+      "check": "Windows amd64/386 vet and production cross-builds",
+      "result": "PASS"
+    },
+    {
+      "check": "Frontend state/build and Wails bindings",
+      "result": "PASS"
+    },
+    {
+      "check": "Signed macOS production package / codesign verify",
+      "result": "PASS"
+    },
+    {
+      "check": "Manual/offline embedded asset parity and desktop-only guard",
+      "result": "PASS"
+    },
+    {
+      "check": "Native JDK 21 10.5 MB recording -> 529956916 byte JSON and legacy binary native-memory analysis",
+      "result": "PASS"
+    },
+    {
+      "check": ">100 MiB streamed exact-hash publication and >512 MiB refusal / actionable budget messages",
+      "result": "PASS"
+    },
+    {
+      "check": "Stderr warnings omitted without failure; nonzero exit remains failure",
+      "result": "PASS"
+    },
+    {
+      "check": "Output/provenance preflight before tool execution plus race-safe no-replace publication",
+      "result": "PASS"
+    },
+    {
+      "check": "Stream shape/scalar/depth checks and no false JDK identity for owner-selected executables",
+      "result": "PASS"
+    },
+    {
+      "check": "Fresh seven-command network-none CLI observation and failed-network positive control",
+      "result": "PASS"
+    }
+  ],
+  "race_summary": "race-summary.json",
+  "large_recording_evidence": "large-jfr-summary.json",
+  "offline_summary": "offline-summary.json",
+  "artifacts": {
+    "cli_darwin_arm64": {
+      "bytes": 30780690,
+      "sha256": "43328c0103ee12fe99e7de9d7f16f4fd6ee5ed326523637eb648f311730337f9"
+    },
+    "desktop_darwin_arm64": {
+      "bytes": 31418528,
+      "sha256": "c27c861ffa9b2451f092973dcbd7f2463ef27c9c0f6bc1a0d9d06c33a36d3e33"
+    },
+    "desktop_windows_amd64": {
+      "bytes": 42861056,
+      "sha256": "f725d83560cf2e284b71fa270b38088c6bfc706d03173ffb495ae78b4f39074a"
+    },
+    "desktop_windows_386": {
+      "bytes": 41529856,
+      "sha256": "d5310c5f76663fad679e2cb31e79517d9bbee926616bcc55de3fd7e08cf2645c"
+    },
+    "cli_linux_arm64": {
+      "bytes": 30251312,
+      "sha256": "f44a1e188bd997ac861d674e723cda4034084389e17c94a669e6df1bbe686451"
+    }
+  },
+  "not_run": [
+    "Independent final R10 re-review",
+    "Native Windows Job Object execution / UI / WebView observation",
+    "New native macOS UI (CUA reports screen locked)",
+    "Desktop outbound observation",
+    "Hosted CI",
+    "Broad producer/event qualification"
+  ],
+  "preserved_unrelated_work": [
+    "docs/en/SYSTEM_HTTP_CAPTURE.md",
+    "docs/ko/SYSTEM_HTTP_CAPTURE.md",
+    "scripts/verify-http-desktop.mjs",
+    "original HTTP work_status.md block"
+  ],
+  "status_counts": {
+    "DONE": 216,
+    "TODO": 3,
+    "PENDING": 10,
+    "REVIEW": 3,
+    "IN_PROGRESS": 0,
+    "total": 232
+  },
+  "evidence_sha256": {
+    "LargeRecording.java": "817cd385c9ba8cb47c1eac106ea2b548a6e597d6e4bebf65edff61c758776d05",
+    "large-jfr-summary.json": "09b4dfe9e13c4e68b52e5d688408fd50111184544088fe395b4d3342624ca77f",
+    "native-final-result.json": "7aa8fc4ade326b625dfe73e33fff35671263731bef8ab269f9353bddca0d2c80",
+    "offline-conversion-denied.json": "ffe4710fb113af5c2f7d969a5e7d2e46dbb58baa18457afa3ea6d6c7502c3400",
+    "offline-conversion-denied.strace": "8af3f8e30ae5193e266343610d73c46a6790daa786fdead72c2d7b2a3a834fb0",
+    "offline-operation-0.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-0.output.json": "3f7b56b437c97576a791533dcef61871d394b4437e6fd116c1cc98197944319c",
+    "offline-operation-0.strace": "22f8937d3e537f09ae012bf7d035b1781c720fa852184937ba7fde12605524a9",
+    "offline-operation-1.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-1.output.json": "2bb59ee05a1177f30957061634e41998e18d505e7f191a4c48294f68f526f6ce",
+    "offline-operation-1.strace": "2011d4856839a576d95c0f620d0faea03ba882eb6034b396c48e02c282dfc889",
+    "offline-operation-2.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-2.output.json": "2d938e5f2a8d6c9860f143d4fccece8f10c94bff2ad58557c2eebeaa2762be84",
+    "offline-operation-2.strace": "9b143eb2b31f0ffc8e441389e3502d5c06a9cfd9eb2035d165b7c833c3a772d7",
+    "offline-operation-3.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-3.output.json": "4403ae63f7f811c71695158ed098717efa71cb93342cd1d2aa7edb058a07f725",
+    "offline-operation-3.strace": "1a2437aed40dfbf711e955c54501625f7582ef19e8b2a438686d22e98b87bf28",
+    "offline-operation-4.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-4.output.json": "0c5ac57949f1a8f773044f725760d2ca7006c5f9f1db3e3d7cd72114b0611889",
+    "offline-operation-4.strace": "f5d7e7f54772a2b83ab0af81ce10602964c3d2aa37ee8a9d35e6f1695d1d5359",
+    "offline-operation-5.json": "19e55c88003b10713a7bcb75b83166608adb2a0ec775aa8af63c8b66f906bfc2",
+    "offline-operation-5.output.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "offline-operation-5.strace": "3a1d25ebde6720f27d161c546551ca2a9d2cbc93d93d7d4c0313878165edd5c5",
+    "offline-positive-control.strace": "3a249490c20e6ffc710011f9a1664e7dd58c6c498f218cebe0f94445f4d7abc7",
+    "offline-summary.json": "c24c803284e9af41185b427d92f7aed8334ee7423fa10071bd551f52d2889eed",
+    "race-summary.json": "a1791e4eca5df48da9837c6d7c4b5f30e1d740f7309f65ff04fee83268f07e96"
+  }
+}

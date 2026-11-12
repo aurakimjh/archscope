@@ -1,0 +1,8 @@
+{
+  "verified_importers": [
+    "data.synthetic-metrics",
+    "profile.set-json",
+    "server.tomcat"
+  ],
+  "version": "1.0.0"
+}

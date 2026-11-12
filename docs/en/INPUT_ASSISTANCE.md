@@ -59,7 +59,14 @@ local binary JFR conversion, choose an absolute path to a trusted installed JDK
 `jfr` executable and an unused JSON output name. The app runs only `--version`
 and `print --json <owned-input>` argv; no shell expansion or arbitrary options.
 The version check is limited to five seconds, the whole operation to two minutes,
-input/output to 64 MiB each, stderr to 16 KiB, and concurrency to two operations.
+binary input to 64 MiB, expanded JSON output to 512 MiB (matching the legacy
+JFR JSON reader), and concurrency to two operations. These are independent ceilings:
+a 64 MiB binary input is not a guarantee that its expansion fits. JSON can be many
+times larger than JFR. Budget errors identify the input/output limit explicitly.
+Output validation uses bounded streaming passes (256 nesting levels, 1 MiB scalar),
+not an in-memory document tree. Stderr is drained and omitted regardless of its
+size; byte counts and an omission flag are recorded without retaining its content.
+Warnings do not cancel a successful exit; timeout/cancellation still apply.
 Output streams to a private file; excess output, invalid JSON/event-array shape,
 nonzero exit, changed executable/source or cancellation removes scratch/output.
 Cancellation kills the process group on Unix and the suspended-start Job Object
@@ -70,14 +77,18 @@ archscope-engine jfr convert --in /local/recording.jfr --cli /installed/jdk/bin/
 archscope-engine jfr analyze-json --in /new/recording.json --out /new/result.json
 ```
 
-Successful conversion saves JSON plus `<output>.conversion.json` with tool/version,
+Both output names are preflighted before execution, then rechecked at atomic
+no-replace publication. Successful conversion streams JSON plus `<output>.conversion.json` with invocation profile/tool version,
 executable SHA-256, fixed sanitized arguments, input/output digests, byte count and
 local location. Both names must be new. If provenance publication fails, the owned
 JSON is removed. Outputs inside managed state are refused. External stderr and
 raw environment values are omitted from user diagnostics. The child environment
 omits Java agent/tool-option injection variables. This is not an execution sandbox
 or a cryptographic qualification of the entire JDK installation; the owner chooses
-a trusted installed tool. Preserve original JFR and provenance with the JSON.
+a trusted installed tool. Provenance uses `tool: declared_unverified`,
+`invocation_profile: jfr.print-json.v1`, and an owner-selected identity basis: a
+version string and executable hash do not authenticate a JDK publisher or prove
+that an arbitrary executable is JDK jfr. Preserve original JFR and provenance with the JSON.
 The downstream JFR parser still validates/interprets events; structural conversion
 does not promise complete event/producer coverage.
 
@@ -103,3 +114,13 @@ exact source numeric text → normalized numeric text/unit/kind, bound to pack S
 They use the same constrained interpreter. This is a sample-only preview, never
 a complete import or producer qualification; incomplete rows beyond the probe
 budget cannot be previewed. Display escaping/length bounds are disclosed.
+
+The converter can spool 512 MiB JSON plus a 64 MiB owned input, and publication
+may temporarily need another 512 MiB copy on the destination filesystem. Allow
+roughly 1.1 GiB per maximum-size operation (two may run concurrently), plus retained
+artifacts. Disk errors fail without publication. This separate converter budget
+does not raise generic import/result budgets. Legacy JSON analysis can still use
+substantial memory; streaming conversion/publication does not make the analyzer
+streaming. For output above 512 MiB, use a shorter recording or manually select
+required events in the collection environment, preserving originals and conversion
+provenance. Manual preconversion cannot bypass the JSON reader ceiling.
