@@ -8,6 +8,7 @@ import (
 	p "github.com/aurakimjh/archscope/apps/engine-native/internal/profilemodel"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/systemmodel"
+	"math/big"
 	"os"
 	"strings"
 	"testing"
@@ -224,5 +225,37 @@ func TestR1504IgnoredTIDsRetainRawEvidenceButExcludeCosts(t *testing.T) {
 	s.Capture.IgnoredTIDs = []string{"999999"}
 	if s.Validate(ctx) == nil {
 		t.Fatal("undeclared ignored lifetime accepted")
+	}
+}
+
+func TestR1505OffCPUStateSelectionsRemainSeparate(t *testing.T) {
+	s := model(t, "system-evidence-set.json")
+	total := func(metric string) *big.Int {
+		t.Helper()
+		view, e := a.Project(context.Background(), s, metric, nil)
+		if e != nil {
+			t.Fatal(e)
+		}
+		sum := new(big.Int)
+		for _, profile := range view.Profiles {
+			for _, sample := range profile.Samples {
+				n, ok := new(big.Int).SetString(sample.Weight, 10)
+				if !ok {
+					t.Fatal(sample.Weight)
+				}
+				sum.Add(sum, n)
+			}
+		}
+		if !strings.Contains(strings.Join(view.Quality.ConversionLoss, " "), "unattributed endpoint cost") {
+			t.Fatal("stackless scope missing")
+		}
+		return sum
+	}
+	sleeping, runnable, all := total("off_cpu/sleeping"), total("off_cpu/runnable"), total("off_cpu")
+	if sleeping.Sign() <= 0 || runnable.Sign() <= 0 || new(big.Int).Add(sleeping, runnable).Cmp(all) != 0 {
+		t.Fatal(sleeping, runnable, all)
+	}
+	if _, e := a.Project(context.Background(), s, "off_cpu/unknown", nil); e == nil {
+		t.Fatal("unknown state selector accepted")
 	}
 }

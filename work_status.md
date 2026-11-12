@@ -3905,7 +3905,7 @@ T-637 remains REVIEW during remediation; T-639 may continue after the storage P2
 | 2 / P2 | R15-02 | Locally fixed/tested before completing T-639: shared frame/stack pools in 1.1.0 model / 0.2.0 payload, old model/result readers and byte preservation, bounded pool expansion, actionable bytes/limit/processed-record/perf --time errors; 20k/24k 25-frame CLI and saved-result readback pass. |
 | 3 / P3 | R15-03 | LOCALLY_FIXED: separate converted binary original_sha256 provenance from the actual imported text hash, then enforce an explicit imported-source hash assertion. Do not compare binary hash to text hash. |
 | 4 / P3 | R15-04 | LOCALLY_FIXED: explicit idle/ignored-TID or CPU-scoped idle policy; document waker/idle declaration and unqualified idle noise. |
-| 5 / P3 | R15-05 | Follow-up: sleeping/runnable off-CPU selection. Document stackless scheduler projection as unattributed endpoint cost and overlap with runqueue. |
+| 5 / P3 | R15-05 | LOCALLY_FIXED: sleeping/runnable off-CPU selection. Document stackless scheduler projection as unattributed endpoint cost and overlap with runqueue. |
 | 6 / P3 | R15-06 | Locally fixed/tested: spreadsheet-text-0.2.1 leaves ordinary decimals unchanged; full-year dotted dates remain protected. Old 0.2.0 receipt counts retain versioned validation; current descriptors/exports use 0.2.1. |
 
 Keep original CONDITIONAL, independent scope and actual Linux/BPF/native Windows/
@@ -4818,3 +4818,5 @@ R14-07 LOCALLY_FIXED: Added compiled paged metrics:intervals detail via verified
 R15-03 LOCALLY_FIXED: Separated upstream original_sha256 provenance from optional imported_sha256 assertion; exact input bytes verified before parsing and saved-model validation, gzip hashes compressed bytes. Old captures unchanged. Parser/legacy/catalog and hash-mismatch tests passed; shared optional schema/manifest mirrored. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
 
 R15-04 LOCALLY_FIXED: Explicit ignored_tids excludes declared lifetimes from interval costs/profiles while preserving raw observations/coordinates; idle policy documented. Scheduler header waker no longer requires an irrelevant observed-entity declaration; payload/sample targets remain strict. Scheduler/legacy/ignored-policy tests passed; shared schema mirrored. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
+
+R15-05 LOCALLY_FIXED: Added explicit off_cpu/sleeping and off_cpu/runnable projections with distinct identities/capture context; aggregate off_cpu unchanged. Stackless endpoint attribution and runqueue overlap disclosed; exact partition/legacy/projection tests passed. No inferred lock or blocked call tree. No new independent PASS; original parent verdicts and existing saved revisions are preserved.

@@ -15,3 +15,5 @@ bpftrace-hist.jsonl은 bpftrace v0.22.0의 hist/lhist JSON shape와 비교한 �
 `original_sha256`은 변환 전 상위 바이너리의 선언된 출처이며 텍스트 해시와 비교하지 않습니다. 선택적인 `imported_sha256`은 실제 가져오는 파일 바이트(압축 파일이면 압축 바이트)의 SHA-256 단언으로, 불일치하면 `SYSTEM_CAPTURE_IMPORTED_MISMATCH`로 거부합니다. 기존 값이 없는 저장 모델은 그대로 읽습니다.
 
 선택적 `ignored_tids`는 선언된 entity lifetime의 canonical TID 목록입니다. 예를 들어 idle `0/0`을 entity로 한 번 선언한 후 TID `0`을 제외하면 CPU별 idle 잡음이 비용 구간·프로파일에 섞이지 않습니다. 원본 record와 좌표는 보존합니다. scheduler header의 waker는 관측 대상 entity가 아니므로 별도 선언을 요구하지 않으며, payload의 대상 TID와 sample PID/TID는 선언해야 합니다. 미선언 TID를 추정하거나 자동 제외하지 않습니다.
+
+off-CPU는 sleeping과 runnable 대기를 합칠 수 있으므로 상태별 비용을 별도로 선택해야 합니다. scheduler endpoint만 있고 stack이 없는 입력은 미귀속 구간 비용이며 호출 구조나 lock 원인으로 해석하지 않습니다. runqueue와 off-CPU는 겹칠 수 있어 합산하지 않습니다.

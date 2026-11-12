@@ -35,7 +35,7 @@ func Projections(s m.Set) []Projection {
 		wakeup = wakeup || d.Kind == "wakeup"
 	}
 	if scheduler {
-		out = append(out, Projection{"off_cpu", "duration", "nanoseconds"}, Projection{"on_cpu", "duration", "nanoseconds"})
+		out = append(out, Projection{"off_cpu", "duration", "nanoseconds"}, Projection{"off_cpu/sleeping", "duration", "nanoseconds"}, Projection{"off_cpu/runnable", "duration", "nanoseconds"}, Projection{"on_cpu", "duration", "nanoseconds"})
 	}
 	if scheduler || wakeup {
 		out = append(out, Projection{"runqueue", "duration", "nanoseconds"})
@@ -155,7 +155,17 @@ func Project(ctx context.Context, s m.Set, metricID string, entityIDs []string) 
 		result.Profiles[index].Samples = append(result.Profiles[index].Samples, p.Sample{StackID: id, MetricID: metricID, Weight: weight, Timestamp: timestamp, Interval: interval, Labels: labels, SourceRef: fmt.Sprintf("line:%d", r.Line)})
 		return nil
 	}
-	if metricID == "off_cpu" || metricID == "on_cpu" || metricID == "runqueue" {
+	baseMetric := metricID
+	stateFilter := ""
+	if metricID == "off_cpu/sleeping" || metricID == "off_cpu/runnable" {
+		parts := strings.Split(metricID, "/")
+		baseMetric = parts[0]
+		stateFilter = parts[1]
+	}
+	if baseMetric == "off_cpu" {
+		result.Quality.ConversionLoss = append(result.Quality.ConversionLoss, "Off-CPU selects "+map[bool]string{true: stateFilter, false: "all sleeping/runnable/unknown states"}[stateFilter != ""]+"; stackless scheduler input is unattributed endpoint cost, not a blocked call tree. Runqueue overlaps off-CPU and is not additive.")
+	}
+	if baseMetric == "off_cpu" || baseMetric == "on_cpu" || baseMetric == "runqueue" {
 		intervals, e := Intervals(ctx, s)
 		if e != nil {
 			return result, e
@@ -165,12 +175,12 @@ func Project(ctx context.Context, s m.Set, metricID string, entityIDs []string) 
 			records[r.ID] = r
 		}
 		for _, span := range intervals {
-			if span.Kind != metricID || span.Duration == nil {
+			if span.Kind != baseMetric || span.Duration == nil || (stateFilter != "" && span.State != stateFilter) {
 				continue
 			}
 			r := records[span.StartRef]
 			stack := []m.Frame{}
-			if metricID == "off_cpu" {
+			if baseMetric == "off_cpu" {
 				stack = r.Stack
 			}
 			if e := add(r, *span.Duration, span.Duration, stack); e != nil {
