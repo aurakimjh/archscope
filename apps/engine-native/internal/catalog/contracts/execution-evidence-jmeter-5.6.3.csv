@@ -1,0 +1,4 @@
+timeStamp,elapsed,label,responseCode,success,Latency,Connect,allThreads,URL,failureMessage
+1700000000000,100,synthetic-a,200,true,40,10,2,http://127.0.0.1/?SYNTHETIC_URL_NOT_RETAINED,
+1700000000100,200,synthetic-a,503,false,80,20,2,http://127.0.0.1/,SYNTHETIC_FAILURE_NOT_RETAINED
+1700000000200,300,synthetic-b,200,true,100,20,2,http://127.0.0.1/,

@@ -1246,3 +1246,8 @@ T-631/T-633/T-635 범위이며 선택적 producer/Q01–Q04 결정이나 전체 
 ## T-641 런타임 근거
 
 런타임 근거는 AnalysisResult 안의 별도 정규 모델을 사용합니다. 고정 producer 형식·identity/window 확인·live allocation 프로파일 재사용·GC 합집합·실행계획 loop당 의미·저장 reader 경계는 [RUNTIME_EVIDENCE.md](RUNTIME_EVIDENCE.md)를 참고하세요.
+
+
+## T-642 실행 근거
+
+제한된 benchmark/crash 문맥은 공통 AnalysisResult의 execution_core 1.0.0 / execution_evidence 0.1.0을 사용합니다. 고정 k6/LLMPerf·합성 JTL/정제한 실제 HotSpot 입력을 정규화한 뒤 기존 provider/case/export를 사용합니다. 비교는 선언 조건 snapshot 검증이며 profile 원본 재수입 baseline과 구분합니다. [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md)를 참고하세요.

@@ -1,0 +1,9 @@
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump	0.364s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump/plugins/dotnetclrstack	(cached)
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump/plugins/gogoroutine	(cached)
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump/plugins/javajcmdjson	(cached)
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump/plugins/javajstack	(cached)
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump/plugins/nodejsreport	(cached)
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump/plugins/pythondump	(cached)
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/runtimeevidence	0.223s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/multithread	(cached)

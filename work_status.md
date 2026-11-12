@@ -8,7 +8,7 @@ The previous long-form history was archived to
 
 ## Status Overview
 
-**Overall: 222 of 232 tracked tasks are `DONE` (95.7%).** The user activated the local diagnostics backlog T-628–T-645 on 2026-11-11. T-628 is DONE after independent R3 confirmed R2 N-01–N-04 resolved and explicitly permitted closure with only nonblocking P3 findings; R3-01–R3-03 are now locally remediated and verified. The independent verdict remains CONDITIONAL, not PASS, and does not cover the final P3 fixes. T-629 is DONE under independent R2 closure permission: R4-01–R4-05 are independently resolved, R5-01 is locally fixed, and R5-02 is explicitly scoped to T-634/T-635; the original verdict remains CONDITIONAL. T-630 is DONE under independent R2 closure permission after R6-01–R6-07 were verified resolved; nonblocking R7-01 is locally remediated. The original independent verdict remains CONDITIONAL. Actual new case UI/Windows lifecycle evidence remains separate. T-631 is DONE under the independent review's explicit permission to close after R8-01 remediation: R8-01–R8-04 are locally fixed and verified, including 8k/16k semantics, 100k-row cache tests, exact exports, typed refusals and native Mac display/target eligibility. The original verdict remains CONDITIONAL; final fixes have not been independently re-reviewed. T-632 is DONE under its independent review's explicit after-R9-01-remediation closure permission: R9-01–R9-04 are locally fixed and verified. The original verdict remains CONDITIONAL; the final fixes have no independent re-review and native Windows offline/WebView observation remains separate. T-633 is DONE under its independent review's explicit after-R10-01-remediation closure permission. R10-01–R10-05 are locally fixed and verified, including a 10.5 MB native JFR expanding to about 530 MB JSON and successful legacy binary analysis. The original verdict remains CONDITIONAL; final independent re-review and native UI/Windows execution remain separate. T-634 is DONE under independent R11 review permission after R11-01 remediation. R11-01–R11-04 are locally fixed and verified: source semantics 0.4.0 / normalizer 1.1.0 binds original sample type/unit independently of policy, preserves old 0.3.0 bytes/hashes with reimport comparison gate, exposes policy basis and generic none weights. Original CONDITIONAL is preserved. T-635 is DONE under independent R12 explicit closure permission after queueing its four nonblocking P3 findings. R12-01–R12-04 are now locally fixed and verified, preserving CONDITIONAL. T-638 is DONE under R13 explicit after-P2-remediation closure permission: selected-series compact payload 0.2.0, minimal projections, compact CLI and 100k-point saved-result readback are locally verified; 0.1.0 readers remain. R13 P3 findings are queued and the independent verdict remains CONDITIONAL. T-636 is DONE under R14 explicit after-P2-remediation closure permission: R14-01 spreadsheet protection/counts are locally fixed and verified; six P3 follow-ups are queued and CONDITIONAL is preserved. T-637 is DONE under R15 explicit after-P2-remediation closure permission: keyed histogram and shared frame/stack storage are locally fixed/verified, old saved readers retained, and three P3 follow-ups queued (R15-06 locally fixed). Original CONDITIONAL is preserved. T-639 is DONE under R16 explicit after-P2-remediation closure permission: R16-01–R16-06 are locally fixed/verified, preserving the original CONDITIONAL and native GPU/vLLM/Windows boundary. T-640 is DONE under R17 explicit after-P2-remediation closure permission; R17-01–R17-04 are locally fixed, R17-05 remains queued, and the original CONDITIONAL/native boundaries are preserved. T-641 is implemented and locally verified, now REVIEW for scoped runtime evidence; independent/native acceptance remain open. Q01 vendor JSON and Q04/GenAI aliases remain gated. Together with existing acceptance items, 9 tasks remain open. T-623 Windows live/process/reentry and T-608 native HALOG codec/reference interoperability completed on 2026-11-11. The four existing acceptance items are T-601, T-611, T-613 and T-627. The private 675-entry sample round-trips byte-for-byte; decoded fields/bodies and redacted exports are verified against original V7.6.4.508. The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 3 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
+**Overall: 222 of 232 tracked tasks are `DONE` (95.7%).** The user activated the local diagnostics backlog T-628–T-645 on 2026-11-11. T-628 is DONE after independent R3 confirmed R2 N-01–N-04 resolved and explicitly permitted closure with only nonblocking P3 findings; R3-01–R3-03 are now locally remediated and verified. The independent verdict remains CONDITIONAL, not PASS, and does not cover the final P3 fixes. T-629 is DONE under independent R2 closure permission: R4-01–R4-05 are independently resolved, R5-01 is locally fixed, and R5-02 is explicitly scoped to T-634/T-635; the original verdict remains CONDITIONAL. T-630 is DONE under independent R2 closure permission after R6-01–R6-07 were verified resolved; nonblocking R7-01 is locally remediated. The original independent verdict remains CONDITIONAL. Actual new case UI/Windows lifecycle evidence remains separate. T-631 is DONE under the independent review's explicit permission to close after R8-01 remediation: R8-01–R8-04 are locally fixed and verified, including 8k/16k semantics, 100k-row cache tests, exact exports, typed refusals and native Mac display/target eligibility. The original verdict remains CONDITIONAL; final fixes have not been independently re-reviewed. T-632 is DONE under its independent review's explicit after-R9-01-remediation closure permission: R9-01–R9-04 are locally fixed and verified. The original verdict remains CONDITIONAL; the final fixes have no independent re-review and native Windows offline/WebView observation remains separate. T-633 is DONE under its independent review's explicit after-R10-01-remediation closure permission. R10-01–R10-05 are locally fixed and verified, including a 10.5 MB native JFR expanding to about 530 MB JSON and successful legacy binary analysis. The original verdict remains CONDITIONAL; final independent re-review and native UI/Windows execution remain separate. T-634 is DONE under independent R11 review permission after R11-01 remediation. R11-01–R11-04 are locally fixed and verified: source semantics 0.4.0 / normalizer 1.1.0 binds original sample type/unit independently of policy, preserves old 0.3.0 bytes/hashes with reimport comparison gate, exposes policy basis and generic none weights. Original CONDITIONAL is preserved. T-635 is DONE under independent R12 explicit closure permission after queueing its four nonblocking P3 findings. R12-01–R12-04 are now locally fixed and verified, preserving CONDITIONAL. T-638 is DONE under R13 explicit after-P2-remediation closure permission: selected-series compact payload 0.2.0, minimal projections, compact CLI and 100k-point saved-result readback are locally verified; 0.1.0 readers remain. R13 P3 findings are queued and the independent verdict remains CONDITIONAL. T-636 is DONE under R14 explicit after-P2-remediation closure permission: R14-01 spreadsheet protection/counts are locally fixed and verified; six P3 follow-ups are queued and CONDITIONAL is preserved. T-637 is DONE under R15 explicit after-P2-remediation closure permission: keyed histogram and shared frame/stack storage are locally fixed/verified, old saved readers retained, and three P3 follow-ups queued (R15-06 locally fixed). Original CONDITIONAL is preserved. T-639 is DONE under R16 explicit after-P2-remediation closure permission: R16-01–R16-06 are locally fixed/verified, preserving the original CONDITIONAL and native GPU/vLLM/Windows boundary. T-640 is DONE under R17 explicit after-P2-remediation closure permission; R17-01–R17-04 are locally fixed, R17-05 remains queued, and the original CONDITIONAL/native boundaries are preserved. T-641 is DONE under R18 explicit P2-remediation closure permission; R18-01–R18-04 are locally fixed and verified, preserving the original CONDITIONAL/native boundaries. T-642 is implemented and locally verified, now REVIEW for bounded execution/benchmark/crash evidence; independent/native acceptance remain separate. Q01 vendor JSON and Q04/GenAI aliases remain gated. Together with existing acceptance items, 8 tasks remain open. T-623 Windows live/process/reentry and T-608 native HALOG codec/reference interoperability completed on 2026-11-11. The four existing acceptance items are T-601, T-611, T-613 and T-627. The private 675-entry sample round-trips byte-for-byte; decoded fields/bodies and redacted exports are verified against original V7.6.4.508. The Windows Wails v3 replacement for IEInspector HTTP Analyzer V7.6.4 Stand-alone has 3 open work items (T-594 through T-613), including the remaining audit findings. T-603 native Windows acceptance completed on 2026-11-09 with actual request/response bodies and verified policy restoration. The 2026-11-09
 GC/profiler revalidation confirmed five bugs (T-589 through T-593). Their
 current implementation status is recorded in the registry and snapshot below;
 T-557 is now DONE after the user requested its Go/CLI/report projection on 2026-11-10.
@@ -214,11 +214,11 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 1 | Ready to start; prerequisites are satisfied |
+| `TODO` | 0 | Ready to start; prerequisites are satisfied |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 4 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 4 | Waiting for a prerequisite, external condition, or activation trigger |
-| `DONE` | 223 | Completion criteria and required review gates have passed |
+| `DONE` | 224 | Completion criteria and required review gates have passed |
 
 The normal transition is `TODO → IN_PROGRESS → REVIEW → DONE`. A `PENDING`
 task returns to `TODO` when its dependency or trigger is satisfied. Task status
@@ -479,7 +479,7 @@ metrics) are accepted. Actual file/version choices remain separate decision hold
 
 At the user's request on 2026-11-11, all eighteen D items are registered as
 T-628–T-645. T-628 is `DONE` under R3's explicit closure permission; P3 follow-ups are locally verified and the independent verdict remains CONDITIONAL. T-629 is `DONE` under R2's explicit closure permission; T-630 is DONE under R2 explicit closure permission; T-631 is DONE under the explicit R8-01 remediation closure condition, with all R8 findings locally verified; T-632 is DONE under the explicit R9-01 remediation condition; R9-01–R9-04 are locally fixed and verified, without a new independent PASS. T-633 is DONE under the explicit R10-01 remediation condition; all R10 findings are locally fixed and verified, without a new independent PASS. Native acceptance remains separate. T-634 is DONE under independent R11 after-remediation closure permission; T-635 is DONE under R12 explicit closure permission (four P3 findings locally fixed); neutral T-638 is DONE under R13 explicit P2-remediation closure permission (P3 follow-ups queued; CONDITIONAL preserved). T-636 is DONE under R14 explicit closure permission after R14-01 local remediation; six P3 findings remain queued and the original verdict is CONDITIONAL. Native Office/Windows acceptance remains separate.
-T-637 is DONE under R15 explicit P2-remediation closure permission, with R15-03–R15-05 queued and R15-06 locally fixed; original CONDITIONAL/native boundaries are preserved. T-639 is DONE under R16 explicit P2-remediation closure permission; all six findings are locally fixed/verified and original CONDITIONAL is preserved. T-640 is DONE under R17 explicit closure permission after R17-01 remediation; R17-02–04 are also locally fixed and R17-05 remains queued. T-641 is REVIEW after local implementation/verification; independent/native acceptance remain open. T-642 is TODO; T-643/T-644/T-645 remain PENDING on their registered dependencies/input triggers. Q04 still gates actual OTel/GenAI aliases. Q01–Q04 remain separate
+T-637 is DONE under R15 explicit P2-remediation closure permission, with R15-03–R15-05 queued and R15-06 locally fixed; original CONDITIONAL/native boundaries are preserved. T-639 is DONE under R16 explicit P2-remediation closure permission; all six findings are locally fixed/verified and original CONDITIONAL is preserved. T-640 is DONE under R17 explicit closure permission after R17-01 remediation; R17-02–04 are also locally fixed and R17-05 remains queued. T-641 is DONE under R18 explicit P2-remediation closure permission; all four R18 findings are locally fixed. T-642 is REVIEW after local implementation/verification; independent/native acceptance remain separate; T-643/T-644/T-645 remain PENDING on their registered dependencies/input triggers. Q04 still gates actual OTel/GenAI aliases. Q01–Q04 remain separate
 `DECISION_PENDING` entries. Task registration does not claim implementation or
 independent design PASS. Existing acceptance task statuses are preserved.
 
@@ -503,8 +503,8 @@ and observable outputs are in the Task Registry.
 | 11 | D10 | T-638 | B1 | P1 | `DONE` | Implement metric history and OTLP histogram semantics | T-628, T-630, T-631; Q04 gates actual OTel export/GenAI aliases |
 | 12 | D11 | T-639 | B1 | P1 | `DONE` | Analyze NVIDIA and vLLM through neutral device/serving contracts | T-632, T-638; Q03 gates version-specific vLLM support |
 | 13 | D12 | T-640 | B1 | P1 | `DONE` | Normalize LLM application traces, gateway attempts and lifecycle | T-630, T-631, T-638; Q01 gates Langfuse/LangSmith adapters |
-| 14 | D13 | T-641 | B1 | P1 | `REVIEW` | Deepen Python, Node, Rust and existing runtime/log diagnostics | T-629, T-630, T-635 |
-| 15 | D14 | T-642 | B2 | P2 | `TODO` | Import workload results and text crash context for comparisons | T-630, T-635, T-638 |
+| 14 | D13 | T-641 | B1 | P1 | `DONE` | Deepen Python, Node, Rust and existing runtime/log diagnostics | T-629, T-630, T-635 |
+| 15 | D14 | T-642 | B2 | P2 | `REVIEW` | Import workload results and text crash context for comparisons | T-630, T-635, T-638 |
 | 16 | D15 | T-643 | B2 | P2 | `PENDING` | Implement the selected Apple Silicon evidence adapter | T-630, T-638; Q02 and actual Apple input fixtures |
 | 17 | D16 | T-644 | B2 | P2 | `PENDING` | Add PyTorch, Nsight and distributed-inference detail | T-635, T-638, T-639 |
 | 18 | D17 | T-645 | B2 | P2 | `PENDING` | Qualify additional profile, serving, DB, OS and APM adapters | T-628, T-629, T-630, T-631, T-632; Demand, permitted sanitized files and selected producer/version |
@@ -582,8 +582,8 @@ The table below retains those four acceptance items. The eighteen new local
 diagnostics tasks are listed in the [dependency-ordered implementation backlog](#dependency-ordered-implementation-backlog):
 T-628 is DONE after independent R3 accepted the R2 fixes with no P1/P2 blockers;
 R3 P3 follow-ups are locally remediated, without renaming CONDITIONAL to PASS.
-T-629 is DONE after independent R2 confirmed R4 remediation and allowed closure; R5 follow-ups are fixed or explicitly assigned to T-634/T-635, not renamed PASS. T-630 is DONE under independent R2 closure permission (R7-01 locally fixed; original verdict CONDITIONAL). T-631 is DONE under the independent review's explicit R8-01 remediation condition; all R8 findings are locally fixed and verified. T-632 is DONE under the explicit R9-01 remediation condition; all R9 findings are locally fixed and verified. T-633 is DONE under the explicit R10-01 remediation condition, with R10-01–R10-05 locally verified. T-634 is DONE under R11 closure permission after remediation; T-635 is DONE under R12 closure permission; neutral T-638 is DONE under R13 P2-remediation closure permission; T-636 is DONE under R14 P2-remediation closure permission with six P3 findings queued; T-637 is DONE under R15 P2-remediation closure permission; T-639 is DONE under R16 explicit P2-remediation closure permission; all six findings are locally fixed/verified. T-640 is DONE under R17 explicit P2-remediation closure permission, with R17-05 queued. T-641 is REVIEW after local implementation/verification. Independent T-641/native acceptance remain open; original review verdicts remain CONDITIONAL. Lifecycle/UI conditions remain below. The complete open snapshot is
-9 tasks, matching the registry and status overview.
+T-629 is DONE after independent R2 confirmed R4 remediation and allowed closure; R5 follow-ups are fixed or explicitly assigned to T-634/T-635, not renamed PASS. T-630 is DONE under independent R2 closure permission (R7-01 locally fixed; original verdict CONDITIONAL). T-631 is DONE under the independent review's explicit R8-01 remediation condition; all R8 findings are locally fixed and verified. T-632 is DONE under the explicit R9-01 remediation condition; all R9 findings are locally fixed and verified. T-633 is DONE under the explicit R10-01 remediation condition, with R10-01–R10-05 locally verified. T-634 is DONE under R11 closure permission after remediation; T-635 is DONE under R12 closure permission; neutral T-638 is DONE under R13 P2-remediation closure permission; T-636 is DONE under R14 P2-remediation closure permission with six P3 findings queued; T-637 is DONE under R15 P2-remediation closure permission; T-639 is DONE under R16 explicit P2-remediation closure permission; all six findings are locally fixed/verified. T-640 is DONE under R17 explicit P2-remediation closure permission, with R17-05 queued. T-641 is DONE under R18 explicit P2-remediation closure permission, all four findings locally fixed. T-642 is REVIEW after local implementation/verification. Independent T-642/native acceptance remain separate; original review verdicts remain CONDITIONAL. Lifecycle/UI conditions remain below. The complete open snapshot is
+8 tasks, matching the registry and status overview.
 
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
@@ -591,11 +591,10 @@ T-629 is DONE after independent R2 confirmed R4 remediation and allowed closure;
 | 2 | T-627 | P2 | `REVIEW` | Windows production menu locale/navigation and HTTP live checks pass. The complete menu/view/OS DPI matrix remains; audit-app Computer Use access was denied. |
 | 3 | T-611 | P3 | `REVIEW` | Physical retention, pre-storage admission cancellation, owned custom-IID registration, nested normalized filters and common-engine soak tooling implemented. Mac and hosted race/vet/frontend/package plus both GUI cross-builds pass; amd64-race/386 native COM, including custom-IID RPC and explicit registration replacement/cleanup, pass. Current vendor early-bound compatibility, unobserved native filter/cache-origin evidence and foreign-process in-memory session-cookie integration remain. |
 | 4 | T-613 | P3 | `PENDING` | Overall Windows parity depends on capture, automation and native acceptance gates. |
-| 5 | T-641 | P1 | `REVIEW` | Local runtime evidence implementation verified; independent review and native acceptance remain separate. |
-| 6 | T-642 | P2 | `TODO` | Next ready implementation: workload results and text crash context. |
-| 7 | T-643 | P2 | `PENDING` | Q02 and actual Apple inputs. |
-| 8 | T-644 | P2 | `PENDING` | Actual PyTorch/Nsight/distributed producer fixtures. |
-| 9 | T-645 | P2 | `PENDING` | Demand, permitted sanitized input and selected producer/version. |
+| 5 | T-642 | P2 | `REVIEW` | Local implementation verified; independent review and native producer/desktop acceptance remain separate. |
+| 6 | T-643 | P2 | `PENDING` | Q02 and actual Apple inputs. |
+| 7 | T-644 | P2 | `PENDING` | Actual PyTorch/Nsight/distributed producer fixtures. |
+| 8 | T-645 | P2 | `PENDING` | Demand, permitted sanitized input and selected producer/version. |
 
 ### Native Windows follow-up (2026-11-11)
 
@@ -1130,8 +1129,10 @@ P2-remediation closure permission: R15-01/02 and R15-06 are locally fixed;
 R15-03–R15-05 remain queued and CONDITIONAL is preserved. T-639 is DONE under
 R16 explicit P2-remediation closure permission, with all six findings locally fixed.
 T-640 is DONE under R17 explicit closure permission; R17-05 remains queued.
-T-641 is REVIEW after local implementation/verification. Next ready work is T-642.
-Independent T-641 and native UI/GPU/serving/producer/
+T-641 is DONE under R18 explicit closure permission; all four findings are locally fixed.
+T-642 is REVIEW after local implementation/verification. No implementation is TODO.
+T-643 requires Q02/actual Apple input; T-644/T-645 retain their input/demand gates.
+Independent T-642 and native UI/GPU/serving/producer/
 Office/Windows acceptance remain separate.
 Q01–Q04 and real-producer fixtures still gate their adapter-specific claims.
 T-635 must preserve indexed_lines/index_truncated. Existing Windows/CI evidence
@@ -1661,8 +1662,8 @@ deferred until explicitly promoted.
 | T-638 | P1 | DONE | Implement metric history and OTLP histogram semantics (D10) | T-628, T-630, T-631; Q04 gates actual OTel export/GenAI aliases | DONE under R13 explicit after-P2-remediation closure permission. MetricHistory 1.0.0 / payload 0.2.0 stores selected-series model plus minimal point/time projections, retains interval context and 0.1.0 saved readers. Actual 100k-point/10-series CLI import/readback fits 64 MiB; one-series storage reduction and compact JSON/size errors verified. Original CONDITIONAL preserved; R13-02–R13-07 remain ordered P3 follow-ups (cache, errors, range gaps, cross-export duplicate status, interval CSV, picker scale). Q04/user export/GenAI and native acceptance stay separate. Evidence: docs/review/evidence/2026-11-12-t636/local.json and prior t638/local.json. |
 | T-639 | P1 | DONE | Analyze NVIDIA and vLLM through neutral device/serving contracts (D11) | T-632, T-638; Q03 gates version-specific vLLM support | R16 original CONDITIONAL explicitly permits closure after P2 remediation. R16-01–R16-06 locally fixed/verified: declared range metadata in InferenceEvidence 1.1.0 without original identity mutation, input-only missing event ID generation, CSV [N/A]/trailing blanks/field errors, retained-series selection with full interval context, unique-stack budget guidance, distinct-boundary TPOT in payload 0.2.0. Legacy model 1.0.0/result 0.1.0 readers preserved. Original verdict and native GPU/vLLM/Windows gates remain. Evidence: docs/review/evidence/2026-11-12-t640/local.json; docs/en/INFERENCE_EVIDENCE.md. |
 | T-640 | P1 | DONE | Normalize LLM application traces, gateway attempts and lifecycle (D12) | T-630, T-631, T-638; Q01 gates Langfuse/LangSmith adapters | Implemented limited trace.llm-json / LLMTrace 1.0.0 / existing trace_import 0.3.0 with llm_core, actual OTel SDK carrier and selected semantic profiles. Body-free normalization before case copy/indexing; parent/link and duplicate/missing/cyclic graphs, exact observed child-union duration, explicit logical/client-server attempt accounting, retry/fallback predecessor audit, token boundaries and lifecycle populations. Bounded CLI/Wails/Workspace query, existing providers/timeline/exports/cases reused; legacy trace 0.2.0 retained. Local race/vet/frontend/package/cross-build/CLI/browser mock/offline checks pass; independent/native Windows/vendor export evidence remains separate. Evidence: docs/review/evidence/2026-11-12-t640/local.json; docs/en/LLM_TRACE_EVIDENCE.md. R17 closure: exact rational inference 0.3.0 and R17-02–04 locally verified; R17-05 queued, original CONDITIONAL preserved. Evidence: docs/review/evidence/2026-11-12-t641/local.json. |
-| T-641 | P1 | REVIEW | Deepen Python, Node, Rust and existing runtime/log diagnostics (D13) | T-629, T-630, T-635 | Implemented bounded runtime_evidence 0.1.0 / runtime_core 1.0.0 with pinned Python/Node/Rust API fixtures, explicit CPU/native-thread process/lifetime/window context, separate observed/inferred states, conservative multi-dump identity, live allocation profile reuse, GC interval union and PostgreSQL estimate/actual per-loop plans. CLI/Wails/Workspace pages and common providers/exports/cases reused. Local verification recorded in docs/review/evidence/2026-11-12-t641/local.json; independent/native producer/Windows acceptance remains separate. |
-| T-642 | P2 | TODO | Import workload results and text crash context for comparisons (D14) | T-630, T-635, T-638 | Add validated load-test/LLM-benchmark exports and bounded hs_err_pid text analysis. Preserve arrival/concurrency/token/warmup/client conditions and baseline compatibility; no load generator or core-dump engine (§9.4; G-01/G-06). |
+| T-641 | P1 | DONE | Deepen Python, Node, Rust and existing runtime/log diagnostics (D13) | T-629, T-630, T-635 | Implemented bounded runtime_evidence 0.1.0 / runtime_core 1.0.0 with pinned Python/Node/Rust API fixtures, explicit CPU/native-thread process/lifetime/window context, separate observed/inferred states, conservative multi-dump identity, live allocation profile reuse, GC interval union and PostgreSQL estimate/actual per-loop plans. CLI/Wails/Workspace pages and common providers/exports/cases reused. Local verification recorded in docs/review/evidence/2026-11-12-t641/local.json; independent/native producer/Windows acceptance remains separate. R18 closure: actual Python 3.14 named headers/empty-source refusal, CLI/desktop correlation sidecar and isolation warnings, GC event coordinates and decimal nid are locally verified. Original CONDITIONAL preserved. Evidence: docs/review/evidence/2026-11-12-t642/local.json. |
+| T-642 | P2 | REVIEW | Import workload results and text crash context for comparisons (D14) | T-630, T-635, T-638 | Implemented execution_evidence 0.1.0 / execution_core 1.0.0 inside common AnalysisResult. Pinned k6/LLMPerf, structural JTL and actual sanitized HotSpot crash inputs normalize before common providers/exports/cases; ordered baseline comparison requires matching known workload/client/target/arrival/concurrency/token/warmup conditions and preserves unavailable/zero values. Bounded CLI/Wails/Workspace pages, source pinning and comparison-page provenance. No load generator/core/heap engine or causal/root-cause verdict. Evidence: docs/review/evidence/2026-11-12-t642/local.json; docs/en/EXECUTION_EVIDENCE.md. |
 | T-643 | P2 | PENDING | Implement the selected Apple Silicon evidence adapter (D15) | T-630, T-638; Q02 and actual Apple input fixtures | After Q02 selects engine/macOS/export, validate GPU and shared-memory observations with system pressure/swap and available power/thermal context. Do not require NVIDIA UUID/MIG/Xid or automatic privileged collection (§11.6; G-20). |
 | T-644 | P2 | PENDING | Add PyTorch, Nsight and distributed-inference detail (D16) | T-635, T-638, T-639 | Validate actual trace/export schemas, CPU/GPU clock mapping, overlapping kernels/streams, flow/rank identity and detailed visual export. Summary-only files remain summary-only; do not claim instruction-level tuning (§11.4, §12.6; producer fixtures required). |
 | T-645 | P2 | PENDING | Qualify additional profile, serving, DB, OS and APM adapters (D17) | T-628, T-629, T-630, T-631, T-632; Demand, permitted sanitized files and selected producer/version | Keep deferred product adapters gated on actual inputs. Select a concrete bounded batch, reuse declarative/converter/compiled paths, and publish per-producer conformance/limitations before support claims; this does not activate every optional vendor or a personal knowledge library (§9.4, §17–20; G-04/G-08/G-09/G-10/G-12). |
@@ -4174,3 +4175,113 @@ T-645 demand/input remain PENDING. T-641 awaits independent review; no preparati
 or redundant re-review of DONE tasks is opened by this status update.
 
 Shared runtime fixture contract committed in projects-assets at `e717b27` (28 pinned file hashes verified); the root embeds a byte-identical prefixed mirror and includes its manifest/schema in the offline fixture bundle.
+
+
+### T-642 workload/crash evidence implementation activated (2026-11-12)
+
+User requested implementation, verification, commit and push. Root/shared
+`git pull --ff-only` are current at 5484b3b/e717b27. T-641 remains REVIEW while
+its independent review proceeds; no unprocessed root review exists at intake.
+Preserve unrelated HTTP documents/verifier and the original ten-line tracker block.
+
+Scope: bounded normalized load-test and LLM-benchmark exports, explicit arrival/
+concurrency/token/warmup/client conditions, fail-closed baseline compatibility,
+and body-free hs_err_pid crash context. Keep parser/analyzer/exporter/UI separate
+and reuse common AnalysisResult, ownership, providers, exports, durable cases and
+offline fixture distribution. No load generator, core/heap engine, online endpoint
+integration or automatic crash root-cause/causal correlation. Producer support is
+limited to pinned fixtures; other listed candidates remain demand/fixture gated.
+
+Counts: 223 DONE / 0 TODO / 4 PENDING / 4 REVIEW / 1 IN_PROGRESS = 232 (9 open).
+
+
+### T-641 R18 independent review intake during T-642 (2026-11-12)
+
+Read the entire 105-line review before archive. Original SHA-256: 57e5ebfa7137ab6eacc38df0e4406af32382c1b78d85687d2de1f39b0a8c6829.
+Verdict CONDITIONAL (P2 2/P3 2). Explicitly permits T-641 DONE after R18-01/02
+remediation with R18-03/04 queued. T-641 remains REVIEW during remediation.
+Independent actual Python/Node/Rust/JDK inputs confirmed allocation/GC/event-loop/
+CPU context and Rust symbols; all 141 committed T-641 hashes match. T-640's
+R17-01/02 were independently confirmed and its DONE status is not reopened.
+
+| Priority/dependency | Finding | Required action |
+|---|---|---|
+| 1/P2 | R18-01 | Accept optional [name] in actual CPython 3.14 faulthandler headers; retain name and reject thread markers with zero recognized snapshots. Add actual producer fixture. |
+| 2/P2 | R18-02 | Add bounded explicit correlation-context input to CLI and desktop multi-dump paths, including process/thread lifetimes; report diagnostics when missing context isolates dumps and disables persistence findings. Keep safe identity matching. |
+| 3/P3 | R18-03 | Include GC event path in interval/phase errors, without raw secret-bearing body dumps. |
+| 4/P3 | R18-04 | Distinguish decimal JVM nid from 0x-prefixed hex and test actual JDK/macOS header forms. |
+
+Only after recording this ordered queue, archive the unchanged review. Native
+Windows/WebView and actual PostgreSQL/py-spy/Memray remain outside its verdict.
+
+
+### T-642 local implementation and T-641 R18 remediation (2026-11-12)
+
+T-642 is REVIEW. Limited execution.evidence-json / execution_core 1.0.0 /
+execution_evidence 0.1.0 uses the common AnalysisResult. Existing fixed thread,
+profile, metric and trace DTOs cannot represent benchmark collection conditions,
+statistic populations and standalone crash context; this is a domain extension,
+not another envelope. Parsers, model validation, analyzers, query/compare consumers
+and exporters remain separate. No load generator, benchmark client, core/heap
+engine, endpoint call, automated root cause or causal diagnosis is added.
+
+Pinned sources: actual k6 1.3.0 loopback handleSummary; actual LLMPerf statistics/
+JSON functions at f1d6bed47e4501b0e371082b41601b59ab55269f with floating synthetic
+metrics, not its complete runner/model/GPU execution; synthetic JMeter 5.6.3 JTL
+layout; actual Temurin 21.0.10+7 synthetic crash with core creation disabled,
+sanitized into a partial hs_err fragment. Unknown producer versions and GenAI-Perf/
+nGrinder/Gatling remain fixture gated. Numeric values/units, request/token/error
+populations, warmup/arrival/configured versus observed duration, client/target and
+model/token conditions are retained. Body-bearing fields, URL/messages, command
+lines, environment and memory dump sections are excluded from normalized output;
+this does not authenticate raw input or scrub arbitrary archives.
+
+JTL label SHA scopes samples; nearest-rank statistics never merge labels or
+percentiles. LLMPerf ITL, overall token throughput and per-request throughput stay
+separate. Null/zero and exact decimal/rational values remain distinct. Baseline
+comparison checks equal known declared conditions and metric definitions. Unknown,
+mixed-warmup, cross-policy or crash comparisons return incompatible without numeric
+rows. A zero baseline has no percent change. Verification scope is explicitly
+validated_normalized_snapshots_not_original_reimport, not the profile-specific
+original-reimport case baseline path. Saved cases reopen exact snapshots; ordered
+result/source digests and context/version-bound cursors support reproducible pages.
+No statistical significance or automatic regression threshold is claimed.
+
+Custom bounded CLI/Wails/Workspace queries/condition comparison and source digest
+pinning reuse common providers, unix sample timeline, visual tables, JSON/CSV/HTML/
+report pack and case storage. UI cancellation/parent replacement/target removal
+ignore stale responses. Comparison JSON export is explicitly a page. Canonical16
+MiB/result64 MiB, 50k samples/8192 metrics and separate row/line/frame/group budgets
+fail closed; byte ceilings can be reached first. The offline corpus now has 139
+files; its entry ceiling is 256 with original per-file8 MiB/total32 MiB limits.
+
+| Finding | Local result |
+|---|---|
+| R18-01/P2 | Actual Python3.14.4 named Thread/Current thread headers preserve worker names, 3 snapshots; unsupported/empty thread input is refused. Actual new producer fixture and CLI regression pass. |
+| R18-02/P2 | Bounded explicit correlation-context JSON/file in CLI, same optional Wails request/desktop input. Process/format/runtime-ID/thread-start validation; atomic map/slice copies preserve caller data. Unmapped snapshots stay isolated with diagnostics and visible desktop warnings. Actual same-JVM JDK21 dumps warn without context; declared synthetic lifetime context restores persistent BLOCKED1. Declarations are not authenticated starts. |
+| R18-03/P3 | Python GC phase/interval errors include /gc_events/N; inverted canonical uint times are shown, malformed secret-bearing values are not echoed. |
+| R18-04/P3 | 0x nid uses hex; unprefixed decimal nid keeps os_tid_decimal. Actual macOS JDK21 and earlier hex fixtures pass. Python hex runtime IDs/JVM tid pointers are not native TIDs. |
+
+T-641 is DONE under the original review's explicit after-R18-01/02-remediation
+permission. All four R18 findings are locally fixed/verified. Original CONDITIONAL
+is preserved; no independent PASS of the final fixes is claimed. Original review
+SHA-256: 57e5ebfa7137ab6eacc38df0e4406af32382c1b78d85687d2de1f39b0a8c6829.
+
+Verification: full host race tests, host/Windows amd64/386 vet, frontend build/state,
+Wails bindings, Mac package/signature, both production GUI cross-builds, 43 actual
+CLI operations (including explicit refusals), common consumers/case bytes/ownership/
+source pinning, 20k-sample scale/record/byte bounds, and 44 clean-install Linux
+network-none CLI operations (43 successes + expected JFR denial; zero inet calls,
+positive-control failed connect detected). Browser QA is actual React with actual
+CLI DTOs and mock IPC, not native WebView/Windows acceptance. Local evidence and
+staged source hashes: docs/review/evidence/2026-11-12-t642/local.json. Known host SDK
+27.2/deployment11.0 linker warnings do not establish minimum OS runtime support.
+Unrelated HTTP documents/verifier and the original ten-line tracker block remain
+excluded from task commits. Q01–Q04 and actual producer/native gates stay separate.
+
+Counts: 224 DONE / 0 TODO / 4 PENDING / 4 REVIEW / 0 IN_PROGRESS = 232 (8 open).
+No implementation is currently TODO. T-643 awaits Q02/actual Apple input; T-644
+requires actual producer fixtures; T-645 awaits demand/permitted input/version.
+T-642 awaits independent review; existing Windows acceptance items stay unchanged.
+
+Shared execution corpus and R18 runtime fixtures committed in projects-assets at `a3ac18a`; 18 execution and 33 runtime manifest file hashes are verified and embedded as byte-identical prefixed mirrors.

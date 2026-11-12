@@ -1,0 +1,9 @@
+{
+  "k6_version": "k6 v1.3.0 (commit/5870e99ae8, go1.25.1, darwin/arm64)",
+  "jvm_version": "Temurin 21.0.10+7-LTS; actual putAddress(0) synthetic crash with -XX:-CreateCoredumpOnCrash; sanitized fragment",
+  "llmperf_revision": "f1d6bed47e4501b0e371082b41601b59ab55269f",
+  "llmperf_summary_source_sha256": "f7fb3c8cbb7018add4b209f047a3925d145c5bc7d8defb8b73e3744a805f722f",
+  "llmperf_utils_source_sha256": "d32782862da74ccd509916f9e02a4e11a17139158519c9c0727b03ee00dad5bf",
+  "pandas": "3.1.1",
+  "qualification": "k6 실제 loopback 실행; hs_err 실제 합성 JVM crash의 정제 발췌; LLMPerf 실제 통계/JSON 함수에 합성 수치 입력. 모델·GPU·벤치마크 클라이언트 실행 아님; JMeter는 합성 CSV 구조 예제."
+}

@@ -95,3 +95,23 @@ Rust resolver는 ianlancetaylor/demangle v0.0.0-20261012173340-cbb8aaea4290으�
 .rs/명시적 언어는 declared 근거입니다. ::나 rust 부분 문자열만으로 분류하지 않습니다.
 Display는 raw symbol·source/build identity·frame ID를 대체하지 않으며 해석 실패도
 보여줍니다. 의존 코드·license는 오프라인 번들에 포함하고 symbol server를 사용하지 않습니다.
+
+
+## R18 스레드 입력·명시적 multi-dump 맥락
+
+실제 CPython3.14.4의 Thread/Current thread 헤더와 선택적 [name]을 인식하고 이름을
+보존합니다. 인식할 수 없거나 비어 있는 thread 입력은 스레드0개 성공 대신
+RUNTIME_THREAD_FORMAT_UNRECOGNIZED로 거부합니다. JVM nid는 0x 접두면 hex,
+없으면 decimal OS TID입니다. Python hex runtime ID·JVM tid pointer는 native TID가
+아닙니다. Python GC 오류에는 /gc_events/N과 유효한 역전 시간 값을 표시합니다.
+
+CLI thread-dump analyze-multi의 --correlation-context JSON 또는 최대64 KiB의
+--correlation-context-file, 데스크톱 multi-dump 옵션의 같은 JSON 필드를 사용하세요.
+번들 runtime-evidence-jdk21-correlation-context.json이 구조 예제입니다. schema_version
+1.0.0·source_format·host_id·boot_id·pid_namespace·pid·process_start_ns와
+threads [{runtime_id,thread_start_ns}]를 선언합니다. 시작 시간은 동일 선언 시계의
+canonical uint64 ns이며 thread가 process보다 먼저 시작할 수 없습니다. 미관측/중복 ID·
+format 불일치는 거부합니다. 이는 수명/identity 선언이지 producer 인증이 아닙니다.
+미지정 snapshot은 분리합니다. 진단에는 맥락 없는 snapshot/dump 수와 해당 관측의
+지속성 탐지 제한을 경고하고 multi-dump 화면에서도 표시합니다. 이름으로 대신 연결하지
+않습니다. 실제 JDK21 연속 BLOCKED·CPython3.14 fixture를 기존 형식 예제에 추가했습니다.

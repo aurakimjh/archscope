@@ -11,3 +11,16 @@
 모든 API 수치는 현재 한 번의 실제 합성 실행 표본이다. 재생성 시 allocation/GC/event-loop 수치는 바뀔 수 있다. 원본 바이트를 고정한 뒤 앱의 generate-runtime-fixtures.go로 기대 모델을 결정적으로 생성하고 manifest와 임베드 복사본을 함께 갱신한다. Runtime 모델은 32 MiB, 결과는 64 MiB, source는 원본/확장 각 64 MiB이며 개수 전에 byte 한도에 도달할 수 있다.
 
 관계·profile reference는 명시적 선언과 hash 바인딩이며 provenance 인증·인과·요청 귀속을 의미하지 않는다. 실제 format/version 지원은 위 범위로 제한한다. 기술 식별자와 frame/source 경로도 가져오기 전에 민감 정보를 제거한다. Pickle/marshal·힙 객체 그래프·라이브 collector·DB 자동 실행은 포함하지 않는다.
+
+
+## Python·JDK 독립 입력 회귀 예제
+
+`faulthandler-3.14.4.txt`는 실제 Python 3.14.4의 이름 있는 worker 2개와 main
+출력입니다. 파일 경로만 정제했습니다. Python의 hex runtime ID는 native TID가 아닙니다.
+`jdk21-blocked-1/2.txt`는 실제 Temurin 21.0.10의 같은 합성 JVM에서 연속 수집한
+jstack입니다. synthetic-blocked 1개가 BLOCKED입니다. macOS nid는 10진일 수 있으며
+0x 접두의 Linux 형식과 구분해야 합니다. tid pointer는 native nid와 다릅니다.
+`jdk21-correlation-context.json`은 두 합성 스레드의 시작을 0으로 선언한 sidecar로,
+실제 시작 관측이나 출처 인증이 아닙니다. 나머지 thread는 맥락 미지정 경고와 함께 분리됩니다.
+`generate_threads.py OUTPUT TOOLS JDK_HOME`은 개발 전용 생성기로, 새 합성 자식 JVM을
+종료하고 원본 faulthandler 임시 파일을 삭제합니다. 운영 프로세스를 대상으로 받지 않습니다.

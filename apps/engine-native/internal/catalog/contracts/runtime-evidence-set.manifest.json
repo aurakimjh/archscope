@@ -10,7 +10,7 @@
     },
     {
       "file": "README.md",
-      "sha256": "29eddebafad96e4ebb115d30b0b40117f0dd12d8e843e8ad8bae47308deb9245"
+      "sha256": "f9c27ccde5995d460de93de3b6bb9ef78a3babf50e3efae54508cb1f39bbdcf6"
     },
     {
       "file": "cpu-options.json",
@@ -19,6 +19,10 @@
     {
       "file": "cpu-set.json",
       "sha256": "6fb4dea637b26fa9ccea0a5fc6185e09772ea72fb6eb49d05c65385fb3723cb3"
+    },
+    {
+      "file": "faulthandler-3.14.4.txt",
+      "sha256": "4a2f1a5b9794c505dcf7086030afb4af9555199d5205fb984bf6f9849e73587f"
     },
     {
       "file": "generate_node.mjs",
@@ -31,6 +35,22 @@
     {
       "file": "generate_rust.py",
       "sha256": "5fb296ba362bc8dc4d2ab8027d8db00ab2ad448fffa7efba78232f853c761e37"
+    },
+    {
+      "file": "generate_threads.py",
+      "sha256": "b4dfd2ad9e8e4f9e64a4e3c51b3b3ed69eca48aa7ec24d7e9fc86b4730b4eaf9"
+    },
+    {
+      "file": "jdk21-blocked-1.txt",
+      "sha256": "7ee147b9b1e83a09e7a9726efcae8f47eb06f3e5a6b6886e4b4c438bdc548463"
+    },
+    {
+      "file": "jdk21-blocked-2.txt",
+      "sha256": "a29307352094ecdbd956b8c29574ab8a4c0e17cbab7db5e7a117a5be8d1b903a"
+    },
+    {
+      "file": "jdk21-correlation-context.json",
+      "sha256": "33a4e270fb6e5f52d66ec7ed2b1a61b03c6ed979dcd68c992b557f2e00b65f7e"
     },
     {
       "file": "jstack.txt",

@@ -5,7 +5,7 @@ root=pathlib.Path(__file__).resolve().parents[1]
 app=root/'apps/engine-native'; dest=app/'internal/distribution/assets'
 outputs={}
 for lang in ('en','ko'):
- for name in ('OFFLINE_PACKS','INPUT_ASSISTANCE','SYSTEM_EVIDENCE','INFERENCE_EVIDENCE','LLM_TRACE_EVIDENCE','RUNTIME_EVIDENCE','VISUAL_ARTIFACTS','METRIC_HISTORY'):
+ for name in ('OFFLINE_PACKS','INPUT_ASSISTANCE','SYSTEM_EVIDENCE','INFERENCE_EVIDENCE','LLM_TRACE_EVIDENCE','RUNTIME_EVIDENCE','EXECUTION_EVIDENCE','VISUAL_ARTIFACTS','METRIC_HISTORY'):
   outputs[f'docs/{lang}/{name}.md']=(root/f'docs/{lang}/{name}.md').read_bytes()
 files={}
 for p in sorted((app/'internal/catalog/contracts').iterdir()):
@@ -22,6 +22,7 @@ cases.append({'importer':'system.evidence-json','input':'catalog/system-evidence
 cases.append({'importer':'inference.evidence-json','input':'catalog/inference-evidence-set.json','options':{},'summary':{'entity_count':'6','signal_count':'24'}})
 cases.append({'importer':'trace.llm-json','input':'catalog/llm-trace-set.json','options':{},'summary':{'total_spans':'6','unique_traces':'1'}})
 cases.append({'importer':'runtime.evidence-json','input':'catalog/runtime-evidence-set.json','options':{},'summary':{}})
+cases.append({'importer':'execution.evidence-json','input':'catalog/execution-evidence-set.json','options':{},'summary':{}})
 # Keep names aligned with the signed bootstrap pack's human-readable fixtures.
 for c in cases:
  if c['importer']=='data.synthetic-metrics':

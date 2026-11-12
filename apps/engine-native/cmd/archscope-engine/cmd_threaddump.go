@@ -8,36 +8,40 @@
 // CLI 표면.
 //
 // 4개 리프 명령
-//   analyze        : 단일 Java jstack 덤프 분석. JVM 전용(다른 런타임은
-//                    호환되지 않음 — multi 측 명령 사용).
-//   analyze-multi  : 멀티 덤프 상관 분석. 5개 런타임 자동 감지.
-//                    LONG_RUNNING_THREAD, PERSISTENT_BLOCKED_THREAD,
-//                    LATENCY_SECTION_DETECTED 등의 finding 산출.
-//   analyze-locks  : 단일/멀티 덤프에서 owner/waiter 그래프 + DFS
-//                    데드락 탐지.
-//   to-collapsed   : FlameGraph 호환 collapsed 스택 변환기.
-//                    Go 측은 비교 자동화를 위해 JSON({stack: count}) 로
-//                    출력하고, Python 측은 텍스트 ("<stack> <count>") 로
-//                    출력 — parity gate 가 양 형식 모두 비교할 수 있도록
-//                    설계되어 있습니다.
+//
+//	analyze        : 단일 Java jstack 덤프 분석. JVM 전용(다른 런타임은
+//	                 호환되지 않음 — multi 측 명령 사용).
+//	analyze-multi  : 멀티 덤프 상관 분석. 5개 런타임 자동 감지.
+//	                 LONG_RUNNING_THREAD, PERSISTENT_BLOCKED_THREAD,
+//	                 LATENCY_SECTION_DETECTED 등의 finding 산출.
+//	analyze-locks  : 단일/멀티 덤프에서 owner/waiter 그래프 + DFS
+//	                 데드락 탐지.
+//	to-collapsed   : FlameGraph 호환 collapsed 스택 변환기.
+//	                 Go 측은 비교 자동화를 위해 JSON({stack: count}) 로
+//	                 출력하고, Python 측은 텍스트 ("<stack> <count>") 로
+//	                 출력 — parity gate 가 양 형식 모두 비교할 수 있도록
+//	                 설계되어 있습니다.
 //
 // 형식 자동 감지 (analyze-multi / analyze-locks / to-collapsed)
-//   td.DefaultRegistry.ParseMany 가 각 입력 파일의 첫 4 KB 헤더를
-//   plugin.CanParse 로 sniff 해 알맞은 thread-dump 플러그인에 라우팅.
-//   사용자가 --format 으로 명시하면 sniff 를 건너뛰고 강제 지정.
+//
+//	td.DefaultRegistry.ParseMany 가 각 입력 파일의 첫 4 KB 헤더를
+//	plugin.CanParse 로 sniff 해 알맞은 thread-dump 플러그인에 라우팅.
+//	사용자가 --format 으로 명시하면 sniff 를 건너뛰고 강제 지정.
 //
 // 멀티 입력 표기
-//   --in 은 반복 또는 콤마 구분 모두 허용 (helpers.splitCommaSeparated).
-//   하나라도 다른 포맷이면 ParseMany 가 MixedFormatError 로 즉시 거부
-//   (--format 으로 우회 가능).
+//
+//	--in 은 반복 또는 콤마 구분 모두 허용 (helpers.splitCommaSeparated).
+//	하나라도 다른 포맷이면 ParseMany 가 MixedFormatError 로 즉시 거부
+//	(--format 으로 우회 가능).
 //
 // 옵션 의미
-//   --top-n      : 결과 테이블의 상위 N 행. 0=분석기 기본값.
-//   --threshold  : analyze-multi 의 "연속 N개 덤프에서 동일 상태"
-//                  finding 임계치. 기본값은 분석기가 결정.
-//   --no-thread-name (to-collapsed): 합성 root 프레임으로 thread name 을
-//                  prepend 할지 여부. 기본은 prepend(스레드별 색상 구분에
-//                  유리). 끄면 동일 스택이 더 잘 합쳐져 통계가 두꺼워짐.
+//
+//	--top-n      : 결과 테이블의 상위 N 행. 0=분석기 기본값.
+//	--threshold  : analyze-multi 의 "연속 N개 덤프에서 동일 상태"
+//	               finding 임계치. 기본값은 분석기가 결정.
+//	--no-thread-name (to-collapsed): 합성 root 프레임으로 thread name 을
+//	               prepend 할지 여부. 기본은 prepend(스레드별 색상 구분에
+//	               유리). 끄면 동일 스택이 더 잘 합쳐져 통계가 두꺼워짐.
 package main
 
 import (
@@ -97,11 +101,12 @@ Go goroutines, Node.js report, Python dump, .NET CLR).`,
 	// ── analyze-multi ──────────────────────────────────────────────
 	{
 		var (
-			inputs    []string
-			topN      int
-			threshold int
-			format    string
-			out       string
+			inputs                       []string
+			correlation, correlationFile string
+			topN                         int
+			threshold                    int
+			format                       string
+			out                          string
 		)
 		multi := &cobra.Command{
 			Use:   "analyze-multi",
@@ -120,6 +125,26 @@ result. --in may be repeated and/or comma-separated.`,
 				if err != nil {
 					return err
 				}
+				if correlation != "" && correlationFile != "" {
+					return fmt.Errorf("THREAD_CORRELATION_INPUT_AMBIGUOUS")
+				}
+				rawContext := []byte(correlation)
+				if correlationFile != "" {
+					rawContext, err = readMetricDocument(correlationFile, td.MaxCorrelationContextBytes)
+					if err != nil {
+						return err
+					}
+				}
+				if len(rawContext) > 0 {
+					context, err := td.DecodeCorrelationContext(rawContext)
+					if err != nil {
+						return err
+					}
+					bundles, err = td.ApplyCorrelationContext(bundles, context)
+					if err != nil {
+						return err
+					}
+				}
 				result, err := multithread.Analyze(bundles, multithread.Options{
 					TopN:      topN,
 					Threshold: threshold,
@@ -135,6 +160,8 @@ result. --in may be repeated and/or comma-separated.`,
 		multi.Flags().IntVar(&threshold, "threshold", 0, "consecutive-dump threshold for persistence findings")
 		multi.Flags().StringVar(&format, "format", "", "force a thread-dump plugin format-id (skips header sniff)")
 		multi.Flags().StringVar(&out, "out", "-", "output path; `-` for stdout")
+		multi.Flags().StringVar(&correlation, "correlation-context", "", "bounded explicit process/thread lifetime JSON; no name matching")
+		multi.Flags().StringVar(&correlationFile, "correlation-context-file", "", "bounded JSON file with explicit process/thread lifetimes")
 		group.AddCommand(multi)
 	}
 

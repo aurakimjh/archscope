@@ -43,6 +43,7 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/analysis"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/cases"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/catalog"
+	td "github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump"
 	"strings"
 	"sync"
 	"time"
@@ -343,11 +344,12 @@ type ThreadDumpRequest struct {
 // detect format from header bytes. FormatOverride bypasses sniffing
 // when the renderer already knows the format.
 type MultiThreadRequest struct {
-	Paths               []string `json:"paths"`
-	FormatOverride      string   `json:"formatOverride,omitempty"`
-	Threshold           int      `json:"threshold,omitempty"`
-	TopN                int      `json:"topN,omitempty"`
-	IncludeRawSnapshots bool     `json:"includeRawSnapshots,omitempty"`
+	CorrelationContextJSON string   `json:"correlationContextJSON,omitempty"`
+	Paths                  []string `json:"paths"`
+	FormatOverride         string   `json:"formatOverride,omitempty"`
+	Threshold              int      `json:"threshold,omitempty"`
+	TopN                   int      `json:"topN,omitempty"`
+	IncludeRawSnapshots    bool     `json:"includeRawSnapshots,omitempty"`
 }
 
 // LockContentionRequest is the lock-contention analog of MultiThreadRequest.
@@ -797,6 +799,14 @@ func (s *EngineService) AnalyzeMultiThread(req MultiThreadRequest) (EngineAsyncR
 	if len(req.Paths) == 0 {
 		return EngineAsyncResponse{}, fmt.Errorf("paths is required")
 	}
+	var correlation *td.CorrelationContext
+	if strings.TrimSpace(req.CorrelationContextJSON) != "" {
+		value, err := td.DecodeCorrelationContext([]byte(req.CorrelationContextJSON))
+		if err != nil {
+			return EngineAsyncResponse{}, err
+		}
+		correlation = &value
+	}
 	taskID := newTaskID("engine-multithread")
 	cancelCh := globalTasks.add(taskID)
 
@@ -808,6 +818,13 @@ func (s *EngineService) AnalyzeMultiThread(req MultiThreadRequest) (EngineAsyncR
 		if err != nil {
 			emitOrCancel(taskID, cancelCh, engineapi.AnalysisResult{}, err)
 			return
+		}
+		if correlation != nil {
+			bundles, err = td.ApplyCorrelationContext(bundles, *correlation)
+			if err != nil {
+				emitOrCancel(taskID, cancelCh, engineapi.AnalysisResult{}, err)
+				return
+			}
 		}
 		result, runErr := engineapi.AnalyzeMultiThread(bundles, engineapi.MultiThreadOptions{
 			Threshold:           req.Threshold,

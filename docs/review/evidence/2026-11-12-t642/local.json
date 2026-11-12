@@ -1,0 +1,607 @@
+{
+  "task": "T-642",
+  "date": "2026-11-12",
+  "base_commit": "e80fb62b2f25692f746221a519723bf929a262ee",
+  "shared_asset_commit": "a3ac18a5cf79fdeda44695e0f55a670bbe8b6c8a",
+  "status": "REVIEW; implementation and local verification complete; independent/native acceptance separate",
+  "scope": "Bounded offline benchmark exports, explicit baseline conditions and JVM crash text; T-641 R18 remediation",
+  "implementation": [
+    "execution_evidence 0.1.0 / execution_core 1.0.0 and limited execution.evidence-json inside common AnalysisResult; no additional envelope",
+    "Pinned actual k6 1.3.0 loopback summary, actual LLMPerf statistics/JSON functions at f1d6bed47e4501b0e371082b41601b59ab55269f with floating synthetic metrics, structural JMeter5.6.3 JTL and sanitized actual HotSpot21.0.10+7 crash fragment",
+    "Exact units, nullable values versus zero, source aggregates and JTL nearest-rank sample populations, source positions and original values; JMeter samples/transactions are not automatically HTTP requests",
+    "Separate LLM started/completed/error populations, ITL versus TPOT, overall versus per-request throughput, requested/observed token distributions and client errors",
+    "Known matching declared scenario/workload/client/target/arrival/configured duration/concurrency/warmup/phase/boundary/protocol/streaming and LLM model/token conditions required for numeric comparison",
+    "Ordered baseline/target result/source hashes, context fingerprint, statistical-policy-bearing difference rows and digest-bound cursors; missing/zero/unknown conditions remain unavailable or incompatible, no significance/regression/cause claim",
+    "Verified normalized snapshot comparison is explicitly not profile-original-reimport baseline verification; exact saved case reopening and common consumers remain separate",
+    "Bounded immutable source intake, source-change/no-overwrite refusal, private semantic cache, sequential compare load slots, copied DTOs, stale parent/target/cancellation handling",
+    "Existing generic providers/unix sample timeline, JSON/CSV/HTML/report pack, selected-column visual tables and durable cases reused; comparison export is a bounded page",
+    "Canonical16MiB/result64MiB/sample50k/metric8192, separate line/frame/group/query limits; corpus139 entries now fits bounded256 with unchanged per-entry8MiB/expanded32MiB limits"
+  ],
+  "checks": {
+    "full_host_race": {
+      "command": "go test -race -count=1 -json ./...",
+      "exit_code": 0,
+      "passed_packages": 116,
+      "packages_without_tests": 10,
+      "passed_tests_and_subtests": 1635,
+      "record": "go-race-summary.json"
+    },
+    "go_vet": "PASS host, windows amd64 and 386 CGO_ENABLED=0",
+    "frontend": "PASS production build and state regressions; Wails bindings regenerated",
+    "mac_package": "PASS wails3 task darwin:package and codesign --verify --deep --strict",
+    "windows_gui": "PASS production amd64/386 cross-builds using existing guarded wrapper; no native execution",
+    "cli": {
+      "operations": 43,
+      "expected_refusals_included": true,
+      "actual_R18_producer_inputs": true,
+      "record": "cli-operations.json",
+      "comparison_target": "Synthetic latency-only mutation of the measured export, not a second measured run"
+    },
+    "wails_boundary": "PASS source pinning/changed source/no overwrite, typed query and comparison-page export with scope/provenance; malformed correlation context refused before async scheduling",
+    "scale": "PASS 20k sample model/result/reader, record/byte refusal, concurrent read-only comparison, cache/DTO mutation and ownership tests",
+    "browser": {
+      "scope": "Actual React ExecutionEvidence components and captured actual CLI DTOs; Wails transport mocked",
+      "passed": [
+        "Compatible declared conditions render values/differences",
+        "Incompatible conditions show reasons and no numeric cells",
+        "Replacing baseline suppresses late comparison and clears target",
+        "Removing candidate target clears selection"
+      ],
+      "artifacts": [
+        "compatible.png",
+        "incompatible.png",
+        "browser-harness.tsx.txt",
+        "browser-data.json"
+      ],
+      "note": "Browser DTOs were captured before the final additive statistical_policy row metadata; final CLI artifacts include it. Numeric definitions/conditions are unchanged."
+    },
+    "offline": {
+      "cases": 10,
+      "entries": 139,
+      "manifest_and_dependency_notices": "PASS,75 dependencies/no missing root notices",
+      "network": "Docker clean-install Linux process trees with --network none",
+      "operations": 44,
+      "successes": 43,
+      "expected_converter_denial": 1,
+      "inet_syscalls": 0,
+      "positive_control_inet_syscalls": 2
+    },
+    "desktop_only": "PASS existing guard including server-build refusal",
+    "diff_check": "PASS staged and unstaged; explicit whitespace attributes preserve actual jstack bytes"
+  },
+  "review_remediation": {
+    "original": "docs/review/done/2026-11-12_claude-code_T-641_implementation-review.ko.md",
+    "original_sha256": "57e5ebfa7137ab6eacc38df0e4406af32382c1b78d85687d2de1f39b0a8c6829",
+    "verdict_preserved": "CONDITIONAL: P2 2 / P3 2",
+    "closure": "T-641 DONE under explicit after-R18-01/02-remediation permission; all four findings locally fixed, no independent PASS of final fixes",
+    "findings": {
+      "R18-01": "Actual Python3.14.4 named Thread/Current thread headers retain names;3 actual snapshots; unrecognized/empty source refused",
+      "R18-02": "CLI inline/file and Wails/desktop correlation-context input; bounded strict process/format/runtime-ID/thread-lifetime declarations; non-mutating map/slice copies; missing/partial context produces diagnostics and desktop warning. Actual JDK21 pair restores persistent BLOCKED1 with explicit synthetic lifetime declarations",
+      "R18-03": "GC interval/phase errors identify /gc_events/N; valid inverted unsigned values shown without arbitrary raw-body echo",
+      "R18-04": "0x nid hex versus unprefixed decimal encoding; actual macOS JDK21 and previous hex inputs verified"
+    },
+    "actual_producer_scope": "Actual Python3.14.4 faulthandler and same-JVM JDK21.0.10 jstack; explicit starts/PID in sidecar are synthetic declarations, not authenticated observed lifetimes"
+  },
+  "gates_preserved": [
+    "T-642 independent review",
+    "Q01 vendor JSON, Q02 Apple choice/inputs, Q03 vLLM versions, Q04 GenAI metric aliases",
+    "Actual full producer/Windows/WebView/GPU/Office acceptance"
+  ],
+  "unexecuted": [
+    "No load generator/benchmark client in product, live endpoint/GPU/LLM inference, core/heap dump engine or causal/root-cause proof",
+    "No actual JMeter/nGrinder/Gatling/GenAI-Perf run or general producer-version qualification",
+    "LLMPerf complete runner, integer numpy JSON compatibility, Ray clients and tokenizer integration remain outside the fixture qualification",
+    "No task-specific native Wails/WebView/Windows runtime/clipboard/Office execution",
+    "No independent verification/PASS of R18 final fixes or T-642 implementation",
+    "No arbitrary sensitive-string detection, raw archive sanitization or original-reimport benchmark baseline verification"
+  ],
+  "warnings": [
+    "Known host C SDK27.2 versus deployment11.0 linker warnings; package signing is not minimum OS runtime acceptance",
+    "Browser preview warning expected with mock IPC; browser tests are not native WebView proof",
+    "Byte limits can precede nominal record counts; source aggregation policies/populations never merged automatically",
+    "Exact actual jstack trailing whitespace/blank EOF retained under scoped attributes; evidence text logs trim trailing blank lines",
+    "Initial full suite exposed the128-entry offline corpus ceiling;256-entry bounded fix was followed by a complete clean passing race suite"
+  ],
+  "preservation": {
+    "unstaged": [
+      "docs/en/SYSTEM_HTTP_CAPTURE.md",
+      "docs/ko/SYSTEM_HTTP_CAPTURE.md",
+      "ten-line First implementation cycle block in work_status.md"
+    ],
+    "untracked": [
+      "scripts/verify-http-desktop.mjs"
+    ],
+    "local_only_AGENTS": "excluded",
+    "tracker_counts": {
+      "DONE": 224,
+      "TODO": 0,
+      "PENDING": 4,
+      "REVIEW": 4,
+      "IN_PROGRESS": 0,
+      "total": 232
+    },
+    "next": "No implementation TODO; T-643 Q02/actual Apple inputs, T-644 actual producer fixtures, T-645 demand/input/version"
+  },
+  "binaries": {
+    "archscope-t642-engine": {
+      "sha256": "4136521effb098b6f7fdb5f9f02dc26205b7ed2c17d832174d8db0139bab99d7",
+      "bytes": 35361618
+    },
+    "archscope-t642-linux": {
+      "sha256": "665bcd8d9da8a044842ef1043db262c9076b8311a2f760a212ae2d4223a33292",
+      "bytes": 36622503
+    },
+    "archscope-t642-amd64.exe": {
+      "sha256": "2977c28a52f29f6de558db2103be556b6f679e3394b3049f09ff21767dbcca67",
+      "bytes": 38971392
+    },
+    "archscope-t642-386.exe": {
+      "sha256": "4efc12d2b76f2409e8506cbde1edff2efce487952b8df1a078d70337585f01f4",
+      "bytes": 37562368
+    }
+  },
+  "source_index_files": {
+    ".gitattributes": {
+      "sha256": "99271cbf237ced31aa56323912b8ccae85ea09940db4b8033829666d5d7593a1",
+      "bytes": 2741
+    },
+    "apps/engine-native/cmd/archscope-app/engineservice.go": {
+      "sha256": "b273e4bde1fc8477f8e9444fe66355610f08fc358981b56166188e8231554ead",
+      "bytes": 40417
+    },
+    "apps/engine-native/cmd/archscope-app/executionsourceservice.go": {
+      "sha256": "ee153716fb004d0e057683430a6f68a7c6a20e38426e7725aa586af73ea491ee",
+      "bytes": 2929
+    },
+    "apps/engine-native/cmd/archscope-app/executionsourceservice_test.go": {
+      "sha256": "aa6135466f3421531f876aefc2dfc1977cc4a76a8241f26522be70970012031f",
+      "bytes": 3257
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts": {
+      "sha256": "df817acdab955631e3883bad6d415aae25ced57ab29702228f47cc8a05c01477",
+      "bytes": 36269
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/models.ts": {
+      "sha256": "044780297c1c401ec303251dc4a354dec052b35b86f3209b3c105479def7a40d",
+      "bytes": 71922
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/executionEvidence.ts": {
+      "sha256": "ba3ebe40430463c72d80225aa52e6d0975a8aba2711a26169fd1e6fd2980799b",
+      "bytes": 2217
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/types.ts": {
+      "sha256": "7e8842f10c9e294289949483347d7122596b15a1056c29e1c31fe4fa3e64c206",
+      "bytes": 60093
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/EvidenceResultPanel.tsx": {
+      "sha256": "be12ba81cf0db4fd263f7d81fbff813e6133974379f3ca03e4300ab54bd13c5c",
+      "bytes": 26730
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/ExecutionEvidence.tsx": {
+      "sha256": "58603d8e533f76925d77baabd321c395008a92cfb1666c3597fa3a8091f00131",
+      "bytes": 12785
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/pages/ThreadDumpAnalyzerPage.tsx": {
+      "sha256": "9028a8a8a91a5d2b931ae869f69fde98ab13f9e6fd6fc8bb85abba5199767d21",
+      "bytes": 75693
+    },
+    "apps/engine-native/cmd/archscope-engine/cmd_execution.go": {
+      "sha256": "aaccc1c3e0186b77a0eec1f17d4d986044994b9475d6eb7837bf082e2057fdcd",
+      "bytes": 4174
+    },
+    "apps/engine-native/cmd/archscope-engine/cmd_threaddump.go": {
+      "sha256": "6005a9e3702cb5b07964ee52b90e07b546ea505edb781c2837a9769e92e15e1d",
+      "bytes": 10652
+    },
+    "apps/engine-native/internal/analysis/execution_evidence.go": {
+      "sha256": "abcde1165c9b9bf3d08e31d18f354bcc2d155dea40e49ecd99425dc2158c9288",
+      "bytes": 3377
+    },
+    "apps/engine-native/internal/analysis/execution_evidence_test.go": {
+      "sha256": "b7f520d4e2b0a0a3618b009790a742927a21c3b675c14fdc049d60cee58e1e8b",
+      "bytes": 3709
+    },
+    "apps/engine-native/internal/analyzers/execution/analyzer.go": {
+      "sha256": "f4da1264cf986efcf0eaa38e57b2d16026929a850d0c39c9142d28b4d646d68b",
+      "bytes": 5669
+    },
+    "apps/engine-native/internal/analyzers/execution/analyzer_test.go": {
+      "sha256": "f612a1172e7e9440fe3663fa1713d7fa3ffbaf9c29e45104c71c18c0166690c2",
+      "bytes": 5415
+    },
+    "apps/engine-native/internal/analyzers/execution/query.go": {
+      "sha256": "ba65a87bdddd96637a01610d28c9c3f833b4ac1dacf14f3bf71fcaa7830f59db",
+      "bytes": 3940
+    },
+    "apps/engine-native/internal/analyzers/multithread/analyzer.go": {
+      "sha256": "1045fb75537f374ad8b50ed2957c189d61c847db13ea659e892fe597410421bd",
+      "bytes": 18792
+    },
+    "apps/engine-native/internal/catalog/builtin.go": {
+      "sha256": "2c9eed556695b29598770c95c3c1a342d7086a1d077eb7ad2e0dce7bcbf33c54",
+      "bytes": 16500
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-LICENSE.txt": {
+      "sha256": "36c8a25a2ae921e2b6f148ca0a62db71c4786625dc6ed516d1016cafecdec0b6",
+      "bytes": 220
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-README.md": {
+      "sha256": "8c5d9e061d7c13b0658d2dd3ada5aeddbcd495a1499f29bf39399565b62acd24",
+      "bytes": 3355
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-crash-options.json": {
+      "sha256": "b222ebf696a12f8b0256b242a4ac6dd527035fbcb462df59328d9a7ae2846505",
+      "bytes": 25
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-crash-set.json": {
+      "sha256": "04218e84c540d1ff5155ecaf7dfbfef0d5ff973545fb81dd2beeb24cc6072d8f",
+      "bytes": 1611
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-generate_fixture.py": {
+      "sha256": "66e369afa7cf50d062f1c7a799f92e2b3f6a963c4209b202700cff72092d41ab",
+      "bytes": 6835
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-hs-err-21.0.10.txt": {
+      "sha256": "99250a106a036e88dc6ed759ea318564f732e8ce652727870222b986098e4500",
+      "bytes": 700
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-jmeter-5.6.3.csv": {
+      "sha256": "fcd934765dcda73e256296d77ef1481db2e015a903c45063d281256223c68d69",
+      "bytes": 348
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-jmeter-options.json": {
+      "sha256": "e465b08b5320fc8727fc05c00e1d1af656af4d905e6693bee6ff7675c91cd259",
+      "bytes": 912
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-jmeter-set.json": {
+      "sha256": "e228166e7bcfcca7c984731eae98067dd950191897e3f5f96a8cb99c5be69e96",
+      "bytes": 14548
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-k6-1.3.0.json": {
+      "sha256": "d0a146b5b41dce178910e6d911ae938a88b8033bbde8e06d1bd8829ba53bb2ea",
+      "bytes": 3985
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-k6-options.json": {
+      "sha256": "1681455a87d14b1c1ebbb0e1343bb21ee0e558e40c55ff49b7d3cf1bf75145e9",
+      "bytes": 920
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-k6-set.json": {
+      "sha256": "c1a9aae72d4843397f9355cbda47e71a5d1c09875279b6613b9633e70c142330",
+      "bytes": 15491
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-llmperf-options.json": {
+      "sha256": "d4ee38d6e7142e17e19378fb42cfea910b67b411fa1556a567c3a307aa493eca",
+      "bytes": 1134
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-llmperf-set.json": {
+      "sha256": "e9553fe6c417f7c2a2e694a2df9c3e0c0964d3c4891c2e32da7786cf1b6e44ee",
+      "bytes": 42588
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-llmperf-summary.json": {
+      "sha256": "1ada618a78f70c80bad336d09adc7ce2d2a7fe0d94ffdce92a11f981e04f4392",
+      "bytes": 3780
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-producer-provenance.json": {
+      "sha256": "4e37eeef01c9c0d0ec07dbd27efec30be620ff682412e9915c5fba850658c739",
+      "bytes": 749
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-set.json": {
+      "sha256": "c1a9aae72d4843397f9355cbda47e71a5d1c09875279b6613b9633e70c142330",
+      "bytes": 15491
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-set.manifest.json": {
+      "sha256": "ec0b187cb2f9661250e38062e1f7298ade6ed93432e7df7fcf6978d9d4c81c9a",
+      "bytes": 2697
+    },
+    "apps/engine-native/internal/catalog/contracts/execution-evidence-set.schema.json": {
+      "sha256": "b9fbd7a50e09bd9544a49f409d9cdf8a63a81d4f4406a6634a82a102d8712d3a",
+      "bytes": 10320
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-README.md": {
+      "sha256": "f9c27ccde5995d460de93de3b6bb9ef78a3babf50e3efae54508cb1f39bbdcf6",
+      "bytes": 3800
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-faulthandler-3.14.4.txt": {
+      "sha256": "4a2f1a5b9794c505dcf7086030afb4af9555199d5205fb984bf6f9849e73587f",
+      "bytes": 811
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-generate_threads.py": {
+      "sha256": "b4dfd2ad9e8e4f9e64a4e3c51b3b3ed69eca48aa7ec24d7e9fc86b4730b4eaf9",
+      "bytes": 2306
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-jdk21-blocked-1.txt": {
+      "sha256": "7ee147b9b1e83a09e7a9726efcae8f47eb06f3e5a6b6886e4b4c438bdc548463",
+      "bytes": 7138
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-jdk21-blocked-2.txt": {
+      "sha256": "a29307352094ecdbd956b8c29574ab8a4c0e17cbab7db5e7a117a5be8d1b903a",
+      "bytes": 7138
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-jdk21-correlation-context.json": {
+      "sha256": "33a4e270fb6e5f52d66ec7ed2b1a61b03c6ed979dcd68c992b557f2e00b65f7e",
+      "bytes": 393
+    },
+    "apps/engine-native/internal/catalog/contracts/runtime-evidence-set.manifest.json": {
+      "sha256": "0072765b1360544088c06c66200850970d56c49818087a411e23e9ffd835318e",
+      "bytes": 4710
+    },
+    "apps/engine-native/internal/catalog/contracts_test.go": {
+      "sha256": "eefbef5d509e40cac50f726469030838185fc259ce53f860dc104e8e108b3749",
+      "bytes": 1631
+    },
+    "apps/engine-native/internal/catalog/execution_evidence.go": {
+      "sha256": "c5fb2ed9f1f94a478fbc8aa0c3de835fb8e7789f7f797a4d140886c082acbb85",
+      "bytes": 9479
+    },
+    "apps/engine-native/internal/distribution/assets/docs/en/EXECUTION_EVIDENCE.md": {
+      "sha256": "82a7edd7f45c1884c40b3abafb4f60b717cec5e2903bb478b87f8a62bddb0233",
+      "bytes": 10499
+    },
+    "apps/engine-native/internal/distribution/assets/docs/en/RUNTIME_EVIDENCE.md": {
+      "sha256": "73dca1497141a831ea67806ad8360a56301e99ae143beb477424dd21d8284034",
+      "bytes": 10147
+    },
+    "apps/engine-native/internal/distribution/assets/docs/ko/EXECUTION_EVIDENCE.md": {
+      "sha256": "6a9ea211fe75e88d629e458c108bc3f96a73dbe67068459808f9ab82dba96e9b",
+      "bytes": 10485
+    },
+    "apps/engine-native/internal/distribution/assets/docs/ko/RUNTIME_EVIDENCE.md": {
+      "sha256": "ca01318749881f2781ed7d3567769a0d71e9e22a2b95968e32c5a763a0291be8",
+      "bytes": 9947
+    },
+    "apps/engine-native/internal/distribution/assets/fixtures.sha256": {
+      "sha256": "502daecb03a1264ed4016b4cd4cfb62e172e860959a67fdc810b50e86f7daede",
+      "bytes": 65
+    },
+    "apps/engine-native/internal/distribution/assets/fixtures.zip": {
+      "sha256": "b994dd3257e0db0d9dda2e2a3abad4237d99f96230c4f99d35d76b47b46d4a06",
+      "bytes": 793009
+    },
+    "apps/engine-native/internal/distribution/bundle_test.go": {
+      "sha256": "699c64ced0fba3970fe109eafc386a6967f16e1c57e548399aa8d7c36cb7c2b3",
+      "bytes": 2975
+    },
+    "apps/engine-native/internal/distribution/fixtures.go": {
+      "sha256": "8167c0dcd101fd6967dc991618c089acd3926e9890fb45b2ac33693b1ec5eee7",
+      "bytes": 6493
+    },
+    "apps/engine-native/internal/executionmodel/compare.go": {
+      "sha256": "c1b6447c12cd785f2f93e8eb173c1591094b7000121abd5d9acea82839a25ef2",
+      "bytes": 6016
+    },
+    "apps/engine-native/internal/executionmodel/model.go": {
+      "sha256": "6db72b17b5494b62e32706d089e1873cd7093f28ef8bfe22ba7d68c8fcac5ce3",
+      "bytes": 12612
+    },
+    "apps/engine-native/internal/parsers/execution/benchmarks.go": {
+      "sha256": "1d9b052fb77e6c784844aae974f67ff4b3a693efb2ee3f421decc5f42e7bf826",
+      "bytes": 7384
+    },
+    "apps/engine-native/internal/parsers/execution/crash.go": {
+      "sha256": "4a99ca3c91dc8387acfe528f16abf4add62b2b80e330ad09a4739458c6d0b19e",
+      "bytes": 3665
+    },
+    "apps/engine-native/internal/parsers/execution/jtl.go": {
+      "sha256": "bbb4808e56ec4ec7b9d4061fd8bea6e016c53e9484cc912eb94b5e1e29e5447f",
+      "bytes": 5298
+    },
+    "apps/engine-native/internal/parsers/execution/source.go": {
+      "sha256": "3997f5d946f0a490601ae79e6c8bc19dccbea5b307864481e92a541bc34ce839",
+      "bytes": 6364
+    },
+    "apps/engine-native/internal/parsers/execution/source_test.go": {
+      "sha256": "8a264f4beba759e4cfdc58682f8da7ce799c1151277cf202ab01373c2966dd1a",
+      "bytes": 4035
+    },
+    "apps/engine-native/internal/parsers/runtimeevidence/python.go": {
+      "sha256": "4ac6a71ea1de0521a256d3092e8dcab04a258fa7a5b088a857c66f069374fa16",
+      "bytes": 4004
+    },
+    "apps/engine-native/internal/parsers/runtimeevidence/source_test.go": {
+      "sha256": "0b4197f42304a65f14fe1d5e5f3884c9c14c6cf3d3c8ee57165e444e6fd06fff",
+      "bytes": 4618
+    },
+    "apps/engine-native/internal/parsers/runtimeevidence/thread.go": {
+      "sha256": "c86dbe64076dfa4216f56e7e1b4cf7b9811f1c54edfc2bd174622cd8fabce61d",
+      "bytes": 2126
+    },
+    "apps/engine-native/internal/threaddump/correlation_context.go": {
+      "sha256": "1ee3ea638aee267963c63648837246567afdd34c47a70ec8f2c9af7f75d44dbc",
+      "bytes": 3933
+    },
+    "apps/engine-native/internal/threaddump/correlation_context_test.go": {
+      "sha256": "3d986dc733519947eefefa2f7608f236bff58eedf665c2d9ec0ef5352ee306fa",
+      "bytes": 2850
+    },
+    "apps/engine-native/internal/threaddump/plugins/javajstack/parser.go": {
+      "sha256": "ca813c32376c0cdc5f48fac4257dc46904bca9b52198e13eeb058622da3f8fa8",
+      "bytes": 13755
+    },
+    "apps/engine-native/internal/threaddump/plugins/pythondump/pythondump.go": {
+      "sha256": "e8f7525f25088706f7475b6425ac14672ad3954df9a2cedbdc9e23729d0baaba",
+      "bytes": 17563
+    },
+    "apps/engine-native/scripts/generate-execution-fixtures.go": {
+      "sha256": "6a2786e538ff0c922ca1f43a04eb074e678b4457926ec2e1a9e9c74bc7213e8c",
+      "bytes": 1040
+    },
+    "docs/en/DATA_MODEL.md": {
+      "sha256": "5a76e19610091462eeac1fe5a5aa1945dc06b8ebab91ac897536a7e8ee50e802",
+      "bytes": 114318
+    },
+    "docs/en/EXECUTION_EVIDENCE.md": {
+      "sha256": "82a7edd7f45c1884c40b3abafb4f60b717cec5e2903bb478b87f8a62bddb0233",
+      "bytes": 10499
+    },
+    "docs/en/IMPORTER_SUPPORT_MATRIX.md": {
+      "sha256": "367425726b1467119565fa8809b9ebf6a7acea3c35de4daae9492fac0679c004",
+      "bytes": 13932
+    },
+    "docs/en/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md": {
+      "sha256": "c449e5bff956f1f34389c0a3a20bd388a19d92d606c8ae5df398d7e15032e2f4",
+      "bytes": 33486
+    },
+    "docs/en/PARSER_DESIGN.md": {
+      "sha256": "14fbf72820ffe928a1e7592ea9b5b67a2005255fe8a667ddc6431221c1dc3cbc",
+      "bytes": 63650
+    },
+    "docs/en/RUNTIME_EVIDENCE.md": {
+      "sha256": "73dca1497141a831ea67806ad8360a56301e99ae143beb477424dd21d8284034",
+      "bytes": 10147
+    },
+    "docs/ko/DATA_MODEL.md": {
+      "sha256": "3ecbb34d9316efda9c92979b3f1bb0edd5ef9ee253310d70198d66474713b9b0",
+      "bytes": 124505
+    },
+    "docs/ko/EXECUTION_EVIDENCE.md": {
+      "sha256": "6a9ea211fe75e88d629e458c108bc3f96a73dbe67068459808f9ab82dba96e9b",
+      "bytes": 10485
+    },
+    "docs/ko/IMPORTER_SUPPORT_MATRIX.md": {
+      "sha256": "aee90e91f32245f5332ee01f8eb2c335661b19f71ab10d5417166f56abc1484c",
+      "bytes": 14714
+    },
+    "docs/ko/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md": {
+      "sha256": "364c9e41c0b5b4b3d363e5dec07ff6059db8495323c649c406a00b3cdaf9a230",
+      "bytes": 135448
+    },
+    "docs/ko/PARSER_DESIGN.md": {
+      "sha256": "c556d9c4adae6ed6c95bef05aceccce4d1e93cafbdc0936fc478e35a4cbbb8dd",
+      "bytes": 72059
+    },
+    "docs/ko/RUNTIME_EVIDENCE.md": {
+      "sha256": "ca01318749881f2781ed7d3567769a0d71e9e22a2b95968e32c5a763a0291be8",
+      "bytes": 9947
+    },
+    "docs/review/README.md": {
+      "sha256": "db2b3b57321cc7b21c6004303f1e71840e542c883a812e9e88912f15a0c04a05",
+      "bytes": 8088
+    },
+    "docs/review/done/2026-11-12_claude-code_T-641_implementation-review.ko.md": {
+      "sha256": "57e5ebfa7137ab6eacc38df0e4406af32382c1b78d85687d2de1f39b0a8c6829",
+      "bytes": 14544
+    },
+    "scripts/build-offline-assets.py": {
+      "sha256": "4f4aed74a09d3924ff840a8ac71133e0d55b030aaf0359a25d718e214ff39f47",
+      "bytes": 4094
+    },
+    "scripts/verify-offline-syscalls.py": {
+      "sha256": "98893df704a8dd92b48ff3a7814862863c11bd8ba43de19ac25e430e720140ff",
+      "bytes": 11548
+    },
+    "work_status.md": {
+      "sha256": "5a6490e6add89a783f91a806b9702fc9fbc206fba95d3e1624b1437634fbe05d",
+      "bytes": 494302
+    }
+  },
+  "evidence_files": {
+    "bindings.txt": {
+      "sha256": "3c75d96c8da0631ac2016c3eaee6def00a43c0a6e8b01005717b37940380e974",
+      "bytes": 252
+    },
+    "browser-data.json": {
+      "sha256": "7af0014d3348d4a010c50e07edbc6fe436429283511d6982f1de5207f041004a",
+      "bytes": 29352
+    },
+    "browser-harness.tsx.txt": {
+      "sha256": "b3aa7b8438aff66bac4d00066a4ee8540dedb392d6fa47a4eb91360c304340db",
+      "bytes": 1915
+    },
+    "cli-operations.json": {
+      "sha256": "6a9703d967681330fe3719ed82bce540fff7c83f01edfd23382903a82c5b3354",
+      "bytes": 16663
+    },
+    "cli-qa.py": {
+      "sha256": "22f421f1224100c4d32732f643fbb5e327848c2a651b8d53d5eedd3983446063",
+      "bytes": 6945
+    },
+    "cli-summary.txt": {
+      "sha256": "228f69da876e373fc181ec2e2176dada8d7b013cfda0c57fc8ef094f855b19a9",
+      "bytes": 93
+    },
+    "codesign.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "compatible.png": {
+      "sha256": "f861e3ce6fd1c52306ec56c2f84ac9a5eb255fa6397ab3c70e731223c0c7bcf7",
+      "bytes": 305503
+    },
+    "dependency-notices.txt": {
+      "sha256": "86e9bebb34715c22bcfca6da7a6933bda57fd56c7ad0e96486229d7eef8eaf19",
+      "bytes": 48
+    },
+    "desktop-only.txt": {
+      "sha256": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97",
+      "bytes": 57
+    },
+    "final-contract.txt": {
+      "sha256": "7a3f7afad30e6c8b408bfe20bcf50b754992d7861420fd4c2343f80343d40e4d",
+      "bytes": 3836
+    },
+    "frontend-state.txt": {
+      "sha256": "034a4df9c8ce36619d03893d56460260cae9c1ac5f88328b91fafe075d8d7bc6",
+      "bytes": 165
+    },
+    "frontend.txt": {
+      "sha256": "dc157a064516b8625fa6f62ffe3bccd29f407a07ff8adfb91de662538d1ce20b",
+      "bytes": 6168
+    },
+    "go-race-summary.json": {
+      "sha256": "9fa14d8a5132a9bb65c25296ceb3715cc00020ccda438cca3a49fa39269ab133",
+      "bytes": 21086
+    },
+    "go-vet.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "incompatible.png": {
+      "sha256": "7cb7d25dbd6359130e67b8ba5b20eede2c066a1d4e9d2d641745d63877ef1c31",
+      "bytes": 222204
+    },
+    "mac-package.txt": {
+      "sha256": "b13666d48f373778cfb51cc2c2ffee6722f05d170f5d8c8cf729155f45f58bd6",
+      "bytes": 8282
+    },
+    "offline-assets.txt": {
+      "sha256": "053bfe1a0dea54851860b07e24b43d47b840226dfe1c7d73680d136f0fc9a0dc",
+      "bytes": 27
+    },
+    "offline-bundle-tests.txt": {
+      "sha256": "523af4a627efd53e92f7c255b7fa6c2e0118bb2660a644028b7a0f7180525589",
+      "bytes": 85
+    },
+    "offline-network.json": {
+      "sha256": "598259271cc3f9d33cf63624b828be10708c261d9b519cb2e31b32e45db3f396",
+      "bytes": 6574
+    },
+    "r18-qualified.json": {
+      "sha256": "37d6699dede6b76f2a865ef72581fd309f9aabaa708935a9d8d55d52a05eb899",
+      "bytes": 15588
+    },
+    "r18-tests.txt": {
+      "sha256": "cecac91fdb8cf5f1bd8178b252a5846365c0e2b08dafa81e3a644c534ee7ce46",
+      "bytes": 899
+    },
+    "r18-unqualified.json": {
+      "sha256": "2cef38956beef0e4d91e4ff97fbe5e0e2f564413547dfedc6fc958715fb56f3f",
+      "bytes": 13273
+    },
+    "windows-386-build.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "windows-386-vet.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "windows-amd64-build.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "windows-amd64-vet.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

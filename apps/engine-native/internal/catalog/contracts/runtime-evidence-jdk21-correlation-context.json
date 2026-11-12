@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "source_format": "java_jstack",
+  "host_id": "synthetic-host",
+  "boot_id": "synthetic-boot",
+  "pid_namespace": "synthetic-ns",
+  "pid": "500",
+  "process_start_ns": "0",
+  "threads": [
+    {
+      "runtime_id": "0x0000007ae30e2a00",
+      "thread_start_ns": "0"
+    },
+    {
+      "runtime_id": "0x0000007ae30e3100",
+      "thread_start_ns": "0"
+    }
+  ]
+}

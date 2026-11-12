@@ -1,0 +1,16 @@
+Thread 0x000000016f64b000 [synthetic-w2] (most recent call first):
+  File "/sanitized/threading.py", line 369 in wait
+  File "/sanitized/threading.py", line 670 in wait
+  File "/sanitized/threading.py", line 1024 in run
+  File "/sanitized/threading.py", line 1082 in _bootstrap_inner
+  File "/sanitized/threading.py", line 1044 in _bootstrap
+
+Thread 0x000000016e63f000 [synthetic-w1] (most recent call first):
+  File "/sanitized/threading.py", line 369 in wait
+  File "/sanitized/threading.py", line 670 in wait
+  File "/sanitized/threading.py", line 1024 in run
+  File "/sanitized/threading.py", line 1082 in _bootstrap_inner
+  File "/sanitized/threading.py", line 1044 in _bootstrap
+
+Current thread 0x00000001fb409300 (most recent call first):
+  File "/sanitized/t642-generate-threads.py", line 6 in <module>

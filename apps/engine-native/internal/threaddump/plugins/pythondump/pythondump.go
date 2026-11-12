@@ -54,6 +54,7 @@
 package pythondump
 
 import (
+	"fmt"
 	"os"
 	"regexp"
 	"strconv"
@@ -153,11 +154,11 @@ func (p PySpyPlugin) Parse(path string) (models.ThreadDumpBundle, error) {
 // ---------------------------------------------------------------------------
 
 // faulthandlerThreadRE matches “Thread 0x<hex> (most recent call first):“.
-var faulthandlerThreadRE = regexp.MustCompile(`(?m)^Thread\s+0x[0-9a-fA-F]+\s+\(most recent call first\):\s*$`)
+var faulthandlerThreadRE = regexp.MustCompile(`(?m)^(?:Thread|Current thread)\s+0x[0-9a-fA-F]+(?:\s+\[([^\]\r\n]*)\])?\s+\(most recent call first\):\s*$`)
 
 // faulthandlerThreadLineRE matches the same header at line start when
 // scanning line-by-line (no MULTILINE flag needed at parse time).
-var faulthandlerThreadLineRE = regexp.MustCompile(`^Thread\s+0x[0-9a-fA-F]+\s+\(most recent call first\):\s*$`)
+var faulthandlerThreadLineRE = regexp.MustCompile(`^(?:Thread|Current thread)\s+0x[0-9a-fA-F]+(?:\s+\[([^\]\r\n]*)\])?\s+\(most recent call first\):\s*$`)
 
 // faulthandlerHexRE pulls the hex tid for use as snapshot id.
 var faulthandlerHexRE = regexp.MustCompile(`0x[0-9a-fA-F]+`)
@@ -195,7 +196,7 @@ func (p FaulthandlerPlugin) Parse(path string) (models.ThreadDumpBundle, error) 
 	}
 	for _, raw := range lines {
 		line := strings.TrimRight(raw, "\r")
-		if faulthandlerThreadLineRE.MatchString(line) {
+		if header := faulthandlerThreadLineRE.FindStringSubmatch(line); header != nil {
 			flush()
 			tid := faulthandlerHexRE.FindString(line)
 			if tid == "" {
@@ -209,6 +210,9 @@ func (p FaulthandlerPlugin) Parse(path string) (models.ThreadDumpBundle, error) 
 				tid,
 				models.ThreadStateUnknown,
 			)
+			if len(header) > 1 && header[1] != "" {
+				snap.ThreadName = header[1]
+			}
 			snap.ThreadID = &tidCopy
 			snap.Language = &lang
 			snap.SourceFormat = &source
@@ -226,6 +230,9 @@ func (p FaulthandlerPlugin) Parse(path string) (models.ThreadDumpBundle, error) 
 		}
 	}
 	flush()
+	if len(bundle.Snapshots) == 0 {
+		return bundle, fmt.Errorf("RUNTIME_THREAD_FORMAT_UNRECOGNIZED: no faulthandler thread headers")
+	}
 	return bundle, nil
 }
 

@@ -1981,6 +1981,7 @@ export type ThreadDumpRequest = {
 };
 
 export type MultiThreadRequest = {
+  correlationContextJSON?: string;
   paths: string[];
   formatOverride?: string;
   threshold?: number;

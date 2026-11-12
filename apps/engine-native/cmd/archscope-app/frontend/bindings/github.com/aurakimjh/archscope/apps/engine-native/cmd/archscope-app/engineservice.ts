@@ -345,6 +345,10 @@ export function CompareEvidenceScalar(baseline: string, target: string, path: st
     });
 }
 
+export function CompareExecutionEvidence(left: string, right: string, leftSHA: string, rightSHA: string, query: string): $CancellablePromise<string> {
+    return $Call.ByID(1980030201, left, right, leftSHA, rightSHA, query);
+}
+
 export function CompareProfileSets(before: string, after: string): $CancellablePromise<string> {
     return $Call.ByID(3893760870, before, after);
 }
@@ -397,6 +401,10 @@ export function DescribeEvidenceResult(handle: string): $CancellablePromise<anal
     return $Call.ByID(1099759658, handle).then(($result: any) => {
         return $$createType10($result);
     });
+}
+
+export function DescribeExecutionEvidence(handle: string): $CancellablePromise<string> {
+    return $Call.ByID(2652561957, handle);
 }
 
 export function DescribeInferenceEvidence(handle: string): $CancellablePromise<string> {
@@ -494,6 +502,10 @@ export function ExportDataPack(scope: string, hash: string, destination: string)
 
 export function ExportEvidenceResult(handle: string, path: string, format: string): $CancellablePromise<void> {
     return $Call.ByID(2737054693, handle, path, format);
+}
+
+export function ExportExecutionComparison(left: string, right: string, leftSHA: string, rightSHA: string, query: string, output: string): $CancellablePromise<string> {
+    return $Call.ByID(129094252, left, right, leftSHA, rightSHA, query, output);
 }
 
 /**
@@ -620,6 +632,10 @@ export function ImportVisualArtifact(path: string): $CancellablePromise<string> 
     return $Call.ByID(4018931032, path);
 }
 
+export function InspectExecutionSource(path: string, options: string): $CancellablePromise<string> {
+    return $Call.ByID(2060490268, path, options);
+}
+
 export function InspectInferenceSource(path: string, options: string): $CancellablePromise<string> {
     return $Call.ByID(688608261, path, options);
 }
@@ -704,6 +720,10 @@ export function MergeRuntimeModels(pathsJSON: string, output: string): $Cancella
     return $Call.ByID(1819890273, pathsJSON, output);
 }
 
+export function NormalizeExecutionSource(path: string, options: string, digest: string, output: string): $CancellablePromise<string> {
+    return $Call.ByID(806423805, path, options, digest, output);
+}
+
 export function NormalizeInferenceSource(path: string, options: string, expectedSHA: string, output: string): $CancellablePromise<string> {
     return $Call.ByID(3169941220, path, options, expectedSHA, output);
 }
@@ -784,6 +804,10 @@ export function QueryEvidenceProvider(handle: string, provider: string, offset: 
     return $Call.ByID(2161125665, handle, provider, offset, limit).then(($result: any) => {
         return $$createType18($result);
     });
+}
+
+export function QueryExecutionEvidence(handle: string, digest: string, query: string): $CancellablePromise<string> {
+    return $Call.ByID(413785508, handle, digest, query);
 }
 
 export function QueryInferenceMetric(handle: string, digest: string, signal: string, cursor: string, limit: number): $CancellablePromise<string> {

@@ -1,0 +1,461 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "context",
+    "crash",
+    "ignored_metric_count",
+    "kind",
+    "limitations",
+    "metrics",
+    "samples",
+    "schema_version",
+    "source"
+  ],
+  "properties": {
+    "context": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "arrival_model",
+        "arrival_rate_per_second",
+        "benchmark_kind",
+        "client_environment_sha256",
+        "concurrency",
+        "configured_duration_ns",
+        "input_token_distribution_sha256",
+        "model",
+        "model_revision",
+        "observation_boundary",
+        "output_token_distribution_sha256",
+        "phase",
+        "protocol",
+        "requested_input_tokens_mean",
+        "requested_input_tokens_stddev",
+        "requested_output_tokens_mean",
+        "requested_output_tokens_stddev",
+        "run_id",
+        "scenario_id",
+        "streaming",
+        "target_environment_sha256",
+        "tokenizer_revision",
+        "warmup_duration_ns",
+        "workload_sha256"
+      ],
+      "properties": {
+        "arrival_model": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "arrival_rate_per_second": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "benchmark_kind": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "client_environment_sha256": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "concurrency": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024
+        },
+        "configured_duration_ns": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024
+        },
+        "input_token_distribution_sha256": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "model": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "model_revision": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "observation_boundary": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "output_token_distribution_sha256": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "phase": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "protocol": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "requested_input_tokens_mean": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024
+        },
+        "requested_input_tokens_stddev": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024
+        },
+        "requested_output_tokens_mean": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024
+        },
+        "requested_output_tokens_stddev": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024
+        },
+        "run_id": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "scenario_id": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "streaming": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "target_environment_sha256": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "tokenizer_revision": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "warmup_duration_ns": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024
+        },
+        "workload_sha256": {
+          "type": "string",
+          "maxLength": 1024
+        }
+      }
+    },
+    "crash": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "completeness",
+        "elapsed_seconds",
+        "frames",
+        "native_tid_decimal",
+        "pid",
+        "runtime",
+        "signal"
+      ],
+      "properties": {
+        "completeness": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "elapsed_seconds": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "frames": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "module",
+              "source_position",
+              "symbol"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "module": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "source_position": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "symbol": {
+                "type": "string",
+                "maxLength": 1024
+              }
+            }
+          }
+        },
+        "native_tid_decimal": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024
+        },
+        "pid": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024
+        },
+        "runtime": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "signal": {
+          "type": "string",
+          "maxLength": 1024
+        }
+      }
+    },
+    "ignored_metric_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "kind": {
+      "enum": [
+        "benchmark",
+        "jvm_crash"
+      ]
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1024
+      }
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "group_sha256",
+          "id",
+          "name",
+          "original_unit",
+          "original_value",
+          "population",
+          "source_position",
+          "statistic",
+          "statistical_policy",
+          "supporting_records",
+          "unit",
+          "value"
+        ],
+        "properties": {
+          "group_sha256": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "original_unit": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "original_value": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1024
+          },
+          "population": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "source_position": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "statistic": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "statistical_policy": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "supporting_records": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1024
+          },
+          "unit": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1024
+          }
+        }
+      },
+      "maxItems": 8192
+    },
+    "samples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "connect_seconds",
+          "first_byte_seconds",
+          "group_sha256",
+          "id",
+          "latency_seconds",
+          "observed_threads",
+          "response_code",
+          "source_position",
+          "start_unix_ns",
+          "success"
+        ],
+        "properties": {
+          "connect_seconds": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1024
+          },
+          "first_byte_seconds": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1024
+          },
+          "group_sha256": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "latency_seconds": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1024
+          },
+          "observed_threads": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1024
+          },
+          "response_code": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "source_position": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "start_unix_ns": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1024
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "maxItems": 50000
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "producer",
+        "producer_version",
+        "sha256"
+      ],
+      "properties": {
+        "format": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "producer": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "producer_version": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "sha256": {
+          "type": "string",
+          "maxLength": 1024
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diagnostics.execution-evidence.v1"
+}

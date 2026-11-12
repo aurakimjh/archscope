@@ -1897,6 +1897,7 @@ export class MetricsRequest {
  * when the renderer already knows the format.
  */
 export class MultiThreadRequest {
+    "correlationContextJSON"?: string;
     "paths": string[];
     "formatOverride"?: string;
     "threshold"?: number;
@@ -1916,10 +1917,10 @@ export class MultiThreadRequest {
      * Creates a new MultiThreadRequest instance from a string or object.
      */
     static createFrom($$source: any = {}): MultiThreadRequest {
-        const $$createField0_0 = $$createType2;
+        const $$createField1_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("paths" in $$parsedSource) {
-            $$parsedSource["paths"] = $$createField0_0($$parsedSource["paths"]);
+            $$parsedSource["paths"] = $$createField1_0($$parsedSource["paths"]);
         }
         return new MultiThreadRequest($$parsedSource as Partial<MultiThreadRequest>);
     }

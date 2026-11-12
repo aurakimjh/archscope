@@ -37,3 +37,12 @@ docs/review/evidence/2026-11-12-t641/*.json text eol=lf
 docs/review/evidence/2026-11-12-t641/*.txt text eol=lf
 docs/review/evidence/2026-11-12-t641/*.py text eol=lf
 docs/review/evidence/2026-11-12-t641/*.png -text
+
+# T-642 verification records pin repository-normalized bytes.
+docs/review/evidence/2026-11-12-t642/*.json text eol=lf
+docs/review/evidence/2026-11-12-t642/*.txt text eol=lf
+docs/review/evidence/2026-11-12-t642/*.py text eol=lf
+docs/review/evidence/2026-11-12-t642/*.png -text
+
+# Preserve exact whitespace in pinned actual jstack output.
+apps/engine-native/internal/catalog/contracts/runtime-evidence-jdk21-blocked-*.txt whitespace=-blank-at-eol,-blank-at-eof

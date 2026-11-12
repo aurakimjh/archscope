@@ -1,0 +1,24 @@
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/execution	1.358s
+# github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app.test
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000027.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000028.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000029.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000030.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000031.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000032.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000033.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000034.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000035.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000036.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000037.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000038.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000039.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000040.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000041.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000042.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000043.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000044.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ld: warning: object file (/private/var/folders/zk/8gcfln1s22d5vp38vmlxv2100000gn/T/go-link-3738536044/000045.o) was built for newer 'macOS' version (27.2) than being linked (11.0)
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/execution	11.194s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analysis	2.580s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app	2.402s

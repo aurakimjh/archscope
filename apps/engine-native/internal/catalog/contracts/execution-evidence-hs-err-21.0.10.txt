@@ -1,0 +1,9 @@
+# A fatal error has been detected by the Java Runtime Environment:
+#  SIGSEGV (0xb) at pc=0x0000000000000000, pid=500, tid=501
+# JRE version: OpenJDK Runtime Environment Temurin-21.0.10+7 (21.0.10+7) (build 21.0.10+7-LTS)
+# Java VM: OpenJDK 64-Bit Server VM Temurin-21.0.10+7 (21.0.10+7-LTS, mixed mode, sharing, tiered, compressed oops, compressed class ptrs, g1 gc, bsd-aarch64)
+# Problematic frame:
+# V  [libjvm.dylib+0xa2cb34]  Unsafe_PutLong(JNIEnv_*, _jobject*, _jobject*, long, long)+0x124
+# Sanitized fragment from actual HotSpot 21.0.10 synthetic crash; other sections intentionally omitted.
+# Command Line: SYNTHETIC_COMMAND_NOT_RETAINED
+# Environment Variables: SYNTHETIC_ENV_NOT_RETAINED

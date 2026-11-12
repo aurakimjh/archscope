@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "kind": "jvm_crash",
+  "source": {
+    "sha256": "99250a106a036e88dc6ed759ea318564f732e8ce652727870222b986098e4500",
+    "format": "hs-err-text",
+    "producer": "HotSpot fatal error report",
+    "producer_version": "21.0.10+7"
+  },
+  "context": null,
+  "metrics": [],
+  "samples": [],
+  "crash": {
+    "signal": "SIGSEGV",
+    "pid": "500",
+    "native_tid_decimal": "501",
+    "runtime": "HotSpot",
+    "elapsed_seconds": null,
+    "completeness": "partial_or_unknown",
+    "frames": [
+      {
+        "kind": "V",
+        "module": "libjvm.dylib",
+        "symbol": "Unsafe_PutLong(JNIEnv_*,",
+        "source_position": "line/6"
+      }
+    ]
+  },
+  "ignored_metric_count": 0,
+  "limitations": [
+    "Source/caller conditions are declarations, not authenticated provenance or experimental control.",
+    "No load generator, endpoint calls, core/heap dump engine or causal/root-cause diagnosis.",
+    "Only selected numeric fields are normalized. Bodies, URLs, arbitrary names, environment, arguments and error messages are excluded; sanitize technical identity first.",
+    "Percentiles are retained per source population/policy; never averaged or added. Missing measurements remain null.",
+    "hs_err_pid contains sensitive process data. Only fatal signal, IDs, runtime version, elapsed time and bounded frame symbols/modules survive; no environment, command line, memory dumps or arbitrary messages.",
+    "Problematic/crashing frames are observations, not proof of root cause. Missing END. means partial_or_unknown; a marker is not a completeness authentication."
+  ]
+}

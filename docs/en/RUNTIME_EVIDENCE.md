@@ -111,3 +111,26 @@ evidence; .rs/declared language is a separate declared basis. Mere `::` or a sub
 `rust` is insufficient. Display resolution never replaces raw symbols, source/build
 identity or frame IDs; unresolved symbols remain visible. Dependency code/licenses
 ship offline; no symbol server or runtime download is used.
+
+
+## R18 thread intake and explicit multi-dump context
+
+Actual CPython 3.14.4 faulthandler Thread/Current thread headers with optional
+[name] are recognized and names retained. Unrecognized/empty thread input fails
+RUNTIME_THREAD_FORMAT_UNRECOGNIZED instead of succeeding with zero snapshots.
+Native JVM nid with 0x prefix is hex; without it the decimal OS TID is retained.
+Python faulthandler hex runtime IDs and JVM tid pointers are not native TIDs.
+Python GC errors now identify /gc_events/N (valid inverted times are included).
+
+CLI `thread-dump analyze-multi` accepts --correlation-context JSON or the bounded
+--correlation-context-file. Desktop multi-dump options expose the same JSON field.
+Use the bundled runtime-evidence-jdk21-correlation-context.json as a structural
+example. Supply schema_version 1.0.0, source_format, host_id, boot_id,
+pid_namespace, pid, process_start_ns and threads [{runtime_id,thread_start_ns}].
+Starts are canonical uint64 ns in the same declared time domain. A thread cannot
+start before its process; unknown/unobserved/duplicate IDs and format mismatches
+are refused. This declares identity; it does not authenticate producer lifetimes.
+Unmapped snapshots remain isolated. Diagnostics warn how many snapshots/dumps
+lack full context and disable persistence findings for those observations; the
+multi-dump screen displays the warnings. Names are never a fallback identity.
+Actual JDK21 repeated BLOCKED and CPython3.14 fixtures supplement earlier layouts.

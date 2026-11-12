@@ -8,6 +8,7 @@ import (
 	r "github.com/aurakimjh/archscope/apps/engine-native/internal/runtimemodel"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -100,5 +101,25 @@ func TestProfileReferencesRequireExplicitMappingAndDoNotCopyCost(t *testing.T) {
 	o.ProfileEntities = nil
 	if _, e = p.ParseBytes(context.Background(), raw, o); e == nil {
 		t.Fatal("name-based mapping invented")
+	}
+}
+
+func TestR18GCErrorHasEventCoordinate(t *testing.T) {
+	o, _ := p.DecodeOptions(read(t, "python-options.json"))
+	raw := read(t, "python-3.14.4.json")
+	var object map[string]any
+	json.Unmarshal(raw, &object)
+	gc := object["gc_events"].([]any)
+	first := gc[0].(map[string]any)
+	first["from_ns"] = "300"
+	first["to_ns"] = "200"
+	changed, _ := json.Marshal(object)
+	if _, err := p.ParseBytes(context.Background(), changed, o); err == nil || !strings.Contains(err.Error(), "/gc_events/0") {
+		t.Fatal(err)
+	}
+	first["phase"] = "unknown"
+	changed, _ = json.Marshal(object)
+	if _, err := p.ParseBytes(context.Background(), changed, o); err == nil || !strings.Contains(err.Error(), "/gc_events/0") {
+		t.Fatal(err)
 	}
 }

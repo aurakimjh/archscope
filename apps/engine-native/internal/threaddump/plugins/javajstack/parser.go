@@ -71,6 +71,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump"
@@ -249,7 +250,10 @@ func recordToSnapshot(record threadDumpRecord, index, sectionIndex int) models.T
 	snapshot.Metadata["observed_state"] = record.State
 	if record.NativeID != "" {
 		snapshot.Metadata["native_tid"] = record.NativeID
-		snapshot.Metadata["native_tid_encoding"] = "jvm_nid_hex"
+		snapshot.Metadata["native_tid_encoding"] = "os_tid_decimal"
+		if strings.HasPrefix(strings.ToLower(record.NativeID), "0x") {
+			snapshot.Metadata["native_tid_encoding"] = "jvm_nid_hex"
+		}
 	}
 	if isVirtualThread(record) {
 		snapshot.Metadata["is_virtual_thread"] = true

@@ -97,7 +97,8 @@ func ReadFixtures(body []byte, required []string) (FixtureManifest, map[string][
 		return m, nil, e
 	}
 	files := map[string][]byte{}
-	if len(z.File) > 128 {
+	// Bound the expanded conformance corpus independently of its byte budgets.
+	if len(z.File) > 256 {
 		return m, nil, fmt.Errorf("fixture entry budget")
 	}
 	total := 0

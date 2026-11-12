@@ -4,14 +4,13 @@
 
 ## 미처리
 
-| 날짜 | 문서 | 대상 | 판정 |
-|---|---|---|---|
-| 2026-11-12 | [T-641 런타임·로그 진단 심화 구현 독립 리뷰](2026-11-12_claude-code_T-641_implementation-review.ko.md) | `5484b3b` | CONDITIONAL(P2 2/P3 2, P1 없음). R18-01(faulthandler 3.14 덤프 소실)·R18-02(multi-dump 상관 맥락 경로 부재)를 먼저 처리한 뒤 DONE 복귀 허용, 나머지는 후속 큐 |
+미처리 없음.
 
 ## 처리 기록
 
 | 날짜 | 문서 | 대상 | 판정·처리 |
 |---|---|---|---|
+| 2026-11-12 | [T-641 런타임 근거 구현 독립 리뷰](done/2026-11-12_claude-code_T-641_implementation-review.ko.md) | `5484b3b` | CONDITIONAL(P2 2/P3 2). R18-01→02→03/04 작업표 반영 후 원문 보관. R18-01–R18-04 로컬 수정·검증 완료. 원 리뷰의 P2 처리 후 종결 허용에 따라 T-641 DONE. 원 CONDITIONAL·native 범위 보존; 최종 독립 PASS 주장 없음. 근거: evidence/2026-11-12-t642/local.json. |
 | 2026-11-12 | [T-640 LLM·gateway·lifecycle trace 근거 구현 독립 리뷰](done/2026-11-12_claude-code_T-640_implementation-review.ko.md) | `eadc040` | CONDITIONAL(P2 1/P3 4). R17-01→02→03→04/05를 작업표에 기록 후 원문 보관. R17-01–R17-04 로컬 수정·검증, R17-05는 버전별 duration 후속 큐 유지. 원 리뷰의 P2 처리 후 종결 허용에 따라 T-640 DONE. 원 CONDITIONAL·native 범위 보존; 최종 독립 PASS 주장 없음. 근거: evidence/2026-11-12-t641/local.json. |
 | 2026-11-12 | [T-639 GPU·서빙 독립 리뷰](done/2026-11-12_claude-code_T-639_implementation-review.ko.md) | `4cd6003` | CONDITIONAL(P2 2/P3 4). R16-02→01→03→04→05/06을 작업표에 기록 후 원문 보관. R16-01–R16-06 로컬 수정·검증 완료. 원 리뷰의 P2 처리 후 종결 허용에 따라 T-639 DONE. 원 CONDITIONAL·native 범위 보존; 최종 독립 PASS 주장 없음. 근거: evidence/2026-11-12-t640/local.json. |
 | 2026-11-12 | [T-638 메트릭 이력 독립 리뷰](done/2026-11-12_claude-code_T-638_implementation-review.ko.md) | `2454987` | CONDITIONAL(P2 1/P3 6). R13-01–R13-07을 작업표에 기록한 뒤 원문 보관. R13-01은 selected-series compact payload 0.2.0·최소 투영·compact CLI·한도 안내로 로컬 수정/검증. 10만 point 실제 CLI 재열기 및 0.1.0 저장 reader 검증. 원 리뷰의 P2 처리 후 종결 허용에 따라 T-638 DONE, P3 6건은 후속 큐 유지. 원 CONDITIONAL·native 범위 보존; 최종 독립 PASS 주장 없음. 근거: evidence/2026-11-12-t636/local.json. |

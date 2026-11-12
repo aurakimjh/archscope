@@ -50,6 +50,13 @@ func (b *builder) threadDump(raw []byte) error {
 	if len(bundles) > 128 {
 		return fmt.Errorf("RUNTIME_DUMP_COUNT_BUDGET")
 	}
+	total := 0
+	for _, bundle := range bundles {
+		total += len(bundle.Snapshots)
+	}
+	if total == 0 {
+		return fmt.Errorf("RUNTIME_THREAD_FORMAT_UNRECOGNIZED: source contained no recognized snapshots")
+	}
 	originalTime := b.options.Time
 	for i, bundle := range bundles {
 		if e := b.ctx.Err(); e != nil {

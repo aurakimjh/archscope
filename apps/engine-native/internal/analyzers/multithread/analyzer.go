@@ -78,9 +78,8 @@
 // 주의 / 트리키한 부분
 //   - formatThreadName 은 Python repr 의 기본 quoting 을 흉내 — 메시지
 //     문자열의 byte-level 일치를 위해 필요.
-//   - timeline 의 thread name 은 충돌 가능 → 동명 스레드는 합쳐짐.
-//     Python 도 같은 결합 정책이며 실세계에서 thread name 이 unique
-//     한 환경(WAS 풀 등)에서 의미를 가짐.
+//   - 타임라인은 선언한 프로세스/스레드 수명과 runtime ID로 연결한다.
+//     맥락 없는 관측은 분리하고 진단 경고를 반환한다.
 //   - IncludeRawSnapshots 는 파이썬 패리티용 placeholder 로 현재 미사용.
 package multithread
 
@@ -88,6 +87,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
@@ -257,6 +257,22 @@ func buildDiagnostics(bundles []models.ThreadDumpBundle) *diagnostics.ParserDiag
 		parsed += len(b.Snapshots)
 	}
 	d.ParsedRecords = parsed
+	isolated, dumps := 0, 0
+	for _, b := range bundles {
+		has := false
+		for i, s := range b.Snapshots {
+			if strings.HasPrefix(identityKey(b, s, i), "unqualified:") {
+				isolated++
+				has = true
+			}
+		}
+		if has {
+			dumps++
+		}
+	}
+	if len(bundles) > 1 && isolated > 0 {
+		d.AddWarning(0, "THREAD_CORRELATION_CONTEXT_MISSING", fmt.Sprintf("%d snapshots in %d dumps isolated without complete process/thread lifetime context; across-dump persistence/long-running detection is disabled for these observations. Supply explicit correlation context; names alone never join.", isolated, dumps), "", false)
+	}
 	return d
 }
 

@@ -1,0 +1,476 @@
+{
+  "type": "thread_dump_multi",
+  "source_files": [
+    "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-jdk21-blocked-1.txt",
+    "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-jdk21-blocked-2.txt"
+  ],
+  "created_at": "2026-11-12T08:38:02.795858Z",
+  "summary": {
+    "class_histogram_classes": 0,
+    "class_histogram_incomplete": 0,
+    "consecutive_dump_threshold": 2,
+    "growing_lock_contention": 0,
+    "languages_detected": [
+      "java"
+    ],
+    "latency_sections": 0,
+    "long_running_threads": 0,
+    "native_method_threads": 0,
+    "persistent_blocked_threads": 1,
+    "smr_unresolved_threads": 0,
+    "source_formats": [
+      "java_jstack"
+    ],
+    "total_dumps": 2,
+    "total_thread_observations": 40,
+    "unique_threads": 38,
+    "virtual_thread_carrier_pinning": 0
+  },
+  "series": {
+    "state_distribution_per_dump": [
+      {
+        "counts": {
+          "BLOCKED": 1,
+          "RUNNABLE": 14,
+          "TIMED_WAITING": 3,
+          "WAITING": 2
+        },
+        "dump_index": 0,
+        "dump_label": "runtime-evidence-jdk21-blocked-1.txt"
+      },
+      {
+        "counts": {
+          "BLOCKED": 1,
+          "RUNNABLE": 14,
+          "TIMED_WAITING": 3,
+          "WAITING": 2
+        },
+        "dump_index": 1,
+        "dump_label": "runtime-evidence-jdk21-blocked-2.txt"
+      }
+    ],
+    "state_transition_timeline": [
+      {
+        "thread_name": "synthetic-blocked",
+        "transitions": [
+          {
+            "dump_index": 0,
+            "stack_signature": "SyntheticBlocked.lambda$main$1 (SyntheticBlocked.java:1) | 0x000000d801000c28.run (Unknown Source) | java.lang.Thread.runWith (java.base@21.0.10/Thread.java:1596) | java.lang.Thread.run (java.base@21.0.10/Thread.java:1583)",
+            "state": "BLOCKED"
+          },
+          {
+            "dump_index": 1,
+            "stack_signature": "SyntheticBlocked.lambda$main$1 (SyntheticBlocked.java:1) | 0x000000d801000c28.run (Unknown Source) | java.lang.Thread.runWith (java.base@21.0.10/Thread.java:1596) | java.lang.Thread.run (java.base@21.0.10/Thread.java:1583)",
+            "state": "BLOCKED"
+          }
+        ]
+      },
+      {
+        "thread_name": "synthetic-owner",
+        "transitions": [
+          {
+            "dump_index": 0,
+            "stack_signature": "java.lang.Thread.sleep0 (java.base@21.0.10/Native Method) | java.lang.Thread.sleep (java.base@21.0.10/Thread.java:509) | SyntheticBlocked.lambda$main$0 (SyntheticBlocked.java:1) | 0x000000d801000a08.run (Unknown Source) | java.lang.Thread.runWith (java.base@21.0.10/Thread.java:1596)",
+            "state": "TIMED_WAITING"
+          },
+          {
+            "dump_index": 1,
+            "stack_signature": "java.lang.Thread.sleep0 (java.base@21.0.10/Native Method) | java.lang.Thread.sleep (java.base@21.0.10/Thread.java:509) | SyntheticBlocked.lambda$main$0 (SyntheticBlocked.java:1) | 0x000000d801000a08.run (Unknown Source) | java.lang.Thread.runWith (java.base@21.0.10/Thread.java:1596)",
+            "state": "TIMED_WAITING"
+          }
+        ]
+      },
+      {
+        "thread_name": "Attach Listener",
+        "transitions": [
+          {
+            "dump_index": 0,
+            "stack_signature": "(no-stack)",
+            "state": "RUNNABLE"
+          }
+        ]
+      },
+      {
+        "thread_name": "Attach Listener",
+        "transitions": [
+          {
+            "dump_index": 1,
+            "stack_signature": "(no-stack)",
+            "state": "RUNNABLE"
+          }
+        ]
+      },
+      {
+        "thread_name": "C1 CompilerThread0",
+        "transitions": [
+          {
+            "dump_index": 1,
+            "stack_signature": "(no-stack)",
+            "state": "RUNNABLE"
+          }
+        ]
+      },
+      {
+        "thread_name": "C1 CompilerThread0",
+        "transitions": [
+          {
+            "dump_index": 0,
+            "stack_signature": "(no-stack)",
+            "state": "RUNNABLE"
+          }
+        ]
+      },
+      {
+        "thread_name": "C2 CompilerThread0",
+        "transitions": [
+          {
+            "dump_index": 0,
+            "stack_signature": "(no-stack)",
+            "state": "RUNNABLE"
+          }
+        ]
+      },
+      {
+        "thread_name": "C2 CompilerThread0",
+        "transitions": [
+          {
+            "dump_index": 1,
+            "stack_signature": "(no-stack)",
+            "state": "RUNNABLE"
+          }
+        ]
+      },
+      {
+        "thread_name": "Common-Cleaner",
+        "transitions": [
+          {
+            "dump_index": 1,
+            "stack_signature": "jdk.internal.misc.Unsafe.park (java.base@21.0.10/Native Method) | java.util.concurrent.locks.LockSupport.parkNanos (java.base@21.0.10/LockSupport.java:269) | java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await (java.base@21.0.10/AbstractQueuedSynchronizer.java:1886) | java.lang.ref.ReferenceQueue.await (java.base@21.0.10/ReferenceQueue.java:71) | java.lang.ref.ReferenceQueue.remove0 (java.base@21.0.10/ReferenceQueue.java:143)",
+            "state": "TIMED_WAITING"
+          }
+        ]
+      },
+      {
+        "thread_name": "Common-Cleaner",
+        "transitions": [
+          {
+            "dump_index": 0,
+            "stack_signature": "jdk.internal.misc.Unsafe.park (java.base@21.0.10/Native Method) | java.util.concurrent.locks.LockSupport.parkNanos (java.base@21.0.10/LockSupport.java:269) | java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await (java.base@21.0.10/AbstractQueuedSynchronizer.java:1886) | java.lang.ref.ReferenceQueue.await (java.base@21.0.10/ReferenceQueue.java:71) | java.lang.ref.ReferenceQueue.remove0 (java.base@21.0.10/ReferenceQueue.java:143)",
+            "state": "TIMED_WAITING"
+          }
+        ]
+      },
+      {
+        "thread_name": "Finalizer",
+        "transitions": [
+          {
+            "dump_index": 1,
+            "stack_signature": "java.lang.Object.wait0 (java.base@21.0.10/Native Method) | java.lang.Object.wait (java.base@21.0.10/Object.java:366) | java.lang.Object.wait (java.base@21.0.10/Object.java:339) | java.lang.ref.NativeReferenceQueue.await (java.base@21.0.10/NativeReferenceQueue.java:48) | java.lang.ref.ReferenceQueue.remove0 (java.base@21.0.10/ReferenceQueue.java:158)",
+            "state": "WAITING"
+          }
+        ]
+      },
+      {
+        "thread_name": "Finalizer",
+        "transitions": [
+          {
+            "dump_index": 0,
+            "stack_signature": "java.lang.Object.wait0 (java.base@21.0.10/Native Method) | java.lang.Object.wait (java.base@21.0.10/Object.java:366) | java.lang.Object.wait (java.base@21.0.10/Object.java:339) | java.lang.ref.NativeReferenceQueue.await (java.base@21.0.10/NativeReferenceQueue.java:48) | java.lang.ref.ReferenceQueue.remove0 (java.base@21.0.10/ReferenceQueue.java:158)",
+            "state": "WAITING"
+          }
+        ]
+      },
+      {
+        "thread_name": "G1 Conc#0",
+        "transitions": [
+          {
+            "dump_index": 1,
+            "stack_signature": "(no-stack)",
+            "state": "RUNNABLE"
+          }
+        ]
+      },
+      {
+        "thread_name": "G1 Conc#0",
+        "transitions": [
+          {
+            "dump_index": 0,
+            "stack_signature": "(no-stack)",
+            "state": "RUNNABLE"
+          }
+        ]
+      },
+      {
+        "thread_name": "G1 Main Marker",
+        "transitions": [
+          {
+            "dump_index": 1,
+            "stack_signature": "(no-stack)",
+            "state": "RUNNABLE"
+          }
+        ]
+      },
+      {
+        "thread_name": "G1 Main Marker",
+        "transitions": [
+          {
+            "dump_index": 0,
+            "stack_signature": "(no-stack)",
+            "state": "RUNNABLE"
+          }
+        ]
+      },
+      {
+        "thread_name": "G1 Refine#0",
+        "transitions": [
+          {
+            "dump_index": 1,
+            "stack_signature": "(no-stack)",
+            "state": "RUNNABLE"
+          }
+        ]
+      },
+      {
+        "thread_name": "G1 Refine#0",
+        "transitions": [
+          {
+            "dump_index": 0,
+            "stack_signature": "(no-stack)",
+            "state": "RUNNABLE"
+          }
+        ]
+      },
+      {
+        "thread_name": "G1 Service",
+        "transitions": [
+          {
+            "dump_index": 1,
+            "stack_signature": "(no-stack)",
+            "state": "RUNNABLE"
+          }
+        ]
+      },
+      {
+        "thread_name": "G1 Service",
+        "transitions": [
+          {
+            "dump_index": 0,
+            "stack_signature": "(no-stack)",
+            "state": "RUNNABLE"
+          }
+        ]
+      }
+    ],
+    "thread_persistence": [
+      {
+        "observed_in_dumps": 2,
+        "thread_name": "synthetic-blocked"
+      },
+      {
+        "observed_in_dumps": 2,
+        "thread_name": "synthetic-owner"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "Attach Listener"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "Attach Listener"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "C1 CompilerThread0"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "C1 CompilerThread0"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "C2 CompilerThread0"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "C2 CompilerThread0"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "Common-Cleaner"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "Common-Cleaner"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "Finalizer"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "Finalizer"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "G1 Conc#0"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "G1 Conc#0"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "G1 Main Marker"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "G1 Main Marker"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "G1 Refine#0"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "G1 Refine#0"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "G1 Service"
+      },
+      {
+        "observed_in_dumps": 1,
+        "thread_name": "G1 Service"
+      }
+    ]
+  },
+  "tables": {
+    "class_histogram_incomplete": [],
+    "class_histogram_top_classes": [],
+    "dumps": [
+      {
+        "dump_index": 0,
+        "dump_label": "runtime-evidence-jdk21-blocked-1.txt",
+        "end_line": 145,
+        "language": "java",
+        "raw_timestamp": "2026-11-12 17:22:52",
+        "source_file": "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-jdk21-blocked-1.txt",
+        "source_format": "java_jstack",
+        "start_line": 2,
+        "thread_count": 20
+      },
+      {
+        "dump_index": 1,
+        "dump_label": "runtime-evidence-jdk21-blocked-2.txt",
+        "end_line": 145,
+        "language": "java",
+        "raw_timestamp": "2026-11-12 17:22:52",
+        "source_file": "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-jdk21-blocked-2.txt",
+        "source_format": "java_jstack",
+        "start_line": 2,
+        "thread_count": 20
+      }
+    ],
+    "growing_lock_contention": [],
+    "latency_sections": [],
+    "long_running_stacks": null,
+    "native_method_threads": [],
+    "persistent_blocked_threads": [
+      {
+        "dumps": 2,
+        "first_dump_index": 0,
+        "stack_signatures": [
+          "SyntheticBlocked.lambda$main$1 (SyntheticBlocked.java:1) | 0x000000d801000c28.run (Unknown Source) | java.lang.Thread.runWith (java.base@21.0.10/Thread.java:1596) | java.lang.Thread.run (java.base@21.0.10/Thread.java:1583)"
+        ],
+        "thread_name": "synthetic-blocked"
+      }
+    ],
+    "smr_unresolved_threads": [],
+    "virtual_thread_carrier_pinning": []
+  },
+  "charts": {},
+  "metadata": {
+    "diagnostics": {
+      "source_file": null,
+      "format": "thread_dump_multi",
+      "total_lines": 0,
+      "parsed_records": 40,
+      "skipped_lines": 0,
+      "skipped_by_reason": {},
+      "samples": [
+        {
+          "line_number": 0,
+          "reason": "THREAD_CORRELATION_CONTEXT_MISSING",
+          "message": "36 snapshots in 2 dumps isolated without complete process/thread lifetime context; across-dump persistence/long-running detection is disabled for these observations. Supply explicit correlation context; names alone never join.",
+          "raw_preview": ""
+        }
+      ],
+      "warning_count": 1,
+      "error_count": 0,
+      "warnings": [
+        {
+          "line_number": 0,
+          "reason": "THREAD_CORRELATION_CONTEXT_MISSING",
+          "message": "36 snapshots in 2 dumps isolated without complete process/thread lifetime context; across-dump persistence/long-running detection is disabled for these observations. Supply explicit correlation context; names alone never join.",
+          "raw_preview": ""
+        }
+      ],
+      "errors": []
+    },
+    "findings": [
+      {
+        "code": "THREAD_CONGESTION_DETECTED",
+        "evidence": {
+          "dump_index": 0,
+          "source_file": "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-jdk21-blocked-1.txt",
+          "total_threads": 20,
+          "waiting_ratio": 0.15,
+          "waiting_threads": 3
+        },
+        "message": "Dump #0: 15.0% of threads are waiting for a monitor — possible congestion or upstream deadlock.",
+        "severity": "warning",
+        "thresholds": {
+          "waiting_ratio": 0.1
+        }
+      },
+      {
+        "code": "THREAD_CONGESTION_DETECTED",
+        "evidence": {
+          "dump_index": 1,
+          "source_file": "/Users/aura/workspace/archscope/apps/engine-native/internal/catalog/contracts/runtime-evidence-jdk21-blocked-2.txt",
+          "total_threads": 20,
+          "waiting_ratio": 0.15,
+          "waiting_threads": 3
+        },
+        "message": "Dump #1: 15.0% of threads are waiting for a monitor — possible congestion or upstream deadlock.",
+        "severity": "warning",
+        "thresholds": {
+          "waiting_ratio": 0.1
+        }
+      },
+      {
+        "code": "PERSISTENT_BLOCKED_THREAD",
+        "evidence": {
+          "dumps": 2,
+          "first_dump_index": 0,
+          "stack_signatures": [
+            "SyntheticBlocked.lambda$main$1 (SyntheticBlocked.java:1) | 0x000000d801000c28.run (Unknown Source) | java.lang.Thread.runWith (java.base@21.0.10/Thread.java:1596) | java.lang.Thread.run (java.base@21.0.10/Thread.java:1583)"
+          ],
+          "thread_name": "synthetic-blocked"
+        },
+        "message": "Thread 'synthetic-blocked' stayed BLOCKED for 2 consecutive dumps.",
+        "severity": "critical",
+        "thresholds": {
+          "consecutive_dumps": 2
+        }
+      }
+    ],
+    "identity_policy": "host/boot/namespace/process-lifetime/runtime-ID/thread-lifetime; missing context isolates observations",
+    "observation_limitations": [
+      "Repeated observed states/stacks do not measure continuous execution or wait between dumps.",
+      "RUNNABLE is not measured CPU use. Qualified CPU/TID window checks are available through runtime evidence."
+    ],
+    "parser": "thread_dump_multi",
+    "schema_version": "0.2.0"
+  }
+}

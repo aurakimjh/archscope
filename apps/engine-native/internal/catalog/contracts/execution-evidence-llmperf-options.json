@@ -1,0 +1,26 @@
+{
+  "format": "llmperf-summary-json",
+  "producer_version": "f1d6bed47e4501b0e371082b41601b59ab55269f",
+  "context": {
+    "run_id": "synthetic-run",
+    "benchmark_kind": "llm",
+    "scenario_id": "synthetic-loopback",
+    "workload_sha256": "4a0da2efe32572d4d32e4c489362f8477a6488b52693e6d09fedb28f9ff62f07",
+    "client_environment_sha256": "186cb4adf190a9e198815dc58eadf188c96d5eff95a8eb6f23d5693311a55268",
+    "target_environment_sha256": "a1311114618394433a7ff0e8f01ce4af655464f5e66bb46dbd7d270dcbc4c65f",
+    "arrival_model": "closed",
+    "arrival_rate_per_second": null,
+    "concurrency": "2",
+    "warmup_duration_ns": "0",
+    "phase": "cold",
+    "observation_boundary": "client",
+    "protocol": "http",
+    "streaming": true,
+    "model": "synthetic-model",
+    "model_revision": "synthetic-model-r1",
+    "tokenizer_revision": "synthetic-tokenizer-r1",
+    "input_token_distribution_sha256": "8eebd58026bee9daea42b4a79bdb5d180f36a631de4915922aeea03fd051f71b",
+    "output_token_distribution_sha256": "760000f1ffeda54ce7bc4fed2bf72904aa8d0b2e02ddf3f4486962a972de35f8",
+    "configured_duration_ns": "5000000000"
+  }
+}

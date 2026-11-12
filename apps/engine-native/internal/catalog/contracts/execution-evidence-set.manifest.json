@@ -1,0 +1,81 @@
+{
+  "id": "diagnostics.execution-evidence.v1",
+  "version": "1.0.0",
+  "synthetic": true,
+  "qualification": "고정 k6 loopback·LLMPerf 통계/직렬화 함수·정제한 실제 HotSpot 발췌와 합성 JMeter 구조",
+  "schema_sha256": "b9fbd7a50e09bd9544a49f409d9cdf8a63a81d4f4406a6634a82a102d8712d3a",
+  "files": [
+    {
+      "file": "LICENSE.txt",
+      "sha256": "36c8a25a2ae921e2b6f148ca0a62db71c4786625dc6ed516d1016cafecdec0b6"
+    },
+    {
+      "file": "README.md",
+      "sha256": "8c5d9e061d7c13b0658d2dd3ada5aeddbcd495a1499f29bf39399565b62acd24"
+    },
+    {
+      "file": "crash-options.json",
+      "sha256": "b222ebf696a12f8b0256b242a4ac6dd527035fbcb462df59328d9a7ae2846505"
+    },
+    {
+      "file": "crash-set.json",
+      "sha256": "04218e84c540d1ff5155ecaf7dfbfef0d5ff973545fb81dd2beeb24cc6072d8f"
+    },
+    {
+      "file": "execution-evidence-set.json",
+      "sha256": "c1a9aae72d4843397f9355cbda47e71a5d1c09875279b6613b9633e70c142330"
+    },
+    {
+      "file": "execution-evidence-set.schema.json",
+      "sha256": "b9fbd7a50e09bd9544a49f409d9cdf8a63a81d4f4406a6634a82a102d8712d3a"
+    },
+    {
+      "file": "generate_fixture.py",
+      "sha256": "66e369afa7cf50d062f1c7a799f92e2b3f6a963c4209b202700cff72092d41ab"
+    },
+    {
+      "file": "hs-err-21.0.10.txt",
+      "sha256": "99250a106a036e88dc6ed759ea318564f732e8ce652727870222b986098e4500"
+    },
+    {
+      "file": "jmeter-5.6.3.csv",
+      "sha256": "fcd934765dcda73e256296d77ef1481db2e015a903c45063d281256223c68d69"
+    },
+    {
+      "file": "jmeter-options.json",
+      "sha256": "e465b08b5320fc8727fc05c00e1d1af656af4d905e6693bee6ff7675c91cd259"
+    },
+    {
+      "file": "jmeter-set.json",
+      "sha256": "e228166e7bcfcca7c984731eae98067dd950191897e3f5f96a8cb99c5be69e96"
+    },
+    {
+      "file": "k6-1.3.0.json",
+      "sha256": "d0a146b5b41dce178910e6d911ae938a88b8033bbde8e06d1bd8829ba53bb2ea"
+    },
+    {
+      "file": "k6-options.json",
+      "sha256": "1681455a87d14b1c1ebbb0e1343bb21ee0e558e40c55ff49b7d3cf1bf75145e9"
+    },
+    {
+      "file": "k6-set.json",
+      "sha256": "c1a9aae72d4843397f9355cbda47e71a5d1c09875279b6613b9633e70c142330"
+    },
+    {
+      "file": "llmperf-options.json",
+      "sha256": "d4ee38d6e7142e17e19378fb42cfea910b67b411fa1556a567c3a307aa493eca"
+    },
+    {
+      "file": "llmperf-set.json",
+      "sha256": "e9553fe6c417f7c2a2e694a2df9c3e0c0964d3c4891c2e32da7786cf1b6e44ee"
+    },
+    {
+      "file": "llmperf-summary.json",
+      "sha256": "1ada618a78f70c80bad336d09adc7ce2d2a7fe0d94ffdce92a11f981e04f4392"
+    },
+    {
+      "file": "producer-provenance.json",
+      "sha256": "4e37eeef01c9c0d0ec07dbd27efec30be620ff682412e9915c5fba850658c739"
+    }
+  ]
+}

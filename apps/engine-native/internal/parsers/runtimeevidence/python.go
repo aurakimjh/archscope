@@ -3,6 +3,7 @@ package runtimeevidence
 import (
 	"encoding/json"
 	"fmt"
+	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
 	r "github.com/aurakimjh/archscope/apps/engine-native/internal/runtimemodel"
 )
 
@@ -95,11 +96,19 @@ func (b *builder) python(raw []byte) error {
 		}
 	}
 	for i, x := range v.GC {
+		from, fromOK := m.Time(&x.From)
+		to, toOK := m.Time(&x.To)
+		if !fromOK || !toOK {
+			return fmt.Errorf("RUNTIME_GC_TIME_INVALID at /gc_events/%d", i)
+		}
+		if to < from {
+			return fmt.Errorf("RUNTIME_INTERVAL_INVALID at /gc_events/%d: from_ns=%s to_ns=%s", i, x.From, x.To)
+		}
 		if x.Phase != "pause" && x.Phase != "concurrent" {
-			return fmt.Errorf("RUNTIME_GC_PHASE_REQUIRED")
+			return fmt.Errorf("RUNTIME_GC_PHASE_REQUIRED at /gc_events/%d", i)
 		}
 		if e := b.add(r.Observation{Entity: id, Kind: "gc", Metric: x.Phase + "_ns", Unit: "nanoseconds", Basis: "observed_interval", From: &x.From, To: &x.To, Ref: r.Ref{Position: fmt.Sprintf("/gc_events/%d", i)}}); e != nil {
-			return e
+			return fmt.Errorf("/gc_events/%d: %w", i, e)
 		}
 	}
 	return nil
