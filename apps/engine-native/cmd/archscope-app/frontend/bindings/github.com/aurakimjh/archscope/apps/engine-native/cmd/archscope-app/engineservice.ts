@@ -407,6 +407,10 @@ export function DescribeExecutionEvidence(handle: string): $CancellablePromise<s
     return $Call.ByID(2652561957, handle);
 }
 
+export function DescribeGPUExecution(handle: string): $CancellablePromise<string> {
+    return $Call.ByID(4195249630, handle);
+}
+
 export function DescribeInferenceEvidence(handle: string): $CancellablePromise<string> {
     return $Call.ByID(1830062688, handle);
 }
@@ -506,6 +510,10 @@ export function ExportEvidenceResult(handle: string, path: string, format: strin
 
 export function ExportExecutionComparison(left: string, right: string, leftSHA: string, rightSHA: string, query: string, output: string): $CancellablePromise<string> {
     return $Call.ByID(129094252, left, right, leftSHA, rightSHA, query, output);
+}
+
+export function ExportGPUExecutionSVG(handle: string, digest: string, query: string, output: string): $CancellablePromise<string> {
+    return $Call.ByID(3157996073, handle, digest, query, output);
 }
 
 /**
@@ -636,6 +644,10 @@ export function InspectExecutionSource(path: string, options: string): $Cancella
     return $Call.ByID(2060490268, path, options);
 }
 
+export function InspectGPUExecutionSource(path: string, options: string): $CancellablePromise<string> {
+    return $Call.ByID(2893351604, path, options);
+}
+
 export function InspectInferenceSource(path: string, options: string): $CancellablePromise<string> {
     return $Call.ByID(688608261, path, options);
 }
@@ -724,6 +736,10 @@ export function NormalizeExecutionSource(path: string, options: string, digest: 
     return $Call.ByID(806423805, path, options, digest, output);
 }
 
+export function NormalizeGPUExecutionSource(path: string, options: string, digest: string, output: string): $CancellablePromise<string> {
+    return $Call.ByID(1129673659, path, options, digest, output);
+}
+
 export function NormalizeInferenceSource(path: string, options: string, expectedSHA: string, output: string): $CancellablePromise<string> {
     return $Call.ByID(3169941220, path, options, expectedSHA, output);
 }
@@ -808,6 +824,10 @@ export function QueryEvidenceProvider(handle: string, provider: string, offset: 
 
 export function QueryExecutionEvidence(handle: string, digest: string, query: string): $CancellablePromise<string> {
     return $Call.ByID(413785508, handle, digest, query);
+}
+
+export function QueryGPUExecution(handle: string, digest: string, query: string): $CancellablePromise<string> {
+    return $Call.ByID(1336900085, handle, digest, query);
 }
 
 export function QueryInferenceMetric(handle: string, digest: string, signal: string, cursor: string, limit: number): $CancellablePromise<string> {

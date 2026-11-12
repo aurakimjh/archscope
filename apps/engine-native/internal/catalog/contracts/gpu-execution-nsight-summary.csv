@@ -1,0 +1,51 @@
+Time (%),Total Time (ns),Instances,Avg (ns),Med (ns),Min (ns),Max (ns),StdDev (ns),Name
+15.7,544523471,938,580515.4,553514.5,298334,1010134,83792.1,"void cudnn::cnn::wgrad_alg0_engine<float, (int)512, (int)6, (int)5, (int)3, (int)3, (int)3, (bool)0, (int)512>(int, int, int, const T1 *, int, T1 *, const T1 *, kernel_grad_params, unsigned long long, int, float, int, int, int, int)"
+9.1,315187614,5658,55706.5,60559.5,2047,1259988,71422.1,"void at::native::vectorized_elementwise_kernel<(int)4, void at::native::threshold_kernel_impl<float>(at::TensorIterator &, T1, T1)::[lambda(float, float) (instance 1)], at::detail::Array<char *, (int)3>>(int, T2, T3)"
+6.6,230244686,1875,122797.2,119006.0,77503,177662,33494.5,"void fft2d_r2c_32x32<float, (bool)0, (unsigned int)0, (bool)0>(float2 *, const T1 *, int, int, int, int, int, int, int, int, int, cudnn::reduced_divisor, bool, int2, int, int)"
+6.5,224335463,1875,119645.6,105023.0,37535,179646,31942.8,"void fft2d_c2r_32x32<float, (bool)0, (bool)0, (unsigned int)0, (bool)0, (bool)0>(T1 *, const float2 *, int, int, int, int, int, int, int, int, int, float, float, cudnn::reduced_divisor, bool, T1 *, T1 *, int2, int, int)"
+5.4,188451852,937,201122.6,200670.0,197918,214142,2216.4,volta_cgemm_32x32_tn
+4.8,166929529,937,178153.2,177407.0,173022,192446,3026.8,volta_cgemm_64x32_tn
+4.3,149286702,938,159154.3,152382.0,77503,252189,18329.7,"void at::native::<unnamed>::max_pool_backward_nchw<float, float>(int, const T1 *, const long *, int, int, int, int, int, int, int, int, int, int, int, int, int, int, T1 *)"
+4.2,144470102,15008,9626.2,2208.0,1951,62527,19476.8,"void at::native::vectorized_elementwise_kernel<(int)4, at::native::addcmul_cuda_kernel(at::TensorIterator &, c10::Scalar)::[lambda() (instance 1)]::operator ()() const::[lambda() (instance 8)]::operator ()() const::[lambda(float, float, float) (instance 1)], at::detail::Array<char *, (int)4>>(int, T2, T3)"
+4.2,144362978,15008,9619.1,2496.0,2111,65920,18861.3,"void at::native::vectorized_elementwise_kernel<(int)4, at::native::AddFunctor<float>, at::detail::Array<char *, (int)3>>(int, T2, T3)"
+4.0,140253973,1896,73973.6,80224.0,12576,1228340,97968.7,"void at::native::unrolled_elementwise_kernel<at::native::AddFunctor<float>, at::detail::Array<char *, (int)3>, OffsetCalculator<(int)2, unsigned int>, OffsetCalculator<(int)1, unsigned int>, at::native::memory::LoadWithoutCast, at::native::memory::StoreWithoutCast>(int, T1, T2, T3, T4, T5, T6)"
+3.4,116952081,1875,62374.4,62239.0,47615,82079,3949.0,"void fft2d_r2c_32x32<float, (bool)0, (unsigned int)1, (bool)0>(float2 *, const T1 *, int, int, int, int, int, int, int, int, int, cudnn::reduced_divisor, bool, int2, int, int)"
+3.1,107035443,15008,7131.9,2144.0,1951,43040,13008.0,"void at::native::vectorized_elementwise_kernel<(int)4, at::native::BUnaryFunctor<at::native::AddFunctor<float>>, at::detail::Array<char *, (int)2>>(int, T2, T3)"
+3.1,106234502,15008,7078.5,2176.0,2016,42367,12774.3,"void at::native::vectorized_elementwise_kernel<(int)4, at::native::sqrt_kernel_cuda(at::TensorIterator &)::[lambda() (instance 1)]::operator ()() const::[lambda() (instance 4)]::operator ()() const::[lambda(float) (instance 1)], at::detail::Array<char *, (int)2>>(int, T2, T3)"
+2.8,97984226,15008,6528.8,2176.0,1951,42400,11393.0,"void at::native::vectorized_elementwise_kernel<(int)4, at::native::MulScalarFunctor<float, float>, at::detail::Array<char *, (int)2>>(int, T2, T3)"
+2.4,82538746,1876,43997.2,42207.5,15776,63008,7214.1,"void at::native::reduce_kernel<(int)512, (int)1, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator ()(at::TensorIterator &)::[lambda(float, float) (instance 1)]>, unsigned int, float, (int)4>>(T3)"
+2.3,78904238,948,83232.3,72575.5,37856,1083061,103266.7,"void at::native::<unnamed>::max_pool_forward_nchw<float, float>(int, const T1 *, int, int, int, int, int, int, int, int, int, int, int, int, int, int, T1 *, long *)"
+2.1,73362084,7504,9776.4,2368.0,2144,64031,19424.0,"void at::native::vectorized_elementwise_kernel<(int)4, at::native::DivFunctor<float>, at::detail::Array<char *, (int)3>>(int, T2, T3)"
+2.1,73266038,9380,7810.9,1952.0,1760,48831,12486.5,"void at::native::vectorized_elementwise_kernel<(int)4, at::native::FillFunctor<float>, at::detail::Array<char *, (int)1>>(int, T2, T3)"
+2.0,70685947,7504,9419.8,2016.0,1919,62304,19329.2,"void at::native::vectorized_elementwise_kernel<(int)4, at::native::MulFunctor<float>, at::detail::Array<char *, (int)3>>(int, T2, T3)"
+1.8,62883064,937,67111.1,66527.0,65183,78591,2122.7,volta_sgemm_128x64_tn
+1.6,56454722,947,59614.3,31999.0,31328,2532680,254557.4,volta_sgemm_128x64_nn
+1.5,51924390,938,55356.5,53727.0,39136,82143,5309.4,"void cudnn::cnn::wgrad_alg0_engine<float, (int)128, (int)5, (int)5, (int)3, (int)3, (int)3, (bool)0, (int)512>(int, int, int, const T1 *, int, T1 *, const T1 *, kernel_grad_params, unsigned long long, int, float, int, int, int, int)"
+1.3,45563266,939,48523.2,47551.0,29599,109919,4317.2,volta_scudnn_128x64_relu_interior_nn_v1
+1.0,36294048,938,38693.0,37871.5,27231,54015,2913.6,volta_sgemm_128x64_nt
+0.7,24955601,1876,13302.6,8304.0,2047,32032,11120.9,"void at::native::vectorized_elementwise_kernel<(int)4, void at::native::<unnamed>::masked_scale_kernel<float, float>(at::Tensor &, at::Tensor, at::Tensor, T2)::[lambda(float, unsigned char) (instance 1)], at::detail::Array<char *, (int)3>>(int, T2, T3)"
+0.7,24459406,1876,13038.1,6463.5,2975,34335,9886.4,"void at::native::<unnamed>::fused_dropout_kernel_vec<float, float, unsigned int, (int)1, (int)4>(at::cuda::detail::TensorInfo<T1, T3>, at::cuda::detail::TensorInfo<T1, T3>, at::cuda::detail::TensorInfo<unsigned char, T3>, T3, T2, at::PhiloxCudaState)"
+0.6,21648210,10,2164821.0,2165052.0,2158988,2168011,2840.2,"void cudnn::winograd_nonfused::winogradForwardOutput4x4<float, float>(cudnn::winograd_nonfused::WinogradOutputParams<T1, T2>)"
+0.4,13060066,10,1306006.6,1305923.5,1299411,1310804,3472.8,"void cudnn::winograd_nonfused::winogradForwardData4x4<float, float>(cudnn::winograd_nonfused::WinogradDataParams<T1, T2>)"
+0.2,7922325,10,792232.5,792104.5,791705,792952,377.8,volta_scudnn_128x128_relu_interior_nn_v1
+0.2,7337156,1896,3869.8,3744.0,3200,6944,594.9,"void at::native::unrolled_elementwise_kernel<at::native::copy_device_to_device(at::TensorIterator &, bool)::[lambda() (instance 2)]::operator ()() const::[lambda() (instance 8)]::operator ()() const::[lambda(float) (instance 1)], at::detail::Array<char *, (int)2>, OffsetCalculator<(int)1, unsigned int>, OffsetCalculator<(int)1, unsigned int>, at::native::memory::LoadWithoutCast, at::native::memory::StoreWithoutCast>(int, T1, T2, T3, T4, T5, T6)"
+0.2,7143963,938,7616.2,7296.0,6720,12512,899.1,"void at::native::reduce_kernel<(int)128, (int)4, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator ()(at::TensorIterator &)::[lambda(float, float) (instance 1)]>, unsigned int, float, (int)4>>(T3)"
+0.2,6881387,948,7258.8,6912.0,6752,11744,888.6,volta_sgemm_32x32_sliced1x4_tn
+0.2,6717460,938,7161.5,6816.0,5376,11552,896.6,"void at::native::reduce_kernel<(int)256, (int)2, at::native::ReduceOp<float, at::native::func_wrapper_t<float, at::native::sum_functor<float, float, float>::operator ()(at::TensorIterator &)::[lambda(float, float) (instance 1)]>, unsigned int, float, (int)4>>(T3)"
+0.2,5597621,937,5974.0,5344.0,5024,22272,2538.0,"void flip_filter<float, float>(T2 *, const T1 *, int, int, int, int)"
+0.2,5409357,10,540935.7,539771.0,533435,550075,5449.4,volta_sgemm_64x64_tn
+0.2,5347588,938,5701.1,5472.0,4960,9344,755.5,volta_sgemm_32x32_sliced1x4_nt
+0.1,4729886,939,5037.2,4768.0,4671,23008,878.3,volta_sgemm_128x32_nn
+0.1,4254173,938,4535.4,4352.0,3552,7136,509.8,"void splitKreduce_kernel<float, float, float, float>(cublasSplitKParams<T3>, const T1 *, const T2 *, T2 *, const T3 *, const T3 *, const T4 *)"
+0.1,3639877,948,3839.5,3520.0,2912,20960,1804.4,"void cunn_ClassNLLCriterion_updateOutput_kernel<float, float>(T1 *, T1 *, T1 *, long *, T1 *, int, int, int, int, long)"
+0.1,2856652,949,3010.2,2880.0,2816,4704,347.2,cask_cudnn::computeOffsetsKernel(cask_cudnn::ComputeOffsetsParams)
+0.1,2772647,938,2955.9,2816.0,2560,4704,369.5,"void cunn_ClassNLLCriterion_updateGradInput_kernel<float>(T1 *, T1 *, long *, T1 *, T1 *, int, int, int, int, long)"
+0.1,2293738,948,2419.6,2304.0,2271,3840,294.9,"void <unnamed>::softmax_warp_forward<float, float, float, (int)4, (bool)1>(T2 *, const T1 *, int, int, int)"
+0.1,2180879,938,2325.0,2208.0,2144,3648,279.9,"void <unnamed>::softmax_warp_backward<float, float, float, (int)4, (bool)1>(T2 *, const T1 *, const T1 *, int, int, int)"
+0.0,95935,1,95935.0,95935.0,95935,95935,0.0,volta_gcgemm_32x32_nt
+0.0,64576,10,6457.6,6448.0,6400,6528,39.3,"void at::native::reduce_kernel<(int)512, (int)1, at::native::ReduceOp<float, at::native::ArgMaxOps<float>, unsigned int, long, (int)4>>(T3)"
+0.0,51360,10,5136.0,5120.0,5056,5280,72.7,"void at::native::reduce_kernel<(int)512, (int)1, at::native::ReduceOp<long, at::native::func_wrapper_t<long, at::native::sum_functor<long, long, long>::operator ()(at::TensorIterator &)::[lambda(long, long) (instance 1)]>, unsigned int, long, (int)4>>(T3)"
+0.0,46175,1,46175.0,46175.0,46175,46175,0.0,volta_sgemm_64x32_sliced1x4_tn
+0.0,44032,10,4403.2,4384.0,4288,4512,58.8,"void cudnn::winograd_nonfused::winogradForwardFilter4x4<float, float>(cudnn::winograd_nonfused::WinogradFilterParams<T1, T2>)"
+0.0,35295,10,3529.5,3520.0,3519,3552,15.5,"void at::native::unrolled_elementwise_kernel<at::native::copy_device_to_device(at::TensorIterator &, bool)::[lambda() (instance 2)]::operator ()() const::[lambda() (instance 12)]::operator ()() const::[lambda(long) (instance 1)], at::detail::Array<char *, (int)2>, TrivialOffsetCalculator<(int)1, unsigned int>, TrivialOffsetCalculator<(int)1, unsigned int>, at::native::memory::LoadWithCast<(int)1>, at::native::memory::StoreWithCast>(int, T1, T2, T3, T4, T5, T6)"
+0.0,23008,10,2300.8,2304.0,2176,2336,48.8,"void at::native::vectorized_elementwise_kernel<(int)4, at::native::CompareEqFunctor<long>, at::detail::Array<char *, (int)3>>(int, T2, T3)"

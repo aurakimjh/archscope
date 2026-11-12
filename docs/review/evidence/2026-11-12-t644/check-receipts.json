@@ -1,0 +1,86 @@
+[
+  {
+    "check": "host_vet",
+    "command": "go vet ./...",
+    "exit_code": 0,
+    "local_stdout_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local_log": "/tmp/archscope-t644-vet-final.log"
+  },
+  {
+    "check": "windows_amd64_vet",
+    "command": "GOOS=windows GOARCH=amd64 go vet ./...",
+    "exit_code": 0,
+    "local_stdout_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local_log": "/tmp/archscope-t644-vet-amd64-final.log"
+  },
+  {
+    "check": "windows_386_vet",
+    "command": "GOOS=windows GOARCH=386 go vet ./...",
+    "exit_code": 0,
+    "local_stdout_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local_log": "/tmp/archscope-t644-vet-386-final.log"
+  },
+  {
+    "check": "frontend_build",
+    "command": "npm run build",
+    "exit_code": 0,
+    "local_stdout_stderr_sha256": "0662648ca6c3d6b07a3a8ecb772d4e4fc7449cbba83ece06bfb944a164b33252",
+    "local_log": "/tmp/archscope-t644-frontend-final.log"
+  },
+  {
+    "check": "frontend_state",
+    "command": "npm run test:state",
+    "exit_code": 0,
+    "local_stdout_stderr_sha256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb",
+    "local_log": "/tmp/archscope-t644-state-final.log"
+  },
+  {
+    "check": "bindings",
+    "command": "wails3 generate bindings -ts",
+    "exit_code": 0,
+    "local_stdout_stderr_sha256": "9b59abddbf0fb6fb63048f099cd0689735fcf75104fb7f8aa9a9cfaa0d4d37c8",
+    "local_log": "/tmp/archscope-t644-bindings.log"
+  },
+  {
+    "check": "mac_package",
+    "command": "wails3 task darwin:package",
+    "exit_code": 0,
+    "local_stdout_stderr_sha256": "51c3f62ec1313903a0e76f3344c0585dd442980273e794bf649db1b8c6598d64",
+    "local_log": "/tmp/archscope-t644-package-delivery.log"
+  },
+  {
+    "check": "mac_signature",
+    "command": "codesign --verify --deep --strict",
+    "exit_code": 0,
+    "local_stdout_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local_log": "/tmp/archscope-t644-codesign-delivery.log"
+  },
+  {
+    "check": "windows_amd64_gui",
+    "command": "GOARCH=amd64 node build/windows/build.mjs -tags production -trimpath -buildvcs=false -ldflags=\"-w -s -H windowsgui\"",
+    "exit_code": 0,
+    "local_stdout_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local_log": "/tmp/archscope-t644-windows-amd64-final.log"
+  },
+  {
+    "check": "windows_386_gui_post_merge",
+    "command": "GOARCH=386 node build/windows/build.mjs -tags production -trimpath -buildvcs=false -ldflags=\"-w -s -H windowsgui\"",
+    "exit_code": 0,
+    "local_stdout_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local_log": "/tmp/archscope-t644-post-merge-windows386.log"
+  },
+  {
+    "check": "offline_notices",
+    "command": "python3 scripts/build-offline-notices.py",
+    "exit_code": 0,
+    "local_stdout_stderr_sha256": "6b51cd3e493a6ec5c2671704d370e66244e51660f6a088e4286c5d83bf23953a",
+    "local_log": "/tmp/archscope-t644-notices.log"
+  },
+  {
+    "check": "desktop_guard",
+    "command": "node scripts/verify-desktop-only.mjs --check-server-build",
+    "exit_code": 0,
+    "local_stdout_stderr_sha256": "2737e05db97102bfc69e4a94138f70b869f75db5874ac9581749568974f07e97",
+    "local_log": "/tmp/archscope-t644-desktop-gate.log"
+  }
+]

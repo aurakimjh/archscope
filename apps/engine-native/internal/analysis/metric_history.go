@@ -6,6 +6,7 @@ import (
 	"fmt"
 	a "github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/metrichistory"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
+	source "github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/metrichistory"
 )
 
 type MetricInventory struct {
@@ -44,7 +45,7 @@ func withMetric[T any](s *Service, parent context.Context, handle, digest string
 }
 func (s *Service) MetricInventory(ctx context.Context, handle string) (MetricInventory, error) {
 	return withMetric(s, ctx, handle, "", func(ctx context.Context, core a.Core, digest string) (MetricInventory, error) {
-		return MetricInventory{digest, core.Selection, core.Model.Series, core.Model.Sources, append(append([]string(nil), core.Model.Warnings...), "Queries use only series retained in this result; reopen the original to add omitted series.")}, ctx.Err()
+		return MetricInventory{digest, core.Selection, core.Model.Series, core.Model.Sources, append(source.InspectionWarnings(core.Model), "Queries use only series retained in this result; reopen the original to add omitted series.")}, ctx.Err()
 	})
 }
 func (s *Service) QueryMetricHistory(ctx context.Context, handle, digest string, q m.Query) (m.Page, error) {

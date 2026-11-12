@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Explicit, read-only Apple/Ollama export. Never invoked by the application."""
 import argparse
+import hashlib
+import sys
 import ctypes
 import json
 import platform
@@ -86,6 +88,10 @@ def snapshot(model_name):
     result['models'] = [{key: model[key] for key in ('name', 'digest', 'size', 'size_vram', 'context_length')} |
                         {'quantization_level': model['details']['quantization_level']}
                         for model in models if model['name'] == model_name]
+    result['selected_model_match_count'] = str(len(result['models']))
+    result['excluded_model_count'] = str(len(models) - len(result['models']))
+    if not result['models']:
+        print('Selected model is not loaded; other loaded models excluded: ' + result['excluded_model_count'] + ' (names omitted)', file=sys.stderr)
     result['capture_end_ns'] = str(time.time_ns())
     return result
 
@@ -106,7 +112,8 @@ def main():
     version = api('version')['version']
     if version != '0.40.16':
         parser.error('only Ollama 0.40.16 qualified; do not override version')
-    capture = {'contract': 'apple-ollama-capture.v1', 'collector_version': '1.0.0',
+    capture = {'contract': 'apple-ollama-capture.v1', 'collector_version': '1.1.0',
+               'model_selection_sha256': hashlib.sha256(args.model.encode('utf-8')).hexdigest(),
                'host_id': args.host_id, 'boot_id': args.boot_id, 'device_local_id': 'apple-integrated-0',
                'macos_version': command('/usr/bin/sw_vers', '-productVersion'),
                'macos_build': command('/usr/bin/sw_vers', '-buildVersion'),

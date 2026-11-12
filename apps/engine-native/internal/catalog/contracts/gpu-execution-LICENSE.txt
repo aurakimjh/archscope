@@ -1,0 +1,3 @@
+Workspace-authored code/schema/metadata: CC0-1.0.
+Numeric observations and technical symbols are attributed to their producer/source in producer-provenance.json.
+No NVIDIA tool, report binary, model weights or upstream application source redistributed.

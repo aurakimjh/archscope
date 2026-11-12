@@ -9,7 +9,31 @@
     },
     {
       "file": "README.md",
-      "sha256": "ac46ecc2b5b0c6210c1e07d6dfc45f2b92eba45cd659211592cee6cc2fdd29de"
+      "sha256": "8686254c0fb46a759c70fb3a3d46c955a6e9a8102763990c0527f121949dbd2d"
+    },
+    {
+      "file": "apple-empty-model.json",
+      "sha256": "cfb3c00e24dd9b373d83ff6ee73ce9305f4318e841e6d49aaffcdcd4f402bc34"
+    },
+    {
+      "file": "apple-empty.json",
+      "sha256": "1c7eac2849468435d7eab3900cbf4bb9ea5a78db4340882679da532481736c50"
+    },
+    {
+      "file": "apple-multi-model.json",
+      "sha256": "0ce3e3fbc8b2c203bf7f2971fde7b555786411deafdd1d8b87f6e490dcc3c3e6"
+    },
+    {
+      "file": "apple-multi.json",
+      "sha256": "90b00b35dcde554a133579846d5854d0cec89047284289e671f4dc5aa60f351d"
+    },
+    {
+      "file": "apple-unmatched-model.json",
+      "sha256": "b792f5e6d925ff12980e865ca88fc8e9f795089daef2bb6528bdb42fa40f4a4c"
+    },
+    {
+      "file": "apple-unmatched.json",
+      "sha256": "5318e37561dae1896dd03fefd9222dcb99a22909a500a2e4cf197b9f847b6127"
     },
     {
       "file": "capture.json",
@@ -17,7 +41,7 @@
     },
     {
       "file": "capture.schema.json",
-      "sha256": "4d7264edc1ab9e4318869131a80eebd192646bca221dc0ef5d7c5182d1e1d3fc"
+      "sha256": "fc587824c50c8fd43b397e95b7302ce5a6c93e153c0c94b74dc2372205aeb886"
     },
     {
       "file": "metric-model.json",

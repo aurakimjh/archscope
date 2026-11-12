@@ -1,0 +1,81 @@
+{
+  "id": "diagnostics.gpu-execution.v1",
+  "version": "1.0.0",
+  "synthetic": true,
+  "qualification": "실제 CPU/Gloo 합성 실행 및 NVIDIA training 실측 부분집합의 공식 SQLite/CSV export",
+  "schema_sha256": "6fa80fafdd5dfb32e83026e4a7d778e7bb6d196537239d2286856a87286ec511",
+  "files": [
+    {
+      "file": "LICENSE.txt",
+      "sha256": "35bcf9ca720301923e63c2930fa72d7c6c49e20fbfcd42a47ea726b1f2c670b3"
+    },
+    {
+      "file": "README.md",
+      "sha256": "4e275bc900e1a6a64377157f3c935ef363b01108288188e7723ae48595d26fe3"
+    },
+    {
+      "file": "generate-torch.py",
+      "sha256": "a7b5364e4f54b94265ac68021300b5201389fb712b1c3f68df6eb81ef693e9ad"
+    },
+    {
+      "file": "gpu-execution-set.json",
+      "sha256": "f55629abb60cc559e784119caca9a5744e920d8c2caa827c937281a06416659e"
+    },
+    {
+      "file": "gpu-execution-set.schema.json",
+      "sha256": "6fa80fafdd5dfb32e83026e4a7d778e7bb6d196537239d2286856a87286ec511"
+    },
+    {
+      "file": "nsight-options.json",
+      "sha256": "2b0596a054a9abc9d4f3e36337405852cff3aad0deb8661427f184a9a6263ab1"
+    },
+    {
+      "file": "nsight-sanitized.sqlite",
+      "sha256": "2c9faa00f616e7f0f41bdd87e3d6ad29c94043f34d443dbd5d59d13f76a1f9a4"
+    },
+    {
+      "file": "nsight-set.json",
+      "sha256": "e0cd28ba869eff9bc3afe057584320f2862f164b28fc7f912b088f532d9d1991"
+    },
+    {
+      "file": "nsight-summary-options.json",
+      "sha256": "7d312465d8928a528527141bb3128345ca83898906b6f9fd4e5e077ecd402745"
+    },
+    {
+      "file": "nsight-summary-set.json",
+      "sha256": "1ea271941e5ccbe1380f7da9f9b1ee5f3af54129a6158ab6590458bf5ad8ba63"
+    },
+    {
+      "file": "nsight-summary.csv",
+      "sha256": "ad974466d3e348d29e3b9bb636d422a4962f10e25edd594f84336ab9675de6fe"
+    },
+    {
+      "file": "producer-provenance.json",
+      "sha256": "f6be1159857a8ba657a7751eb2b1ea4fd5eb501007a5d63e876c90cccfc1d3bb"
+    },
+    {
+      "file": "pytorch-rank-0-options.json",
+      "sha256": "b340082b208a6fb322d241b4f67d0c0c8314a44654473416e9071f0ef25c0bc6"
+    },
+    {
+      "file": "pytorch-rank-0-set.json",
+      "sha256": "8d8964ff6207570082adc8bff0e6d491b281664d184866d94bfc0f57b5e487e3"
+    },
+    {
+      "file": "pytorch-rank-0.json",
+      "sha256": "286cf6239d0b2d323387654273cbeb4663973144289bdcc7c76d651579cf635a"
+    },
+    {
+      "file": "pytorch-rank-1-options.json",
+      "sha256": "a8b2ff4a8ba30373ce3c75b39259ee4f29c644e7056d227a4f1a3d9d09554e55"
+    },
+    {
+      "file": "pytorch-rank-1-set.json",
+      "sha256": "4d98b9ca7456bc8e0864541f63f4278978b96cf11694a6b388cadf3bc1bbf938"
+    },
+    {
+      "file": "pytorch-rank-1.json",
+      "sha256": "d6cbd779791cb2578ed33aceb66cedb7d718a788a3a058c82126bc75525291b0"
+    }
+  ]
+}

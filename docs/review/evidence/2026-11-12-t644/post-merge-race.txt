@@ -1,0 +1,3 @@
+ok  	github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-engine	30.709s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/distribution	30.316s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/localconvert	15.662s

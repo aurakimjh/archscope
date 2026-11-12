@@ -1,0 +1,16 @@
+{
+  "pytorch": "2.15.0",
+  "numpy": "2.5.4",
+  "python": "3.13.13",
+  "workload": "Two local CPU/Gloo ranks; 2 matrix multiply/all_reduce/relu iterations each; no model/data download or local CUDA.",
+  "nvidia_report_url": "https://media.githubusercontent.com/media/NVIDIA/nsight-training/b17c40eef23929d08ec42e66667b29ae336ea8ac/cuda/2021_gtc/x-ac-03-v1/task1/task/nsys/precollected_reports/baseline.nsys-rep",
+  "report_sha256": "9210e3e3919b3221e191aa61676843bce962804309013123dc59a42678d7efb2",
+  "official_exporter": "Nsight Systems 2024.2.3.38-242334140272v0, Linux ARM64 in network-none container",
+  "export_schema": "3.11.1",
+  "original_export_sqlite_sha256": "dad9455dcfb534cc6136213011b3c4a5a2bc187df92f0bedb99c9904dac95ec4",
+  "sanitization": "PyTorch root/event/argument allowlist; exact decimal lexemes preserved. Nsight only actual rows starting [80000000,80500000) ns, real table DDL and rowids, required names; no OS/env/session/GPU-UUID tables. Summary CSV from official stats reporter. No claim of full-run counts or native GPU execution on this Mac.",
+  "pytorch_original_trace_sha256": {
+    "0": "c9d1928b7bfe6b9a27b61b0c5a6955000d1d494c19ec76b2fcf89f3af36d9774",
+    "1": "e752c30c4d7595a18f57b9f6f0ccdd08e1c32af6a2f312dea09d7ab0afac1fd6"
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "scope": "Actual React components and CLI DTOs; mock IPC/save dialogs; no native WebView/Windows",
+  "calls": [
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "En7ivtaRSS5sl4meqGbVV",
+        "methodName": "main.EngineService.DescribeGPUExecution",
+        "args": [
+          "qa-gpu"
+        ]
+      }
+    },
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "nv_YhNankN--SVmDdt9PA",
+        "methodName": "main.EngineService.QueryGPUExecution",
+        "args": [
+          "qa-gpu",
+          "aa14e8ec06cd0daad5d86d8e6316204a4784c40a743325618a8a560c0b48622b",
+          "{\"kind\":\"events\",\"source_id\":\"gpu-source-40db7da8c91889bb89f9fbd29d24b75c7373843505e870542f2f07ac52843fc9\",\"cursor\":\"\",\"limit\":25}"
+        ]
+      }
+    },
+    {
+      "object": 5,
+      "method": 5,
+      "args": {
+        "Title": "선택한 원본 실행 SVG 내보내기",
+        "Filename": "execution-intervals.svg"
+      }
+    },
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "BRgYjIRrO_kY9nV2UDGo-",
+        "methodName": "main.EngineService.ExportGPUExecutionSVG",
+        "args": [
+          "qa-gpu",
+          "aa14e8ec06cd0daad5d86d8e6316204a4784c40a743325618a8a560c0b48622b",
+          "{\"kind\":\"events\",\"source_id\":\"gpu-source-40db7da8c91889bb89f9fbd29d24b75c7373843505e870542f2f07ac52843fc9\",\"cursor\":\"\",\"limit\":25}",
+          "/tmp/gpu-browser.svg"
+        ]
+      }
+    },
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "4P_bcJK0MmbRD5vDyJcON",
+        "methodName": "main.EngineService.QueryGPUExecution",
+        "args": [
+          "qa-gpu",
+          "aa14e8ec06cd0daad5d86d8e6316204a4784c40a743325618a8a560c0b48622b",
+          "{\"kind\":\"busy\",\"source_id\":\"gpu-source-40db7da8c91889bb89f9fbd29d24b75c7373843505e870542f2f07ac52843fc9\",\"cursor\":\"\",\"limit\":25}"
+        ]
+      }
+    },
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "uDZnw6lqElnd3zHS1IDyu",
+        "methodName": "main.EngineService.InspectGPUExecutionSource",
+        "args": [
+          "/manual/nsight.sqlite",
+          "{\n  \"format\": \"nsight-sqlite\",\n  \"producer_version\": \"2024.2.3.38\",\n  \"capture_id\": \"fixture-nvidia-training\",\n  \"host_id\": \"fixture-host-nvidia\",\n  \"boot_id\": \"fixture-boot-nvidia\",\n  \"process_namespace\": \"nsys-packed-identities\",\n  \"run_id\": \"fixture-nvidia-run\",\n  \"clock_id\": \"nsys-export-clock\",\n  \"device_map\": {\n    \"0\": \"fixture-local-gpu\"\n  }\n}\n"
+        ]
+      }
+    },
+    {
+      "object": 5,
+      "method": 5,
+      "args": {
+        "Title": "정규화한 CPU/GPU 실행 모델 저장",
+        "Filename": "gpu-execution.json"
+      }
+    },
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "01fMhx0qRAiS2ohk6HXUH",
+        "methodName": "main.EngineService.NormalizeGPUExecutionSource",
+        "args": [
+          "/manual/nsight.sqlite",
+          "{\n  \"format\": \"nsight-sqlite\",\n  \"producer_version\": \"2024.2.3.38\",\n  \"capture_id\": \"fixture-nvidia-training\",\n  \"host_id\": \"fixture-host-nvidia\",\n  \"boot_id\": \"fixture-boot-nvidia\",\n  \"process_namespace\": \"nsys-packed-identities\",\n  \"run_id\": \"fixture-nvidia-run\",\n  \"clock_id\": \"nsys-export-clock\",\n  \"device_map\": {\n    \"0\": \"fixture-local-gpu\"\n  }\n}\n",
+          "2c9faa00f616e7f0f41bdd87e3d6ad29c94043f34d443dbd5d59d13f76a1f9a4",
+          "/tmp/gpu-browser-model.json"
+        ]
+      }
+    },
+    {
+      "object": 0,
+      "method": 0,
+      "args": {
+        "call-id": "kWbqu6_QLlDUFjnhVrA3O",
+        "methodName": "main.EngineService.QueryGPUExecution",
+        "args": [
+          "qa-gpu",
+          "aa14e8ec06cd0daad5d86d8e6316204a4784c40a743325618a8a560c0b48622b",
+          "{\"kind\":\"events\",\"source_id\":\"gpu-source-66ba89ca8834586cd854a71829e17aa59d97c65b70ec2aa04803dbc6b4a6b7b0\",\"cursor\":\"\",\"limit\":25}"
+        ]
+      }
+    }
+  ],
+  "normalized": "/tmp/gpu-browser-model.json",
+  "alerts": [],
+  "bodyWidth": 1280,
+  "viewport": 1280,
+  "rows": 22,
+  "selectedSource": "gpu-source-66ba89ca8834586cd854a71829e17aa59d97c65b70ec2aa04803dbc6b4a6b7b0",
+  "svgRects": 22
+}

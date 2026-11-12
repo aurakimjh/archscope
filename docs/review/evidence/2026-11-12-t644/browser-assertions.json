@@ -1,0 +1,17 @@
+{
+  "scope": "Actual React components and CLI DTOs; mock IPC/save dialogs; no native WebView/Windows",
+  "nsight_event_count": 19,
+  "nsight_kernel_sum_ns": "38944",
+  "nsight_kernel_union_ns": "38944",
+  "busy_values_observed_in_snapshot": true,
+  "rank1_event_count": 22,
+  "rank_change_cleared_old_page": true,
+  "selected_source_sha_passed_to_normalize": true,
+  "normalized_path_applied": "/tmp/gpu-browser-model.json",
+  "svg_action_invoked": true,
+  "console_errors": 0,
+  "expected_development_warnings": 3,
+  "alerts": [],
+  "page_width": 1280,
+  "viewport_width": 1280
+}

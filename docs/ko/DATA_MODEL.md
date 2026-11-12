@@ -2375,3 +2375,5 @@ SystemEvidence 1.0.0 / system_evidence 0.1.0 저장 reader는 유지하며 새 1
 T-643은 기존 MetricHistory 1.0.0 / metrics_timeseries 0.2.0을 유지합니다. Apple host/boot/local-device·OS/하드웨어/수집기/엔진 버전·unified-shared scope는 정확한 시계열 identity입니다. [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).
 
 R19-01은 큰 JTL의 정확한 분포용 execution_core 1.1.0 / execution_evidence 0.2.0을 추가하며 저장된 1.0.0/0.1.0은 유지합니다. [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md).
+
+T-644: trace.gpu-execution-json / trace_import0.4.0 / gpu_execution_core1.0.0은 정확한 CPU/GPU/rank 구간·명시적 연결·kernel 합계/합집합·집계 전용 근거를 분리합니다. CLI/Wails/Workspace·제한된 선택 SVG와 기존 소비자를 사용하며 저장된 trace/LLM reader는 유지합니다. [GPU_EXECUTION_EVIDENCE.md](GPU_EXECUTION_EVIDENCE.md).

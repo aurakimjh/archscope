@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "go_sum_sha256": "ea98b09a6bc6827b9406a4b48af83f6154515ba4c675ee9c2b70ee00cc9f2e7c",
+  "go_sum_sha256": "59c89aa186d3fea3eb57cde3dcc0d596c3fbd8539292b6fa847b9ddf9cc5b365",
   "npm_lock_sha256": "6b6353b9fb4d4b81e219eaf7b4b93618209671644f28bc87e34debb3f611419a",
   "dependencies": [
     {
@@ -69,6 +69,166 @@
           "file": "734b9cf7fcaf3228b7f7.txt",
           "upstream_name": "LICENSE",
           "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+        }
+      ],
+      "notice_status": "included"
+    },
+    {
+      "ecosystem": "go",
+      "name": "github.com/dustin/go-humanize",
+      "version": "v1.0.1",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "b029e815a78a9cc569d5.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "a973b4498c13eb74baa2a8e5c351426a6826f2fcdd909916dbe53ee2e755fd71"
+        }
+      ],
+      "notice_status": "included"
+    },
+    {
+      "ecosystem": "go",
+      "name": "github.com/google/uuid",
+      "version": "v1.6.0",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "4a8d1c992818de8fb7c6.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "0a8d61ed3cbfd5312326e8126c31ce9c627a283adc99131b56896d29ada04b2d"
+        }
+      ],
+      "notice_status": "included"
+    },
+    {
+      "ecosystem": "go",
+      "name": "github.com/mattn/go-isatty",
+      "version": "v0.0.20",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "a3de9e62b20ef09eac34.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "08eab1118c80885fa1fa6a6dd7303f65a379fcb3733e063d20d1bbc2c76e6fa1"
+        }
+      ],
+      "notice_status": "included"
+    },
+    {
+      "ecosystem": "go",
+      "name": "github.com/ncruces/go-strftime",
+      "version": "v1.0.0",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "256a1b57a504e4bf2759.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "38ae43959daf953a393a585b2988672cb65a5a541aca0d0be5e72595a0a16883"
+        }
+      ],
+      "notice_status": "included"
+    },
+    {
+      "ecosystem": "go",
+      "name": "golang.org/x/exp",
+      "version": "v0.0.0-20260410095643-746e56fc9e2f",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "33a5fe9ee58fee6e2095.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+        }
+      ],
+      "notice_status": "included"
+    },
+    {
+      "ecosystem": "go",
+      "name": "modernc.org/libc",
+      "version": "v1.67.6",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "6eb53199cd43d064e398.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "95ff867eb55a56935fa7492406cfa953fb7c13ca73f4c0a86ae05756b4605600"
+        },
+        {
+          "file": "325ff9552eaddbdc57b0.txt",
+          "upstream_name": "LICENSE-3RD-PARTY.md",
+          "sha256": "f597097efe3d97021f89170746bd3a0fb9a8b6fb26b82043ed68a4e0283bee6c"
+        }
+      ],
+      "notice_status": "included"
+    },
+    {
+      "ecosystem": "go",
+      "name": "github.com/remyoudompheng/bigfft",
+      "version": "v0.0.0-20230129092748-24d4a6f8daec",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "8936b77789cabb399425.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "dd26a7abddd02e2d0aba97805b31f248ef7835d9e10da289b22e3b8ab78b324d"
+        }
+      ],
+      "notice_status": "included"
+    },
+    {
+      "ecosystem": "go",
+      "name": "modernc.org/mathutil",
+      "version": "v1.7.1",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "b5c828c54383647e69ba.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "bfa9bf72a72ca009fd62a8f84fca3dca67e51d93af96352723646599898b6cf5"
+        }
+      ],
+      "notice_status": "included"
+    },
+    {
+      "ecosystem": "go",
+      "name": "modernc.org/memory",
+      "version": "v1.11.0",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "254c54d64f121ebed270.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "59895e669f48f168b6b858358f6005779cdf40a265f7828813061b56af67b496"
+        },
+        {
+          "file": "1e351b28816f70172490.txt",
+          "upstream_name": "LICENSE-GO",
+          "sha256": "2d36597f7117c38b006835ae7f537487207d8ec407aa9d9980794b2030cbc067"
+        },
+        {
+          "file": "fac155067376602dc5ea.txt",
+          "upstream_name": "LICENSE-LOGO",
+          "sha256": "5ae5bee3072a841376451b48d8cfcec7188e10543926d5870828d36c8a750dc5"
+        },
+        {
+          "file": "1da7e3a611c80e3c9ea7.txt",
+          "upstream_name": "LICENSE-MMAP-GO",
+          "sha256": "c2eba69f20d05414538c3a5df7694dde392e065ff70882e1625e90f5d6659fff"
+        }
+      ],
+      "notice_status": "included"
+    },
+    {
+      "ecosystem": "go",
+      "name": "modernc.org/sqlite",
+      "version": "v1.44.3",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "76c2d2f9685a8915556f.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "c6fe05491a60ae13bcd223088d2705e36dede24e5587226231d2459ada5c4822"
         }
       ],
       "notice_status": "included"

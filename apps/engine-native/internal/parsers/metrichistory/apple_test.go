@@ -197,3 +197,49 @@ func TestAppleMirroredManifestAndNormalization(t *testing.T) {
 		t.Fatal("normalization drift")
 	}
 }
+
+func TestR20ActualSelectionCoverageAndLegacyProjection(t *testing.T) {
+	for _, c := range []struct{ name, matched, excluded string }{{"apple-multi", "1", "1"}, {"apple-unmatched", "0", "2"}, {"apple-empty", "0", "0"}} {
+		raw, e := os.ReadFile("../../catalog/contracts/apple-ollama-" + c.name + ".json")
+		if e != nil {
+			t.Fatal(e)
+		}
+		set := parse(t, raw, p.Options{})
+		seen := map[string]string{}
+		names := map[string]string{}
+		for _, s := range set.Series {
+			names[s.ID] = s.Name
+		}
+		for _, v := range set.Points {
+			if v.Value != nil {
+				seen[names[v.SeriesID]] = *v.Value
+			}
+		}
+		if seen["ollama.selection.excluded_model_count"] != c.excluded || seen["ollama.selection.selected_model_match_count"] != c.matched {
+			t.Fatal(c.name, seen)
+		}
+		encoded, _ := json.Marshal(set)
+		if bytes.Contains(encoded, []byte("nomic-embed-text")) {
+			t.Fatal("excluded identity retained")
+		}
+		if !strings.Contains(strings.Join(set.Warnings, " "), "not loaded") {
+			t.Fatal("coverage warning absent")
+		}
+		var bad map[string]any
+		json.Unmarshal(raw, &bad)
+		snap := bad["snapshots"].([]any)[0].(map[string]any)
+		delete(snap, "excluded_model_count")
+		b, _ := json.Marshal(bad)
+		if _, err := p.ParseBytes(ctx, b, "coverage.json", p.Options{}); err == nil {
+			t.Fatal("missing coverage accepted")
+		}
+	}
+	raw := appleFixture(t)
+	set := parse(t, raw, p.Options{})
+	before, _ := json.Marshal(set)
+	warnings := p.InspectionWarnings(set)
+	after, _ := json.Marshal(set)
+	if !bytes.Equal(before, after) || !strings.Contains(strings.Join(warnings, " "), "Legacy Apple") {
+		t.Fatal("legacy mutated or no coverage notice")
+	}
+}

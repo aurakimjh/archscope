@@ -19,7 +19,10 @@
       "const": "apple-ollama-capture.v1"
     },
     "collector_version": {
-      "const": "1.0.0"
+      "enum": [
+        "1.0.0",
+        "1.1.0"
+      ]
     },
     "host_id": {
       "type": "string",
@@ -311,11 +314,79 @@
             "type": "string",
             "pattern": "^(0|[1-9][0-9]*)$",
             "maxLength": 20
+          },
+          "excluded_model_count": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "maxLength": 20
+          },
+          "selected_model_match_count": {
+            "enum": [
+              "0",
+              "1"
+            ]
           }
         }
       },
       "minItems": 1
+    },
+    "model_selection_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
     }
   },
-  "$schema": "https://json-schema.org/draft/2020-12/schema"
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "collector_version": {
+            "const": "1.1.0"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "model_selection_sha256"
+        ],
+        "properties": {
+          "snapshots": {
+            "items": {
+              "required": [
+                "excluded_model_count",
+                "selected_model_match_count"
+              ]
+            }
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "required": [
+            "model_selection_sha256"
+          ]
+        },
+        "properties": {
+          "snapshots": {
+            "items": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "excluded_model_count"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "selected_model_match_count"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

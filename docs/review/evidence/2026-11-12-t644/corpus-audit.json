@@ -1,0 +1,23 @@
+[
+  {
+    "corpus": "gpu-execution-v1",
+    "files_verified": 18,
+    "manifest_sha256": "16ea27652b41634128a42260dd63c55bcfa91a2efc0ca0ad9f420f8b70bbbc9c",
+    "embedded_mirrors": "byte-identical in worktree and Git index"
+  },
+  {
+    "corpus": "apple-ollama-capture-v1",
+    "files_verified": 11,
+    "manifest_sha256": "f1f2aba7239dde4fcf46e64d6c9bcab0fa66452ea44b7b16ed6a2b92ac60a856",
+    "embedded_mirrors": "byte-identical in worktree and Git index"
+  },
+  {
+    "checkout_byte_integrity": {
+      "root_files": 33,
+      "shared_files": 31,
+      "core_autocrlf": true,
+      "result": "byte-identical; SQLite -text and explicit LF text attributes",
+      "scope": "simulated checkout policy, not native Windows runtime"
+    }
+  }
+]

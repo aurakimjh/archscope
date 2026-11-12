@@ -1041,3 +1041,5 @@ Bounded benchmark/crash context uses execution_core 1.0.0 inside common Analysis
 T-643 explicitly recognizes apple-ollama-capture.v1, validates closed bounded exports, and projects exact metrics before existing generic import. Import never runs manual collection. [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).
 
 R19-01 adds execution_core 1.1.0 / execution_evidence 0.2.0 for exact large-JTL distributions; saved 1.0.0/0.1.0 stays unchanged. [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md).
+
+T-644: trace.gpu-execution-json / trace_import0.4.0 / gpu_execution_core1.0.0 preserves exact scoped CPU/GPU/rank intervals, explicit correlations, separate kernel sum/union and summary-only evidence. CLI/Wails/Workspace and bounded selected SVG reuse common consumers; existing saved trace/LLM readers remain. [GPU_EXECUTION_EVIDENCE.md](GPU_EXECUTION_EVIDENCE.md).

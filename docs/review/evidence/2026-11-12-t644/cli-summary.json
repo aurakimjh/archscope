@@ -1,0 +1,369 @@
+{
+  "operations": [
+    {
+      "operation": [
+        "gpu-trace",
+        "inspect-source"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "normalize-source"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "inspect-source"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "normalize-source"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "inspect-source"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "normalize-source"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "inspect-source"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "normalize-source"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "merge-models"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "import"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "export-svg"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "export"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "import-source"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "export-svg"
+      ],
+      "exit_code": 1,
+      "expected_denial": "GPU_TRACE_SVG_NO_INTERVALS"
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "query"
+      ],
+      "exit_code": 1,
+      "expected_denial": "GPU_TRACE_SOURCE_CLOCK_REQUIRED"
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "query"
+      ],
+      "exit_code": 1,
+      "expected_denial": "GPU_TRACE_CURSOR_STALE"
+    },
+    {
+      "operation": [
+        "case",
+        "create"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "case",
+        "save-result"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "case",
+        "cleanup-cache"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "case",
+        "export-result"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-import"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-import"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "metrics",
+        "history-import"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "evidence",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "inspect-source"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    },
+    {
+      "operation": [
+        "gpu-trace",
+        "query"
+      ],
+      "exit_code": 0,
+      "expected_denial": null
+    }
+  ],
+  "count": 43,
+  "case_snapshot": "byte-identical after cleanup",
+  "real_sqlite_kernel_sum_ns": "38944",
+  "real_sqlite_kernel_union_ns": "38944",
+  "source_fixture_events": 19,
+  "merged_source_events": 63,
+  "r20_states": [
+    [
+      "1",
+      "1"
+    ],
+    [
+      "0",
+      "2"
+    ],
+    [
+      "0",
+      "0"
+    ]
+  ],
+  "native_windows_webview": false
+}

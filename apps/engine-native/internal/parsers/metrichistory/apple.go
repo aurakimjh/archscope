@@ -1,6 +1,7 @@
 package metrichistory
 
 import (
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -12,23 +13,26 @@ import (
 // The manually produced, allowlisted export contains no prompt/response bodies.
 // Its version pins field meaning; importing never runs tools or contacts Ollama.
 type appleCapture struct {
-	Contract  string          `json:"contract"`
-	Collector string          `json:"collector_version"`
-	Host      string          `json:"host_id"`
-	Boot      string          `json:"boot_id"`
-	Device    string          `json:"device_local_id"`
-	OS        string          `json:"macos_version"`
-	Build     string          `json:"macos_build"`
-	Hardware  string          `json:"hardware_model"`
-	Chip      string          `json:"chip"`
-	Engine    string          `json:"ollama_version"`
-	Snapshots []appleSnapshot `json:"snapshots"`
+	SelectionSHA string          `json:"model_selection_sha256,omitempty"`
+	Contract     string          `json:"contract"`
+	Collector    string          `json:"collector_version"`
+	Host         string          `json:"host_id"`
+	Boot         string          `json:"boot_id"`
+	Device       string          `json:"device_local_id"`
+	OS           string          `json:"macos_version"`
+	Build        string          `json:"macos_build"`
+	Hardware     string          `json:"hardware_model"`
+	Chip         string          `json:"chip"`
+	Engine       string          `json:"ollama_version"`
+	Snapshots    []appleSnapshot `json:"snapshots"`
 }
 type appleValue struct {
 	Value  *string `json:"value"`
 	Reason string  `json:"unavailable_reason,omitempty"`
 }
 type appleSnapshot struct {
+	Excluded   *string      `json:"excluded_model_count,omitempty"`
+	Matched    *string      `json:"selected_model_match_count,omitempty"`
 	Start      *string      `json:"capture_start_ns"`
 	End        *string      `json:"capture_end_ns"`
 	Memory     string       `json:"memory_capacity_bytes"`
@@ -67,8 +71,8 @@ func (b *builder) apple(body []byte, options Options) error {
 	if e := m.Strict(body, &c); e != nil {
 		return e
 	}
-	if c.Contract != "apple-ollama-capture.v1" || c.Collector != "1.0.0" || c.Engine != "0.40.16" {
-		return fmt.Errorf("APPLE_CAPTURE_VERSION: qualified collector 1.0.0 / Ollama 0.40.16 required")
+	if c.Contract != "apple-ollama-capture.v1" || (c.Collector != "1.0.0" && c.Collector != "1.1.0") || c.Engine != "0.40.16" {
+		return fmt.Errorf("APPLE_CAPTURE_VERSION: qualified collector 1.0.0 or 1.1.0 / Ollama 0.40.16 required")
 	}
 	for _, s := range []string{c.Host, c.Boot, c.Device, c.OS, c.Build, c.Hardware, c.Chip} {
 		if !appleText(s) {
@@ -90,6 +94,19 @@ func (b *builder) apple(body []byte, options Options) error {
 		"Capture start/end bounds describe sequential read skew, not simultaneous samples or a metric aggregation interval. No workload causation, GPU efficiency, OOM threshold, temperature or energy inference.",
 		"Private macOS pressure code is preserved without enum interpretation. Missing telemetry is no_recorded_value with an explicit reason; no automatic privileged collection.")
 	resource := appleJSON(map[string]string{"host_id": c.Host, "boot_id": c.Boot, "device_local_id": c.Device, "vendor": "apple", "memory_model": "unified_shared", "macos_version": c.OS, "macos_build": c.Build, "hardware_model": c.Hardware, "chip": c.Chip, "engine": "ollama", "engine_version": c.Engine, "collector_version": c.Collector})
+	if c.Collector == "1.1.0" {
+		decoded, err := hex.DecodeString(c.SelectionSHA)
+		if err != nil || len(decoded) != 32 || strings.ToLower(c.SelectionSHA) != c.SelectionSHA {
+			return fmt.Errorf("APPLE_CAPTURE_SELECTION_HASH_REQUIRED")
+		}
+		var identity map[string]string
+		_ = json.Unmarshal(resource, &identity)
+		identity["model_selection_sha256"] = c.SelectionSHA
+		resource = appleJSON(identity)
+		b.set.Warnings = append(b.set.Warnings, "Capture selects one exact model-name hash. excluded_model_count reports other loaded models without names/digests; selected_model_match_count=0 means the selector is not loaded, not that the host has no loaded models. Never treat the retained model list as the complete loaded inventory.")
+	} else if c.SelectionSHA != "" {
+		return fmt.Errorf("APPLE_CAPTURE_SELECTION_VERSION")
+	}
 	var previous uint64
 	for i, snapshot := range c.Snapshots {
 		start, ok := m.Time(snapshot.Start)
@@ -122,6 +139,29 @@ func (b *builder) apple(body []byte, options Options) error {
 				point.Flags = 1
 			}
 			return b.addPoint(point, fmt.Sprintf("snapshots/%d/%s/%s", i, name, m.Hash(a)))
+		}
+		if c.Collector == "1.1.0" {
+			if snapshot.Excluded == nil || snapshot.Matched == nil || (*snapshot.Matched != "0" && *snapshot.Matched != "1") || len(snapshot.Models) != int((*snapshot.Matched)[0]-'0') {
+				return fmt.Errorf("APPLE_CAPTURE_SELECTION_COVERAGE_REQUIRED")
+			}
+			if _, err := m.Uint(*snapshot.Excluded); err != nil {
+				return fmt.Errorf("APPLE_CAPTURE_EXCLUDED_COUNT_INVALID")
+			}
+			for _, model := range snapshot.Models {
+				hash := sha256.Sum256([]byte(model.Name))
+				if hex.EncodeToString(hash[:]) != c.SelectionSHA {
+					return fmt.Errorf("APPLE_CAPTURE_SELECTION_MISMATCH")
+				}
+			}
+			selectionAttrs := map[string]string{"scope": "model_selection", "capture_semantics": "sequential_read_window"}
+			if err := add("ollama.selection.excluded_model_count", "{model}", "Other loaded model count; identities intentionally excluded. Not selected-model memory.", snapshot.Excluded, "", selectionAttrs); err != nil {
+				return err
+			}
+			if err := add("ollama.selection.selected_model_match_count", "{model}", "Exact selected-model load state (0 or 1); zero is not an empty host inventory.", snapshot.Matched, "", selectionAttrs); err != nil {
+				return err
+			}
+		} else if snapshot.Excluded != nil || snapshot.Matched != nil {
+			return fmt.Errorf("APPLE_CAPTURE_SELECTION_VERSION")
 		}
 		for _, v := range []struct{ name, value string }{
 			{"apple.system.memory_capacity", snapshot.Memory}, {"apple.system.vm_free", snapshot.Free}, {"apple.system.vm_active", snapshot.Active}, {"apple.system.vm_inactive", snapshot.Inactive}, {"apple.system.vm_wired", snapshot.Wired}, {"apple.system.vm_compressor", snapshot.Compressor}, {"apple.system.swap_total", snapshot.SwapTotal}, {"apple.system.swap_used", snapshot.SwapUsed},

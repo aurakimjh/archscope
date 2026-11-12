@@ -1,0 +1,623 @@
+{
+  "task": "T-644",
+  "status": "REVIEW",
+  "date": "2026-11-12",
+  "related_review": {
+    "task": "T-643",
+    "status": "DONE",
+    "original_verdict": "CONDITIONAL",
+    "closure_permission": "Original R20 explicitly permits DONE after P2 R20-01 remediation, with P3 follow-ups queued.",
+    "r20_01": "Locally fixed and verified, not independently re-reviewed.",
+    "queued": [
+      "R20-02",
+      "R20-03",
+      "R20-04 (actual multi-load partly covered; other environment/nonzero swap/pressure remain)"
+    ],
+    "archived_original_sha256": "def911af8d3b5793e153d9959e0d58a3c0f3cc6eebbc52a43a4f4992014e9d4d"
+  },
+  "intake_head": "d9e62b1d",
+  "review_head": "6de6c84",
+  "head_before_task_commit": "8c7e85583a7821def50cd2325cca7760338d05fe",
+  "remote_integration": {
+    "method": "git pull --ff-only detected divergence; preserve explicit task paths, merge origin/main, restore task snapshot and reconcile SSOT Windows updates. Reviewer commit not rewritten.",
+    "upstream": "3fa51b1",
+    "merge_commit": "8c7e85583a7821def50cd2325cca7760338d05fe",
+    "affected_rechecks": "CLI/distribution/localconvert race, changed Windows386 runner production build; all passed."
+  },
+  "shared_commit": "431b02b46e70072c964858055291a9102a932644",
+  "shared_fixture_commit": "ab1429ae7b20e8fea3284f2a83aa107ffef50201",
+  "shared_remote_verified": true,
+  "environment": {
+    "macos": "27.2.1",
+    "build": "26B131",
+    "hardware": "Mac17,6",
+    "chip": "Apple M5 Max",
+    "python": "3.13.13",
+    "pytorch": "2.15.0",
+    "numpy": "2.5.4",
+    "ollama": "0.40.16",
+    "apple_collector": "1.1.0",
+    "nsight_exporter": "2024.2.3.38-242334140272v0",
+    "nsight_export_schema": "3.11.1"
+  },
+  "actual_inputs": {
+    "pytorch": "Two local CPU/Gloo ranks, two matrix multiply/all_reduce/relu iterations each, 22 supported events/four tracks per rank. Original raw traces parsed as well; host/path values absent in normalized models. CUDA structural tests are separate.",
+    "nsight": "Pinned NVIDIA training report, original 11751460-byte LFS SHA verified. Official exporter in network-none Linux ARM64 container; 41431040-byte SQLite has 140917 kernels,167348 runtime APIs,1926 memcpy rows. Full export window selects20 whole intervals, sanitized32KiB real-row subset19 intervals/three tracks.",
+    "summary": "Actual official cuda_gpu_kern_sum:50 grouped rows/400 reported entries; full run summary separate from subset timeline.",
+    "merged_timeline": {
+      "sources": 3,
+      "events": 63,
+      "tracks": 11
+    },
+    "independent_subset_kernel_sum_ns": "38944",
+    "independent_subset_kernel_union_ns": "38944",
+    "original_report_sha256": "9210e3e3919b3221e191aa61676843bce962804309013123dc59a42678d7efb2",
+    "official_exporter_deb_sha256": "587bbc95c6c7afe12688eed4c339b5794b0aa0f3e51725f3e0183f26398a8600"
+  },
+  "implementation": {
+    "model": "gpu_execution_core1.0.0",
+    "result": "trace_import0.4.0",
+    "canonical_importer": "trace.gpu-execution-json",
+    "surfaces": [
+      "immutable/pinned source intake",
+      "paged CLI/Wails/React detail",
+      "exact ns and isolated rank/source clocks",
+      "CPU inclusive/self",
+      "separate kernel sum/interval union",
+      "scoped ambiguous/unresolved flow and CUDA correlation",
+      "selected-source bounded SVG",
+      "common JSON/CSV/HTML/report-pack consumers",
+      "exact saved case recovery after cache cleanup"
+    ],
+    "legacy": "Existing trace0.2,LLM0.3 and Apple collector1.0/saved normalized bytes remain supported. Apple legacy coverage notice is read-time only. Execution detail UI guard accepts0.1/0.2."
+  },
+  "r20_actual_states": {
+    "selected_match_and_excluded": [
+      [
+        "1",
+        "1"
+      ],
+      [
+        "0",
+        "2"
+      ],
+      [
+        "0",
+        "0"
+      ]
+    ],
+    "selected_selector_sha256_recorded": true,
+    "excluded_identities_retained": false,
+    "models_downloaded": false,
+    "baseline_empty_restored": true,
+    "request_and_embedding_bodies_retained": false
+  },
+  "verification": {
+    "full_host_race": {
+      "passed_packages": 118,
+      "passed_test_events": 1668,
+      "failures": 0,
+      "note": "Full suite before final early integer-size checks and audit-only clock wording; final focused model/parser/analyzer/catalog/distribution race rerun passed after those changes."
+    },
+    "post_merge_race": [
+      "cmd/archscope-engine",
+      "internal/distribution",
+      "internal/localconvert"
+    ],
+    "checks_passed": [
+      "host and Windows amd64/386 go vet ./...",
+      "frontend state and production build",
+      "generated Wails bindings",
+      "Mac production package and strict signature verification",
+      "Windows amd64/386 production GUI cross-builds,386 rerun with merged runner",
+      "offline assets check and85 dependency notices without missing root notice",
+      "desktop-only/server-build refusal",
+      "Python collector/observer syntax",
+      "git diff --check; git diff --cached --check"
+    ],
+    "actual_cli": {
+      "operations": 43,
+      "expected_refusals": 3,
+      "case_snapshot": "byte-identical after cleanup",
+      "svg": "XML parsed,20 rects (background+19 event intervals), selected-source-only provenance"
+    },
+    "clean_install_offline": {
+      "operations": 57,
+      "expected_refusals": 1,
+      "inet_syscalls": 0,
+      "failed_connect_positive_control_inet_syscalls": 2,
+      "network": "none",
+      "scope": "Linux CLI process trees only; no desktop/Windows outbound claim",
+      "no_sibling_checkout": true
+    },
+    "browser": "Actual React and actual CLI DTOs, mock IPC/save dialogs;19 Nsight/22 rank1 events,38944ns busy sum/union, source-SHA handoff, callback, SVG action, stale-page clearing,zero errors/alerts/overflow. Not native WebView/Windows acceptance.",
+    "shared_corpora": [
+      {
+        "corpus": "gpu-execution-v1",
+        "files_verified": 18,
+        "manifest_sha256": "16ea27652b41634128a42260dd63c55bcfa91a2efc0ca0ad9f420f8b70bbbc9c",
+        "embedded_mirrors": "byte-identical in worktree and Git index"
+      },
+      {
+        "corpus": "apple-ollama-capture-v1",
+        "files_verified": 11,
+        "manifest_sha256": "f1f2aba7239dde4fcf46e64d6c9bcab0fa66452ea44b7b16ed6a2b92ac60a856",
+        "embedded_mirrors": "byte-identical in worktree and Git index"
+      },
+      {
+        "checkout_byte_integrity": {
+          "root_files": 33,
+          "shared_files": 31,
+          "core_autocrlf": true,
+          "result": "byte-identical; SQLite -text and explicit LF text attributes",
+          "scope": "simulated checkout policy, not native Windows runtime"
+        }
+      }
+    ]
+  },
+  "boundaries": [
+    "T-644 awaits independent review; no independent final-fix PASS declared.",
+    "PyTorch actual qualification is CPU/Gloo only; no native PyTorch CUDA/NCCL, distributed LLM or cross-host synchronization claim.",
+    "Public Tesla T4 report is remote GPU evidence, not GPU execution on this Mac.",
+    "Clock mappings retained for audit only; source/rank clocks stay isolated. No inferred utilization, CPU+GPU total or causal critical path.",
+    "Summary rows do not synthesize intervals or complete-run counts from the small timeline subset.",
+    "Other producer versions/layouts require actual fixtures.",
+    "No native Windows/WebView or minimum-OS runtime claim. Known SDK27.2/deployment11.0 linker warnings.",
+    "Existing unrelated HTTP docs/verifier and original ten-line tracker block excluded from task index/commit."
+  ],
+  "artifacts": {
+    "/tmp/archscope-t644-delivery-engine": "8552ef63c1c66928bc6f21efe0ddcb52222db3fd989e7cb18bef4814a09ce129",
+    "/tmp/archscope-t644-delivery-linux": "f21f720f14b2ad42e76102ddd27d3570f5eabb419ad74cd60fb351fead874bfe",
+    "/tmp/archscope-t644-amd64.exe": "2b104f19564e139b4d6c68f6372b84356a1c07f967c6447350ca35ed7c7b2d8a",
+    "/tmp/archscope-t644-386.exe": "d07c8a4b873169a89bc22f89ad344b408eae9cb63eea40a6a94f11793f733838",
+    "/Users/aura/workspace/archscope/apps/engine-native/cmd/archscope-app/bin/archscope.app/Contents/MacOS/archscope": "3f2000284b6ec0f4575b24a1acaf1845a83905e2f698bea3ed67b6dcea33f903"
+  },
+  "source_index_files": [
+    {
+      "file": ".gitattributes",
+      "sha256": "b996aab2aaafa7f300631f4c6ecda040243a7a928edea74d22c657d22252d574"
+    },
+    {
+      "file": "apps/engine-native/cmd/archscope-app/frontend/bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/engineservice.ts",
+      "sha256": "81170d16c3026c70bb7ef2b9a7e506b44bc0f7ad7c3d2e6b396e67a81eebf8c8"
+    },
+    {
+      "file": "apps/engine-native/cmd/archscope-app/frontend/src/bridge/engine.ts",
+      "sha256": "878d2619a9f1f6a9d080c18ffaebb578bfa29fd785377caf0ada7a8887d81bf7"
+    },
+    {
+      "file": "apps/engine-native/cmd/archscope-app/frontend/src/components/EvidenceResultPanel.tsx",
+      "sha256": "56f53a8c10218c10c9c4e30189d8183c80accc49fa7f43f6188e1ee7fc894230"
+    },
+    {
+      "file": "apps/engine-native/cmd/archscope-app/frontend/src/components/GPUExecutionEvidence.tsx",
+      "sha256": "195711569b0eaa5133288688d690c33924044dd24a72cc6935ba16d16a94bdbd"
+    },
+    {
+      "file": "apps/engine-native/cmd/archscope-app/gpuexecutionservice.go",
+      "sha256": "f7adc929dca1394929b70c924b9508a3e8bad2e1877fa1d73ae127179fa79ca5"
+    },
+    {
+      "file": "apps/engine-native/cmd/archscope-app/gpuexecutionservice_test.go",
+      "sha256": "fa2461b391117c72a0614c709e38ec827ded8a96318a766daf072400f60413a4"
+    },
+    {
+      "file": "apps/engine-native/cmd/archscope-engine/cmd_gpu_execution.go",
+      "sha256": "a87f7b3905779ae8cb182706ded0408b33e0393b6c8b06378116239859332b2c"
+    },
+    {
+      "file": "apps/engine-native/cmd/archscope-engine/cmd_gpu_execution_test.go",
+      "sha256": "73ae5673dcc33269c8c973000556c4cfeb7945e30ba23ca92809f7da9dbbae70"
+    },
+    {
+      "file": "apps/engine-native/go.mod",
+      "sha256": "332f86fc4ee1002b17637df8b26ee64ffbaeeaa8156e396df69db5cd6b7a1e1c"
+    },
+    {
+      "file": "apps/engine-native/go.sum",
+      "sha256": "59c89aa186d3fea3eb57cde3dcc0d596c3fbd8539292b6fa847b9ddf9cc5b365"
+    },
+    {
+      "file": "apps/engine-native/internal/analysis/gpu_execution.go",
+      "sha256": "596e9f90a95d94e16f936429ef370fa8f95a7e8bfd3ea86bc533cab871ed0d88"
+    },
+    {
+      "file": "apps/engine-native/internal/analysis/metric_history.go",
+      "sha256": "cbd12b2db7317d386b1bed6b92b1cc0077e80f52ab91854573b5062f68984394"
+    },
+    {
+      "file": "apps/engine-native/internal/analyzers/gputrace/analyzer.go",
+      "sha256": "2b15edfb702bb694282c3c86a6d418835381c15fb9f61a4a292eb770c586c8f5"
+    },
+    {
+      "file": "apps/engine-native/internal/analyzers/gputrace/cursor.go",
+      "sha256": "65e86b9327a6dc4bb0444680dcba0de2e56d3a74a87e10a66bdff8075e62676e"
+    },
+    {
+      "file": "apps/engine-native/internal/analyzers/gputrace/gputrace_test.go",
+      "sha256": "ee26ce4e31699d05159aaf58e23a88743f255d2d07c531e6ab118515c3551251"
+    },
+    {
+      "file": "apps/engine-native/internal/analyzers/gputrace/project.go",
+      "sha256": "1f546e02bb7f5ee5731ba8653ebdab536bdb0e2af28d9855e65856d1f9b3bcc9"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/builtin.go",
+      "sha256": "3164de53f29d358461f20a46a06746708d24d8b3c30441d33fc8cad2a68d4df8"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-README.md",
+      "sha256": "8686254c0fb46a759c70fb3a3d46c955a6e9a8102763990c0527f121949dbd2d"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-apple-empty-model.json",
+      "sha256": "cfb3c00e24dd9b373d83ff6ee73ce9305f4318e841e6d49aaffcdcd4f402bc34"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-apple-empty.json",
+      "sha256": "1c7eac2849468435d7eab3900cbf4bb9ea5a78db4340882679da532481736c50"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-apple-multi-model.json",
+      "sha256": "0ce3e3fbc8b2c203bf7f2971fde7b555786411deafdd1d8b87f6e490dcc3c3e6"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-apple-multi.json",
+      "sha256": "90b00b35dcde554a133579846d5854d0cec89047284289e671f4dc5aa60f351d"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-apple-unmatched-model.json",
+      "sha256": "b792f5e6d925ff12980e865ca88fc8e9f795089daef2bb6528bdb42fa40f4a4c"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-apple-unmatched.json",
+      "sha256": "5318e37561dae1896dd03fefd9222dcb99a22909a500a2e4cf197b9f847b6127"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-capture.schema.json",
+      "sha256": "fc587824c50c8fd43b397e95b7302ce5a6c93e153c0c94b74dc2372205aeb886"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/apple-ollama-manifest.json",
+      "sha256": "f1f2aba7239dde4fcf46e64d6c9bcab0fa66452ea44b7b16ed6a2b92ac60a856"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-LICENSE.txt",
+      "sha256": "35bcf9ca720301923e63c2930fa72d7c6c49e20fbfcd42a47ea726b1f2c670b3"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-README.md",
+      "sha256": "4e275bc900e1a6a64377157f3c935ef363b01108288188e7723ae48595d26fe3"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-generate-torch.py",
+      "sha256": "a7b5364e4f54b94265ac68021300b5201389fb712b1c3f68df6eb81ef693e9ad"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-nsight-options.json",
+      "sha256": "2b0596a054a9abc9d4f3e36337405852cff3aad0deb8661427f184a9a6263ab1"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-nsight-sanitized.sqlite",
+      "sha256": "2c9faa00f616e7f0f41bdd87e3d6ad29c94043f34d443dbd5d59d13f76a1f9a4"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-nsight-set.json",
+      "sha256": "e0cd28ba869eff9bc3afe057584320f2862f164b28fc7f912b088f532d9d1991"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-nsight-summary-options.json",
+      "sha256": "7d312465d8928a528527141bb3128345ca83898906b6f9fd4e5e077ecd402745"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-nsight-summary-set.json",
+      "sha256": "1ea271941e5ccbe1380f7da9f9b1ee5f3af54129a6158ab6590458bf5ad8ba63"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-nsight-summary.csv",
+      "sha256": "ad974466d3e348d29e3b9bb636d422a4962f10e25edd594f84336ab9675de6fe"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-producer-provenance.json",
+      "sha256": "f6be1159857a8ba657a7751eb2b1ea4fd5eb501007a5d63e876c90cccfc1d3bb"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-pytorch-rank-0-options.json",
+      "sha256": "b340082b208a6fb322d241b4f67d0c0c8314a44654473416e9071f0ef25c0bc6"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-pytorch-rank-0-set.json",
+      "sha256": "8d8964ff6207570082adc8bff0e6d491b281664d184866d94bfc0f57b5e487e3"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-pytorch-rank-0.json",
+      "sha256": "286cf6239d0b2d323387654273cbeb4663973144289bdcc7c76d651579cf635a"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-pytorch-rank-1-options.json",
+      "sha256": "a8b2ff4a8ba30373ce3c75b39259ee4f29c644e7056d227a4f1a3d9d09554e55"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-pytorch-rank-1-set.json",
+      "sha256": "4d98b9ca7456bc8e0864541f63f4278978b96cf11694a6b388cadf3bc1bbf938"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-pytorch-rank-1.json",
+      "sha256": "d6cbd779791cb2578ed33aceb66cedb7d718a788a3a058c82126bc75525291b0"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-set.json",
+      "sha256": "f55629abb60cc559e784119caca9a5744e920d8c2caa827c937281a06416659e"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-set.manifest.json",
+      "sha256": "16ea27652b41634128a42260dd63c55bcfa91a2efc0ca0ad9f420f8b70bbbc9c"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts/gpu-execution-set.schema.json",
+      "sha256": "6fa80fafdd5dfb32e83026e4a7d778e7bb6d196537239d2286856a87286ec511"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/contracts_test.go",
+      "sha256": "08286fc1a57d56a2c72c456cd73e75f91c685bef7f67c35c76fdf1912e514d12"
+    },
+    {
+      "file": "apps/engine-native/internal/catalog/gpu_execution.go",
+      "sha256": "43cff45bf0a71103e9c36ab7a7b298775f9fa62f6432e46cb476e46311b35858"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/en/APPLE_SILICON_EVIDENCE.md",
+      "sha256": "a09712aea14e068737e7cac425d64ff75b0c162cca7e4aead443f1e97de1b526"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/en/GPU_EXECUTION_EVIDENCE.md",
+      "sha256": "1f08ca1bfb5a738e68a3ed25e0061c6d4cbd38a705032a0d503da4c324cff922"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/ko/APPLE_SILICON_EVIDENCE.md",
+      "sha256": "cc3cc69d7258bae6a1b17ccd827c1ca5867c41d70bde5d8d5c8774a87fa7cc0b"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/docs/ko/GPU_EXECUTION_EVIDENCE.md",
+      "sha256": "a169eda16b40b79151866ee1a4521284b20395053ad497e32c01ec4bc9579451"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/fixtures.sha256",
+      "sha256": "bd8c1e236040175c121579cafcf87377a61e838e3d057a63293bc7d780cac1d7"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/fixtures.zip",
+      "sha256": "56aac46c53fc1b18629b6f9853daddbd76b91aff681e10c862ca45ab0dab0b6f"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/1da7e3a611c80e3c9ea7.txt",
+      "sha256": "c2eba69f20d05414538c3a5df7694dde392e065ff70882e1625e90f5d6659fff"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/1e351b28816f70172490.txt",
+      "sha256": "2d36597f7117c38b006835ae7f537487207d8ec407aa9d9980794b2030cbc067"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/254c54d64f121ebed270.txt",
+      "sha256": "59895e669f48f168b6b858358f6005779cdf40a265f7828813061b56af67b496"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/256a1b57a504e4bf2759.txt",
+      "sha256": "38ae43959daf953a393a585b2988672cb65a5a541aca0d0be5e72595a0a16883"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/325ff9552eaddbdc57b0.txt",
+      "sha256": "f597097efe3d97021f89170746bd3a0fb9a8b6fb26b82043ed68a4e0283bee6c"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/33a5fe9ee58fee6e2095.txt",
+      "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/4a8d1c992818de8fb7c6.txt",
+      "sha256": "0a8d61ed3cbfd5312326e8126c31ce9c627a283adc99131b56896d29ada04b2d"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/6eb53199cd43d064e398.txt",
+      "sha256": "95ff867eb55a56935fa7492406cfa953fb7c13ca73f4c0a86ae05756b4605600"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/76c2d2f9685a8915556f.txt",
+      "sha256": "c6fe05491a60ae13bcd223088d2705e36dede24e5587226231d2459ada5c4822"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/8936b77789cabb399425.txt",
+      "sha256": "dd26a7abddd02e2d0aba97805b31f248ef7835d9e10da289b22e3b8ab78b324d"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/a3de9e62b20ef09eac34.txt",
+      "sha256": "08eab1118c80885fa1fa6a6dd7303f65a379fcb3733e063d20d1bbc2c76e6fa1"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/b029e815a78a9cc569d5.txt",
+      "sha256": "a973b4498c13eb74baa2a8e5c351426a6826f2fcdd909916dbe53ee2e755fd71"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/b5c828c54383647e69ba.txt",
+      "sha256": "bfa9bf72a72ca009fd62a8f84fca3dca67e51d93af96352723646599898b6cf5"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/fac155067376602dc5ea.txt",
+      "sha256": "5ae5bee3072a841376451b48d8cfcec7188e10543926d5870828d36c8a750dc5"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/assets/licenses/manifest.json",
+      "sha256": "f5e783005985a5dc070ab4d36e0f5b5c8d1a0e425c56105a1808ce51dc66124b"
+    },
+    {
+      "file": "apps/engine-native/internal/distribution/bundle_test.go",
+      "sha256": "cef42e229901c96c0182e95f4aedec8adf623a8831f0a6ad059ec3b944261fc0"
+    },
+    {
+      "file": "apps/engine-native/internal/exporters/gputrace/svg.go",
+      "sha256": "2bd864b18fbfa9f6efa5665c120e0952c7496c3f55528164be8c7a7e828978de"
+    },
+    {
+      "file": "apps/engine-native/internal/gputracemodel/model.go",
+      "sha256": "aa7c1a24bff6757acc6ac8c25ac3aeb78b9b35c074e45fb6434fc4d42179a66c"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/gputrace/pytorch.go",
+      "sha256": "1403bc81da361a248c15a2e2e35b26f24edb77ce6d097ca2357727d298786719"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/gputrace/source.go",
+      "sha256": "d2e6e9dcc667ea7369b1743eddad560f56e0cbc476c5beff02d61dc5d2ac7779"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/gputrace/source_test.go",
+      "sha256": "58b76cc46ad9b33a951b6d7149473a4406dd878778b39e061fb90e889c845f70"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/gputrace/sqlite.go",
+      "sha256": "a111c72e4002628c1753a49f126729e6e67b68e756457a68a44b50b22f90cb4f"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/gputrace/summary.go",
+      "sha256": "55a1f7f50c1d305978acf0285295a53fc97905336a8915d26beb0d89a2487fcb"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/metrichistory/apple.go",
+      "sha256": "8719024b1ae9eabb6ebddb28394db61b723352e94b07e329790023346bf4522b"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/metrichistory/apple_test.go",
+      "sha256": "ec1479e51dfceb2f3e8bc2bffab0c6fbc147ab520c97a1e46e97555251c40315"
+    },
+    {
+      "file": "apps/engine-native/internal/parsers/metrichistory/source.go",
+      "sha256": "c49715724508b7d9152676564bc725497db8d8a0d4b561312c1a98b667f7f621"
+    },
+    {
+      "file": "docs/en/APPLE_SILICON_EVIDENCE.md",
+      "sha256": "a09712aea14e068737e7cac425d64ff75b0c162cca7e4aead443f1e97de1b526"
+    },
+    {
+      "file": "docs/en/DATA_MODEL.md",
+      "sha256": "e9d8cef2ed1182f818a65607585ce8bc0f631cb6b091785c475e481c1d957e73"
+    },
+    {
+      "file": "docs/en/GPU_EXECUTION_EVIDENCE.md",
+      "sha256": "1f08ca1bfb5a738e68a3ed25e0061c6d4cbd38a705032a0d503da4c324cff922"
+    },
+    {
+      "file": "docs/en/IMPORTER_SUPPORT_MATRIX.md",
+      "sha256": "6f2c53a032df2728f56c62ce458e0e6678cea0efc67875d9cdf1532a04cfbb89"
+    },
+    {
+      "file": "docs/en/PARSER_DESIGN.md",
+      "sha256": "3bef16156fffd5122d89447ff8536e920685b5ec94978dcd5092f886742b37e9"
+    },
+    {
+      "file": "docs/ko/APPLE_SILICON_EVIDENCE.md",
+      "sha256": "cc3cc69d7258bae6a1b17ccd827c1ca5867c41d70bde5d8d5c8774a87fa7cc0b"
+    },
+    {
+      "file": "docs/ko/DATA_MODEL.md",
+      "sha256": "b2d6b3180749584aa168dc8611b6a9666ef0d71ca67032b4673b4c7f6b339695"
+    },
+    {
+      "file": "docs/ko/GPU_EXECUTION_EVIDENCE.md",
+      "sha256": "a169eda16b40b79151866ee1a4521284b20395053ad497e32c01ec4bc9579451"
+    },
+    {
+      "file": "docs/ko/IMPORTER_SUPPORT_MATRIX.md",
+      "sha256": "cb6a7295c81a13f1f7ed2c0027bb506ed2075ba9887cbfd54b88dc9de0762eb1"
+    },
+    {
+      "file": "docs/ko/PARSER_DESIGN.md",
+      "sha256": "70e2d53d29a92c90c2294cb98b0c8f2d0d29eefba9372492e208a36fc0bd9de8"
+    },
+    {
+      "file": "docs/review/README.md",
+      "sha256": "3e0b56a760d6826e9159d36828f6344fa3f61a9febc5f0db29950b3e1a3c0c46"
+    },
+    {
+      "file": "docs/review/done/2026-11-12_claude-code_T-643_implementation-review.ko.md",
+      "sha256": "def911af8d3b5793e153d9959e0d58a3c0f3cc6eebbc52a43a4f4992014e9d4d"
+    },
+    {
+      "file": "scripts/build-offline-assets.py",
+      "sha256": "67379a49780f7f858d85796697859daaa5db91733bfc82c97ada7bd7389f7b89"
+    },
+    {
+      "file": "scripts/capture-apple-ollama.py",
+      "sha256": "c9af8ba2be45980139ec76960da5b316b5fc16a10be133263f4a0a820c37cacc"
+    },
+    {
+      "file": "scripts/verify-offline-syscalls.py",
+      "sha256": "eb4cdd3c375deaf8db2f64669c35f04ac6ba7d514742d87450624bec47b05c25"
+    },
+    {
+      "file": "work_status.md",
+      "sha256": "52efe19cd606cf3fe5b5db577788d80252bae12f0ba6793d0639b6cfcbe589ba"
+    }
+  ],
+  "evidence_files": [
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/browser-assertions.json",
+      "sha256": "b5c2ece2a47def0929d68238a6ff7f918b06931c14c357db1f8e965ad1260974"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/browser-nsight.png",
+      "sha256": "627cd349a2781bf28204b9cda724ac736c97a0976c387e37ff16430c80d42b26"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/browser-proof.json",
+      "sha256": "8f0f2b1b8229d8a4c95a4fd6816d6d863e311faf96ed0dbff272d8979bee269e"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/browser-rank1.png",
+      "sha256": "c4f29bdcc6e1ea01acacb1835bf30e6a25ba049383cbbb0dec76171087745681"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/check-receipts.json",
+      "sha256": "52b4c204619e3cf6990eee4fe4aa58b08ba89f6eb09103358faa9c82adb0abd9"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/cli-summary.json",
+      "sha256": "3e0d58a12bf7212842a60404aa97637d0ec652d0936f20b5c241836cff168bee"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/corpus-audit.json",
+      "sha256": "fed8929045cae610cd5db831bc29eecc22dd3cbe6989dfc9d6a6735b7c40c075"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/final-focused-race.txt",
+      "sha256": "ad09d2a6f7b92f5185101e20564edf3f84c77eaee906f3da2685b14bfc9a4beb"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/nsight-full-window-inspection.json",
+      "sha256": "3bb95aec88405a32db5cc38e9d25cdb753d00c85474a171a13a3ef4c7f464451"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/offline-summary.json",
+      "sha256": "05bb32aec2f74a4918697aa342cf0f2200c40b3ff273038262a4d1f8b1ac99e6"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/post-merge-race.txt",
+      "sha256": "8e2154dba8a5cc9537def64657d5502ae75400ed7ab6af79b2839517af898e00"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/producer-provenance.json",
+      "sha256": "f6be1159857a8ba657a7751eb2b1ea4fd5eb501007a5d63e876c90cccfc1d3bb"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/race-summary.json",
+      "sha256": "89b0db538704ea7e7c10759846d40c11b3ae3a878a01fba3a89fe887c5184914"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/raw-input-checks.json",
+      "sha256": "8d0748ef1a4c01e64a0f2a9b1488a7999b2d060982cd1d0a501ac49ba472ef64"
+    },
+    {
+      "file": "docs/review/evidence/2026-11-12-t644/selected.svg",
+      "sha256": "39c938574c5d0ccd59154b6fbdf3400bc806bddbc8820a8e1e938fff2795f405"
+    }
+  ]
+}

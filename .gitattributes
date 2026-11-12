@@ -66,3 +66,13 @@ docs/review/evidence/2026-11-12-t642/*.png -text
 
 # Preserve exact whitespace in pinned actual jstack output.
 apps/engine-native/internal/catalog/contracts/runtime-evidence-jdk21-blocked-*.txt whitespace=-blank-at-eol,-blank-at-eof
+
+# Actual execution corpus keeps manifest-pinned text and binary SQLite bytes.
+apps/engine-native/internal/catalog/contracts/*.sqlite -text
+apps/engine-native/internal/distribution/assets/licenses/* whitespace=-blank-at-eol,-blank-at-eof
+docs/en/GPU_EXECUTION_EVIDENCE.md text eol=lf
+docs/ko/GPU_EXECUTION_EVIDENCE.md text eol=lf
+docs/review/evidence/2026-11-12-t644/*.json text eol=lf
+docs/review/evidence/2026-11-12-t644/*.txt text eol=lf
+docs/review/evidence/2026-11-12-t644/*.svg text eol=lf
+docs/review/evidence/2026-11-12-t644/*.png -text

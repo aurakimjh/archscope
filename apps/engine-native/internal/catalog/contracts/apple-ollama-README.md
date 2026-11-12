@@ -38,3 +38,12 @@ https://github.com/ollama/ollama/blob/v0.40.16/server/routes.go,
 https://github.com/ollama/ollama/blob/v0.40.16/server/sched.go,
 https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_memorystatus_notify.c,
 https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/sysctl.h.
+
+수집기1.1.0은 제외 모델 이름/digest를 저장하지 않고 `excluded_model_count`와
+`selected_model_match_count`(0/1)를 기록한다. 선택 이름의 SHA-256을 resource identity에
+보존하며 match=0은 호스트의 전체 모델 목록이 비었다는 뜻이 아니다. 이중 로드에서
+`apple-multi.json`은1/1, 오타·미로드 선택 `apple-unmatched.json`은0/2,
+비어 있는 호스트 `apple-empty.json`은0/0으로 실제 수집했다. 새 count gauge와 경고를
+출력한다. 1.0.0 원본/모델의 정규화와 저장 projection은 유지한다. 1.0.0은 선택 범위의
+누락 개수를 알 수 없다는 read-time warning을 inspection에 추가하며 전체 inventory로
+해석하면 안 된다. 실제 다중 로드는 확인했지만 pressure/swap 상승·타장비는 미검증이다.

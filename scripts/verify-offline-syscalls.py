@@ -17,11 +17,14 @@ def run(args):
 run(['/input/engine','offline','build','--engine','/input/engine','--out',str(bundle)])
 # Only the new bundle and synthetic corpus remain visible to the tested process.
 with zipfile.ZipFile(bundle/'resources/fixtures.zip') as z:
- for name in ('packs/input.jsonl','catalog/metric-history-set.json','catalog/metric-history-sdk-python-1.38.0.otlp.json','catalog/system-evidence-perf-script.txt','catalog/system-evidence-perf-capture.json','catalog/inference-evidence-set.json','catalog/inference-evidence-nvidia-set.json','catalog/inference-evidence-nvidia-query.csv','catalog/inference-evidence-nvidia-capture.json','catalog/llm-trace-sdk-python-1.38.0.otlp.json','catalog/llm-trace-neutral-options.json','catalog/runtime-evidence-set.json','catalog/runtime-evidence-python-3.14.4.json','catalog/runtime-evidence-python-options.json','catalog/execution-evidence-k6-1.3.0.json','catalog/execution-evidence-k6-options.json','catalog/execution-evidence-set.json','catalog/execution-evidence-hs-err-21.0.10.txt','catalog/execution-evidence-llmperf-summary.json','catalog/execution-evidence-llmperf-options.json','catalog/execution-evidence-jmeter-5.6.3.csv','catalog/execution-evidence-jmeter-options.json','catalog/apple-ollama-capture.json','catalog/apple-ollama-metric-model.json','catalog/execution-evidence-jmeter-1001.csv'):z.extract(name,'/sources')
+ for name in ('packs/input.jsonl','catalog/metric-history-set.json','catalog/metric-history-sdk-python-1.38.0.otlp.json','catalog/system-evidence-perf-script.txt','catalog/system-evidence-perf-capture.json','catalog/inference-evidence-set.json','catalog/inference-evidence-nvidia-set.json','catalog/inference-evidence-nvidia-query.csv','catalog/inference-evidence-nvidia-capture.json','catalog/llm-trace-sdk-python-1.38.0.otlp.json','catalog/llm-trace-neutral-options.json','catalog/runtime-evidence-set.json','catalog/runtime-evidence-python-3.14.4.json','catalog/runtime-evidence-python-options.json','catalog/execution-evidence-k6-1.3.0.json','catalog/execution-evidence-k6-options.json','catalog/execution-evidence-set.json','catalog/execution-evidence-hs-err-21.0.10.txt','catalog/execution-evidence-llmperf-summary.json','catalog/execution-evidence-llmperf-options.json','catalog/execution-evidence-jmeter-5.6.3.csv','catalog/execution-evidence-jmeter-options.json','catalog/apple-ollama-capture.json','catalog/apple-ollama-metric-model.json','catalog/execution-evidence-jmeter-1001.csv','catalog/gpu-execution-set.json','catalog/gpu-execution-nsight-sanitized.sqlite','catalog/gpu-execution-nsight-options.json','catalog/gpu-execution-pytorch-rank-0.json','catalog/gpu-execution-pytorch-rank-0-options.json','catalog/gpu-execution-nsight-summary.csv','catalog/gpu-execution-nsight-summary-options.json'):z.extract(name,'/sources')
 model=json.loads(pathlib.Path('/sources/catalog/metric-history-set.json').read_text())
 selection={'series_ids':[model['series'][0]['id']]}
 inference=json.loads(pathlib.Path('/sources/catalog/inference-evidence-nvidia-set.json').read_text())
 signal=inference['signals'][0]
+gpu=json.loads(pathlib.Path('/sources/catalog/gpu-execution-set.json').read_text())
+gpu_source=next(v['id'] for v in gpu['sources'] if v['producer']=='nsight-systems')
+gpu_query=json.dumps({'kind':'events','source_id':gpu_source,'limit':1})
 cli=str(bundle/'archscope-engine');base=[cli,'--offline-root',str(bundle)]
 commands=[['offline','fixtures'],['evidence','formats','--pack-store','/state/packs'],['evidence','import','--pack-store','/state/packs','--importer','data.synthetic-metrics','--in','/sources/packs/input.jsonl'],['packs','list','--store','/state/packs'],['evidence','discover','--pack-store','/state/packs','--in','/sources/packs/input.jsonl'],['evidence','collection-kit','--out','/evidence/manual-collection.zip']]
 commands.extend([
@@ -76,6 +79,16 @@ commands.extend([
  ['metrics','history-import','--in','/sources/catalog/apple-ollama-capture.json','--out','/evidence/apple-result.json'],
  ['execution','import-source','--in','/sources/catalog/execution-evidence-jmeter-1001.csv','--options-file','/sources/catalog/execution-evidence-jmeter-options.json','--out','/evidence/jtl-compact-result.json'],
  ['execution','query','--in','/evidence/jtl-compact-result.json','--query','{"kind":"distributions","limit":1}'],
+])
+commands.extend([
+ ['gpu-trace','inspect-source','--in','/sources/catalog/gpu-execution-pytorch-rank-0.json','--options-file','/sources/catalog/gpu-execution-pytorch-rank-0-options.json'],
+ ['gpu-trace','normalize-source','--in','/sources/catalog/gpu-execution-nsight-sanitized.sqlite','--options-file','/sources/catalog/gpu-execution-nsight-options.json','--out','/evidence/gpu-model.json'],
+ ['gpu-trace','import-source','--in','/sources/catalog/gpu-execution-set.json','--out','/evidence/gpu-result.json'],
+ ['gpu-trace','query','--in','/evidence/gpu-result.json','--query',gpu_query],
+ ['gpu-trace','query','--in','/evidence/gpu-result.json','--query','{"kind":"busy","limit":1}'],
+ ['gpu-trace','export-svg','--in','/evidence/gpu-result.json','--query',gpu_query,'--out','/evidence/gpu-selected.svg'],
+ ['gpu-trace','import-source','--in','/sources/catalog/gpu-execution-nsight-summary.csv','--options-file','/sources/catalog/gpu-execution-nsight-summary-options.json','--out','/evidence/gpu-summary-result.json'],
+ ['gpu-trace','query','--in','/evidence/gpu-summary-result.json','--query','{"kind":"summaries","limit":1}'],
 ])
 reports=[]
 for i,args in enumerate(commands):

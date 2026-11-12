@@ -519,3 +519,13 @@ export const normalizeMetricSource = (path: string, options: string, digest: str
 export const describeMetricQuery = (handle: string): Cancelable<MetricQueryInventory> => parseAssistance(call<string>("DescribeMetricQuery", handle));
 export const queryMetricHistory = (handle: string, digest: string, query: string): Cancelable<MetricQueryPage> => parseAssistance(call<string>("QueryMetricHistory", handle, digest, query));
 export const materializeMetricView = (handle: string, digest: string, selection: string) => call<string>("MaterializeMetricView", handle, digest, selection);
+
+export interface GPUExecutionSource { id: string; sha256: string; producer: string; producer_version: string; clock_id: string; rank: string | null; world_size: string | null; distributed_backend: string; host_id: string; boot_id: string; [key: string]: unknown }
+export interface GPUExecutionTrack { id: string; source_id: string; kind: string; process_id: string; thread_id: string; device_id: string; context_id: string; stream_id: string }
+export interface GPUExecutionInventory { result_sha256?: string; source_sha256?: string; sources: GPUExecutionSource[]; tracks: GPUExecutionTrack[]; track_count: number; event_count: number; summary_count: number; warnings: string[] }
+export interface GPUExecutionPage { result_sha256: string; query_sha256: string; rows: Record<string, unknown>[]; total: number; next: string }
+export const inspectGPUExecutionSource = (path: string, options: string): Cancelable<GPUExecutionInventory> => parseAssistance(call<string>("InspectGPUExecutionSource", path, options));
+export const normalizeGPUExecutionSource = (path: string, options: string, digest: string, output: string): Cancelable<GPUExecutionInventory> => parseAssistance(call<string>("NormalizeGPUExecutionSource", path, options, digest, output));
+export const describeGPUExecution = (handle: string): Cancelable<GPUExecutionInventory> => parseAssistance(call<string>("DescribeGPUExecution", handle));
+export const queryGPUExecution = (handle: string, digest: string, query: string): Cancelable<GPUExecutionPage> => parseAssistance(call<string>("QueryGPUExecution", handle, digest, query));
+export const exportGPUExecutionSVG = (handle: string, digest: string, query: string, output: string): Cancelable<string> => call<string>("ExportGPUExecutionSVG", handle, digest, query, output);

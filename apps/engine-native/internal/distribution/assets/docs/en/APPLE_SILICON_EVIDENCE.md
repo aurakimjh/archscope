@@ -82,3 +82,5 @@ Sources: [Ollama API ps](https://docs.ollama.com/api/ps),
 [pinned scheduler memory reporting](https://github.com/ollama/ollama/blob/v0.40.16/server/sched.go),
 [Darwin sysctl layout](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/sysctl.h),
 [private pressure query](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_memorystatus_notify.c).
+
+R20-01: collector1.1.0 adds model_selection_sha256 and required per-snapshot excluded_model_count / selected_model_match_count (0 or 1). Excluded model names/digests stay absent. Selected zero is distinct from an empty host. Actual multi-load/missing-selector/empty captures cover 1/1, 0/2 and 0/0. Older1.0 captures retain canonical normalization and saved projections; inspection adds a read-time unknown-coverage notice. R20-02/03/04 remain queued; multi-load covers part of04, nonzero swap/pressure and other environments remain unqualified.

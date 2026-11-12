@@ -1,0 +1,13 @@
+{
+  "format": "nsight-sqlite",
+  "producer_version": "2024.2.3.38",
+  "capture_id": "fixture-nvidia-training",
+  "host_id": "fixture-host-nvidia",
+  "boot_id": "fixture-boot-nvidia",
+  "process_namespace": "nsys-packed-identities",
+  "run_id": "fixture-nvidia-run",
+  "clock_id": "nsys-export-clock",
+  "device_map": {
+    "0": "fixture-local-gpu"
+  }
+}

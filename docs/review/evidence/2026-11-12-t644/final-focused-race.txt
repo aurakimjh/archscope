@@ -1,0 +1,5 @@
+?   	github.com/aurakimjh/archscope/apps/engine-native/internal/gputracemodel	[no test files]
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/parsers/gputrace	1.506s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/gputrace	12.291s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/catalog	21.486s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/distribution	29.797s

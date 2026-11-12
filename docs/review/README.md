@@ -6,13 +6,13 @@
 
 | 날짜 | 문서 | 대상 | 판정 |
 |---|---|---|---|
-| 2026-11-12 | [T-643 Apple Silicon 증거 어댑터 구현 독립 리뷰](2026-11-12_claude-code_T-643_implementation-review.ko.md) | `d9e62b1` | CONDITIONAL(P2 1/P3 3, P1 없음). R20-01(선택하지 않은 로드 모델이 표시 없이 제외됨)을 먼저 처리한 뒤 DONE 복귀 허용, 나머지는 후속 큐. R19-01 JTL 정확 분포 수정은 독립 입력으로 확인 |
-| 2026-11-12 | [T-642 부하·LLM 벤치마크·JVM 크래시 비교 근거 구현 독립 리뷰](2026-11-12_claude-code_T-642_implementation-review.ko.md) | `efb9c7c` | CONDITIONAL(P2 1/P3 3, P1 없음). R19-01(JTL 5만 행 한도와 백분위 합성 불가)을 먼저 처리한 뒤 DONE 복귀 허용, 나머지는 후속 큐 |
 
 ## 처리 기록
 
 | 날짜 | 문서 | 대상 | 판정·처리 |
 |---|---|---|---|
+| 2026-11-12 | [T-642 부하·LLM 벤치마크·JVM 크래시 비교 근거 구현 독립 리뷰](done/2026-11-12_claude-code_T-642_implementation-review.ko.md) | `efb9c7c` | CONDITIONAL(P2 1/P3 3, P1 없음). R19-01(JTL 5만 행 한도와 백분위 합성 불가)을 먼저 처리한 뒤 DONE 복귀 허용, R19-01 로컬 수정·검증 완료, T-642 DONE. P3는 후속 큐. 원 CONDITIONAL 유지; evidence/2026-11-12-t643/local.json. |
+| 2026-11-12 | [T-643 Apple Silicon 증거 어댑터 구현 독립 리뷰](done/2026-11-12_claude-code_T-643_implementation-review.ko.md) | `d9e62b1` | CONDITIONAL(P2 1/P3 3, P1 없음). R20-01(선택하지 않은 로드 모델이 표시 없이 제외됨)을 먼저 처리한 뒤 DONE 복귀 허용, 나머지는 후속 큐. 작업표 반영 후 원문 보관. R20-01 수정·로컬 검증 완료(collector1.1.0 선택/제외 개수·selector hash, 실제 multi-load/오타/empty, 기존1.0 보존). 명시적 허용에 따라 T-643 DONE, 원 CONDITIONAL 보존; P3는 후속 큐(다중 로드는 부분 충족). 최종 수정분 독립 PASS 아님. 증빙: evidence/2026-11-12-t644/local.json. R19-01 JTL 분포는 독립 검증됨. |
 | 2026-11-12 | [T-641 런타임 근거 구현 독립 리뷰](done/2026-11-12_claude-code_T-641_implementation-review.ko.md) | `5484b3b` | CONDITIONAL(P2 2/P3 2). R18-01→02→03/04 작업표 반영 후 원문 보관. R18-01–R18-04 로컬 수정·검증 완료. 원 리뷰의 P2 처리 후 종결 허용에 따라 T-641 DONE. 원 CONDITIONAL·native 범위 보존; 최종 독립 PASS 주장 없음. 근거: evidence/2026-11-12-t642/local.json. |
 | 2026-11-12 | [T-640 LLM·gateway·lifecycle trace 근거 구현 독립 리뷰](done/2026-11-12_claude-code_T-640_implementation-review.ko.md) | `eadc040` | CONDITIONAL(P2 1/P3 4). R17-01→02→03→04/05를 작업표에 기록 후 원문 보관. R17-01–R17-04 로컬 수정·검증, R17-05는 버전별 duration 후속 큐 유지. 원 리뷰의 P2 처리 후 종결 허용에 따라 T-640 DONE. 원 CONDITIONAL·native 범위 보존; 최종 독립 PASS 주장 없음. 근거: evidence/2026-11-12-t641/local.json. |
 | 2026-11-12 | [T-639 GPU·서빙 독립 리뷰](done/2026-11-12_claude-code_T-639_implementation-review.ko.md) | `4cd6003` | CONDITIONAL(P2 2/P3 4). R16-02→01→03→04→05/06을 작업표에 기록 후 원문 보관. R16-01–R16-06 로컬 수정·검증 완료. 원 리뷰의 P2 처리 후 종결 허용에 따라 T-639 DONE. 원 CONDITIONAL·native 범위 보존; 최종 독립 PASS 주장 없음. 근거: evidence/2026-11-12-t640/local.json. |

@@ -68,3 +68,5 @@ host/boot/local-device·하드웨어·OS/build·수집기/엔진 버전·공유 
 [고정 메모리 보고](https://github.com/ollama/ollama/blob/v0.40.16/server/sched.go),
 [Darwin sysctl 구조](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/sysctl.h),
 [private pressure 조회](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_memorystatus_notify.c).
+
+R20-01: 수집기1.1.0은 model_selection_sha256 및 필수 스냅샷 excluded_model_count / selected_model_match_count(0/1)를 추가합니다. 제외한 모델 이름/digest는 저장하지 않습니다. 선택0과 호스트 전체가 빈 상태를 구분하며 실제 이중 로드/미로드 선택/빈 상태가1/1,0/2,0/0으로 검증됐습니다. 구버전1.0의 정규화와 저장 projection은 유지하고 inspection에 누락 범위 미상이라는 read-time 경고를 추가합니다. R20-02/03/04는 후속 큐이며 다중 로드는04 일부만 해소합니다. swap/pressure 상승·다른 환경은 미검증입니다.

@@ -1,0 +1,14 @@
+[
+  {
+    "rank": 0,
+    "raw_sha256": "c9d1928b7bfe6b9a27b61b0c5a6955000d1d494c19ec76b2fcf89f3af36d9774",
+    "event_count": 22,
+    "raw_host_and_path_absent": true
+  },
+  {
+    "rank": 1,
+    "raw_sha256": "e752c30c4d7595a18f57b9f6f0ccdd08e1c32af6a2f312dea09d7ab0afac1fd6",
+    "event_count": 22,
+    "raw_host_and_path_absent": true
+  }
+]

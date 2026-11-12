@@ -45,7 +45,7 @@ type Inventory struct {
 }
 
 func Inspect(set m.Set) Inventory {
-	return Inventory{set.Sources[0].SHA256, set.Sources, set.Series, len(set.Points), set.Duplicates, set.Warnings}
+	return Inventory{set.Sources[0].SHA256, set.Sources, set.Series, len(set.Points), set.Duplicates, InspectionWarnings(set)}
 }
 func DecodeOptions(raw []byte) (Options, error) {
 	var out Options
@@ -291,4 +291,24 @@ func integer(raw json.RawMessage, signed bool, zeroDefault bool) (string, error)
 		}
 	}
 	return text, nil
+}
+
+// InspectionWarnings adds a read-time coverage notice without changing stored
+// model/result projections or their hashes.
+func InspectionWarnings(set m.Set) []string {
+	out := append([]string(nil), set.Warnings...)
+	for _, source := range set.Sources {
+		if source.Format != "apple-ollama-capture-json" {
+			continue
+		}
+		var provenance struct {
+			Collector string `json:"collector_version"`
+		}
+		_ = json.Unmarshal(source.Query, &provenance)
+		if provenance.Collector == "1.0.0" {
+			out = append(out, "Legacy Apple collector1.0.0 captures contain a selected model subset; excluded-model count and selected-model load state are unknown. Do not read models as the complete loaded inventory.")
+			break
+		}
+	}
+	return out
 }

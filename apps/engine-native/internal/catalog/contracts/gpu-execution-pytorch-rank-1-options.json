@@ -1,0 +1,10 @@
+{
+  "format": "pytorch-trace-json",
+  "producer_version": "2.15.0",
+  "capture_id": "fixture-rank-1",
+  "host_id": "fixture-host",
+  "boot_id": "fixture-boot",
+  "process_namespace": "fixture-processes",
+  "run_id": "fixture-gloo-run",
+  "clock_id": "kineto-rank-1"
+}

@@ -1,0 +1,320 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "sources",
+    "tracks",
+    "events",
+    "warnings",
+    "summaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "device_map",
+          "id",
+          "sha256",
+          "format",
+          "producer",
+          "producer_version",
+          "export_schema",
+          "capture_id",
+          "host_id",
+          "boot_id",
+          "process_namespace",
+          "run_id",
+          "clock_id",
+          "rank",
+          "world_size",
+          "distributed_backend",
+          "selection_from_ns",
+          "selection_to_ns"
+        ],
+        "properties": {
+          "device_map": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 1024
+            }
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "sha256": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "format": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "producer": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "producer_version": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "export_schema": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "capture_id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "host_id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "boot_id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "process_namespace": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "run_id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "clock_id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "rank": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "world_size": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "distributed_backend": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "selection_from_ns": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "selection_to_ns": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "clock_group": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "clock_offset_ns": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "clock_uncertainty_ns": {
+            "type": "string",
+            "maxLength": 1024
+          }
+        }
+      },
+      "minItems": 1,
+      "maxItems": 16
+    },
+    "tracks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "device_local_index",
+          "id",
+          "source_id",
+          "kind",
+          "process_id",
+          "thread_id",
+          "device_id",
+          "context_id",
+          "stream_id"
+        ],
+        "properties": {
+          "device_local_index": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "source_id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "kind": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "process_id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "thread_id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "device_id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "context_id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "stream_id": {
+            "type": "string",
+            "maxLength": 1024
+          }
+        }
+      },
+      "maxItems": 4096
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "track_id",
+          "kind",
+          "name",
+          "from_ns",
+          "to_ns",
+          "correlation_id",
+          "external_id",
+          "flow_key",
+          "flow_phase",
+          "source_position"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "track_id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "kind": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "from_ns": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "to_ns": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "correlation_id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "external_id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "flow_key": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "flow_phase": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "source_position": {
+            "type": "string",
+            "maxLength": 1024
+          }
+        }
+      },
+      "maxItems": 50000
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1024
+      }
+    },
+    "summaries": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "name",
+          "statistic",
+          "value",
+          "unit",
+          "source_position"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "statistic": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "unit": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "source_position": {
+            "type": "string",
+            "maxLength": 1024
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
