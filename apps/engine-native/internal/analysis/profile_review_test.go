@@ -54,7 +54,8 @@ func TestR4LargeProfileChunkImportOverFiftyThousandNodes(t *testing.T) {
 	os.WriteFile(path, model, 0600)
 	options, _ := json.Marshal(selection)
 	started := start(t, s, analysis.Request{Path: path, Importer: "profile-set", Options: options})
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	// Preserve the full 54k-node fixture under slower race-instrumented imports.
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 	job, e := s.Wait(ctx, started.ID, started.Generation)
 	if e != nil || job.State != "completed" {

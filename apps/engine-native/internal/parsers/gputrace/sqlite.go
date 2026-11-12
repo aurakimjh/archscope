@@ -27,7 +27,13 @@ func (b *builder) sqlite(raw []byte) error {
 	if e = os.WriteFile(path, raw, 0600); e != nil {
 		return e
 	}
-	uri := (&url.URL{Scheme: "file", Path: filepath.ToSlash(path)}).String() + "?mode=ro&immutable=1"
+	uriPath := filepath.ToSlash(path)
+	// Drive-letter paths need the leading slash in file:///C:/...; otherwise
+	// the drive is parsed as a URI authority instead of a local filename.
+	if !strings.HasPrefix(uriPath, "/") {
+		uriPath = "/" + uriPath
+	}
+	uri := (&url.URL{Scheme: "file", Path: uriPath, RawQuery: "mode=ro&immutable=1"}).String()
 	db, e := sql.Open("sqlite", uri)
 	if e != nil {
 		return fmt.Errorf("GPU_TRACE_SQLITE_OPEN")
