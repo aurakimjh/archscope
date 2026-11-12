@@ -88,7 +88,7 @@ func ReportPack(ctx context.Context, base []byte, artifacts map[string][]byte) (
 		total += len(body)
 	}
 	if total > MaxExpandedBytes {
-		return nil, fmt.Errorf("VISUAL_REPORT_BUDGET: select fewer artifacts/results")
+		return nil, fmt.Errorf("VISUAL_REPORT_BUDGET: expanded_bytes=%d limit=%d; select fewer artifacts/results", total, MaxExpandedBytes)
 	}
 	sort.Strings(names)
 	var b bytes.Buffer

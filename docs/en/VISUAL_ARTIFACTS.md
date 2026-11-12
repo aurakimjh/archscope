@@ -170,3 +170,5 @@ Profile visual queries require offset=0 and page through profile.cursor. Nonzero
 Spec creation and validation enforce required_images ≤5 before rendering. CLI visual validate returns required_images; over-budget errors include the needed image count and limit.
 
 Supported SVG imports/builds are regenerated deterministically from the frozen view/spec and pinned font and compared byte-for-byte, even if an attacker updates the manifest hashes. Historical unsupported generators retain structural/hash-only validation and cannot authorize new rendering. ZIP checks do not authenticate authorship, and PNG/SVG pixel equivalence is not certified.
+
+R14-06 tradeoff: keep the complete pinned font in every standalone SVG, avoiding missing Unicode glyphs and external font dependencies. Font subsetting/deduplication is not enabled in renderer1.0.0. Descriptors/UI now disclose actual ZIP and expanded bytes. A five-image bundle is about33MB, so512MiB holds roughly16 such items and192MiB expanded Report Packs typically fit only2, not the nominal4. Other images/analysis may reduce that count. Byte limits are authoritative; refusals report actual expanded bytes and limit.

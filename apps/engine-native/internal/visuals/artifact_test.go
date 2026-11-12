@@ -304,3 +304,23 @@ func TestR1405RehashedSVGStillBindsToView(t *testing.T) {
 		t.Fatal("rehashed SVG accepted", e)
 	}
 }
+
+func TestR1406DescriptorReportsRealByteBudgets(t *testing.T) {
+	body, _, _ := artifact(t)
+	store, e := v.OpenStore(t.TempDir())
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer store.Close()
+	d, e := store.Save(body)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if d.BundleBytes != len(body) || d.ExpandedBytes <= d.BundleBytes {
+		t.Fatal(d)
+	}
+	list, e := store.List()
+	if e != nil || len(list) != 1 || list[0].BundleBytes != d.BundleBytes || list[0].ExpandedBytes != d.ExpandedBytes {
+		t.Fatal(list, e)
+	}
+}

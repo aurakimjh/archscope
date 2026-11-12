@@ -41,6 +41,8 @@ type Artifact struct {
 	Files   map[string][]byte
 }
 type Descriptor struct {
+	BundleBytes     int        `json:"bundle_bytes"`
+	ExpandedBytes   int        `json:"expanded_bytes"`
 	TableProtection Protection `json:"table_protection"`
 	ID              string     `json:"id"`
 	Title           string     `json:"title"`
@@ -419,7 +421,7 @@ func (s *Store) SaveContext(ctx context.Context, body []byte) (Descriptor, error
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if _, old, e := s.read(id); e == nil {
-		return describe(id, old), nil
+		return describe(id, old, len(body)), nil
 	}
 	dir, e := s.root.Open(".")
 	if e != nil {
@@ -468,10 +470,14 @@ func (s *Store) SaveContext(ctx context.Context, body []byte) (Descriptor, error
 	if e = s.root.Link(tmp, id+".zip"); e != nil {
 		return Descriptor{}, e
 	}
-	return describe(id, a), nil
+	return describe(id, a, len(body)), nil
 }
-func describe(id string, a Artifact) Descriptor {
-	return Descriptor{TableProtection(a.View), id, a.Receipt.Spec.Presentation.Title, a.Receipt.Pages, a.Receipt.Spec, a.Receipt.Spec.Reproducible(), a.Receipt.CreatedAt}
+func describe(id string, a Artifact, bundle int) Descriptor {
+	expanded := 0
+	for _, body := range a.Files {
+		expanded += len(body)
+	}
+	return Descriptor{BundleBytes: bundle, ExpandedBytes: expanded, TableProtection: TableProtection(a.View), ID: id, Title: a.Receipt.Spec.Presentation.Title, Pages: a.Receipt.Pages, Spec: a.Receipt.Spec, Reproducible: a.Receipt.Spec.Reproducible(), CreatedAt: a.Receipt.CreatedAt}
 }
 func (s *Store) List() ([]Descriptor, error) {
 	s.mu.Lock()
@@ -492,11 +498,11 @@ func (s *Store) List() ([]Descriptor, error) {
 		}
 		id := strings.TrimSuffix(entry.Name(), ".zip")
 		if artifactID.MatchString(id) {
-			_, a, e := s.read(id)
+			body, a, e := s.read(id)
 			if e != nil {
 				return nil, e
 			}
-			out = append(out, describe(id, a))
+			out = append(out, describe(id, a, len(body)))
 		}
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt > out[j].CreatedAt })
