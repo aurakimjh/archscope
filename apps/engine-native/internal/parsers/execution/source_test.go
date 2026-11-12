@@ -182,3 +182,29 @@ func TestR1903JTLWarnsWithoutGuessingUnitsAndNullsBadDurations(t *testing.T) {
 		t.Fatal("aggregate warnings absent")
 	}
 }
+
+func TestR1904UnverifiedJMeterRequiresExplicitHonestOptIn(t *testing.T) {
+	o, err := p.DecodeOptions(fixture(t, "jmeter-options.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw := fixture(t, "jmeter-5.6.3.csv")
+	o.ProducerVersion = "5.6.2"
+	if _, err = p.ParseBytes(context.Background(), raw, o); err == nil {
+		t.Fatal("implicit qualification")
+	}
+	o.AllowUnverifiedVersion = true
+	set, err := p.ParseBytes(context.Background(), raw, o)
+	if err != nil || set.Source.Version != "5.6.2" || set.Source.Qualification != "unverified_version" {
+		t.Fatal(set.Source, err)
+	}
+	o.ProducerVersion = ""
+	set, err = p.ParseBytes(context.Background(), raw, o)
+	if err != nil || set.Source.Version != "unknown" || !strings.Contains(strings.Join(set.Limitations, " "), "unverified") {
+		t.Fatal(set.Source, err)
+	}
+	o.Format = "k6-handle-summary-json"
+	if _, err = p.ParseBytes(context.Background(), raw, o); err == nil {
+		t.Fatal("ack used for another producer")
+	}
+}

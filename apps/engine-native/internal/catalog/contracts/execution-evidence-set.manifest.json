@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "synthetic": true,
   "qualification": "고정 k6 loopback·LLMPerf 통계/직렬화 함수·정제한 실제 HotSpot 발췌와 합성 JMeter 구조",
-  "schema_sha256": "dc34032daaf0134a5f9e1e0cbf95fc7d10a79425121f76a58d402f24c92938d3",
+  "schema_sha256": "232810095a51e0f778da70fab433e9bac13040b2bbae5ba4218fb7134936265c",
   "files": [
     {
       "file": "LICENSE.txt",
@@ -11,7 +11,7 @@
     },
     {
       "file": "README.md",
-      "sha256": "cb1930069150e3f6a7f43e3441cafcbd9c7073f6dffdf0d77f451face7200675"
+      "sha256": "b76b09c168aeb6d5721e59d547df228f3b9a59c032784fec36447d2605b57faa"
     },
     {
       "file": "crash-options.json",
@@ -27,7 +27,7 @@
     },
     {
       "file": "execution-evidence-set.schema.json",
-      "sha256": "dc34032daaf0134a5f9e1e0cbf95fc7d10a79425121f76a58d402f24c92938d3"
+      "sha256": "232810095a51e0f778da70fab433e9bac13040b2bbae5ba4218fb7134936265c"
     },
     {
       "file": "generate_fixture.py",

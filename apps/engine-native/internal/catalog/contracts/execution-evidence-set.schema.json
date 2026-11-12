@@ -475,6 +475,9 @@
         "sha256": {
           "type": "string",
           "maxLength": 1024
+        },
+        "qualification": {
+          "const": "unverified_version"
         }
       }
     },

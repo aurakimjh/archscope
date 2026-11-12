@@ -145,3 +145,5 @@ R19-04(미검증 JMeter 버전 정책)는 후속 큐에 남겼으며 producer �
 HotSpot은 독립 elapsed 줄과 Time 헤더에 붙은 elapsed를 읽고 공백을 포함한 제한된 native 심볼을 보존하며 명령 offset·절대 경로 주석을 제거합니다. frame에 선택적 section=problematic/native/java를 기록해 다른 구역의 같은 심볼을 좌표와 함께 별도 관측으로 유지합니다. section 없는 과거 frame도 읽습니다. core dump를 끈 별도 Temurin21.0.10+7 실제 합성 crash에서 inline elapsed·세 구역만 정제한 표본을 추가했으며 환경·인자·사용자 경로를 저장하지 않습니다.
 
 공유 계약의 epoch-ms-plausibility.1.0.0 정책을 포함합니다. 2000년 이전/2100년 이후 epoch-ms는 단위를 추정하지 않고 경고하며 원래 선언된 ms→ns 시각을 보존합니다. first-byte>elapsed 또는 Connect>first-byte/elapsed는 해당 수치를 null로 하고 timing_warnings와 전체 affected_rows 수에 기록합니다. 큰 입력의 분포 전용 모드에서도 경고 수를 유지하며 정상 elapsed 분포·백분위와 과거 저장 표본은 재해석하지 않습니다.
+
+JMeter 5.6.3 외 버전은 기본 거절합니다. 필요한 경우 source options에 `allow_unverified_version:true`와 실제 `producer_version`을 지정하세요. 미선언 버전은 `unknown`으로 보존하며 `qualification:unverified_version` 경고가 남습니다. 필수 열/값 구조만 확인하며 해당 생산자 버전을 검증했다는 뜻이 아닙니다.

@@ -22,9 +22,10 @@ import (
 const LLMPerfRevision = "f1d6bed47e4501b0e371082b41601b59ab55269f"
 
 type Options struct {
-	Format          string     `json:"format"`
-	ProducerVersion string     `json:"producer_version,omitempty"`
-	Context         *e.Context `json:"context,omitempty"`
+	AllowUnverifiedVersion bool       `json:"allow_unverified_version,omitempty"`
+	Format                 string     `json:"format"`
+	ProducerVersion        string     `json:"producer_version,omitempty"`
+	Context                *e.Context `json:"context,omitempty"`
 }
 
 func DecodeOptions(raw []byte) (Options, error) { var o Options; return o, e.Strict(raw, &o, 64<<10) }
@@ -68,6 +69,9 @@ func ParseFile(parent context.Context, path string, o Options) (e.Set, string, e
 }
 func ParseBytes(ctx context.Context, original []byte, o Options) (e.Set, error) {
 	s := e.Empty()
+	if o.AllowUnverifiedVersion && o.Format != "jmeter-jtl-csv" {
+		return s, fmt.Errorf("EXECUTION_UNVERIFIED_OPTION_NOT_APPLICABLE")
+	}
 	if len(original) > 64<<20 {
 		return s, fmt.Errorf("EXECUTION_SOURCE_BYTES_BUDGET")
 	}
@@ -127,7 +131,14 @@ func ParseBytes(ctx context.Context, original []byte, o Options) (e.Set, error) 
 		case "jmeter-jtl-csv":
 			s.Source.Producer = "Apache JMeter"
 			if o.ProducerVersion != "5.6.3" {
-				return s, fmt.Errorf("EXECUTION_JTL_VERSION_UNQUALIFIED: pinned synthetic 5.6.3 layout")
+				if !o.AllowUnverifiedVersion {
+					return s, fmt.Errorf("EXECUTION_JTL_VERSION_UNQUALIFIED: declare actual producer_version or unknown and explicitly set allow_unverified_version=true; never claim 5.6.3 for another producer")
+				}
+				if o.ProducerVersion == "" {
+					s.Source.Version = "unknown"
+				}
+				s.Source.Qualification = "unverified_version"
+				s.Limitations = append(s.Limitations, "JMeter producer version is unverified: required CSV columns/values are structurally checked, not producer/version-qualified. The actual declared version is retained; never substitute 5.6.3.")
 			}
 			err = parseJTL(ctx, raw, &s)
 		default:
