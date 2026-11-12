@@ -124,6 +124,7 @@ func (b *builder) postgres(body []byte, o Options) error {
 	if e := b.captureIdentity(o, "postgresql", c.Version, c.Contract, nil); e != nil {
 		return e
 	}
+	b.set.Normalizer = m.EpochNormalizer
 	windows := []map[string]any{}
 	var previous uint64
 	for i, s := range c.Snapshots {

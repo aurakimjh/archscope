@@ -4682,7 +4682,7 @@ Findings recorded before archival, respecting older dependency-ordered P3 work:
 | Order | Finding | Priority | Status | Action |
 |---|---|---|---|---|
 | 1 | R22-03 | P3 | LOCALLY_FIXED | Explain NULL reset/crash-recovery conservatism and permitted maintenance-window options; provide a separate read-only wrapper collector without automatic resets or DB access during import. |
-| 2 | R22-01 | P3 | TODO | Explicit unknown-to-known epoch transition status/rate policy; preserve prior unknown epoch and saved revisions. |
+| 2 | R22-01 | P3 | LOCALLY_FIXED | Explicit unknown-to-known epoch transition status/rate policy; preserve prior unknown epoch and saved revisions. |
 | 3 | R22-02 | P3 | TODO | Qualify numbackends>=1 and nondecreasing reset timestamps or disclose/refuse invariant violations explicitly. |
 
 Original review SHA-256: 1b9ac84b86142063407a4002470e255f4dfbc58e63d2f9145ef350a49596a1a7. Original verdict remains CONDITIONAL, not PASS. No new native Windows/WebView or other producer qualification follows.
@@ -4840,3 +4840,5 @@ R21-02 LOCALLY_FIXED: Nsight now discloses present/absent coverage for all four 
 R21-04 LOCALLY_FIXED: Added shared deterministic overlapping-stream SQLite mutation with independent exact sum77888/union51968 ns, duplicate launch candidates and ambiguous/orphan/valid Chrome flow endpoints. Structural qualification explicitly distinguished from actual CUDA/NCCL. Parser/analyzer/catalog passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
 
 R22-03 LOCALLY_FIXED: Documented NULL-reset/crash-recovery conservatism and owner-approved maintenance alternatives. Shipped separate explicit fixed-SQL BEGIN READ ONLY psql wrapper in offline tools; no automatic reset/import-time DB access. Actual disposable network-none PostgreSQL16.14 three-snapshot capture retained unknown epochs and no rates; server removed. Parser/catalog/distribution tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.
+
+R22-01 LOCALLY_FIXED: Pinned metric normalizer1.3.0 for new PostgreSQL imports: known current start after unknown predecessor gets epoch_transition_from_unknown, no inferred earlier continuity/delta/rate; next same-epoch derivation and known-reset behavior retained. Saved1.0/1.1/1.2 semantics preserved. Revision, parser, analyzer and catalog tests passed. No new independent PASS; original parent verdicts and existing saved revisions are preserved.

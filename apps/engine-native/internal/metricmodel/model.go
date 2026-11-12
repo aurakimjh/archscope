@@ -24,8 +24,11 @@ const Normalizer = "1.0.0"
 const CadenceNormalizer = "1.1.0"
 const ObservationNormalizer = "1.2.0"
 
+// EpochNormalizer discloses a known start reached from an unknown predecessor.
+const EpochNormalizer = "1.3.0"
+
 func supportedNormalizer(v string) bool {
-	return v == Normalizer || v == CadenceNormalizer || v == ObservationNormalizer
+	return v == Normalizer || v == CadenceNormalizer || v == ObservationNormalizer || v == EpochNormalizer
 }
 
 const MaxBytes = 32 << 20

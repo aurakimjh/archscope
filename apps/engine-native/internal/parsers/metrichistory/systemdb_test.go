@@ -56,11 +56,11 @@ func TestActualPostgresEpochsAndExactCommonConsumers(t *testing.T) {
 			t.Fatal(r)
 		}
 	}
-	if counts["start_time_unavailable"] != 1 || counts["reset"] != 1 || counts["derived"] != 2 || len(commit) != 5 {
+	if counts["epoch_transition_from_unknown"] != 1 || counts["reset"] != 1 || counts["derived"] != 2 || len(commit) != 5 {
 		t.Fatal(counts)
 	}
 	for _, r := range commit {
-		if r.Status == "start_time_unavailable" && r.Rate != nil {
+		if r.Status == "epoch_transition_from_unknown" && r.Rate != nil {
 			t.Fatal("unknown reset fabricated rate")
 		}
 		if r.Status == "derived" && (r.Delta == nil || *r.Delta != "7") {
@@ -242,5 +242,45 @@ func TestR2203ActualReadOnlyWrapperUnknownEpoch(t *testing.T) {
 		if v.Delta != nil || v.Rate != nil {
 			t.Fatal("unknown reset fabricated rate", v)
 		}
+	}
+}
+
+func TestR2201UnknownToKnownEpochPolicyPreservesSavedRevision(t *testing.T) {
+	set := parse(t, systemDBFixture(t, "postgres"), p.Options{})
+	if set.Normalizer != m.EpochNormalizer {
+		t.Fatal(set.Normalizer)
+	}
+	rows, e := m.Intervals(context.Background(), set)
+	if e != nil {
+		t.Fatal(e)
+	}
+	n := 0
+	for _, v := range rows {
+		if v.Status == "epoch_transition_from_unknown" {
+			n++
+			if v.Start == nil || v.Delta != nil || v.Rate != nil {
+				t.Fatal(v)
+			}
+		}
+	}
+	if n != 14 {
+		t.Fatal(n)
+	}
+	set.Normalizer = m.ObservationNormalizer
+	old, e := m.Intervals(context.Background(), set)
+	if e != nil {
+		t.Fatal(e)
+	}
+	n = 0
+	for _, v := range old {
+		if v.Status == "start_time_unavailable" {
+			n++
+		}
+		if v.Status == "epoch_transition_from_unknown" {
+			t.Fatal("legacy semantics changed")
+		}
+	}
+	if n != 14 {
+		t.Fatal(n)
 	}
 }

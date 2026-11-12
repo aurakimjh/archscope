@@ -174,7 +174,7 @@ func histogramDelta(current, previous *Histogram, kind string) (*Histogram, erro
 	}
 	return &out, nil
 }
-func derive(row *Interval, point Point, previous *Point, series Series) {
+func derive(row *Interval, point Point, previous *Point, series Series, epochPolicy bool) {
 	if _, ok := Time(point.End); !ok {
 		row.Status = "timestamp_unavailable"
 		return
@@ -219,6 +219,9 @@ func derive(row *Interval, point Point, previous *Point, series Series) {
 		priorStart, pk := Time(previous.Start)
 		if !sk || !pk {
 			row.Status = "start_time_unavailable"
+			if epochPolicy && sk && !pk {
+				row.Status = "epoch_transition_from_unknown"
+			}
 			return
 		}
 		if start != priorStart {
@@ -340,7 +343,7 @@ func Intervals(ctx context.Context, set Set) ([]Interval, error) {
 			if i > 0 {
 				previous = &points[i-1]
 			}
-			derive(&row, p, previous, series)
+			derive(&row, p, previous, series, set.Normalizer == EpochNormalizer)
 			if set.Normalizer != Normalizer && series.Kind == "gauge" && series.ExpectedStep != nil && previous != nil {
 				end, ok := Time(p.End)
 				before, known := Time(previous.End)
@@ -359,7 +362,7 @@ func Intervals(ctx context.Context, set Set) ([]Interval, error) {
 			}
 			if last-first > 1 {
 				status := "conflicting_timestamp"
-				if set.Normalizer == ObservationNormalizer {
+				if set.Normalizer == ObservationNormalizer || set.Normalizer == EpochNormalizer {
 					identical := true
 					key := payloadID(points[first])
 					for j := first + 1; j < last; j++ {
@@ -412,7 +415,7 @@ func Intervals(ctx context.Context, set Set) ([]Interval, error) {
 				b, _ := Time(out[index].End)
 				if maxIndex >= 0 && a < maximum {
 					for _, j := range []int{maxIndex, index} {
-						if set.Normalizer != ObservationNormalizer || (out[j].Status != "duplicate_observation" && out[j].Status != "conflicting_timestamp") {
+						if (set.Normalizer != ObservationNormalizer && set.Normalizer != EpochNormalizer) || (out[j].Status != "duplicate_observation" && out[j].Status != "conflicting_timestamp") {
 							out[j].Status = "overlap"
 						}
 						out[j].Delta = nil

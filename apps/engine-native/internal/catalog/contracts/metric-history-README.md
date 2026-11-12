@@ -9,3 +9,5 @@
 이 표본은 SDK 1.38.0의 해당 형식만 검증한다. 특정 운영 exporter 경로, GenAI metric alias/version 또는 일반적인 producer 호환성을 승인하지 않는다. OTLP와 Prometheus 복사본을 자동 합산하지 않는다.
 
 출처: https://opentelemetry.io/docs/specs/otel/metrics/data-model/ 및 https://opentelemetry.io/docs/specs/otlp/ . 합성 자료와 generator는 CC0-1.0. SDK 의존성은 fixture 생성에만 사용하며 앱 런타임에 포함하지 않는다.
+
+normalizer1.3.0은 unknown→known 시작의 첫 전이를 epoch_transition_from_unknown으로 구분한다. 알려진 현재 시작은 보존하지만 이전 unknown 수명은 복원하지 않으므로 해당 전이 delta/rate는 null이다. 다음 같은 epoch 관측부터 파생한다. 1.0/1.1/1.2 저장 의미는 유지하며 새로운 PostgreSQL 가져오기만 1.3을 선택한다. 명시적 merge는 가장 최신 입력 normalizer를 사용한다.

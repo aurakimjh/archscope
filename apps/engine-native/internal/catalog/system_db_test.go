@@ -56,10 +56,14 @@ func TestActualSystemDBCorpusSchemaManifestAndModels(t *testing.T) {
 		if e != nil {
 			t.Fatal(e)
 		}
-		if model.Normalizer != m.Normalizer || set.Normalizer != m.ObservationNormalizer {
+		expectedNormalizer := m.ObservationNormalizer
+		if name == "postgres" {
+			expectedNormalizer = m.EpochNormalizer
+		}
+		if model.Normalizer != m.Normalizer || set.Normalizer != expectedNormalizer {
 			t.Fatal("normalizer revisions")
 		}
-		model.Normalizer = m.ObservationNormalizer
+		model.Normalizer = expectedNormalizer
 		a, _ := json.Marshal(set)
 		b, _ := json.Marshal(model)
 		if !bytes.Equal(a, b) {
