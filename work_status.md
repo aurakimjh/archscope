@@ -5148,3 +5148,7 @@ Read installed V7.6.4.508 Stand-alone EXE plus core HTTPAnalyzer.tlb using REGKI
 ### 2026-11-13 - T-627 observed wrapped dialog cancellation
 
 Actual production Windows OpenFile cancellation reproduced the runtime-wrapped error after the first sentinel-only fix. The common adapter now also matches the three exact Wails3.1.0 single/multiple OpenFile and SaveFile wrapper messages. Updated regressions include every wrapper and a wrapped access-denied counterexample; state tests and production build pass. Native post-fix recheck follows in the integrated binary.
+
+### 2026-11-13 - Docker Desktop disconnected acceptance follow-up
+
+Used the running Linux/amd64 Docker Desktop engine to build the repository observer image and a static Linux engine, then run the existing clean-install observer under --network none. All70 selected CLI/manual-helper operations show zero AF_INET/AF_INET6 syscalls; the failed-connect positive control produces2 observed calls. Offline JFR conversion is refused before tool execution. Container is removed automatically; existing Kubernetes/user containers were not changed. This is Linux CLI isolation evidence on this Windows Docker host, not Windows GUI/driver network acceptance or CUDA/Apple evidence. Receipt: docs/review/evidence/2026-11-13-windows-followups/docker-offline.json.
