@@ -73,5 +73,131 @@
     "observed": "After Profiler menu roundtrip and asynchronous hydration, saved128rows and selected request sequence24736 return. Detail tab resets to Raw, which shows the same request and explicit bodies-disabled guidance. No live-capture restart.",
     "screenshot": "soak-amd64-pre-fix-final-reentry.jpg",
     "observedAt": "2026-11-13T21:40:35.351Z"
+  },
+  {
+    "arch": "amd64",
+    "phase": "fixed-mid-raw",
+    "observed": "Live desktop at about27min: selected sequence5583,200GET loopback/soak; Raw preserves semantic headers,45B JSON,no-store and bodies-disabled explanation; captured1516=persisted1516,retained128.",
+    "screenshot": "soak-amd64-fixed-mid-raw.jpg",
+    "observedAt": "2026-11-13T21:55:46.153Z"
+  },
+  {
+    "arch": "amd64",
+    "phase": "fixed-mid-headers",
+    "observed": "About27min, selected sequence5583 remains while traffic continues; Headers show application/json,no-store,Content-Length45 and request Connection close; captured1540=persisted1540,128retained.",
+    "screenshot": "soak-amd64-fixed-mid-headers.jpg",
+    "observedAt": "2026-11-13T21:55:52.787Z"
+  },
+  {
+    "arch": "386",
+    "phase": "fixed-mid-raw",
+    "observed": "About28min live desktop: selected sequence5739,200GET loopback/soak; semantic Raw has45B application/json,no-store and bodies-disabled explanation; captured1676=persisted1676,128retained.",
+    "screenshot": "soak-386-fixed-mid-raw.jpg",
+    "observedAt": "2026-11-13T21:56:19.114Z"
+  },
+  {
+    "arch": "386",
+    "phase": "fixed-mid-body",
+    "observed": "About28min: selected sequence5739 Body shows request0B,response45B application/json with0B decoded body and explicit bodies-disabled guidance; captured1704=persisted1704,128retained.",
+    "screenshot": "soak-386-fixed-mid-body.jpg",
+    "observedAt": "2026-11-13T21:56:26.790Z"
+  },
+  {
+    "arch": "amd64",
+    "phase": "fixed-running-away",
+    "observed": "About56min, nativeAnalyze>Profiler leavesHTTProute while controller traffic keeps running; no capture-stop action.",
+    "screenshot": "soak-amd64-fixed-running-away.jpg",
+    "observedAt": "2026-11-13T22:24:36.316Z"
+  },
+  {
+    "arch": "amd64",
+    "phase": "fixed-running-reentry",
+    "observed": "About56min: nativeProfiler>HTTP roundtrip initially hydrates asynchronously,then resumes144displayrows (128stored plus incoming),sameproxy5478 andRunning;captured1352=persisted1352,backend128retained. No pre-clear selection-preservation claim.",
+    "screenshot": "soak-amd64-fixed-running-reentry.jpg",
+    "observedAt": "2026-11-13T22:24:57.865Z"
+  },
+  {
+    "arch": "386",
+    "phase": "fixed-running-away",
+    "observed": "About57min: nativeAnalyze>Profiler while synthetictraffic continues; no capture-stop action.",
+    "screenshot": "soak-386-fixed-running-away.jpg",
+    "observedAt": "2026-11-13T22:25:19.848Z"
+  },
+  {
+    "arch": "386",
+    "phase": "fixed-running-reentry",
+    "observed": "About57min: nativeProfiler>HTTP resumes148displayrows (128stored plus incoming),sameproxy10240 andRunning;captured1552=persisted1552,backend128retained. No pre-clear selection-preservation claim.",
+    "screenshot": "soak-386-fixed-running-reentry.jpg",
+    "observedAt": "2026-11-13T22:25:39.625Z"
+  },
+  {
+    "arch": "amd64",
+    "phase": "fixed-final-raw",
+    "observed": "After 7200.507s, saved/opened 128 rows; selected sequence24653 URL query24652 equals saved selected request. Raw after file normalization includes query24652 and Host127.0.0.1:11507; semantic reconstruction/body disabled. Earlier live-query defect remains separately recorded.",
+    "screenshot": "soak-amd64-fixed-final-raw.jpg",
+    "observedAt": "2026-11-13T23:28:44.072Z"
+  },
+  {
+    "arch": "amd64",
+    "phase": "fixed-final-headers",
+    "observed": "Same saved selection URL query24652; response Content-Type application/json,Cache-Control no-store,Content-Length45,connectionclose;128rows retained.",
+    "screenshot": "soak-amd64-fixed-final-headers.jpg",
+    "observedAt": "2026-11-13T23:28:57.025Z"
+  },
+  {
+    "arch": "amd64",
+    "phase": "fixed-final-body",
+    "observed": "Saved selection query24652: request0B,response45B wire/0B decoded; explicit body-capture-off messages, no fabricated response body.",
+    "screenshot": "soak-amd64-fixed-final-body.jpg",
+    "observedAt": "2026-11-13T23:29:01.941Z"
+  },
+  {
+    "arch": "amd64",
+    "phase": "fixed-final-profiler",
+    "observed": "After final save/open switched to Profiler successfully; empty profiler guidance renders.",
+    "screenshot": "soak-amd64-fixed-final-profiler.jpg",
+    "observedAt": "2026-11-13T23:29:16.015Z"
+  },
+  {
+    "arch": "amd64",
+    "phase": "fixed-final-reentry",
+    "observed": "Profiler to HTTP reentry hydrates128savedrows and same selectedURL query24652/sequence24653; stopped2072captured=2072persisted,generation-specific; Rawtab resets fromBody as expected.",
+    "screenshot": "soak-amd64-fixed-final-reentry.jpg",
+    "observedAt": "2026-11-13T23:29:41.945Z"
+  },
+  {
+    "arch": "386",
+    "phase": "fixed-final-raw",
+    "observed": "After7200.681s save/open128rows,selected sequence24677 URLquery24676 matchesfile; Raw afterfile normalization showsquery andHostport;semantic/bodydisabled.",
+    "screenshot": "soak-386-fixed-final-raw.jpg",
+    "observedAt": "2026-11-13T23:29:48.346Z"
+  },
+  {
+    "arch": "386",
+    "phase": "fixed-final-headers",
+    "observed": "Same selectedquery24676,responseJSON/no-store/Content-Length45,Connectionclose;128savedrows.",
+    "screenshot": "soak-386-fixed-final-headers.jpg",
+    "observedAt": "2026-11-13T23:29:56.158Z"
+  },
+  {
+    "arch": "386",
+    "phase": "fixed-final-body",
+    "observed": "Same savedselection query24676;response45Bwire/0Bdecoded,request0B,explicitbodydisabledmessages.",
+    "screenshot": "soak-386-fixed-final-body.jpg",
+    "observedAt": "2026-11-13T23:30:02.835Z"
+  },
+  {
+    "arch": "386",
+    "phase": "fixed-final-profiler",
+    "observed": "Afterfinalsave/open,Profilerroute displays its input andemptyguidance successfully.",
+    "screenshot": "soak-386-fixed-final-profiler.jpg",
+    "observedAt": "2026-11-13T23:30:26.325Z"
+  },
+  {
+    "arch": "386",
+    "phase": "fixed-final-reentry",
+    "observed": "Profiler toHTTP reentry hydrates128savedrows andsame selectedURLquery24676/sequence24677;stopped2072captured=2072persisted;RawresetsfromBody.",
+    "screenshot": "soak-386-fixed-final-reentry.jpg",
+    "observedAt": "2026-11-13T23:30:54.915Z"
   }
 ]

@@ -1,0 +1,27 @@
+{
+  "scope": "Only three owned acceptance executables and the labeled synthetic Docker fixture; user containers/processes unchanged",
+  "completedAt": "2026-11-13T23:33:13.7887577Z",
+  "docker": {
+    "autoRemove": true,
+    "name": "archscope-t613-origin-20261114",
+    "stopped": true,
+    "verifiedOwnershipLabel": "archscope.acceptance=t613-20261114"
+  },
+  "processes": [
+    {
+      "stopped": true,
+      "verifiedExecutable": "archscope-qa.exe",
+      "target": "final raw QA"
+    },
+    {
+      "stopped": true,
+      "verifiedExecutable": "soak-amd64-fixed.exe",
+      "target": "amd64 fixed soak"
+    },
+    {
+      "stopped": true,
+      "verifiedExecutable": "soak-386-fixed.exe",
+      "target": "386 fixed soak"
+    }
+  ]
+}

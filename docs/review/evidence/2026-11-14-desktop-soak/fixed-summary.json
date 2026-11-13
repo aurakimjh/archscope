@@ -1,0 +1,146 @@
+{
+  "scope": "Two hours per architecture, real production Wails desktop/controller and isolated synthetic Docker-loopback explicit HTTP proxy; bodies disabled",
+  "captureFixCommit": "df9253e09e09fbc045b450de9aa6ad24926a0aa9",
+  "limitations": [
+    "Not full Stand-alone/vendor/transparent-driver parity or proof of no memory leak",
+    "Runner capabilities buildCommit reports unknown; embedded Go VCS metadata is separately retained",
+    "Soak binaries include the capture fix and predate later HTTP-error, Office and Raw URL renderer fixes; latest integrated production build hashes are separate",
+    "Synthetic loopback HTTP only, no body capture, CA trust or security policy changes"
+  ],
+  "architectures": {
+    "amd64": {
+      "result": "PASS",
+      "elapsedSeconds": 7200.5069645,
+      "requests": 24780,
+      "pauses": 119,
+      "clears": 11,
+      "checkpoints": 241,
+      "allRetainedRowsPaginated": true,
+      "allCheckpointCapturePersistenceCountsMatch": true,
+      "zeroDropsAtEveryCheckpoint": true,
+      "savedRows": 128,
+      "selectedRequestURL": "http://127.0.0.1:11507/soak?sequence=24652",
+      "selectedRequestSequence": 24653,
+      "savedSelectionPresent": true,
+      "saveOpenSelectionEqual": true,
+      "savedSessionSha256": "418749ffd02a3ea91dcdcf55db8dda2368333e0dad8f1748e41cdfc5a5ce7c39",
+      "binarySha256": "420783063102ce1104d7e41a544595e6fdcb544b2517d9472e7bf3302f0310e7",
+      "binaryVCS": [
+        "build\tCGO_ENABLED=0",
+        "build\tGOARCH=amd64",
+        "build\tvcs.revision=16ad40d5017d47be263678ec82f5967ee65dcc39",
+        "build\tvcs.time=2026-11-13T21:27:58Z",
+        "build\tvcs.modified=true"
+      ],
+      "resources": {
+        "PrivateMemorySize64": {
+          "first": 103976960,
+          "last": 81076224,
+          "minimum": 75378688,
+          "maximum": 103976960
+        },
+        "WorkingSet64": {
+          "first": 100044800,
+          "last": 78196736,
+          "minimum": 71794688,
+          "maximum": 100044800
+        },
+        "HandleCount": {
+          "first": 526,
+          "last": 654,
+          "minimum": 526,
+          "maximum": 658
+        },
+        "TreeProcessCount": {
+          "first": 7,
+          "last": 7,
+          "minimum": 7,
+          "maximum": 7
+        },
+        "TreePrivateMemorySize64": {
+          "first": 391421952,
+          "last": 513495040,
+          "minimum": 391421952,
+          "maximum": 534286336
+        },
+        "TreeWorkingSet64": {
+          "first": 571215872,
+          "last": 747347968,
+          "minimum": 571215872,
+          "maximum": 767250432
+        }
+      },
+      "resourceScope": "root process plus currently alive descendants from one Windows process snapshot; not a leak proof"
+    },
+    "386": {
+      "result": "PASS",
+      "elapsedSeconds": 7200.6813202,
+      "requests": 24804,
+      "pauses": 119,
+      "clears": 11,
+      "checkpoints": 241,
+      "allRetainedRowsPaginated": true,
+      "allCheckpointCapturePersistenceCountsMatch": true,
+      "zeroDropsAtEveryCheckpoint": true,
+      "savedRows": 128,
+      "selectedRequestURL": "http://127.0.0.1:11507/soak?sequence=24676",
+      "selectedRequestSequence": 24677,
+      "savedSelectionPresent": true,
+      "saveOpenSelectionEqual": true,
+      "savedSessionSha256": "c91e700d1b4f1e7550fbbe90a576c6089038ec3ddacc5b8b052bfcdaf157dd40",
+      "binarySha256": "0b0ce4dd88c6cf43c9c04aed4112c04740c3ace23260de73f19841b26d1a2522",
+      "binaryVCS": [
+        "build\tCGO_ENABLED=0",
+        "build\tGOARCH=386",
+        "build\tvcs.revision=df9253e09e09fbc045b450de9aa6ad24926a0aa9",
+        "build\tvcs.time=2026-11-13T21:27:28Z",
+        "build\tvcs.modified=true"
+      ],
+      "resources": {
+        "PrivateMemorySize64": {
+          "first": 91738112,
+          "last": 69197824,
+          "minimum": 63844352,
+          "maximum": 91738112
+        },
+        "WorkingSet64": {
+          "first": 92139520,
+          "last": 69754880,
+          "minimum": 63766528,
+          "maximum": 92139520
+        },
+        "HandleCount": {
+          "first": 581,
+          "last": 703,
+          "minimum": 581,
+          "maximum": 707
+        },
+        "TreeProcessCount": {
+          "first": 7,
+          "last": 7,
+          "minimum": 7,
+          "maximum": 7
+        },
+        "TreePrivateMemorySize64": {
+          "first": 373448704,
+          "last": 491880448,
+          "minimum": 373448704,
+          "maximum": 512937984
+        },
+        "TreeWorkingSet64": {
+          "first": 551993344,
+          "last": 729178112,
+          "minimum": 551993344,
+          "maximum": 749633536
+        }
+      },
+      "resourceScope": "root process plus currently alive descendants from one Windows process snapshot; not a leak proof"
+    }
+  },
+  "dockerFixtureBeforeCleanup": {
+    "name": "archscope-t613-origin-20261114",
+    "running": true,
+    "oomKilled": false,
+    "restartCount": 0
+  }
+}

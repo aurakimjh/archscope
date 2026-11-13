@@ -1,0 +1,161 @@
+{
+  "sourceCommit": "eb4049b5ef6d49bc6177a394a256716a7b2886e7",
+  "toolchain": "go version go1.26.10 windows/amd64",
+  "tests": {
+    "capture-amd64": {
+      "result": "PASS",
+      "logSha256": "d39ca050173c700edbb16831db3126b3c0893f35bba08130ab2ddc11b4ef3c2c",
+      "output": [
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture\t1.266s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance\t2.048s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/admission\t0.726s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate\t1.059s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation\t2.476s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/backend\t1.091s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/browsercache\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/comautomation\t3.245s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/content\t1.006s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog\t1.514s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/legacy\t1.015s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/processlaunch\t2.160s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/procmap\t1.133s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact\t1.011s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/requestbuilder\t3.683s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/session\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile\t1.852s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/store\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/stream\t2.657s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/summary\t0.997s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/transparent\t1.338s"
+      ]
+    },
+    "app-amd64": {
+      "result": "PASS",
+      "logSha256": "55d93d5d06e341e806f783d79d8e626f2fb19be8297d35b55fe0275cfbca07e3",
+      "output": [
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app\t48.797s"
+      ],
+      "scope": "Full app suite before clipboard relative-width and final Raw renderer-only changes; subsequent visuals/clipboard tests cover width, final frontend tests cover Raw, current production builds include all fixes"
+    },
+    "visuals-clipboard-after-width-amd64": {
+      "result": "PASS",
+      "logSha256": "2acf58f0a1c4bfe5318d565a2c3165139266af8e65b4eef9ecb2abd7a085a0a0",
+      "output": [
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/visuals\t7.542s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/visualclipboard\t(cached)"
+      ]
+    },
+    "capture-386": {
+      "result": "PASS",
+      "logSha256": "d69281d86b73274890b50be43ffca3b445a2d4376f7f44b4d5a018ac3f0617a0",
+      "output": [
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture\t1.398s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance\t2.344s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/admission\t0.917s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate\t1.261s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation\t3.055s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/backend\t1.311s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/browsercache\t1.534s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore\t1.584s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/comautomation\t3.831s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/content\t1.219s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy\t1.026s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog\t1.581s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/legacy\t1.349s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/processlaunch\t2.637s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/procmap\t1.197s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact\t1.194s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/requestbuilder\t4.267s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/session\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile\t1.721s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/store\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/stream\t3.179s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/summary\t0.913s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/transparent\t1.555s"
+      ]
+    },
+    "app-386": {
+      "result": "PASS",
+      "logSha256": "ced703350913dd5187ca5848d99e8e88a2caf2321eb35ecab80b85b462e1d293",
+      "output": [
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app\t50.276s"
+      ],
+      "scope": "Full app suite before clipboard relative-width and final Raw renderer-only changes; subsequent visuals/clipboard tests cover width, final frontend tests cover Raw, current production builds include all fixes"
+    },
+    "visuals-clipboard-after-width-386": {
+      "result": "PASS",
+      "logSha256": "425e2e6f74d78ac5a3e409f51b5d91db5b41f87c8397988c048f225b68ba66e6",
+      "output": [
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/visuals\t12.176s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/visualclipboard\t(cached)"
+      ]
+    }
+  },
+  "productionBuilds": {
+    "amd64": {
+      "result": "PASS",
+      "bytes": 56240128,
+      "sha256": "54456b761c0798db4cc1bbcf8d067037e2c3552da202feb85048fa043e6b7e0a",
+      "command": "GOARCH=amd64 CGO_ENABLED=0 node build/windows/build.mjs -tags production -ldflags \"-H windowsgui -X main.desktopBuildCommit=eb4049b5ef6d49bc6177a394a256716a7b2886e7\" -o <ignored acceptance executable> .",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "embeddedMetadata": [
+        "build\t-ldflags=\"-H windowsgui -X main.desktopBuildCommit=eb4049b5ef6d49bc6177a394a256716a7b2886e7\"",
+        "build\tCGO_ENABLED=0",
+        "build\tGOARCH=amd64",
+        "build\tvcs.revision=eb4049b5ef6d49bc6177a394a256716a7b2886e7",
+        "build\tvcs.time=2026-11-13T23:31:35Z",
+        "build\tvcs.modified=true"
+      ]
+    },
+    "386": {
+      "result": "PASS",
+      "bytes": 54291968,
+      "sha256": "199fccf349d2f7d2e638a03648919f4d23f47c2cbdef437c4e65770e5f9f23f0",
+      "command": "GOARCH=386 CGO_ENABLED=0 node build/windows/build.mjs -tags production -ldflags \"-H windowsgui -X main.desktopBuildCommit=eb4049b5ef6d49bc6177a394a256716a7b2886e7\" -o <ignored acceptance executable> .",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "embeddedMetadata": [
+        "build\t-ldflags=\"-H windowsgui -X main.desktopBuildCommit=eb4049b5ef6d49bc6177a394a256716a7b2886e7\"",
+        "build\tCGO_ENABLED=0",
+        "build\tGOARCH=386",
+        "build\tvcs.revision=eb4049b5ef6d49bc6177a394a256716a7b2886e7",
+        "build\tvcs.time=2026-11-13T23:31:35Z",
+        "build\tvcs.modified=true"
+      ]
+    }
+  },
+  "limitations": [
+    "CGO_ENABLED=0; no Windows race-detector execution",
+    "Linux store fallback was compile-only,not executed",
+    "App package tests use supported version/hash-guarded Wails386 wrapper; unchanged module cache",
+    "Fixed2h desktop capture binaries predate later UI and Office fixes; their own SHA and source scope are recorded separately"
+  ],
+  "linuxStoreCompile": {
+    "result": "PASS compile-only",
+    "sha256": "7dfb4a89ea6521559da3127a40c2c4a030d8cd6fb749e8b480d464d9a900f81a"
+  },
+  "frontend": {
+    "state": {
+      "result": "PASS",
+      "command": "npm run test:state",
+      "logSha256": "3e6dc9263931725271709552759a92e933f7959e2b1b9c69475a3e30a57ee0ec",
+      "scope": "Final frontend includes live Raw redacted-query/authority fallback, previous error wrapping and theme fixes"
+    },
+    "production": {
+      "result": "PASS",
+      "command": "npm run build",
+      "logSha256": "d12c1dc6deaf89a27b4bc1083f5b798bbf27b6e3e77908dfc29c0bfae1d5c5c0",
+      "scope": "Final frontend includes live Raw redacted-query/authority fallback, previous error wrapping and theme fixes"
+    }
+  },
+  "nativeLayoutBuild": {
+    "result": "PASS",
+    "tags": "production,layoutaudit",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "binarySha256": "a17edb66fa5db047e81d16d5a64a1a6590adb1ec9e189633c11a79d3563dcd17",
+    "scope": "Final Raw renderer with production bridge/layoutaudit; native four-request proof separate from old soak binaries"
+  }
+}

@@ -64,7 +64,7 @@
     {
       "before": "http-raw-url-before",
       "after": "http-raw-url-after",
-      "fixCommit": "See commit introducing buildRawRequest URL fallback and these receipts",
+      "fixCommit": "eb4049b5",
       "caseFile": "native-cases.json"
     }
   ]
