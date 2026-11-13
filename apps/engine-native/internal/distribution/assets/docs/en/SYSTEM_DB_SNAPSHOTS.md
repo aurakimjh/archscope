@@ -102,3 +102,9 @@ New PostgreSQL imports use normalizer1.3.0. The first unknown→known transition
 Captures require `numbackends≥1` because the collector is connected, and nondecreasing known `stats_reset` timestamps even across intervening unknown observations. Backwards resets refuse with `POSTGRES_CAPTURE_RESET_BACKWARDS`; zero backends refuse with `POSTGRES_CAPTURE_BACKENDS`. No timestamp/value correction is performed.
 
 Qualified versions remain the defaults. For explicit structural-only opt-in, actual/unknown version preservation and qualification limits, see [Unverified producer versions](INPUT_ASSISTANCE.md#explicit-unverified-producer-versions).
+
+## SQLite read-only PRAGMA snapshots
+
+`sqlite-pragma-snapshots-json` accepts the manual `sqlite-pragma-snapshots.v1` wrapper from SQLite 3.53.0. Run `python3 scripts/capture-sqlite.py --database owned.sqlite --instance-tag sanitized-instance --out new-capture.json`, then use Metric History source inspection/import. The collector uses one read-only connection and four fixed PRAGMAs; it never exports a database path, SQL text or row data. Import never opens a database.
+
+page_count, freelist_count, page_size and connection-local data_version are exact gauges. None is a derived transaction counter or rate. Snapshots are sequential reads, not atomic database snapshots; a new connection or recreated file requires a new source. Existing MetricHistory queries, cases and exports apply. Actual qualification is a synthetic SQLite 3.53.0 file with three captures and concurrent owned writes; other versions/layouts are refused.

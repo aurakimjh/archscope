@@ -1,0 +1,16 @@
+{
+  "task": "T-657",
+  "activation": "User requested creating missing inputs/environments. SQLite selected as additional DB absent existing DB/OS snapshot adapters.",
+  "producer": "SQLite 3.53.0",
+  "shared_commit": "5ec81d7",
+  "reuse": "Existing snapshot-sequence -> MetricHistory -> metrics_timeseries; no new model/result.",
+  "fixture_sha256": "f1b09443deea8c76de25dd434ba2c3bb42403eb7b44ec7c91f395657abb548fe",
+  "actual": "3 samples / 4 PRAGMA gauges using one read-only connection while owned synthetic writer modifies file. Shipped collector executed read-only against owned synthetic DB.",
+  "verification": [
+    "race metric parser/model/analyzer/distribution/architecture passed",
+    "go vet affected packages passed",
+    "independent raw values == exact interval values, no delta/rate",
+    "common CSV/HTML export and validation, incompatible version/kind refusals"
+  ],
+  "limits": "Not atomic database snapshot; data_version connection-local, no transaction count inference. New source after reconnect/recreation. Fixed version and scope only."
+}

@@ -88,6 +88,8 @@ func ParseBytes(ctx context.Context, original []byte, name string, options Optio
 		}
 		if _, ok := root["contract"]; ok && string(root["contract"]) == `"apple-ollama-capture.v1"` {
 			format = "apple-ollama-capture-json"
+		} else if string(root["contract"]) == `"sqlite-pragma-snapshots.v1"` {
+			format = "sqlite-pragma-snapshots-json"
 		} else if string(root["contract"]) == `"postgres-stat-database.v1"` {
 			format = "postgres-stat-database-json"
 		} else if string(root["contract"]) == `"linux-ss-summary.v1"` {
@@ -134,6 +136,8 @@ func ParseBytes(ctx context.Context, original []byte, name string, options Optio
 	switch format {
 	case "apple-ollama-capture-json":
 		e = b.apple(body, options)
+	case "sqlite-pragma-snapshots-json":
+		e = b.sqliteSnapshots(body, options)
 	case "postgres-stat-database-json":
 		e = b.postgres(body, options)
 	case "linux-ss-summary-json":

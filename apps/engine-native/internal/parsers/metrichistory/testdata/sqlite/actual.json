@@ -1,0 +1,277 @@
+{
+  "contract": "sqlite-pragma-snapshots.v1",
+  "collector_version": "1.0.0",
+  "producer_version": "3.53.0",
+  "history": {
+    "schema_version": "1.0.0",
+    "snapshots": [
+      {
+        "time_unix_nano": "1794529893305580000",
+        "metrics": [
+          {
+            "name": "sqlite.page_count",
+            "unit": "{page}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "2",
+            "attributes": {
+              "scope": "one read-only connection; file gauges; no SQL text or row content"
+            },
+            "resource": {
+              "instance_id": "synthetic-sqlite-0",
+              "sqlite_version": "3.53.0"
+            },
+            "scope": {
+              "name": "manual.sqlite.snapshot",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "sqlite.freelist_count",
+            "unit": "{page}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "scope": "one read-only connection; file gauges; no SQL text or row content"
+            },
+            "resource": {
+              "instance_id": "synthetic-sqlite-0",
+              "sqlite_version": "3.53.0"
+            },
+            "scope": {
+              "name": "manual.sqlite.snapshot",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "sqlite.page_size",
+            "unit": "bytes",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "4096",
+            "attributes": {
+              "scope": "one read-only connection; file gauges; no SQL text or row content"
+            },
+            "resource": {
+              "instance_id": "synthetic-sqlite-0",
+              "sqlite_version": "3.53.0"
+            },
+            "scope": {
+              "name": "manual.sqlite.snapshot",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "sqlite.data_version",
+            "unit": "{version}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "1",
+            "attributes": {
+              "scope": "one read-only connection; file gauges; no SQL text or row content"
+            },
+            "resource": {
+              "instance_id": "synthetic-sqlite-0",
+              "sqlite_version": "3.53.0"
+            },
+            "scope": {
+              "name": "manual.sqlite.snapshot",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          }
+        ]
+      },
+      {
+        "time_unix_nano": "1794529893306262000",
+        "metrics": [
+          {
+            "name": "sqlite.page_count",
+            "unit": "{page}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "102",
+            "attributes": {
+              "scope": "one read-only connection; file gauges; no SQL text or row content"
+            },
+            "resource": {
+              "instance_id": "synthetic-sqlite-0",
+              "sqlite_version": "3.53.0"
+            },
+            "scope": {
+              "name": "manual.sqlite.snapshot",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "sqlite.freelist_count",
+            "unit": "{page}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "scope": "one read-only connection; file gauges; no SQL text or row content"
+            },
+            "resource": {
+              "instance_id": "synthetic-sqlite-0",
+              "sqlite_version": "3.53.0"
+            },
+            "scope": {
+              "name": "manual.sqlite.snapshot",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "sqlite.page_size",
+            "unit": "bytes",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "4096",
+            "attributes": {
+              "scope": "one read-only connection; file gauges; no SQL text or row content"
+            },
+            "resource": {
+              "instance_id": "synthetic-sqlite-0",
+              "sqlite_version": "3.53.0"
+            },
+            "scope": {
+              "name": "manual.sqlite.snapshot",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "sqlite.data_version",
+            "unit": "{version}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "2",
+            "attributes": {
+              "scope": "one read-only connection; file gauges; no SQL text or row content"
+            },
+            "resource": {
+              "instance_id": "synthetic-sqlite-0",
+              "sqlite_version": "3.53.0"
+            },
+            "scope": {
+              "name": "manual.sqlite.snapshot",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          }
+        ]
+      },
+      {
+        "time_unix_nano": "1794529893306863000",
+        "metrics": [
+          {
+            "name": "sqlite.page_count",
+            "unit": "{page}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "202",
+            "attributes": {
+              "scope": "one read-only connection; file gauges; no SQL text or row content"
+            },
+            "resource": {
+              "instance_id": "synthetic-sqlite-0",
+              "sqlite_version": "3.53.0"
+            },
+            "scope": {
+              "name": "manual.sqlite.snapshot",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "sqlite.freelist_count",
+            "unit": "{page}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "scope": "one read-only connection; file gauges; no SQL text or row content"
+            },
+            "resource": {
+              "instance_id": "synthetic-sqlite-0",
+              "sqlite_version": "3.53.0"
+            },
+            "scope": {
+              "name": "manual.sqlite.snapshot",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "sqlite.page_size",
+            "unit": "bytes",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "4096",
+            "attributes": {
+              "scope": "one read-only connection; file gauges; no SQL text or row content"
+            },
+            "resource": {
+              "instance_id": "synthetic-sqlite-0",
+              "sqlite_version": "3.53.0"
+            },
+            "scope": {
+              "name": "manual.sqlite.snapshot",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "sqlite.data_version",
+            "unit": "{version}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "3",
+            "attributes": {
+              "scope": "one read-only connection; file gauges; no SQL text or row content"
+            },
+            "resource": {
+              "instance_id": "synthetic-sqlite-0",
+              "sqlite_version": "3.53.0"
+            },
+            "scope": {
+              "name": "manual.sqlite.snapshot",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

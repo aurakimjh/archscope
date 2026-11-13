@@ -88,3 +88,9 @@ React/CLI DTO와 mock IPC의 범위이며 native WebView·Windows 실행 증거�
 입력 검증은 `numbackends≥1`(수집 backend 포함), 알려진 `stats_reset`의 비감소를 요구합니다. 중간 unknown 이후에도 이전 알려진 reset보다 역행하면 `POSTGRES_CAPTURE_RESET_BACKWARDS`로 거절합니다. zero backend는 `POSTGRES_CAPTURE_BACKENDS`이며 시각/값을 자동 보정하지 않습니다.
 
 검증된 버전이 기본값입니다. 다른 버전의 명시적 구조 검증 선택, 실제/미상 버전 보존과 제한은 [미검증 버전 정책](INPUT_ASSISTANCE.md#미검증-생산자-버전의-명시적-선택)을 참조하세요.
+
+## SQLite 읽기 전용 PRAGMA 스냅샷
+
+`sqlite-pragma-snapshots-json`은 SQLite 3.53.0의 수동 `sqlite-pragma-snapshots.v1` wrapper를 받습니다. `python3 scripts/capture-sqlite.py --database owned.sqlite --instance-tag sanitized-instance --out new-capture.json`을 명시 실행한 뒤 메트릭 이력 원본 검사/가져오기를 사용합니다. 수집기는 한 읽기 전용 연결과 고정 PRAGMA 네 개만 사용하며 DB 경로·SQL 본문·행 데이터를 내보내지 않습니다. Import는 DB를 열지 않습니다.
+
+page_count·freelist_count·page_size·연결 로컬 data_version은 정확한 gauge이며 transaction counter나 rate로 바꾸지 않습니다. 순차 조회이므로 원자적 DB snapshot이 아닙니다. 새 연결·파일 재생성은 새 원본으로 구분합니다. 기존 MetricHistory 조회·케이스·export를 사용합니다. 실제 검증은 SQLite 3.53.0의 합성 파일을 소유한 writer가 변경하는 동안 세 번 읽은 범위이며 다른 버전/형식은 거절합니다.
