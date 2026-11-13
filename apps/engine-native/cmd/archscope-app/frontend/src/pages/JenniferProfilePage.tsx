@@ -2426,7 +2426,7 @@ export function JenniferProfilePage(): React.JSX.Element {
   const emptyResultCard = (
     <Card>
       <CardContent className="p-4 text-xs text-muted-foreground">
-        분석 결과가 없습니다.
+          {t("nothingYet")}
       </CardContent>
     </Card>
   );
@@ -2651,10 +2651,10 @@ export function JenniferProfilePage(): React.JSX.Element {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList>
-            <TabsTrigger value="summary">요약</TabsTrigger>
+            <TabsTrigger value="summary">{t("summary")}</TabsTrigger>
             <TabsTrigger value="msa">MSA</TabsTrigger>
-            <TabsTrigger value="profiles">부가/검증</TabsTrigger>
-            <TabsTrigger value="parser">파서 보고서</TabsTrigger>
+            <TabsTrigger value="profiles">{t("msaValidationTab")}</TabsTrigger>
+            <TabsTrigger value="parser">{t("diagnosticsTitle")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="summary" className="mt-4 flex flex-col gap-4">

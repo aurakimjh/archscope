@@ -5136,3 +5136,7 @@ Actual amd64 production Wails/WebView2 native Workspace menu and Korean/space so
 ### 2026-11-13 - T-627 native file dialog cancellation follow-up
 
 All27 desktop file-dialog consumers now use a common adapter. The exact Wails3.1.0 Windows sentinel cancelled by user resolves as an empty single/multiple selection; permission/transport/import errors remain unchanged. Regression tests cover Error/string cancellation, multiple-selection identity and non-cancel/lookalike failures; frontend state and production build pass. No pending import/export runs after an empty path. This fixes the recorded raw cancellation banner; T-627 overall remains REVIEW until its full native matrix is observed. Native recheck follows in the final integrated build.
+
+### 2026-11-13 - T-627 MSA initial-view locale follow-up
+
+MSA Summary, Details/validation and Parser diagnostics tabs and all four empty-result panels now use the shared EN/KO message catalog. This addresses the mixed-language initial/empty view recorded by the native Windows audit. Frontend state tests and production build pass; populated MSA tables/options retain their separate localization/acceptance scope. T-627 stays REVIEW; final native locale switching is checked with the integrated build.
