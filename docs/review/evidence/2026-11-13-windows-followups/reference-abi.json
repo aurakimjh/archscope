@@ -1,0 +1,33 @@
+{
+  "reference_version": "7.6.4.508",
+  "reference_files": {
+    "HttpAnalyzerStdV7.exe": {
+      "sha256": "c1ff62b8696dd04289a8c10a3de3f3b8f2dc46c6b152417a3ccea6f4ded9aadf",
+      "bytes": 7336344
+    },
+    "HTTPAnalyzer.tlb": {
+      "sha256": "88abae9fe873bd032365e8de89913749971172b6cf6f42afde976e1e0f12eaa5",
+      "bytes": 22192
+    }
+  },
+  "verification": {
+    "metadata_comparison_each_arch": {
+      "interfaces": 28,
+      "own_methods": 227,
+      "checks": "slot offset, DISPID, invocation kind, calling convention, HRESULT/result type, every parameter flag/type and referenced interface IID"
+    },
+    "native_com_package_amd64": "PASS",
+    "native_com_package_386": "PASS",
+    "real_out_of_process_appended_slots": "PASS: ILogEntry slots40/41 return explicit failure and clear numeric/BSTR outputs",
+    "original_presets": "16 accepted, cache-origin preset deliberately refused because the source lacks that metadata",
+    "amd64_app_tests_and_vet": "PASS"
+  },
+  "fix": "Append current ConnectionId(Integer)/Stage(WideString) slots missing from the older sample. Unknown reference observations remain explicit unavailable errors; opaque IDs and generic states are not substituted.",
+  "limits": [
+    "No vendor process was executed or registered by the metadata test; REGKIND_NONE reads installed metadata.",
+    "Existing product/interface registration was preserved; public clean-host lifecycle test skipped because registration already exists.",
+    "Foreign-process in-memory cookie integration and full current vendor operational semantics remain unqualified; T-611 stays REVIEW."
+  ],
+  "local_log_sha256_amd64": "9d35d64390acfb89f3a85e887accd46c7cd201a4770278f404589e6faa6295d8",
+  "local_log_sha256_386": "8a7c3589c26b3e499ae9b41c8c45689014a34129ff40b871bb2772d097c3fd98"
+}

@@ -1,5 +1,5 @@
 {
-  "source": "Bundled Delphi type-library export in official V7.6.4 automation samples; generated export dated 2009-05-05, library 5.0. Does not prove the current embedded typelib or binary interoperability.",
+  "source": "API signature/order facts from the official bundled Delphi export (2009-05-05, library 5.0), supplemented by read-only installed V7.6.4.508 EXE/core typelib comparison: 28 interfaces and 227 own dual methods, including appended ILogEntry ConnectionId and Stage. No vendor implementation/binary is redistributed; ABI matching alone does not qualify all runtime semantics.",
   "interfaces": {
     "INameValue": {
       "iid": "{52CA0CB5-4FF6-4951-BE40-066A928B0836}",
@@ -535,7 +535,9 @@
         "ProcessID": 230,
         "WebpageID": 231,
         "IsFiltered": 232,
-        "Hints": 233
+        "Hints": 233,
+        "ConnectionId": 234,
+        "Stage": 235
       },
       "base": "IDispatch",
       "methods": [
@@ -735,6 +737,18 @@
           "name": "Hints",
           "kind": "get",
           "returns": "IHints",
+          "params": []
+        },
+        {
+          "name": "ConnectionId",
+          "kind": "get",
+          "returns": "Integer",
+          "params": []
+        },
+        {
+          "name": "Stage",
+          "kind": "get",
+          "returns": "WideString",
           "params": []
         }
       ]

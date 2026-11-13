@@ -15,6 +15,7 @@ import (
 	"unsafe"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	ole "github.com/go-ole/go-ole"
 	"github.com/go-ole/go-ole/oleutil"
 	"golang.org/x/sys/windows"
@@ -30,6 +31,12 @@ func TestCOMRemotingHelper(t *testing.T) {
 	s, e := startWithClass(func(_ context.Context, call automation.Call) (any, error) {
 		if call.Command == "capabilities" {
 			return map[string]string{"buildCommit": "synthetic-com-fixture"}, nil
+		}
+		if call.Command == "open" {
+			return nil, nil
+		}
+		if call.Command == "legacy-log" {
+			return []models.CaptureTransaction{{ID: "fixture-row", URL: "https://example.test/", ConnectionID: "opaque-connection", State: models.TxComplete}}, nil
 		}
 		return nil, fmt.Errorf("unsupported fixture command")
 	}, class)
@@ -185,6 +192,41 @@ func TestNativeOutOfProcessDispatchAndTypeInfo(t *testing.T) {
 		if !checked {
 			t.Fatal("fixture did not call an early-bound slot")
 		}
+	}
+	// Current V7.6.4 adds two ILogEntry slots beyond its older sample export.
+	// Exercise those slots through the real process boundary. Our opaque ID and
+	// state are not reference observations; errors must clear their out values.
+	loaded, e := oleutil.CallMethod(dispatch, "LoadLog", "synthetic-fixture")
+	if e != nil {
+		t.Fatal(e)
+	}
+	loaded.Clear()
+	logValue, e := oleutil.GetProperty(dispatch, "Log")
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer logValue.Clear()
+	entryValue, e := oleutil.GetProperty(logValue.ToIDispatch(), "Item", 0)
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer entryValue.Clear()
+	entry, e := queryCOM(uintptr(unsafe.Pointer(entryValue.ToIDispatch())), mustGUID(referenceContracts.Interfaces["ILogEntry"].IID))
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer releaseCOM(entry)
+	hr, _, _ = ole32.NewProc("CoSetProxyBlanket").Call(entry, 0xffffffff, 0xffffffff, 0, 0, 3, 0, 0)
+	if int32(uint32(hr)) < 0 {
+		t.Fatalf("entry proxy security: 0x%x", hr)
+	}
+	var connection int32 = 123
+	if e = comCall(entry, 40, uintptr(unsafe.Pointer(&connection))); e == nil || connection != 0 {
+		t.Fatal("unsupported numeric connection must fail with zero output", connection, e)
+	}
+	var stage uintptr = 123
+	if e = comCall(entry, 41, uintptr(unsafe.Pointer(&stage))); e == nil || stage != 0 {
+		t.Fatal("unsupported reference stage must fail with nil BSTR", stage, e)
 	}
 	var count uint32
 	if e = comCall(uintptr(unsafe.Pointer(dispatch)), 3, uintptr(unsafe.Pointer(&count))); e != nil || count != 1 {

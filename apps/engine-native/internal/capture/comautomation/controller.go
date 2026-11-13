@@ -675,7 +675,13 @@ func entryObject(tx models.CaptureTransaction) Object {
 	if !complete {
 		size = unavailable("response content is still pending")
 	}
-	return Typed{"ILogEntry", Properties{"URL": tx.URL, "Method": tx.Method, "HTTPStatusCode": tx.StatusCode, "Result": tx.StatusText, "ProcessID": pid, "ProcessName": process, "SeqNO": tx.Sequence, "IsComplete": complete, "IsRedirect": tx.StatusCode >= 300 && tx.StatusCode < 400, "RedirectURL": tx.RedirectURL, "HasError": tx.Error != "", "ErrorMessage": tx.Error, "BytesSent": tx.Request.TransferSize, "BytesReceived": tx.Response.TransferSize, "TimeStart": automationDate(tx.StartedAt), "TimeEnd": automationDate(tx.EndedAt), "TimeDuration": int32(math.Round(tx.TotalMS)), "Request": Typed{"IRequest", messageObject(tx.Request)}, "Response": Typed{"IResponse", messageObject(tx.Response)}, "Content": Typed{"IResponseContent", Properties{"MimeType": tx.Response.ContentType, "ContentType": tx.Response.ContentType, "Size": size, "BodyStorage": tx.Response.BodyStorage}}}}
+	// The installed V7.6.4 interface has two appended slots beyond the older
+	// sample declaration. Its numeric connection ID and textual stage are not
+	// interchangeable with our opaque connection identity or state vocabulary.
+	// Keep unsupported observations explicit instead of inventing vendor data.
+	connection := unavailable("numeric reference connection ID was not captured")
+	stage := unavailable("reference capture stage was not captured")
+	return Typed{"ILogEntry", Properties{"ConnectionId": connection, "Stage": stage, "URL": tx.URL, "Method": tx.Method, "HTTPStatusCode": tx.StatusCode, "Result": tx.StatusText, "ProcessID": pid, "ProcessName": process, "SeqNO": tx.Sequence, "IsComplete": complete, "IsRedirect": tx.StatusCode >= 300 && tx.StatusCode < 400, "RedirectURL": tx.RedirectURL, "HasError": tx.Error != "", "ErrorMessage": tx.Error, "BytesSent": tx.Request.TransferSize, "BytesReceived": tx.Response.TransferSize, "TimeStart": automationDate(tx.StartedAt), "TimeEnd": automationDate(tx.EndedAt), "TimeDuration": int32(math.Round(tx.TotalMS)), "Request": Typed{"IRequest", messageObject(tx.Request)}, "Response": Typed{"IResponse", messageObject(tx.Response)}, "Content": Typed{"IResponseContent", Properties{"MimeType": tx.Response.ContentType, "ContentType": tx.Response.ContentType, "Size": size, "BodyStorage": tx.Response.BodyStorage}}}}
 }
 func messageObject(message models.HTTPMessage) Object {
 	headers := make([]Object, len(message.Headers))
