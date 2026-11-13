@@ -1,0 +1,70 @@
+{
+  "source_commit": "f25ab80a8ee49625090016ce928725713bd600d6",
+  "reproduced": "Six collector sources and four input-assistance assets changed to CRLF during native Windows checkout. Offline resource and input assistance checks refused byte parity.",
+  "fix": "Pin six bundled collector sources to LF and four shipped input-assistance assets to binary byte preservation.",
+  "fresh_checkout": [
+    {
+      "path": "scripts/capture-proc-stat.py",
+      "bytes": 1897,
+      "sha256": "bfc342486d9fc0e0b1cf5176c63470fed7ae9313decdbad1a76e88b1a9299534",
+      "fresh_autocrlf_true_equals_index": true
+    },
+    {
+      "path": "scripts/capture-ollama-serving.py",
+      "bytes": 2591,
+      "sha256": "3eedab441b3e1260e8e0775cdaf1543329f78e25843798aa80b80dbe8c60a14f",
+      "fresh_autocrlf_true_equals_index": true
+    },
+    {
+      "path": "scripts/export-langfuse-observations.py",
+      "bytes": 2067,
+      "sha256": "e4ae86eecb382fe0b71fcec6fe59c956e1ac068d7fcea68181679ff816664bbc",
+      "fresh_autocrlf_true_equals_index": true
+    },
+    {
+      "path": "scripts/capture-otel-genai.py",
+      "bytes": 3930,
+      "sha256": "3d5a0aaef2e63a9d049f5d11ff19728c3f8d02a163e24c9905cd0ef1f37a7e55",
+      "fresh_autocrlf_true_equals_index": true
+    },
+    {
+      "path": "scripts/capture-sqlite.py",
+      "bytes": 2149,
+      "sha256": "dec6e8d4da52423319b58b742911c0c0ed929aadd206201e8b3454cd8b9908cc",
+      "fresh_autocrlf_true_equals_index": true
+    },
+    {
+      "path": "scripts/capture-postgres.py",
+      "bytes": 3753,
+      "sha256": "f06e229770c08649cf4efcc5c0459a3e464a3956d1dca18412608ccbff559604",
+      "fresh_autocrlf_true_equals_index": true
+    },
+    {
+      "path": "apps/engine-native/internal/inputassist/assets/INPUT_ASSISTANCE.en.md",
+      "bytes": 9455,
+      "sha256": "1660c96fe644cd3430060e0aab229ef9de70951bb81b0c676c57619a79a30c21",
+      "fresh_autocrlf_true_equals_index": true
+    },
+    {
+      "path": "apps/engine-native/internal/inputassist/assets/INPUT_ASSISTANCE.ko.md",
+      "bytes": 10026,
+      "sha256": "f699a5597382ba96925a3e41ee0185d4c777c2266ffda0c17bf854fb477bfe0b",
+      "fresh_autocrlf_true_equals_index": true
+    },
+    {
+      "path": "apps/engine-native/internal/inputassist/assets/manifest.json",
+      "bytes": 432,
+      "sha256": "478f6a5bf38bac266ebc97216c51904da59c0d0d576344afd0eb441a2a4aed21",
+      "fresh_autocrlf_true_equals_index": true
+    },
+    {
+      "path": "apps/engine-native/internal/inputassist/assets/recipes.json",
+      "bytes": 2319,
+      "sha256": "a8d198ef9b8b38436e53421b6df255b48f98928202e65aa65d65253ee76c846b",
+      "fresh_autocrlf_true_equals_index": true
+    }
+  ],
+  "offline_assets_check": "PASS",
+  "input_assistance_check_with_PYTHONUTF8_1": "PASS",
+  "separate_followup": "Default cp949 Python decoding fails after byte parity; will fix explicit UTF-8 in a separate task."
+}

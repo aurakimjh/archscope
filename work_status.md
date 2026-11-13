@@ -5115,3 +5115,8 @@ T-659/T-660 share exact source timestamp handling. Final review tightened RFC333
 ### T-662 queued for further work; publication authorized — 2026-11-13
 
 The latest user instruction moves T-662 from PENDING to TODO and explicitly marks additional work required. Actual natural nonzero-swap/elevated-pressure evidence and independent values remain outstanding; current zero-swap/raw-pressure1 observations do not satisfy closure. T-654 also remains user-deferred TODO. The user now requests the entire committed batch be pushed, superseding the earlier natural-evidence publication hold. This changes task disposition and publication authorization only; the 15 completed tasks and recorded local verification remain unchanged. Existing unrelated HTTP documentation/verifier and the original user tracker block remain excluded.
+
+
+### 2026-11-13 - Windows checkout resource parity
+
+Pulled f25ab80a with --ff-only, preserving existing untracked .tmp directories. Native Windows checkout reproduced six bundled collector source and four input-assistance asset CRLF/hash mismatches. Pin LF for the copied sources and preserve exact embedded asset bytes. A fresh core.autocrlf=true index checkout matches all ten Git blobs byte-for-byte. Offline/input-assistance checks pass (the latter with PYTHONUTF8=1); default cp949 decoding is a separate next fix. Receipt: docs/review/evidence/2026-11-13-windows/checkout-parity.json. No native acceptance task is closed.

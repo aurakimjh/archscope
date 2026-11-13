@@ -9,6 +9,8 @@ apps/engine-native/internal/modeltest/testdata/adversarial/system-perf-source.tx
 # Signed/hashed resources and upstream notices must keep their exact bytes.
 apps/engine-native/internal/packs/assets/* -text
 apps/engine-native/internal/distribution/assets/** -text whitespace=-blank-at-eol
+# Input-assistance manifests pin the shipped guide and recipe bytes as well.
+apps/engine-native/internal/inputassist/assets/** -text
 docs/en/OFFLINE_PACKS.md text eol=lf
 docs/ko/OFFLINE_PACKS.md text eol=lf
 # Offline documentation is copied byte-for-byte into the shipped resource bundle.
@@ -82,6 +84,13 @@ docs/review/evidence/2026-11-12-t644/*.png -text
 
 # Manual DB/OS documentation and evidence pin LF source hashes.
 scripts/subset-nsight-sqlite.py text eol=lf
+# Manual collectors are copied byte-for-byte into the offline resource bundle.
+scripts/capture-proc-stat.py text eol=lf
+scripts/capture-ollama-serving.py text eol=lf
+scripts/export-langfuse-observations.py text eol=lf
+scripts/capture-otel-genai.py text eol=lf
+scripts/capture-sqlite.py text eol=lf
+scripts/capture-postgres.py text eol=lf
 docs/en/SYSTEM_DB_SNAPSHOTS.md text eol=lf
 docs/ko/SYSTEM_DB_SNAPSHOTS.md text eol=lf
 docs/review/evidence/2026-11-12-t645/*.json text eol=lf
