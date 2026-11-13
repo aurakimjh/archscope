@@ -1,6 +1,6 @@
 # Manual database and socket snapshots
 
-T-645 qualifies a bounded first batch: PostgreSQL16.14 `pg_stat_database` and
+The DB/OS snapshot importer qualifies a bounded first batch: PostgreSQL16.14 `pg_stat_database` and
 iproute2-6.1.0 `ss -s` on Linux7.0.14-linuxkit. Both normalize through the existing
 MetricHistory1.0.0 / `metrics.history-json` / `metrics_timeseries`0.2.0 path.
 This does not qualify other DBs, report formats, kernels, APMs, profiles or serving
@@ -100,3 +100,5 @@ A never-reset database with `stats_reset=NULL` retains cumulative observations w
 New PostgreSQL imports use normalizer1.3.0. The first unknown→known transition retains its known current start and reports `epoch_transition_from_unknown` with null delta/rate. It assumes no continuity for the earlier unknown epoch; the next observation in the same known epoch can derive. Known→known resets keep post-reset derivation. Saved1.0/1.1/1.2 models retain their original status/calculation; explicit merge selects the newest input normalizer.
 
 Captures require `numbackends≥1` because the collector is connected, and nondecreasing known `stats_reset` timestamps even across intervening unknown observations. Backwards resets refuse with `POSTGRES_CAPTURE_RESET_BACKWARDS`; zero backends refuse with `POSTGRES_CAPTURE_BACKENDS`. No timestamp/value correction is performed.
+
+Qualified versions remain the defaults. For explicit structural-only opt-in, actual/unknown version preservation and qualification limits, see [Unverified producer versions](INPUT_ASSISTANCE.md#explicit-unverified-producer-versions).

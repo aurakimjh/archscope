@@ -1,6 +1,6 @@
 # 범위가 있는 런타임 근거
 
-T-641은 공통 `AnalysisResult`, `runtime_evidence` payload 0.1.0,
+런타임 근거는 공통 `AnalysisResult`, `runtime_evidence` payload 0.1.0,
 `runtime_core` 모델 1.0.0을 사용합니다. 제한적 `runtime.evidence-json` importer는
 정규 JSON을 받습니다. 원본 지원 UI와 `runtime` CLI는 오프라인 파일을 먼저
 정규화합니다. collector, Python pickle/marshal 실행, 힙 객체 그래프, 온라인
@@ -97,7 +97,9 @@ Display는 raw symbol·source/build identity·frame ID를 대체하지 않으며
 보여줍니다. 의존 코드·license는 오프라인 번들에 포함하고 symbol server를 사용하지 않습니다.
 
 
-## R18 스레드 입력·명시적 multi-dump 맥락
+<a id="r18-스레드-입력명시적-multi-dump-맥락"></a>
+
+## 스레드 입력·명시적 multi-dump 맥락
 
 실제 CPython3.14.4의 Thread/Current thread 헤더와 선택적 [name]을 인식하고 이름을
 보존합니다. 인식할 수 없거나 비어 있는 thread 입력은 스레드0개 성공 대신

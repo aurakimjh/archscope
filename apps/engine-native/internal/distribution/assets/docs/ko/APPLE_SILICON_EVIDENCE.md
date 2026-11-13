@@ -1,6 +1,6 @@
 # Apple Silicon 오프라인 메모리 근거
 
-T-643은 메트릭 이력 원본 지원 및 `metrics history-inspect/history-normalize/history-import`에
+Apple Silicon 근거는 메트릭 이력 원본 지원 및 `metrics history-inspect/history-normalize/history-import`에
 `apple-ollama-capture-json`을 추가합니다. auto는 명시된 `apple-ollama-capture.v1` 계약을
 인식합니다. 기존 MetricHistory 1.0.0 / `metrics_timeseries` 0.2.0 AnalysisResult의
 조회·차트·JSON/CSV/HTML·report pack·정확한 case snapshot을 재사용합니다.
@@ -69,8 +69,10 @@ host/boot/local-device·하드웨어·OS/build·수집기/엔진 버전·공유 
 [Darwin sysctl 구조](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/sysctl.h),
 [private pressure 조회](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_memorystatus_notify.c).
 
-R20-01: 수집기1.1.0은 model_selection_sha256 및 필수 스냅샷 excluded_model_count / selected_model_match_count(0/1)를 추가합니다. 제외한 모델 이름/digest는 저장하지 않습니다. 선택0과 호스트 전체가 빈 상태를 구분하며 실제 이중 로드/미로드 선택/빈 상태가1/1,0/2,0/0으로 검증됐습니다. 구버전1.0의 정규화와 저장 projection은 유지하고 inspection에 누락 범위 미상이라는 read-time 경고를 추가합니다. R20-02/03/04는 후속 큐이며 다중 로드는04 일부만 해소합니다. swap/pressure 상승·다른 환경은 미검증입니다.
+수집기1.1.0은 model_selection_sha256 및 필수 스냅샷 excluded_model_count / selected_model_match_count(0/1)를 추가합니다. 제외한 모델 이름/digest는 저장하지 않습니다. 선택0과 호스트 전체가 빈 상태를 구분하며 실제 이중 로드/미로드 선택/빈 상태가1/1,0/2,0/0으로 검증됐습니다. 구버전1.0의 정규화와 저장 projection은 유지하고 inspection에 누락 범위 미상이라는 read-time 경고를 추가합니다. swap/pressure 상승·다른 환경은 미검증입니다.
 
 새 입력은 각 VM 범주 ≤ 물리 capacity, size_vram ≤ size, swap_used ≤ total을 개별 확인합니다. 범주 합산은 하지 않습니다. host/boot/device는 정제 태그, 텍스트는 제어 문자 없음, digest는 소문자 hex를 요구합니다. 기존 저장 identity는 재작성하지 않습니다.
 
 추가 실제 다중 로드 표본은 12회 2초 간격, 선택1/제외1이며 수집 뒤 두 모델을 내리고 빈 상태를 확인했습니다. swap_used=0, pressure raw code=1을 상승 상태로 해석하지 않습니다. 실제 swap 사용/pressure 상승, 다른 producer/platform 및 장시간 관측은 아직 미검증입니다. 강제 메모리 스트레스 없이 승인된 자연 관측 표본이 필요합니다.
+
+검증된 버전이 기본값입니다. 다른 버전의 명시적 구조 검증 선택, 실제/미상 버전 보존과 제한은 [미검증 버전 정책](INPUT_ASSISTANCE.md#미검증-생산자-버전의-명시적-선택)을 참조하세요.

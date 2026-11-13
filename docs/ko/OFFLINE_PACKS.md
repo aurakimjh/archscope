@@ -1,6 +1,6 @@
 # 데이터 팩과 오프라인 배포
 
-T-632는 실행 플러그인 대신 제한된 JSONL 메트릭 스냅샷 해석기를 추가한다.
+데이터 팩은 실행 플러그인 대신 제한된 JSONL 메트릭 스냅샷 해석기를 추가한다.
 기본 합성 팩은 `synthetic.metrics` 버전 `1.0.0`만 검증하며 실제 제품,
 시계열, 변환기 또는 운영 부하 지원을 주장하지 않는다.
 
@@ -60,7 +60,7 @@ application 범위에 넣지 않는다. 가져오기도 같은 범위를 명시�
 파일 4 MiB, ZIP 128개, manifest 256 KiB, 보관 버전 64개, 활성 스냅샷
 32 MiB, conformance 10,000행, JSONL 한 행 64 KiB와 기존 작업/결과 예산이다.
 소수 문자열로 분수/0/큰 수를 보존한다. 결과는 metrics_snapshot 0.1.1이며
-기존 0.1.0 해석은 바꾸지 않는다. 새 매핑 메트릭 이름은 R8 표시 경계와 같은
+기존 0.1.0 해석은 바꾸지 않는다. 새 매핑 메트릭 이름은 표시 경계와 같은
 판정 함수로 C0/C1과 양방향 제어 문자를 거부하며 일반 유니코드 이름은 정확히
 보존한다. 과거 저장 결과는 계속 읽고 원본 그대로 내보낼 수 있으며 표시 provider가
 위험한 문자를 이스케이프한다.
@@ -93,7 +93,7 @@ application 범위에 넣지 않는다. 가져오기도 같은 범위를 명시�
 
 오프라인 세션은 capture, HTTP 요청, Ollama, automation 제어와 미검증 JFR
 변환 실행을 자원 할당 전에 거부하고 대상 주소/본문 없이 작업 시도 횟수를 기록한다.
-JFR은 미리 변환한 JSON을 사용한다. 변환기 검증은 T-633이다. UI는 동일 출처
+JFR은 미리 변환한 JSON을 사용한다. 명시적 설치 도구 변환은 [입력 안내](INPUT_ASSISTANCE.md)를 참조한다. UI는 동일 출처
 CSP를 적용하고 위반을 기록한다. 글꼴/차트는 로컬이며 CDN, updater, telemetry,
 symbol downloader를 구성하지 않는다. 앱 수준 거부 횟수와 OS/WebView 동작은
 구분한다. 거부 횟수 0만으로 외부 연결 시도 0을 주장하지 않는다. CLI는 syscall
@@ -119,16 +119,11 @@ Noto Sans KR 원본을 font manifest의 Google Fonts commit에 고정해 OFL-1.1
 원 저작권 고지와 함께 배포한다. 설정에 글꼴 로드 상태를 표시한다. fallback을
 글꼴/레이아웃 검증 통과로 해석하지 않는다.
 
-## SQLite 결정
+<a id="sqlite-결정"></a>
 
-격리된 `spikes/t632-sqlite` 모듈은 순수 Go modernc.org/sqlite v1.53.0을 고정한다.
-macOS arm64에서 합성 primary-key 100,000행 구성 74.552 ms, 조회 1,000회
-5.934 ms/할당 943,280 byte, DB 1,384,448 byte, 바이너리 9,964,914 byte였다.
-표준 JSONL/메모리 인덱스 기준은 64.170 ms, 0.057 ms/5,184 byte,
-JSONL 2,877,780 byte, 바이너리 3,144,994 byte였다. 단일 로컬 warm 측정이며
-분석 쿼리/Windows 성능을 대표하지 않는다. 순수 Go Windows 386 교차 빌드도 통과했다.
-이번 제품에는 JSON/compact index를 유지하고 SQLite 런타임 의존성을 추가하지 않는다.
-T-635에서 실제 쿼리/메모리/동시성 요구로 다시 판단한다.
+## 로컬 인덱스와 SQLite 범위
+
+데이터 팩은 제한된 JSONL과 compact 메모리 인덱스를 사용합니다. Nsight importer는 별도로 고정된 순수 Go SQLite 의존성으로 불변 export 복사본에 고정 query를 실행합니다. 임의 SQL이나 설치 SQLite 도구를 실행하지 않으며 케이스/조회 상태를 일반 SQL 저장소로 바꾸지 않습니다. [GPU 실행 근거](GPU_EXECUTION_EVIDENCE.md)를 참조하세요.
 
 입력 탐색, 별도 수동 수집 키트, 명시적 설치 도구의 제한 변환은
 [입력 안내](INPUT_ASSISTANCE.md)를 참조한다. 오프라인 세션은 미리 변환한 JSON을

@@ -1,6 +1,6 @@
 # Exact original profile import
 
-T-634 adds a separate original-source path. It does not change `profile import`,
+The original-profile importer adds a separate original-source path. It does not change `profile import`,
 legacy facades, saved results, or internal ProfileSet 0.2.0 results. Reimport the
 original to obtain `profile_evidence` payload 0.4.0; do not relabel saved evidence.
 The common AnalysisResult envelope and ProfileSet schema 1.0.0 remain intact.
@@ -73,7 +73,9 @@ refused. A pprof export with `ticks` units is not accepted by this original-sour
 reader, because its original dimensional interpretation requires the projection
 metadata. Keep the saved AnalysisResult for lossless model reuse.
 
-## Qualified capture-option policies (R5-02)
+<a id="qualified-capture-option-policies-r5-02"></a>
+
+## Qualified capture-option policies
 
 Only compiled bindings resolve a policy. The snapshot includes policy ID, revision
 1.0.0 and hash, producer/version/format/normalizer/metric, complete sanitized
@@ -122,7 +124,9 @@ Format references: [Speedscope specification](https://github.com/jlfwong/speedsc
 [py-spy 0.4.1 exporter](https://github.com/benfred/py-spy/blob/v0.4.1/src/speedscope.rs),
 [pprof proto](https://github.com/google/pprof/blob/main/proto/profile.proto).
 
-## R11 revision boundary (2026-11-12)
+<a id="r11-revision-boundary-2026-11-12"></a>
+
+## revision boundary (2026-11-12)
 
 Normalizer 1.1.0 / payload 0.4.0 adds original source type/unit to every source
 metric, inventory, UI and result summary. Column IDs remain stable within the

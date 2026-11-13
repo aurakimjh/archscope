@@ -26,25 +26,26 @@ Evidence Board와 report-pack capture에 적합한 bounded table을 생성한다
 
 Windows 실시간 HTTP 캡처는 별도의 file importer가 아니다. 종료된 로컬 세션을
 같은 bounded `http_capture` 분석 계약으로 전달하지만 릴리스 범위는 더 좁다.
-Windows 전용 loopback proxy의 HTTP/1.x metadata만 다루고 body를 저장하지 않으며,
-HTTP/2와 QUIC는 passthrough/unsupported다. Endpoint 귀속은 개별 connection
-증거이며 시스템 전체 트래픽 coverage를 의미하지 않는다.
+Windows 전용 loopback proxy로 수집하며 endpoint 귀속은 개별 connection 근거이다. 지원하는 body 단계와 프로토콜 제한은 [HTTP 캡처](SYSTEM_HTTP_CAPTURE.md)를 따른다.
 
-### 내부 ProfileSet 교환 경로 (T-629)
+<a id="내부-profileset-교환-경로-t-629"></a>
+
+### 내부 ProfileSet 교환 경로
 
 `profile.set-json` / `profile-set`은 제한된 내부 ProfileSet 1.0.0 JSON 교환 경로다.
 profile/metric을 명시하여 `profile_evidence` 0.2.0을 만든다. 번들 fixture는 합성 자료이며
 공통 코어를 검증할 뿐 실제 producer/버전의 지원 근거가 아니다. 기존 `profile import`는
 0.1.x 정규화 의미를 유지한다. `profile-set normalize-legacy`도 그 제한을 명시하며
-py-spy/Speedscope/pprof 입력의 수치 정정을 입증하지 않는다(T-634). generic 화면은
-T-631이다. 내부 adapter 1.0.1은 32 MiB 이하 모델을 raw 256 KiB 이하 chunk record로
+py-spy/Speedscope/pprof 입력의 수치 정정을 입증하지 않는다. 별도 원본 가져오기 경로는 원본 의미를 보존하며 결과 provider는 공통 화면을 제공한다. 내부 adapter 1.0.1은 32 MiB 이하 모델을 raw 256 KiB 이하 chunk record로
 나눠 공통 직렬화 record 1 MiB 정책을 유지한다. normalized/결과/temp ceiling은 함께
 적용한다. 실효 상한과 3,000 stack/54,001 node 검증 사례는 DATA_MODEL을 따른다
 (생산 부하 보증이 아님). verified 자동 감지는 64 KiB probe 안의 완전한 문서에 한정하고
 더 큰 문서는 profile-set 명시 선택과 전체 검증을 요구한다.
 
 
-### 정밀 baseline/target 비교 (R2 N-01)
+<a id="정밀-baselinetarget-비교-r2-n-01"></a>
+
+### 정밀 baseline/target 비교
 
 CompareEvidenceScalar는 버전이 있는 비교 정책이 일치하는 완료/명시 선택 import의
 baseline/target handle을 순서대로 받는다. 서로 다른 원본 hash를 응답에 보존하면서
@@ -52,26 +53,28 @@ baseline/target handle을 순서대로 받는다. 서로 다른 원본 hash를 �
 양쪽 모델/원본/결과 참조를 반환한다. 정책 누락·미지 버전인 과거 scalar 결과는 기존
 identity 규칙을 유지한다. 선택·측정·의미/수집·coverage 조건 차이는 거절하고 partial
 import에는 다른 원본의 scalar 비교 권한을 부여하지 않는다. 영속 baseline 관리와
-entity/time matching은 T-630/T-635에 남기며 legacy profiler diff는 기존 호환 동작을
+entity/time matching은 케이스·정규 조회 서비스가 담당하며 legacy profiler diff는 기존 호환 동작을
 유지한다.
 
 비교 identity는 원본 검증이 아닌 `declared`임을 응답에 명시한다. scalar 거절 사유는
-Wails 오류 `cause.code`로 구분한다(DATA_MODEL R3-01/R3-02). max_lines 뒤에 공백만
+Wails 오류 `cause.code`로 구분한다([데이터 모델](DATA_MODEL.md)). max_lines 뒤에 공백만
 남으면 선택된 coverage로 표시하지 않는다. 과거 저장 coverage는 유지하므로 다른
 원본 비교에 필요한 과거 coverage 정정은 재import로 한다. 검증된 영속 baseline
-결속은 T-635 범위다.
+결속은 정규 조회 범위다.
 
-R4 profile 비교는 측정된 quality 수/비율 차이를 허용하고 양쪽 값과 변화 경고를
+Profile 비교는 측정된 quality 수/비율 차이를 허용하고 양쪽 값과 변화 경고를
 보존한다. clock/심볼/conversion 범주는 일치해야 하며 process/thread/worker 차이는
-T-635의 명시 매핑 전까지 entity_mapping_required로 거절한다. 과거 저장 정책 hash는
+정규 조회 서비스에서 명시 매핑을 제공해야 하며 미매핑 요청은 entity_mapping_required로 거절한다. 과거 저장 정책 hash는
 보존하며 새로운 scalar 정책으로 자동 승격하지 않는다.
 
 실효 wire 상한에는 합계/문서 한도 외에 디코딩된 UTF-8 문자열/key별 4 MiB도 있다.
 초과 문자열은 json_string_bytes 예산 상세로 거절한다. 불투명 capture 옵션은 전체
-일치를 유지하며 의미/부수 key 정책은 T-634의 producer별 검증 및 T-635 baseline 연결이
-필요하다(DATA_MODEL R5). 현재 whitelist나 새 producer 지원을 주장하지 않는다.
+일치를 유지하며 의미/부수 key 정책은 원본 가져오기의 producer별 검증 및 정규 조회 baseline 연결이
+필요하다([데이터 모델](DATA_MODEL.md)). 현재 whitelist나 새 producer 지원을 주장하지 않는다.
 
-### 선언형 스냅샷 팩 (T-632)
+<a id="선언형-스냅샷-팩-t-632"></a>
+
+### 선언형 스냅샷 팩
 
 서명된 기본 팩은 `data.synthetic-metrics` / `synthetic-metrics`를 설치한다.
 명시적 `evidence --pack-store` 또는 데스크톱 카탈로그에서 metrics_snapshot 0.1.1을
@@ -86,9 +89,10 @@ T-635의 명시 매핑 전까지 entity_mapping_required로 거절한다. 과거
 실행하고 provenance를 기록한다. JSON 분석에는 변환기가 필요하지 않으며 오프라인
 세션에는 미리 변환한 JSON을 사용한다. [입력 안내](INPUT_ASSISTANCE.md)를 참조한다.
 
-### 정확한 원본 프로파일 경로 (T-634)
+<a id="정확한-원본-프로파일-경로-t-634"></a>
 
-기존 T-629 설명의 “T-634에서 수행” 범위는 별도 원본 경로로 구현했습니다.
+### 정확한 원본 프로파일 경로
+
 `profile inspect-source`, `normalize-source`, `import-source`는 정확한 가중치와
 단위를 보존하고 profile/metric을 명시적으로 선택합니다. Desktop Workspace는
 원본을 새 `profile.source-set-json` / `profile-source-set` 모델로 정규화해
@@ -104,16 +108,18 @@ column, 음수, label과 period를 보존하고 period를 이중 적용하지 �
 | 그 밖에 구조가 지원되는 sampled/evented Speedscope / 지원 단위 pprof | 합성 형식 회귀, producer/platform/option 전면 검증 없음 | unknown/no-policy 옵션은 strict |
 
 기존 모델과 일반 scalar 비교는 엄격한 전체 capture 비교를 유지하며 영속 baseline
-연결은 T-635입니다. fixture로 도구·플랫폼 전체 지원, dump text 지원이나 원본 정체성
+연결은 정규 조회입니다. fixture로 도구·플랫폼 전체 지원, dump text 지원이나 원본 정체성
 인증을 주장하지 않습니다. Windows 네이티브/UI 수용과 독립 리뷰는 별도입니다.
 한도·CLI 예시·projection 제약·정책 key·근거 범위는
 [정확한 원본 프로파일 가져오기](PROFILE_SOURCE_IMPORT.md)를 참고하세요.
 
-### T-635 공통 조회·검증 baseline과 R11 의미 버전
+<a id="t-635-공통-조회검증-baseline과-r11-의미-버전"></a>
+
+### 공통 조회와 검증된 baseline
 
 [케이스 근거 조회](CASE_EVIDENCE_QUERIES.md)는 제한된 cursor 기반 profile 보기·근거,
 색인 범위를 공개하는 원본/summary 검색, 원본 좌표, 선택한 불변 결과와 baseline
-재분석·매핑 gate를 정의합니다. R11 수정은 normalizer 1.1.0 / 결과 0.4.0을 생성하고
+재분석·매핑 gate를 정의합니다. 현재 원본 정규화는 normalizer 1.1.0 / 결과 0.4.0을 생성하고
 원래 type/unit을 producer 정책 없이 metric identity에 포함합니다. Speedscope none은
 일반 count 가중치이며 표본 수를 단정하지 않습니다. 기존 0.3.0은 바이트·hash·읽기·저장·
 조회·내보내기를 유지하되 비교에는 새 원본 재분석이 필요합니다. 새 정책은 선언/
@@ -122,7 +128,9 @@ file-exporter basis와 경고를 공개합니다. 영속 baseline 검증은 매�
 새 canonical/baseline 화면이 검증 정책을 소비합니다. 시계 정렬·미검증 producer 지원을
 추정하지 않습니다. Windows 네이티브/UI 및 독립 리뷰는 별도입니다.
 
-### T-638 메트릭 이력
+<a id="t-638-메트릭-이력"></a>
+
+### 메트릭 이력
 
 [정확한 메트릭 이력](METRIC_HISTORY.md)은 모델/normalizer 1.0.0,
 `metrics.history-json` transport와 `metrics_timeseries` payload 0.2.0(기존 저장 0.1.0 reader 유지)을 정의합니다.
@@ -131,11 +139,13 @@ file-exporter basis와 경고를 공개합니다. 영속 baseline 검증은 매�
 Delta/cumulative/reset/gap/overlap과 explicit/exponential bucket은 별도 의미입니다.
 공통 envelope로 상세/timeline·저장 조회·export를 연결하고 기존 metrics_snapshot 의미는
 유지합니다. SDK Python 1.38.0 합성 표본 범위만 검증하며 Q04/GenAI alias와 네이티브
-수용 검증은 별도입니다. 자동 합산/quantile 계산은 없습니다. R12 baseline 캐시는 새 query
+수용 검증은 별도입니다. 자동 합산/quantile 계산은 없습니다. baseline 캐시는 새 query
 재분석 결과만 프로세스 내 제한 보관하고 페이지마다 원본/결과 hash와 case binding을
 재검사합니다. 기존의 매번 전체 재분석 설명은 이 범위에서 대체합니다.
 
-## T-637 파일 기반 시스템 근거
+<a id="t-637-파일-기반-시스템-근거"></a>
+
+## 파일 기반 시스템 근거
 
 `system.evidence-json` / `system_evidence` 0.2.0은 제한 지원입니다. 실제 perf 6.1.190의
 합성 data→sample text 출력, 제한 scheduler text 문법, 명시적 event JSONL과 bpftrace 0.22
@@ -144,7 +154,9 @@ script는 별도입니다. Sample count·period·scheduler duration·집계 buck
 perf binary decoder/live attach는 추가하지 않습니다. [흐름·조건·한도](SYSTEM_EVIDENCE.md).
 
 
-## T-639 장치·서빙 근거
+<a id="t-639-장치서빙-근거"></a>
+
+## 장치·서빙 근거
 
 제한 지원 `inference.evidence-json`은 InferenceEvidence 1.0.0을 공통
 `inference_serving` 0.1.0으로 처리한다. 원본 MetricHistory를 한 번만 저장하고
@@ -156,25 +168,31 @@ native 수용 범위는 [오프라인 장치·서빙 계약](INFERENCE_EVIDENCE.
 
 SystemEvidence 1.0.0 / system_evidence 0.1.0 저장 reader는 유지하며 새 1.1.0은 frame/stack을 중복 제거하고 0.2.0 결과와 과거 snapshot을 분리한다.
 
-## T-640 구현 경계 (2026-11-12)
+<a id="t-640-구현-경계-2026-11-12"></a>
 
-제한 importer `trace.llm-json`은 LLMTrace 1.0.0을 기존 trace_import 0.3.0 / llm_core 1.0.0으로 분석한다. 기존 trace 0.2.0 reader는 유지한다. Parent/link·자식 합집합 경과 시간·명시적 논리/시도 accounting·token 경계·lifecycle 집단을 구분하고 본문 제외 정규화를 케이스 복사/색인보다 먼저 적용한다. 정확한 페이지 query/UI와 기존 provider/export를 재사용한다. Q01 제품 JSON adapter는 유지한다. [LLM trace 근거](LLM_TRACE_EVIDENCE.md) 참조. T-639 R16은 untyped range의 명시적 메타데이터와 입력 event ID 생성을 추가하며 1.0/1.1 모델·0.1/0.2 결과 reader를 유지한다. [추론 서빙 근거](INFERENCE_EVIDENCE.md) 참조.
+## LLM trace 근거
+
+제한 importer `trace.llm-json`은 LLMTrace 1.0.0을 기존 trace_import 0.3.0 / llm_core 1.0.0으로 분석한다. 기존 trace 0.2.0 reader는 유지한다. Parent/link·자식 합집합 경과 시간·명시적 논리/시도 accounting·token 경계·lifecycle 집단을 구분하고 본문 제외 정규화를 케이스 복사/색인보다 먼저 적용한다. 정확한 페이지 query/UI와 기존 provider/export를 재사용한다. Q01 제품 JSON adapter는 실제 입력 검증 전까지 보류한다. [LLM trace 근거](LLM_TRACE_EVIDENCE.md) 참조. 추론 근거는 untyped range의 명시적 메타데이터와 입력 event ID 생성을 추가하며 1.0/1.1 모델·0.1/0.2 결과 reader를 유지한다. [추론 서빙 근거](INFERENCE_EVIDENCE.md) 참조.
 
 
-## T-641 런타임 근거
+<a id="t-641-런타임-근거"></a>
+
+## 런타임 근거
 
 런타임 근거는 AnalysisResult 안의 별도 정규 모델을 사용합니다. 고정 producer 형식·identity/window 확인·live allocation 프로파일 재사용·GC 합집합·실행계획 loop당 의미·저장 reader 경계는 [RUNTIME_EVIDENCE.md](RUNTIME_EVIDENCE.md)를 참고하세요.
 
 
-## T-642 실행 근거
+<a id="t-642-실행-근거"></a>
+
+## 실행 근거
 
 제한된 benchmark/crash 문맥은 공통 AnalysisResult의 execution_core 1.0.0 / execution_evidence 0.1.0을 사용합니다. 고정 k6/LLMPerf·합성 JTL/정제한 실제 HotSpot 입력을 정규화한 뒤 기존 provider/case/export를 사용합니다. 비교는 선언 조건 snapshot 검증이며 profile 원본 재수입 baseline과 구분합니다. [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md)를 참고하세요.
 
-T-643: `apple-ollama-capture-json`은 Apple Silicon/Ollama 0.40.16 수동 스냅샷을 기존 metrics.history-json으로 정규화합니다. 공유 메모리 byte·모델별 상주 추정치·관측 불가를 분리하며 NVIDIA identity/전용 VRAM/자동 수집/GPU 사용률 추정은 없습니다. 실제 fixture 범위와 한도: [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).
+Apple Silicon 근거: `apple-ollama-capture-json`은 Apple Silicon/Ollama 0.40.16 수동 스냅샷을 기존 metrics.history-json으로 정규화합니다. 공유 메모리 byte·모델별 상주 추정치·관측 불가를 분리하며 NVIDIA identity/전용 VRAM/자동 수집/GPU 사용률 추정은 없습니다. 실제 fixture 범위와 한도: [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).
 
-R19-01은 큰 JTL의 정확한 분포용 execution_core 1.1.0 / execution_evidence 0.2.0을 추가하며 저장된 1.0.0/0.1.0은 유지합니다. [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md).
+큰 JTL 지원은 큰 JTL의 정확한 분포용 execution_core 1.1.0 / execution_evidence 0.2.0을 추가하며 저장된 1.0.0/0.1.0은 유지합니다. [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md).
 
-T-644: trace.gpu-execution-json / trace_import0.4.0 / gpu_execution_core1.0.0은 정확한 CPU/GPU/rank 구간·명시적 연결·kernel 합계/합집합·집계 전용 근거를 분리합니다. CLI/Wails/Workspace·제한된 선택 SVG와 기존 소비자를 사용하며 저장된 trace/LLM reader는 유지합니다. [GPU_EXECUTION_EVIDENCE.md](GPU_EXECUTION_EVIDENCE.md).
+GPU 실행 근거: trace.gpu-execution-json / trace_import0.4.0 / gpu_execution_core1.0.0은 정확한 CPU/GPU/rank 구간·명시적 연결·kernel 합계/합집합·집계 전용 근거를 분리합니다. CLI/Wails/Workspace·제한된 선택 SVG와 기존 소비자를 사용하며 저장된 trace/LLM reader는 유지합니다. [GPU_EXECUTION_EVIDENCE.md](GPU_EXECUTION_EVIDENCE.md).
 
 
-T-645의 실제 DB·OS 첫 검증 배치: [수동 DB·소켓 스냅샷](SYSTEM_DB_SNAPSHOTS.md). 기존 MetricHistory·정확한 epoch/gauge·공통 소비자를 재사용하며 다른 어댑터는 실제 입력 검증 전까지 보류합니다.
+DB/OS 스냅샷의 실제 DB·OS 첫 검증 배치: [수동 DB·소켓 스냅샷](SYSTEM_DB_SNAPSHOTS.md). 기존 MetricHistory·정확한 epoch/gauge·공통 소비자를 재사용하며 다른 어댑터는 실제 입력 검증 전까지 보류합니다.

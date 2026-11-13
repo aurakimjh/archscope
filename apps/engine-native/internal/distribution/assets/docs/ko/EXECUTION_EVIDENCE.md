@@ -1,6 +1,6 @@
 # 오프라인 실행·비교 근거
 
-T-642는 부하·LLM 벤치마크 export와 제한된 JVM 크래시 텍스트를 정규화합니다.
+실행 근거는 부하·LLM 벤치마크 export와 제한된 JVM 크래시 텍스트를 정규화합니다.
 제한적 `execution.evidence-json` importer(alias execution-evidence)는 기존
 AnalysisResult의 execution_evidence 0.1.0/0.2.0 및 execution_core 1.0.0/1.1.0을 사용합니다. 새 generic 모델 가져오기는 기존 1.0.0 core도 0.2.0 projection으로 만들며 저장된 0.1.0 결과는 변경하지 않습니다.
 수집 조건·통계 population·crash 필드가 필요해 도메인 모델을 두지만 별도 envelope를
@@ -120,7 +120,9 @@ Q01–Q04·Apple/PyTorch/Nsight·추가 adapter는 각 gate를 유지합니다.
 
 JTL 행 수·오류·elapsed 통계는 samples/sample_errors/sample_latency와 all_samples/failed_samples population으로 보존합니다. JMeter 행은 transaction이나 비HTTP sampler일 수 있어 HTTP 요청으로 자동 재명명하지 않습니다. Options 예제의 합성 ID/hash/값은 실제 정제한 수집 조건으로 모두 바꾸세요.
 
-## R19-01: 큰 JTL의 정확한 분포 보관
+<a id="r19-01-큰-jtl의-정확한-분포-보관"></a>
+
+## 큰 JTL의 정확한 분포 보관
 
 1,000행 이하 JTL은 기존 1.0.0 / 0.1.0 개별 표본 경로를 유지합니다. 큰 JTL은
 label별 정확히 정렬된 latency→count 분포와 오류 수를 스트리밍 집계하여
@@ -145,3 +147,5 @@ HotSpot은 독립 elapsed 줄과 Time 헤더에 붙은 elapsed를 읽고 공백�
 JMeter 5.6.3 외 버전은 기본 거절합니다. 필요한 경우 source options에 `allow_unverified_version:true`와 실제 `producer_version`을 지정하세요. 미선언 버전은 `unknown`으로 보존하며 `qualification:unverified_version` 경고가 남습니다. 필수 열/값 구조만 확인하며 해당 생산자 버전을 검증했다는 뜻이 아닙니다.
 
 행 한도보다 바이트 한도가 먼저 적용됩니다. 원본과 압축 해제 입력 각각 64 MiB 이하가 필요하며 100만 JTL 행은 별도 최대치입니다. 리뷰에서 기본 열 약 150바이트/행 입력은 약 44만 행이 상한이었고 35만 행/52.8 MiB 통과, 45만 행/67.8 MiB 거절이 관측되었습니다. 실제 용량은 열 텍스트에 따라 다릅니다. 전체 모집단을 유지하면서 불필요한 열을 줄이세요. 시간/모집단을 다시 선택하면 근거 범위가 달라집니다. 분할 파일의 백분위를 합산/평균하여 전체 실행 백분위를 복원할 수 없습니다. 바이트 오류에는 실제 획득 바이트 또는 명시적 하한과 조치가 포함됩니다.
+
+검증된 버전이 기본값입니다. 다른 버전의 명시적 구조 검증 선택, 실제/미상 버전 보존과 제한은 [미검증 버전 정책](INPUT_ASSISTANCE.md#미검증-생산자-버전의-명시적-선택)을 참조하세요.

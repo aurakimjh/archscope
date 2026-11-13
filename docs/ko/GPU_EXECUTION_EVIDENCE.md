@@ -1,6 +1,6 @@
 # 오프라인 CPU/GPU 실행 구간
 
-T-644는 기존 trace_import AnalysisResult에 payload0.4.0 /
+GPU 실행 근거는 기존 trace_import AnalysisResult에 payload0.4.0 /
 gpu_execution_core1.0.0과 `trace.gpu-execution-json`(alias gpu-execution)을 추가합니다.
 기존 trace0.2.0·LLM trace0.3.0 저장 reader는 유지합니다. Parser·구간 분석·SVG exporter·
 React 표현을 분리하며 장치 telemetry는 기존 MetricHistory에 남깁니다.
@@ -105,8 +105,7 @@ generic 정확한 표와 durable case snapshot을 재사용합니다. 저장 sna
 조용한 first-N 절삭은 없습니다. 2-slot/5분·취소를 적용합니다. SQLite는 private
 불변 읽기 전용 복사본, query_only/trusted_schema 제한, 고정 테이블 query와 행 예산을
 사용합니다. 필수 metadata/name 테이블은 실제 테이블이어야 하며 선택된 실제 테이블의
-generated column·미검증 schema를 거부합니다. 선택 테이블의 누락/view를 건너뛰는
-R21-02는 후속 큐이므로 빈 kernel 결과를 GPU 활동이 없었다는 증거로 해석하지 않습니다. 일반 SQLite나
+generated column·미검증 schema를 거부합니다. 선택 테이블의 존재/누락을 표시하며 같은 이름의 view/virtual table은 거부합니다. 빈 kernel 결과를 GPU 활동이 없었다는 증거로 해석하지 않습니다. 일반 SQLite나
 .nsys-rep binary, 임의 SQL, 설치 도구를 실행하는 입력 경로가 아닙니다.
 
 검증 근거는 실제 producer fixture, 독립 정수 구간 계산, source/cursor/소유권/변조 테스트,
@@ -121,7 +120,9 @@ PyTorch CUDA/NCCL 실제 실행·다른 export 버전·hardware 튜닝은 별도
 Nsight는 runtime API/kernel/memcpy/닫힌 NVTX 테이블만 선택합니다. OS runtime·driver API·memset·marker·hardware counter 테이블은 이번 범위 밖이며 memcpy도 byte/방향 기반 대역폭이 아닌 구간을 제공합니다.
 
 
-## 큰 원본을 줄이는 경로 (R21-01)
+<a id="큰-원본을-줄이는-경로-r21-01"></a>
+
+## 큰 원본을 줄이는 경로
 
 64MiB를 넘는 검증 버전의 standalone Nsight SQLite는 먼저 Python 표준 sqlite3를
 사용하는 별도 수동 helper로 줄인 뒤 가져옵니다.
@@ -146,11 +147,12 @@ stack/record_shapes를 줄일 수 있습니다. 예를 들어 schedule(wait=1,wa
 repeat=1), prof.step(), on_trace_ready로 active 구간마다 export합니다. 실제 파일 크기를
 확인해야 하며 schedule이 바이트 상한을 보장하지는 않습니다. 64MiB 내에서는 무시되는
 metadata/python_function을50k 지원 event 예산에 포함하지 않습니다. 창을 먼저 적용하고
-보존할 지원 event가 넘을 때 at_least로 첫 초과를 명시합니다. 나머지 R21 P3의 테이블
-존재 고지·실제 flow 입력 등은 별도 후속 큐에 유지합니다.
+보존할 지원 event가 넘을 때 at_least로 첫 초과를 명시합니다. 테이블 존재와 flow 연결의 검증 범위는 아래 설명을 따릅니다.
 
 분리 배포 bundle에도 같은 수동 helper를 `resources/tools/subset-nsight-sqlite.py`로 포함합니다. Python에서 명시적으로 실행하며 앱이 자동 실행하지 않습니다.
 
 Nsight 가져오기는 지원 runtime/kernel/memcpy/NVTX 테이블 각각의 present/absent 상태를 경고에 기록합니다. absent는 관측 범위 미확보이며 활동 0의 증명이 아닙니다. 선택 테이블 이름이 VIEW/가상 테이블이면 읽기 전에 거절하고 생성 열도 거절합니다. 기존 저장 모델의 경고는 유지됩니다.
 
 추가 구조 회귀 표본은 겹치는 스트림의 kernel 합 77,888 ns/합집합 51,968 ns, 중복 launch 후보, 모호/orphan/정상 flow endpoint를 구분합니다. 실제 정제 SQLite의 결정적 변형과 합성 Chrome flow이며 새로운 CUDA/NCCL 실측 검증이 아닙니다.
+
+검증된 버전이 기본값입니다. 다른 버전의 명시적 구조 검증 선택, 실제/미상 버전 보존과 제한은 [미검증 버전 정책](INPUT_ASSISTANCE.md#미검증-생산자-버전의-명시적-선택)을 참조하세요.

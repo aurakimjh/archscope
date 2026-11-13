@@ -1,10 +1,9 @@
 # 고정된 보고서 이미지와 표
 
-T-636은 기존의 불변 분석 query를 소비하는 데스크톱 시각 자료 renderer를 구현합니다.
+시각 자료는 기존의 불변 분석 query를 소비하는 데스크톱 시각 자료 renderer를 구현합니다.
 PNG, 외부 참조 없는 SVG, 편집 가능한 HTML 표와 TSV를 만들고 이식 가능한 ZIP으로 보관합니다.
 기존 `SaveChartArtifact`는 이미 렌더된 바이트를 저장하는 API로 유지합니다.
-슬라이드 작성 도구를 추가하지 않습니다. 구현·로컬 검증은 완료했으며 독립 리뷰와 네이티브
-Office 수용 검증은 남았습니다. [영문 안내](../en/VISUAL_ARTIFACTS.md)도 제공합니다.
+슬라이드 작성 도구를 추가하지 않습니다. 네이티브 Office 수용 검증은 backend·브라우저 검사와 별개입니다. [영문 안내](../en/VISUAL_ARTIFACTS.md)도 제공합니다.
 
 ## 현재 분석 화면에서 생성
 
@@ -113,15 +112,13 @@ artifact/view hash를 기록하세요. 한글·긴 이름·음수 delta·`900719
 clipboard wire format·cross-build를 네이티브 Windows/Office 수용으로 주장하지 않습니다.
 이번 실행에서는 Mac 데스크톱이 잠겨 있었습니다.
 
-## R14 후속 처리와 검증 범위
+<a id="r14-후속-처리와-검증-범위"></a>
 
-R14-01–07은 로컬 수정·검증했습니다. 원 독립 판정 CONDITIONAL을 보존하며 새로운 독립 PASS는
-아닙니다. 현재 지원 SVG는 아래 설명처럼 view/spec/글꼴로 재생성해 바이트를 결합 검증합니다.
-ZIP 해시는 작성자 인증이나 PNG 픽셀 증명이 아닙니다. 미지원 과거 생성기는 구조·해시 검사만
-유지하며 실제 Office 동작은 별도 수용 항목입니다. 글꼴 용량은 아래 전체 글꼴 유지 절충과
-실제 byte 표시로 처리했고 글꼴 최적화를 주장하지 않습니다.
+## 검증 범위
 
-R15-06: spreadsheet-text-0.2.1은 0.1·1.5·3.14·12.5 같은 일반 소수를 TSV 숫자로 유지한다. 연도가 있는 dotted date는 보호한다. 과거 0.2.0 receipt는 당시 count로 검증하고 현재 export/descriptor는 0.2.1을 사용하며 보관 byte는 재작성하지 않는다.
+지원 SVG는 고정 view/spec/글꼴로 결정적으로 재생성해 바이트를 대조합니다. ZIP hash는 작성자 인증이나 PNG 픽셀 증명이 아닙니다. 미지원 과거 renderer는 구조/hash 검사만 유지하며 실제 Office 동작은 별도 수용 검증이 필요합니다. 독립 이미지는 고정 전체 글꼴을 포함하고 실제 압축/확장 byte를 표시합니다.
+
+spreadsheet-text-0.2.1은 0.1·1.5·3.14·12.5 같은 일반 소수를 TSV 숫자로 유지한다. 연도가 있는 dotted date는 보호한다. 과거 0.2.0 receipt는 당시 count로 검증하고 현재 export/descriptor는 0.2.1을 사용하며 보관 byte는 재작성하지 않는다.
 
 
 새 profile_diff는 sort=delta_abs, omit_zero_delta=true가 기본이며 delta(부호 있는 내림차순)와 name을 선택할 수 있습니다. 동률은 프레임 이름·노드 ID로 정하고 페이지 처리 전에 view/spec에 고정합니다. 열 이름에 inclusive를 표시합니다. 백분율·share delta는 정확한 비교 API에 남기고 여섯 열 이미지에는 추가하지 않습니다. 기존 저장 view는 유지합니다.
@@ -132,6 +129,6 @@ R15-06: spreadsheet-text-0.2.1은 0.1·1.5·3.14·12.5 같은 일반 소수를 T
 
 지원하는 SVG는 고정 view/spec·글꼴로 결정적으로 재생성하여 바이트 단위로 비교하므로 manifest 해시까지 바꾼 SVG 교체도 거부합니다. 미지원 과거 생성기는 구조·해시 검사만 유지하고 새 렌더링을 승인하지 않습니다. ZIP 검사는 작성자를 인증하지 않고 PNG/SVG 픽셀 동등성을 보증하지 않습니다.
 
-R14-06 절충안: Unicode 글리프 누락과 외부 의존성을 피하기 위해 renderer1.0.0은 독립 SVG마다 전체 고정 글꼴을 유지하며 부분집합·중복 제거를 활성화하지 않습니다. descriptor/UI에서 실제 ZIP·해제 byte를 표시합니다. 다섯 이미지 묶음은 약33MB여서512MiB 보관함에는 대략16건, 해제192MiB Report Pack에는 명목상4건이 아니라 보통2건만 들어갑니다. 이미지·분석 부록에 따라 더 줄 수 있으며 byte 한도가 우선합니다. 거부 오류에 실제 해제 크기와 상한을 표시합니다.
+절충안: Unicode 글리프 누락과 외부 의존성을 피하기 위해 renderer1.0.0은 독립 SVG마다 전체 고정 글꼴을 유지하며 부분집합·중복 제거를 활성화하지 않습니다. descriptor/UI에서 실제 ZIP·해제 byte를 표시합니다. 다섯 이미지 묶음은 약33MB여서512MiB 보관함에는 대략16건, 해제192MiB Report Pack에는 명목상4건이 아니라 보통2건만 들어갑니다. 이미지·분석 부록에 따라 더 줄 수 있으며 byte 한도가 우선합니다. 거부 오류에 실제 해제 크기와 상한을 표시합니다.
 
-R14-07: 컴파일된 공통 상세 provider metrics:intervals가 검증된 메트릭 캐시로 정확한 값/delta/rate/시각/상태/ref 페이지를 제공합니다. HTML에는 관측·파생 bucket JSON을 포함한 일회성 metric_intervals를 추가하고 Report Pack은 원본 SHA에 연결한 별도 표시 자료를 포함합니다. 저장0.2 최소 표·JSON 바이트는 유지합니다. 표시 한도를 넘으면 단독 HTML은 거부하고 Report Pack은 원본 JSON을 보존하면서 표시 불가·한도 사유를 명시합니다. 전체 선택은 전용 구간 CSV를 사용합니다.
+컴파일된 공통 상세 provider metrics:intervals가 검증된 메트릭 캐시로 정확한 값/delta/rate/시각/상태/ref 페이지를 제공합니다. HTML에는 관측·파생 bucket JSON을 포함한 일회성 metric_intervals를 추가하고 Report Pack은 원본 SHA에 연결한 별도 표시 자료를 포함합니다. 저장0.2 최소 표·JSON 바이트는 유지합니다. 표시 한도를 넘으면 단독 HTML은 거부하고 Report Pack은 원본 JSON을 보존하면서 표시 불가·한도 사유를 명시합니다. 전체 선택은 전용 구간 CSV를 사용합니다.

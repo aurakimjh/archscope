@@ -1,6 +1,6 @@
 # File-only perf and constrained BPF evidence
 
-T-637 adds `system_evidence` 0.2.0 over the exact SystemEvidence 1.1.0 model.
+System evidence adds `system_evidence` 0.2.0 over the exact SystemEvidence 1.1.0 model.
 It preserves raw observations in the common AnalysisResult envelope, with separate
 parser, analyzer and generic consumers. Existing folded-stack, ProfileSet,
 case/index and visual-artifact contracts remain intact. No process attaches BPF,
@@ -119,7 +119,9 @@ Primary contracts: [Linux perf fields](https://raw.githubusercontent.com/torvald
 [pinned histogram fixture](https://github.com/bpftrace/bpftrace/blob/v0.22.0/tests/runtime/outputs/hist.json).
 
 
-## R15 storage and scheduler qualifications
+<a id="r15-storage-and-scheduler-qualifications"></a>
+
+## storage and scheduler qualifications
 
 SystemEvidence 1.1.0 stores shared frame and stack tables; records carry bounded
 integer `stack_id` references. Result payload 0.2.0 uses this compact storage.
@@ -130,16 +132,6 @@ Unique/deeper stacks and labels still consume limits. Budget errors disclose
 charged bytes, limit, processed records and splitting via `perf script --time`.
 Keyed histogram parsing has a separate fresh map and stable malformed-shape code;
 its synthetic shape is checked against the pinned 0.22.0 formatter source.
-
-Capture `original_sha256` is declared pre-conversion provenance (for example the
-binary perf.data hash); it may differ from the actual imported text/gzip
-`source_sha256`. It is not an enforced text-source hash assertion. Waker and idle
-entities must currently be declared; system-wide idle TID 0 can produce ambiguous
-CPU-sharing rows. An explicit idle/ignore policy remains queued. Scheduler trace
-layout has no stacks, so its profile cost is `[unattributed]`; only stack-bearing
-event input supports off-CPU call structure. Current off_cpu combines sleeping
-and runnable costs, preserves state labels and can overlap runqueue. State-filter
-projection is a queued follow-up.
 
 Pinned keyed formatter: [bpftrace 0.22 output.cpp](https://github.com/bpftrace/bpftrace/blob/v0.22.0/src/output.cpp).
 

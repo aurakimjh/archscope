@@ -1,6 +1,6 @@
 # Apple Silicon offline memory evidence
 
-T-643 adds `apple-ollama-capture-json` to Metric History source assistance and
+Apple Silicon evidence adds `apple-ollama-capture-json` to Metric History source assistance and
 `metrics history-inspect/history-normalize/history-import`. Auto recognizes the
 explicit `apple-ollama-capture.v1` contract. The existing MetricHistory 1.0.0 and
 `metrics_timeseries` 0.2.0 AnalysisResult provide queries, charts, JSON/CSV/HTML,
@@ -83,8 +83,10 @@ Sources: [Ollama API ps](https://docs.ollama.com/api/ps),
 [Darwin sysctl layout](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/sysctl.h),
 [private pressure query](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_memorystatus_notify.c).
 
-R20-01: collector1.1.0 adds model_selection_sha256 and required per-snapshot excluded_model_count / selected_model_match_count (0 or 1). Excluded model names/digests stay absent. Selected zero is distinct from an empty host. Actual multi-load/missing-selector/empty captures cover 1/1, 0/2 and 0/0. Older1.0 captures retain canonical normalization and saved projections; inspection adds a read-time unknown-coverage notice. R20-02/03/04 remain queued; multi-load covers part of04, nonzero swap/pressure and other environments remain unqualified.
+collector1.1.0 adds model_selection_sha256 and required per-snapshot excluded_model_count / selected_model_match_count (0 or 1). Excluded model names/digests stay absent. Selected zero is distinct from an empty host. Actual multi-load/missing-selector/empty captures cover 1/1, 0/2 and 0/0. Older1.0 captures retain canonical normalization and saved projections; inspection adds a read-time unknown-coverage notice. Nonzero swap/elevated pressure and other environments remain unqualified.
 
 New captures require each VM category ≤ physical capacity, size_vram ≤ size and swap_used ≤ total; categories are never summed. Host/boot/device use sanitized tags, text excludes control characters and model digests must be lowercase hex. Invalid new inputs are refused; saved identities are never rewritten.
 
 An additional actual multi-load capture has 12 samples at two-second spacing, with one selected and one excluded model; both owned models were unloaded and the empty state verified afterwards. swap_used=0 and raw pressure code=1 do not establish elevated pressure. Actual nonzero swap/elevated pressure, other producer/platform combinations and long-running workloads remain unqualified; obtain authorized natural observations without forced memory stress.
+
+Qualified versions remain the defaults. For explicit structural-only opt-in, actual/unknown version preservation and qualification limits, see [Unverified producer versions](INPUT_ASSISTANCE.md#explicit-unverified-producer-versions).

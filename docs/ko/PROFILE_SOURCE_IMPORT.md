@@ -1,6 +1,6 @@
 # 정확한 원본 프로파일 가져오기
 
-T-634는 원본 전용 경로를 추가합니다. `profile import`, legacy facade, 저장된
+원본 가져오기는 원본 전용 경로를 추가합니다. `profile import`, legacy facade, 저장된
 결과, 내부 ProfileSet 0.2.0 결과의 의미는 유지합니다. 원본을 재분석해야
 `profile_evidence` payload 0.4.0을 얻으며 저장된 근거의 버전만 바꾸면 안 됩니다.
 공통 AnalysisResult envelope와 ProfileSet schema 1.0.0은 유지합니다.
@@ -68,7 +68,9 @@ overflow가 필요한 출력은 거부합니다. `ticks` 단위 pprof 출력은 
 projection 메타데이터가 필요하므로 원본 reader로 다시 가져오지 않습니다.
 손실 없는 모델 재사용에는 저장한 AnalysisResult를 사용하세요.
 
-## 검증된 수집 옵션 정책 (R5-02)
+<a id="검증된-수집-옵션-정책-r5-02"></a>
+
+## 검증된 수집 옵션 정책
 
 컴파일된 binding만 정책을 결정합니다. snapshot에는 정책 ID·revision 1.0.0·hash,
 producer/version/format/normalizer/metric, 민감 정보를 제거한 전체 원래 옵션,
@@ -112,7 +114,9 @@ Digest로 고정한 재사용 corpus `diagnostics.profile-producers.v1`은 실�
 [py-spy 0.4.1 exporter](https://github.com/benfred/py-spy/blob/v0.4.1/src/speedscope.rs),
 [pprof proto](https://github.com/google/pprof/blob/main/proto/profile.proto).
 
-## R11 의미 버전 경계 (2026-11-12)
+<a id="r11-의미-버전-경계-2026-11-12"></a>
+
+## 의미 버전 경계 (2026-11-12)
 
 Normalizer 1.1.0 / payload 0.4.0은 모든 원본 metric, inventory, 화면, 결과 summary에
 원래 type/unit을 드러냅니다. Column ID는 파일 안에서 유지하되 비교 identity가

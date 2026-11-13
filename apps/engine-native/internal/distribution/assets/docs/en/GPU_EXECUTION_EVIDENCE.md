@@ -1,6 +1,6 @@
 # Offline CPU/GPU execution intervals
 
-T-644 adds a separate `trace.gpu-execution-json` importer (alias `gpu-execution`)
+GPU execution evidence adds a separate `trace.gpu-execution-json` importer (alias `gpu-execution`)
 to the existing `trace_import` AnalysisResult, payload 0.4.0 / gpu_execution_core
 1.0.0. Existing trace 0.2.0 and LLM trace 0.3.0 remain unchanged. Parsing,
 interval analysis, SVG export and React presentation have separate owners.
@@ -121,8 +121,7 @@ file. There is no silent first-N truncation. Parsing has 2 admission slots, a 5-
 SQLite runs from an immutable read-only private copy, query_only/trusted_schema
 restrictions, fixed known table queries and bounded rows. Required metadata/name
 tables must be physical; generated columns in selected physical tables and unknown
-schema versions are refused. Current optional-table absence/view skipping is the
-queued R21-02 limitation: an empty kernel result is not proof of no GPU activity. Ordinary SQLite files,
+schema versions are refused. Optional-table presence/absence is disclosed; selected-name views and virtual tables are refused. An empty kernel result is not proof of no GPU activity. Ordinary SQLite files,
 .nsys-rep binaries, arbitrary SQL and installed tools are not executed as input.
 
 Evidence: actual producer fixtures and independent integer interval calculations,
@@ -138,7 +137,9 @@ Primary references: [PyTorch profiler](https://docs.pytorch.org/docs/2.15/profil
 The Nsight adapter selects runtime API/kernel/memcpy/closed NVTX tables only; OS runtime, driver API, memset, marker and hardware-counter tables are outside this slice. Memcpy supplies intervals, not byte/direction-derived bandwidth.
 
 
-## Large original capture workflow (R21-01)
+<a id="large-original-capture-workflow-r21-01"></a>
+
+## Large original capture workflow
 
 For a standalone qualified Nsight SQLite larger than64MiB, run the explicit
 manual helper before import (Python standard-library sqlite3 only):
@@ -168,11 +169,12 @@ and disable unnecessary stacks/record_shapes when appropriate. For example,
 actual size; schedule does not guarantee a byte ceiling. Within64MiB, ignored
 metadata/python_function records do not consume the50k retained supported-event
 budget; the window is applied before that event budget. Supported events still
-preserve all whole intervals and refuse at the first overflow (`at_least`). Other
-R21 P3 table-presence/actual-flow fixture follow-ups remain separately recorded.
+preserve all whole intervals and refuse at the first overflow (`at_least`). Table-presence disclosure and structural flow qualification are described below.
 
 The disconnected release bundle also ships the same manual helper at `resources/tools/subset-nsight-sqlite.py`; invoke it explicitly with Python.
 
 Nsight import records present/absent status for each supported runtime, kernel, memcpy and NVTX table. An absent table means unavailable coverage, never proven zero activity. Any selected table name backed by a view or virtual table is refused before reading it; generated columns are also refused. Historical saved models retain their original warnings.
 
 Additional structural regression fixtures distinguish overlapping streams (kernel sum 77,888 ns, union 51,968 ns), duplicate launch candidates and ambiguous/orphan/valid flow endpoints. They are deterministic mutations of an actual sanitized SQLite export and synthetic Chrome flow records, not new CUDA/NCCL runtime qualification.
+
+Qualified versions remain the defaults. For explicit structural-only opt-in, actual/unknown version preservation and qualification limits, see [Unverified producer versions](INPUT_ASSISTANCE.md#explicit-unverified-producer-versions).

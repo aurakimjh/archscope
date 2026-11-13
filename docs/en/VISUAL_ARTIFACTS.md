@@ -1,11 +1,10 @@
 # Pinned report images and tables
 
-T-636 implements a desktop visual renderer over existing immutable analysis
+The desktop visual renderer works over existing immutable analysis
 queries. It creates PNG images, self-contained SVG, editable HTML tables and TSV,
 and retains a portable artifact ZIP. This is separate from slide authoring and
 from the existing `SaveChartArtifact` API, which only saves already-rendered bytes.
-Implementation/local verification is complete; independent review and native
-Office acceptance remain open. See the paired [Korean guide](../ko/VISUAL_ARTIFACTS.md).
+Native Office acceptance remains separate from backend and browser checks. See the paired [Korean guide](../ko/VISUAL_ARTIFACTS.md).
 
 ## Use the selected analysis view
 
@@ -141,17 +140,13 @@ Local evidence is under `docs/review/evidence/2026-11-12-t636/`. Chromium raster
 checks, contract tests, clipboard wire-format tests and cross-builds are not
 native Windows/Office acceptance. The Mac desktop was locked during this run.
 
-## R14 follow-up resolution and verification scope
+<a id="r14-follow-up-resolution-and-verification-scope"></a>
 
-R14-01–07 are locally remediated. The original independent verdict remains
-CONDITIONAL; this is not a new independent PASS. Current supported SVG bytes are
-bound to the frozen view/spec/font by regeneration, as described below. ZIP hashes
-do not authenticate authorship or certify PNG pixels. Historical unsupported
-renderers retain structural/hash-only checks. Native Office behavior remains a
-separate acceptance item. Font capacity is resolved by actual-byte disclosure and
-the explicit full-font tradeoff below, without claiming font optimization.
+## Verification scope
 
-R15-06: spreadsheet-text-0.2.1 leaves ordinary decimal numbers (0.1, 1.5, 3.14, 12.5) numeric in TSV. Dotted dates with a full year still receive protection. Historical 0.2.0 receipts are validated using their original counts; current exports/descriptors use 0.2.1 without rewriting archived bytes.
+Supported SVG bytes are bound to the frozen view/spec/font by deterministic regeneration. ZIP hashes do not authenticate authorship or certify PNG pixels. Historical unsupported renderers retain structural/hash-only checks. Native Office behavior requires separate acceptance. Standalone images retain the full pinned font and disclose actual compressed/expanded bytes.
+
+spreadsheet-text-0.2.1 leaves ordinary decimal numbers (0.1, 1.5, 3.14, 12.5) numeric in TSV. Dotted dates with a full year still receive protection. Historical 0.2.0 receipts are validated using their original counts; current exports/descriptors use 0.2.1 without rewriting archived bytes.
 
 
 New profile_diff views default to sort=delta_abs and omit_zero_delta=true; delta (descending signed) and name are explicit alternatives. Ties use frame name and node ID. Policies are stored in the view/spec before paging. Columns are explicitly inclusive. Percent/share deltas remain in the exact comparison API; the six-column image does not add them. Saved frozen views remain unchanged.
@@ -162,6 +157,6 @@ Spec creation and validation enforce required_images ≤5 before rendering. CLI 
 
 Supported SVG imports/builds are regenerated deterministically from the frozen view/spec and pinned font and compared byte-for-byte, even if an attacker updates the manifest hashes. Historical unsupported generators retain structural/hash-only validation and cannot authorize new rendering. ZIP checks do not authenticate authorship, and PNG/SVG pixel equivalence is not certified.
 
-R14-06 tradeoff: keep the complete pinned font in every standalone SVG, avoiding missing Unicode glyphs and external font dependencies. Font subsetting/deduplication is not enabled in renderer1.0.0. Descriptors/UI now disclose actual ZIP and expanded bytes. A five-image bundle is about33MB, so512MiB holds roughly16 such items and192MiB expanded Report Packs typically fit only2, not the nominal4. Other images/analysis may reduce that count. Byte limits are authoritative; refusals report actual expanded bytes and limit.
+Font tradeoff: keep the complete pinned font in every standalone SVG, avoiding missing Unicode glyphs and external font dependencies. Font subsetting/deduplication is not enabled in renderer1.0.0. Descriptors/UI now disclose actual ZIP and expanded bytes. A five-image bundle is about33MB, so512MiB holds roughly16 such items and192MiB expanded Report Packs typically fit only2, not the nominal4. Other images/analysis may reduce that count. Byte limits are authoritative; refusals report actual expanded bytes and limit.
 
-R14-07: compiled generic detail provider metrics:intervals returns bounded exact value/delta/rate/time/status/ref pages through the verified metric cache. HTML exports add disposable metric_intervals with observed/derived bucket JSON; Report Packs include separate presentations tied to source SHA. Stored minimal0.2 tables and JSON bytes are unchanged. Presentation overflow refuses standalone HTML; Report Packs retain original source JSON and explicitly record presentation_unavailable with budget guidance. Dedicated interval CSV remains the full-selection path.
+The compiled generic detail provider metrics:intervals returns bounded exact value/delta/rate/time/status/ref pages through the verified metric cache. HTML exports add disposable metric_intervals with observed/derived bucket JSON; Report Packs include separate presentations tied to source SHA. Stored minimal0.2 tables and JSON bytes are unchanged. Presentation overflow refuses standalone HTML; Report Packs retain original source JSON and explicitly record presentation_unavailable with budget guidance. Dedicated interval CSV remains the full-selection path.

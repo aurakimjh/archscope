@@ -1,6 +1,6 @@
 # Offline LLM, gateway and lifecycle trace evidence
 
-T-640 extends the existing `trace_import` result with payload 0.3.0 and an
+LLM trace support extends the existing `trace_import` result with payload 0.3.0 and an
 `llm_core` 1.0.0 extension. The common AnalysisResult envelope, case persistence,
 generic provider tables, timeline and visual/report export paths are reused.
 Legacy trace payload 0.2.0 keeps its existing reader and dedicated screen.
@@ -123,7 +123,9 @@ Context inventory is capped at 20; use the contexts query for bounded pages of e
 The legacy raw trace analysis facade now refuses originals above 64 MiB with an explicit split instruction, so a partial privacy scan cannot admit an uninspected tail. Saved legacy readers are unchanged; decoded semantic keys are checked again before publishing a legacy result.
 
 
-## R17 intake and query constraints
+<a id="r17-intake-and-query-constraints"></a>
+
+## intake and query constraints
 
 Raw-carrier refusal recognizes known GenAI/OpenInference/diag/Traceloop/Langfuse
 and input.value/output.value markers, including escaped/gzipped carriers. This is
@@ -142,11 +144,6 @@ normalization; there is no in-app trace-selection operation for an oversized mod
 |---|---|
 | neutral.v1 | Explicit diag.llm first/last boundaries or recognized token events. |
 | otel-genai.v1.37.0 / openinference.core.v1 | Preserve profile fields; first/last timing requires the pinned custom boundaries/events. Ordinary total span duration is not TTFT/TPOT. |
-
-R17-05 remains a queued P3: contradictory supplied first/last/span boundaries need
-consistent null TTFT/TPOT in a future versioned LLM payload, with old 0.3.0 saved
-projections preserved. Current duration fields must be interpreted with their
-boundary/status evidence; this local remediation does not claim that fix.
 
 `diag.llm.first_token_unix_nano`, `diag.llm.last_token_unix_nano`, `diag.llm.first_token`, `diag.llm.last_token`.
 

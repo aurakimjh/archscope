@@ -1,6 +1,6 @@
 # 오프라인 GPU·추론 서빙 근거
 
-T-639/T-641은 중립 InferenceEvidence 1.1.0 모델과 `inference_serving` 0.3.0 결과를
+추론/서빙 근거는 중립 InferenceEvidence 1.1.0 모델과 `inference_serving` 0.3.0 결과를
 추가한다. 공통 AnalysisResult, 기존 MetricHistory reader·케이스 저장·provider·
 시각 자료 내보내기를 재사용한다. 원본 메트릭은 `inference_core.metrics`에 한 번만
 저장하고 signal은 series ID, 관측 행은 point ID를 참조한다. 연결되지 않은 series도
@@ -11,7 +11,7 @@ T-639/T-641은 중립 InferenceEvidence 1.1.0 모델과 `inference_serving` 0.3.
 | 입력 | 계약과 검증 범위 |
 |---|---|
 | NVIDIA query CSV | `nvidia-smi.query-csv.v1`, `csv,noheader,nounits`, 아래 고정 field 순서·선언 version·host/boot. 번들 535.104.05 레이아웃 자료는 합성이다. 실제 GPU·도구·driver 실행은 하지 않았으며 해당 driver의 모든 출력을 지원한다는 뜻이 아니다. XML·pmon/dmon·vendor 오류 로그 문법은 등록하지 않았다. |
-| 정규 MetricHistory + bindings | 기존 T-638로 원본을 먼저 정규화한다. `metrics` 멤버가 없는 entity/signal/context/link/runtime manifest를 붙인다. 원본 값·identity는 유지한다. DCGM/서빙 metric도 실제 정의를 확인하여 명시적으로 연결할 수 있으며 이름으로 자동 활성화하지 않는다. |
+| 정규 MetricHistory + bindings | 기존 Metric History로 원본을 먼저 정규화한다. `metrics` 멤버가 없는 entity/signal/context/link/runtime manifest를 붙인다. 원본 값·identity는 유지한다. DCGM/서빙 metric도 실제 정의를 확인하여 명시적으로 연결할 수 있으며 이름으로 자동 활성화하지 않는다. |
 | 정규 InferenceEvidence | 제한 지원 importer `inference.evidence-json`, alias `inference-evidence`, 옵션 `{}`. 엄격한 크기·의미 검증을 적용한다. |
 | vLLM 예시 | 합성 queue/running/cache/token/latency metric에 scope·unit·통계 형식·model/config·runtime 관측을 명시한다. 이름은 고정 0.8.5 문서의 예시다. **Q03은 유지**하며 특정 vLLM 버전 parser/자동 alias·실시간 endpoint 검증으로 올리지 않는다. |
 
@@ -63,7 +63,7 @@ resource/attribute provenance는 유지하므로 원본 파일도 사전에 비�
 ## 시간·수치 계약
 
 원래 값·시각·bucket 경계/count·identity를 정확한 문자열로 유지한다. Counter는
-T-638 수명/reset/중복/누락/flag/gap 처리를 재사용하고 이미 계산한 rate gauge를 다시
+Metric History 수명/reset/중복/누락/flag/gap 처리를 재사용하고 이미 계산한 rate gauge를 다시
 차분하지 않는다. Histogram의 interval delta/rate는 **관측 count / observations/sec**다.
 물리 bucket 단위 변환으로 count를 배율 변환하지 않는다. 원본/구간 bucket은 정확한
 메트릭 조회에서 확인한다. 단계 분위수 합산·histogram 분위수 추정·이중 export 합산·
@@ -86,7 +86,7 @@ metric의 정의는 이 요청 공식과 달라도 원래 의미로 남고 요�
 3. **장치 / 서빙 범위와 메트릭 상세**에서 entity와 signal 하나를 직접 선택해 원본을
    조회한다. 페이지는 parent result hash·signal 선택·cursor에 묶인다.
 4. **Workspace에서 메트릭 이력 열기**는 선택 series의 모든 point를 유지하는 소유
-   `metrics_timeseries` 0.2.0 결과를 만든다. T-638 chart·histogram·selection을 사용하고
+   `metrics_timeseries` 0.2.0 결과를 만든다. Metric History chart·histogram·selection을 사용하고
    predecessor/reset 맥락을 보존한다. 취소 후 늦게 생성된 결과 lease는 해제한다.
 5. JSON/CSV/HTML/Report Pack·선택 provider 표 이미지는 기존 consumer를 재사용한다.
    CSV는 기존 요약/가용성 출력이며 상세 정밀 값은 JSON·보존 HTML 표·원본 메트릭
@@ -117,7 +117,9 @@ provenance는 별도 64 KiB 한도를 상속한다. 정규화는 2개 동시 호
 공식 정의: [NVIDIA nvidia-smi](https://docs.nvidia.com/deploy/nvidia-smi/index.html),
 [vLLM 0.8.5 metrics](https://docs.vllm.ai/en/v0.8.5/design/v1/metrics.html).
 
-## R16 입력 사용성과 호환 (2026-11-12)
+<a id="r16-입력-사용성과-호환-2026-11-12"></a>
+
+## 입력 사용성과 호환 (2026-11-12)
 
 새 결과는 inference_serving 0.3.0이며 0.1.0/0.2.0 reader의 기존 projection 의미를 유지한다. InferenceEvidence 1.0.0/1.1.0을 읽고 declared_metadata는 1.1.0에서만 허용한다. 기존 fixture·결과 바이트는 유지한다.
 

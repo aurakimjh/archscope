@@ -26,19 +26,18 @@ bounded tables suitable for Evidence Board and report-pack capture.
 
 Windows live HTTP capture is not an additional file importer. It produces the
 same bounded `http_capture` analysis contract after a finalized local session,
-but its release scope is narrower: Windows-only, loopback proxy, HTTP/1.x
-metadata, no bodies, HTTP/2 and QUIC passthrough/unsupported, and
-connection-specific endpoint attribution rather than whole-machine coverage.
+with Windows-only loopback proxy collection and connection-specific endpoint attribution. Supported body tiers and protocol limitations are documented in [HTTP capture](SYSTEM_HTTP_CAPTURE.md).
 
-### Internal ProfileSet transport (T-629)
+<a id="internal-profileset-transport-t-629"></a>
+
+### Internal ProfileSet transport
 
 `profile.set-json` / `profile-set` is a limited internal ProfileSet 1.0.0 JSON
 transport, producing `profile_evidence` 0.2.0 with explicit profile/metric selection.
 Its bundled fixture is synthetic and qualifies core behavior, not a producer/version.
 The existing `profile import` route retains 0.1.x normalization semantics.
 `profile-set normalize-legacy` discloses those limitations; it does not qualify
-corrected py-spy/Speedscope/pprof input semantics. The separate T-634 source path
-below supplies new semantics; T-631 supplies generic screens. Internal adapter 1.0.1 chunks a bounded <=32 MiB model into
+corrected py-spy/Speedscope/pprof input semantics. The separate original-profile source path below supplies precise source semantics; result providers supply generic screens. Internal adapter 1.0.1 chunks a bounded <=32 MiB model into
 <=256 KiB raw records, retaining the common 1 MiB serialized-record ceiling.
 Normalized/result/temp ceilings apply jointly; see DATA_MODEL for the effective
 limits and the verified 3,000-stack/54,001-node case (not a production guarantee).
@@ -46,7 +45,9 @@ Automatic verified detection is limited to complete documents within the 64 KiB
 probe; larger documents require explicit profile-set selection and full validation.
 
 
-### Exact baseline/target comparison (R2 N-01)
+<a id="exact-baselinetarget-comparison-r2-n-01"></a>
+
+### Exact baseline/target comparison
 
 CompareEvidenceScalar accepts ordered baseline/target handles for complete or
 explicitly selected imports with matching versioned comparison policies. Different
@@ -55,28 +56,27 @@ ProfileSet comparison checks source-independent model conditions and returns bot
 model/source/result references. Unknown/missing policies keep old scalar snapshots
 on their original identity rules. Different selection, metric, semantic/capture or
 coverage conditions are refused; partial imports do not gain cross-source scalar
-comparison. Durable baseline management and entity/time matching remain T-630/T-635.
+comparison. The case/query service owns durable baselines and explicit entity/time matching.
 Legacy profiler diff keeps its separate compatibility behavior.
 
 Comparison identity is explicitly `declared`, not original-source verification.
-Stable scalar refusal codes are available as Wails error `cause.code` (DATA_MODEL,
-R3-01/R3-02). Whitespace-only max_lines suffixes no longer mark selected coverage;
-existing saved coverage is preserved. Reimport is needed to correct old coverage
-when comparing different sources. T-635 owns verified durable baseline binding.
+Stable scalar refusal codes are available as Wails error `cause.code`; see [Data model](DATA_MODEL.md). A whitespace-only max_lines suffix does not mark selected coverage. Existing saved coverage is preserved; reimport corrects old coverage for cross-source comparison. The query service owns verified durable baseline binding.
 
-R4 profile comparison accepts differing measured quality counters/ratios and
+Profile comparison accepts differing measured quality counters/ratios and
 preserves both snapshots plus change warnings. Clock/symbol/conversion categories
-still gate comparison; process/thread/worker differences return
-entity_mapping_required until T-635 supplies explicit mapping. Existing stored
+still gate comparison; process/thread/worker differences require explicit mapping through the query service; unmapped requests return
+entity_mapping_required. Existing stored
 policy hashes are preserved, not silently promoted to the new scalar policy.
 
 The effective wire limit includes 4 MiB per decoded UTF-8 string/key in addition
 to aggregate/document bounds. Oversize strings report json_string_bytes budget
 detail. Opaque capture options remain strictly equal; semantic/incidental key
-policies apply only to T-634 qualified canonical source models below. Old models
-and generic scalar comparison remain strict; durable baseline wiring is T-635.
+policies apply only to the original-profile importer qualified canonical source models below. Old models
+and generic scalar comparison remain strict; durable baseline wiring is the query service.
 
-### Declarative snapshot pack (T-632)
+<a id="declarative-snapshot-pack-t-632"></a>
+
+### Declarative snapshot pack
 
 `data.synthetic-metrics` / `synthetic-metrics` is installed by the signed bootstrap
 pack. With an explicit `evidence --pack-store` or the desktop catalog it emits
@@ -92,7 +92,9 @@ absolute installed JDK configuration with bounded execution and provenance; JSON
 analysis remains available without a converter. Offline sessions require
 preconverted JSON. See [Input assistance](INPUT_ASSISTANCE.md).
 
-### Exact original-source profiles (T-634)
+<a id="exact-original-source-profiles-t-634"></a>
+
+### Exact original-source profiles
 
 `profile inspect-source`, `normalize-source` and `import-source` preserve exact
 weights/units and require explicit profile/metric selection. Desktop Workspace
@@ -113,25 +115,28 @@ identity authentication follows from these fixtures. Native Windows/UI acceptanc
 and independent review are separate. See [Exact profile sources](PROFILE_SOURCE_IMPORT.md)
 for bounds, CLI examples, projection limits, policy keys and evidence scope.
 
-### T-635 canonical queries, verified baseline and R11 revision
+<a id="t-635-canonical-queries-verified-baseline-and-r11-revision"></a>
+
+### Canonical queries and verified baselines
 
 [Case evidence queries](CASE_EVIDENCE_QUERIES.md) defines bounded cursor-bound
 profile views/evidence, source/summary case search with indexed coverage, original
 coordinate links, immutable selected results, and baseline replay/mapping gates.
-R11 correction emits source normalizer 1.1.0 / result 0.4.0: original type/unit is
+Current source normalization emits source normalizer 1.1.0 / result 0.4.0: original type/unit is
 part of metric identity without a producer policy; unitless Speedscope weights
 are generic count, not proven samples. Source 0.3.0 snapshots keep old bytes and
 hashes/read/save/query/export, but comparisons require new original reimport.
 New compiled policy snapshots disclose declared/file-exporter basis and warnings.
 Durable verified reuse replays both originals on a new query and rechecks both
 original/result byte hashes and full case bindings on every page, preserving
-identity_basis=declared. R12 permits only a bounded process-local validated diff
-cache; imported receipts never grant verification. Existing generic scalar comparison stays strict; the new
+identity_basis=declared. A bounded process-local cache retains validated diffs; imported receipts never grant verification. Existing generic scalar comparison stays strict; the new
 canonical/baseline consumer uses qualified policies. Clock alignment and unknown
 producer promotion are not inferred. Native Windows/UI and independent review
 remain separate from local implementation verification.
 
-### T-638 metric history
+<a id="t-638-metric-history"></a>
+
+### Metric history
 
 [Exact metric history](METRIC_HISTORY.md) defines MetricHistory model/normalizer
 1.0.0, `metrics.history-json` transport and `metrics_timeseries` payload 0.2.0 (saved 0.1.0 reader retained).
@@ -143,7 +148,9 @@ common envelope. SDK Python 1.38.0 synthetic fixtures qualify only that slice;
 Q04/GenAI aliases and native acceptance stay separate. Legacy metrics_snapshot
 semantics are unchanged; there is no automatic cross-series sum or quantile math.
 
-## T-637 file-only system evidence
+<a id="t-637-file-only-system-evidence"></a>
+
+## File-only system evidence
 
 Limited canonical importer `system.evidence-json` / payload `system_evidence`
 0.2.0: actual perf 6.1.190 synthetic-data sample export, constrained scheduler
@@ -154,7 +161,9 @@ buckets are separate. No binary perf decoder or live attach.
 [Workflow, conditions and bounds](SYSTEM_EVIDENCE.md).
 
 
-## T-639 device and serving evidence
+<a id="t-639-device-and-serving-evidence"></a>
+
+## Device and serving evidence
 
 Limited `inference.evidence-json` carries InferenceEvidence 1.0.0 into common
 `inference_serving` 0.1.0. Original MetricHistory is stored once, signals bind
@@ -167,25 +176,31 @@ request formulas, original metric drilldown and unexecuted native acceptance.
 
 SystemEvidence 1.0.0 / system_evidence 0.1.0 saved readers remain supported; new 1.1.0 models deduplicate frames/stacks and 0.2.0 results retain old snapshots unchanged.
 
-## T-640 implementation boundary (2026-11-12)
+<a id="t-640-implementation-boundary-2026-11-12"></a>
 
-The limited `trace.llm-json` importer normalizes LLMTrace 1.0.0 into existing trace_import 0.3.0 / llm_core 1.0.0. Legacy trace 0.2.0 remains unchanged. Parent/link, observed child-union durations, explicit logical/attempt accounting, token boundaries and lifecycle populations stay separate. Body-free normalization precedes case copies/indexing. Exact bounded query/UI and existing providers/exports are reused. Q01 vendor JSON adapters stay gated. See [LLM trace evidence](LLM_TRACE_EVIDENCE.md). T-639 R16 adds explicitly declared untyped range metadata and user event-ID normalization, with 1.0/1.1 model and 0.1/0.2 result readers preserved; see [inference evidence](INFERENCE_EVIDENCE.md).
+## LLM trace evidence
+
+The limited `trace.llm-json` importer normalizes LLMTrace 1.0.0 into existing trace_import 0.3.0 / llm_core 1.0.0. Legacy trace 0.2.0 remains unchanged. Parent/link, observed child-union durations, explicit logical/attempt accounting, token boundaries and lifecycle populations stay separate. Body-free normalization precedes case copies/indexing. Exact bounded query/UI and existing providers/exports are reused. Q01 vendor JSON adapters stay gated. See [LLM trace evidence](LLM_TRACE_EVIDENCE.md). Inference evidence includes explicitly declared untyped range metadata and user event-ID normalization, with 1.0/1.1 model and 0.1/0.2 result readers preserved; see [inference evidence](INFERENCE_EVIDENCE.md).
 
 
-## T-641 runtime evidence
+<a id="t-641-runtime-evidence"></a>
+
+## Runtime evidence
 
 Runtime evidence uses the separate bounded canonical model within AnalysisResult. See [RUNTIME_EVIDENCE.md](RUNTIME_EVIDENCE.md) for pinned producer formats, identity/window qualification, live allocation profile reuse, GC union, plan per-loop semantics and saved-reader boundaries.
 
 
-## T-642 execution evidence
+<a id="t-642-execution-evidence"></a>
+
+## Execution evidence
 
 Bounded benchmark/crash context uses execution_core 1.0.0 inside common AnalysisResult, execution_evidence 0.1.0. Pinned k6/LLMPerf and structural JTL/actual sanitized HotSpot inputs normalize before generic providers/cases/exports. Comparison is explicitly declared-condition snapshot verification, separate from profile original-reimport baselines. See [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md).
 
-T-643: `apple-ollama-capture-json` normalizes manual Apple Silicon/Ollama 0.40.16 snapshots to the existing metrics.history-json path; shared system bytes, per-model residency estimates and explicit unavailable telemetry. No NVIDIA identity, dedicated VRAM, automatic collector or GPU-utilization inference. Actual fixture scope and bounds: [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).
+Apple Silicon evidence: `apple-ollama-capture-json` normalizes manual Apple Silicon/Ollama 0.40.16 snapshots to the existing metrics.history-json path; shared system bytes, per-model residency estimates and explicit unavailable telemetry. No NVIDIA identity, dedicated VRAM, automatic collector or GPU-utilization inference. Actual fixture scope and bounds: [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).
 
-R19-01 adds execution_core 1.1.0 / execution_evidence 0.2.0 for exact large-JTL distributions; saved 1.0.0/0.1.0 stays unchanged. [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md).
+Large-JTL support adds execution_core 1.1.0 / execution_evidence 0.2.0 for exact large-JTL distributions; saved 1.0.0/0.1.0 stays unchanged. [EXECUTION_EVIDENCE.md](EXECUTION_EVIDENCE.md).
 
-T-644: trace.gpu-execution-json / trace_import0.4.0 / gpu_execution_core1.0.0 preserves exact scoped CPU/GPU/rank intervals, explicit correlations, separate kernel sum/union and summary-only evidence. CLI/Wails/Workspace and bounded selected SVG reuse common consumers; existing saved trace/LLM readers remain. [GPU_EXECUTION_EVIDENCE.md](GPU_EXECUTION_EVIDENCE.md).
+GPU execution evidence: trace.gpu-execution-json / trace_import0.4.0 / gpu_execution_core1.0.0 preserves exact scoped CPU/GPU/rank intervals, explicit correlations, separate kernel sum/union and summary-only evidence. CLI/Wails/Workspace and bounded selected SVG reuse common consumers; existing saved trace/LLM readers remain. [GPU_EXECUTION_EVIDENCE.md](GPU_EXECUTION_EVIDENCE.md).
 
 
-T-645 bounded actual DB/OS snapshot batch: [Manual database and socket snapshots](SYSTEM_DB_SNAPSHOTS.md). Existing MetricHistory transport, exact epochs/gauges and common consumers; other adapters remain fixture-gated.
+The bounded actual DB/OS snapshot batch: [Manual database and socket snapshots](SYSTEM_DB_SNAPSHOTS.md). Existing MetricHistory transport, exact epochs/gauges and common consumers; other adapters remain fixture-gated.

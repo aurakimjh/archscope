@@ -1,6 +1,6 @@
 # Exact metric history
 
-T-638 adds `metrics_timeseries` payload 0.2.0 (saved 0.1.0 remains readable) and MetricHistory model
+Metric History adds `metrics_timeseries` payload 0.2.0 (saved 0.1.0 remains readable) and MetricHistory model
 1.0.0 with explicit normalizer revisions 1.0.0–1.2.0. Legacy `metrics_snapshot` import and saved readers retain their semantics.
 The common AnalysisResult envelope, parser/analyzer/exporter separation and
 backend-owned exact values remain unchanged.
@@ -149,32 +149,21 @@ Exact decimal literals are limited to 1,024 characters, exponent ±128 and
 Desktop series identities travel as opaque `identity_json` strings, keeping large
 numeric attributes exact during JavaScript display. Selection uses backend IDs.
 
-## Recorded follow-ups (R13)
+<a id="recorded-follow-ups-r13"></a>
 
-The independent CONDITIONAL review permits closure after its P2 payload fix with
-P3 work queued. R13-02 now supplies a process-local validated model/interval index
-cache for repeated desktop queries, as described below. R13-04 now gives original
-source numeric/JSON-shape errors bounded codes, decoded JSON paths and rules.
-Out-of-range exact values still refuse the whole file. R13-03/05 now use explicit normalizer
-revisions for cadence gaps and equal-time observation cohorts, preserving saved
-legacy interpretations. R13-06 adds dedicated interval CSV and R13-07 adds the
-searchable paged picker described here. Native WebView/Windows and real user
-export acceptance remain
-separate from local unit/CLI and synthetic SDK qualification.
+## Detailed views and exports
 
-R14-07 clarification: 0.2.0 generic detail/HTML/Report Pack tables retain point
-IDs/status and time/clock/reference projections; they do not include metric
-name/unit/value/delta/rate rows. Exact values and buckets are available through
-the dedicated history query/explorer. A richer generic export projection remains
-a follow-up with R13-06.
+Stored 0.2.0 tables retain minimal point IDs/status and time/clock/reference projections. The compiled metrics:intervals provider supplies paged exact values/deltas/rates; HTML and Report Packs add disposable presentations without changing canonical JSON. Dedicated interval CSV covers the selected intervals. Presentation byte limits may refuse a standalone export or mark a Report Pack presentation unavailable.
 
 Apple Silicon / Ollama manual capture adapter: [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).
 
 
-T-645 bounded actual DB/OS snapshot batch: [Manual database and socket snapshots](SYSTEM_DB_SNAPSHOTS.md). Existing MetricHistory transport, exact epochs/gauges and common consumers; other adapters remain fixture-gated.
+The bounded actual DB/OS snapshot batch: [Manual database and socket snapshots](SYSTEM_DB_SNAPSHOTS.md). Existing MetricHistory transport, exact epochs/gauges and common consumers; other adapters remain fixture-gated.
 
 
-## R13-02 verified warm query index
+<a id="r13-02-verified-warm-query-index"></a>
+
+## Warm query index
 
 Desktop metric inventory/detail requests pin their result owner and re-read/hash
 all stored bytes on **every request**, including warm hits. Identical file size or
@@ -204,7 +193,7 @@ Local regression evidence includes stateless/prepared byte-equivalent pages for
 neutral/actual PostgreSQL/Linux/SDK histogram cases,100k-point warm reuse, byte
 tampering with restored mtime, owner/cleanup, lazy expiry/byte eviction, concurrent
 caller isolation, cancellation and unchanged legacy saved bytes. These are backend
-checks, not native WebView/Windows or general latency/RSS acceptance. R13-01–R13-07 are locally fixed; the original independent verdict remains CONDITIONAL.
+checks, not native WebView/Windows or general latency/RSS acceptance.
 
 New source imports use normalizer 1.2.0. Equal-time cohorts whose complete
 observation payloads agree (including start, flags, histogram and exemplars) are
@@ -214,7 +203,7 @@ next cumulative point produces a derived rate; no writer is selected. Overlappin
 delta cohorts also retain the duplicate/conflict status with derivation suppressed.
 Saved 1.0.0/1.1.0 results keep the original equal-time classification.
 
-R13-07 series selection: source assistance and saved-result exploration search
+Series selection: source assistance and saved-result exploration search
 name/unit/kind and exact opaque resource/scope/attribute identities. The list renders
 at most 50 series per page; filtered select-all/clear affect every matching page
 and preserve selections outside the filter. Counts expose hidden selections and
@@ -224,7 +213,9 @@ above 60 KiB, save/query/materialize/CSV actions require a narrower selection to
 leave room within the 64 KiB query envelope. Inventory remains bounded to 10k
 series; pagination does not imply unbounded inventory or larger result budgets.
 
-## Source error diagnostics (R13-04)
+<a id="source-error-diagnostics-r13-04"></a>
+
+## Source error diagnostics
 
 Original OTLP, snapshot and range source numeric/JSON-shape failures return a
 `SourceError` with `Code`, `Path`, `Rule` and decoder-supplied one-based decoded
@@ -260,4 +251,4 @@ Successful model/normalizer versions, point/reference IDs, saved0.1.0/0.2.0 read
 and AnalysisResult remain unchanged. Closed Apple/DB/Linux adapters retain their
 existing semantic diagnostics; JSON type errors use the safe shared decoder.
 
-R14-07: compiled generic detail provider metrics:intervals returns bounded exact value/delta/rate/time/status/ref pages through the verified metric cache. HTML exports add disposable metric_intervals with observed/derived bucket JSON; Report Packs include separate presentations tied to source SHA. Stored minimal0.2 tables and JSON bytes are unchanged. Presentation overflow refuses standalone HTML; Report Packs retain original source JSON and explicitly record presentation_unavailable with budget guidance. Dedicated interval CSV remains the full-selection path.
+The compiled generic detail provider metrics:intervals returns bounded exact value/delta/rate/time/status/ref pages through the verified metric cache. HTML exports add disposable metric_intervals with observed/derived bucket JSON; Report Packs include separate presentations tied to source SHA. Stored minimal0.2 tables and JSON bytes are unchanged. Presentation overflow refuses standalone HTML; Report Packs retain original source JSON and explicitly record presentation_unavailable with budget guidance. Dedicated interval CSV remains the full-selection path.

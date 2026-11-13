@@ -1,6 +1,6 @@
 # Data packs and offline distribution
 
-T-632 introduces a bounded JSONL metric snapshot interpreter, not executable plugins.
+The offline pack interpreter introduces a bounded JSONL metric snapshot interpreter, not executable plugins.
 The synthetic bootstrap pack qualifies only its literal producer `synthetic.metrics`
 version `1.0.0`. It makes no vendor, time-series, converter or real workload claim.
 
@@ -68,7 +68,7 @@ Budgets: archive 8 MiB, expanded 16 MiB, entry 4 MiB, 128 ZIP entries, manifest
 64 KiB JSONL rows and the existing job/record/result budgets. Decimal strings
 preserve fractional, zero and large values. This emits metrics_snapshot 0.1.1;
 legacy metrics_snapshot 0.1.0 interpretation remains unchanged. New mapped metric
-names reject C0/C1 and bidirectional controls using the same predicate as the R8
+names reject C0/C1 and bidirectional controls using the same predicate as the
 display boundary. Ordinary Unicode names remain exact. Older saved payloads remain
 readable and byte-preserving on raw export; display providers escape unsafe text.
 
@@ -103,8 +103,7 @@ Do not put writable state inside the read-only bundle.
 
 Offline sessions deny capture, HTTP request builder, Ollama, automation control and
 unqualified JFR subprocess conversion before allocation, recording operation counts
-without endpoints or payloads. Import preconverted JFR JSON instead; converter
-qualification is T-633. The UI applies a same-origin CSP and records violations.
+without endpoints or payloads. Import preconverted JFR JSON instead; explicit installed-tool conversion is described in [Input assistance](INPUT_ASSISTANCE.md). The UI applies a same-origin CSP and records violations.
 Fonts and charts are local; no CDN, updater, telemetry or symbol downloader is
 configured. Report app-level denied attempts separately from OS/WebView activity.
 A zero blocked-attempt count alone does not prove zero outbound attempts. Release
@@ -132,17 +131,11 @@ Noto Sans KR is bundled unchanged from the pinned Google Fonts commit in its
 font manifest, under OFL-1.1 with original notices. Settings displays font-load
 status; a reported fallback must not be treated as font/layout acceptance.
 
-## SQLite decision
+<a id="sqlite-decision"></a>
 
-The isolated `spikes/t632-sqlite` module pins pure-Go modernc.org/sqlite v1.53.0.
-On this macOS arm64 host, 100,000 synthetic primary-key rows took 74.552 ms to
-build and 5.934 ms for 1,000 lookups (943,280 allocated bytes); database 1,384,448
-bytes, standalone binary 9,964,914 bytes. The stdlib JSONL/in-memory-index baseline
-took 64.170 ms / 0.057 ms (5,184 allocated bytes), 2,877,780-byte JSONL and
-3,144,994-byte binary. These are one-run warm local measurements, not benchmarks
-of analytical queries or Windows runtime. Pure-Go Windows 386 cross-build passes.
-Retain JSON/compact indexes in production for this slice; no SQLite production
-dependency is added. Revisit with T-635 query/memory/concurrency requirements.
+## Local indexing and SQLite scope
+
+Data packs retain bounded JSONL and compact in-memory indexes. The Nsight importer separately uses the pinned pure-Go SQLite dependency to read an immutable export copy with fixed queries; it does not run arbitrary SQL or an installed SQLite tool. This does not introduce a general SQL store for case/query state. See [GPU execution evidence](GPU_EXECUTION_EVIDENCE.md).
 
 Input inspection, separate manual collection kit and explicit bounded installed-tool
 conversion are documented in [Input assistance](INPUT_ASSISTANCE.md). Offline

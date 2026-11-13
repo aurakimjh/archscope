@@ -1,6 +1,6 @@
 # 수동 DB·소켓 스냅샷
 
-T-645의 첫 검증 배치는 PostgreSQL16.14 `pg_stat_database`와 Linux7.0.14-linuxkit의
+DB/OS 스냅샷의 첫 검증 배치는 PostgreSQL16.14 `pg_stat_database`와 Linux7.0.14-linuxkit의
 iproute2-6.1.0 `ss -s`입니다. 기존 MetricHistory1.0.0, `metrics.history-json`,
 `metrics_timeseries`0.2.0 경로를 재사용합니다. 다른 DB·커널·APM·프로파일·serving
 어댑터를 일괄 지원하지 않습니다. 가져오기 중 DB 접속·SQL·도구 실행·수집을 하지 않습니다.
@@ -86,3 +86,5 @@ React/CLI DTO와 mock IPC의 범위이며 native WebView·Windows 실행 증거�
 새 PostgreSQL 가져오기는 normalizer1.3.0을 사용합니다. unknown→known 첫 전이는 알려진 현재 시작을 유지하고 `epoch_transition_from_unknown`으로 표시하며 delta/rate는 null입니다. 이전 unknown 연속성을 가정하지 않고 다음 같은 epoch 관측부터 파생합니다. 알려진→알려진 reset의 post-reset 파생은 유지합니다. 저장된 1.0/1.1/1.2는 원래 상태/계산을 보존하며 명시적 merge는 최신 입력 normalizer를 선택합니다.
 
 입력 검증은 `numbackends≥1`(수집 backend 포함), 알려진 `stats_reset`의 비감소를 요구합니다. 중간 unknown 이후에도 이전 알려진 reset보다 역행하면 `POSTGRES_CAPTURE_RESET_BACKWARDS`로 거절합니다. zero backend는 `POSTGRES_CAPTURE_BACKENDS`이며 시각/값을 자동 보정하지 않습니다.
+
+검증된 버전이 기본값입니다. 다른 버전의 명시적 구조 검증 선택, 실제/미상 버전 보존과 제한은 [미검증 버전 정책](INPUT_ASSISTANCE.md#미검증-생산자-버전의-명시적-선택)을 참조하세요.

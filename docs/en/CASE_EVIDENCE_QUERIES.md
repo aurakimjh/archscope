@@ -1,12 +1,12 @@
 # Case evidence queries and reusable baselines
 
-T-635 adds query contract 1.0.0 without changing the AnalysisResult envelope,
+The query service adds query contract 1.0.0 without changing the AnalysisResult envelope,
 existing profile payload semantics, case schema or saved bytes. New selections
 become explicit new results; baseline pins never follow a newer result implicitly.
 
 ## Desktop workflow
 
-1. Import an original profile through the T-634 source panel. Add it to Workspace.
+1. Import an original profile through the the original-profile importer source panel. Add it to Workspace.
 2. Open **Canonical profile drilldown and evidence**. Select profiles/metric and
    ordered conjunctive frame-ID filters. Query top frames, tree/flamegraph,
    callers, callees or observations. Click an evidence path to focus it. **Add
@@ -111,7 +111,7 @@ process lifetime. Comparison `identity_basis` stays `declared`.
 
 Compare request: `{case_id,revision,baseline_id,target_result_id,target_source_id,
 mapping?,context_mapping?,limit?,cursor?}`. Rows are paged (default 50, max 200,
-1 MiB response), with exact delta/share/percentage semantics. Canonical T-634
+1 MiB response), with exact delta/share/percentage semantics. Canonical the original-profile importer
 producer/format/version/metric policies govern incidental changes and disclose
 both original options. Old generic scalar comparison deliberately remains strict;
 the new canonical/baseline UI is the qualified policy consumer.
@@ -133,7 +133,9 @@ but supplies no verification authority: current originals must replay successful
 again. Native Windows/UI acceptance and independent review are separate from
 local backend/state/build/cross-build evidence.
 
-## R12 query refinements
+<a id="r12-query-refinements"></a>
+
+## query refinements
 
 Top queries accept `sort: "self" | "inclusive"`, bound into the query hash and
 cursor. Desktop Top defaults to self; omitted API sort preserves inclusive

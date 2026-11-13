@@ -1,6 +1,6 @@
 # Offline GPU and inference serving evidence
 
-T-639/T-641 add `inference_serving` 0.3.0 over the neutral InferenceEvidence 1.1.0
+Inference evidence supports `inference_serving` 0.3.0 over the neutral InferenceEvidence 1.1.0
 contract. The common AnalysisResult envelope and existing MetricHistory readers,
 case persistence, generic providers and visual exports are reused. Source metrics
 are retained **once** in `inference_core.metrics`; signals refer to series IDs,
@@ -12,7 +12,7 @@ metric history without an inferred alias or a synthetic zero.
 | Input | Implemented contract / evidence |
 |---|---|
 | NVIDIA query CSV | Explicit `nvidia-smi.query-csv.v1`, `csv,noheader,nounits`, exact fields below, declared producer version and host/boot. The bundled 535.104.05-layout data is synthetic. No NVIDIA tool, GPU, driver or native collection was executed; this validates this layout, not all outputs of that driver. XML, pmon/dmon and vendor error-log grammars are not registered. |
-| Canonical MetricHistory + bindings | Existing T-638 source normalization first; supply an explicit manifest with entity/signal/context/link/runtime observations and no `metrics` member. Original metrics and raw identities remain unchanged. DCGM/serving metrics can be bound explicitly when their physical definitions are known; names never activate automatic aliases. |
+| Canonical MetricHistory + bindings | Existing Metric History source normalization first; supply an explicit manifest with entity/signal/context/link/runtime observations and no `metrics` member. Original metrics and raw identities remain unchanged. DCGM/serving metrics can be bound explicitly when their physical definitions are known; names never activate automatic aliases. |
 | Canonical InferenceEvidence | Registered limited importer `inference.evidence-json`, alias `inference-evidence`, `{}` options. Strict bounded model validation. |
 | vLLM example | Synthetic queue/running/cache/token/latency metrics with explicit scope, unit, statistical form, model/config and runtime observations. Names illustrate the pinned 0.8.5 documentation. **Q03 remains open:** this is no version-specific vLLM parser/alias qualification or live endpoint integration. |
 
@@ -71,7 +71,7 @@ files before import as well.
 ## Time and numeric rules
 
 Original point values, timestamps, bucket bounds/counts and identities keep their
-exact string representation. Counter intervals/rates reuse T-638's lifetime,
+exact string representation. Counter intervals/rates reuse Metric History's lifetime,
 reset, overlap, missing/flag and gap semantics. A precomputed-rate gauge is not
 rate-differenced again. A histogram interval's delta and rate are **observation
 count** and **observations/second**; physical bucket-unit conversions never scale
@@ -102,7 +102,7 @@ explicit-request formulas. No request distribution is reconstructed from them.
    the parent result hash, signal selection and query cursor.
 4. **Open metric history in Workspace** creates an owned immutable selected
    `metrics_timeseries` 0.2.0 result, preserving every point of that series for
-   predecessor/reset context. Existing T-638 chart, histogram and selection paths
+   predecessor/reset context. Existing Metric History chart, histogram and selection paths
    apply. A canceled late creation releases its lease. Shared scopes are not added.
 5. Generic JSON/CSV/HTML/Report Pack and selected provider-table visual artifacts
    reuse existing consumers. CSV remains summary/availability export; exact detailed
@@ -136,7 +136,9 @@ clipboard/Office and hosted CI evidence remain separate. Evidence receipts:
 Primary definitions: [NVIDIA nvidia-smi](https://docs.nvidia.com/deploy/nvidia-smi/index.html),
 [vLLM 0.8.5 metrics](https://docs.vllm.ai/en/v0.8.5/design/v1/metrics.html).
 
-## R16 input usability and compatibility (2026-11-12)
+<a id="r16-input-usability-and-compatibility-2026-11-12"></a>
+
+## input usability and compatibility (2026-11-12)
 
 New results use inference_serving 0.3.0; readers preserve 0.1.0/0.2.0 projection semantics. InferenceEvidence accepts 1.0.0 and 1.1.0; declared_metadata requires 1.1.0. Existing fixture and old result bytes are unchanged.
 

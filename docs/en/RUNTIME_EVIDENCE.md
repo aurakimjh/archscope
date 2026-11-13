@@ -1,6 +1,6 @@
 # Scoped runtime evidence
 
-T-641 uses the common `AnalysisResult` envelope, `runtime_evidence` payload 0.1.0,
+Runtime evidence uses the common `AnalysisResult` envelope, `runtime_evidence` payload 0.1.0,
 and `runtime_core` model 1.0.0. The limited `runtime.evidence-json` importer accepts
 normalized JSON. The source assistance UI and `runtime` CLI normalize offline files
 first. No collector, arbitrary Python pickle/marshal, heap object graph or online
@@ -113,7 +113,9 @@ identity or frame IDs; unresolved symbols remain visible. Dependency code/licens
 ship offline; no symbol server or runtime download is used.
 
 
-## R18 thread intake and explicit multi-dump context
+<a id="r18-thread-intake-and-explicit-multi-dump-context"></a>
+
+## thread intake and explicit multi-dump context
 
 Actual CPython 3.14.4 faulthandler Thread/Current thread headers with optional
 [name] are recognized and names retained. Unrecognized/empty thread input fails

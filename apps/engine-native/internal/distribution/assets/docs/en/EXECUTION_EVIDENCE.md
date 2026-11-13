@@ -1,6 +1,6 @@
 # Offline execution and comparison evidence
 
-T-642 normalizes benchmark exports and bounded JVM crash text before import.
+Execution evidence normalizes benchmark exports and bounded JVM crash text before import.
 The limited `execution.evidence-json` importer (`execution-evidence`) uses the
 existing `AnalysisResult` with `execution_evidence` 0.1.0/0.2.0 and `execution_core` 1.0.0/1.1.0. New generic model imports publish 0.2.0, including legacy 1.0.0 cores; saved 0.1.0 projections remain unchanged.
 Its run conditions, statistic populations and crash fields require a domain model;
@@ -139,7 +139,9 @@ Apple/PyTorch/Nsight and additional adapters retain their separate gates.
 
 JTL row counts/errors/elapsed statistics are named samples/sample_errors/sample_latency with all_samples/failed_samples populations. JMeter rows may be transactions or non-HTTP samplers; they are never automatically relabeled HTTP requests. Replace every synthetic option ID/hash/value with actual sanitized collection conditions.
 
-## R19-01: exact large JTL distributions
+<a id="r19-01-exact-large-jtl-distributions"></a>
+
+## Exact large JTL distributions
 
 JTL up to 1,000 rows retains the existing 1.0.0 / 0.1.0 sample projection.
 Larger JTL streams into exact per-label sorted latency→count distributions and
@@ -168,3 +170,5 @@ JTL timing policy epoch-ms-plausibility.1.0.0 is bundled from the shared contrac
 JMeter versions other than 5.6.3 require explicit `allow_unverified_version:true` in source options. Declare the real `producer_version`; an omitted version stays `unknown`. The source retains `qualification:unverified_version` and a limitation: only required columns/value shapes were checked, without producer-version qualification.
 
 Byte limits apply before row limits: both original and decompressed input must fit 64 MiB. The 1,000,000 JTL row ceiling is an independent maximum, not a promised file capacity. The reviewed default-column example (roughly 150 bytes/row) fits about 440k rows: 350k rows/52.8 MiB passed, 450k rows/67.8 MiB refused. Actual capacity depends on column text. Export only needed columns while retaining the full population. Selecting a new time/population changes the evidence; never average/add split-file percentiles to recover full-run percentiles. Byte refusals retain exact acquisition counts or explicit lower bounds and this guidance.
+
+Qualified versions remain the defaults. For explicit structural-only opt-in, actual/unknown version preservation and qualification limits, see [Unverified producer versions](INPUT_ASSISTANCE.md#explicit-unverified-producer-versions).

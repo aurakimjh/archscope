@@ -1,6 +1,6 @@
 # 정확한 메트릭 이력
 
-T-638은 `metrics_timeseries` payload 0.2.0(기존 저장 0.1.0 reader 유지)과 MetricHistory 모델 1.0.0(명시적 normalizer 1.0.0–1.2.0)을
+Metric History는 `metrics_timeseries` payload 0.2.0(기존 저장 0.1.0 reader 유지)과 MetricHistory 모델 1.0.0(명시적 normalizer 1.0.0–1.2.0)을
 추가합니다. 기존 `metrics_snapshot` 가져오기와 저장 reader의 의미는 유지합니다.
 공통 AnalysisResult envelope와 parser/analyzer/exporter 책임 분리도 유지합니다.
 
@@ -96,7 +96,9 @@ Workspace에서 **메트릭 이력**을 열어 원본 확인 → series 명시 �
 화면의 series 식별자는 opaque `identity_json` 문자열로 전달해 큰 숫자 속성이
 JavaScript 표시에서 반올림되지 않게 하며 선택은 backend ID를 사용합니다.
 
-## R13 저장 보완과 남은 한계
+<a id="r13-저장-보완과-남은-한계"></a>
+
+## 상세 조회와 내보내기
 
 0.2.0은 명시적으로 선택한 series와 그 series의 모든 point만 저장합니다. 시간창 밖의
 이전 관측·겹침 문맥은 계산에 필요하므로 유지합니다. 저장 결과의 series 목록도 이 부분집합으로
@@ -112,26 +114,20 @@ CLI normalize/merge와 `history-import`는 compact JSON을 써서 자체 입력 
 Bucket/속성 크기에 따라 한도가 먼저 찰 수 있어 모든 10만 point 입력의 수용을 보장하지 않습니다.
 
 Generic CSV는 현재 summary/availability만 내보내며 **구간 행은 포함하지 않습니다**.
-정확한 구간/bucket은 `history-query` JSON 또는 아래 설명한 R13-06 전용 구간 CSV를 사용하세요.
+정확한 구간/bucket은 `history-query` JSON 또는 아래 설명한 전용 구간 CSV를 사용하세요.
 기존 본문의 CSV/HTML/report-pack 지원은 공통 exporter 사용을 뜻하며 전용 구간 CSV를 뜻하지 않습니다.
 
-독립 CONDITIONAL 리뷰는 P2 저장 문제 해소 후 나머지 P3를 후속 큐로 두고 종결하도록 허용했습니다.
-R13-02는 아래 설명한 프로세스 내부의 검증된 모델·구간 조회 인덱스로 로컬 수정했습니다.
-R13-04는 아래의 안정 코드·JSON 경로·규칙으로 수치/형식 오류를 로컬 수정했으며 exact 범위 밖 값은 계속 파일 전체를 거부합니다.
-R13-03/05/06은 아래 설명한 버전별 gap·동일 관측 판정·전용 CSV로 로컬 수정했습니다.
-R13-07은 아래 설명한 검색·페이지·선택 크기 안내로 로컬 수정했습니다. R13-01–R13-07은 로컬 수정했으며 원래 독립 판정 CONDITIONAL을 유지합니다. 실제 사용자 export와 native WebView/Windows 검증은 별도입니다.
-
-R14-07 정정: 0.2.0 generic 상세/HTML/Report Pack 표는 point ID·status와 time/clock/reference
-투영만 담으며 메트릭 이름·단위·값·delta·rate 행은 담지 않습니다. 정확한 값/bucket은 전용
-history query/탐색기로 제공합니다. 더 풍부한 generic export는 R13-06과 함께 후속 처리합니다.
+저장된 0.2.0 표는 point ID/status와 time/clock/reference 최소 투영을 유지합니다. 컴파일된 metrics:intervals provider는 정확한 값/delta/rate를 페이지로 제공하고, HTML·Report Pack은 정규 JSON을 바꾸지 않는 표시용 투영을 추가합니다. 전용 구간 CSV는 선택한 구간을 내보냅니다. 표시 byte 한도는 독립 내보내기를 거부하거나 Report Pack의 해당 표시를 이용 불가로 기록할 수 있습니다.
 
 Apple Silicon / Ollama 수동 캡처 어댑터: [APPLE_SILICON_EVIDENCE.md](APPLE_SILICON_EVIDENCE.md).
 
 
-T-645의 실제 DB·OS 첫 검증 배치: [수동 DB·소켓 스냅샷](SYSTEM_DB_SNAPSHOTS.md). 기존 MetricHistory·정확한 epoch/gauge·공통 소비자를 재사용하며 다른 어댑터는 실제 입력 검증 전까지 보류합니다.
+DB/OS 스냅샷의 실제 DB·OS 첫 검증 배치: [수동 DB·소켓 스냅샷](SYSTEM_DB_SNAPSHOTS.md). 기존 MetricHistory·정확한 epoch/gauge·공통 소비자를 재사용하며 다른 어댑터는 실제 입력 검증 전까지 보류합니다.
 
 
-## R13-02 검증된 반복 조회 인덱스
+<a id="r13-02-검증된-반복-조회-인덱스"></a>
+
+## 검증된 반복 조회 인덱스
 
 데스크톱 메트릭 목록·상세 요청은 결과 owner를 유지하고, warm hit를 포함해 **매번 저장
 바이트 전체를 다시 읽고 hash를 확인**합니다. 같은 파일 크기·복원된 mtime으로 검증을
@@ -155,15 +151,17 @@ Warm 페이지는 이를 재사용해 선택 시계열의 종료 시각 범위�
 neutral·실제 PostgreSQL/Linux·SDK histogram의 기존/인덱스 페이지 바이트 일치,
 100k point warm 재사용, mtime 복원 변조, owner/cleanup, 만료·바이트 퇴출, 동시 반환값
 격리·취소·legacy 저장 바이트 보존을 회귀로 확인합니다. 백엔드 검증이며 native WebView/
-Windows·일반적인 latency/RSS 수용을 뜻하지 않습니다. R13-04의 진단 개선은 아래에 설명합니다.
+Windows·일반적인 latency/RSS 수용을 뜻하지 않습니다. 의 진단 개선은 아래에 설명합니다.
 
 새 원본 가져오기는 normalizer 1.2.0입니다. 같은 종료 시각의 전체 관측 내용(start·flags·histogram·exemplars 포함)이 모두 같으면 `duplicate_observation`, 하나라도 다르면 전체 묶음이 `conflicting_timestamp`입니다. 모든 export와 ref를 보존하며 해당 묶음과 다음 cumulative 관측의 rate를 만들거나 임의 writer를 선택하지 않습니다. 겹치는 delta 묶음도 동일/충돌 상태를 유지하고 파생 계산을 억제합니다. 저장된 1.0.0/1.1.0 결과는 종전 동일 시각 판정을 유지합니다.
 
-R13-06 구간 CSV 1.0.0: **구간 CSV 내보내기** 또는 `metrics history-csv --in saved-result.json --out intervals.csv`로 저장된 선택의 모든 페이지를 내보냅니다. `--selection`으로만 선택을 변경합니다. 정확한 숫자 문자열·분수 rate·관측/파생 histogram JSON·상태·gap·원본 좌표·시계열 식별자·참조 원본 출처를 보존합니다. 종료 시각 [from,to)로 구간 전체를 선택하고 창 밖 선행 문맥도 유지합니다. 없는 scalar는 빈 셀, 없는 histogram은 JSON `null`입니다. name/unit 자유 텍스트의 수식 접두사는 작은따옴표로 이스케이프하며, 스프레드시트에서는 숫자 열을 텍스트로 가져와야 정밀도를 보존합니다. 64 MiB 초과는 전체 거부하며 자르거나 기존/관리 파일을 덮어쓰지 않습니다. 일반 요약 CSV 동작은 그대로입니다.
+구간 CSV 1.0.0: **구간 CSV 내보내기** 또는 `metrics history-csv --in saved-result.json --out intervals.csv`로 저장된 선택의 모든 페이지를 내보냅니다. `--selection`으로만 선택을 변경합니다. 정확한 숫자 문자열·분수 rate·관측/파생 histogram JSON·상태·gap·원본 좌표·시계열 식별자·참조 원본 출처를 보존합니다. 종료 시각 [from,to)로 구간 전체를 선택하고 창 밖 선행 문맥도 유지합니다. 없는 scalar는 빈 셀, 없는 histogram은 JSON `null`입니다. name/unit 자유 텍스트의 수식 접두사는 작은따옴표로 이스케이프하며, 스프레드시트에서는 숫자 열을 텍스트로 가져와야 정밀도를 보존합니다. 64 MiB 초과는 전체 거부하며 자르거나 기존/관리 파일을 덮어쓰지 않습니다. 일반 요약 CSV 동작은 그대로입니다.
 
-R13-07: 원본 선택과 저장 결과 탐색 모두 이름·단위·종류 및 정확한 resource/scope/속성 JSON을 검색하고 페이지당 최대 50개를 렌더링합니다. 검색 결과 전체 선택/해제는 모든 일치 페이지에 적용하며 필터 밖 선택은 보존합니다. 전체·검색·선택·숨은 선택 수와 별도 전체 해제를 제공합니다. 원본/path/options 변경과 취소된 검사는 오래된 선택을 남기지 않습니다. 선택 JSON의 UTF-8 크기가 60 KiB를 넘으면 저장·조회·새 결과·CSV 요청 전에 선택을 줄이도록 안내합니다(64 KiB 조회 envelope 여유 확보). 목록 한도는 1만 개이며 페이지 처리가 저장/결과 한도를 늘리지는 않습니다.
+원본 선택과 저장 결과 탐색 모두 이름·단위·종류 및 정확한 resource/scope/속성 JSON을 검색하고 페이지당 최대 50개를 렌더링합니다. 검색 결과 전체 선택/해제는 모든 일치 페이지에 적용하며 필터 밖 선택은 보존합니다. 전체·검색·선택·숨은 선택 수와 별도 전체 해제를 제공합니다. 원본/path/options 변경과 취소된 검사는 오래된 선택을 남기지 않습니다. 선택 JSON의 UTF-8 크기가 60 KiB를 넘으면 저장·조회·새 결과·CSV 요청 전에 선택을 줄이도록 안내합니다(64 KiB 조회 envelope 여유 확보). 목록 한도는 1만 개이며 페이지 처리가 저장/결과 한도를 늘리지는 않습니다.
 
-## 원본 오류 진단 (R13-04)
+<a id="원본-오류-진단-r13-04"></a>
+
+## 원본 오류 진단
 
 원본 OTLP·snapshot·range의 숫자/JSON 타입 오류는 `SourceError`의 `Code`, `Path`, `Rule`, decoder가 제공하는 1부터 시작하는 decoded JSON byte `Offset`(없으면 0)을 반환합니다. 표시 문구는 최대 512 byte이고 입력값·파일명·Go 타입·`strconv` 원문을 포함하지 않습니다.
 
@@ -177,4 +175,4 @@ METRIC_INTEGER_RANGE: path=/resourceMetrics/0/scopeMetrics/0/metrics/0/sum/dataP
 
 오류 시 파일 전체를 거부하고 부분 모델이나 정규화/결과 파일을 게시하지 않습니다. `1e-200`·지수308 같은 유한 값도 기존 exact 한도대로 거부하며 반올림·누락·새 관측 상태로 바꾸지 않습니다. 성공한 모델/normalizer 버전·point/ref ID·저장0.1.0/0.2.0 reader·공통 AnalysisResult는 그대로입니다. Apple/DB/Linux 전용 어댑터의 의미 오류 계약은 유지하며 JSON 타입 오류에는 공통 안전 decoder를 적용합니다.
 
-R14-07: 컴파일된 공통 상세 provider metrics:intervals가 검증된 메트릭 캐시로 정확한 값/delta/rate/시각/상태/ref 페이지를 제공합니다. HTML에는 관측·파생 bucket JSON을 포함한 일회성 metric_intervals를 추가하고 Report Pack은 원본 SHA에 연결한 별도 표시 자료를 포함합니다. 저장0.2 최소 표·JSON 바이트는 유지합니다. 표시 한도를 넘으면 단독 HTML은 거부하고 Report Pack은 원본 JSON을 보존하면서 표시 불가·한도 사유를 명시합니다. 전체 선택은 전용 구간 CSV를 사용합니다.
+컴파일된 공통 상세 provider metrics:intervals가 검증된 메트릭 캐시로 정확한 값/delta/rate/시각/상태/ref 페이지를 제공합니다. HTML에는 관측·파생 bucket JSON을 포함한 일회성 metric_intervals를 추가하고 Report Pack은 원본 SHA에 연결한 별도 표시 자료를 포함합니다. 저장0.2 최소 표·JSON 바이트는 유지합니다. 표시 한도를 넘으면 단독 HTML은 거부하고 Report Pack은 원본 JSON을 보존하면서 표시 불가·한도 사유를 명시합니다. 전체 선택은 전용 구간 CSV를 사용합니다.

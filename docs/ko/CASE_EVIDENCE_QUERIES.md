@@ -1,12 +1,12 @@
 # 케이스 근거 조회와 재사용 baseline
 
-T-635는 조회 계약 1.0.0을 추가합니다. 공통 AnalysisResult envelope, 기존 profile
+정규 조회는 조회 계약 1.0.0을 추가합니다. 공통 AnalysisResult envelope, 기존 profile
 payload 의미, case schema와 저장 바이트는 유지합니다. 선택 변경은 명시적인 새
 결과로 만들며 baseline은 새 결과를 자동으로 따라가지 않습니다.
 
 ## 화면 사용 순서
 
-1. T-634 원본 패널에서 프로파일을 가져와 Workspace에 추가합니다.
+1. 원본 가져오기 원본 패널에서 프로파일을 가져와 Workspace에 추가합니다.
 2. **공통 프로파일 drilldown과 근거**에서 profile/metric과 순서 있는 frame-ID
    결합 필터를 선택합니다. Top, tree/flamegraph, callers, callees, 관측을
    조회합니다. 근거 경로를 눌러 focus하고 **선택을 새 결과로 추가**하면
@@ -100,7 +100,7 @@ hash와 semantic/incidental 원래 옵션을 포함한 컴파일 정책을 담�
 
 비교 요청은 `{case_id,revision,baseline_id,target_result_id,target_source_id,
 mapping?,context_mapping?,limit?,cursor?}`입니다. 기본 50행·최대 200행·1 MiB로
-페이지를 나누며 정확한 delta/share/percentage 의미를 유지합니다. T-634의
+페이지를 나누며 정확한 delta/share/percentage 의미를 유지합니다. 원본 가져오기의
 producer/format/version/metric 정책이 incidental 차이를 처리하고 양쪽 원래 옵션을
 공개합니다. 기존 일반 scalar 비교는 strict이며 새 canonical/baseline 화면이 검증된
 정책을 소비합니다.
@@ -120,7 +120,9 @@ pin을 보존하되 검증 권한을 부여하지 않으며 현재 원본이 다
 Windows 네이티브/UI 수용 및 독립 리뷰는 로컬 backend/state/build/cross-build 근거와
 구분합니다.
 
-## R12 조회 보완
+<a id="r12-조회-보완"></a>
+
+## 조회 보완
 
 Top query는 `sort: "self" | "inclusive"`를 받고 query hash/cursor에 고정합니다. 화면의
 Top 기본값은 self이며 API에서 생략하면 기존 inclusive 정렬입니다. 검색은 선택 분모를
