@@ -324,3 +324,12 @@ errors were corrected with native before/after evidence. JFR heatmap selection
 retains25/48events; native-memory all-allocation labels use12KB, and JVM SMR2/
 histogram2 remain populated. Windows100%,WebView100%,Korean/System were restored,
 confirmed by scale1.0/equal physical/logical app receipt. T-627 remains REVIEW.
+
+
+Native Word/Excel/PowerPoint16.0.10417.20228 table paste was additionally checked.
+Word's fixed900px table clipped the default portrait text area; clipboard-only
+relative100% width now fits with exact rows/units/provenance. PowerPoint retains
+one11-row table inside the slide. Excel preserves strings and zero formulas,
+but keeps narrow default column widths; manual widening is recorded separately.
+Saved visual PNG/SVG/HTML/TSV/view/spec bytes remain unchanged. Other Office
+versions/SVG insertion and the complete T-627 matrix remain open.

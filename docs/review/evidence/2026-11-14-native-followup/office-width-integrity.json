@@ -1,0 +1,155 @@
+{
+  "office_version": "16.0.10417.20228",
+  "scope": "Native clipboard HTML table paste in Word,Excel,PowerPoint; OS100%; no document width/orientation changes for Word or PowerPoint",
+  "files": {
+    "office-clipboard.xlsx": {
+      "bytes": 10968,
+      "sha256": "a4f0f64da2e1ae2bfca056cdc6e90e37b90da7cc3f178ef7599802ad3b61f1f3",
+      "storage": "ignored local acceptance directory; public parsed receipts and screenshots only"
+    },
+    "office-clipboard-excel-after.xlsx": {
+      "bytes": 10895,
+      "sha256": "8519520807a7d840b294a3547a66fb529914d79c99ec75f134385daea997b13b",
+      "storage": "ignored local acceptance directory; public parsed receipts and screenshots only"
+    },
+    "office-clipboard-word-before.docx": {
+      "bytes": 13599,
+      "sha256": "617e3ef3ff711ec2d1282cb8ba9c775332492b85d325b12d7e7d30197f7591d6",
+      "storage": "ignored local acceptance directory; public parsed receipts and screenshots only"
+    },
+    "office-clipboard-word-after.docx": {
+      "bytes": 13559,
+      "sha256": "2e5c86cc2f1d091f59be47fdd00e41b940bb47a37ad42dfbe40c770d2d3bbdf9",
+      "storage": "ignored local acceptance directory; public parsed receipts and screenshots only"
+    },
+    "office-relative-width.pptx": {
+      "bytes": 38659,
+      "sha256": "c24154f5f596ab150f413d0922557c64f89b2ea34c1eb7c890fa0bee1189c1de",
+      "storage": "ignored local acceptance directory; public parsed receipts and screenshots only"
+    }
+  },
+  "word": {
+    "before": {
+      "table_width_type": "dxa",
+      "table_width": 13500,
+      "grid_width_twip": 13500,
+      "text_area_twip": 9026,
+      "fits_grid": false,
+      "rows": [
+        [
+          "Selected evidence table · rows 1–8 / 8 · per-cell units · denominator not declared by provider"
+        ],
+        [
+          "key",
+          "value"
+        ],
+        [
+          "measurement_kind",
+          "wall_time"
+        ],
+        [
+          "metric_id",
+          "duration"
+        ],
+        [
+          "profile_count",
+          "2"
+        ],
+        [
+          "sample_records",
+          "3"
+        ],
+        [
+          "scale",
+          "1"
+        ],
+        [
+          "total_samples",
+          "— (unavailable)"
+        ],
+        [
+          "total_weight",
+          "0.35 seconds"
+        ],
+        [
+          "unit",
+          "seconds"
+        ],
+        [
+          "Source c8c2d7eb13df011a9604adb1f0b527fba29bf835e9ffa3ea53d8193861042bafView 02c579e4cfe99f4d868a56a8a71b438058c037729dfb5dc3e400f757b713742aProvider/query quality and truncation are retained; plotted areas are approximate, exact labels and tables are authoritative.Declared source identity; no implicit source authentication or clock alignment.; Known-pattern index masking; inspect the artifact before sharing."
+        ]
+      ]
+    },
+    "after": {
+      "table_width_type": "pct",
+      "table_width": 5000,
+      "grid_width_twip": 9010,
+      "text_area_twip": 9026,
+      "fits_grid": true,
+      "rows": [
+        [
+          "Selected evidence table · rows 1–8 / 8 · per-cell units · denominator not declared by provider"
+        ],
+        [
+          "key",
+          "value"
+        ],
+        [
+          "measurement_kind",
+          "wall_time"
+        ],
+        [
+          "metric_id",
+          "duration"
+        ],
+        [
+          "profile_count",
+          "2"
+        ],
+        [
+          "sample_records",
+          "3"
+        ],
+        [
+          "scale",
+          "1"
+        ],
+        [
+          "total_samples",
+          "— (unavailable)"
+        ],
+        [
+          "total_weight",
+          "0.35 seconds"
+        ],
+        [
+          "unit",
+          "seconds"
+        ],
+        [
+          "Source c8c2d7eb13df011a9604adb1f0b527fba29bf835e9ffa3ea53d8193861042bafView 02c579e4cfe99f4d868a56a8a71b438058c037729dfb5dc3e400f757b713742aProvider/query quality and truncation are retained; plotted areas are approximate, exact labels and tables are authoritative.Declared source identity; no implicit source authentication or clock alignment.; Known-pattern index masking; inspect the artifact before sharing."
+        ]
+      ]
+    }
+  },
+  "powerpoint": {
+    "table_count": 1,
+    "rows": 11,
+    "inside_slide": true,
+    "outside_text_shapes": 0
+  },
+  "saved_members": {
+    "artifacts": [
+      "visual-9a26f3288165954cea26c4ae194c5e941815d42d04f122b1cdd338963029c37f",
+      "visual-f9260afbeeb2807da88b54842b4f5b24cfd78f2587e5026d01b687b45afde805"
+    ],
+    "unchanged": {
+      "image-01.png": "edd2ce7dfe31670ee6a47405c8bf9bbf7f7b5ec989455bb0c6a18ab6009b2293",
+      "image-01.svg": "417f4487552ffbbbb8a835dad3319a4edecb787411321cc75a763e6becd10208",
+      "table.html": "e074ae02861528f60ef5312a5cb0c82ecb2635741a1b9259ca1a56f40ef12dde",
+      "table.tsv": "899d26362f31a93f5d176143d8096cb907b347e5d55976bc5ede3b54b752eef0",
+      "view.json": "02c579e4cfe99f4d868a56a8a71b438058c037729dfb5dc3e400f757b713742a",
+      "spec.json": "f0aefb5e2b8ec00bd97f7a89085966e53789fddcb1bf21aae52fa1a7d9fc58a6"
+    }
+  }
+}

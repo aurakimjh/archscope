@@ -1,0 +1,173 @@
+{
+  "cells_identical_across_width_fix": true,
+  "cells": [
+    {
+      "cell": "A1",
+      "type": "s",
+      "value": "Selected evidence table · rows 1–8 / 8 · per-cell units · denominator not declared by provider",
+      "formula": false
+    },
+    {
+      "cell": "B1",
+      "type": null,
+      "value": "",
+      "formula": false
+    },
+    {
+      "cell": "A2",
+      "type": "s",
+      "value": "key",
+      "formula": false
+    },
+    {
+      "cell": "B2",
+      "type": "s",
+      "value": "value",
+      "formula": false
+    },
+    {
+      "cell": "A3",
+      "type": "s",
+      "value": "measurement_kind",
+      "formula": false
+    },
+    {
+      "cell": "B3",
+      "type": "s",
+      "value": "wall_time",
+      "formula": false
+    },
+    {
+      "cell": "A4",
+      "type": "s",
+      "value": "metric_id",
+      "formula": false
+    },
+    {
+      "cell": "B4",
+      "type": "s",
+      "value": "duration",
+      "formula": false
+    },
+    {
+      "cell": "A5",
+      "type": "s",
+      "value": "profile_count",
+      "formula": false
+    },
+    {
+      "cell": "B5",
+      "type": "s",
+      "value": "2",
+      "formula": false
+    },
+    {
+      "cell": "A6",
+      "type": "s",
+      "value": "sample_records",
+      "formula": false
+    },
+    {
+      "cell": "B6",
+      "type": "s",
+      "value": "3",
+      "formula": false
+    },
+    {
+      "cell": "A7",
+      "type": "s",
+      "value": "scale",
+      "formula": false
+    },
+    {
+      "cell": "B7",
+      "type": "s",
+      "value": "1",
+      "formula": false
+    },
+    {
+      "cell": "A8",
+      "type": "s",
+      "value": "total_samples",
+      "formula": false
+    },
+    {
+      "cell": "B8",
+      "type": "s",
+      "value": "— (unavailable)",
+      "formula": false
+    },
+    {
+      "cell": "A9",
+      "type": "s",
+      "value": "total_weight",
+      "formula": false
+    },
+    {
+      "cell": "B9",
+      "type": "s",
+      "value": "0.35 seconds",
+      "formula": false
+    },
+    {
+      "cell": "A10",
+      "type": "s",
+      "value": "unit",
+      "formula": false
+    },
+    {
+      "cell": "B10",
+      "type": "s",
+      "value": "seconds",
+      "formula": false
+    },
+    {
+      "cell": "A11",
+      "type": "s",
+      "value": "Source c8c2d7eb13df011a9604adb1f0b527fba29bf835e9ffa3ea53d8193861042baf",
+      "formula": false
+    },
+    {
+      "cell": "B11",
+      "type": null,
+      "value": "",
+      "formula": false
+    },
+    {
+      "cell": "A12",
+      "type": "s",
+      "value": "View 02c579e4cfe99f4d868a56a8a71b438058c037729dfb5dc3e400f757b713742a",
+      "formula": false
+    },
+    {
+      "cell": "B12",
+      "type": null,
+      "value": "",
+      "formula": false
+    },
+    {
+      "cell": "A13",
+      "type": "s",
+      "value": "Provider/query quality and truncation are retained; plotted areas are approximate, exact labels and tables are authoritative.",
+      "formula": false
+    },
+    {
+      "cell": "B13",
+      "type": null,
+      "value": "",
+      "formula": false
+    },
+    {
+      "cell": "A14",
+      "type": "s",
+      "value": "Declared source identity; no implicit source authentication or clock alignment.; Known-pattern index masking; inspect the artifact before sharing.",
+      "formula": false
+    },
+    {
+      "cell": "B14",
+      "type": null,
+      "value": "",
+      "formula": false
+    }
+  ]
+}

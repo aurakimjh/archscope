@@ -1,0 +1,50 @@
+[
+  {
+    "id": "office-excel-default-paste",
+    "observedAt": "2026-11-13T22:01:38.979Z",
+    "observed": "Actual native HTML paste atA1: eightdata rows,caption and source/view/quality warnings present. Excel retains default narrow column widths,wraps labels; rendered layout not yet formatted. Numeric-looking values display text-format indicators,0.35seconds and unavailable preserved.",
+    "scale": "Windows100%,Office100%",
+    "screenshot": "office-excel-default-paste.jpg",
+    "status": "PASS within recorded scope"
+  },
+  {
+    "id": "office-excel-formatted",
+    "observedAt": "2026-11-13T22:02:01.588Z",
+    "observed": "Same paste after manual widening of columnsA/B only: all8rows,0.35seconds,unavailable,caption and complete source/view/quality warnings readable. Excel splits four provenance divs into four merged rows,14rows total. Default-width limitation remains documented.",
+    "scale": "Windows100%,Office100%",
+    "screenshot": "office-excel-formatted.jpg",
+    "status": "PASS within recorded scope"
+  },
+  {
+    "id": "office-word-width-before",
+    "observedAt": "2026-11-13T22:04:58.144Z",
+    "observed": "FAIL: Actual Word default portrait document paste keeps all8rows/units/provenance, but fixed900px clipboard table extends beyond the page right edge and clips value header. No manual document width formatting applied.",
+    "scale": "Windows100%,Office100%",
+    "screenshot": "office-word-width-before.jpg",
+    "status": "FAIL before fix"
+  },
+  {
+    "id": "office-word-width-after",
+    "observedAt": "2026-11-13T22:09:00.051Z",
+    "observed": "PASS: Actual fresh Word default portrait document paste after relative-width fix fits text area,shows bothkey/value headers and all8data rows,0.35seconds,unavailable,complete source/view/quality warnings. No manual width or orientation changes.",
+    "scale": "Windows100%,Office100%",
+    "screenshot": "office-word-width-after.jpg",
+    "status": "PASS within recorded scope"
+  },
+  {
+    "id": "office-ppt-relative-width",
+    "observedAt": "2026-11-13T22:11:38.374Z",
+    "observed": "PASS: PowerPoint blank slide native paste after relative-width fix remains oneeditable11rowtable,all8data rows,caption andprovenance inside slide;0.35seconds/unavailable preserved,nooutsideprovenance overlay. No manual table resizing.",
+    "scale": "Windows100%,Office100%",
+    "screenshot": "office-ppt-relative-width.jpg",
+    "status": "PASS within recorded scope"
+  },
+  {
+    "id": "office-excel-relative-width",
+    "observedAt": "2026-11-13T22:14:19.549Z",
+    "observed": "PASS for data integrity on final relative-width transport: actual native Excel paste retains8data rows,units/unavailable andallfourprovenance lines,matching earlier paste. Default column widths remain narrow; no automatic width/layout pass claimed.",
+    "scale": "Windows100%,Office100%",
+    "screenshot": "office-excel-relative-width.jpg",
+    "status": "PASS within recorded scope"
+  }
+]

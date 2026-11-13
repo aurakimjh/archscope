@@ -240,3 +240,31 @@ and equal physical/logical bounds, with WebView100%. Same selected histogram
 values survive restoration. Korean/System theme was restored; Settings and the
 owned Control Panel/PowerPoint test windows were closed. Account-bearing Settings
 screenshots were not archived. The independent full acceptance gates remain.
+
+
+## Word/Excel and relative-width Office clipboard follow-up
+
+Actual Word/Excel/PowerPoint16.0.10417.20228 native clipboard table paste was
+observed at Windows100%. Word's default portrait text area exposed a further
+failure: fixed900px transport became13500twip, exceeding9026twip of text area
+and clipping the right column. Clipboard-only HTML now requests100% relative
+width. A fresh Word paste fits without manual document/table formatting: grid
+9010twip, width5000pct (100%), all11rows and exact8data rows/provenance preserved.
+The before FAIL and after PASS remain in office-extra-cases.json/screenshots.
+
+PowerPoint regression paste creates one11-row editable table entirely inside
+its slide, with zero outside text shapes and all metadata below the data.
+Excel before/after native paste preserves every cell value and type, including
+0.35seconds and unavailable total_samples; all populated cells are strings,
+with zero formulas. Excel splits provenance into four merged rows (14rows total).
+It retains default narrow column widths: the separate formatted screenshot uses
+manual column widening, and is not an automatic-layout claim. Final transport
+was also pasted/saved with unmodified default widths and parsed independently.
+
+PNG/SVG/table HTML/TSV/view/spec saved members are byte-identical across this
+transport fix. Native saved Office files remain in the ignored acceptance
+folder; exact hashes, parsed widths/cells/table bounds and screenshots are
+public receipts. No account/recent-file/save-dialog screenshot was archived.
+Visuals/clipboard suites pass amd64 (7.542s/cached) and386 (12.176s/cached), and
+both integrated production builds pass. Remaining Office versions/SVG insertion
+and complete reference/conditional/error/DPI coverage are still unverified.

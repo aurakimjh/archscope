@@ -167,10 +167,11 @@ func TableHTML(view View, spec Spec) string {
 
 // ClipboardTableHTML keeps every element inside one table. PowerPoint imports
 // following paragraphs as independent shapes overlapping the table caption.
+// Relative width lets Word fit the table to its document text area.
 // Saved artifact HTML remains unchanged; this is an Office clipboard transport.
 func ClipboardTableHTML(view View, spec Spec) string {
 	var b strings.Builder
-	b.WriteString(`<table style="border-collapse:collapse;table-layout:fixed;width:900px;font-family:'Noto Sans KR','Malgun Gothic',Arial,sans-serif;font-size:11pt"><tbody>`)
+	b.WriteString(`<table width="100%" style="border-collapse:collapse;table-layout:fixed;width:100%;font-family:'Noto Sans KR','Malgun Gothic',Arial,sans-serif;font-size:11pt"><tbody>`)
 	metadataRow := func(lines []string) {
 		fmt.Fprintf(&b, `<tr><td colspan="%d" style="border:1px solid #aaa;padding:5px;white-space:normal;word-break:break-all;mso-number-format:'\@'"><span style="font-size:8pt">`, max(1, len(view.Columns)))
 		for i, line := range lines {
