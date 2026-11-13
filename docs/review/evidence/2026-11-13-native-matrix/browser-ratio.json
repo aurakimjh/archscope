@@ -1,0 +1,14 @@
+{
+  "task": "T-627",
+  "scope": "Browser CPU top-child frame ratio",
+  "input": "shared sanitized browser-profile-fixtures/valid/v8-basic.cpuprofile",
+  "before": "10000.00%",
+  "after": "100.00%",
+  "basis": "19000/19000 weighted microseconds; shared profiler top-child ratio already percent. This is not19000 individual samples.",
+  "validation": [
+    "frontend state tests and production build",
+    "native rebuilt Wails/WebView2 screenshot and accessibility",
+    "go test ./internal/analyzers/profile ./internal/parsers/profile -count=1"
+  ],
+  "overallTask": "REVIEW"
+}

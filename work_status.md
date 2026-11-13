@@ -5164,3 +5164,7 @@ Populated native Windows summary reproduced10000.00% for10000/10000 samples. The
 ### 2026-11-13 - T-627 native GC event table containment
 
 Populated Windows GC events exposed page-level horizontal overflow from an implicit grid minimum. Constrained the grid track/cards so each wide table scrolls internally. Rebuilt native1280x1000 and1024x768 observations show contained cards and accessible alert evidence action; passive measurement reports no main/outer horizontal overflow. Frontend state/build pass. Receipt: docs/review/evidence/2026-11-13-native-matrix/gc-overflow.json. T-627 stays REVIEW.
+
+### 2026-11-13 - T-627 native browser CPU percentage correction
+
+The actual V8 native page also multiplied the shared profiler top-child percent twice. Removed the extra factor; rebuilt native19000/19000 weighted microseconds now shows100.00%, previously10000.00%. Frontend state/build and profile analyzer/parser tests pass. Weighted duration is not an individual sample-count claim; other UI semantics remain separately qualified. Receipt: docs/review/evidence/2026-11-13-native-matrix/browser-ratio.json.

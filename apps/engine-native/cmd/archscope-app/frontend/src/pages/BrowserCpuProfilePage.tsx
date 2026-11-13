@@ -211,7 +211,7 @@ export function BrowserCpuProfilePage(): React.JSX.Element {
                       {formatNumber(Number(row.samples ?? 0))}
                     </td>
                     <td className="p-2 text-right tabular-nums">
-                      {(Number(row.ratio ?? 0) * 100).toFixed(2)}%
+                      {Number(row.ratio ?? 0).toFixed(2)}%
                     </td>
                   </tr>
                 ))}
