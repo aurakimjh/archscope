@@ -60,7 +60,7 @@ func durableReplace(path string, data []byte) error {
 	if e != nil {
 		return e
 	}
-	return os.Rename(name, path)
+	return renameCaptureFile(name, path)
 }
 func (s *Store) rollingRowsLocked() ([]rollingRecord, error) {
 	entries, e := os.ReadDir(filepath.Join(s.dir, rollingDirectory))

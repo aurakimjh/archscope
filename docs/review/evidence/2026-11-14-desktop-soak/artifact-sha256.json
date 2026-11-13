@@ -1,0 +1,7 @@
+{
+  "386-before-lock-fix-inspection.json": "55abd2200cca0653f38dbd42a30cc62c646a121c42d36114948b37bd5bc4f52e",
+  "386-before-lock-fix.json": "281b4750b5fe8f498bf6bc37d3cbddc451803c097395cf89c40835638c1a7f20",
+  "manifest-lock-before.log": "628efa3d5ffa3eee715e588015aa752d15b34f099296c264e5e19cdcc71d6800",
+  "manifest-lock-tests-386.log": "159b71a73a0632a622788a4d219bf1335704169cd1ec32f458c4f91df84f2569",
+  "manifest-lock-tests-amd64.log": "28c61699c8778b851b9322ca33c37e34284e0854cf865cecdd0c8d2cebde8444"
+}

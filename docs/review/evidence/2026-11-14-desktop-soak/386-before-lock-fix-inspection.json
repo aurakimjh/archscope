@@ -1,0 +1,36 @@
+{
+  "stats": {
+    "retentionRows": 128,
+    "retained": 128,
+    "evicted": 757,
+    "generation": 9,
+    "state": "recoverable",
+    "observed": 886,
+    "captured": 886,
+    "persisted": 885,
+    "bodyOmitted": 0,
+    "eventSkipped": 0,
+    "kernelDropped": 0,
+    "parseFailed": 0,
+    "unsupported": 0,
+    "passthrough": 0,
+    "unattributed": 0,
+    "dropped": 0,
+    "backpressured": false,
+    "snapshotVersion": 19522,
+    "sequence": 19522,
+    "storeBytes": 242700
+  },
+  "rows": 128,
+  "states": {
+    "complete": 128
+  },
+  "statuses": {
+    "200": 128
+  },
+  "failed": [],
+  "sequenceRange": [
+    19385,
+    19512
+  ]
+}

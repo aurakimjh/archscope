@@ -882,7 +882,7 @@ func (s *Store) writeManifestLocked() error {
 	if err := os.WriteFile(tmp, append(data, '\n'), 0o600); err != nil {
 		return err
 	}
-	return os.Rename(tmp, filepath.Join(s.dir, manifestFile))
+	return renameCaptureFile(tmp, filepath.Join(s.dir, manifestFile))
 }
 
 func appendFindingOnce(items []Finding, next Finding) []Finding {

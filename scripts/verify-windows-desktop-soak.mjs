@@ -156,6 +156,14 @@ try {
       const { sessionId: _privateID, ...counters } = await control('stats', { sessionId: session.sessionId });
       report.failureStats = counters;
     } catch { report.failureStatsUnavailable = true; }
+    try {
+      const status = await control('status');
+      const first = await control('events', { after: 0, limit: 1 });
+      const tail = await control('events', { after: Math.max(0, first.latest - 100), limit: 100 });
+      report.failureSessionState = status.state;
+      report.failureCaptureErrorEvents = tail.items.filter(item => item.kind === 'error').length;
+      await writeFile(path.join(out, '.private-failure-context.json'), JSON.stringify({ status, tail }, null, 2), { mode: 0o600 });
+    } catch { report.failureContextUnavailable = true; }
   }
   try {
     const response = await fetch(new URL('soak?diagnostic=direct', origin), { signal: AbortSignal.timeout(10000) });
