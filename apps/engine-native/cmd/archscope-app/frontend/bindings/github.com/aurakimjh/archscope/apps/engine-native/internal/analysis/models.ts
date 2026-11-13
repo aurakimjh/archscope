@@ -285,6 +285,7 @@ export class ResultCapabilities {
     "type": string;
     "sources": resultcontract$0.Cell[];
     "sources_truncated": boolean;
+    "panel"?: resultcontract$0.Panel | null;
     "version": string;
     "compatibility": resultcontract$0.Verdict;
     "identity_basis": string;
@@ -335,17 +336,21 @@ export class ResultCapabilities {
      */
     static createFrom($$source: any = {}): ResultCapabilities {
         const $$createField4_0 = $$createType14;
-        const $$createField7_0 = $$createType16;
-        const $$createField9_0 = $$createType18;
+        const $$createField6_0 = $$createType17;
+        const $$createField8_0 = $$createType18;
+        const $$createField10_0 = $$createType20;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("sources" in $$parsedSource) {
             $$parsedSource["sources"] = $$createField4_0($$parsedSource["sources"]);
         }
+        if ("panel" in $$parsedSource) {
+            $$parsedSource["panel"] = $$createField6_0($$parsedSource["panel"]);
+        }
         if ("compatibility" in $$parsedSource) {
-            $$parsedSource["compatibility"] = $$createField7_0($$parsedSource["compatibility"]);
+            $$parsedSource["compatibility"] = $$createField8_0($$parsedSource["compatibility"]);
         }
         if ("providers" in $$parsedSource) {
-            $$parsedSource["providers"] = $$createField9_0($$parsedSource["providers"]);
+            $$parsedSource["providers"] = $$createField10_0($$parsedSource["providers"]);
         }
         return new ResultCapabilities($$parsedSource as Partial<ResultCapabilities>);
     }
@@ -408,7 +413,7 @@ export class ResultView {
      * Creates a new ResultView instance from a string or object.
      */
     static createFrom($$source: any = {}): ResultView {
-        const $$createField4_0 = $$createType16;
+        const $$createField4_0 = $$createType18;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("compatibility" in $$parsedSource) {
             $$parsedSource["compatibility"] = $$createField4_0($$parsedSource["compatibility"]);
@@ -434,6 +439,8 @@ const $$createType12 = $Create.Array($Create.Any);
 const $$createType13 = resultcontract$0.Cell.createFrom;
 const $$createType14 = $Create.Array($$createType13);
 const $$createType15 = $Create.Array($$createType14);
-const $$createType16 = resultcontract$0.Verdict.createFrom;
-const $$createType17 = resultcontract$0.Capability.createFrom;
-const $$createType18 = $Create.Array($$createType17);
+const $$createType16 = resultcontract$0.Panel.createFrom;
+const $$createType17 = $Create.Nullable($$createType16);
+const $$createType18 = resultcontract$0.Verdict.createFrom;
+const $$createType19 = resultcontract$0.Capability.createFrom;
+const $$createType20 = $Create.Array($$createType19);

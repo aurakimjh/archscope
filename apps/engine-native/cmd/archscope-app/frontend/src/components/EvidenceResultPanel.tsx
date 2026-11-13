@@ -1,3 +1,4 @@
+import { resultPanelID, type ResultPanelID } from "@/state/resultPanels";
 import { GPUExecutionSourceAssistance, GPUExecutionActions } from "@/components/GPUExecutionEvidence";
 import {ExecutionSourceAssistance,ExecutionEvidenceActions} from "@/components/ExecutionEvidence";
 import {RuntimeSourceAssistance,RuntimeEvidenceActions} from "@/components/RuntimeEvidence";
@@ -208,14 +209,23 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
       <div className="flex flex-wrap items-center gap-2"><strong>{safeDisplayText(caps.type)}</strong><Button size="sm" variant="outline" disabled={busy} onClick={() => void addToWorkspace()}>{words("Add to Workspace", "Workspace에 추가")}</Button>
         <Button size="sm" variant="outline" disabled={busy} onClick={() => void (async () => { try { const destination = await Dialogs.SaveFile({ Title: words("Save exact result", "원본 정밀도 결과 저장"), Filename: "evidence.json" }); if (destination) await bridge.exportEvidenceResult(caps.handle, destination, "raw-json"); } catch (error) { setProblem(resultProblem(error)); } })()}>{words("Save result JSON", "결과 JSON 저장")}</Button>
       </div>
-      {caps.type==="system_evidence"&&["0.1.0","0.2.0"].includes(caps.payload_version??"")&&<SystemEvidenceActions handle={caps.handle} caseRef={active?.saved_case} histogramView={provider==="system:histograms"} eventIDs={[...new Set(page?.rows.flatMap(row=>page.columns.flatMap((name,i)=>["event_id","start_ref","end_ref"].includes(name)&&row[i].text?[row[i].text]:[]))??[])]}/>}
-      {caps.type === "execution_evidence" && ["0.1.0","0.2.0"].includes(caps.payload_version??"") && <ExecutionEvidenceActions handle={caps.handle} candidates={entries.flatMap(entry=>entry.result_type==="execution_evidence"&&entry.backend_result_handle?[entry.backend_result_handle]:[])} />}
-      {caps.type === "runtime_evidence" && caps.payload_version === "0.1.0" && <RuntimeEvidenceActions handle={caps.handle} />}
-      {caps.type === "trace_import" && caps.payload_version === "0.4.0" && <GPUExecutionActions handle={caps.handle} />}
-      {caps.type === "trace_import" && caps.payload_version === "0.3.0" && <LLMTraceEvidenceActions handle={caps.handle} />}
-      {caps.type === "inference_serving" && ["0.1.0","0.2.0","0.3.0"].includes(caps.payload_version??"") && <InferenceEvidenceActions handle={caps.handle} />}
-      {caps.type === "metrics_timeseries" && ["0.1.0", "0.2.0"].includes(caps.payload_version ?? "") && <MetricHistoryExplorer handle={caps.handle} />}
-      {caps.type === "profile_evidence" && ["0.2.0", "0.3.0", "0.4.0"].includes(caps.payload_version ?? "") && <ProfileEvidenceExplorer handle={caps.handle} caseRef={active?.saved_case} />}
+      {(() => {
+        const panelID = resultPanelID(caps);
+        if (!panelID) return caps.panel ? <p role="status">{words("Detailed actions are unavailable for this result. Use the generic views and exports.", "이 결과의 상세 기능은 호환되지 않습니다. 기본 보기와 내보내기를 이용하세요.")}</p> : null;
+        // Exhaustive renderer keys: adding a panel protocol requires an explicit
+        // component here, while new backend payload versions reuse its contract.
+        const panels: Record<ResultPanelID, React.JSX.Element> = {
+          system: <SystemEvidenceActions handle={caps.handle} caseRef={active?.saved_case} histogramView={provider === "system:histograms"} eventIDs={[...new Set(page?.rows.flatMap(row => page.columns.flatMap((name,i) => ["event_id","start_ref","end_ref"].includes(name) && row[i].text ? [row[i].text] : [])) ?? [])]} />,
+          execution: <ExecutionEvidenceActions handle={caps.handle} candidates={entries.flatMap(entry => entry.result_type === "execution_evidence" && entry.backend_result_handle ? [entry.backend_result_handle] : [])} />,
+          runtime: <RuntimeEvidenceActions handle={caps.handle} />,
+          gpu_execution: <GPUExecutionActions handle={caps.handle} />,
+          llm_trace: <LLMTraceEvidenceActions handle={caps.handle} />,
+          inference: <InferenceEvidenceActions handle={caps.handle} />,
+          metric_history: <MetricHistoryExplorer handle={caps.handle} />,
+          profile: <ProfileEvidenceExplorer handle={caps.handle} caseRef={active?.saved_case} />,
+        };
+        return panels[panelID];
+      })()}
       <p className="text-xs">{words("Declared identity; original sources have not been verified by reimport.", "선언된 식별 정보이며 원본 재가져오기로 검증한 상태가 아닙니다.")}</p>
       {!caps.compatibility.allowed && <p role="status">{words("Read-only fallback", "읽기 전용 기본 표시")}: {safeDisplayText(caps.compatibility.reason || "")}</p>}
       <details><summary>{words("Sources and revision", "출처 및 리비전")}</summary><code className="break-all text-xs">{caps.result_sha256}</code>{caps.sources.map((s, i) => <p className="break-words text-xs" key={i}><bdi>{s.text}</bdi>{s.escaped && <small> {words("Controls shown", "제어문자 표시")}</small>}</p>)}{caps.sources_truncated && <p>{words("Source labels limited.", "출처 표시가 제한되었습니다.")}</p>}</details>
@@ -228,7 +238,7 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
         <select aria-label={words("Comparison target", "비교 대상")} className="max-w-full rounded border border-border bg-background p-2" value={target} onChange={e => { query.current.cancel(); setBusy(false); setComparison(null); setTarget(e.target.value); }}><option value="">{words("Choose target", "대상 선택")}</option>{entries.filter(e => e.backend_result_handle).map(e => { const status = eligibleTargets[e.backend_result_handle!]; return <option value={e.backend_result_handle} key={e.id} disabled={!status?.allowed}>{safeDisplayText(e.title)}{!status?.allowed ? ` (${status?.reason || words("Checking", "확인 중")})` : ""}</option>; })}</select>
         <Button disabled={busy || !target || !eligibleTargets[target]?.allowed || !providerUsable(selected)} onClick={() => void compare()}>{words("Compare", "비교")}</Button>
       </div>}
-      {comparison?.allowed && caps.type === "profile_evidence" && target && <VisualArtifactActions handle={caps.handle} target={target} title={words("Profile difference of saved selections", "저장 선택의 프로파일 차이")} query={{ kind: "profile_diff", offset: 0, limit: 25 }} />}
+      {comparison?.allowed && resultPanelID(caps) === "profile" && target && <VisualArtifactActions handle={caps.handle} target={target} title={words("Profile difference of saved selections", "저장 선택의 프로파일 차이")} query={{ kind: "profile_diff", offset: 0, limit: 25 }} />}
       {comparison && <div role="status">{comparison.allowed ? <><p>Δ {comparison.delta?.value ?? "—"} · {comparison.delta?.percent ?? "—"}%</p><p className="text-xs break-all">{comparison.delta?.comparison?.baseline.result_sha256} → {comparison.delta?.comparison?.target.result_sha256}</p></> : <p>{words("Comparison refused", "비교 불가")}: {comparison.code || comparison.reason}</p>}{comparison.code && <p>{comparison.code}</p>}</div>}
       {page && <>
         <VisualArtifactActions handle={caps.handle} availableColumns={page.columns} title={words("Selected evidence table", "선택한 근거 표")} query={{ kind: "provider_table", provider, offset: page.offset, limit: 25, columns: page.columns.slice(0, 8) }} />

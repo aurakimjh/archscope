@@ -2380,3 +2380,14 @@ T-644: trace.gpu-execution-json / trace_import0.4.0 / gpu_execution_core1.0.0은
 
 
 T-645의 실제 DB·OS 첫 검증 배치: [수동 DB·소켓 스냅샷](SYSTEM_DB_SNAPSHOTS.md). 기존 MetricHistory·정확한 epoch/gauge·공통 소비자를 재사용하며 다른 어댑터는 실제 입력 검증 전까지 보류합니다.
+
+## 백엔드 소유 결과 패널 capability
+
+검증된 결과 descriptor는 제한된 capability DTO에 선택적 `panel`을 제공합니다.
+패널 ID·패널 프로토콜 버전·지원 동작 token으로 구성되며 결과 버전의 자격은
+descriptor의 payload 범위가 결정합니다. 렌더러는 패널 프로토콜을 구현하며
+별도의 결과 payload 버전 목록을 관리하지 않습니다. 알 수 없거나 잘못된 결과,
+미지원 패널 프로토콜에는 기본 보기만 제공하고 특화 동작을 활성화하지 않습니다.
+가져온 metadata는 패널 권한을 부여하지 못합니다. capability snapshot은 패널과
+동작 목록을 복사하므로 호출자가 registry나 조회 cache를 변경하지 못합니다.
+DTO 확장은 저장 AnalysisResult 바이트·payload 버전·기존 reader를 변경하지 않습니다.

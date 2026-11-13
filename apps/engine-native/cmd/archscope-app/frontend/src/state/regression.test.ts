@@ -1,3 +1,4 @@
+import { resultPanelID, RESULT_PANEL_RENDERERS } from "./resultPanels.js";
 import { checkedProfilerResult, checkedProfilerStages } from "../bridge/profilerContract.js";
 import type { ProfilerMetadata } from "../bridge/types.js";
 import { evidenceScalarText, backendSourceAppendix } from "./evidenceImport.js";
@@ -3462,3 +3463,18 @@ assert(metricChosen.length === 1 && metricChosen[0] === metricChoices[0].id, "fi
 assert(metricSelectionBytes({series_ids: metricChoices.map(value => value.id)}) > metricSelectionByteLimit, "large selection exceeds safe IPC size");
 assert(metricSelectionBytes({series_ids: ["한글"]}) === new TextEncoder().encode('{"series_ids":["한글"]}').length, "budget counts UTF-8 bytes");
 assert(filterMetricSeries(metricIndex, "9007199254740993").length === 10000, "exact identity search never rounds large integers");
+
+// T-649 panel selection depends on compiled backend capabilities, not a second
+// result-type/payload-version inventory. Unknown protocols stay generic.
+
+const panelBase = { handle: "fixture", result_sha256: "a".repeat(64), type: "execution_evidence", payload_version: "0.2.0", version: "1.0.0", compatibility: { allowed: true }, identity_basis: "declared", providers: [], sources: [], sources_truncated: false, truncated: false };
+for (const [id, renderer] of Object.entries(RESULT_PANEL_RENDERERS)) {
+  const panel = { id, version: renderer.version, actions: [renderer.required_action] };
+  assert(resultPanelID({ ...panelBase, panel }) === id, `known renderer ${id}`);
+  assert(resultPanelID({ ...panelBase, payload_version: "future-backend-validated", panel }) === id, "backend owns payload compatibility");
+  assert(resultPanelID({ ...panelBase, panel: { ...panel, version: "9.0.0" } }) === null, "unknown panel protocol");
+  assert(resultPanelID({ ...panelBase, panel: { ...panel, actions: [] } }) === null, "missing required action");
+  assert(resultPanelID({ ...panelBase, compatibility: { allowed: false }, panel }) === null, "invalid result grants no panel");
+}
+assert(resultPanelID(panelBase) === null, "payload name/version alone grants no actions");
+assert(resultPanelID({ ...panelBase, panel: { id: "__proto__", version: "1.0.0", actions: ["details"] } }) === null, "unknown/foreign panel");

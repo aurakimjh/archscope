@@ -1,0 +1,23 @@
+{
+  "task": "T-649",
+  "renderer_contract": {
+    "canonical_payload_variants": 15,
+    "panel_protocols": 8,
+    "source": "compiled descriptor registry and frontend resultPanels.ts inventory"
+  },
+  "checks": {
+    "descriptor_frontend_coverage": "PASS",
+    "descriptor_and_projection_mutation": "PASS",
+    "imported_metadata_no_authority": "PASS",
+    "unknown_protocol_and_missing_action": "PASS",
+    "analyzer_and_catalog_tests": "PASS",
+    "targeted_race": "PASS",
+    "frontend_state": "PASS",
+    "frontend_build": "PASS",
+    "wails_typescript_bindings": "PASS",
+    "go_vet_registry_catalog": "PASS"
+  },
+  "native_webview_windows": "NOT_RUN",
+  "hosted_ci": "NOT_RUN",
+  "independent_review": "NOT_RUN"
+}

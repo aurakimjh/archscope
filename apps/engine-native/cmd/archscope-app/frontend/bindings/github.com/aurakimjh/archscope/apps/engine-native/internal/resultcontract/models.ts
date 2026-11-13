@@ -207,6 +207,43 @@ export class Delta {
 }
 
 /**
+ * Panel is compiled application capability, never authority from stored JSON.
+ * The renderer selects a known panel protocol, independently from payload versions.
+ */
+export class Panel {
+    "id": string;
+    "version": string;
+    "actions": string[];
+
+    /** Creates a new Panel instance. */
+    constructor($$source: Partial<Panel> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "";
+        }
+        if (!("version" in $$source)) {
+            this["version"] = "";
+        }
+        if (!("actions" in $$source)) {
+            this["actions"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Panel instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Panel {
+        const $$createField2_0 = $$createType3;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("actions" in $$parsedSource) {
+            $$parsedSource["actions"] = $$createField2_0($$parsedSource["actions"]);
+        }
+        return new Panel($$parsedSource as Partial<Panel>);
+    }
+}
+
+/**
  * PopulationComparison is additive metadata. Old snapshots retain their exact
  * same-population semantics; they do not acquire a cross-source policy by guess.
  */

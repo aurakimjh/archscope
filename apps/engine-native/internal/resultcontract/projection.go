@@ -82,6 +82,7 @@ func (p *Projection) Type() string           { return p.result.Type }
 func (p *Projection) Weight() int64          { return p.weight }
 func (p *Projection) Capabilities() Capabilities {
 	out := p.capabilities
+	out.Panel = clonePanel(out.Panel)
 	out.Providers = append([]Capability{}, out.Providers...)
 	return out
 }

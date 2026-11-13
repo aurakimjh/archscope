@@ -63,6 +63,7 @@ type ValueSchema struct {
 	RequirePopulation       bool
 }
 type Descriptor struct {
+	Panel                  *Panel `json:"panel,omitempty"`
 	Providers              []Provider
 	ValidatePayload        func(models.AnalysisResult) error `json:"-"`
 	Operations             []string
@@ -88,6 +89,9 @@ const maxValidationCacheEntries = 64
 func New(ds ...Descriptor) (*Registry, error) {
 	r := &Registry{types: map[string][]Descriptor{}}
 	for _, d := range ds {
+		if err := validatePanel(d.Panel); err != nil {
+			return nil, err
+		}
 		if d.Type == "" || !d.Payload.Accepts(d.Payload.Min) || !d.Envelope.Accepts(d.Envelope.Min) {
 			return nil, fmt.Errorf("invalid result descriptor")
 		}

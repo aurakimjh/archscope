@@ -7,6 +7,7 @@ export {
     ComparisonEvidence,
     ComparisonReference,
     Delta,
+    Panel,
     PopulationComparison,
     ScalarView,
     Verdict

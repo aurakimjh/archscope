@@ -44,6 +44,7 @@ type Capability struct {
 	Reason       string `json:"reason,omitempty"`
 }
 type Capabilities struct {
+	Panel         *Panel       `json:"panel,omitempty"`
 	Version       string       `json:"version"`
 	Compatibility Verdict      `json:"compatibility"`
 	IdentityBasis string       `json:"identity_basis"`
@@ -222,6 +223,9 @@ func (r *Registry) Capabilities(ctx context.Context, result models.AnalysisResul
 	// No imported chart grammar or script is executed by a fallback consumer.
 	add(Provider{ID: "generic:charts", Version: "1.0.0", Kind: "chart", Path: "/charts", Schema: "unsupported"}, false, "renderer_not_registered")
 	d, known := r.descriptor(result.Type, result.Metadata.SchemaVersion)
+	if known && out.Compatibility.Allowed {
+		out.Panel = clonePanel(d.Panel)
+	}
 	if known {
 		for _, p := range d.Providers {
 			if e := ctx.Err(); e != nil {

@@ -2312,3 +2312,15 @@ T-644: trace.gpu-execution-json / trace_import0.4.0 / gpu_execution_core1.0.0 pr
 
 
 T-645 bounded actual DB/OS snapshot batch: [Manual database and socket snapshots](SYSTEM_DB_SNAPSHOTS.md). Existing MetricHistory transport, exact epochs/gauges and common consumers; other adapters remain fixture-gated.
+
+## Backend-owned result panel capability
+
+A validated result descriptor may publish an optional `panel` in the bounded
+capability DTO: a panel ID, panel protocol version and supported action tokens.
+The descriptor's payload range owns result-version eligibility. The renderer
+implements panel protocols and does not maintain a second list of result payload
+versions. Unknown/invalid results and unsupported panel protocols retain generic
+views without specialized actions. Imported metadata cannot grant a panel.
+Capability snapshots copy panel/action data; caller mutations cannot change the
+registry or cached projections. This DTO extension does not alter stored
+AnalysisResult bytes, payload versions or old-reader contracts.
