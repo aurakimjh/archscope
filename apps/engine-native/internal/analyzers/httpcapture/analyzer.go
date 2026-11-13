@@ -1,6 +1,7 @@
 package httpcapture
 
 import (
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/statistics"
 	"math"
 	"sort"
 	"strconv"
@@ -171,6 +172,10 @@ func buildParsed(parsed parser.ParseResult, sourceFile string, opts Options, pro
 	result := models.New(ResultType, "http_capture")
 	result.SourceFiles = []string{sourceFile}
 	result.Metadata.SchemaVersion = "1.0.0"
+	if result.Metadata.Extra == nil {
+		result.Metadata.Extra = map[string]any{}
+	}
+	result.Metadata.Extra["percentile_method"] = statistics.PercentilePolicy("http_capture")
 	result.Metadata.Diagnostics = parsed.Diagnostics
 	result.Summary = map[string]any{
 		"total_transactions":     len(entries),

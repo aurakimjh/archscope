@@ -4,6 +4,7 @@ package traceimport
 
 import (
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/statistics"
 	"io"
 	"math"
 	"os"
@@ -164,6 +165,10 @@ func Build(spans []traceparser.Span, sourceFile, sourceFormat string, opts Optio
 		"critical_paths":       criticalPathRows(criticalPaths, topN),
 	}
 	result.Metadata.SchemaVersion = SchemaVersion
+	if result.Metadata.Extra == nil {
+		result.Metadata.Extra = map[string]any{}
+	}
+	result.Metadata.Extra["percentile_method"] = statistics.PercentilePolicy("trace_import")
 	result.Metadata.Extra["dependency_call_policy"] = map[string]any{"version": "1.0.0", "identity": "trace_id_and_direct_client_server_parent", "paired_timing": "client", "paired_error": "either_side", "multiple_server_attempts": "individual_server_timing_and_error"}
 	result.Metadata.Extra["path_latency"] = map[string]any{"version": "1.0.0", "semantics": "observed_span_chain_elapsed_estimate_v1", "causal_critical_path_proven": false, "available_traces": len(criticalPaths) - unavailablePaths, "unavailable_traces": unavailablePaths}
 	if unavailablePaths > 0 {

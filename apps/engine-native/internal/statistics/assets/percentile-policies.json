@@ -1,0 +1,74 @@
+{
+  "asset_id": "measurement.legacy-percentile-policies.v1",
+  "policies": {
+    "access_log": {
+      "algorithm": "reservoir_then_linear_interpolation",
+      "approximate_above_capacity": true,
+      "capacity": 10000,
+      "composition": "Do not average/add percentiles across populations.",
+      "policy_id": "legacy-percentile.access_log.v1",
+      "population": "known latency observations per aggregate; independent reservoirs",
+      "prng": "Go math/rand/v2 PCG; not Python random sequence",
+      "rank": "(n-1)*p/100 on retained sample",
+      "saved_compatibility": "Absent metadata means undisclosed legacy policy; never relabel or recompute saved values on read.",
+      "seed": 12345,
+      "version": "1.0.0"
+    },
+    "database_slow_query": {
+      "algorithm": "floor_index",
+      "composition": "Do not average/add percentiles across populations.",
+      "policy_id": "legacy-percentile.database_slow_query.v1",
+      "population": "parsed query durations; source filter applies",
+      "rank": "floor((n-1)*p/100)",
+      "saved_compatibility": "Absent metadata means undisclosed legacy policy; never relabel or recompute saved values on read.",
+      "version": "1.0.0"
+    },
+    "gc_log": {
+      "algorithm": "linear_interpolation",
+      "composition": "Do not average/add percentiles across populations.",
+      "policy_id": "legacy-percentile.gc_log.v1",
+      "population": "parsed pause durations",
+      "rank": "(n-1)*p/100",
+      "rounding": "half-even to 3 decimal places",
+      "saved_compatibility": "Absent metadata means undisclosed legacy policy; never relabel or recompute saved values on read.",
+      "version": "1.0.0"
+    },
+    "http_capture": {
+      "algorithm": "linear_interpolation",
+      "composition": "Do not average/add percentiles across populations.",
+      "policy_id": "legacy-percentile.http_capture.v1",
+      "population": "retained valid entry durations; diff retains source aggregates",
+      "rank": "(n-1)*q",
+      "saved_compatibility": "Absent metadata means undisclosed legacy policy; never relabel or recompute saved values on read.",
+      "version": "1.0.0"
+    },
+    "jennifer_profile": {
+      "algorithm": "nearest_rank",
+      "composition": "Do not average/add percentiles across populations.",
+      "policy_id": "legacy-percentile.jennifer_profile.v1",
+      "population": "GUID-group and signature response-time observations",
+      "rank": "clamp(ceil(n*p/100)-1,0,n-1)",
+      "saved_compatibility": "Absent metadata means undisclosed legacy policy; never relabel or recompute saved values on read.",
+      "version": "1.0.0"
+    },
+    "statistics": {
+      "algorithm": "linear_interpolation",
+      "composition": "Do not average/add percentiles across populations.",
+      "policy_id": "legacy-percentile.statistics.v1",
+      "population": "supplied values",
+      "rank": "(n-1)*p/100",
+      "saved_compatibility": "Absent metadata means undisclosed legacy policy; never relabel or recompute saved values on read.",
+      "version": "1.0.0"
+    },
+    "trace_import": {
+      "algorithm": "linear_interpolation",
+      "composition": "Do not average/add percentiles across populations.",
+      "policy_id": "legacy-percentile.trace_import.v1",
+      "population": "observed per-trace elapsed durations; not service exclusive time",
+      "rank": "(n-1)*q",
+      "saved_compatibility": "Absent metadata means undisclosed legacy policy; never relabel or recompute saved values on read.",
+      "version": "1.0.0"
+    }
+  },
+  "version": "1.0.0"
+}

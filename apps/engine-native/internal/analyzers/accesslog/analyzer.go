@@ -735,6 +735,10 @@ func buildFromIterator(
 	result.Series = series
 	result.Tables = tables
 	result.Metadata.SchemaVersion = SchemaVersion
+	if result.Metadata.Extra == nil {
+		result.Metadata.Extra = map[string]any{}
+	}
+	result.Metadata.Extra["percentile_method"] = statistics.PercentilePolicy("access_log")
 	result.Metadata.Diagnostics = diags
 	for _, finding := range findings {
 		result.Metadata.Findings = append(result.Metadata.Findings, finding)

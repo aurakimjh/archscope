@@ -1,6 +1,7 @@
 package databaselog
 
 import (
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/statistics"
 	"sort"
 	"time"
 
@@ -106,6 +107,10 @@ func Build(records []parser.Record, sourceFile string, diags *diagnostics.Parser
 		diags.ParsedRecords = total
 	}
 	result.Metadata.SchemaVersion = "0.1.0"
+	if result.Metadata.Extra == nil {
+		result.Metadata.Extra = map[string]any{}
+	}
+	result.Metadata.Extra["percentile_method"] = statistics.PercentilePolicy("database_slow_query")
 	result.Metadata.Diagnostics = diags
 	result.Metadata.Extra["format"] = firstNonEmpty(opts.Format, "auto")
 	result.Metadata.Extra["analysis_options"] = map[string]any{"top_n": topN}

@@ -1,0 +1,27 @@
+{
+  "task": "T-653",
+  "metadata": "Additive percentile_method 1.0.0 for six newly computed legacy families; common statistics inventory included. No saved-reader relabeling or numeric algorithm change. HTTP diff keeps source summary policy undisclosed when source metadata is absent.",
+  "examples": {
+    "values": [
+      1,
+      2,
+      3,
+      100
+    ],
+    "p95": {
+      "linear": 85.45,
+      "floor": 3,
+      "nearest_rank": 100
+    }
+  },
+  "shared_commit": "50abed5",
+  "compiled_policy_sha256": "205872be4d895015e48dbd42a0999f534cd33fae9d0804f1b26d417c3b3c0fe8",
+  "verification": [
+    "normal and race tests: statistics, six analyzer families, architecture",
+    "go vet affected packages",
+    "actual legacy functions tested against independently calculated fixed values; reservoir below capacity"
+  ],
+  "limits": [
+    "No averaging or addition across populations. Existing saved bytes and payload versions remain unchanged."
+  ]
+}

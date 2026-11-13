@@ -48,6 +48,7 @@ package jenniferprofile
 
 import (
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/statistics"
 	"sort"
 	"strings"
 
@@ -365,6 +366,10 @@ func Build(files []jenniferprofile.FileResult, opts Options) models.AnalysisResu
 		"custom_rule_stats":               customRuleStats(fileBuckets, opts.CustomAnalysisRules),
 	}
 	result.Metadata.SchemaVersion = SchemaVersion
+	if result.Metadata.Extra == nil {
+		result.Metadata.Extra = map[string]any{}
+	}
+	result.Metadata.Extra["percentile_method"] = statistics.PercentilePolicy("jennifer_profile")
 	result.Metadata.Diagnostics = diagnostics.New(ParserName)
 	return result
 }

@@ -62,6 +62,7 @@ package gclog
 
 import (
 	"errors"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/statistics"
 	"math"
 	"sort"
 	"strconv"
@@ -412,6 +413,10 @@ func Build(
 	result.Series = series
 	result.Tables = tables
 	result.Metadata.SchemaVersion = SchemaVersion
+	if result.Metadata.Extra == nil {
+		result.Metadata.Extra = map[string]any{}
+	}
+	result.Metadata.Extra["percentile_method"] = statistics.PercentilePolicy("gc_log")
 	result.Metadata.Diagnostics = diags
 
 	for _, finding := range buildFindings(summary) {
