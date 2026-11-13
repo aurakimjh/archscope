@@ -3,5 +3,14 @@
   "msa-average.json": "8395759bbce3ff063f0ffd2d4f41903db8f017143a05ca9ffc24b0fc8faa52d4",
   "msa-summary-en.jpg": "1ed36f9545e9b31956e37797971c69b0045b4193fc05fa904e6729b3637c93b0",
   "msa-summary-ko.jpg": "81fe6e8e26918a4d024a492d6e836b04c94b1aaebacde4223a2bb163a3b32f77",
-  "msa-two-guids.txt": "4bd8a886327c73b305745616c8da2c6e8e0a14d0eb1b6a30b7566238e19300f5"
+  "msa-two-guids.txt": "4bd8a886327c73b305745616c8da2c6e8e0a14d0eb1b6a30b7566238e19300f5",
+  "jfr-populated.json": "698e9feffc822ba3cdda558d4329153dcccbba19236ac9c606e1530ef3bd32f5",
+  "jfr-native-unit-before.jpg": "a3338279e2c5c668abdad58b20193fed09ec19711c2f513fe6df5535f899f98d",
+  "jfr-native-unit-fixed.jpg": "d9c0291e823a3a1a4e59adaa8b95a6afa6a1caff5b6444e2c97c8aad94304f7e",
+  "jfr-native-freed.jpg": "93915903fd3ccab6390ee4c37431c04a223d1afcc8047238925ac269e1f1c09c",
+  "jfr-native-empty-fixed.jpg": "889de3e1d723af8c0b4c92ed907bc5e03bf73748c8ae110941f9cfcb4848b0b7",
+  "jfr-heatmap.jpg": "3cad75cf0f31803926b37d206b945a9b69a819535df46da45ca584bbe77612c2",
+  "jfr-time-filter.jpg": "a1ae2501e3206663aff3c18995601278ae3720c411d1d24adf6f1018f4b51912",
+  "jfr-stack-profile.jpg": "57ddc868ece8016a0b4f7a60766ed491c29868ccf77538a6cd348cb1c15bf074",
+  "native-cases.json": "cbb144d553b2c8305dbdea185ac70f8454f9ccb2ec2b41311ce784fbbe017c4e"
 }

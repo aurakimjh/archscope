@@ -723,11 +723,11 @@ export function JfrAnalyzerPage(): React.JSX.Element {
                   value={formatBytes(nativeSummary?.alloc_bytes_total)}
                 />
                 <MetricCard
-                  label={t("jfrNativeMemUnfreedCount")}
+                  label={t(nativeSummary?.leak_only === false ? "jfrNativeMemSelectedCount" : "jfrNativeMemUnfreedCount")}
                   value={formatCount(nativeSummary?.unfreed_event_count)}
                 />
                 <MetricCard
-                  label={t("jfrNativeMemUnfreedBytes")}
+                  label={t(nativeSummary?.leak_only === false ? "jfrNativeMemSelectedBytes" : "jfrNativeMemUnfreedBytes")}
                   value={formatBytes(nativeSummary?.unfreed_bytes_total)}
                 />
               </section>
@@ -736,15 +736,22 @@ export function JfrAnalyzerPage(): React.JSX.Element {
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="inline-flex items-center gap-2 text-sm">
-                      {t("jfrNativeMemTitle")}
+                      {t(nativeSummary?.leak_only === false ? "jfrNativeMemAllocationStacks" : "jfrNativeMemTitle")}
                       <HelpTip text={getHelpText(locale, "sectionJfrNativeMemory")} />
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <CanvasFlameGraph
-                      data={nativeFlameGraph}
-                      exportName="native-memory-flamegraph"
-                    />
+                    {nativeFlameGraph.value > 0 ? (
+                      <CanvasFlameGraph
+                        data={nativeFlameGraph}
+                        weightLabel={t("jfrNativeMemSiteBytes")}
+                        exportName="native-memory-flamegraph"
+                      />
+                    ) : (
+                      <p className="py-6 text-center text-sm text-muted-foreground">
+                        {t("jfrNativeMemNoSelected")}
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               )}

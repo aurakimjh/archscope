@@ -852,6 +852,10 @@ export const messages = {
     jfrNativeMemTopSites: "Top call sites",
     jfrNativeMemSiteStack: "Stack",
     jfrNativeMemSiteBytes: "Bytes",
+    jfrNativeMemSelectedCount: "Selected allocation events",
+    jfrNativeMemSelectedBytes: "Selected allocation bytes",
+    jfrNativeMemAllocationStacks: "Native memory allocation stacks",
+    jfrNativeMemNoSelected: "Analysis complete. No allocation bytes remain in this selection.",
     // ── Exception page (T-351'-Phase-2) ─────────────────────────────
     navException: "Exception",
     selectExceptionFile: "Select exception log",
@@ -2564,6 +2568,10 @@ export const messages = {
     jfrNativeMemTopSites: "상위 호출 사이트",
     jfrNativeMemSiteStack: "스택",
     jfrNativeMemSiteBytes: "바이트",
+    jfrNativeMemSelectedCount: "선택된 할당 이벤트",
+    jfrNativeMemSelectedBytes: "선택된 할당 바이트",
+    jfrNativeMemAllocationStacks: "네이티브 메모리 할당 스택",
+    jfrNativeMemNoSelected: "분석을 완료했습니다. 선택 범위에 남은 할당 바이트가 없습니다.",
     // ── Exception page (T-351'-Phase-2) ─────────────────────────────
     navException: "예외 분석",
     selectExceptionFile: "예외 로그 파일 선택",

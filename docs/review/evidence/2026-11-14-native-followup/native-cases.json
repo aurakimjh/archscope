@@ -1,0 +1,131 @@
+[
+  {
+    "id": "msa-summary-en",
+    "route": "msa",
+    "scenario": "Two-GUID populated Summary, English menu",
+    "observed": "4 profiles,2 groups,1 signature,2 matched edges; translated metric/table labels",
+    "result": "PASS",
+    "locale": "en",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "msa-summary-en.jpg"
+  },
+  {
+    "id": "msa-details-en",
+    "route": "msa",
+    "scenario": "Details/validation whole result in English",
+    "observed": "Four populated profiles with localized columns; conditional empty network-prep/external states remain explanatory Korean text",
+    "result": "PASS",
+    "locale": "en",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "msa-details-en.jpg"
+  },
+  {
+    "id": "msa-parser-en",
+    "route": "msa",
+    "scenario": "Parser diagnostics English",
+    "observed": "4 full profiles;0 errors;2 SQL_COUNT_MISMATCH warnings retained",
+    "result": "PASS",
+    "locale": "en",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "msa-parser-en.jpg"
+  },
+  {
+    "id": "jfr-all-events",
+    "route": "jfr",
+    "scenario": "Native Browse and Analyze,48 synthetic events across eight types",
+    "observed": "48 filtered/total,18 stack samples,1 unique stack;notable table populated",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jfr-all-events.jpg"
+  },
+  {
+    "id": "jfr-heatmap",
+    "route": "jfr",
+    "scenario": "All mode wall-clock heatmap populated",
+    "observed": "48 one-second buckets from00:00:00 to00:00:47, max1; no empty placeholder",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jfr-heatmap.jpg"
+  },
+  {
+    "id": "jfr-time-filter",
+    "route": "jfr",
+    "scenario": "Heatmap bucket00:00:24 -> options -> Analyze",
+    "observed": "From time matches bucket;24/48 filtered events and9 stack samples",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jfr-time-filter.jpg"
+  },
+  {
+    "id": "jfr-window-reset",
+    "route": "jfr",
+    "scenario": "Reset window then Analyze",
+    "observed": "48/48 restored,18 stack samples",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%"
+  },
+  {
+    "id": "jfr-stack-profile",
+    "route": "jfr",
+    "scenario": "Stack profile from populated all-mode input",
+    "observed": "18 samples,1 unique stack,Worker.run18,three threads6 each; flamegraph renders",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jfr-stack-profile.jpg"
+  },
+  {
+    "id": "jfr-native-freed",
+    "route": "jfr",
+    "scenario": "Native memory default leak-only,fully freed fixture",
+    "observed": "6 allocations,6 frees,12.0KB allocated,0 unfreed; canvas empty text incorrectly asks to run analysis",
+    "result": "FAIL",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jfr-native-freed.jpg"
+  },
+  {
+    "id": "jfr-native-all-before",
+    "route": "jfr",
+    "scenario": "Leak only unchecked -> Analyze",
+    "observed": "All six freed allocations still labelled UNFREED;label semantics defect",
+    "result": "FAIL",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jfr-native-all-before.jpg"
+  },
+  {
+    "id": "jfr-native-unit-before",
+    "route": "jfr",
+    "scenario": "All-allocation flame search Worker",
+    "observed": "12,288 shown as samples,100%,1 frame; expected Bytes",
+    "result": "FAIL",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jfr-native-unit-before.jpg"
+  },
+  {
+    "id": "jfr-native-empty-fixed",
+    "route": "jfr",
+    "scenario": "Fully freed input,default leak-only after display fix",
+    "observed": "0 unfreed;Analysis complete and no allocation bytes remain;no empty Save PNG",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jfr-native-empty-fixed.jpg"
+  },
+  {
+    "id": "jfr-native-unit-fixed",
+    "route": "jfr",
+    "scenario": "All-allocation search Worker after fix",
+    "observed": "Selected events6/bytes12.0KB;12,288 Bytes,100%,1 frame; allocation-stacks title",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jfr-native-unit-fixed.jpg"
+  }
+]
