@@ -392,7 +392,7 @@ func (s *EngineService) CopyVisualArtifact(ctx context.Context, id string, page 
 	case "image":
 		payload.PNG = a.Files[fmt.Sprintf("image-%02d.png", page+1)]
 	case "table":
-		payload.HTML = visuals.TableHTML(a.View, a.Receipt.Spec)
+		payload.HTML = visuals.ClipboardTableHTML(a.View, a.Receipt.Spec)
 		payload.Text = string(visuals.TSV(a.View))
 	default:
 		return fmt.Errorf("VISUAL_CLIPBOARD_KIND_INVALID")

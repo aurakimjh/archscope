@@ -289,3 +289,28 @@ and area, small-window and alternate OS DPI acceptance. Both native Windows full
 Go suites/vets, production builds, frontend checks and a 603.731-second service/
 proxy soak passed; this does not establish multi-hour native GUI parity.
 See [Windows evidence](../review/evidence/2026-11-12-windows/README.md).
+
+
+### Populated native follow-up (2026-11-14)
+
+Selected Windows native MSA summary/composition/topology/timeline/treemap/hotspot
+and options views now follow live English/Korean switching. A coherent two-GUID
+fixture independently matches average root1100=SQL200+call-duration gap50+method850ms.
+The gap is caller duration minus callee response, not wire latency. API table
+headings distinguish those measurements and units. A direct root-to-service
+call now renders in the treemap instead of incorrectly reporting no calls. Small
+1024x768 at WebView125% retains values and internal table scrolling; this is
+OS100%, not a new actual OS125% case.
+
+Native JFR heatmap/stack/memory states and JVM carrier/native/SMR/histogram views
+have selected populated evidence. Saved visuals and Report Packs were created,
+reopened, regenerated, upgraded, restarted and reimported with pinned integrity
+checks. Actual PowerPoint image paste retains exact2400x1600 pixels. Native table
+paste exposed provenance overlap; clipboard transport now keeps title,data and
+source in one editable table, verified by before/after PPTX and screenshots.
+Historical saved visual bytes are unchanged. Supported amd64/386 app tests pass.
+
+These are selected cases. The complete original-reference, conditional/error,
+locale and OS-DPI matrix remains open; T-627 stays REVIEW. Detailed inputs,
+failures, fixes, exports and exact hashes are in the
+[native follow-up receipt](../review/evidence/2026-11-14-native-followup/README.md).

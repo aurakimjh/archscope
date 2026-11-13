@@ -1,0 +1,141 @@
+{
+  "pptx_sha256": "b53002f7023e966325fe7b625acc1ae56b7013ce42abe4133dbc1e871c05f326",
+  "bytes": 289061,
+  "slides": [
+    {
+      "slide": 1,
+      "pictures": 1,
+      "tables": 0,
+      "text_shapes": 2
+    },
+    {
+      "slide": 2,
+      "pictures": 0,
+      "tables": 1,
+      "text_shapes": 2,
+      "rows": [
+        [
+          "Selected evidence table · rows 1–8 / 8 · per-cell units · denominator not declared by provider",
+          ""
+        ],
+        [
+          "key",
+          "value"
+        ],
+        [
+          "measurement_kind",
+          "wall_time"
+        ],
+        [
+          "metric_id",
+          "duration"
+        ],
+        [
+          "profile_count",
+          "2"
+        ],
+        [
+          "sample_records",
+          "3"
+        ],
+        [
+          "scale",
+          "1"
+        ],
+        [
+          "total_samples",
+          "— (unavailable)"
+        ],
+        [
+          "total_weight",
+          "0.35 seconds"
+        ],
+        [
+          "unit",
+          "seconds"
+        ]
+      ]
+    },
+    {
+      "slide": 3,
+      "pictures": 0,
+      "tables": 1,
+      "text_shapes": 1,
+      "rows": [
+        [
+          "Selected evidence table · rows 1–8 / 8 · per-cell units · denominator not declared by provider",
+          ""
+        ],
+        [
+          "key",
+          "value"
+        ],
+        [
+          "measurement_kind",
+          "wall_time"
+        ],
+        [
+          "metric_id",
+          "duration"
+        ],
+        [
+          "profile_count",
+          "2"
+        ],
+        [
+          "sample_records",
+          "3"
+        ],
+        [
+          "scale",
+          "1"
+        ],
+        [
+          "total_samples",
+          "— (unavailable)"
+        ],
+        [
+          "total_weight",
+          "0.35 seconds"
+        ],
+        [
+          "unit",
+          "seconds"
+        ],
+        [
+          "Source c8c2d7eb13df011a9604adb1f0b527fba29bf835e9ffa3ea53d8193861042bafView 02c579e4cfe99f4d868a56a8a71b438058c037729dfb5dc3e400f757b713742aProvider/query quality and truncation are retained; plotted areas are approximate, exact labels and tables are authoritative.Declared source identity; no implicit source authentication or clock alignment.; Known-pattern index masking; inspect the artifact before sharing.",
+          ""
+        ]
+      ]
+    }
+  ],
+  "pngs": [
+    {
+      "member": "ppt/media/image1.png",
+      "size": [
+        2400,
+        1600
+      ],
+      "sha256": "edd2ce7dfe31670ee6a47405c8bf9bbf7f7b5ec989455bb0c6a18ab6009b2293"
+    }
+  ],
+  "clipboard_image": {
+    "artifact_id": "visual-ff19afa0701bfed1061d51a0c15f74d75a7990c6ffc85324eeee53522241d3a8",
+    "source_png_sha256": "edd2ce7dfe31670ee6a47405c8bf9bbf7f7b5ec989455bb0c6a18ab6009b2293",
+    "received_png_sha256": "edd2ce7dfe31670ee6a47405c8bf9bbf7f7b5ec989455bb0c6a18ab6009b2293",
+    "size": [
+      2400,
+      1600
+    ],
+    "rgba_pixels_equal": true
+  },
+  "saved_members_unchanged_after_clipboard_fix": {
+    "image-01.png": "edd2ce7dfe31670ee6a47405c8bf9bbf7f7b5ec989455bb0c6a18ab6009b2293",
+    "image-01.svg": "417f4487552ffbbbb8a835dad3319a4edecb787411321cc75a763e6becd10208",
+    "table.html": "e074ae02861528f60ef5312a5cb0c82ecb2635741a1b9259ca1a56f40ef12dde",
+    "table.tsv": "899d26362f31a93f5d176143d8096cb907b347e5d55976bc5ede3b54b752eef0",
+    "view.json": "02c579e4cfe99f4d868a56a8a71b438058c037729dfb5dc3e400f757b713742a",
+    "spec.json": "f0aefb5e2b8ec00bd97f7a89085966e53789fddcb1bf21aae52fa1a7d9fc58a6"
+  },
+  "powerpoint_version": "16.0.10417.20228"
+}

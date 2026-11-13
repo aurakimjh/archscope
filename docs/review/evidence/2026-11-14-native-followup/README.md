@@ -146,3 +146,31 @@ tool, so no additional actual OS125% case is claimed in this section. Earlier
 actual OS125% evidence stays separate. Frontend state tests and the final
 production frontend/layoutaudit build pass. Remaining complete reference,
 conditional/locale/DPI combinations keep T-627 REVIEW.
+
+## Actual PowerPoint clipboard acceptance and transport fix
+
+PowerPoint16.0.10417.20228 received native Copy image as a picture object in a
+new local presentation. Its embedded2400x1600 PNG has RGBA pixels identical to
+the original rendered image, including all eight rows, unavailable sample count,
+0.35seconds and provenance. Copy complete selected table also retained all data,
+but the first paste exposed a formatting failure: the trailing HTML provenance
+paragraph became an independent text shape overlapping the table caption. The
+saved PPTX confirms that the caption itself was already a table row.
+
+Clipboard HTML now puts title/selection and provenance in merged rows inside
+one editable table, with explicit data/metadata font sizes. Formula-like metadata
+is protected as text. The saved artifact HTML and TSV remain unchanged. A real
+new native build copied the same result again; PowerPoint slide3 now displays
+one11-row table (metadata,header,eight data rows,provenance), without overlapping
+independent text. Slide1 preserves the successful image and slide2 preserves the
+original formatting failure. Native saved PPTX, before/after screenshots and
+independent XML/PNG checks are attached. All six saved image/SVG/table/view/spec
+members remain byte-identical across the clipboard-only change.
+
+The new transport test parses the clipboard table, checks whole multi-page
+selection, Unicode/exact values, escaping, formula-like titles and provenance
+within one root. Visuals/clipboard package tests pass amd64 and386; final production
+app tests pass42.469s/50.348s using the supported Windows runner. Additional
+1024x768/WebView125% SQL threshold switching shows the two200ms synthetic rows.
+Word/Excel, other Office versions, SVG insertion and complete clipboard-format
+combinations are not inferred from this selected PowerPoint result. T-627 REVIEW.

@@ -466,5 +466,55 @@
     "locale": "recorded per scenario",
     "scale": "OS100%; WebView125%; native1024x768",
     "screenshot": "msa-presets-small125-en.jpg"
+  },
+  {
+    "id": "msa-small125-sql-en",
+    "route": "MSA > Average > SQL",
+    "scenario": "Default empty to populated SQL threshold filter",
+    "observed": "Whole result changes threshold1000 to0 and shows2/2 rows, both SQL_EXECUTE_QUERY200ms with distinct TXIDs and identical synthetic query. Fixed treemap remains stock100%x2 above. No data was cleared.",
+    "result": "PASS",
+    "locale": "en",
+    "scale": "OS100%; WebView125%; native1024x768",
+    "screenshot": "msa-small125-sql-en.jpg"
+  },
+  {
+    "id": "visual-copy-image",
+    "route": "Analysis Workspace > Report image",
+    "scenario": "Native Copy image command",
+    "observed": "Rendered one2400x1600 image with8summary rows; native Copy image reports successful Windows clipboard transfer. Office receiving observation recorded separately.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "visual-copy-image.jpg"
+  },
+  {
+    "id": "office-ppt-image",
+    "route": "PowerPoint > new local presentation",
+    "scenario": "Paste native Copy image output",
+    "observed": "Actual PowerPoint picture object inserted; all8rows including unavailable total_samples and total_weight0.35seconds appear, plus pinned provenance footer. No existing user document opened.",
+    "result": "PASS",
+    "locale": "Korean Office; English synthetic visual",
+    "scale": "OS100%; PowerPoint122% zoom",
+    "screenshot": "office-ppt-image.jpg"
+  },
+  {
+    "id": "office-ppt-table-before",
+    "route": "PowerPoint > slide2",
+    "scenario": "Paste complete selected table before clipboard layout fix",
+    "observed": "All8data rows appear in editable table, but trailing HTML provenance paragraph becomes an independent text shape overlapping the table caption. Saved PPTX confirms caption is a table row and only provenance is outside. Formatting acceptance FAIL; original screenshot retained.",
+    "result": "FAIL",
+    "locale": "Korean Office; English synthetic visual",
+    "scale": "OS100%; PowerPoint122% zoom",
+    "screenshot": "office-ppt-table-before.jpg"
+  },
+  {
+    "id": "office-ppt-table-after",
+    "route": "PowerPoint > slide3",
+    "scenario": "Paste complete selected table after clipboard transport fix",
+    "observed": "One editable table contains title/selection metadata,2column headers,all8data rows and separate merged provenance row. Source/view SHA and quality warnings readable below data; no independent caption/provenance overlay. 0.35seconds/unavailable retained.",
+    "result": "PASS",
+    "locale": "Korean Office; English synthetic visual",
+    "scale": "OS100%; PowerPoint122% zoom",
+    "screenshot": "office-ppt-table-after.jpg"
   }
 ]

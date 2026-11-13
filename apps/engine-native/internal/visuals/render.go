@@ -164,6 +164,40 @@ func TableHTML(view View, spec Spec) string {
 	b.WriteString(`</tbody></table><p>` + html.EscapeString("Source "+view.Sources[0].SHA256+" · view "+spec.ViewSHA256+" · "+view.Quality+" · "+strings.Join(view.Warnings, "; ")) + `</p>`)
 	return b.String()
 }
+
+// ClipboardTableHTML keeps every element inside one table. PowerPoint imports
+// following paragraphs as independent shapes overlapping the table caption.
+// Saved artifact HTML remains unchanged; this is an Office clipboard transport.
+func ClipboardTableHTML(view View, spec Spec) string {
+	var b strings.Builder
+	b.WriteString(`<table style="border-collapse:collapse;table-layout:fixed;width:900px;font-family:'Noto Sans KR','Malgun Gothic',Arial,sans-serif;font-size:11pt"><tbody>`)
+	metadataRow := func(lines []string) {
+		fmt.Fprintf(&b, `<tr><td colspan="%d" style="border:1px solid #aaa;padding:5px;white-space:normal;word-break:break-all;mso-number-format:'\@'"><span style="font-size:8pt">`, max(1, len(view.Columns)))
+		for i, line := range lines {
+			if i > 0 {
+				b.WriteString(`<br/>`)
+			}
+			b.WriteString(html.EscapeString(htmlTableText(line)))
+		}
+		b.WriteString(`</span></td></tr>`)
+	}
+	metadataRow([]string{clean(spec.Presentation.Title) + " · rows " + fmt.Sprintf("%d–%d / %d", view.Offset+min(1, len(view.Rows)), view.Offset+len(view.Rows), view.Total) + " · " + view.Unit + " · denominator " + view.Denominator})
+	b.WriteString(`<tr>`)
+	for _, name := range view.Columns {
+		b.WriteString(`<th style="border:1px solid #777;padding:5px;background:#edf2f7;font-size:11pt">` + html.EscapeString(headerText(clean(name))) + `</th>`)
+	}
+	b.WriteString(`</tr>`)
+	for _, row := range view.Rows {
+		b.WriteString(`<tr>`)
+		for _, cell := range row {
+			b.WriteString(`<td style="border:1px solid #aaa;padding:5px;font-size:11pt;mso-number-format:'\@'">` + html.EscapeString(htmlTableText(cellText(cell))) + `</td>`)
+		}
+		b.WriteString(`</tr>`)
+	}
+	metadataRow([]string{"Source " + view.Sources[0].SHA256, "View " + spec.ViewSHA256, view.Quality, strings.Join(view.Warnings, "; ")})
+	b.WriteString(`</tbody></table>`)
+	return b.String()
+}
 func SVG(view View, spec Spec, page int, font []byte) ([]byte, error) {
 	if e := spec.Validate(view, false); e != nil {
 		return nil, e
