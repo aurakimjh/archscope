@@ -1333,7 +1333,7 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
                               {row.samples.toLocaleString()}
                             </td>
                             <td className="px-4 py-2 text-right tabular-nums">
-                              {(row.ratio * 100).toFixed(2)}%
+                              {row.ratio.toFixed(2)}%
                             </td>
                           </tr>
                         ))}

@@ -1,0 +1,21 @@
+{
+  "task": "T-627",
+  "scope": "Profiler summary top-child percentage",
+  "platform": "Windows native Wails/WebView2 amd64, layoutaudit passive observer",
+  "input": "sanitized db-bottleneck/profiler.collapsed",
+  "oracle": {
+    "totalSamples": 10000,
+    "topChildSamples": 10000,
+    "ratioPercent": 100
+  },
+  "observedBefore": "10000.00%",
+  "observedAfter": "100.00%",
+  "cause": "Backend ratio is already a percentage; renderer multiplied by 100 again.",
+  "validation": [
+    "frontend state suite",
+    "frontend production build",
+    "go test ./internal/profiler -count=1",
+    "native rebuilt app: 100.00% visible in accessibility and screenshot"
+  ],
+  "overallTask": "REVIEW: remaining native matrix stays separate"
+}

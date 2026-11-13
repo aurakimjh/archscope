@@ -5156,3 +5156,7 @@ Used the running Linux/amd64 Docker Desktop engine to build the repository obser
 ### 2026-11-13 - Integrated native remaining-task follow-up
 
 Final product649aa15f passes native file-dialog cancellation (no raw banner) and EN MSA tabs/empty panels; Korean restored afterwards. Both production GUI architectures build; both whole app test/vet and COM package/vet runs pass. Actual installed V7.6.4.508 ABI comparison covers227 own dual methods; runtime claims are limited to the explicit native probes in the reference receipt. Docker clean-install70 operations/zero inet calls passes with failed-connect control. Six overall tasks remain open for their specific driver/vendor/full-matrix/multi-hour/two-GPU/Apple evidence; no independent PASS asserted. Completed subitems were committed individually; push follows final evidence. Receipts: docs/review/evidence/2026-11-13-windows-followups/README.md.
+
+### 2026-11-13 - T-627 native profiler percentage correction
+
+Populated native Windows summary reproduced10000.00% for10000/10000 samples. The backend already returns percent; removed the renderer's extra multiplication. Rebuilt native Wails/WebView2 now shows100.00%; frontend state/build and profiler Go tests pass. Before/after screenshots and independent input counts: docs/review/evidence/2026-11-13-native-matrix/profiler-ratio.json. T-627 remains REVIEW for its remaining matrix.
