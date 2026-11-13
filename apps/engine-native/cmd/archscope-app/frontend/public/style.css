@@ -704,7 +704,7 @@ body {
 button.primary {
   height: 36px;
   padding: 0 18px;
-  background: var(--accent);
+  background: var(--primary, var(--accent));
   border: none;
   border-radius: 8px;
   color: white;
@@ -2112,6 +2112,8 @@ table th.sortable-header.sort-desc::after {
 .desktop-shell { display:flex; height:100dvh; overflow:hidden; }
 .desktop-shell > .app-main { flex:1; width:100%; }
 .desktop-titlebar { height:30px; flex:none; padding:5px 12px; font-size:12px; color:var(--text-muted); -webkit-app-region:drag; }
+/* Keep the capture result area usable inside the smaller Windows client area. */
+.desktop-shell[data-active-route="http_capture"] .desktop-titlebar { height:18px; padding-block:0; line-height:18px; }
 @supports (-webkit-backdrop-filter: blur(1px)) { .desktop-titlebar { padding-left:80px; } }
 .tool-pane { flex:1; min-width:0; min-height:0; overflow:auto; display:flex; flex-direction:column; }
 .tool-pane[hidden] { display:none; }

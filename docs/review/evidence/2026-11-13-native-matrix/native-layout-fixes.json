@@ -1,0 +1,40 @@
+{
+  "task": "T-627",
+  "scope": "Native Windows primary controls and HTTP result area",
+  "changes": [
+    "Legacy primary button background uses primary instead of pale accent token.",
+    "HTTP route title18px instead of30px, preserving visible title."
+  ],
+  "geometry": {
+    "outer": [
+      1280,
+      800
+    ],
+    "client": [
+      1264,
+      741
+    ],
+    "OSScale": 1,
+    "WebViewZoom": 1,
+    "before": {
+      "ratio": 0.686,
+      "fullRequestRows": 12,
+      "firstDataTop": 174
+    },
+    "after": {
+      "ratio": 0.702,
+      "fullRequestRows": 13,
+      "firstDataTop": 162
+    },
+    "detailHeight": 184,
+    "requestHeaderRows": 2,
+    "responseHeaderRows": 4,
+    "mainHorizontalOverflow": false
+  },
+  "validation": [
+    "frontend state/build",
+    "rebuilt native populated Headers screenshot and passive geometry",
+    "native Diff Browse labels visible in light theme"
+  ],
+  "limits": "70% applies only to this selected populated HTTP state; sparse other views and125%zoom do not inherit it."
+}
