@@ -1,0 +1,50 @@
+{
+  "build_commit": "1bd8b850f5f2634c550852cd2718ca0845989fb6",
+  "binary": "control-amd64",
+  "locale": "ko",
+  "observed_window_pixels": [
+    1266,
+    793
+  ],
+  "observations": [
+    {
+      "action": "Launch production Wails/WebView2 app",
+      "result": "PASS",
+      "observed": "Korean Profiler screen and native menus render."
+    },
+    {
+      "action": "Native Workspace > Analysis Workspace",
+      "result": "PASS",
+      "observed": "Actual native menu reaches evidence import controls."
+    },
+    {
+      "action": "Enter Korean/space source path and Inspect metric source",
+      "result": "PASS",
+      "observed": "SQLite3.53.0 qualified portable fixture: 4 series, 12 points; source SHA25645574fff7e84e55d2a3bcf35b200eb75c229972e467290ec7e52a643395077c7, exactly matching CLI inspection."
+    },
+    {
+      "action": "Select all filtered metric series",
+      "result": "PASS",
+      "observed": "4/4 selected, hidden selections0, selection312/61440 bytes; four gauge checkboxes checked."
+    },
+    {
+      "action": "Save new model",
+      "result": "PARTIAL",
+      "observed": "Native Save dialog opens with metric-history-set.json; helper cannot address its filename element (element not available in cached app state). No completed file save asserted."
+    },
+    {
+      "action": "Native Open dialog",
+      "result": "PARTIAL",
+      "observed": "Dialog opens; same helper modal targeting limitation. Path entry into the main workspace succeeds separately."
+    }
+  ],
+  "source_sha256": "45574fff7e84e55d2a3bcf35b200eb75c229972e467290ec7e52a643395077c7",
+  "cleanup": "Only the owned test process was stopped after its modal could not be targeted. No new model was saved.",
+  "limits": [
+    "Portable qualified SQLite fixture imported for inspection, not a newly qualified Windows SQLite producer.",
+    "No populated-result query, native file-save completion, alternate viewport/OS DPI, all-view or multi-hour acceptance.",
+    "Actual Windows driver/service reach and vendor early-bound interoperability remain unverified.",
+    "T-654 needs a permitted two-NVIDIA-GPU Linux environment; this host has one RTX2060SUPER. T-662 requires actual authorized Apple Silicon natural memory observations. Both remain TODO."
+  ],
+  "verdict": "PASS for observed menu/metric inspection/selection only; full T-627 acceptance remains REVIEW."
+}
