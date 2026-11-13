@@ -206,3 +206,9 @@ GPU execution evidence: trace.gpu-execution-json / trace_import0.4.0 / gpu_execu
 The bounded actual DB/OS snapshot batch: [Manual database and socket snapshots](SYSTEM_DB_SNAPSHOTS.md). Existing MetricHistory transport, exact epochs/gauges and common consumers; other adapters remain fixture-gated.
 
 Additional bounded profile adapter: CPython cProfile 3.14.4 `cprofile-flat-json` (actual synthetic workload, flat self-time only). See [source profiles](PROFILE_SOURCE_IMPORT.md#cpython-cprofile-flat-owner-export).
+
+## Sentry transaction exports
+
+Explicit `sentry-transaction-json` qualifies the Sentry Python SDK 2.69.2 transaction JSON layout. `capture-sentry-synthetic.py --out new-transaction.json` records an actual synthetic transaction and two spans through an in-memory SDK transport, without sending data to Sentry. Use `trace import --format sentry-transaction-json`; the existing trace_import0.2.0, graph/detail, case and exports apply. No new result envelope is added.
+
+The parser retains only trace/span/parent IDs, exact source times, mapped operation categories and status. Transaction names, descriptions, SQL/URL text, user/request/breadcrumb fields and arbitrary attributes are discarded. Service remains unknown; parent/child clock inconsistencies are not clipped or promoted to causal coverage. RFC3339 timestamps and numeric epoch seconds must fit exact integer ns; unsupported versions, duplicate IDs, reversed bounds and sub-ns values refuse the entire source. File/decoded64MiB, depth128 and50k-span bounds apply. The actual fixture covers one synthetic SDK configuration, not Sentry cloud queries, other SDKs or production instrumentation.

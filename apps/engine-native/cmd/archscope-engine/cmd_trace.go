@@ -44,7 +44,7 @@ func init() {
 		},
 	}
 	importCmd.Flags().StringVar(&in, "in", "", "path to trace export file (required)")
-	importCmd.Flags().StringVar(&format, "format", "auto", "input format: auto, otlp-json, zipkin-v2-json, elastic-apm-search-json, elastic-apm-source-ndjson, jaeger-query-json, skywalking-graphql-json")
+	importCmd.Flags().StringVar(&format, "format", "auto", "input format: auto, otlp-json, zipkin-v2-json, elastic-apm-search-json, elastic-apm-source-ndjson, jaeger-query-json, skywalking-graphql-json, sentry-transaction-json")
 	importCmd.Flags().IntVar(&topN, "top-n", 0, "top-N rows (0 = analyzer default)")
 	importCmd.Flags().StringVar(&out, "out", "-", "output path; `-` for stdout")
 

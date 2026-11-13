@@ -59,6 +59,7 @@ const TRACE_FORMATS = [
   "elastic-apm-source-ndjson",
   "jaeger-query-json",
   "skywalking-graphql-json",
+ "sentry-transaction-json",
 ] as const;
 
 export function TraceImportPage(): React.JSX.Element {

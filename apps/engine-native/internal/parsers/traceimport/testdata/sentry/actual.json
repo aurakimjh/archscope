@@ -1,0 +1,35 @@
+{
+  "type": "transaction",
+  "start_timestamp": "2026-11-13T00:33:55.095574Z",
+  "timestamp": "2026-11-13T00:33:55.100331Z",
+  "sdk": {
+    "name": "sentry.python",
+    "version": "2.69.2"
+  },
+  "contexts": {
+    "trace": {
+      "trace_id": "96cfe27cf81e427c88cf68c70af0e53a",
+      "span_id": "a109dc8ba632dfc5",
+      "parent_span_id": null,
+      "op": "http.server"
+    }
+  },
+  "spans": [
+    {
+      "trace_id": "96cfe27cf81e427c88cf68c70af0e53a",
+      "span_id": "a8aa2c783376cb86",
+      "parent_span_id": "a109dc8ba632dfc5",
+      "op": "db",
+      "start_timestamp": "2026-11-13T00:33:55.097789Z",
+      "timestamp": "2026-11-13T00:33:55.097987Z"
+    },
+    {
+      "trace_id": "96cfe27cf81e427c88cf68c70af0e53a",
+      "span_id": "86e70bf35343d313",
+      "parent_span_id": "a109dc8ba632dfc5",
+      "op": "http.client",
+      "start_timestamp": "2026-11-13T00:33:55.098002Z",
+      "timestamp": "2026-11-13T00:33:55.100378Z"
+    }
+  ]
+}

@@ -198,3 +198,9 @@ GPU 실행 근거: trace.gpu-execution-json / trace_import0.4.0 / gpu_execution_
 DB/OS 스냅샷의 실제 DB·OS 첫 검증 배치: [수동 DB·소켓 스냅샷](SYSTEM_DB_SNAPSHOTS.md). 기존 MetricHistory·정확한 epoch/gauge·공통 소비자를 재사용하며 다른 어댑터는 실제 입력 검증 전까지 보류합니다.
 
 추가 제한 profile adapter: CPython cProfile 3.14.4 `cprofile-flat-json`(실제 합성 workload, 평면 self-time 전용). [원본 프로파일](PROFILE_SOURCE_IMPORT.md#cpython-cprofile-평면-소유자-export)을 참조하세요.
+
+## Sentry transaction export
+
+명시 형식 `sentry-transaction-json`은 Sentry Python SDK2.69.2 transaction JSON을 제한 검증합니다. `capture-sentry-synthetic.py --out new-transaction.json`은 메모리 SDK transport로 합성 transaction과 span 두 개를 실제 생성하며 Sentry로 전송하지 않습니다. `trace import --format sentry-transaction-json`으로 기존 trace_import0.2.0·그래프/상세·케이스·export를 재사용합니다. 새 결과 envelope는 없습니다.
+
+파서는 trace/span/parent ID·정확한 원본 시각·매핑한 operation 분류·status만 보존합니다. 이름·description·SQL/URL·사용자/request/breadcrumb·임의 속성은 제외합니다. Service는 unknown이며 parent/child 시계 불일치를 잘라내거나 인과적 coverage로 승격하지 않습니다. RFC3339와 숫자 epoch seconds는 정수 ns로 정확히 표현되어야 합니다. 미지원 버전·중복 ID·역전 시각·sub-ns는 전체 원본을 거절합니다. 파일/해제64MiB·depth128·50k span 한도를 적용합니다. 실제 fixture는 합성 SDK 설정 하나의 근거이며 cloud 조회·다른 SDK·운영 자동 계측 검증이 아닙니다.

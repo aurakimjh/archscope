@@ -89,6 +89,8 @@ func ParseFile(path string, opts Options) (ParseResult, error) {
 		return parseElasticSourceNDJSONFile(path)
 	case FormatJaegerQueryJSON:
 		return parseJaegerQueryJSONFile(path)
+	case FormatSentryTransaction:
+		return parseSentryFile(path)
 	case FormatSkyWalkingGraphQL:
 		return parseSkyWalkingGraphQLFile(path)
 	default:

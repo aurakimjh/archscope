@@ -1,0 +1,19 @@
+{
+  "task": "T-659",
+  "activation": "Selected Sentry transaction JSON after existing APM importer matrix review; actual synthetic Sentry Python SDK2.69.2 in-memory transport generated locally.",
+  "shared_commit": "7d2ea1f",
+  "reuse": "Existing legacy trace_import0.2.0 graph/detail/case/export model; no new envelope.",
+  "actual": "Root and2 spans, root4757000ns, SDK timestamp strings retained exactly; child ends beyond root not clipped.",
+  "privacy": "Only structural IDs/timing/category/status retained; names/descriptions/SQL/URLs/user/request/arbitrary attributes discarded. Unknown service retained.",
+  "verification": [
+    "race parser/analyzer/architecture passed",
+    "exact epoch numeric/string ns; sub-ns and huge exponent refusal",
+    "unknown version and zero/duplicate IDs rejected; no partial source",
+    "common saved reader and CSV/HTML passed",
+    "manual in-memory sanitized collector executed",
+    "frontend build and parser/analyzer vet passed"
+  ],
+  "limits": [
+    "Pinned SDK/config only; no Sentry cloud API or other SDK qualification. No causal path/coverage claim."
+  ]
+}
