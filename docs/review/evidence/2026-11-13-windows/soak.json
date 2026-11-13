@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "os": "windows",
+  "arch": "amd64",
+  "commit": "1bd8b850f5f2634c550852cd2718ca0845989fb6",
+  "scope": "synthetic loopback common engine; no native GUI/driver/body-tier acceptance",
+  "passed": true,
+  "cycles": 38,
+  "requests": 9880,
+  "elapsedSeconds": 122.8239608,
+  "sampledPeakHeapBytes": 16448560,
+  "sampledPeakGoroutines": 3,
+  "peakStoreBytes": 125389,
+  "maxRetained": 64,
+  "retentionRows": 64,
+  "admission": true
+}

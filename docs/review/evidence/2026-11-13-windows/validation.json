@@ -1,0 +1,1243 @@
+{
+  "source_commit": "1bd8b850f5f2634c550852cd2718ca0845989fb6",
+  "engine_tree": "db3146249e0d84cd43dcfbb5f66b480287bfaa24",
+  "host": {
+    "os": "Windows",
+    "arch": "amd64",
+    "go": "go version go1.26.10 windows/amd64",
+    "cgo_enabled": false,
+    "race": "NOT_RUN: no C compiler available"
+  },
+  "suites": {
+    "amd64": {
+      "command": "go test ./... -count=1 -p 2 -timeout 20m -json",
+      "exit": 0,
+      "passed_packages": 131,
+      "no_test_packages": 4,
+      "passed_test_completion_events": 1912,
+      "failed_events": 0,
+      "skips": [
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsBodyCaptureE2E"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsCaptureClientHelper"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsTransparentDirectClientE2E"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestWritePrivateJSONAnyUsesOwnerOnlyPermissions"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestReferencePresetFiltersWhenProvided"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestExplicitRegistrationLifecycleOnCleanHost"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestCOMRemotingHelper"
+        },
+        {
+          "package": "internal/capture/dumppolicy",
+          "test": "TestCurrentIsUnavailableOffWindows"
+        },
+        {
+          "package": "internal/capture/halog",
+          "test": "TestPrivateReferenceSample"
+        },
+        {
+          "package": "internal/capture/procmap",
+          "test": "TestWindowsResolverCostMeasurement"
+        },
+        {
+          "package": "internal/capture/proxy",
+          "test": "TestSEC10ForcedCrashProbe"
+        },
+        {
+          "package": "internal/capture/sessionfile",
+          "test": "TestLargeXLSIndependentReader"
+        },
+        {
+          "package": "internal/capture/transparent",
+          "test": "TestOfficialDriverFingerprints"
+        },
+        {
+          "package": "internal/cases",
+          "test": "TestR606LargePageMeasurement"
+        },
+        {
+          "package": "internal/visuals",
+          "test": "TestVisualFixtureForRealBrowserRaster"
+        }
+      ],
+      "packages": [
+        {
+          "package": "cmd/archscope-app",
+          "seconds": 39.741
+        },
+        {
+          "package": "internal/aiinterpretation",
+          "seconds": 1.267
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "seconds": 128.437
+        },
+        {
+          "package": "internal/analyzers/accesslog",
+          "seconds": 1.47
+        },
+        {
+          "package": "internal/analyzers/apicontract",
+          "seconds": 0.659
+        },
+        {
+          "package": "internal/analyzers/archdoc",
+          "seconds": 0.548
+        },
+        {
+          "package": "internal/analyzers/brokerlog",
+          "seconds": 0.643
+        },
+        {
+          "package": "internal/analyzers/databaselog",
+          "seconds": 1.141
+        },
+        {
+          "package": "internal/analyzers/exception",
+          "seconds": 0.881
+        },
+        {
+          "package": "internal/analyzers/execution",
+          "seconds": 3.374
+        },
+        {
+          "package": "internal/analyzers/gclog",
+          "seconds": 1.275
+        },
+        {
+          "package": "internal/analyzers/gputrace",
+          "seconds": 3.339
+        },
+        {
+          "package": "internal/analyzers/httpcapture",
+          "seconds": 1.303
+        },
+        {
+          "package": "internal/analyzers/httpcorrelation",
+          "seconds": 1.948
+        },
+        {
+          "package": "internal/analyzers/inference",
+          "seconds": 19.87
+        },
+        {
+          "package": "internal/analyzers/jenniferprofile",
+          "seconds": 1.023
+        },
+        {
+          "package": "internal/analyzers/jfr",
+          "seconds": 1.92
+        },
+        {
+          "package": "internal/analyzers/lighthouse",
+          "seconds": 2.155
+        },
+        {
+          "package": "internal/analyzers/lockcontention",
+          "seconds": 1.262
+        },
+        {
+          "package": "internal/analyzers/metrichistory",
+          "seconds": 11.086
+        },
+        {
+          "package": "internal/analyzers/metrics",
+          "seconds": 1.145
+        },
+        {
+          "package": "internal/analyzers/multithread",
+          "seconds": 0.741
+        },
+        {
+          "package": "internal/analyzers/observability",
+          "seconds": 1.2389999999999999
+        },
+        {
+          "package": "internal/analysis",
+          "seconds": 181.695
+        },
+        {
+          "package": "internal/analyzers/otel",
+          "seconds": 1.332
+        },
+        {
+          "package": "internal/analyzers/platform",
+          "seconds": 1.164
+        },
+        {
+          "package": "internal/analyzers/profileclassification",
+          "seconds": 0.58
+        },
+        {
+          "package": "internal/analyzers/runtime",
+          "seconds": 0.561
+        },
+        {
+          "package": "internal/analyzers/profile",
+          "seconds": 1.849
+        },
+        {
+          "package": "internal/analyzers/serverlog",
+          "seconds": 1.073
+        },
+        {
+          "package": "internal/analyzers/runtimeevidence",
+          "seconds": 2.638
+        },
+        {
+          "package": "internal/analyzers/stitching",
+          "seconds": 0.607
+        },
+        {
+          "package": "internal/analyzers/threaddump",
+          "seconds": 1.114
+        },
+        {
+          "package": "internal/analyzers/threaddumpcollapsed",
+          "seconds": 0.636
+        },
+        {
+          "package": "internal/analyzers/traceimport",
+          "seconds": 17.96
+        },
+        {
+          "package": "internal/architecture",
+          "seconds": 1.233
+        },
+        {
+          "package": "internal/capture",
+          "seconds": 0.551
+        },
+        {
+          "package": "internal/analyzers/systemtrace",
+          "seconds": 28.553
+        },
+        {
+          "package": "internal/capture/acceptance",
+          "seconds": 1.012
+        },
+        {
+          "package": "internal/capture/admission",
+          "seconds": 0.515
+        },
+        {
+          "package": "internal/capture/aggregate",
+          "seconds": 0.835
+        },
+        {
+          "package": "internal/capture/automation",
+          "seconds": 2.352
+        },
+        {
+          "package": "internal/capture/backend",
+          "seconds": 0.831
+        },
+        {
+          "package": "internal/capture/browsercache",
+          "seconds": 0.743
+        },
+        {
+          "package": "internal/capture/certstore",
+          "seconds": 0.771
+        },
+        {
+          "package": "internal/capture/content",
+          "seconds": 3.6710000000000003
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "seconds": 7.861
+        },
+        {
+          "package": "internal/capture/dumppolicy",
+          "seconds": 3.676
+        },
+        {
+          "package": "internal/capture/halog",
+          "seconds": 4.286
+        },
+        {
+          "package": "internal/capture/legacy",
+          "seconds": 3.636
+        },
+        {
+          "package": "internal/capture/procmap",
+          "seconds": 3.553
+        },
+        {
+          "package": "internal/capture/proxy",
+          "seconds": 4.471
+        },
+        {
+          "package": "internal/capture/processlaunch",
+          "seconds": 10.509
+        },
+        {
+          "package": "internal/capture/redact",
+          "seconds": 3.703
+        },
+        {
+          "package": "internal/capture/requestbuilder",
+          "seconds": 5.8870000000000005
+        },
+        {
+          "package": "internal/capture/session",
+          "seconds": 4.65
+        },
+        {
+          "package": "internal/capture/sessionfile",
+          "seconds": 4.163
+        },
+        {
+          "package": "internal/capture/store",
+          "seconds": 3.992
+        },
+        {
+          "package": "internal/capture/stream",
+          "seconds": 4.294
+        },
+        {
+          "package": "internal/capture/summary",
+          "seconds": 3.516
+        },
+        {
+          "package": "internal/capture/transparent",
+          "seconds": 3.842
+        },
+        {
+          "package": "internal/cases",
+          "seconds": 9.028
+        },
+        {
+          "package": "internal/common",
+          "seconds": 3.79
+        },
+        {
+          "package": "internal/catalog",
+          "seconds": 10.242
+        },
+        {
+          "package": "internal/diagnostics",
+          "seconds": 3.492
+        },
+        {
+          "package": "internal/demosite",
+          "seconds": 4.437
+        },
+        {
+          "package": "internal/executionmodel",
+          "seconds": 3.596
+        },
+        {
+          "package": "internal/exporters/csv",
+          "seconds": 3.6390000000000002
+        },
+        {
+          "package": "internal/exporters/gputrace",
+          "seconds": 3.653
+        },
+        {
+          "package": "internal/exporters/html",
+          "seconds": 3.868
+        },
+        {
+          "package": "internal/distribution",
+          "seconds": 23.156
+        },
+        {
+          "package": "internal/exporters/json",
+          "seconds": 3.5869999999999997
+        },
+        {
+          "package": "internal/exporters/metriccsv",
+          "seconds": 3.903
+        },
+        {
+          "package": "internal/exporters/pptx",
+          "seconds": 3.583
+        },
+        {
+          "package": "internal/exporters/reportdiff",
+          "seconds": 3.779
+        },
+        {
+          "package": "internal/gputracemodel",
+          "seconds": 3.768
+        },
+        {
+          "package": "internal/inferencemodel",
+          "seconds": 4
+        },
+        {
+          "package": "internal/ingestion",
+          "seconds": 5.141
+        },
+        {
+          "package": "internal/inputassist",
+          "seconds": 5.985
+        },
+        {
+          "package": "internal/llmmodel",
+          "seconds": 3.807
+        },
+        {
+          "package": "internal/localfiles",
+          "seconds": 3.613
+        },
+        {
+          "package": "internal/metricmodel",
+          "seconds": 4.406
+        },
+        {
+          "package": "internal/models",
+          "seconds": 1.6139999999999999
+        },
+        {
+          "package": "internal/modeltest",
+          "seconds": 1.3639999999999999
+        },
+        {
+          "package": "internal/netpolicy",
+          "seconds": 0.605
+        },
+        {
+          "package": "internal/packs",
+          "seconds": 2.204
+        },
+        {
+          "package": "internal/parsers/accesslog",
+          "seconds": 0.818
+        },
+        {
+          "package": "internal/parsers/apicontract",
+          "seconds": 0.616
+        },
+        {
+          "package": "internal/parsers/brokerlog",
+          "seconds": 0.61
+        },
+        {
+          "package": "internal/parsers/databaselog",
+          "seconds": 0.673
+        },
+        {
+          "package": "internal/parsers/exception",
+          "seconds": 0.678
+        },
+        {
+          "package": "internal/parsers/execution",
+          "seconds": 6.552
+        },
+        {
+          "package": "internal/localconvert",
+          "seconds": 35.233
+        },
+        {
+          "package": "internal/parsers/gclog",
+          "seconds": 0.944
+        },
+        {
+          "package": "internal/parsers/gputrace",
+          "seconds": 1.978
+        },
+        {
+          "package": "internal/parsers/httpcapture",
+          "seconds": 1.365
+        },
+        {
+          "package": "internal/parsers/jenniferprofile",
+          "seconds": 0.474
+        },
+        {
+          "package": "internal/parsers/inference",
+          "seconds": 1.4689999999999999
+        },
+        {
+          "package": "internal/parsers/lighthouse",
+          "seconds": 0.57
+        },
+        {
+          "package": "internal/parsers/jfr",
+          "seconds": 3.661
+        },
+        {
+          "package": "internal/parsers/metrichistory",
+          "seconds": 1.688
+        },
+        {
+          "package": "internal/parsers/metrics",
+          "seconds": 0.555
+        },
+        {
+          "package": "internal/parsers/otel",
+          "seconds": 0.887
+        },
+        {
+          "package": "internal/parsers/platform",
+          "seconds": 0.685
+        },
+        {
+          "package": "internal/parsers/runtimeevidence",
+          "seconds": 1.176
+        },
+        {
+          "package": "internal/parsers/runtimestack",
+          "seconds": 0.79
+        },
+        {
+          "package": "internal/parsers/profile",
+          "seconds": 3.618
+        },
+        {
+          "package": "internal/parsers/serverlog",
+          "seconds": 0.796
+        },
+        {
+          "package": "internal/parsers/systemtrace",
+          "seconds": 1.003
+        },
+        {
+          "package": "internal/parsers/traceimport",
+          "seconds": 1.124
+        },
+        {
+          "package": "internal/producerpolicy",
+          "seconds": 0.84
+        },
+        {
+          "package": "internal/profilemodel",
+          "seconds": 1.713
+        },
+        {
+          "package": "internal/profiler",
+          "seconds": 1.427
+        },
+        {
+          "package": "internal/querypage",
+          "seconds": 1.002
+        },
+        {
+          "package": "internal/runtimemodel",
+          "seconds": 0.99
+        },
+        {
+          "package": "internal/statistics",
+          "seconds": 0.849
+        },
+        {
+          "package": "internal/resultcontract",
+          "seconds": 2.842
+        },
+        {
+          "package": "internal/symbolinfo",
+          "seconds": 0.638
+        },
+        {
+          "package": "internal/systemmodel",
+          "seconds": 0.858
+        },
+        {
+          "package": "internal/textio",
+          "seconds": 0.646
+        },
+        {
+          "package": "internal/threaddump",
+          "seconds": 1.024
+        },
+        {
+          "package": "internal/threaddump/plugins/dotnetclrstack",
+          "seconds": 0.886
+        },
+        {
+          "package": "internal/threaddump/plugins/gogoroutine",
+          "seconds": 0.922
+        },
+        {
+          "package": "internal/threaddump/plugins/javajcmdjson",
+          "seconds": 1.085
+        },
+        {
+          "package": "internal/threaddump/plugins/javajstack",
+          "seconds": 0.927
+        },
+        {
+          "package": "internal/threaddump/plugins/nodejsreport",
+          "seconds": 0.574
+        },
+        {
+          "package": "internal/threaddump/plugins/pythondump",
+          "seconds": 0.669
+        },
+        {
+          "package": "internal/timeutil",
+          "seconds": 0.572
+        },
+        {
+          "package": "internal/visualclipboard",
+          "seconds": 0.632
+        },
+        {
+          "package": "internal/wirejson",
+          "seconds": 1.661
+        },
+        {
+          "package": "internal/visuals",
+          "seconds": 8.003
+        }
+      ],
+      "local_log_sha256": "12680ff089faa38bdffc517827d3a21d131ea526fff4c489d52a6a41642bc85c"
+    },
+    "386": {
+      "command": "GOARCH=386 node cmd/archscope-app/build/windows/test.mjs -count=1 -p 2 -timeout 20m -json ./...",
+      "exit": 0,
+      "passed_packages": 131,
+      "no_test_packages": 4,
+      "passed_test_completion_events": 1912,
+      "failed_events": 0,
+      "skips": [
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsBodyCaptureE2E"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsCaptureClientHelper"
+        },
+        {
+          "package": "cmd/archscope-app",
+          "test": "TestWindowsTransparentDirectClientE2E"
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "test": "TestWritePrivateJSONAnyUsesOwnerOnlyPermissions"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestReferencePresetFiltersWhenProvided"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestExplicitRegistrationLifecycleOnCleanHost"
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "test": "TestCOMRemotingHelper"
+        },
+        {
+          "package": "internal/capture/dumppolicy",
+          "test": "TestCurrentIsUnavailableOffWindows"
+        },
+        {
+          "package": "internal/capture/halog",
+          "test": "TestPrivateReferenceSample"
+        },
+        {
+          "package": "internal/capture/procmap",
+          "test": "TestWindowsResolverCostMeasurement"
+        },
+        {
+          "package": "internal/capture/proxy",
+          "test": "TestSEC10ForcedCrashProbe"
+        },
+        {
+          "package": "internal/capture/sessionfile",
+          "test": "TestLargeXLSIndependentReader"
+        },
+        {
+          "package": "internal/capture/transparent",
+          "test": "TestOfficialDriverFingerprints"
+        },
+        {
+          "package": "internal/cases",
+          "test": "TestR606LargePageMeasurement"
+        },
+        {
+          "package": "internal/visuals",
+          "test": "TestVisualFixtureForRealBrowserRaster"
+        }
+      ],
+      "packages": [
+        {
+          "package": "cmd/archscope-app",
+          "seconds": 52.378
+        },
+        {
+          "package": "internal/aiinterpretation",
+          "seconds": 1.292
+        },
+        {
+          "package": "cmd/archscope-engine",
+          "seconds": 177.811
+        },
+        {
+          "package": "internal/analyzers/accesslog",
+          "seconds": 1.453
+        },
+        {
+          "package": "internal/analyzers/apicontract",
+          "seconds": 0.544
+        },
+        {
+          "package": "internal/analyzers/archdoc",
+          "seconds": 0.533
+        },
+        {
+          "package": "internal/analyzers/brokerlog",
+          "seconds": 1.2349999999999999
+        },
+        {
+          "package": "internal/analyzers/databaselog",
+          "seconds": 1.008
+        },
+        {
+          "package": "internal/analyzers/exception",
+          "seconds": 3.68
+        },
+        {
+          "package": "internal/analyzers/execution",
+          "seconds": 6.628
+        },
+        {
+          "package": "internal/analyzers/gclog",
+          "seconds": 3.899
+        },
+        {
+          "package": "internal/analyzers/gputrace",
+          "seconds": 6.4
+        },
+        {
+          "package": "internal/analyzers/httpcapture",
+          "seconds": 3.833
+        },
+        {
+          "package": "internal/analyzers/httpcorrelation",
+          "seconds": 3.778
+        },
+        {
+          "package": "internal/analyzers/inference",
+          "seconds": 13.216
+        },
+        {
+          "package": "internal/analyzers/jenniferprofile",
+          "seconds": 3.992
+        },
+        {
+          "package": "internal/analyzers/jfr",
+          "seconds": 3.934
+        },
+        {
+          "package": "internal/analyzers/lighthouse",
+          "seconds": 3.6879999999999997
+        },
+        {
+          "package": "internal/analyzers/lockcontention",
+          "seconds": 3.496
+        },
+        {
+          "package": "internal/analysis",
+          "seconds": 205.57
+        },
+        {
+          "package": "internal/analyzers/metrics",
+          "seconds": 3.621
+        },
+        {
+          "package": "internal/analyzers/multithread",
+          "seconds": 3.648
+        },
+        {
+          "package": "internal/analyzers/metrichistory",
+          "seconds": 11.471
+        },
+        {
+          "package": "internal/analyzers/observability",
+          "seconds": 3.792
+        },
+        {
+          "package": "internal/analyzers/otel",
+          "seconds": 3.626
+        },
+        {
+          "package": "internal/analyzers/platform",
+          "seconds": 3.599
+        },
+        {
+          "package": "internal/analyzers/profile",
+          "seconds": 3.791
+        },
+        {
+          "package": "internal/analyzers/profileclassification",
+          "seconds": 3.612
+        },
+        {
+          "package": "internal/analyzers/runtime",
+          "seconds": 3.4859999999999998
+        },
+        {
+          "package": "internal/analyzers/runtimeevidence",
+          "seconds": 5.293
+        },
+        {
+          "package": "internal/analyzers/serverlog",
+          "seconds": 3.614
+        },
+        {
+          "package": "internal/analyzers/stitching",
+          "seconds": 3.656
+        },
+        {
+          "package": "internal/analyzers/threaddump",
+          "seconds": 3.63
+        },
+        {
+          "package": "internal/analyzers/threaddumpcollapsed",
+          "seconds": 3.559
+        },
+        {
+          "package": "internal/analyzers/traceimport",
+          "seconds": 20.981
+        },
+        {
+          "package": "internal/architecture",
+          "seconds": 1.1360000000000001
+        },
+        {
+          "package": "internal/capture",
+          "seconds": 0.497
+        },
+        {
+          "package": "internal/analyzers/systemtrace",
+          "seconds": 40.153
+        },
+        {
+          "package": "internal/capture/acceptance",
+          "seconds": 0.733
+        },
+        {
+          "package": "internal/capture/admission",
+          "seconds": 0.588
+        },
+        {
+          "package": "internal/capture/aggregate",
+          "seconds": 0.513
+        },
+        {
+          "package": "internal/capture/backend",
+          "seconds": 0.589
+        },
+        {
+          "package": "internal/capture/automation",
+          "seconds": 1.416
+        },
+        {
+          "package": "internal/capture/browsercache",
+          "seconds": 0.651
+        },
+        {
+          "package": "internal/capture/certstore",
+          "seconds": 0.695
+        },
+        {
+          "package": "internal/capture/content",
+          "seconds": 0.888
+        },
+        {
+          "package": "internal/capture/comautomation",
+          "seconds": 1.508
+        },
+        {
+          "package": "internal/capture/dumppolicy",
+          "seconds": 0.616
+        },
+        {
+          "package": "internal/capture/halog",
+          "seconds": 0.928
+        },
+        {
+          "package": "internal/capture/legacy",
+          "seconds": 0.549
+        },
+        {
+          "package": "internal/capture/procmap",
+          "seconds": 0.446
+        },
+        {
+          "package": "internal/capture/processlaunch",
+          "seconds": 1.284
+        },
+        {
+          "package": "internal/capture/redact",
+          "seconds": 0.495
+        },
+        {
+          "package": "internal/capture/proxy",
+          "seconds": 1.549
+        },
+        {
+          "package": "internal/capture/session",
+          "seconds": 1.321
+        },
+        {
+          "package": "internal/capture/requestbuilder",
+          "seconds": 2.9699999999999998
+        },
+        {
+          "package": "internal/capture/sessionfile",
+          "seconds": 1.492
+        },
+        {
+          "package": "internal/capture/store",
+          "seconds": 1.148
+        },
+        {
+          "package": "internal/capture/summary",
+          "seconds": 0.435
+        },
+        {
+          "package": "internal/capture/stream",
+          "seconds": 1.224
+        },
+        {
+          "package": "internal/capture/transparent",
+          "seconds": 0.822
+        },
+        {
+          "package": "internal/cases",
+          "seconds": 5.758
+        },
+        {
+          "package": "internal/common",
+          "seconds": 0.652
+        },
+        {
+          "package": "internal/catalog",
+          "seconds": 7.479
+        },
+        {
+          "package": "internal/demosite",
+          "seconds": 1.319
+        },
+        {
+          "package": "internal/diagnostics",
+          "seconds": 0.566
+        },
+        {
+          "package": "internal/executionmodel",
+          "seconds": 0.879
+        },
+        {
+          "package": "internal/exporters/csv",
+          "seconds": 0.871
+        },
+        {
+          "package": "internal/exporters/gputrace",
+          "seconds": 0.837
+        },
+        {
+          "package": "internal/exporters/html",
+          "seconds": 1.032
+        },
+        {
+          "package": "internal/exporters/json",
+          "seconds": 0.877
+        },
+        {
+          "package": "internal/exporters/metriccsv",
+          "seconds": 1.026
+        },
+        {
+          "package": "internal/exporters/pptx",
+          "seconds": 0.931
+        },
+        {
+          "package": "internal/exporters/reportdiff",
+          "seconds": 0.815
+        },
+        {
+          "package": "internal/distribution",
+          "seconds": 14.223
+        },
+        {
+          "package": "internal/gputracemodel",
+          "seconds": 1.056
+        },
+        {
+          "package": "internal/inferencemodel",
+          "seconds": 1.094
+        },
+        {
+          "package": "internal/ingestion",
+          "seconds": 2.449
+        },
+        {
+          "package": "internal/inputassist",
+          "seconds": 2.858
+        },
+        {
+          "package": "internal/llmmodel",
+          "seconds": 0.907
+        },
+        {
+          "package": "internal/localfiles",
+          "seconds": 0.51
+        },
+        {
+          "package": "internal/metricmodel",
+          "seconds": 1.522
+        },
+        {
+          "package": "internal/models",
+          "seconds": 0.762
+        },
+        {
+          "package": "internal/modeltest",
+          "seconds": 1.005
+        },
+        {
+          "package": "internal/netpolicy",
+          "seconds": 0.5
+        },
+        {
+          "package": "internal/packs",
+          "seconds": 2.31
+        },
+        {
+          "package": "internal/parsers/accesslog",
+          "seconds": 0.66
+        },
+        {
+          "package": "internal/parsers/apicontract",
+          "seconds": 0.542
+        },
+        {
+          "package": "internal/parsers/brokerlog",
+          "seconds": 0.582
+        },
+        {
+          "package": "internal/parsers/databaselog",
+          "seconds": 0.555
+        },
+        {
+          "package": "internal/parsers/exception",
+          "seconds": 0.708
+        },
+        {
+          "package": "internal/parsers/execution",
+          "seconds": 8.037
+        },
+        {
+          "package": "internal/parsers/gclog",
+          "seconds": 0.818
+        },
+        {
+          "package": "internal/parsers/gputrace",
+          "seconds": 2.259
+        },
+        {
+          "package": "internal/parsers/httpcapture",
+          "seconds": 0.805
+        },
+        {
+          "package": "internal/localconvert",
+          "seconds": 31.908
+        },
+        {
+          "package": "internal/parsers/inference",
+          "seconds": 1.076
+        },
+        {
+          "package": "internal/parsers/jenniferprofile",
+          "seconds": 0.425
+        },
+        {
+          "package": "internal/parsers/lighthouse",
+          "seconds": 0.59
+        },
+        {
+          "package": "internal/parsers/metrichistory",
+          "seconds": 1.808
+        },
+        {
+          "package": "internal/parsers/jfr",
+          "seconds": 4.068
+        },
+        {
+          "package": "internal/parsers/metrics",
+          "seconds": 0.539
+        },
+        {
+          "package": "internal/parsers/otel",
+          "seconds": 0.67
+        },
+        {
+          "package": "internal/parsers/platform",
+          "seconds": 0.615
+        },
+        {
+          "package": "internal/parsers/runtimeevidence",
+          "seconds": 1.296
+        },
+        {
+          "package": "internal/parsers/runtimestack",
+          "seconds": 0.642
+        },
+        {
+          "package": "internal/parsers/profile",
+          "seconds": 3.1189999999999998
+        },
+        {
+          "package": "internal/parsers/serverlog",
+          "seconds": 0.691
+        },
+        {
+          "package": "internal/parsers/systemtrace",
+          "seconds": 0.997
+        },
+        {
+          "package": "internal/parsers/traceimport",
+          "seconds": 1.036
+        },
+        {
+          "package": "internal/producerpolicy",
+          "seconds": 0.756
+        },
+        {
+          "package": "internal/profilemodel",
+          "seconds": 1.732
+        },
+        {
+          "package": "internal/profiler",
+          "seconds": 1.234
+        },
+        {
+          "package": "internal/querypage",
+          "seconds": 0.858
+        },
+        {
+          "package": "internal/runtimemodel",
+          "seconds": 0.919
+        },
+        {
+          "package": "internal/statistics",
+          "seconds": 0.791
+        },
+        {
+          "package": "internal/resultcontract",
+          "seconds": 3.372
+        },
+        {
+          "package": "internal/symbolinfo",
+          "seconds": 0.547
+        },
+        {
+          "package": "internal/textio",
+          "seconds": 0.512
+        },
+        {
+          "package": "internal/systemmodel",
+          "seconds": 0.926
+        },
+        {
+          "package": "internal/threaddump",
+          "seconds": 0.863
+        },
+        {
+          "package": "internal/threaddump/plugins/dotnetclrstack",
+          "seconds": 0.841
+        },
+        {
+          "package": "internal/threaddump/plugins/gogoroutine",
+          "seconds": 0.804
+        },
+        {
+          "package": "internal/threaddump/plugins/javajcmdjson",
+          "seconds": 0.911
+        },
+        {
+          "package": "internal/threaddump/plugins/javajstack",
+          "seconds": 0.876
+        },
+        {
+          "package": "internal/threaddump/plugins/nodejsreport",
+          "seconds": 0.508
+        },
+        {
+          "package": "internal/threaddump/plugins/pythondump",
+          "seconds": 0.56
+        },
+        {
+          "package": "internal/timeutil",
+          "seconds": 0.518
+        },
+        {
+          "package": "internal/visualclipboard",
+          "seconds": 0.603
+        },
+        {
+          "package": "internal/wirejson",
+          "seconds": 1.563
+        },
+        {
+          "package": "internal/visuals",
+          "seconds": 11.623
+        }
+      ],
+      "local_log_sha256": "0c0b67bd7758166209a743a74c374a026a73a98090019e0f312f50fa0eae1ffd"
+    }
+  },
+  "binaries": {
+    "engine-amd64": {
+      "sha256": "9607503ff645e3f81c9105311081957c80116c898498973b9960ecd5466f6b8d",
+      "bytes": 44946944,
+      "pe_machine": "0x8664"
+    },
+    "control-amd64": {
+      "sha256": "85b42fab3468ff181d31dd3eeec425dbbdd684a1daa2549bf1c0f899ce6d941c",
+      "bytes": 56089088,
+      "pe_machine": "0x8664"
+    },
+    "engine-386": {
+      "sha256": "a7b8b6b46563704ff4ceb4cc791d00f6d581532b507be95595975d736d5d899d",
+      "bytes": 43653120,
+      "pe_machine": "0x14c"
+    },
+    "control-386": {
+      "sha256": "e809c44676b892541dc3b11c360816684ef1a1cc072f9e78dae49ff33cfd0e64",
+      "bytes": 54142976,
+      "pe_machine": "0x14c"
+    }
+  },
+  "other_checks": {
+    "frontend_npm_ci": "PASS: 0 audit vulnerabilities",
+    "frontend_state": "PASS",
+    "frontend_production_build": "PASS",
+    "vet_amd64": "PASS",
+    "vet_386": "PASS",
+    "offline_fixtures_each_arch": 11,
+    "desktop_only_server_build_refusal": "PASS"
+  },
+  "limits": [
+    "No full native parity or independent PASS is asserted.",
+    "Opt-in body/transparent/foreign vendor tests retain their explicit gates.",
+    "Only synthetic loopback traffic used by control/soak harnesses."
+  ]
+}

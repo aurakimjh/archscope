@@ -5124,3 +5124,7 @@ Pulled f25ab80a with --ff-only, preserving existing untracked .tmp directories. 
 ### 2026-11-13 - Korean Windows Python resource builders
 
 Reproduced cp949 UnicodeDecodeError in recipe JSON and go list JSON. Resource builders now decode UTF-8 explicitly and notice manifests emit deterministic UTF-8/LF bytes. Added an optional notice --out directory to verify host-specific inventories without replacing shipped notices. With PYTHONUTF8=0/default cp949, both asset checks pass and actual Windows notice generation in a Korean/space path verifies all84 dependency entries and every notice hash. Existing shipped notices remain unchanged. Receipt: docs/review/evidence/2026-11-13-windows/python-encoding.json.
+
+### 2026-11-13 - Pulled diagnostics full native Windows regression
+
+At product/script commit1bd8b850, both amd64 and386 full uncached native Go suites pass131 packages (4 without tests), zero failures. Both whole vet runs, frontend state/production, 11 offline importers per architecture, desktop-only server rejection, engine and production GUI builds pass. Both stamped production apps pass4/16 controller parity cases (control/process/103+redirect/session round-trip); overall remains UNVERIFIED. Native-host122.824s loopback soak passes38 cycles/9880 requests, at most64 rows. No local race claim: CGO is disabled and no C compiler is available. Opt-in native gates and all six existing open tasks remain open. Detailed packages/skips/commands/binary hashes and bounded controller/soak evidence: docs/review/evidence/2026-11-13-windows/validation.json.
