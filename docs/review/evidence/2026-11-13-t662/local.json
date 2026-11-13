@@ -1,0 +1,35 @@
+{
+  "task": "T-662",
+  "status": "PENDING",
+  "qualification": "EVIDENCE_PARTIAL; this capture is actual zero-swap/raw-pressure1 evidence, not natural nonzero-swap/elevated-pressure qualification.",
+  "collector": {
+    "version": "1.1.0",
+    "platform": "Apple Silicon macOS",
+    "macos_version": "27.2.1",
+    "macos_build": "26B131",
+    "ollama_version": "0.40.16",
+    "samples": 3
+  },
+  "independent_before": {
+    "reader": "sysctl binary xsw_usage + independent struct.unpack =QQQII",
+    "swap_total_bytes": "0",
+    "swap_available_bytes": "0",
+    "swap_used_bytes": "0",
+    "page_size": 16384,
+    "pressure_raw": "1"
+  },
+  "independent_after": {
+    "reader": "sysctl binary xsw_usage + independent struct.unpack =QQQII",
+    "swap_total_bytes": "0",
+    "swap_available_bytes": "0",
+    "swap_used_bytes": "0",
+    "page_size": 16384,
+    "pressure_raw": "1"
+  },
+  "capture_sha256": "1aa64589c4d2687a1bd7f020381d172a25b02a7463a77fc2f03a302b0ebc9810",
+  "actual_capture": "actual-zero-swap.json",
+  "action": "Read-only natural observation. No memory stress, model load, swap control or pressure injection. Selected model and other model counts were0.",
+  "required": "Owner-authorized actual naturally occurring nonzero swap/elevated-pressure observations with independent values. Existing actual multi-load evidence remains partial.",
+  "readback": "Actual capture accepted by existing metrics history-inspect CLI.",
+  "user_disposition": "User explicitly requested push remain on hold until natural observation evidence is available."
+}

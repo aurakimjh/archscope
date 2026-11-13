@@ -1,6 +1,6 @@
 {
   "task": "T-654",
-  "status": "PENDING",
+  "status": "TODO",
   "prepared": "Explicit two-GPU CUDA/NCCL synthetic sharded-inference capture harness and owner-run procedure. No CPU/Gloo fallback.",
   "local_observation": {
     "host": "Darwin arm64",
@@ -22,5 +22,6 @@
     "raw sanitization and independent interval/common-consumer acceptance"
   ],
   "required": "Permitted two-NVIDIA-GPU Linux environment or selected cloud/service and cost limit. Full producer/CUDA/NCCL versions and per-rank clocks must remain disclosed.",
-  "publication": "Task is not complete; user requested push only after whole batch completion."
+  "publication": "Task is not complete; user requested push only after whole batch completion.",
+  "user_disposition": "User explicitly requested NVIDIA GPU work remain TODO; hardware execution stays unperformed."
 }
