@@ -3,8 +3,6 @@
 package visuals
 
 import (
-	"bytes"
-	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -91,19 +89,17 @@ type Spec struct {
 	Parent          string       `json:"parent,omitempty"`
 }
 
-func Digest(body []byte) string { s := sha256.Sum256(body); return hex.EncodeToString(s[:]) }
-func Hash(value any) string     { body, _ := json.Marshal(value); return Digest(body) }
+func Digest(body []byte) string {
+	return wirejson.Digest(body)
+}
+func Hash(value any) string {
+	return wirejson.Hash(value)
+}
 func Strict(body []byte, out any, limit int) error {
 	if len(body) > limit {
 		return fmt.Errorf("VISUAL_BUDGET_EXCEEDED: JSON bytes=%d limit=%d", len(body), limit)
 	}
-	if err := wirejson.DecodeWithLimits(body, new(any), wirejson.ResultLimits(int64(limit), 128)); err != nil {
-		return err
-	}
-	decoder := json.NewDecoder(bytes.NewReader(body))
-	decoder.DisallowUnknownFields()
-	decoder.UseNumber()
-	return decoder.Decode(out)
+	return wirejson.StrictWithLimits(body, out, wirejson.ResultLimits(int64(limit), 128))
 }
 func DefaultPresentation() Presentation {
 	return Presentation{Width: 2400, Height: 1600, FontSize: 26, RowsPerPage: 20, Title: "Selected analysis view"}

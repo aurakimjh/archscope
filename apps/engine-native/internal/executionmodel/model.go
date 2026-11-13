@@ -7,10 +7,10 @@ import (
 	"fmt"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
 	pp "github.com/aurakimjh/archscope/apps/engine-native/internal/producerpolicy"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
 	"math/big"
 	"regexp"
 	"strings"
-	"unicode/utf8"
 )
 
 const Version = "1.0.0"
@@ -23,9 +23,11 @@ func Ptr(v string) *string { return &v }
 
 var digestRE = regexp.MustCompile(`^[a-f0-9]{64}$`)
 
-func Digest(v string) bool { return digestRE.MatchString(v) }
+func Digest(v string) bool {
+	return wirejson.IsDigest(v)
+}
 func Text(v string) bool {
-	return len(v) <= 1024 && utf8.ValidString(v) && !strings.ContainsAny(v, "\x00\r\n")
+	return wirejson.Text(v, 1024)
 }
 func Known(v string) bool { return Text(v) && v != "" && v != "unknown" }
 func In(v string, vs ...string) bool {
@@ -77,7 +79,7 @@ func Strict(raw []byte, out any, limit int) error {
 	if len(raw) > limit {
 		return fmt.Errorf("EXECUTION_BYTES_BUDGET: bytes=%d limit=%d; split original export", len(raw), limit)
 	}
-	return m.Strict(raw, out)
+	return wirejson.StrictWithLimits(raw, out, wirejson.ResultLimits(int64(limit), 128))
 }
 
 type Source struct {

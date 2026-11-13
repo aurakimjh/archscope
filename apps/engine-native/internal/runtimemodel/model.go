@@ -8,10 +8,9 @@ import (
 	"fmt"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
 	p "github.com/aurakimjh/archscope/apps/engine-native/internal/profilemodel"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
 	"math/big"
 	"regexp"
-	"strings"
-	"unicode/utf8"
 )
 
 const Version = "1.0.0"
@@ -114,7 +113,7 @@ func Empty() Set {
 func Hash(v any) string                  { return m.Hash(v) }
 func ObservationID(v Observation) string { v.ID = ""; return "runtime-observation-" + Hash(v) }
 func Text(s string) bool {
-	return len(s) <= 1024 && utf8.ValidString(s) && !strings.ContainsAny(s, "\x00\r\n")
+	return wirejson.Text(s, 1024)
 }
 func In(s string, vs ...string) bool {
 	for _, v := range vs {
@@ -127,12 +126,12 @@ func In(s string, vs ...string) bool {
 func Strict(raw []byte, out any, limits ...int) error {
 	limit := MaxBytes
 	if len(limits) > 0 {
-		limit = min(limit, limits[0])
+		limit = limits[0]
 	}
 	if len(raw) > limit {
 		return fmt.Errorf("RUNTIME_BYTES_BUDGET: bytes=%d limit=%d; split original observations", len(raw), limit)
 	}
-	return m.Strict(raw, out)
+	return wirejson.StrictWithLimits(raw, out, wirejson.ResultLimits(int64(limit), 128))
 }
 func Decode(ctx context.Context, raw []byte) (Set, error) {
 	var s Set
@@ -144,7 +143,9 @@ func Decode(ctx context.Context, raw []byte) (Set, error) {
 
 var digest = regexp.MustCompile(`^[a-f0-9]{64}$`)
 
-func Digest(s string) bool { return digest.MatchString(s) }
+func Digest(s string) bool {
+	return wirejson.IsDigest(s)
+}
 func uintp(s *string) bool {
 	if s == nil {
 		return true

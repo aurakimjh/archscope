@@ -3,12 +3,8 @@
 package packs
 
 import (
-	"bytes"
 	"crypto/ed25519"
-	"crypto/sha256"
 	"encoding/base64"
-	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -39,15 +35,11 @@ type Error struct {
 
 func (e *Error) Error() string       { return e.Code + ": " + e.Message }
 func problem(code, msg string) error { return &Error{code, msg} }
-func Hash(b []byte) string           { s := sha256.Sum256(b); return hex.EncodeToString(s[:]) }
+func Hash(b []byte) string {
+	return wirejson.Digest(b)
+}
 func Strict(b []byte, v any) error {
-	if e := wirejson.Decode(b, new(any)); e != nil {
-		return e
-	}
-	d := json.NewDecoder(bytes.NewReader(b))
-	d.DisallowUnknownFields()
-	d.UseNumber()
-	return d.Decode(v)
+	return wirejson.StrictWithLimits(b, v, wirejson.DefaultLimits)
 }
 
 type Range struct {

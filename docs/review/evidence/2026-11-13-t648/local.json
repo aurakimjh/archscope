@@ -1,0 +1,20 @@
+{
+  "task": "T-648",
+  "checks": {
+    "full_go_race": {
+      "passing_packages": 122,
+      "packages_without_tests": 11,
+      "failing_packages": 0,
+      "exit_code": 0,
+      "flags": "-race -count=1 -p 2 -timeout 20m"
+    },
+    "full_go_vet": "PASS",
+    "k6_42_mib_source": "PASS",
+    "strict_domain_byte_boundary": "PASS",
+    "atomic_unknown_duplicate_utf8_trailing": "PASS",
+    "caller_defaults_and_custom_readers": "PASS",
+    "existing_fixture_identity": "PASS"
+  },
+  "independent_review": "NOT_RUN",
+  "hosted_ci": "NOT_RUN"
+}

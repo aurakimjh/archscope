@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
 	"math/big"
 	"strings"
 
@@ -115,13 +116,13 @@ type Set struct {
 
 func Strict(raw []byte, out any, limits ...int) error {
 	limit := MaxBytes
-	if len(limits) > 0 && limits[0] < limit {
+	if len(limits) > 0 {
 		limit = limits[0]
 	}
 	if len(raw) > limit {
 		return fmt.Errorf("INFERENCE_BUDGET: JSON exceeds %d bytes", limit)
 	}
-	return m.Strict(raw, out)
+	return wirejson.StrictWithLimits(raw, out, wirejson.ResultLimits(int64(limit), 128))
 }
 func Decode(ctx context.Context, raw []byte) (Set, error) {
 	var s Set

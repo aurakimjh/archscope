@@ -1046,3 +1046,16 @@ T-644: trace.gpu-execution-json / trace_import0.4.0 / gpu_execution_core1.0.0 pr
 
 
 T-645 bounded actual DB/OS snapshot batch: [Manual database and socket snapshots](SYSTEM_DB_SNAPSHOTS.md). Existing MetricHistory transport, exact epochs/gauges and common consumers; other adapters remain fixture-gated.
+
+## Strict JSON and caller-owned byte budgets
+
+The metric, execution, GPU, inference, LLM, runtime, system, visual and pack
+strict model readers share `wirejson.StrictWithLimits`: UTF-8, duplicate
+keys, unknown struct fields, trailing data, depth/string/key/array bounds and
+precision-preserving numbers are checked before atomically replacing the output.
+Source readers explicitly supply their input byte allowance; a 64 MiB source is
+not silently reduced by a downstream model's 32 MiB saved-model allowance. Model
+Decode methods still enforce their own saved-model ceilings. Byte refusals retain
+the caller's domain and actual limit. Structural bounds apply independently, so
+fitting the byte allowance alone does not guarantee acceptance. Hash and canonical
+uint64/text helpers retain the established serialized identifier encoding.

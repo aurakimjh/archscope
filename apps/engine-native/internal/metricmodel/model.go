@@ -4,7 +4,6 @@ package metricmodel
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -115,9 +114,7 @@ type Set struct {
 }
 
 func Hash(value any) string {
-	body, _ := json.Marshal(value)
-	sum := sha256.Sum256(body)
-	return hex.EncodeToString(sum[:])
+	return wirejson.Hash(value)
 }
 func Canonical(raw []byte) (json.RawMessage, error) {
 	var value any
@@ -130,11 +127,11 @@ func Canonical(raw []byte) (json.RawMessage, error) {
 func Number(s string) (*big.Rat, error) { return profilemodel.Number(s) }
 func Text(n *big.Rat) string            { return profilemodel.Text(n) }
 func Uint(s string) (*big.Int, error) {
-	n, ok := new(big.Int).SetString(s, 10)
-	if !ok || n.Sign() < 0 || n.BitLen() > 64 || n.String() != s {
+	n, err := wirejson.Uint64(s)
+	if err != nil {
 		return nil, fmt.Errorf("METRIC_INTEGER_INVALID: canonical uint64 required")
 	}
-	return n, nil
+	return new(big.Int).SetUint64(n), nil
 }
 func Time(s *string) (uint64, bool) {
 	if s == nil {
@@ -160,13 +157,7 @@ func Strict(raw []byte, out any) error {
 	if len(raw) > MaxBytes {
 		return budget("json_bytes", len(raw), MaxBytes)
 	}
-	if e := wirejson.DecodeWithLimits(raw, new(any), wirejson.ResultLimits(MaxBytes, 128)); e != nil {
-		return e
-	}
-	d := json.NewDecoder(bytes.NewReader(raw))
-	d.DisallowUnknownFields()
-	d.UseNumber()
-	return d.Decode(out)
+	return wirejson.StrictWithLimits(raw, out, wirejson.ResultLimits(MaxBytes, 128))
 }
 func (s Set) Validate(ctx context.Context) error {
 	if s.Version != Version || !supportedNormalizer(s.Normalizer) {

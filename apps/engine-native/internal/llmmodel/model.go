@@ -5,9 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
 	"regexp"
 	"strings"
-	"unicode/utf8"
 
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
 )
@@ -117,13 +117,13 @@ func SpanID(source string, s Span) string { s.ID = ""; return "record-" + Hash([
 func EventID(e Event) string              { e.ID = ""; return "event-" + Hash(e) }
 func Strict(raw []byte, out any, limits ...int) error {
 	limit := MaxBytes
-	if len(limits) > 0 && limits[0] < limit {
+	if len(limits) > 0 {
 		limit = limits[0]
 	}
 	if len(raw) > limit {
 		return fmt.Errorf("LLMTRACE_BUDGET: bytes=%d limit=%d", len(raw), limit)
 	}
-	return m.Strict(raw, out)
+	return wirejson.StrictWithLimits(raw, out, wirejson.ResultLimits(int64(limit), 128))
 }
 func Decode(ctx context.Context, raw []byte) (Set, error) {
 	var s Set
@@ -133,7 +133,7 @@ func Decode(ctx context.Context, raw []byte) (Set, error) {
 	return s, s.Validate(ctx)
 }
 func Text(s string) bool {
-	return len(s) <= 1024 && utf8.ValidString(s) && !strings.ContainsAny(s, "\x00\r\n")
+	return wirejson.Text(s, 1024)
 }
 
 var hex32 = regexp.MustCompile(`^[0-9a-f]{32}$`)

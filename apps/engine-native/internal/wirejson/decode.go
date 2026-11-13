@@ -36,6 +36,17 @@ func LegacyResultLimits() Limits { return ResultLimits(512<<20, 1024) }
 
 func Decode(data []byte, out any) error { return DecodeWithLimits(data, out, DefaultLimits) }
 func DecodeWithLimits(data []byte, out any, l Limits) error {
+	return decodeWithLimits(data, out, l, false)
+}
+
+// StrictWithLimits shares duplicate-key, UTF-8, cardinality and atomic decode
+// checks with ordinary decoding, and rejects unknown struct fields. The caller
+// owns the effective byte ceiling; no model-domain limit is applied internally.
+func StrictWithLimits(data []byte, out any, l Limits) error {
+	return decodeWithLimits(data, out, l, true)
+}
+
+func decodeWithLimits(data []byte, out any, l Limits, strict bool) error {
 	if !utf8.Valid(data) {
 		return fmt.Errorf("JSON must be UTF-8")
 	}
@@ -52,11 +63,29 @@ func DecodeWithLimits(data []byte, out any, l Limits) error {
 	}
 	d = json.NewDecoder(bytes.NewReader(data))
 	d.UseNumber()
+	if strict {
+		d.DisallowUnknownFields()
+	}
 	target := reflect.ValueOf(out)
 	if target.Kind() != reflect.Pointer || target.IsNil() {
 		return fmt.Errorf("JSON destination must be a non-nil pointer")
 	}
 	next := reflect.New(target.Elem().Type())
+	_, customDecode := next.Interface().(json.Unmarshaler)
+	if strict && !customDecode && !target.Elem().IsZero() {
+		// Strict model readers historically overlay caller-supplied defaults
+		// (for example report presentation presets). Clone those defaults so
+		// an unknown-field/type error cannot partially modify caller-owned maps.
+		defaults, err := json.Marshal(target.Elem().Interface())
+		if err != nil {
+			return err
+		}
+		initial := json.NewDecoder(bytes.NewReader(defaults))
+		initial.UseNumber()
+		if err = initial.Decode(next.Interface()); err != nil {
+			return err
+		}
+	}
 	if e := d.Decode(next.Interface()); e != nil {
 		return e
 	}

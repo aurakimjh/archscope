@@ -7,9 +7,9 @@ import (
 	"fmt"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
 	pp "github.com/aurakimjh/archscope/apps/engine-native/internal/producerpolicy"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
 	"math/big"
 	"strings"
-	"unicode/utf8"
 )
 
 const Version = "1.0.0"
@@ -87,7 +87,7 @@ func Empty() Set {
 }
 func Hash(v any) string { return m.Hash(v) }
 func Text(s string) bool {
-	return utf8.ValidString(s) && len(s) <= 1024 && !strings.ContainsAny(s, "\x00\r\n")
+	return wirejson.Text(s, 1024)
 }
 func Known(s string) bool { return Text(s) && s != "" && s != "unknown" }
 func Uint(s string) bool {
@@ -109,7 +109,7 @@ func Strict(b []byte, v any, limit int) error {
 	if len(b) > limit {
 		return fmt.Errorf("GPU_TRACE_BYTES_BUDGET: bytes=%d limit=%d", len(b), limit)
 	}
-	return m.Strict(b, v)
+	return wirejson.StrictWithLimits(b, v, wirejson.ResultLimits(int64(limit), 128))
 }
 func SourceID(v Source) string { v.ID = ""; return "gpu-source-" + Hash(v) }
 func TrackID(v Track) string   { v.ID = ""; return "gpu-track-" + Hash(v) }

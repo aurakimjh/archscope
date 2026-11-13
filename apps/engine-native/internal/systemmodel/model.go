@@ -2,10 +2,7 @@
 package systemmodel
 
 import (
-	"bytes"
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
@@ -112,18 +109,17 @@ var unsigned = regexp.MustCompile(`^(0|[1-9][0-9]*)$`)
 var signed = regexp.MustCompile(`^-?(0|[1-9][0-9]*)$`)
 var hashPattern = regexp.MustCompile(`^[a-f0-9]{64}$`)
 
-func Hash(v any) string      { b, _ := json.Marshal(v); return Digest(b) }
-func Digest(b []byte) string { x := sha256.Sum256(b); return hex.EncodeToString(x[:]) }
+func Hash(v any) string {
+	return wirejson.Hash(v)
+}
+func Digest(b []byte) string {
+	return wirejson.Digest(b)
+}
 func Strict(b []byte, out any, limit int) error {
 	if len(b) > limit {
 		return fmt.Errorf("SYSTEM_BUDGET: bytes=%d limit=%d", len(b), limit)
 	}
-	if e := wirejson.DecodeWithLimits(b, new(any), wirejson.ResultLimits(int64(limit), 128)); e != nil {
-		return e
-	}
-	d := json.NewDecoder(bytes.NewReader(b))
-	d.DisallowUnknownFields()
-	return d.Decode(out)
+	return wirejson.StrictWithLimits(b, out, wirejson.ResultLimits(int64(limit), 128))
 }
 func UInt(s string) bool {
 	_, e := strconv.ParseUint(s, 10, 64)
