@@ -1,0 +1,59 @@
+{
+  "task": "T-613",
+  "overall": "PENDING",
+  "runs": [
+    {
+      "architecture": "amd64",
+      "elapsedSeconds": 7200.294369900001,
+      "generatedRequests": 25388,
+      "pauseResumeCycles": 119,
+      "clears": 11,
+      "checkpoints": 241,
+      "maxRetainedRows": 128,
+      "maxDropped": 0,
+      "allRootProcessesResponding": true,
+      "rootPrivateMiB": {
+        "start": 98.64,
+        "end": 78.54,
+        "peak": 98.64
+      },
+      "terminalSavedRows": 128,
+      "terminalSavedSha256": "86c38450bab735bd3928d3053cf51b7bf22e15dfa28497c441589182fcd84b92",
+      "timedCaptureGuards": "PASS_SELECTED_CHECKS",
+      "originalHarnessPassed": true,
+      "originalHarnessFailure": null,
+      "buildCommit": "649aa15fdf429d12d67f4a3f74b6c706568740d8",
+      "binarySha256": "4489eb9dfa687793240e163e3c55f9a505357fb49883c2a531704526a076cb07"
+    },
+    {
+      "architecture": "386",
+      "elapsedSeconds": 7201.6426564,
+      "generatedRequests": 25344,
+      "pauseResumeCycles": 120,
+      "clears": 12,
+      "checkpoints": 242,
+      "maxRetainedRows": 128,
+      "maxDropped": 0,
+      "allRootProcessesResponding": true,
+      "rootPrivateMiB": {
+        "start": 89.31,
+        "end": 63.27,
+        "peak": 89.31
+      },
+      "terminalSavedRows": 0,
+      "terminalSavedSha256": "8878f4ee5d91cc812307d1ead1e9458451a82fade05c9aa17632d34563783110",
+      "timedCaptureGuards": "PASS_SELECTED_CHECKS",
+      "originalHarnessPassed": false,
+      "originalHarnessFailure": "TypeError: Cannot read properties of null (reading 'length')",
+      "buildCommit": "649aa15fdf429d12d67f4a3f74b6c706568740d8",
+      "binarySha256": "ecebfa4b14a1bbfd9cc86a4cc97711b6b3b97350d95dc4150878d2489383dff4",
+      "boundaryExplanation": "At7200s clear removed all rows; save/open commands returned, then the harness dereferenced transactions:null.length. This is preserved as a failed terminal harness check."
+    }
+  ],
+  "limits": [
+    "Explicit-proxy synthetic HTTP only; bodies disabled.",
+    "Root process memory only; native detail/reentry inspected at selected intervals.",
+    "386 original two-hour terminal harness failed; capture/liveness guards ran7201s with0drops.",
+    "No original/vendor/driver full parity or independent acceptance claim."
+  ]
+}

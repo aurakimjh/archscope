@@ -1,0 +1,15 @@
+{
+  "scenario": "Updated reusable runner short smoke, not two-hour evidence",
+  "requestedSeconds": 10,
+  "elapsedSeconds": 10.682305900000001,
+  "requests": 40,
+  "savedRows": 40,
+  "binarySha256": "6730ad050696ee30703545d6c69b06d497a43914337004aab8c2d00f70b2d2ff",
+  "buildCommit": "390c47ca37a53388a72850bc17b566d6491813e3",
+  "passed": true,
+  "changes": [
+    "Seed4 final requests after timer before stop/save",
+    "Keep owned child referenced until explicit cleanup"
+  ],
+  "currentHarnessSha256": "ffdcec010d489d9d9174e1071a1137a977b059bdbd137c5523ce97e17a909645"
+}

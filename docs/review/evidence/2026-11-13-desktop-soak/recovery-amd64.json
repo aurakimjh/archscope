@@ -1,0 +1,18 @@
+{
+  "task": "T-613",
+  "architecture": "amd64",
+  "scenario": "12 synthetic HTTP records, forced owned desktop termination without Stop, restart same isolated store, native recovery summary, nonempty save/open with selected ID equality",
+  "buildCommit": "390c47ca37a53388a72850bc17b566d6491813e3",
+  "binarySha256": "6730ad050696ee30703545d6c69b06d497a43914337004aab8c2d00f70b2d2ff",
+  "generatedRequests": 12,
+  "recoveredRows": 12,
+  "manifestState": "recoverable",
+  "nativeUI": "Recovered1 session12 records0B discarded tail; observed before save/open",
+  "savedSessionSha256": "c3808d52df0993cd001b6ef2f2d98577f061ee6c5cee566d4c4c892c7940b48d",
+  "status": "PASS_SELECTED_CASE",
+  "limits": [
+    "Forced process termination, not power loss or a corrupted-tail fault.",
+    "Bodies disabled by current Windows policy.",
+    "Separate latest-product scenario; not the executable used for the2-hour run."
+  ]
+}

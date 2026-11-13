@@ -54,3 +54,33 @@ normal Windows Display settings, record the selected display, and restore its
 original scale afterwards. A receipt can contain earlier observations from the
 same process at different scales; use each view DPR and the separately saved
 phase receipt, not only the latest screen metadata.
+
+## Production Windows desktop soak
+
+Use the production executable (without layoutaudit), an isolated loopback-only
+synthetic HTTP origin and a new output directory. `soak-origin.py` serves the
+fixture on container port8000; publish it only on127.0.0.1. The script never
+changes Windows body-capture or network policy.
+
+```powershell
+node scripts/verify-windows-desktop-soak.mjs --exe .tmp/archscope.exe --out .tmp/native-soak-new --origin http://127.0.0.1:12017/ --duration 7200
+```
+
+The runner attaches only its own PID/start identity, disables bodies, uses128
+retained rows, pauses/resumes each minute and clears every10minutes. It records
+controller counters and root-process memory/liveness every30seconds. That memory
+is not total WebView memory. Confirm UI correctness separately through the native
+app. Private controller/session files contain authentication/session identity;
+never commit them. `progress.json` and `result.json` omit these private IDs.
+
+After the duration, the current runner seeds4 final requests to guarantee a
+nonempty save/open check even if the last clear occurs at the boundary. The
+completed result is written while the owned app remains alive for observation;
+the terminal command exits after that app is stopped. Verify its executable path
+and private descriptor PID, then stop only that owned process and the owned
+fixture container. Never clean up unrelated desktop apps or Docker containers.
+
+The archived2026-11-13 two-hour runner predates the4-request final seed and
+referenced-child change. Its actual source is preserved with the evidence. Empty
+boundary saves, if any, must be disclosed and supplemented by a separate
+nonempty round-trip; never present empty readback as populated coverage.

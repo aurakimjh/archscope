@@ -105,3 +105,7 @@ docs/review/evidence/2026-11-12-metric-cache/*.txt text eol=lf
 # Native acceptance receipts hash exact exported/artifact bytes on Windows.
 docs/review/evidence/2026-11-13-native-matrix/* -text whitespace=cr-at-eol
 docs/review/evidence/2026-11-13-desktop-soak/* -text whitespace=cr-at-eol
+
+# The native soak receipt pins the reusable runner source digest.
+scripts/verify-windows-desktop-soak.mjs text eol=lf
+scripts/acceptance/layout/soak-origin.py text eol=lf

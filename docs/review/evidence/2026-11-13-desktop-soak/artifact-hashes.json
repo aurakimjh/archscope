@@ -1,0 +1,98 @@
+{
+  "386-terminal-boundary-native.jpg": {
+    "bytes": 114813,
+    "sha256": "37300eecb4b507f4da7d9b95fde1d4c20791ffaaf9d910283472cbf10bfeade8"
+  },
+  "boundary-runner-used.mjs": {
+    "bytes": 8935,
+    "sha256": "fb015bb27ebbc64501664bdfcbce9efb24739e852714f9dc37fbd67a86cb3196"
+  },
+  "crash-386-recovery-banner.jpg": {
+    "bytes": 71067,
+    "sha256": "5945e9b4742d76011038e4027fb97924d1e29721d2db22827531afa0d2c117f6"
+  },
+  "crash-amd64-recovery-banner.jpg": {
+    "bytes": 102730,
+    "sha256": "f4107208018be207450a4b0650e42a04761038763db2e8404bd4746ef6d50d11"
+  },
+  "preliminary-recovered-386-readback.jpg": {
+    "bytes": 143011,
+    "sha256": "cb924301dc4bc6f3b77706857f53665f80a09ecfbf8512d10b218464662091d1"
+  },
+  "preliminary-recovered-amd64-readback.jpg": {
+    "bytes": 141667,
+    "sha256": "a9f17e9ff7b04a36e10258a01a7251f79e0755747d66d01c269318bb890015e4"
+  },
+  "README.md": {
+    "bytes": 4900,
+    "sha256": "07155b5b870682810bc161fd58fd3df8504668940a3ad7860eb377d202659552"
+  },
+  "recovery-386.json": {
+    "bytes": 913,
+    "sha256": "dbcaa37c3b70a883fc07bc30fa320f18515e953d1fb5b9e100241fe5231214fd"
+  },
+  "recovery-amd64.json": {
+    "bytes": 915,
+    "sha256": "bd01b4a86f54d6b6fde42cf1e9530de7ccedea65df7a3d4c63d9e662c72d754b"
+  },
+  "recovery-runner-used.mjs": {
+    "bytes": 7557,
+    "sha256": "94b7b12b89f23f4e473add8de9c0ab337536531a1a628fb4bb327379effaf1a0"
+  },
+  "soak-386-late-running.jpg": {
+    "bytes": 106894,
+    "sha256": "adc4a9697a3e238c5f4d2fd39791435880c5570276c2078eff4c570b5e3467de"
+  },
+  "soak-386-mid-body.jpg": {
+    "bytes": 130413,
+    "sha256": "b82722a3e20e30816975d358bcf33d610cb6d867a896d244c5b70187a9a30275"
+  },
+  "soak-386-mid-headers.jpg": {
+    "bytes": 123157,
+    "sha256": "a0deb121ecfb6c20bf38e059516080a7d212777eeac41f38fcb789985a32526e"
+  },
+  "soak-386-mid-reentry.jpg": {
+    "bytes": 107776,
+    "sha256": "b24549fd3c91c7bb4013c92e2a0486a3eeadd3d3f05e29eb818681eff111031f"
+  },
+  "soak-386.json": {
+    "bytes": 198332,
+    "sha256": "225b06b803b101ae732e276186914548f34dc1bbfab3d653b937da4c12263f6e"
+  },
+  "soak-amd64-late-running.jpg": {
+    "bytes": 106583,
+    "sha256": "2161be3eacc55801e90f44017adfaba948763510bf202e6d559fc29998bc6dc5"
+  },
+  "soak-amd64-mid-body.jpg": {
+    "bytes": 130119,
+    "sha256": "ec63263bca8b89b336946b1effba802f4778118cd120d4df3d9968542788b4a0"
+  },
+  "soak-amd64-mid-headers.jpg": {
+    "bytes": 122594,
+    "sha256": "bf5360ca47b766b4bf7095c3720f4c2ce1e521c105646e8feec948a957922419"
+  },
+  "soak-amd64-mid-reentry.jpg": {
+    "bytes": 108475,
+    "sha256": "033c2f3fce7fbf829329780e4c8f7712adb2ac13cea72e48f78a3b576756ee9f"
+  },
+  "soak-amd64.json": {
+    "bytes": 197642,
+    "sha256": "2945cf7d31828a45b5cd8af571624efe0a131ad066e487436130e477499e994c"
+  },
+  "soak-runner-used.mjs": {
+    "bytes": 8355,
+    "sha256": "b40ad617ea93c8d5469afa9d24deaece16c280c96f1e296bda0191d16269d552"
+  },
+  "summary.json": {
+    "bytes": 2272,
+    "sha256": "deb8716c8c86e85d94446993854a144f3ae7647cb79c82fb4ca0476b5839f456"
+  },
+  "terminal-boundary-rechecks.json": {
+    "bytes": 1009,
+    "sha256": "46f403c24541e0118de9d404e18170125dad01db484742bf7864923d0a3b6e0c"
+  },
+  "updated-harness-smoke.json": {
+    "bytes": 575,
+    "sha256": "f1901c28cd7631925216f0b3d2580a17517aedbe4dca8950c6e77684dfa80f8c"
+  }
+}
