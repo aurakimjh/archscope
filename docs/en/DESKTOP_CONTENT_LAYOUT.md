@@ -349,3 +349,8 @@ text is small at100%. Excel defaults to pixel-sized placement beyond the100%
 viewport; a separatemanual50% worksheetzoom shows the entireimage/provenance.
 The selected one-fixture/installed-version PNG/table/SVG workflow matrix is
 recorded,with placement/font limits; fullT-627 acceptance remains open.
+
+
+### 2026-11-14 HTTP Raw URL
+
+Live HTTP Raw now reconstructs a cleared duplicate query from the retained redacted URL and restores its matching authority port. Native four-request before/after evidence and IPv6/incomplete-URL regressions pass; explicit captured/differing virtual hosts retain priority. Saved-file normalization is a separate path. Full native acceptance remains open.

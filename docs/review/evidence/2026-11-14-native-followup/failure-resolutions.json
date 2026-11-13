@@ -60,6 +60,12 @@
       "after": "office-word-width-after",
       "fixCommit": "5153161b",
       "caseFile": "office-extra-cases.json"
+    },
+    {
+      "before": "http-raw-url-before",
+      "after": "http-raw-url-after",
+      "fixCommit": "See commit introducing buildRawRequest URL fallback and these receipts",
+      "caseFile": "native-cases.json"
     }
   ]
 }

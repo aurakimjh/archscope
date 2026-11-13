@@ -736,5 +736,26 @@
     "locale": "recorded per scenario",
     "scale": "OS100%; WebView100%; native1024x768; Korean/System",
     "screenshot": "os100-restored-jvm.jpg"
+  },
+  {
+    "id": "http-raw-url-before",
+    "route": "http-capture",
+    "scenario": "Live capture with retained redacted URL and cleared duplicate query",
+    "observed": "Selected URL query5583 remains visible, but reconstructed request omits query and synthetic Host omits11507 port. Old fixed-soak binary; persistence fix does not address this renderer issue.",
+    "result": "FAIL",
+    "locale": "ko",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "http-raw-url-before.jpg"
+  },
+  {
+    "id": "http-raw-url-after",
+    "route": "http-capture",
+    "scenario": "Four live requests via real production bridge in layoutaudit build after renderer fix",
+    "observed": "Selected URL query0 renders GET /soak?sequence=0 HTTP/1.1 and Host127.0.0.1:11507; captured4=persisted4,200 JSON45B; explicit semantic reconstruction and body-capture-disabled guidance.",
+    "result": "PASS",
+    "locale": "ko",
+    "scale": "OS100%, WebView100%",
+    "observedAt": "2026-11-13T23:28:23.570Z",
+    "screenshot": "http-raw-url-after.jpg"
   }
 ]

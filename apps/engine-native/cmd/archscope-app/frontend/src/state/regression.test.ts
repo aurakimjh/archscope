@@ -2742,6 +2742,18 @@ assert(
 );
 assert(rawRequest.reconstructed === true, "the raw view must always declare itself reconstructed");
 
+// Live capture clears its duplicate query after redacting the retained URL.
+const rawLiveURL = buildRawRequest(harTx({
+  method: "GET", path: "/orders%2Fpart", query: "", host: "example.test",
+  url: "https://example.test:8443/orders%2Fpart?token=%5BREDACTED%5D&keep=a?b#ignored",
+}));
+assert(rawLiveURL.startLine === "GET /orders%2Fpart?token=%5BREDACTED%5D&keep=a?b HTTP/1.1", "live Raw must retain the redacted query and encoded path without a fragment");
+assert(rawLiveURL.text.includes("Host: example.test:8443\r\n"), "Raw Host must retain the URL port when no Host header was captured");
+const rawIPv6 = buildRawRequest(harTx({ url: "http://[::1]:8080/path?q=1", path: "", query: undefined, host: "::1" }));
+assert(rawIPv6.startLine === "GET /path?q=1 HTTP/1.1" && rawIPv6.text.includes("Host: [::1]:8080\r\n"), "Raw URL fallback must preserve IPv6 authority and path/query");
+const rawIncompleteURL = buildRawRequest(harTx({ url: "incomplete", path: "/retained", query: "q=2", host: "retained.test" }));
+assert(rawIncompleteURL.startLine === "GET /retained?q=2 HTTP/1.1" && rawIncompleteURL.text.includes("Host: retained.test\r\n"), "incomplete imports must retain their explicit path/query/host");
+
 // A captured Host header must never be overwritten by the synthesized one.
 const rawWithHost = buildRawRequest(
   harTx({

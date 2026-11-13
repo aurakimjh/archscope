@@ -294,15 +294,19 @@ function headerLines(fields: CaptureHTTPMessage["headers"] | undefined): string[
   return (fields ?? []).map((field) => `${field.name}: ${field.value}`);
 }
 
-function requestTarget(tx: HttpCaptureTransactionRow): string {
-  const path = tx.path && tx.path !== "" ? tx.path : "/";
-  const query = String(tx.query ?? "").trim();
+function requestTarget(tx: HttpCaptureTransactionRow, url: URL | null): string {
+  const path = tx.path || url?.pathname || "/";
+  // Live capture intentionally clears the duplicate query field after URL
+  // redaction. Reconstruct from that retained URL, never the original wire URL.
+  const query = String(tx.query ?? "").trim() || url?.search.slice(1) || "";
   return query ? `${path}?${query}` : path;
 }
 
 export function buildRawRequest(tx: HttpCaptureTransactionRow): RawHttpMessage {
   const message = tx.request as CaptureHTTPMessage | undefined;
-  const startLine = `${(tx.method || "GET").toUpperCase()} ${requestTarget(tx)} ${normalizeVersion(tx.http_version)}`;
+  let url: URL | null = null;
+  try { url = new URL(tx.url); } catch { /* Incomplete imports can lack an absolute URL. */ }
+  const startLine = `${(tx.method || "GET").toUpperCase()} ${requestTarget(tx, url)} ${normalizeVersion(tx.http_version)}`;
   const lines = [startLine];
   // The Host header is part of the exchange but some capture paths carry it
   // only as the transaction host. Synthesize it only when it is genuinely
@@ -311,7 +315,11 @@ export function buildRawRequest(tx: HttpCaptureTransactionRow): RawHttpMessage {
   const hasHost = (message?.headers ?? []).some(
     (field) => field.name.toLowerCase() === "host",
   );
-  if (!hasHost && tx.host) lines.push(`Host: ${tx.host}`);
+  const hostname = (value: string): string => value.replace(/^\[|\]$/g, "").toLowerCase();
+  // Keep an explicit transaction/virtual host when it differs from the URL.
+  const authority = !tx.host || (url && hostname(tx.host) === hostname(url.hostname))
+    ? url?.host || tx.host : tx.host;
+  if (!hasHost && authority) lines.push(`Host: ${authority}`);
   lines.push(...headers);
   return finishRawMessage(lines, message);
 }

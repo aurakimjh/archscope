@@ -318,3 +318,22 @@ Selected fixture/version matrix (not completeT-627 acceptance):
 No new product code or additional test reruns were needed for these native
 observations. Other versions,providers,format/typography/error combinations and
 the complete original-reference/DPI matrix remain separate.
+
+
+## Live HTTP Raw request URL reconstruction
+
+A live request retained its redacted URL query while the capture pipeline cleared
+its duplicate query field; Raw omitted that query and synthesized a Host without
+the origin port. Historical live-soak screenshot is FAIL. The renderer now uses
+the retained redacted URL as a fallback, preserves encoded paths/query without
+fragments, includes matching URL authority/port, and respects explicit captured
+or differing virtual hosts. Incomplete URLs keep explicit transaction fields.
+State regressions cover redacted query, IPv6 and incomplete imports. Frontend
+state/build and Windows layoutaudit build passed.
+
+Actual new native live capture shows four200 requests and captured4=persisted4;
+selected query0 now renders GET /soak?sequence=0 and Host127.0.0.1:11507. This is
+semantic reconstruction with bodies disabled, not exact wire preservation.
+Saved-file import already normalizes path/query/host, so the old binaries' final
+saved-file Raw success does not resolve the historical live defect by itself.
+There are now11 historical native failures linked to subsequent observed fixes.

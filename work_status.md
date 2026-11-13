@@ -5238,3 +5238,8 @@ Native Insert>Picture in Word/Excel/PowerPoint16.0.10417.20228 imports the selec
 ### 2026-11-14 - T-627 primary PNG paste across installed Office
 
 Actual native Copyimage>CtrlV inWord/Excel16.0.10417.20228 saves exact2400x1600 PNG bytes/SHA andRGBApixels,matching priorPowerPoint. Word fits portrait area but sparse text small at100%; Excel defaults tooriginalpixel placement beyondviewport,withseparate manual50% worksheetzoom/fullprovenance observation andnoresize. Onefixture/installedversion PNG/table/SVG matrix nowrecorded withexplicit placement/fontlimits;12extraOffice observations retainhistoricWordwidthFAIL andfix,correctExcelSVG100% versusPNG50% labels,andarchive timestamps forPNG. No newproductcode. Completeoriginal-reference/DPI/conditionalmatrix remains;T-627 REVIEW. Receipt: docs/review/evidence/2026-11-14-native-followup/README.md.
+
+
+### 2026-11-14 - T-627 live HTTP Raw URL
+
+Fixed lost query/Host port in semantic live Raw reconstruction using only retained redacted URL; explicit differing/captured Host preserved. Native4request beforeFAIL/afterPASS and state regressions for redaction/encoding/IPv6/incompleteURL; frontendstate/build and layoutauditbuild pass. Saved-file normalization is separately scoped. T-627 REVIEW; receipt docs/review/evidence/2026-11-14-native-followup/README.md.
