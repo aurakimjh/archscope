@@ -3482,12 +3482,17 @@ assert(resultPanelID({ ...panelBase, panel: { id: "__proto__", version: "1.0.0",
 
 void (async () => {
 // Only the native user-cancel sentinel is an empty file selection.
-for (const sentinel of [new Error("cancelled by user"), "cancelled by user"]) {
+for (const sentinel of [new Error("cancelled by user"), "cancelled by user",
+  new Error("Invalid dialog call: Dialog.OpenFile failed, error getting selection: cancelled by user"),
+  new Error("Invalid dialog call: Dialog.OpenFile failed: error getting selection: cancelled by user"),
+  new Error("Invalid dialog call: Dialog.SaveFile failed: error getting selection: cancelled by user")]) {
   assert(await fileDialogResult(async () => { throw sentinel; }, "") === "", "native open/save cancellation returns empty selection");
 }
 const nativePaths = ["C:/자료/capture.har", "C:/자료/second.har"];
 assert(await fileDialogResult(async () => nativePaths, []) === nativePaths, "multi-file selection preserves identity and paths");
-for (const failure of [new Error("access denied"), new Error("failed after cancelled by user"), new Error("context canceled"), null]) {
+for (const failure of [new Error("access denied"), new Error("failed after cancelled by user"),
+  new Error("Invalid dialog call: Dialog.OpenFile failed, error getting selection: access denied"),
+  new Error("context canceled"), null]) {
   let propagated = false;
   try { await fileDialogResult(async () => { throw failure; }, ""); }
   catch (caught) { propagated = caught === failure; }
