@@ -11,11 +11,11 @@ bounded follow-ups; all six overall acceptance tasks retain their open states.
   `649aa15f` recognizes exactly the three complete Windows wrapper messages as
   well. Other failures propagate unchanged. Regression state tests and production
   build pass. The final actual OpenFile cancellation shows no error banner:
-  [native-cancel.png](native-cancel.png).
+  [native-cancel.jpg](native-cancel.jpg).
 - `9953ad1b` localizes the MSA initial tabs and empty panels with the EN/KO catalog.
   Native View > English and Analyze > MSA Timeline show the English labels and
   empty message. Korean was restored afterwards:
-  [native-msa-en.png](native-msa-en.png).
+  [native-msa-en.jpg](native-msa-en.jpg).
 - `ca72da32` reads the installed **V7.6.4.508** EXE/core typelib without executing
   or registering the vendor. Both architectures compare **28 interfaces / 227
   own dual methods**, including slots, DISPIDs, calling conventions, HRESULTs,
@@ -37,7 +37,9 @@ bounded follow-ups; all six overall acceptance tasks retain their open states.
 Both production Windows GUI architectures build. Whole app tests pass natively
 on amd64 (38.761s) and 386 (43.865s), and both app/COM vet runs pass. Final state
 regressions and frontend production build pass. Current binary identities and
-native scope are in [native-final.json](native-final.json). No local race run is
+native scope are in [native-final.json](native-final.json). The native386 GUI
+also survives15 seconds; the existing smoke then forces its owned process after
+the close timeout, so graceful shutdown is not claimed. No local race run is
 claimed. Private logs, installed vendor binaries and controller data remain out
 of Git.
 

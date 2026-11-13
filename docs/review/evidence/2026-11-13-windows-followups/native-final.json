@@ -12,8 +12,8 @@
     "locale_restoration": "Korean restored after inspection.",
     "limits": "Single initial/empty screen and open-file cancellation only; no completed native Save/multiple-selection/DPI/populated-all-view claim.",
     "screenshots": [
-      "native-cancel.png",
-      "native-msa-en.png"
+      "native-cancel.jpg",
+      "native-msa-en.jpg"
     ]
   },
   "verification": {
@@ -25,7 +25,8 @@
     "whole_app_tests_386": "PASS 43.865s",
     "vet_app_and_com_each_arch": "PASS",
     "production_gui_build_each_arch": "PASS",
-    "race": "NOT_RUN: configured CGO=0; no Windows C compiler configured"
+    "race": "NOT_RUN: configured CGO=0; no Windows C compiler configured",
+    "native_386_gui_startup": "PASS: 15-second liveness; smoke requested close then forced its owned process after timeout. Graceful shutdown is not claimed."
   },
   "binaries": {
     "amd64": {
@@ -52,5 +53,10 @@
     "com-final-386.log": "8a7c3589c26b3e499ae9b41c8c45689014a34129ff40b871bb2772d097c3fd98",
     "com-final-amd64.log": "9d35d64390acfb89f3a85e887accd46c7cd201a4770278f404589e6faa6295d8",
     "final-frontend-build.log": "170d152946c332e664024c5dd17ee0ad245d8d727dc5ceaea6b4b4938c43e660"
-  }
+  },
+  "screenshot_sha256": {
+    "native-cancel.jpg": "9e3bc7e2001f4cc7aa01cab4aea96af44941dc32f134f18fd68a879c1e9b9a2c",
+    "native-msa-en.jpg": "7297485ce97c988f3216051e137bbe9817c83fe4f221ff771871397110d78548"
+  },
+  "cleanup": "Korean app language restored. Only owned test app processes stopped; existing Docker/Kubernetes containers preserved."
 }
