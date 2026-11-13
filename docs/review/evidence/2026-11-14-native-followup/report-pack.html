@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ArchScope Report Pack</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 32px; color: #111827; background: #f9fafb; }
+    h1 { margin: 0 0 4px; font-size: 24px; }
+    h2 { margin: 28px 0 12px; font-size: 18px; }
+    h3 { margin: 0; font-size: 15px; }
+    .subtle { color: #6b7280; margin: 0 0 24px; font-size: 13px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .metric, .card { border: 1px solid #d1d5db; border-radius: 8px; background: white; padding: 14px; }
+    .metric span { display: block; color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+    .metric strong { display: block; margin-top: 4px; font-size: 20px; }
+    .card { break-inside: avoid; margin: 0 0 12px; }
+    .observation { margin: 0 0 12px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; color: #4b5563; font-size: 11px; text-transform: uppercase; }
+    .meta span { background: #f3f4f6; border-radius: 4px; padding: 2px 6px; }
+    table { width: 100%; border-collapse: collapse; background: white; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; font-size: 12px; }
+    th, td { border-bottom: 1px solid #e5e7eb; padding: 8px; text-align: left; vertical-align: top; }
+    th { background: #f3f4f6; color: #4b5563; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    pre { max-height: 360px; overflow: auto; background: #f3f4f6; border-radius: 6px; padding: 12px; font-size: 11px; line-height: 1.45; }
+    a { color: #2563eb; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>ArchScope Report Pack</h1>
+  <p class="subtle">Generated 2026-11-13T19:55:26.836Z · 1 evidence cards · 1 source results</p>
+
+  <section class="grid">
+    <div class="metric"><span>Incident events</span><strong>7</strong></div>
+    <div class="metric"><span>SLO violations</span><strong>0</strong></div>
+    <div class="metric"><span>Service edges</span><strong>0</strong></div>
+    <div class="metric"><span>Evidence cards</span><strong>1</strong></div>
+  </section>
+
+  <p class="subtle">SLO targets without matching evidence (not assessed): 16</p>
+
+  <h2>Customer Summary</h2>
+  <section>
+    <p>This report pack contains 1 captured evidence cards, 7 incident timeline events, 0 SLO violations, and 0 service-flow edges.</p>
+    <ol><li class="observation">
+    <strong>thread_dump_multi: C:\workspace\archscope\apps\engine-native\internal\analyzers\multithread\testdata\jvm-signals-jstack.txt</strong>
+    <p>thread_dump_multi / 8 summary fields</p>
+    <div class="meta">
+      <span>info</span>
+      <span>Cards: <a href="#ev-1794599694033-f1ed61246df65">ev-1794599694033-f1ed61246df65</a></span><span>Refs: ar-1794599606145-081060cb814dc, C:\workspace\archscope\apps\engine-native\internal\analyzers\multithread\testdata\jvm-signals-jstack.txt</span>
+    </div>
+  </li></ol>
+    <p class="subtle">Every summary item lists evidence card IDs or source evidence references. The raw evidence appendix remains part of the report pack.</p>
+  </section>
+
+  <h2>Provenance</h2>
+  <section>
+    <div class="grid">
+      <div class="metric"><span>Source results</span><strong>1</strong></div>
+      <div class="metric"><span>Captured evidence</span><strong>1</strong></div>
+      <div class="metric"><span>Deterministic findings</span><strong>3</strong></div>
+      <div class="metric"><span>Accepted AI findings</span><strong>0</strong></div>
+    </div>
+    <table><thead><tr><th>Type</th><th>Title</th><th>Parser</th><th>Sources</th></tr></thead><tbody><tr><td>thread_dump_multi</td><td>thread_dump_multi: C:\workspace\archscope\apps\engine-native\internal\analyzers\multithread\testdata\jvm-signals-jstack.txt</td><td>thread_dump_multi</td><td>C:\workspace\archscope\apps\engine-native\internal\analyzers\multithread\testdata\jvm-signals-jstack.txt</td></tr></tbody></table>
+  </section>
+
+  <h2>AI Interpretation</h2>
+  <p>No AI interpretation metadata in this session.</p>
+
+  <p class="subtle">Incident display: 7 / 7; omitted: 0 (critical: 0). Severity/time summaries cover all candidates; groups and narrative cover retained events. Policy: first_120_per_source_then_earliest_1000_v1.</p>
+  <h2>Incident Narrative</h2>
+  <table><thead><tr><th>Order</th><th>Severity</th><th>Group</th><th>Summary</th><th>Evidence</th></tr></thead><tbody><tr><td class="num">1</td><td>warning</td><td>smr_unresolved_thread / SMR_UNRESOLVED_THREAD</td><td>2 events were grouped under smr_unresolved_thread / SMR_UNRESOLVED_THREAD. The first event was SMR_UNRESOLVED_THREAD; the highest severity event was SMR_UNRESOLVED_THREAD; the latest event was SMR_UNRESOLVED_THREAD.</td><td>tables.smr_unresolved_threads</td></tr><tr><td class="num">2</td><td>warning</td><td>thread_dump_multi / SMR_UNRESOLVED_THREAD</td><td>2 events were grouped under thread_dump_multi / SMR_UNRESOLVED_THREAD. The first event was SMR_UNRESOLVED_THREAD; the highest severity event was SMR_UNRESOLVED_THREAD; the latest event was SMR_UNRESOLVED_THREAD.</td><td>SMR_UNRESOLVED_THREAD</td></tr><tr><td class="num">3</td><td>warning</td><td>thread_dump_multi / VIRTUAL_THREAD_CARRIER_PINNING</td><td>VIRTUAL_THREAD_CARRIER_PINNING occurred in thread_dump_multi: Thread &#39;ForkJoinPool-1-worker-1&#39; contains a virtual-thread carrier/pinning marker.</td><td>VIRTUAL_THREAD_CARRIER_PINNING</td></tr><tr><td class="num">4</td><td>warning</td><td>thread_id: 0x000000001234abcd</td><td>VIRTUAL_THREAD_CARRIER_PINNING occurred in thread_dump_multi: ForkJoinPool-1-worker-1</td><td>tables.virtual_thread_carrier_pinning</td></tr><tr><td class="num">5</td><td>info</td><td>thread_id: 0x000000001234abce</td><td>NATIVE_METHOD_THREAD occurred in thread_dump_multi: native-reader</td><td>tables.native_method_threads</td></tr></tbody></table>
+
+  <h2>Incident Timeline Preview</h2>
+  <table><thead><tr><th>Time / Range</th><th>Severity</th><th>Group</th><th>Source</th><th>Event</th><th>Evidence</th></tr></thead><tbody><tr><td>2026-11-13T19:53:26.140Z</td><td>warning</td><td>thread_dump_multi / SMR_UNRESOLVED_THREAD</td><td>thread_dump_multi</td><td>SMR_UNRESOLVED_THREAD<br>JVM SMR diagnostics include an unresolved/zombie thread marker.</td><td>SMR_UNRESOLVED_THREAD</td></tr><tr><td>2026-11-13T19:53:26.140Z</td><td>warning</td><td>thread_dump_multi / SMR_UNRESOLVED_THREAD</td><td>thread_dump_multi</td><td>SMR_UNRESOLVED_THREAD<br>JVM SMR diagnostics include an unresolved/zombie thread marker.</td><td>SMR_UNRESOLVED_THREAD</td></tr><tr><td>2026-11-13T19:53:26.140Z</td><td>warning</td><td>smr_unresolved_thread / SMR_UNRESOLVED_THREAD</td><td>thread_dump_multi</td><td>SMR_UNRESOLVED_THREAD<br>SMR_UNRESOLVED_THREAD</td><td>tables.smr_unresolved_threads</td></tr><tr><td>2026-11-13T19:53:26.140Z</td><td>warning</td><td>smr_unresolved_thread / SMR_UNRESOLVED_THREAD</td><td>thread_dump_multi</td><td>SMR_UNRESOLVED_THREAD<br>SMR_UNRESOLVED_THREAD</td><td>tables.smr_unresolved_threads</td></tr><tr><td>2026-11-13T19:53:26.140Z</td><td>warning</td><td>thread_dump_multi / VIRTUAL_THREAD_CARRIER_PINNING</td><td>thread_dump_multi</td><td>VIRTUAL_THREAD_CARRIER_PINNING<br>Thread &#39;ForkJoinPool-1-worker-1&#39; contains a virtual-thread carrier/pinning marker.</td><td>VIRTUAL_THREAD_CARRIER_PINNING</td></tr><tr><td>2026-11-13T19:53:26.140Z</td><td>warning</td><td>thread_id: 0x000000001234abcd</td><td>thread_dump_multi</td><td>VIRTUAL_THREAD_CARRIER_PINNING<br>ForkJoinPool-1-worker-1</td><td>tables.virtual_thread_carrier_pinning</td></tr><tr><td>2026-11-13T19:53:26.140Z</td><td>info</td><td>thread_id: 0x000000001234abce</td><td>thread_dump_multi</td><td>NATIVE_METHOD_THREAD<br>native-reader</td><td>tables.native_method_threads</td></tr></tbody></table>
+
+  <h2>SLO Violations Preview</h2>
+  <p>No SLO violations detected.</p>
+
+  <h2>Service Flow Preview</h2>
+  <p>No service-flow edges.</p>
+
+  <h2>Raw Evidence Appendix</h2>
+  <article class="card" id="ev-1794599694033-f1ed61246df65">
+  <h3>thread_dump_multi: C:\workspace\archscope\apps\engine-native\internal\analyzers\multithread\testdata\jvm-signals-jstack.txt</h3>
+  <div class="meta">
+    <span>ev-1794599694033-f1ed61246df65</span>
+    <span>thread_dump_multi</span>
+    <span>source_metadata</span>
+    <span>info</span>
+  </div>
+  <p>thread_dump_multi / 8 summary fields</p>
+  <p class="subtle">ar-1794599606145-081060cb814dc</p>
+  <pre>{
+  &quot;result_type&quot;: &quot;thread_dump_multi&quot;,
+  &quot;source_files&quot;: [
+    &quot;C:\\workspace\\archscope\\apps\\engine-native\\internal\\analyzers\\multithread\\testdata\\jvm-signals-jstack.txt&quot;
+  ],
+  &quot;created_at&quot;: &quot;2026-11-13T19:53:26.140374Z&quot;,
+  &quot;recorded_at&quot;: &quot;2026-11-13T19:53:26.145Z&quot;,
+  &quot;summary&quot;: {
+    &quot;class_histogram_classes&quot;: 2,
+    &quot;class_histogram_incomplete&quot;: 0,
+    &quot;consecutive_dump_threshold&quot;: 3,
+    &quot;growing_lock_contention&quot;: 0,
+    &quot;languages_detected&quot;: [
+      &quot;java&quot;
+    ],
+    &quot;latency_sections&quot;: 0,
+    &quot;long_running_threads&quot;: 0,
+    &quot;native_method_threads&quot;: 1,
+    &quot;persistent_blocked_threads&quot;: 0,
+    &quot;smr_unresolved_threads&quot;: 2,
+    &quot;source_formats&quot;: [
+      &quot;java_jstack&quot;
+    ],
+    &quot;total_dumps&quot;: 1,
+    &quot;total_thread_observations&quot;: 2,
+    &quot;unique_threads&quot;: 2,
+    &quot;virtual_thread_carrier_pinning&quot;: 1
+  }
+}</pre>
+</article>
+</body>
+</html>

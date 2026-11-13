@@ -1,0 +1,9 @@
+key	value
+measurement_kind	wall_time
+metric_id	duration
+profile_count	2
+sample_records	3
+scale	1
+total_samples	— (unavailable)
+total_weight	0.35 seconds
+unit	seconds

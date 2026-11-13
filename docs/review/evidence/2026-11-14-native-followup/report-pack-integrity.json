@@ -1,0 +1,16 @@
+{
+  "files": [
+    "index.html",
+    "report-pack.json",
+    "customer-summary.json",
+    "ai-interpretation.json",
+    "evidence-cards.json",
+    "incident-timeline.json",
+    "slo-analysis.json",
+    "service-flow.json"
+  ],
+  "card_count": 1,
+  "source_result_count": 1,
+  "summary_histogram_classes": 2,
+  "crc": "PASS"
+}

@@ -66,3 +66,50 @@ SMR and histogram before/after. Histogram is100 String instances/2400 bytes and
 10 Order instances/1600 bytes, descending by bytes. The fixed fixture adds one
 untagged SMR address to the original before fixture to cover both diagnostic forms.
 No Java process or driver was required for this synthetic file analysis.
+
+## Report Pack and visual artifact lifecycle
+
+A native JVM Workspace result was added as an evidence card. Board Report Pack
+HTML and ZIP downloaded through the real WebView2 UI. The attachedZIP has eight
+CRC-valid entries, one card and one source result, retaining histogram count2.
+
+A saved unknown access_log result correctly refused visual rendering and refused
+inclusion as a backend JSON appendix without producing a report. No fallback
+placeholder was exported. A supported built-in `profile-set.json` then analyzed
+with explicit worker-a/worker-b and duration selection. The result contains eight
+summary rows, wall-time0.35seconds and unavailable sample count. Added to Workspace,
+its summary rendered in the actual desktop render window at2400x1600, five rows
+per image: two pages. Page2 preserves unavailable total_samples and0.35seconds.
+
+Native Save dialogs exported the complete visual bundle. PNG dimensions, ZIP CRC,
+all member hashes, spec/query/source SHA, full eight-row TSV/HTML and availability
+metadata were independently parsed. Original bundle13,702,038bytes; all outputs
+are exact-byte hashed. Two PNGs and compact provenance are attached; full bundles
+with per-SVG embedded fonts remain in the ignored local acceptance directory.
+`visual-integrity.json` records every archive/member SHA, including full archives.
+
+Board opened the historical image. Regenerate pinned revision created a separate
+revision with both PNGs, complete tables and view byte-identical to the original.
+Explicit upgrade created a third revision while retaining the first two (the
+render dependencies were unchanged; version-mismatch upgrade is not claimed).
+After app force-stop/restart, all three library entries and both evidence cards
+survived; the original image opened with no backend handle. Regeneration correctly
+requested reopening the pinned source. Reimporting the original ZIP deduplicated
+it. The exact saved result was reopened and added to the fresh Workspace; its
+SHA equals the visual source SHA. A visual Report Pack with that backend appendix
+saved successfully, and the appendix is byte-identical to that result JSON.
+A separate images-only visual Report Pack also passed CRC/member checks.
+
+Native UI deletion was not exercised: the installed computer-use confirmation
+policy requires action-time confirmation for app-interface deletion ("Always
+Confirm at Action-Time (Even If Pre-Approved)" / "Delete data (cloud and local)").
+Policy source: C:/Users/aurak/.codex/plugins/cache/openai-bundled/computer-use/26.1106.51428/docs/confirmations.md,
+referenced by its skills/computer-use/SKILL.md. Existing cards and artifacts were
+left intact. Office paste, dependency-mismatch upgrade and every export-format /
+template combination remain separate conditions. This is not a full lifecycle PASS.
+
+Final production app tests passed amd6442.960s and38650.208s. The386 supported
+`build/windows/test.mjs` runner applies the pinned Wails3.1.0 compatibility patch.
+A direct unpatched386 `go test` attempt panicked during Wails callback startup;
+that unsupported invocation is not counted as a product test pass. No SDK cache
+was edited. T-627 remains REVIEW.
