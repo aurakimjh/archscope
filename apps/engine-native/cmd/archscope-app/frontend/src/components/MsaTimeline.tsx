@@ -17,6 +17,7 @@ import { echarts, type ECharts, type EChartsOption } from "@/charts/echartsCore"
 import { HelpTip } from "@/components/HelpTip";
 import { getGenericChartHelpText } from "@/help/helpCatalog";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
+import { useTheme } from "@/theme/ThemeProvider";
 import { useEffect, useMemo, useRef } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -80,6 +81,9 @@ export function MsaTimeline({
   maxBars = DEFAULT_MAX_BARS,
 }: MsaTimelineProps): React.JSX.Element {
   const { locale, t } = useI18n();
+  const { resolvedTheme } = useTheme();
+  const chartText = resolvedTheme === "dark" ? "#e2e8f0" : "#334155";
+  const chartGrid = resolvedTheme === "dark" ? "#475569" : "#e2e8f0";
   const displayTitle = title ?? t("msaChartTimeline");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<ECharts | null>(null);
@@ -261,9 +265,12 @@ export function MsaTimeline({
       xAxis: {
         type: "value",
         name: "ms",
-        nameTextStyle: { fontSize: 10 },
+        nameTextStyle: { fontSize: 10, color: chartText },
+        axisLine: { lineStyle: { color: chartGrid } },
+        splitLine: { lineStyle: { color: chartGrid } },
         axisLabel: {
           fontSize: 10,
+          color: chartText,
           formatter: (v: number) => `${v} ms`,
         },
       },
@@ -271,7 +278,8 @@ export function MsaTimeline({
         type: "category",
         data: rowSet,
         inverse: true,
-        axisLabel: { fontSize: 10, width: 200, overflow: "truncate" },
+        axisLine: { lineStyle: { color: chartGrid } },
+        axisLabel: { fontSize: 10, width: 200, overflow: "truncate", color: chartText },
       },
       dataZoom:
         rowSet.length > 24
@@ -329,7 +337,7 @@ export function MsaTimeline({
                       style: {
                         text: label,
                         fontSize: 10,
-                        fill: isRoot ? "#1e3a8a" : "#0f172a",
+                        fill: isRoot ? "#1e3a8a" : chartText,
                         fontWeight: isRoot ? 700 : 400,
                       },
                     },
@@ -352,7 +360,7 @@ export function MsaTimeline({
       visibleCount: cappedItems.length,
       totalCount: items.length,
     };
-  }, [edges, maxBars, mode, rootApplication, rootDurationMs, rootStartMs, useResponseTimeOrder, t]);
+  }, [edges, maxBars, mode, rootApplication, rootDurationMs, rootStartMs, useResponseTimeOrder, t, chartText, chartGrid]);
 
   const maxHeight =
     mode === "overall" ? MAX_INDIVIDUAL_TIMELINE_HEIGHT : MAX_TIMELINE_HEIGHT;

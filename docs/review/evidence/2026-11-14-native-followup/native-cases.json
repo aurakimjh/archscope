@@ -516,5 +516,95 @@
     "locale": "Korean Office; English synthetic visual",
     "scale": "OS100%; PowerPoint122% zoom",
     "screenshot": "office-ppt-table-after.jpg"
+  },
+  {
+    "id": "visual-os125-actions",
+    "route": "Analysis Workspace > visual actions",
+    "scenario": "Actual Windows display1 125%; WebView100%",
+    "observed": "Windows Settings display1 changed100% to125% at3840x2160. Existing eight-row visual and full Copy/save actions remain visible;0.35seconds/unavailable preserved. Passive Wails screen-scale receipt captured separately.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1280x800",
+    "screenshot": "visual-os125-actions.jpg"
+  },
+  {
+    "id": "msa-os125-average-en",
+    "route": "MSA > Average",
+    "scenario": "Actual OS125% populated average",
+    "observed": "Two samples root1100=SQL200+gap50+method850ms;1200/1000 individual groups. English mode and scope/export actions remain available after OS scaling. Numeric accessibility agrees with independent fixture.",
+    "result": "PASS",
+    "locale": "en",
+    "scale": "OS125%; WebView100%; native1280x800",
+    "screenshot": "msa-os125-average-en.jpg"
+  },
+  {
+    "id": "msa-os125-small-treemap-en",
+    "route": "MSA > Average > timeline/treemap",
+    "scenario": "Actual OS125% small native1024x768",
+    "observed": "Selected average timeline renders root1100ms and stock250ms; fixed treemap shows stock100%x2. Cards remain inside small viewport; vertical scroll reaches each chart.",
+    "result": "PASS",
+    "locale": "en",
+    "scale": "OS125%; WebView100%; native1024x768",
+    "screenshot": "msa-os125-small-treemap-en.jpg"
+  },
+  {
+    "id": "msa-os125-small-treemap-ko",
+    "route": "MSA > Average > language",
+    "scenario": "Actual OS125% EN-to-KO on populated charts",
+    "observed": "Average selection and1100/250ms timeline retained; Korean titles/root-service label and treemap guidance update. Stock100%x2 preserved.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1024x768",
+    "screenshot": "msa-os125-small-treemap-ko.jpg"
+  },
+  {
+    "id": "msa-os125-dark-before",
+    "route": "MSA > Average > dark theme",
+    "scenario": "Dark chart contrast before theme-aware text fix",
+    "observed": "Native dark theme reveals low-contrast timeline category/axis labels and outside stock250ms call label; near-black text remains from light styling. Treemap values remain populated. Contrast FAIL.",
+    "result": "FAIL",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1024x768; dark",
+    "screenshot": "msa-os125-dark-before.jpg"
+  },
+  {
+    "id": "http-long-live-error-before",
+    "route": "HTTP Capture > recoverable failure",
+    "scenario": "Original386 soak manifest failure at OS125%",
+    "observed": "Actual long Windows manifest error is visible in footer but forces outer horizontal overflow; recoverable counters886/885,backend128 vs UI500. Error wrapping FAIL.",
+    "result": "FAIL",
+    "locale": "Korean",
+    "scale": "OS125%; WebView100%; native1280x800",
+    "screenshot": "soak-386-failed-before-manifest-fix.jpg"
+  },
+  {
+    "id": "msa-os125-dark-after",
+    "route": "MSA > Average > dark timeline",
+    "scenario": "Theme-aware chart text after fix",
+    "observed": "Same OS125%/1024x768 Korean average shows light service labels,0..1200ms axis and outside stock250ms text with readable contrast. Root1100ms retains dark-on-light text; treemap stock100%x2 unchanged.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1024x768; dark",
+    "screenshot": "msa-os125-dark-after.jpg"
+  },
+  {
+    "id": "msa-os125-dark-topology",
+    "route": "MSA > Average > topology",
+    "scenario": "Theme-aware topology labels",
+    "observed": "Dark topology shows/orders and/stock node names and50ms gap label in light text against dark card, with orange directed edge; SQL200/gap50/method850 values retained above.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1024x768; dark",
+    "screenshot": "msa-os125-dark-topology.jpg"
+  },
+  {
+    "id": "msa-os125-system-topology",
+    "route": "MSA > Average > system theme",
+    "scenario": "Live dark-to-system theme change",
+    "observed": "Restored System/light theme. Node and gap labels redraw dark against light card without reload; selected average and200/50/850ms composition retained.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1024x768; System/light",
+    "screenshot": "msa-os125-system-topology.jpg"
   }
 ]

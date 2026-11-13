@@ -174,3 +174,25 @@ app tests pass42.469s/50.348s using the supported Windows runner. Additional
 1024x768/WebView125% SQL threshold switching shows the two200ms synthetic rows.
 Word/Excel, other Office versions, SVG insertion and complete clipboard-format
 combinations are not inferred from this selected PowerPoint result. T-627 REVIEW.
+
+## Recovered actual OS125% route and dark MSA contrast
+
+The Control Panel launch later exposed Windows Tools. Its Control Panel >
+Appearance > Taskbar link opened a targetable Windows Settings window. System >
+Display confirmed display1 at100%,3840x2160; selecting125% was then possible.
+This supersedes the earlier inability to extend the OS-DPI observations.
+The passive app receipt confirms OS scale1.25, physical3840x2160 and logical
+3072x1728; WebView zoom remains100%. Settings screenshots containing account
+identity were not archived.
+
+Selected saved-visual actions, populated average MSA composition and1024x768
+timeline/treemap were observed at actual OS125%. Switching EN to KO retains
+root1100ms/call250ms and stock100%x2. A subsequent dark-theme observation exposed
+low-contrast timeline axes,service names and outside call labels. Timeline now
+uses theme-aware text/grid colors while retaining dark root text on its light
+bar. Topology node/edge labels also follow the resolved theme. Native before
+FAIL and fixed dark screenshots show readable axes,service and250ms call labels;
+the50ms topology label and nodes are visible. Switching back to System/light
+recolors the same chart without changing selection/values. Frontend state and
+production/native layoutaudit builds pass. OS100% restoration will be recorded
+after the remaining selected cases. Full DPI/theme/reference matrix remains open.

@@ -10,6 +10,7 @@ import { useEffect, useMemo, useRef } from "react";
 
 import { getGenericChartHelpText } from "@/help/helpCatalog";
 import { useI18n } from "@/i18n/I18nProvider";
+import { useTheme } from "@/theme/ThemeProvider";
 import { HelpTip } from "./HelpTip";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
@@ -76,6 +77,8 @@ export function MsaTopology({
   height = 420,
 }: MsaTopologyProps): React.JSX.Element {
   const { locale, t } = useI18n();
+  const { resolvedTheme } = useTheme();
+  const chartText = resolvedTheme === "dark" ? "#e2e8f0" : "#334155";
   const displayTitle = title ?? t("msaChartTopology");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<ECharts | null>(null);
@@ -240,6 +243,7 @@ export function MsaTopology({
           position: "right" as const,
           formatter: name,
           fontSize: 11,
+          color: chartText,
         },
         category: isRoot ? 0 : 1,
       };
@@ -263,6 +267,7 @@ export function MsaTopology({
               ? `${t("msaChartGapShort")} ${formatMs(a.avgNetworkGap)}`
               : `${t("msaChartGapShort")} ${formatMs(a.avgNetworkGap)} ×${a.count}`,
           fontSize: 10,
+          color: chartText,
         },
         lineStyle: {
           width,
@@ -316,7 +321,7 @@ export function MsaTopology({
         ],
       },
     };
-  }, [edges, rootApplication, t]);
+  }, [edges, rootApplication, t, chartText]);
 
   useEffect(() => {
     if (!containerRef.current) return;

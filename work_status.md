@@ -5208,3 +5208,8 @@ Actual PowerPoint16.0.10417.20228 receives native Copy image with2400x1600 pixel
 ### 2026-11-14 - T-613 reproduced Windows manifest replacement failure
 
 New isolated386 soak fails after5640.540s checkpoint/19514 requests: socket hang up follows journal error renaming manifest.json (Windows Access is denied). App stays alive; recoverable128complete200 rows, generation captured886/persisted885. Real reader denying FILE_SHARE_DELETE reproduces386 failure. Added bounded one-second Windows sharing/access/lock retry around capture-store atomic rename; no delete-before-replace, unrelated errors remain immediate and permanent lock preserves old bytes/cleans staging. Native Windows regression plus store/session/proxy suites pass both arches. Failure is preserved; diagnostic pre-fix run intentionally stopped and fixed-build two-hour rerun remains required. T-613 PENDING. Receipt: docs/review/evidence/2026-11-14-desktop-soak/README.md.
+
+
+### 2026-11-14 - T-627 actual OS125% and dark MSA contrast
+
+Recovered a targetable Settings path through the delayed Control Panel window. Actual display1 scale125% verified by Wails1.25 and physical3840x2160/logical3072x1728, distinct from WebView100%. Selected visual actions and populated MSA standard/small English/Korean views retain values. Dark theme exposes light-palette axis/service/call labels; theme-aware timeline/grid and topology node/edge text now show readable native before/after contrast and live System/light recoloring. Frontend state/build and native layoutaudit build pass. Additional cases and OS100% restoration remain to record; T-627 REVIEW. Receipt: docs/review/evidence/2026-11-14-native-followup/README.md.
