@@ -1,0 +1,28 @@
+{
+  "producer": "CPython cProfile",
+  "version": "3.14.4",
+  "scope": "synthetic workload, function flat self time only; no reconstructed stacks or timeline",
+  "functions": [
+    {
+      "name": "<genexpr>",
+      "self_seconds": "0.001603919",
+      "cumulative_seconds": "0.001603919",
+      "calls": "50020",
+      "recursive_calls": "0"
+    },
+    {
+      "name": "leaf",
+      "self_seconds": "6.706000000000001e-06",
+      "cumulative_seconds": "0.0037078750000000002",
+      "calls": "20",
+      "recursive_calls": "0"
+    },
+    {
+      "name": "workload",
+      "self_seconds": "4.125e-06",
+      "cumulative_seconds": "0.003712",
+      "calls": "1",
+      "recursive_calls": "0"
+    }
+  ]
+}

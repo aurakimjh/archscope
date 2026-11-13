@@ -48,7 +48,7 @@ func (s ProfileSet) SourceContract() (SourceContract, bool, error) {
 	if (c.Revision != SourceNormalizer && c.Revision != LegacySourceNormalizer) || len(c.Metrics) != len(s.Metrics) || len(c.Profiles) != len(s.Profiles) || len(c.Attributes) > 32 {
 		return c, true, fmt.Errorf("unsupported source normalizer contract")
 	}
-	expected := map[string]string{"pprof": "profile.proto.v1", "speedscope-json": "speedscope.schema.v1", "pyspy-raw": "collapsed.v1"}[s.Format]
+	expected := map[string]string{"pprof": "profile.proto.v1", "speedscope-json": "speedscope.schema.v1", "pyspy-raw": "collapsed.v1", "cprofile-flat-json": "cprofile-flat.v1"}[s.Format]
 	if expected == "" || c.FormatVersion != expected {
 		return c, true, fmt.Errorf("unsupported source format revision")
 	}

@@ -1,0 +1,15 @@
+{
+  "task": "T-655",
+  "activation": "User requested creating missing environments; cProfile absent importer matrix, owner-generated synthetic CPython 3.14.4 input selected.",
+  "format": "cprofile-flat-json / cprofile-flat.v1",
+  "reuse": "Existing ProfileSet source contract and profile_evidence 0.4.0, tree/details, saved readback, CSV/HTML; no new result family.",
+  "actual_fixture_sha256": "216f988808c0d9f1c65781bb7da27d80483e387aaea8e807de4fd65eededd271",
+  "verification": [
+    "race: profile parser/analyzer/model and architecture passed",
+    "exact retained self-second sum independently computed using rational input strings",
+    "CSV/HTML and saved-result validation passed",
+    "frontend production build passed",
+    "unknown version, identity conflict and negative-time refusals"
+  ],
+  "qualification": "CPython 3.14.4 flat retained function self-time only. No reconstructed caller/time/CPU semantics; cumulative/calls labels only; options strict; no new broad capture policy."
+}

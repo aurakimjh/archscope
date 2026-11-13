@@ -196,3 +196,5 @@ GPU 실행 근거: trace.gpu-execution-json / trace_import0.4.0 / gpu_execution_
 
 
 DB/OS 스냅샷의 실제 DB·OS 첫 검증 배치: [수동 DB·소켓 스냅샷](SYSTEM_DB_SNAPSHOTS.md). 기존 MetricHistory·정확한 epoch/gauge·공통 소비자를 재사용하며 다른 어댑터는 실제 입력 검증 전까지 보류합니다.
+
+추가 제한 profile adapter: CPython cProfile 3.14.4 `cprofile-flat-json`(실제 합성 workload, 평면 self-time 전용). [원본 프로파일](PROFILE_SOURCE_IMPORT.md#cpython-cprofile-평면-소유자-export)을 참조하세요.

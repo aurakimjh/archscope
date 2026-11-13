@@ -133,3 +133,9 @@ Speedscope none은 일반 count 가중치(kind=count)로 표시하고 source_uni
 1,000초, 같은 빈도의 4개 worker 약 250초이며 pprof는 column마다 관측을 소비합니다.
 관측 원본 참조를 잃는 자동 병합은 하지 않습니다. 검증된 baseline 재사용은
 [케이스 근거 조회](CASE_EVIDENCE_QUERIES.md)를 참고하세요.
+
+## CPython cProfile 평면 소유자 export
+
+`cprofile-flat-json`은 CPython cProfile 3.14.4의 제한된 함수 export를 받습니다. `python3 scripts/capture-cprofile.py --out new-profile.json`으로 합성 표본을 재생성한 뒤 `profile import-source --format cprofile-flat-json` 또는 Workspace의 해당 형식을 사용합니다. profile-0 / function-self-seconds를 선택합니다. 기존 ProfileSet·트리/상세 조회·공통 export를 재사용하며 새 결과 계열은 없습니다.
+
+보존한 함수 self seconds만 가산합니다. 각 함수는 단일 프레임 집계로 caller·표본 시간선·CPU 귀속을 복원하지 않습니다. 누적 시간·호출 수는 label로 유지합니다. 경로·builtin/제외 함수를 생략하므로 합계는 전체 프로세스 경과 시간이 아닙니다. .pstats·marshal·pickle은 읽지 않으며 다른 producer 버전은 거절합니다. Capture 옵션은 전체 strict 비교이며 py-spy 동등성이나 새 producer 간 비교 정책을 부여하지 않습니다. 실제 합성 workload 검증은 CPython 3.14.4의 세 함수 범위입니다.

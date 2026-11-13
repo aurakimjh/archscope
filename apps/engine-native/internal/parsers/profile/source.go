@@ -177,6 +177,8 @@ func ParseSourceBytes(ctx context.Context, original []byte, options SourceOption
 	}
 	var e error
 	switch format {
+	case "cprofile-flat-json":
+		e = b.cprofileFlat(body, options)
 	case "speedscope-json":
 		e = b.speedscope(body, options)
 	case "pyspy-raw":
@@ -184,7 +186,7 @@ func ParseSourceBytes(ctx context.Context, original []byte, options SourceOption
 	case "pprof":
 		e = b.pprof(body)
 	default:
-		e = fmt.Errorf("PROFILE_FORMAT_UNSUPPORTED: use speedscope-json, pyspy-raw or pprof")
+		e = fmt.Errorf("PROFILE_FORMAT_UNSUPPORTED: use speedscope-json, pyspy-raw, pprof or cprofile-flat-json")
 	}
 	if e != nil {
 		return b.set, e

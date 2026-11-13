@@ -204,3 +204,5 @@ GPU execution evidence: trace.gpu-execution-json / trace_import0.4.0 / gpu_execu
 
 
 The bounded actual DB/OS snapshot batch: [Manual database and socket snapshots](SYSTEM_DB_SNAPSHOTS.md). Existing MetricHistory transport, exact epochs/gauges and common consumers; other adapters remain fixture-gated.
+
+Additional bounded profile adapter: CPython cProfile 3.14.4 `cprofile-flat-json` (actual synthetic workload, flat self-time only). See [source profiles](PROFILE_SOURCE_IMPORT.md#cpython-cprofile-flat-owner-export).

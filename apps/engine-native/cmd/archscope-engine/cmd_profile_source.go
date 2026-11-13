@@ -58,7 +58,7 @@ func profileSourceCommands() []*cobra.Command {
 			}
 		}}
 		cmd.Flags().StringVar(&input, "in", "", "original selected source")
-		cmd.Flags().StringVar(&format, "format", "auto", "speedscope-json, pyspy-raw, pprof")
+		cmd.Flags().StringVar(&format, "format", "auto", "speedscope-json, pyspy-raw, pprof, cprofile-flat-json")
 		cmd.Flags().StringVar(&producer, "producer", "", "explicit declared producer when the format has no exporter")
 		cmd.Flags().StringVar(&version, "producer-version", "", "declared source tool version, not a support grant")
 		cmd.Flags().StringVar(&capture, "capture-options", "{}", "complete sanitized capture context JSON; imported whitelists have no authority")

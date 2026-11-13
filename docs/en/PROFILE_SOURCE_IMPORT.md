@@ -145,3 +145,9 @@ ceiling now reports actual/limit values for observations/frames/depth. At 100 Hz
 for four equally sampled workers; pprof columns each consume an observation.
 No automatic coalescing loses original observation references. See
 [Case evidence queries](CASE_EVIDENCE_QUERIES.md) for verified baseline reuse.
+
+## CPython cProfile flat owner export
+
+`cprofile-flat-json` accepts the bounded CPython cProfile 3.14.4 function export. Create a reproducible synthetic input with `python3 scripts/capture-cprofile.py --out new-profile.json`, then use `profile import-source --format cprofile-flat-json` or select that format in Workspace. Select profile-0 / function-self-seconds. The existing ProfileSet, tree/detail query and common exports apply; no new result family is introduced.
+
+Only retained function self seconds are additive. Each function is a one-frame aggregate, without reconstructed callers, sample timeline or CPU attribution. Cumulative seconds and call counts remain labels. Paths and excluded/builtin functions are omitted; the retained total is not full-process elapsed time. .pstats, marshal and pickle are never loaded. Other producer versions are refused. Capture options remain fully strict; no py-spy equivalence or new cross-producer comparison policy is granted. Actual synthetic-workload fixture scope: CPython 3.14.4, three functions.
