@@ -1,0 +1,220 @@
+{
+  "id": "diagnostics.parser-adversarial.v1",
+  "version": "1.0.0",
+  "synthetic": true,
+  "qualification": "정제 계약 입력에서 파생한 손상 모델 및 짧은 fuzz 탐색 표본; 독립 리뷰 미실행",
+  "files": [
+    {
+      "file": "execution-unsupported-version.json",
+      "sha256": "e4ebd4b4e94f9c74ce46cf52425e7ea8ac9f7bba6186142965c8f31d70c502d3",
+      "family": "execution",
+      "expectation": "reject",
+      "source_sha256": "c1a9aae72d4843397f9355cbda47e71a5d1c09875279b6613b9633e70c142330"
+    },
+    {
+      "file": "execution-invalid-reference.json",
+      "sha256": "f944a202c5fa46cf140fb4743e541e9a9bd9b23a265d28f8cb99e8fc913fabe0",
+      "family": "execution",
+      "expectation": "reject",
+      "source_sha256": "c1a9aae72d4843397f9355cbda47e71a5d1c09875279b6613b9633e70c142330"
+    },
+    {
+      "file": "gpu-unsupported-version.json",
+      "sha256": "9253301f1c66500a2697dd2e3bd82de953a308fb73fcee842cb04120fa2e48ed",
+      "family": "gpu",
+      "expectation": "reject",
+      "source_sha256": "f55629abb60cc559e784119caca9a5744e920d8c2caa827c937281a06416659e"
+    },
+    {
+      "file": "gpu-invalid-reference.json",
+      "sha256": "685a16c0c7549ab81766012f51fef476c0ba5c22d03d163b21613b8a329e1d1b",
+      "family": "gpu",
+      "expectation": "reject",
+      "source_sha256": "f55629abb60cc559e784119caca9a5744e920d8c2caa827c937281a06416659e"
+    },
+    {
+      "file": "inference-unsupported-version.json",
+      "sha256": "87a252c0c037448a58eaec6c72f5d3412f66299dfc754bcb7ed9c79acd4c0fa0",
+      "family": "inference",
+      "expectation": "reject",
+      "source_sha256": "42c9e1fcec78ae9e495f7226788a228464c08b3c05ec3fff221b385c95235e99"
+    },
+    {
+      "file": "inference-invalid-reference.json",
+      "sha256": "3b6af9c6ea9b6cc0d12f7186c25651ee1dab066fa19666ec3cd4f607b2748a86",
+      "family": "inference",
+      "expectation": "reject",
+      "source_sha256": "42c9e1fcec78ae9e495f7226788a228464c08b3c05ec3fff221b385c95235e99"
+    },
+    {
+      "file": "llm-unsupported-version.json",
+      "sha256": "fc99e744b00712e9dcda60568ac048437f266767b81d131e4c3b172fd3fc054f",
+      "family": "llm",
+      "expectation": "reject",
+      "source_sha256": "bb5f48193a7915418d8f1c2c6fdd3a71f1ef27a66e271c1e57031169c3020965"
+    },
+    {
+      "file": "llm-invalid-reference.json",
+      "sha256": "003625cebc90717a94c0fb2b03efd6119f24db74e2bcc2f228ed47e74a12b9b0",
+      "family": "llm",
+      "expectation": "reject",
+      "source_sha256": "bb5f48193a7915418d8f1c2c6fdd3a71f1ef27a66e271c1e57031169c3020965"
+    },
+    {
+      "file": "runtime-unsupported-version.json",
+      "sha256": "a57a831fde77e2c80840f60cfe15471a476b195223fc7d85f266bf74bded6b79",
+      "family": "runtime",
+      "expectation": "reject",
+      "source_sha256": "ffbf8afcb1f3cb92f0ea4355046f46a6ba68de51ee99f4a458f995e96b98968f"
+    },
+    {
+      "file": "runtime-invalid-reference.json",
+      "sha256": "204a403c31ab3d789704d4505600261e11aa0359fb58f4d217b2143dee4d569b",
+      "family": "runtime",
+      "expectation": "reject",
+      "source_sha256": "ffbf8afcb1f3cb92f0ea4355046f46a6ba68de51ee99f4a458f995e96b98968f"
+    },
+    {
+      "file": "system-unsupported-version.json",
+      "sha256": "7deb943e8d265934537a003f6f9bb469b15e2e2634ceaef119bb0ba3a4386168",
+      "family": "system",
+      "expectation": "reject",
+      "source_sha256": "02ed5b4b49a6ba045fcbfbf3d0b7e6ccd052743c6168fb1c6bed16781384b464"
+    },
+    {
+      "file": "system-invalid-reference.json",
+      "sha256": "58e960a481d471ae8708c434ddc8d4aa6583d5013a6c2768375333d9399cfa43",
+      "family": "system",
+      "expectation": "reject",
+      "source_sha256": "02ed5b4b49a6ba045fcbfbf3d0b7e6ccd052743c6168fb1c6bed16781384b464"
+    },
+    {
+      "file": "execution-0d1c4d334099d07f.gofuzz",
+      "sha256": "0d1c4d334099d07fd5d28f3d0ee439b824e3afa238d8437a3b13b91d91e0439f",
+      "family": "execution",
+      "expectation": "bounded_refusal_or_valid_canonical_readback",
+      "encoding": "go test fuzz v1"
+    },
+    {
+      "file": "execution-26c2e4907059a363.gofuzz",
+      "sha256": "26c2e4907059a363986cedc41a05801be8fee44004f5032d91d1e278db3b7f42",
+      "family": "execution",
+      "expectation": "bounded_refusal_or_valid_canonical_readback",
+      "encoding": "go test fuzz v1"
+    },
+    {
+      "file": "execution-406100cfd35fb5aa.gofuzz",
+      "sha256": "406100cfd35fb5aaf30aba4798d72300c3a6c791d6c4283964e3e65f38d45f44",
+      "family": "execution",
+      "expectation": "bounded_refusal_or_valid_canonical_readback",
+      "encoding": "go test fuzz v1"
+    },
+    {
+      "file": "execution-4a2eb4304ca0f45f.gofuzz",
+      "sha256": "4a2eb4304ca0f45fc42a8ffe64901615cd60a5b9b12edd323aabd09e756834f5",
+      "family": "execution",
+      "expectation": "bounded_refusal_or_valid_canonical_readback",
+      "encoding": "go test fuzz v1"
+    },
+    {
+      "file": "execution-7e349fb1f4fe2305.gofuzz",
+      "sha256": "7e349fb1f4fe23057ec6c36600862f29cff2166430fa5999368c0a54d5d6fba1",
+      "family": "execution",
+      "expectation": "bounded_refusal_or_valid_canonical_readback",
+      "encoding": "go test fuzz v1"
+    },
+    {
+      "file": "execution-da41573f8530161f.gofuzz",
+      "sha256": "da41573f8530161fa2f28e2889e937f03cc211d57dc2e54448e5349e766d0c84",
+      "family": "execution",
+      "expectation": "bounded_refusal_or_valid_canonical_readback",
+      "encoding": "go test fuzz v1"
+    },
+    {
+      "file": "gpu-12e513e7e8699a87.gofuzz",
+      "sha256": "12e513e7e8699a873bd122270b8991df03477b794a40f6cc819c1d23990e4449",
+      "family": "gpu",
+      "expectation": "bounded_refusal_or_valid_canonical_readback",
+      "encoding": "go test fuzz v1"
+    },
+    {
+      "file": "gpu-3e0ea23e7b4737a6.gofuzz",
+      "sha256": "3e0ea23e7b4737a68356a15fdf36a288e529e7b357e66267006c6b7f4361fe7f",
+      "family": "gpu",
+      "expectation": "bounded_refusal_or_valid_canonical_readback",
+      "encoding": "go test fuzz v1"
+    },
+    {
+      "file": "gpu-744ea15d036226f5.gofuzz",
+      "sha256": "744ea15d036226f570ab61b7d029a57611212f561dc5b8c2f10886e37a83462a",
+      "family": "gpu",
+      "expectation": "bounded_refusal_or_valid_canonical_readback",
+      "encoding": "go test fuzz v1"
+    },
+    {
+      "file": "metric-43377aaebc8f0d6b.gofuzz",
+      "sha256": "43377aaebc8f0d6b00762d8a6e98a439dabe317e6b991b300545d5337deddab0",
+      "family": "metric",
+      "expectation": "bounded_refusal_or_valid_canonical_readback",
+      "encoding": "go test fuzz v1"
+    },
+    {
+      "file": "metric-db884de1579b5e3b.gofuzz",
+      "sha256": "db884de1579b5e3b5658f7eccdc6a25782b764bdd3b8ab31fd112f38776adbd6",
+      "family": "metric",
+      "expectation": "bounded_refusal_or_valid_canonical_readback",
+      "encoding": "go test fuzz v1"
+    },
+    {
+      "file": "README.md",
+      "sha256": "15cbcdc8cacb75d9c6869ff019e5e30282b2db90f2bb9624ba0bec17286c486a"
+    },
+    {
+      "file": "metric-signed-int64-overflow.otlp.json",
+      "sha256": "7f320fc531adb9ce4b2fff8fe9c2b1e7e0849c04acc1d86558cdd4fcf079e292",
+      "family": "metric",
+      "expectation": "source_refusal",
+      "source": "../metric-history-v1/sdk-python-1.38.0.otlp.json",
+      "rule": "signed_int64_integer"
+    },
+    {
+      "file": "metric-known-epochs.snapshots.json",
+      "sha256": "ea5e576ce8e6e3e9e8f97fd89ba125ca9d1f7d9066aca4a2fbd5c834cfca2818",
+      "family": "metric",
+      "expectation": "independent_interval_arithmetic",
+      "source": "../metric-history-v1/snapshots.json"
+    },
+    {
+      "file": "llm-token-before-span.otlp.json",
+      "sha256": "e2ddc59691a3b637c3646a63486386b34ad48bf5da81ee479d18ddcbd61a9b40",
+      "family": "llm",
+      "expectation": "null_ttft_tpot",
+      "source": "../llm-trace-v1/sdk-python-1.38.0.otlp.json",
+      "options_source": "../llm-trace-v1/neutral-options.json"
+    },
+    {
+      "file": "system-perf-source.txt",
+      "sha256": "c65c362433c9c5dc4abc8473597952a08cb94c25e66108e71f6a2e1c19224888",
+      "family": "system",
+      "expectation": "input_for_hash_assertion",
+      "source": "../system-evidence-v1/perf-script.txt"
+    },
+    {
+      "file": "system-imported-hash-mismatch.options.json",
+      "sha256": "3f956d69ff260a2a5ad0a0cd84f581ec5856796565f503a6eea5a1c120591762",
+      "family": "system",
+      "expectation": "source_hash_refusal",
+      "source": "../system-evidence-v1/perf-capture.json",
+      "input_file": "system-perf-source.txt"
+    }
+  ],
+  "source_contracts": [
+    "../execution-evidence-v1/manifest.json",
+    "../gpu-execution-v1/manifest.json",
+    "../inference-evidence-v1/manifest.json",
+    "../llm-trace-v1/manifest.json",
+    "../runtime-evidence-v1/manifest.json",
+    "../system-evidence-v1/manifest.json",
+    "../metric-history-v1/manifest.json"
+  ]
+}

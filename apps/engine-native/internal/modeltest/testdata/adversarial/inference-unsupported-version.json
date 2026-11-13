@@ -1,0 +1,2129 @@
+{
+  "schema_version": "9.0.0",
+  "metrics": {
+    "schema_version": "1.0.0",
+    "normalizer": "1.0.0",
+    "sources": [
+      {
+        "id": "nvidia-source",
+        "sha256": "85ca5c4278798e3e9831a376ba6b08d81fbe1476eb05bae4462c8be621075df0",
+        "name": "nvidia-query.csv",
+        "format": "nvidia-smi.query-csv.v1",
+        "producer": "nvidia-smi",
+        "producer_version": "535.104.05",
+        "query": {
+          "contract": "nvidia-smi.query-csv.v1",
+          "host_id": "synthetic-host",
+          "boot_id": "synthetic-boot",
+          "producer_version": "535.104.05",
+          "query_fields": "uuid,pci.bus_id,name,driver_version,utilization.gpu,utilization.memory,memory.used,memory.total,temperature.gpu,power.draw,clocks.sm",
+          "timestamps_ns": [
+            "1000000000",
+            "1000000000",
+            "2000000000"
+          ]
+        }
+      },
+      {
+        "id": "source-0",
+        "sha256": "892744c874468576c762e300ad6446eb0987faab60d71f28a36ff34d27c823de",
+        "name": "serving-snapshots.json",
+        "format": "snapshot-sequence-json",
+        "producer": "synthetic explicit serving collector",
+        "producer_version": "1.0.0",
+        "query": {}
+      }
+    ],
+    "series": [
+      {
+        "id": "metric-55e0bb2f778358b05e45640627dd825bdabe89f9842513c8f9b01bac2c1f8f08",
+        "name": "utilization.gpu",
+        "description": "",
+        "unit": "%",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-a",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:01:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-24eb32617eb324e3bb7cfe43dbf94cf334b28a593879f456272d6c227d35c5c6",
+        "name": "utilization.memory",
+        "description": "",
+        "unit": "%",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-a",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:01:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-21377e50a4a03c7d78d96f9129486a8539cf6378041be160eeb57d128c4e0356",
+        "name": "memory.used",
+        "description": "",
+        "unit": "MiB",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-a",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:01:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-7a50ae5f296b50ed69c6806a9c54e9b79c5148d611937134e0e7a8ac5e7c29ba",
+        "name": "memory.total",
+        "description": "",
+        "unit": "MiB",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-a",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:01:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-6c2ba0b4a7d67f079ba754896f445d45582981f332e45c23a24294d0031649e4",
+        "name": "temperature.gpu",
+        "description": "",
+        "unit": "Cel",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-a",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:01:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-8d6909356181c99948dd7f276bbfe46226cc347c224a3d2f2afd0e45eb7af46e",
+        "name": "power.draw",
+        "description": "",
+        "unit": "W",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-a",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:01:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-584a6f4ac973d4791dd6b2a9c4ce8c59376225d336a3f1d8f793eb90286d0d1a",
+        "name": "clocks.sm",
+        "description": "",
+        "unit": "MHz",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-a",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:01:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-f8c59ca06f57db2df1b95ef4553c68e0612d401fc8723ea64af87dd2c31aebb7",
+        "name": "utilization.gpu",
+        "description": "",
+        "unit": "%",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-b",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:02:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-1ace24ca888691686a7ef0f38d4b437ac9b42a9130154289ff3eb5fc8142de52",
+        "name": "utilization.memory",
+        "description": "",
+        "unit": "%",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-b",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:02:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-e013e2c05f127d7ff07b8e267190a4b371158472fcf3fd442e15fdad73add15f",
+        "name": "memory.used",
+        "description": "",
+        "unit": "MiB",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-b",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:02:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-1bf24d6e0117b4b45b3f38b362ef4b985a32972d487d3be1876f3bebb53cc667",
+        "name": "memory.total",
+        "description": "",
+        "unit": "MiB",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-b",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:02:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-9dbad07103ad9713101ad8898cccb15135423ef818231802ef4b53002007d7ec",
+        "name": "temperature.gpu",
+        "description": "",
+        "unit": "Cel",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-b",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:02:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-965722bb765783f7eb9ac67272a659b7b46f578a487c559bcabf227e12b38f37",
+        "name": "power.draw",
+        "description": "",
+        "unit": "W",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-b",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:02:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-13c1c92d11e55f10b040cc90098fc39db45dbbe5f029bdfde7e1594ef3f47893",
+        "name": "clocks.sm",
+        "description": "",
+        "unit": "MHz",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "nvidia-smi.query-csv.v1:535.104.05",
+        "resource": {
+          "boot_id": "synthetic-boot",
+          "device_name": "Synthetic GPU",
+          "device_uuid": "GPU-synthetic-b",
+          "host_id": "synthetic-host",
+          "pci_bus_id": "00000000:02:00.0"
+        },
+        "resource_schema_url": "",
+        "scope": {
+          "name": "nvidia-smi.query-csv.v1",
+          "version": "535.104.05",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {}
+      },
+      {
+        "id": "metric-13d7b6890c5b6ebc3cdc66810c5527d7fe9e8283a3fdbd8a3e77d3e4b31ff0bc",
+        "name": "vllm:time_per_output_token_seconds",
+        "description": "",
+        "unit": "s",
+        "kind": "histogram",
+        "temporality": "cumulative",
+        "monotonic": false,
+        "origin": "snapshot-sequence-json:synthetic explicit serving collector:1.0.0",
+        "resource": {},
+        "resource_schema_url": "",
+        "scope": {
+          "name": "",
+          "version": "",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {
+          "worker": "synthetic-worker-0"
+        }
+      },
+      {
+        "id": "metric-21494eb672dc40d3e9c6e509c4eb23ca5f0bad143424cd1bf34fe87016259bbe",
+        "name": "framework_reserved",
+        "description": "",
+        "unit": "bytes",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "snapshot-sequence-json:synthetic explicit serving collector:1.0.0",
+        "resource": {},
+        "resource_schema_url": "",
+        "scope": {
+          "name": "",
+          "version": "",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {
+          "worker": "synthetic-worker-0"
+        }
+      },
+      {
+        "id": "metric-4b0bd9c9ad93c52c9c23fac8d52d6329fe2ee8edd1ca02585e3b9356b8b2ec90",
+        "name": "unmapped_similar_cache_perc",
+        "description": "",
+        "unit": "1",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "snapshot-sequence-json:synthetic explicit serving collector:1.0.0",
+        "resource": {},
+        "resource_schema_url": "",
+        "scope": {
+          "name": "",
+          "version": "",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {
+          "worker": "synthetic-worker-0"
+        }
+      },
+      {
+        "id": "metric-6ae19d0bece91b689fa8d8ed54a942bfe89e78b722c05f167f3f8b4f5cfab859",
+        "name": "vllm:num_requests_running",
+        "description": "",
+        "unit": "requests",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "snapshot-sequence-json:synthetic explicit serving collector:1.0.0",
+        "resource": {},
+        "resource_schema_url": "",
+        "scope": {
+          "name": "",
+          "version": "",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {
+          "worker": "synthetic-worker-0"
+        }
+      },
+      {
+        "id": "metric-788644f4b296df11f8bb9d680a2b089d9b67a051a0f6f4b2141b55ff5e15dbf5",
+        "name": "vllm:gpu_cache_usage_perc",
+        "description": "",
+        "unit": "1",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "snapshot-sequence-json:synthetic explicit serving collector:1.0.0",
+        "resource": {},
+        "resource_schema_url": "",
+        "scope": {
+          "name": "",
+          "version": "",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {
+          "worker": "synthetic-worker-0"
+        }
+      },
+      {
+        "id": "metric-7c2e680383d3b9cf2c63c8d0c5b1f69bb62a8a40cbf2271bccc042258befbb74",
+        "name": "vllm:generation_tokens_total",
+        "description": "",
+        "unit": "tokens",
+        "kind": "sum",
+        "temporality": "cumulative",
+        "monotonic": true,
+        "origin": "snapshot-sequence-json:synthetic explicit serving collector:1.0.0",
+        "resource": {},
+        "resource_schema_url": "",
+        "scope": {
+          "name": "",
+          "version": "",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {
+          "worker": "synthetic-worker-0"
+        }
+      },
+      {
+        "id": "metric-7f70125107cc63695afdfb4fbb7b7ad75a5e7e0a1317ad661b87e7e7bf9c91f4",
+        "name": "vllm:num_requests_waiting",
+        "description": "",
+        "unit": "requests",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "snapshot-sequence-json:synthetic explicit serving collector:1.0.0",
+        "resource": {},
+        "resource_schema_url": "",
+        "scope": {
+          "name": "",
+          "version": "",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {
+          "worker": "synthetic-worker-0"
+        }
+      },
+      {
+        "id": "metric-8d6077b629ca71093cc2c2bb4908944753b6fcf0b327f7f73fa231cde07d2709",
+        "name": "vllm:request_queue_time_seconds",
+        "description": "",
+        "unit": "s",
+        "kind": "histogram",
+        "temporality": "cumulative",
+        "monotonic": false,
+        "origin": "snapshot-sequence-json:synthetic explicit serving collector:1.0.0",
+        "resource": {},
+        "resource_schema_url": "",
+        "scope": {
+          "name": "",
+          "version": "",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {
+          "worker": "synthetic-worker-0"
+        }
+      },
+      {
+        "id": "metric-e689e7c8e06fb1fccf31eba5e02a3743d7ceed6e2da313719562f108e66f6d2b",
+        "name": "vllm:time_to_first_token_seconds",
+        "description": "",
+        "unit": "s",
+        "kind": "histogram",
+        "temporality": "cumulative",
+        "monotonic": false,
+        "origin": "snapshot-sequence-json:synthetic explicit serving collector:1.0.0",
+        "resource": {},
+        "resource_schema_url": "",
+        "scope": {
+          "name": "",
+          "version": "",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {
+          "worker": "synthetic-worker-0"
+        }
+      },
+      {
+        "id": "metric-eb34c96738500a811cf678e9b2f4c4512573da554ec0afb38863df18e68cf424",
+        "name": "framework_allocated",
+        "description": "",
+        "unit": "bytes",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "snapshot-sequence-json:synthetic explicit serving collector:1.0.0",
+        "resource": {},
+        "resource_schema_url": "",
+        "scope": {
+          "name": "",
+          "version": "",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {
+          "worker": "synthetic-worker-0"
+        }
+      },
+      {
+        "id": "metric-fad5e503f22c21f9d562d45f6e65160124bb48fe4582a14dc2eda9f245b67a5a",
+        "name": "synthetic:mig_used_bytes",
+        "description": "",
+        "unit": "bytes",
+        "kind": "gauge",
+        "temporality": "unspecified",
+        "monotonic": false,
+        "origin": "snapshot-sequence-json:synthetic explicit serving collector:1.0.0",
+        "resource": {},
+        "resource_schema_url": "",
+        "scope": {
+          "name": "",
+          "version": "",
+          "schema_url": "",
+          "attributes": {},
+          "dropped_attributes": "0"
+        },
+        "attributes": {
+          "mig_uuid": "MIG-synthetic-1"
+        }
+      }
+    ],
+    "points": [
+      {
+        "id": "point-ef0dd9148cff03ef54db04c82ad24bad454ecc99e50b95ef0e17d8e587ff8ba3",
+        "series_id": "metric-55e0bb2f778358b05e45640627dd825bdabe89f9842513c8f9b01bac2c1f8f08",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "75",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:1/column:5"
+          }
+        ]
+      },
+      {
+        "id": "point-df8023e52f14c94dcd47b8eee6a0eebf09e2a4f644d38bdb02025d35f365ac50",
+        "series_id": "metric-24eb32617eb324e3bb7cfe43dbf94cf334b28a593879f456272d6c227d35c5c6",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "20",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:1/column:6"
+          }
+        ]
+      },
+      {
+        "id": "point-fa074f54da2c5f70f4d9955842c72a09c511f83b256cf12b77704b8cdc974730",
+        "series_id": "metric-21377e50a4a03c7d78d96f9129486a8539cf6378041be160eeb57d128c4e0356",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "8192",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:1/column:7"
+          }
+        ]
+      },
+      {
+        "id": "point-814dfb2cdf9923134c4416d70e25acf570535e7e9f8082ace0b957dc1fbe40f9",
+        "series_id": "metric-7a50ae5f296b50ed69c6806a9c54e9b79c5148d611937134e0e7a8ac5e7c29ba",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "16384",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:1/column:8"
+          }
+        ]
+      },
+      {
+        "id": "point-e93932c7937750bb76147b4ef513c77fad3c621e31bf9e761d432b291815bd35",
+        "series_id": "metric-6c2ba0b4a7d67f079ba754896f445d45582981f332e45c23a24294d0031649e4",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "60",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:1/column:9"
+          }
+        ]
+      },
+      {
+        "id": "point-ea27ac344ebcd6145c11ae68bcdf1e04b99b39dd70487c492dff0488956321d7",
+        "series_id": "metric-8d6909356181c99948dd7f276bbfe46226cc347c224a3d2f2afd0e45eb7af46e",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "123.50",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:1/column:10"
+          }
+        ]
+      },
+      {
+        "id": "point-02460bd13bffba937fa7acddcd1cb8d7f70cb5574cc8d6949ef608376d0a1e7c",
+        "series_id": "metric-584a6f4ac973d4791dd6b2a9c4ce8c59376225d336a3f1d8f793eb90286d0d1a",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "1200",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:1/column:11"
+          }
+        ]
+      },
+      {
+        "id": "point-c5e33bb56fd33fab6105aa6ae9b53445feef976528ae4ee102dbd47c987a6d9d",
+        "series_id": "metric-f8c59ca06f57db2df1b95ef4553c68e0612d401fc8723ea64af87dd2c31aebb7",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": null,
+        "special": "no_recorded_value",
+        "flags": 1,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:2/column:5"
+          }
+        ]
+      },
+      {
+        "id": "point-0ba3e2a11075f4b236658d6bb2f712d33e41cf0e81c017638733af8000b23ad8",
+        "series_id": "metric-1ace24ca888691686a7ef0f38d4b437ac9b42a9130154289ff3eb5fc8142de52",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": null,
+        "special": "no_recorded_value",
+        "flags": 1,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:2/column:6"
+          }
+        ]
+      },
+      {
+        "id": "point-2f136251115d45c305bc01cfdf86bee72888c8e405f990c5fc3f372bfacd1889",
+        "series_id": "metric-e013e2c05f127d7ff07b8e267190a4b371158472fcf3fd442e15fdad73add15f",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "1024",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:2/column:7"
+          }
+        ]
+      },
+      {
+        "id": "point-4b12271e3ea1077ad350b540eaaa964b09e0b52285b0ce80733bb0f17bde3556",
+        "series_id": "metric-1bf24d6e0117b4b45b3f38b362ef4b985a32972d487d3be1876f3bebb53cc667",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "16384",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:2/column:8"
+          }
+        ]
+      },
+      {
+        "id": "point-17df70c5de1fb3368910d200a6be31529cd23593d66ab38d30dd17cc63686292",
+        "series_id": "metric-9dbad07103ad9713101ad8898cccb15135423ef818231802ef4b53002007d7ec",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "50",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:2/column:9"
+          }
+        ]
+      },
+      {
+        "id": "point-db1db5d2f4442236e24c71c3131fbf024c421a663fac54570ac0d328c046ed3a",
+        "series_id": "metric-965722bb765783f7eb9ac67272a659b7b46f578a487c559bcabf227e12b38f37",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": null,
+        "special": "no_recorded_value",
+        "flags": 1,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:2/column:10"
+          }
+        ]
+      },
+      {
+        "id": "point-1e9584c04274ef651f3357e799bfc9b452ed183c6d63bc401f0d341754258e8f",
+        "series_id": "metric-13c1c92d11e55f10b040cc90098fc39db45dbbe5f029bdfde7e1594ef3f47893",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "900",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:2/column:11"
+          }
+        ]
+      },
+      {
+        "id": "point-d04143b0380dbaac4110badaf7ea718422146584549e4d70180b5b1540406d13",
+        "series_id": "metric-55e0bb2f778358b05e45640627dd825bdabe89f9842513c8f9b01bac2c1f8f08",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "80",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:3/column:5"
+          }
+        ]
+      },
+      {
+        "id": "point-de5622eaa40bfd8b1122c7e24fcb00fb6e5583c1550478504a330c1dc6623f94",
+        "series_id": "metric-24eb32617eb324e3bb7cfe43dbf94cf334b28a593879f456272d6c227d35c5c6",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "25",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:3/column:6"
+          }
+        ]
+      },
+      {
+        "id": "point-986c618709ae3559a40bce8f9e2885bad62f661cd222b57e31b98a84ad933931",
+        "series_id": "metric-21377e50a4a03c7d78d96f9129486a8539cf6378041be160eeb57d128c4e0356",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "8193",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:3/column:7"
+          }
+        ]
+      },
+      {
+        "id": "point-adcdca49aab2526d1c27995361267754d93a1405cfff73bf59f069a3bca6b797",
+        "series_id": "metric-7a50ae5f296b50ed69c6806a9c54e9b79c5148d611937134e0e7a8ac5e7c29ba",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "16384",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:3/column:8"
+          }
+        ]
+      },
+      {
+        "id": "point-7c5bd9f707d72a02b498263cadf9b758694ca827599985ffb50696131a060fb9",
+        "series_id": "metric-6c2ba0b4a7d67f079ba754896f445d45582981f332e45c23a24294d0031649e4",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "61",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:3/column:9"
+          }
+        ]
+      },
+      {
+        "id": "point-f7f0a18ce5d708f6cab4c0ca26177049cb17021e9c7b7972d39c58c6620ae405",
+        "series_id": "metric-8d6909356181c99948dd7f276bbfe46226cc347c224a3d2f2afd0e45eb7af46e",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "125.25",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:3/column:10"
+          }
+        ]
+      },
+      {
+        "id": "point-03973f6ae1075866c19f252f5b547ea634c4746edc61d3226668005693f8c1a9",
+        "series_id": "metric-584a6f4ac973d4791dd6b2a9c4ce8c59376225d336a3f1d8f793eb90286d0d1a",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "1190",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "nvidia-source",
+            "position": "line:3/column:11"
+          }
+        ]
+      },
+      {
+        "id": "point-36c9830d6fc8a07825e63e48b75cb16d9b6c0de5e4ed576250d8afa242e0cbff",
+        "series_id": "metric-7f70125107cc63695afdfb4fbb7b7ad75a5e7e0a1317ad661b87e7e7bf9c91f4",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "1",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/0/metrics/0"
+          }
+        ]
+      },
+      {
+        "id": "point-496876b81e3fadd20b3ec7f45550eef5350b80c3bc2a9b3d1c0c14b3ce9e96f2",
+        "series_id": "metric-6ae19d0bece91b689fa8d8ed54a942bfe89e78b722c05f167f3f8b4f5cfab859",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "2",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/0/metrics/1"
+          }
+        ]
+      },
+      {
+        "id": "point-d4be3d5ee6569f3d275630d032e2b4ad554b784443322c5a438c254839ec0e78",
+        "series_id": "metric-788644f4b296df11f8bb9d680a2b089d9b67a051a0f6f4b2141b55ff5e15dbf5",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "0.5",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/0/metrics/2"
+          }
+        ]
+      },
+      {
+        "id": "point-e3d723571c03dfdb94a92c97c12c260deac1db4f71aa0291719983f10e8e55aa",
+        "series_id": "metric-eb34c96738500a811cf678e9b2f4c4512573da554ec0afb38863df18e68cf424",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "1073741824",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/0/metrics/3"
+          }
+        ]
+      },
+      {
+        "id": "point-e3cc5d27f279d078698a89000d775f8d10fbc7f9d531ff098da6734ef579f7b5",
+        "series_id": "metric-21494eb672dc40d3e9c6e509c4eb23ca5f0bad143424cd1bf34fe87016259bbe",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "2147483648",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/0/metrics/4"
+          }
+        ]
+      },
+      {
+        "id": "point-7762e3ab4ccb57e08dd49bb0f3d66f52e3794071cbec63968d9002e9964626c6",
+        "series_id": "metric-4b0bd9c9ad93c52c9c23fac8d52d6329fe2ee8edd1ca02585e3b9356b8b2ec90",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "0.2",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/0/metrics/5"
+          }
+        ]
+      },
+      {
+        "id": "point-e73ee7fdb260d42bd6e35d0689e2e043437f7ed5ffd49a2b9606a540c7c87320",
+        "series_id": "metric-7c2e680383d3b9cf2c63c8d0c5b1f69bb62a8a40cbf2271bccc042258befbb74",
+        "start_ns": "0",
+        "end_ns": "1000000000",
+        "value": "9007199254740993",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/0/metrics/6"
+          }
+        ]
+      },
+      {
+        "id": "point-d662614aac66f21c27c682a610ad94bf6d44c97c85775dac8a5400f6c861e660",
+        "series_id": "metric-e689e7c8e06fb1fccf31eba5e02a3743d7ceed6e2da313719562f108e66f6d2b",
+        "start_ns": "0",
+        "end_ns": "1000000000",
+        "value": null,
+        "flags": 0,
+        "histogram": {
+          "count": "1",
+          "sum": "0.05",
+          "min": null,
+          "max": null,
+          "bounds": [
+            "0.1",
+            "1"
+          ],
+          "counts": [
+            "1",
+            "0",
+            "0"
+          ]
+        },
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/0/metrics/7"
+          }
+        ]
+      },
+      {
+        "id": "point-5f4be61ad2eece79b4a9917a1420425e49f8c93a35801acdaefda2df538e6ff3",
+        "series_id": "metric-13d7b6890c5b6ebc3cdc66810c5527d7fe9e8283a3fdbd8a3e77d3e4b31ff0bc",
+        "start_ns": "0",
+        "end_ns": "1000000000",
+        "value": null,
+        "flags": 0,
+        "histogram": {
+          "count": "1",
+          "sum": "0.05",
+          "min": null,
+          "max": null,
+          "bounds": [
+            "0.1",
+            "1"
+          ],
+          "counts": [
+            "1",
+            "0",
+            "0"
+          ]
+        },
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/0/metrics/8"
+          }
+        ]
+      },
+      {
+        "id": "point-7e6fbbb52bb8fa64d66d6735569480cf4fdbad18f78b93449b01ee9c57b44642",
+        "series_id": "metric-8d6077b629ca71093cc2c2bb4908944753b6fcf0b327f7f73fa231cde07d2709",
+        "start_ns": "0",
+        "end_ns": "1000000000",
+        "value": null,
+        "flags": 0,
+        "histogram": {
+          "count": "1",
+          "sum": "0.05",
+          "min": null,
+          "max": null,
+          "bounds": [
+            "0.1",
+            "1"
+          ],
+          "counts": [
+            "1",
+            "0",
+            "0"
+          ]
+        },
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/0/metrics/9"
+          }
+        ]
+      },
+      {
+        "id": "point-8ee8357a178f2b39700ed52bf900e1129451d1f32e5b60d3b044685d51b6a85c",
+        "series_id": "metric-fad5e503f22c21f9d562d45f6e65160124bb48fe4582a14dc2eda9f245b67a5a",
+        "start_ns": null,
+        "end_ns": "1000000000",
+        "value": "1048576",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/0/metrics/10"
+          }
+        ]
+      },
+      {
+        "id": "point-216c93c4f41a19332e2be871a1391d0fa11affcaba5b833991db31ffe82c49c7",
+        "series_id": "metric-7f70125107cc63695afdfb4fbb7b7ad75a5e7e0a1317ad661b87e7e7bf9c91f4",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "2",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/1/metrics/0"
+          }
+        ]
+      },
+      {
+        "id": "point-78a68cb36d90c3f70b432f9b1beaefa55e7b4ae0f379513cb133898d861f15a3",
+        "series_id": "metric-6ae19d0bece91b689fa8d8ed54a942bfe89e78b722c05f167f3f8b4f5cfab859",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "3",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/1/metrics/1"
+          }
+        ]
+      },
+      {
+        "id": "point-e162c768ab1ea4fa28fdd9236ccfcd36e62bb703c67c9afc6d2e0dbd38ae53aa",
+        "series_id": "metric-788644f4b296df11f8bb9d680a2b089d9b67a051a0f6f4b2141b55ff5e15dbf5",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "0.75",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/1/metrics/2"
+          }
+        ]
+      },
+      {
+        "id": "point-4440e0bb93c442500645dabfc490d8f572cc00ef30e16f98e65d62701e8cb5d3",
+        "series_id": "metric-eb34c96738500a811cf678e9b2f4c4512573da554ec0afb38863df18e68cf424",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "2147483648",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/1/metrics/3"
+          }
+        ]
+      },
+      {
+        "id": "point-d09e14170969ff296072e682a26ed64ed433891fdc86de301d6285a240495cae",
+        "series_id": "metric-21494eb672dc40d3e9c6e509c4eb23ca5f0bad143424cd1bf34fe87016259bbe",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "3221225472",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/1/metrics/4"
+          }
+        ]
+      },
+      {
+        "id": "point-abaed4fce1177c2debd6c158734a9bf1dcd5e97fd643db488adf688692ff6e57",
+        "series_id": "metric-4b0bd9c9ad93c52c9c23fac8d52d6329fe2ee8edd1ca02585e3b9356b8b2ec90",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "0.3",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/1/metrics/5"
+          }
+        ]
+      },
+      {
+        "id": "point-3a50aeaa3a90a9796ee3d3d181f1b54eb986d08589202b4d4fa2ceafaa681e17",
+        "series_id": "metric-7c2e680383d3b9cf2c63c8d0c5b1f69bb62a8a40cbf2271bccc042258befbb74",
+        "start_ns": "0",
+        "end_ns": "2000000000",
+        "value": "9007199254741003",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/1/metrics/6"
+          }
+        ]
+      },
+      {
+        "id": "point-563f7f4aa4536d57c3f6ead7ce8cf2b6c9a1a96ccc5056274074f9eb78fa41d2",
+        "series_id": "metric-e689e7c8e06fb1fccf31eba5e02a3743d7ceed6e2da313719562f108e66f6d2b",
+        "start_ns": "0",
+        "end_ns": "2000000000",
+        "value": null,
+        "flags": 0,
+        "histogram": {
+          "count": "2",
+          "sum": "0.1",
+          "min": null,
+          "max": null,
+          "bounds": [
+            "0.1",
+            "1"
+          ],
+          "counts": [
+            "2",
+            "0",
+            "0"
+          ]
+        },
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/1/metrics/7"
+          }
+        ]
+      },
+      {
+        "id": "point-82a163f13dc3b4cb56a076c0c69a2e1b4f482ea8c933a90c196b11fda52474c6",
+        "series_id": "metric-13d7b6890c5b6ebc3cdc66810c5527d7fe9e8283a3fdbd8a3e77d3e4b31ff0bc",
+        "start_ns": "0",
+        "end_ns": "2000000000",
+        "value": null,
+        "flags": 0,
+        "histogram": {
+          "count": "2",
+          "sum": "0.1",
+          "min": null,
+          "max": null,
+          "bounds": [
+            "0.1",
+            "1"
+          ],
+          "counts": [
+            "2",
+            "0",
+            "0"
+          ]
+        },
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/1/metrics/8"
+          }
+        ]
+      },
+      {
+        "id": "point-83c10461f9ce9cbf334d24c51e14ad822e46ec3dbe70f0c617b002817cd49804",
+        "series_id": "metric-8d6077b629ca71093cc2c2bb4908944753b6fcf0b327f7f73fa231cde07d2709",
+        "start_ns": "0",
+        "end_ns": "2000000000",
+        "value": null,
+        "flags": 0,
+        "histogram": {
+          "count": "2",
+          "sum": "0.1",
+          "min": null,
+          "max": null,
+          "bounds": [
+            "0.1",
+            "1"
+          ],
+          "counts": [
+            "2",
+            "0",
+            "0"
+          ]
+        },
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/1/metrics/9"
+          }
+        ]
+      },
+      {
+        "id": "point-2df0a08682684795c2940c52d9d79df769aa7e97583b9fced0312f0c75cf825e",
+        "series_id": "metric-fad5e503f22c21f9d562d45f6e65160124bb48fe4582a14dc2eda9f245b67a5a",
+        "start_ns": null,
+        "end_ns": "2000000000",
+        "value": "2097152",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/1/metrics/10"
+          }
+        ]
+      },
+      {
+        "id": "point-da5854b11df97007736bcf36df4746b4dde6a5b61b46ef135a2c803678263b7b",
+        "series_id": "metric-7f70125107cc63695afdfb4fbb7b7ad75a5e7e0a1317ad661b87e7e7bf9c91f4",
+        "start_ns": null,
+        "end_ns": "4000000000",
+        "value": "0",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/2/metrics/0"
+          }
+        ]
+      },
+      {
+        "id": "point-7e780a2cfa1dcf9f768d646aee2062324bc1ac20aa3fb1e3d8657a62a43da069",
+        "series_id": "metric-6ae19d0bece91b689fa8d8ed54a942bfe89e78b722c05f167f3f8b4f5cfab859",
+        "start_ns": null,
+        "end_ns": "4000000000",
+        "value": "1",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/2/metrics/1"
+          }
+        ]
+      },
+      {
+        "id": "point-3259ad49bf7e7cf37b55b8799b0c364044407219eaaed1c60c3d2a42930c8d56",
+        "series_id": "metric-788644f4b296df11f8bb9d680a2b089d9b67a051a0f6f4b2141b55ff5e15dbf5",
+        "start_ns": null,
+        "end_ns": "4000000000",
+        "value": "0.8",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/2/metrics/2"
+          }
+        ]
+      },
+      {
+        "id": "point-ddd726c0795b9d2b004c396fce3d40145921d72c7f70e8df9c2a6b7f98a5b041",
+        "series_id": "metric-eb34c96738500a811cf678e9b2f4c4512573da554ec0afb38863df18e68cf424",
+        "start_ns": null,
+        "end_ns": "4000000000",
+        "value": "2147483648",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/2/metrics/3"
+          }
+        ]
+      },
+      {
+        "id": "point-508551d5859332152deecf29431618a77d133eca785099efc0723273817190c5",
+        "series_id": "metric-21494eb672dc40d3e9c6e509c4eb23ca5f0bad143424cd1bf34fe87016259bbe",
+        "start_ns": null,
+        "end_ns": "4000000000",
+        "value": "3221225472",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/2/metrics/4"
+          }
+        ]
+      },
+      {
+        "id": "point-8fcd2e2daf159ee5ead63c57daa9f4e704a5a60b17d3f524b0c956bd6f4de5bd",
+        "series_id": "metric-4b0bd9c9ad93c52c9c23fac8d52d6329fe2ee8edd1ca02585e3b9356b8b2ec90",
+        "start_ns": null,
+        "end_ns": "4000000000",
+        "value": "0.1",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/2/metrics/5"
+          }
+        ]
+      },
+      {
+        "id": "point-9328693a24070868d4733bf7928e1dc126ba5eb53d648fa33bde4a643fce4e86",
+        "series_id": "metric-7c2e680383d3b9cf2c63c8d0c5b1f69bb62a8a40cbf2271bccc042258befbb74",
+        "start_ns": "3000000000",
+        "end_ns": "4000000000",
+        "value": "2",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/2/metrics/6"
+          }
+        ]
+      },
+      {
+        "id": "point-9b60d6a3c594155f406c17a340b32849e6fd015df8179a0f049f0ec8a7a9edb6",
+        "series_id": "metric-e689e7c8e06fb1fccf31eba5e02a3743d7ceed6e2da313719562f108e66f6d2b",
+        "start_ns": "0",
+        "end_ns": "4000000000",
+        "value": null,
+        "flags": 0,
+        "histogram": {
+          "count": "3",
+          "sum": "0.15",
+          "min": null,
+          "max": null,
+          "bounds": [
+            "0.1",
+            "1"
+          ],
+          "counts": [
+            "3",
+            "0",
+            "0"
+          ]
+        },
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/2/metrics/7"
+          }
+        ]
+      },
+      {
+        "id": "point-f80ada13934fe823c9dcefe11fc56ce3ebccb7959be791e5038006022256a9f4",
+        "series_id": "metric-13d7b6890c5b6ebc3cdc66810c5527d7fe9e8283a3fdbd8a3e77d3e4b31ff0bc",
+        "start_ns": "0",
+        "end_ns": "4000000000",
+        "value": null,
+        "flags": 0,
+        "histogram": {
+          "count": "3",
+          "sum": "0.15",
+          "min": null,
+          "max": null,
+          "bounds": [
+            "0.1",
+            "1"
+          ],
+          "counts": [
+            "3",
+            "0",
+            "0"
+          ]
+        },
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/2/metrics/8"
+          }
+        ]
+      },
+      {
+        "id": "point-1a5cb355bbdf7b64451cdf4cf7607b749d71ced40ea077381e833b991b78c4fc",
+        "series_id": "metric-8d6077b629ca71093cc2c2bb4908944753b6fcf0b327f7f73fa231cde07d2709",
+        "start_ns": "0",
+        "end_ns": "4000000000",
+        "value": null,
+        "flags": 0,
+        "histogram": {
+          "count": "3",
+          "sum": "0.15",
+          "min": null,
+          "max": null,
+          "bounds": [
+            "0.1",
+            "1"
+          ],
+          "counts": [
+            "3",
+            "0",
+            "0"
+          ]
+        },
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/2/metrics/9"
+          }
+        ]
+      },
+      {
+        "id": "point-4ba05b4278466b74999f9d3f644ccb8e5ae3c661f9efb04ae64b0489040d9628",
+        "series_id": "metric-fad5e503f22c21f9d562d45f6e65160124bb48fe4582a14dc2eda9f245b67a5a",
+        "start_ns": null,
+        "end_ns": "4000000000",
+        "value": "3145728",
+        "flags": 0,
+        "refs": [
+          {
+            "source_id": "source-0",
+            "position": "snapshots/2/metrics/10"
+          }
+        ]
+      }
+    ],
+    "deduplicated_points": 0,
+    "warnings": [
+      "Declared driver/version/query layout; synthetic fixture qualification only, no native GPU execution. No mtime clock, workload attribution or utilization efficiency inference.",
+      "Source producer/export/query identity is declared; no original-publisher authentication or GenAI alias qualification."
+    ]
+  },
+  "entities": [
+    {
+      "id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "kind": "device",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "vendor": "nvidia",
+      "device_uuid": "GPU-synthetic-a",
+      "pci_bus_id": "00000000:01:00.0"
+    },
+    {
+      "id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "kind": "device",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "vendor": "nvidia",
+      "device_uuid": "GPU-synthetic-b",
+      "pci_bus_id": "00000000:02:00.0"
+    },
+    {
+      "id": "synthetic-mig",
+      "kind": "mig",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "vendor": "nvidia",
+      "device_uuid": "GPU-synthetic-a",
+      "mig_uuid": "MIG-synthetic-1"
+    },
+    {
+      "id": "synthetic-process",
+      "kind": "process",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "pid": "123",
+      "process_start_ns": "0",
+      "pid_namespace": "synthetic-ns",
+      "container_id": "synthetic-container",
+      "pod_uid": "synthetic-pod"
+    },
+    {
+      "id": "synthetic-worker-0",
+      "kind": "worker",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "rank": "0"
+    },
+    {
+      "id": "synthetic-worker-1",
+      "kind": "worker",
+      "host_id": "synthetic-host",
+      "boot_id": "synthetic-boot",
+      "rank": "1"
+    }
+  ],
+  "links": [
+    {
+      "from": "synthetic-mig",
+      "to": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "kind": "mig_parent",
+      "ref": {
+        "source_id": "mapping-source",
+        "position": "line:1"
+      }
+    },
+    {
+      "from": "synthetic-worker-0",
+      "to": "synthetic-mig",
+      "kind": "uses_device",
+      "ref": {
+        "source_id": "mapping-source",
+        "position": "line:2"
+      }
+    },
+    {
+      "from": "synthetic-worker-0",
+      "to": "synthetic-process",
+      "kind": "hosted_by",
+      "ref": {
+        "source_id": "mapping-source",
+        "position": "line:3"
+      }
+    },
+    {
+      "from": "synthetic-worker-1",
+      "to": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "kind": "uses_device",
+      "ref": {
+        "source_id": "mapping-source",
+        "position": "line:4"
+      }
+    }
+  ],
+  "contexts": [
+    {
+      "id": "synthetic-context",
+      "engine": "vllm",
+      "engine_version": "unselected; synthetic 0.8.5-name example only",
+      "model": "synthetic-model",
+      "model_revision": "synthetic-revision-a",
+      "dtype": "bfloat16",
+      "quantization": "none",
+      "tokenizer_revision": "synthetic-tokenizer-a",
+      "tensor_parallel": "2",
+      "pipeline_parallel": "1",
+      "data_parallel": "1",
+      "context_length": "4096",
+      "max_sequences": "8",
+      "max_batched_tokens": "8192",
+      "replicas": "1",
+      "cache_configuration": "synthetic-declared-cache",
+      "speculative_configuration": "disabled",
+      "adapter_revision": "none",
+      "workload_id": "synthetic-workload-a",
+      "warmup": "separate"
+    }
+  ],
+  "signals": [
+    {
+      "id": "signal-metric-55e0bb2f778358b05e45640627dd825bdabe89f9842513c8f9b01bac2c1f8f08",
+      "series_id": "metric-55e0bb2f778358b05e45640627dd825bdabe89f9842513c8f9b01bac2c1f8f08",
+      "semantic": "gpu_utilization",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "percent_to_ratio"
+    },
+    {
+      "id": "signal-metric-24eb32617eb324e3bb7cfe43dbf94cf334b28a593879f456272d6c227d35c5c6",
+      "series_id": "metric-24eb32617eb324e3bb7cfe43dbf94cf334b28a593879f456272d6c227d35c5c6",
+      "semantic": "memory_io_utilization",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "percent_to_ratio"
+    },
+    {
+      "id": "signal-metric-21377e50a4a03c7d78d96f9129486a8539cf6378041be160eeb57d128c4e0356",
+      "series_id": "metric-21377e50a4a03c7d78d96f9129486a8539cf6378041be160eeb57d128c4e0356",
+      "semantic": "device_memory_used",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "mib_to_bytes"
+    },
+    {
+      "id": "signal-metric-7a50ae5f296b50ed69c6806a9c54e9b79c5148d611937134e0e7a8ac5e7c29ba",
+      "series_id": "metric-7a50ae5f296b50ed69c6806a9c54e9b79c5148d611937134e0e7a8ac5e7c29ba",
+      "semantic": "device_memory_capacity",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "mib_to_bytes"
+    },
+    {
+      "id": "signal-metric-6c2ba0b4a7d67f079ba754896f445d45582981f332e45c23a24294d0031649e4",
+      "series_id": "metric-6c2ba0b4a7d67f079ba754896f445d45582981f332e45c23a24294d0031649e4",
+      "semantic": "temperature",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-metric-8d6909356181c99948dd7f276bbfe46226cc347c224a3d2f2afd0e45eb7af46e",
+      "series_id": "metric-8d6909356181c99948dd7f276bbfe46226cc347c224a3d2f2afd0e45eb7af46e",
+      "semantic": "power",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-metric-584a6f4ac973d4791dd6b2a9c4ce8c59376225d336a3f1d8f793eb90286d0d1a",
+      "series_id": "metric-584a6f4ac973d4791dd6b2a9c4ce8c59376225d336a3f1d8f793eb90286d0d1a",
+      "semantic": "clock",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-metric-f8c59ca06f57db2df1b95ef4553c68e0612d401fc8723ea64af87dd2c31aebb7",
+      "series_id": "metric-f8c59ca06f57db2df1b95ef4553c68e0612d401fc8723ea64af87dd2c31aebb7",
+      "semantic": "gpu_utilization",
+      "entity_id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "percent_to_ratio"
+    },
+    {
+      "id": "signal-metric-1ace24ca888691686a7ef0f38d4b437ac9b42a9130154289ff3eb5fc8142de52",
+      "series_id": "metric-1ace24ca888691686a7ef0f38d4b437ac9b42a9130154289ff3eb5fc8142de52",
+      "semantic": "memory_io_utilization",
+      "entity_id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "percent_to_ratio"
+    },
+    {
+      "id": "signal-metric-e013e2c05f127d7ff07b8e267190a4b371158472fcf3fd442e15fdad73add15f",
+      "series_id": "metric-e013e2c05f127d7ff07b8e267190a4b371158472fcf3fd442e15fdad73add15f",
+      "semantic": "device_memory_used",
+      "entity_id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "mib_to_bytes"
+    },
+    {
+      "id": "signal-metric-1bf24d6e0117b4b45b3f38b362ef4b985a32972d487d3be1876f3bebb53cc667",
+      "series_id": "metric-1bf24d6e0117b4b45b3f38b362ef4b985a32972d487d3be1876f3bebb53cc667",
+      "semantic": "device_memory_capacity",
+      "entity_id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "mib_to_bytes"
+    },
+    {
+      "id": "signal-metric-9dbad07103ad9713101ad8898cccb15135423ef818231802ef4b53002007d7ec",
+      "series_id": "metric-9dbad07103ad9713101ad8898cccb15135423ef818231802ef4b53002007d7ec",
+      "semantic": "temperature",
+      "entity_id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-metric-965722bb765783f7eb9ac67272a659b7b46f578a487c559bcabf227e12b38f37",
+      "series_id": "metric-965722bb765783f7eb9ac67272a659b7b46f578a487c559bcabf227e12b38f37",
+      "semantic": "power",
+      "entity_id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-metric-13c1c92d11e55f10b040cc90098fc39db45dbbe5f029bdfde7e1594ef3f47893",
+      "series_id": "metric-13c1c92d11e55f10b040cc90098fc39db45dbbe5f029bdfde7e1594ef3f47893",
+      "semantic": "clock",
+      "entity_id": "device-f5d83284b1500080eebbe055c00f50957682de0cafa9c43f4ae00802ca04c9a3",
+      "boundary": "device",
+      "population": "whole-device",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-itl",
+      "series_id": "metric-13d7b6890c5b6ebc3cdc66810c5527d7fe9e8283a3fdbd8a3e77d3e4b31ff0bc",
+      "semantic": "itl",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "boundary": "server",
+      "population": "synthetic-worker-a-declared",
+      "statistical_form": "histogram",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-framework_reserved",
+      "series_id": "metric-21494eb672dc40d3e9c6e509c4eb23ca5f0bad143424cd1bf34fe87016259bbe",
+      "semantic": "framework_reserved",
+      "entity_id": "synthetic-process",
+      "context_id": "synthetic-context",
+      "boundary": "process",
+      "population": "synthetic-worker-a-declared",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-running_requests",
+      "series_id": "metric-6ae19d0bece91b689fa8d8ed54a942bfe89e78b722c05f167f3f8b4f5cfab859",
+      "semantic": "running_requests",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "boundary": "server",
+      "population": "synthetic-worker-a-declared",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-kv_cache_usage",
+      "series_id": "metric-788644f4b296df11f8bb9d680a2b089d9b67a051a0f6f4b2141b55ff5e15dbf5",
+      "semantic": "kv_cache_usage",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "boundary": "server",
+      "population": "synthetic-worker-a-declared",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-output_tokens",
+      "series_id": "metric-7c2e680383d3b9cf2c63c8d0c5b1f69bb62a8a40cbf2271bccc042258befbb74",
+      "semantic": "output_tokens",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "boundary": "server",
+      "population": "synthetic-worker-a-declared",
+      "statistical_form": "counter",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-queue_requests",
+      "series_id": "metric-7f70125107cc63695afdfb4fbb7b7ad75a5e7e0a1317ad661b87e7e7bf9c91f4",
+      "semantic": "queue_requests",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "boundary": "server",
+      "population": "synthetic-worker-a-declared",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-queue_time",
+      "series_id": "metric-8d6077b629ca71093cc2c2bb4908944753b6fcf0b327f7f73fa231cde07d2709",
+      "semantic": "queue_time",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "boundary": "server",
+      "population": "synthetic-worker-a-declared",
+      "statistical_form": "histogram",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-ttft",
+      "series_id": "metric-e689e7c8e06fb1fccf31eba5e02a3743d7ceed6e2da313719562f108e66f6d2b",
+      "semantic": "ttft",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "boundary": "server",
+      "population": "synthetic-worker-a-declared",
+      "statistical_form": "histogram",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-framework_allocated",
+      "series_id": "metric-eb34c96738500a811cf678e9b2f4c4512573da554ec0afb38863df18e68cf424",
+      "semantic": "framework_allocated",
+      "entity_id": "synthetic-process",
+      "context_id": "synthetic-context",
+      "boundary": "process",
+      "population": "synthetic-worker-a-declared",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    },
+    {
+      "id": "signal-device_memory_used",
+      "series_id": "metric-fad5e503f22c21f9d562d45f6e65160124bb48fe4582a14dc2eda9f245b67a5a",
+      "semantic": "device_memory_used",
+      "entity_id": "synthetic-mig",
+      "context_id": "synthetic-context",
+      "boundary": "device",
+      "population": "synthetic-worker-a-declared",
+      "statistical_form": "gauge",
+      "conversion": "identity"
+    }
+  ],
+  "event_sources": [
+    {
+      "id": "mapping-source",
+      "sha256": "77308670df9eb60e34f3ac6b811fe1fa8dcc4d6f8492022ff4071f2d456d9235",
+      "name": "mapping-observations.jsonl",
+      "format": "explicit-mapping-jsonl.v1",
+      "producer": "synthetic collector",
+      "producer_version": "1.0.0"
+    },
+    {
+      "id": "runtime-source",
+      "sha256": "cb88786c7078960210982f62abf5e25f994be6468b8a487b72134f53e14ff975",
+      "name": "runtime-observations.jsonl",
+      "format": "explicit-runtime-jsonl.v1",
+      "producer": "synthetic collector",
+      "producer_version": "1.0.0"
+    }
+  ],
+  "events": [
+    {
+      "id": "inference-event-8ffce1b2c34c68f1b5100c255ddf7b1fb5ed97c3b69adf078c838d8dc6459ef5",
+      "kind": "engine_start",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "1000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:1"
+      }
+    },
+    {
+      "id": "inference-event-9a56cc73342b6555ad590befcd274e6872f4a5b42e44bad6e766572c8108cc86",
+      "kind": "warmup_start",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "2000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:2"
+      }
+    },
+    {
+      "id": "inference-event-f0b904505cbeb14836b9db650e1185488afdaeb9865968a02dd3341581fd5400",
+      "kind": "warmup_end",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "3000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:3"
+      }
+    },
+    {
+      "id": "inference-event-f87a0e694eb1aa3d4c33a8084d3eb2d72381eaaf030adc1afc8d35ae07e64490",
+      "kind": "cuda_oom",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "4000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:4"
+      }
+    },
+    {
+      "id": "inference-event-34efbdc467c1cf4ec37db3cf829e6433f32a6f2e1830a9b148171e85acef81bf",
+      "kind": "framework_oom",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "5000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:5"
+      }
+    },
+    {
+      "id": "inference-event-fc37b7c41089375d91ab1324fbd6e2c2d940f9ea5ca0d2063ca86f0178dfafcd",
+      "kind": "container_oom",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "6000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:6"
+      }
+    },
+    {
+      "id": "inference-event-82b872aaaa9f0b3b4008ce366d1c1e9c599b32911c0eddb3a73cc0e81006c275",
+      "kind": "host_oom",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "7000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:7"
+      }
+    },
+    {
+      "id": "inference-event-59f9051ece125f5994667fe8cefc0fe08bc63156c44d023cbc573895e65ee95a",
+      "kind": "driver_xid",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "context_id": "synthetic-context",
+      "time_ns": "8000000000",
+      "code": "79",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:8"
+      }
+    },
+    {
+      "id": "inference-event-2b19170ab15e6ba0d8007b6945802fdb98cff30171e8d96c19a6b061d44e8241",
+      "kind": "device_reset",
+      "entity_id": "device-e9239623c181ef122a12663dae9ac88a8b33d4c11081679b7f32753774f41468",
+      "context_id": "synthetic-context",
+      "time_ns": "9000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:9"
+      }
+    },
+    {
+      "id": "inference-event-df50e29ec8a265afc95d0895adb5737793f3129e6bfc4ee25a33008d019cc5ac",
+      "kind": "engine_restart",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "10000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:10"
+      }
+    },
+    {
+      "id": "inference-event-7d112727d4427d9bc34056b972701880560e9e2087743e4ab511483d42cfab86",
+      "kind": "recovery",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "11000000000",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:11"
+      }
+    },
+    {
+      "id": "inference-event-f7628fb2fc86245c6216c3791869453f489b842e225b1e08adacf107571c2711",
+      "kind": "request",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "5000000000",
+      "request_id": "synthetic-request-3",
+      "boundary": "server",
+      "outcome": "success",
+      "population": "synthetic-warm",
+      "request_start_ns": "1000000000",
+      "first_token_ns": "1200000000",
+      "last_token_ns": "1800000000",
+      "output_tokens": "3",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:12"
+      }
+    },
+    {
+      "id": "inference-event-dc8b6293a150fce35be63b79b3edb667330307811753124887a8d8a9aded7b75",
+      "kind": "request",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "5000000000",
+      "request_id": "synthetic-request-1",
+      "boundary": "server",
+      "outcome": "success",
+      "population": "synthetic-warm",
+      "request_start_ns": "1000000000",
+      "first_token_ns": "1200000000",
+      "last_token_ns": "1800000000",
+      "output_tokens": "1",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:13"
+      }
+    },
+    {
+      "id": "inference-event-9b56739d17ffeb4c5d56db400a2f21b81f07c76d11c5d14133eaa4081c74ee29",
+      "kind": "request",
+      "entity_id": "synthetic-worker-0",
+      "context_id": "synthetic-context",
+      "time_ns": "5000000000",
+      "request_id": "synthetic-request-0",
+      "boundary": "server",
+      "outcome": "cancelled",
+      "population": "synthetic-warm",
+      "request_start_ns": "1000000000",
+      "output_tokens": "0",
+      "ref": {
+        "source_id": "runtime-source",
+        "position": "line:14"
+      }
+    }
+  ],
+  "quality": [
+    {
+      "point_id": "point-c5e33bb56fd33fab6105aa6ae9b53445feef976528ae4ee102dbd47c987a6d9d",
+      "status": "not_available",
+      "raw": "N/A"
+    },
+    {
+      "point_id": "point-0ba3e2a11075f4b236658d6bb2f712d33e41cf0e81c017638733af8000b23ad8",
+      "status": "not_supported",
+      "raw": "[Not Supported]"
+    },
+    {
+      "point_id": "point-db1db5d2f4442236e24c71c3131fbf024c421a663fac54570ac0d328c046ed3a",
+      "status": "permission_denied",
+      "raw": "[Insufficient Permissions]"
+    }
+  ]
+}

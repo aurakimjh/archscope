@@ -1,0 +1,410 @@
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "synthetic-checkout"
+            }
+          },
+          {
+            "key": "deployment.environment.name",
+            "value": {
+              "stringValue": "fixture"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {
+            "name": "synthetic.instrumentation",
+            "version": "1.0.0"
+          },
+          "metrics": [
+            {
+              "name": "request.count",
+              "unit": "{request}",
+              "sum": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1794449991808740000",
+                    "timeUnixNano": "1794449991808849000",
+                    "asInt": "9223372036854775808",
+                    "attributes": [
+                      {
+                        "key": "service.role",
+                        "value": {
+                          "stringValue": "server"
+                        }
+                      },
+                      {
+                        "key": "http.request.method",
+                        "value": {
+                          "stringValue": "GET"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "aggregationTemporality": 2,
+                "isMonotonic": true
+              }
+            },
+            {
+              "name": "request.active",
+              "unit": "{request}",
+              "sum": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1794449991808759000",
+                    "timeUnixNano": "1794449991808849000",
+                    "asInt": "3",
+                    "attributes": [
+                      {
+                        "key": "service.role",
+                        "value": {
+                          "stringValue": "server"
+                        }
+                      },
+                      {
+                        "key": "http.request.method",
+                        "value": {
+                          "stringValue": "GET"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "aggregationTemporality": 2
+              }
+            },
+            {
+              "name": "request.duration",
+              "unit": "ms",
+              "histogram": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1794449991808785000",
+                    "timeUnixNano": "1794449991808849000",
+                    "count": "3",
+                    "sum": 10.0,
+                    "bucketCounts": [
+                      "1",
+                      "1",
+                      "1",
+                      "0"
+                    ],
+                    "explicitBounds": [
+                      1.0,
+                      5.0,
+                      10.0
+                    ],
+                    "attributes": [
+                      {
+                        "key": "service.role",
+                        "value": {
+                          "stringValue": "server"
+                        }
+                      },
+                      {
+                        "key": "http.request.method",
+                        "value": {
+                          "stringValue": "GET"
+                        }
+                      }
+                    ],
+                    "min": 0.0,
+                    "max": 8.0
+                  }
+                ],
+                "aggregationTemporality": 2
+              }
+            },
+            {
+              "name": "payload.size",
+              "unit": "By",
+              "exponentialHistogram": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "service.role",
+                        "value": {
+                          "stringValue": "server"
+                        }
+                      },
+                      {
+                        "key": "http.request.method",
+                        "value": {
+                          "stringValue": "GET"
+                        }
+                      }
+                    ],
+                    "startTimeUnixNano": "1794449991808810000",
+                    "timeUnixNano": "1794449991808849000",
+                    "count": "3",
+                    "sum": 10.0,
+                    "scale": 3,
+                    "zeroCount": "1",
+                    "positive": {
+                      "offset": 7,
+                      "bucketCounts": [
+                        "1",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "1",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0"
+                      ]
+                    },
+                    "negative": {
+                      "bucketCounts": [
+                        "0"
+                      ]
+                    },
+                    "min": 0.0,
+                    "max": 8.0
+                  }
+                ],
+                "aggregationTemporality": 2
+              }
+            }
+          ],
+          "schemaUrl": "https://opentelemetry.io/schemas/1.37.0"
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "synthetic-checkout"
+            }
+          },
+          {
+            "key": "deployment.environment.name",
+            "value": {
+              "stringValue": "fixture"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {
+            "name": "synthetic.instrumentation",
+            "version": "1.0.0"
+          },
+          "metrics": [
+            {
+              "name": "request.count",
+              "unit": "{request}",
+              "sum": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1794449991808740000",
+                    "timeUnixNano": "1794449991809065000",
+                    "asInt": "9007199254741000",
+                    "attributes": [
+                      {
+                        "key": "service.role",
+                        "value": {
+                          "stringValue": "server"
+                        }
+                      },
+                      {
+                        "key": "http.request.method",
+                        "value": {
+                          "stringValue": "GET"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "aggregationTemporality": 2,
+                "isMonotonic": true
+              }
+            },
+            {
+              "name": "request.active",
+              "unit": "{request}",
+              "sum": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1794449991808759000",
+                    "timeUnixNano": "1794449991809065000",
+                    "asInt": "2",
+                    "attributes": [
+                      {
+                        "key": "service.role",
+                        "value": {
+                          "stringValue": "server"
+                        }
+                      },
+                      {
+                        "key": "http.request.method",
+                        "value": {
+                          "stringValue": "GET"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "aggregationTemporality": 2
+              }
+            },
+            {
+              "name": "request.duration",
+              "unit": "ms",
+              "histogram": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1794449991808785000",
+                    "timeUnixNano": "1794449991809065000",
+                    "count": "6",
+                    "sum": 20.0,
+                    "bucketCounts": [
+                      "2",
+                      "2",
+                      "2",
+                      "0"
+                    ],
+                    "explicitBounds": [
+                      1.0,
+                      5.0,
+                      10.0
+                    ],
+                    "attributes": [
+                      {
+                        "key": "service.role",
+                        "value": {
+                          "stringValue": "server"
+                        }
+                      },
+                      {
+                        "key": "http.request.method",
+                        "value": {
+                          "stringValue": "GET"
+                        }
+                      }
+                    ],
+                    "min": 0.0,
+                    "max": 8.0
+                  }
+                ],
+                "aggregationTemporality": 2
+              }
+            },
+            {
+              "name": "payload.size",
+              "unit": "By",
+              "exponentialHistogram": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "service.role",
+                        "value": {
+                          "stringValue": "server"
+                        }
+                      },
+                      {
+                        "key": "http.request.method",
+                        "value": {
+                          "stringValue": "GET"
+                        }
+                      }
+                    ],
+                    "startTimeUnixNano": "1794449991808810000",
+                    "timeUnixNano": "1794449991809065000",
+                    "count": "6",
+                    "sum": 20.0,
+                    "scale": 3,
+                    "zeroCount": "2",
+                    "positive": {
+                      "offset": 7,
+                      "bucketCounts": [
+                        "2",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "2",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0",
+                        "0"
+                      ]
+                    },
+                    "negative": {
+                      "bucketCounts": [
+                        "0"
+                      ]
+                    },
+                    "min": 0.0,
+                    "max": 8.0
+                  }
+                ],
+                "aggregationTemporality": 2
+              }
+            }
+          ],
+          "schemaUrl": "https://opentelemetry.io/schemas/1.37.0"
+        }
+      ]
+    }
+  ]
+}

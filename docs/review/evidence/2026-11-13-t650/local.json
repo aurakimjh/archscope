@@ -1,0 +1,53 @@
+{
+  "task": "T-650",
+  "checks": {
+    "six_direct_model_packages": "PASS",
+    "svg_xml_escaping_and_budget": "PASS",
+    "model_svg_parser_race": "PASS",
+    "retained_parser_replay": "PASS",
+    "local_r13_r14_r15_r17_regressions": "PASS",
+    "interval_csv": "PASS",
+    "corpus_hashes_and_mirror": "PASS",
+    "focused_vet": "PASS",
+    "architecture": "PASS"
+  },
+  "fuzz_smoke": {
+    "execution": {
+      "target": "FuzzExecutionTextCSVJSON",
+      "requested_seconds": 5,
+      "parallel": 2,
+      "executions": 71311,
+      "result": "PASS"
+    },
+    "gputrace": {
+      "target": "FuzzGPUJSONSQLite",
+      "requested_seconds": 5,
+      "parallel": 2,
+      "executions": 4686,
+      "result": "PASS"
+    },
+    "metrichistory": {
+      "target": "FuzzSocketSummaryText",
+      "requested_seconds": 5,
+      "parallel": 2,
+      "executions": 362,
+      "result": "PASS"
+    },
+    "runtimeevidence": {
+      "target": "FuzzRuntimeThreadText",
+      "requested_seconds": 5,
+      "parallel": 2,
+      "executions": 6,
+      "result": "PASS"
+    }
+  },
+  "retained_corpus": {
+    "asset_id": "diagnostics.parser-adversarial.v1",
+    "files": 29,
+    "shared_commit": "6f3a7c7",
+    "mirror": "internal/modeltest/testdata/adversarial"
+  },
+  "independent_review": "REQUESTED_NOT_RUN",
+  "long_fuzz_campaign": "NOT_RUN",
+  "native_webview_windows_cuda": "NOT_RUN"
+}

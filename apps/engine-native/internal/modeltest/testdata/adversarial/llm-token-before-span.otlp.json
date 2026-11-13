@@ -1,0 +1,410 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "synthetic-llm-app"
+            }
+          },
+          {
+            "key": "service.instance.id",
+            "value": {
+              "stringValue": "synthetic-instance-a"
+            }
+          },
+          {
+            "key": "host.id",
+            "value": {
+              "stringValue": "synthetic-host"
+            }
+          },
+          {
+            "key": "private.resource",
+            "value": {
+              "stringValue": "SYNTHETIC_BODY_MARKER"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "synthetic-llm-sdk-fixture",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "00000000000000000000000000000065",
+              "spanId": "0000000000000002",
+              "parentSpanId": "0000000000000001",
+              "name": "SYNTHETIC_BODY_MARKER",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1050000000",
+              "endTimeUnixNano": "1200000000",
+              "attributes": [
+                {
+                  "key": "diag.llm.population",
+                  "value": {
+                    "stringValue": "warm"
+                  }
+                },
+                {
+                  "key": "diag.gateway.request_namespace",
+                  "value": {
+                    "stringValue": "synthetic-gateway-a"
+                  }
+                },
+                {
+                  "key": "diag.gateway.logical_request_id",
+                  "value": {
+                    "stringValue": "synthetic-logical-a"
+                  }
+                },
+                {
+                  "key": "input.value",
+                  "value": {
+                    "stringValue": "SYNTHETIC_BODY_MARKER"
+                  }
+                },
+                {
+                  "key": "diag.llm.role",
+                  "value": {
+                    "stringValue": "llm"
+                  }
+                },
+                {
+                  "key": "diag.llm.output_tokens",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "diag.llm.first_token_unix_nano",
+                  "value": {
+                    "intValue": "1049999999"
+                  }
+                },
+                {
+                  "key": "diag.llm.last_token_unix_nano",
+                  "value": {
+                    "intValue": "1200000000"
+                  }
+                }
+              ],
+              "status": {},
+              "flags": 256
+            },
+            {
+              "traceId": "00000000000000000000000000000065",
+              "spanId": "0000000000000003",
+              "parentSpanId": "0000000000000001",
+              "name": "SYNTHETIC_BODY_MARKER",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1150000000",
+              "endTimeUnixNano": "1250000000",
+              "attributes": [
+                {
+                  "key": "diag.llm.role",
+                  "value": {
+                    "stringValue": "reranker"
+                  }
+                },
+                {
+                  "key": "diag.llm.population",
+                  "value": {
+                    "stringValue": "warm"
+                  }
+                },
+                {
+                  "key": "diag.gateway.request_namespace",
+                  "value": {
+                    "stringValue": "synthetic-gateway-a"
+                  }
+                },
+                {
+                  "key": "diag.gateway.logical_request_id",
+                  "value": {
+                    "stringValue": "synthetic-logical-a"
+                  }
+                },
+                {
+                  "key": "input.value",
+                  "value": {
+                    "stringValue": "SYNTHETIC_BODY_MARKER"
+                  }
+                }
+              ],
+              "status": {},
+              "flags": 256
+            },
+            {
+              "traceId": "00000000000000000000000000000065",
+              "spanId": "0000000000000004",
+              "parentSpanId": "0000000000000001",
+              "name": "SYNTHETIC_BODY_MARKER",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1250000000",
+              "endTimeUnixNano": "1300000000",
+              "attributes": [
+                {
+                  "key": "diag.llm.role",
+                  "value": {
+                    "stringValue": "embedding"
+                  }
+                },
+                {
+                  "key": "diag.llm.population",
+                  "value": {
+                    "stringValue": "warm"
+                  }
+                },
+                {
+                  "key": "diag.gateway.request_namespace",
+                  "value": {
+                    "stringValue": "synthetic-gateway-a"
+                  }
+                },
+                {
+                  "key": "diag.gateway.logical_request_id",
+                  "value": {
+                    "stringValue": "synthetic-logical-a"
+                  }
+                },
+                {
+                  "key": "input.value",
+                  "value": {
+                    "stringValue": "SYNTHETIC_BODY_MARKER"
+                  }
+                }
+              ],
+              "status": {},
+              "flags": 256
+            },
+            {
+              "traceId": "00000000000000000000000000000065",
+              "spanId": "0000000000000005",
+              "parentSpanId": "0000000000000001",
+              "name": "SYNTHETIC_BODY_MARKER",
+              "kind": "SPAN_KIND_CLIENT",
+              "startTimeUnixNano": "1300000000",
+              "endTimeUnixNano": "2000000000",
+              "attributes": [
+                {
+                  "key": "diag.llm.role",
+                  "value": {
+                    "stringValue": "llm"
+                  }
+                },
+                {
+                  "key": "diag.llm.population",
+                  "value": {
+                    "stringValue": "warm"
+                  }
+                },
+                {
+                  "key": "diag.gateway.request_namespace",
+                  "value": {
+                    "stringValue": "synthetic-gateway-a"
+                  }
+                },
+                {
+                  "key": "diag.gateway.logical_request_id",
+                  "value": {
+                    "stringValue": "synthetic-logical-a"
+                  }
+                },
+                {
+                  "key": "diag.llm.model",
+                  "value": {
+                    "stringValue": "synthetic-model-a"
+                  }
+                },
+                {
+                  "key": "diag.llm.provider",
+                  "value": {
+                    "stringValue": "synthetic-provider"
+                  }
+                },
+                {
+                  "key": "diag.llm.input_tokens",
+                  "value": {
+                    "intValue": "9007199254740993"
+                  }
+                },
+                {
+                  "key": "diag.llm.output_tokens",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "diag.llm.token_counting_method",
+                  "value": {
+                    "stringValue": "source_declared"
+                  }
+                },
+                {
+                  "key": "diag.gateway.attempt_id",
+                  "value": {
+                    "stringValue": "attempt-a"
+                  }
+                },
+                {
+                  "key": "diag.gateway.attempt_kind",
+                  "value": {
+                    "stringValue": "initial"
+                  }
+                },
+                {
+                  "key": "diag.gateway.token_authority",
+                  "value": {
+                    "stringValue": "client"
+                  }
+                },
+                {
+                  "key": "gen_ai.input.messages",
+                  "value": {
+                    "stringValue": "SYNTHETIC_BODY_MARKER"
+                  }
+                },
+                {
+                  "key": "tool.arguments",
+                  "value": {
+                    "stringValue": "SYNTHETIC_BODY_MARKER"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "timeUnixNano": "1500000000",
+                  "name": "diag.llm.first_token"
+                },
+                {
+                  "timeUnixNano": "1900000000",
+                  "name": "diag.llm.last_token"
+                },
+                {
+                  "timeUnixNano": "1900000000",
+                  "name": "gen_ai.content.completion",
+                  "attributes": [
+                    {
+                      "key": "content",
+                      "value": {
+                        "stringValue": "SYNTHETIC_BODY_MARKER"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "links": [
+                {
+                  "traceId": "000000000000000000000000000003e7",
+                  "spanId": "00000000000003e7",
+                  "attributes": [
+                    {
+                      "key": "private.link",
+                      "value": {
+                        "stringValue": "SYNTHETIC_BODY_MARKER"
+                      }
+                    }
+                  ],
+                  "flags": 768
+                }
+              ],
+              "status": {
+                "code": "STATUS_CODE_OK"
+              },
+              "flags": 256
+            },
+            {
+              "traceId": "00000000000000000000000000000065",
+              "spanId": "0000000000000006",
+              "parentSpanId": "0000000000000001",
+              "name": "SYNTHETIC_BODY_MARKER",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "2000000000",
+              "endTimeUnixNano": "2050000000",
+              "attributes": [
+                {
+                  "key": "diag.llm.role",
+                  "value": {
+                    "stringValue": "tool"
+                  }
+                },
+                {
+                  "key": "diag.llm.population",
+                  "value": {
+                    "stringValue": "warm"
+                  }
+                },
+                {
+                  "key": "diag.gateway.request_namespace",
+                  "value": {
+                    "stringValue": "synthetic-gateway-a"
+                  }
+                },
+                {
+                  "key": "diag.gateway.logical_request_id",
+                  "value": {
+                    "stringValue": "synthetic-logical-a"
+                  }
+                }
+              ],
+              "status": {
+                "message": "SYNTHETIC_BODY_MARKER",
+                "code": "STATUS_CODE_ERROR"
+              },
+              "flags": 256
+            },
+            {
+              "traceId": "00000000000000000000000000000065",
+              "spanId": "0000000000000001",
+              "name": "SYNTHETIC_BODY_MARKER raw span name",
+              "kind": "SPAN_KIND_SERVER",
+              "startTimeUnixNano": "1000000000",
+              "endTimeUnixNano": "2100000000",
+              "attributes": [
+                {
+                  "key": "diag.llm.role",
+                  "value": {
+                    "stringValue": "agent"
+                  }
+                },
+                {
+                  "key": "diag.llm.population",
+                  "value": {
+                    "stringValue": "warm"
+                  }
+                },
+                {
+                  "key": "diag.gateway.request_namespace",
+                  "value": {
+                    "stringValue": "synthetic-gateway-a"
+                  }
+                },
+                {
+                  "key": "diag.gateway.logical_request_id",
+                  "value": {
+                    "stringValue": "synthetic-logical-a"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "timeUnixNano": "1000000000",
+                  "name": "diag.lifecycle.warmup_end"
+                }
+              ],
+              "status": {},
+              "flags": 256
+            }
+          ],
+          "schemaUrl": "https://opentelemetry.io/schemas/1.37.0"
+        }
+      ]
+    }
+  ]
+}

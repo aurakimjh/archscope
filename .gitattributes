@@ -3,6 +3,9 @@ docs/review/evidence/*.sha256 text eol=lf
 # Embedded contracts are verified against byte-level SHA-256 manifests.
 apps/engine-native/internal/catalog/contracts/* text eol=lf
 apps/engine-native/internal/cases/contracts/* text eol=lf
+# Test-only adversarial corpus is digest-pinned; keep original perf whitespace.
+apps/engine-native/internal/modeltest/testdata/adversarial/* text eol=lf
+apps/engine-native/internal/modeltest/testdata/adversarial/system-perf-source.txt whitespace=-blank-at-eol,-blank-at-eof
 # Signed/hashed resources and upstream notices must keep their exact bytes.
 apps/engine-native/internal/packs/assets/* -text
 apps/engine-native/internal/distribution/assets/** -text whitespace=-blank-at-eol
