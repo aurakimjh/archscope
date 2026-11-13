@@ -1,6 +1,7 @@
 // Real production Wails process and authenticated controller; no DOM injection.
 // The origin must be an isolated loopback fixture. No system policy is changed.
 import { spawn, execFileSync } from 'node:child_process';
+import { appendFileSync, writeFileSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import http from 'node:http';
@@ -22,8 +23,18 @@ const exe = path.resolve(options.exe), out = path.resolve(options.out);
 await mkdir(out, { recursive: false });
 const descriptorPath = path.join(out, '.private-controller.json');
 const binarySha256 = createHash('sha256').update(await readFile(exe)).digest('hex');
-const report = { schema: 2, platform: 'windows', scope: 'production Wails desktop/controller, synthetic Docker-loopback HTTP, bodies disabled', memoryScope: 'root process plus currently alive descendants from one Windows process snapshot; not a leak proof', requestedSeconds: seconds, binarySha256, passed: false, requests: 0, pauses: 0, clears: 0, checkpoints: [], nativeUIObservations: 'record separately; controller/liveness is not a renderer correctness claim' };
-let child, descriptor, session, sequence = 0;
+const report = { schema: 3, platform: 'windows', scope: 'production Wails desktop/controller, synthetic Docker-loopback HTTP, bodies disabled', memoryScope: 'root process plus currently alive descendants from one Windows process snapshot; not a leak proof', requestedSeconds: seconds, binarySha256, passed: false, requests: 0, pauses: 0, clears: 0, checkpoints: [], nativeUIObservations: 'record separately; controller/liveness is not a renderer correctness claim' };
+let child, descriptor, session, sequence = 0, started, phase = 'launch', desktopLogBytes = 0;
+const desktopLogPath = path.join(out, '.private-desktop.log');
+writeFileSync(desktopLogPath, '', { mode: 0o600 });
+function desktopLog(chunk) {
+  const remaining = (256 << 10) - desktopLogBytes;
+  if (chunk.length > remaining) report.desktopLogTruncated = true;
+  if (remaining <= 0) return;
+  const kept = chunk.subarray(0, remaining);
+  appendFileSync(desktopLogPath, kept);
+  desktopLogBytes += kept.length;
+}
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function control(command, params = {}) {
   const response = await fetch(descriptor.url, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${descriptor.token}` }, body: JSON.stringify({ id: `soak-${++sequence}`, command, params }), signal: AbortSignal.timeout(30000) });
@@ -37,7 +48,8 @@ function request(proxy, index) {
       const chunks = []; response.on('data', c => chunks.push(c)); response.on('error', reject);
       response.on('end', () => { try { if (response.statusCode !== 200 || JSON.parse(Buffer.concat(chunks).toString()).marker !== 'desktop-soak-origin') throw Error('origin response mismatch'); resolve(); } catch (e) { reject(e); } });
     });
-    req.on('error', reject); req.on('timeout', () => req.destroy(Error('origin timeout')));
+    req.on('error', error => reject(Object.assign(new Error(`request ${index}: ${error.message}`), { code: error.code })));
+    req.on('timeout', () => req.destroy(Error('origin timeout')));
   });
 }
 async function checkpoint(elapsed) {
@@ -88,7 +100,9 @@ while ($queue.Count -gt 0) {
   await writeFile(path.join(out, 'progress.json'), JSON.stringify(report, null, 2));
 }
 try {
-  child = spawn(exe, ['--automation-descriptor', descriptorPath], { stdio: 'ignore', windowsHide: false });
+  child = spawn(exe, ['--automation-descriptor', descriptorPath], { stdio: ['ignore', 'pipe', 'pipe'], windowsHide: false });
+  child.stdout.on('data', desktopLog);
+  child.stderr.on('data', desktopLog);
   let launchError; child.on('error', e => { launchError = e; });
   for (let n = 0; n < 120; n++) {
     if (launchError) throw launchError;
@@ -106,7 +120,8 @@ try {
   session = await control('start', { listenAddress: '127.0.0.1:0', captureBodies: false, retentionRows: 128, liveWindow: 128 });
   // Keep exact private IDs only in the isolated working directory.
   await writeFile(path.join(out, '.private-session.json'), JSON.stringify(session));
-  const started = performance.now(); let nextCheck = 0, nextPause = 60, nextClear = 600;
+  started = performance.now(); let nextCheck = 0, nextPause = 60, nextClear = 600;
+  phase = 'traffic';
   while (performance.now() - started < seconds * 1000) {
     for (let n = 0; n < 4; n++) { await request(session.listenAddress, report.requests); report.requests++; }
     const elapsed = (performance.now() - started) / 1000;
@@ -119,6 +134,7 @@ try {
   // into a vacuous empty-file assertion. Seed a final bounded snapshot.
   for (let n = 0; n < 4; n++) { await request(session.listenAddress, report.requests); report.requests++; }
   await checkpoint((performance.now() - started) / 1000);
+  phase = 'finalize';
   await control('stop');
   const page = await control('list', { sessionId: session.sessionId, limit: 100 });
   const destination = path.join(out, 'final.httpsession');
@@ -131,6 +147,20 @@ try {
   report.passed = true;
 } catch (error) {
   report.failure = String(error);
+  report.failurePhase = phase;
+  report.failureCode = error.code;
+  if (started !== undefined) report.elapsedSeconds = (performance.now() - started) / 1000;
+  // Diagnostics do not retry traffic or turn a transport failure into a pass.
+  if (session && descriptor) {
+    try {
+      const { sessionId: _privateID, ...counters } = await control('stats', { sessionId: session.sessionId });
+      report.failureStats = counters;
+    } catch { report.failureStatsUnavailable = true; }
+  }
+  try {
+    const response = await fetch(new URL('soak?diagnostic=direct', origin), { signal: AbortSignal.timeout(10000) });
+    report.directOriginHealthyAfterFailure = response.status === 200 && (await response.json()).marker === 'desktop-soak-origin';
+  } catch { report.directOriginHealthyAfterFailure = false; }
   process.exitCode = 1;
 } finally {
   if (session && descriptor && child?.exitCode === null) { try { await control('stop'); } catch {} }
