@@ -57,7 +57,18 @@ func TestOfflineGuardBeforeNetworkAndConverterAllocation(t *testing.T) {
 	if _, e := jfr.ConvertJFRToJSON("unused.jfr", "must-not-execute"); e == nil || localconvert.Code(e) != "OFFLINE_OPERATION_DENIED" {
 		t.Fatal("unqualified subprocess accepted")
 	}
-	if len(netpolicy.Snapshot().Attempts) != 6 {
+	// Use nonexistent input/tool/TMPDIR. The
+	// offline refusal must win before slot acquisition, I/O, hashing or execution.
+	// Parser facade and direct callers must have the same fail-closed boundary.
+	t.Setenv("TMPDIR", filepath.Join(root, "missing-temp-root"))
+	if result, e := localconvert.JFR(context.Background(), "missing.jfr", "missing-tool"); e == nil || localconvert.Code(e) != "OFFLINE_OPERATION_DENIED" || result.Path != "" {
+		t.Fatal("direct converter bypassed offline guard", result, e)
+	}
+	entries, _ = os.ReadDir(root)
+	if len(entries) != 0 {
+		t.Fatal("offline converter allocated artifacts")
+	}
+	if netpolicy.Snapshot().Attempts["converter.jfr"] != 2 || len(netpolicy.Snapshot().Attempts) != 6 {
 		t.Fatal(netpolicy.Snapshot())
 	}
 }
