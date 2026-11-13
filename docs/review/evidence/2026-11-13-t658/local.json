@@ -1,0 +1,15 @@
+{
+  "task": "T-658",
+  "activation": "User requested creating environments; Docker Desktop actual Linux proc-stat selected beyond ss snapshots.",
+  "producer": "Linux 7.0.14-linuxkit / USER_HZ100 / collector1.0.0",
+  "shared_commit": "5e7412b",
+  "actual": "3 snapshots x10 aggregate cpu tick gauges; shipped collector independently executed in network-none container.",
+  "reuse": "Closed source wrapper -> existing MetricHistory/metrics_timeseries, no new family.",
+  "verification": [
+    "race metric parser/distribution/architecture passed",
+    "vet metric parser passed",
+    "raw exact-value equality, no delta/rate, common CSV/HTML and existing saved readers",
+    "version/kind refusals"
+  ],
+  "limits": "Shared Docker kernel aggregate only; not container/process CPU, bare-metal qualification, percent or rate. Guest/user overlap and decreasing iowait retained."
+}

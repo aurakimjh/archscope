@@ -108,3 +108,9 @@ Qualified versions remain the defaults. For explicit structural-only opt-in, act
 `sqlite-pragma-snapshots-json` accepts the manual `sqlite-pragma-snapshots.v1` wrapper from SQLite 3.53.0. Run `python3 scripts/capture-sqlite.py --database owned.sqlite --instance-tag sanitized-instance --out new-capture.json`, then use Metric History source inspection/import. The collector uses one read-only connection and four fixed PRAGMAs; it never exports a database path, SQL text or row data. Import never opens a database.
 
 page_count, freelist_count, page_size and connection-local data_version are exact gauges. None is a derived transaction counter or rate. Snapshots are sequential reads, not atomic database snapshots; a new connection or recreated file requires a new source. Existing MetricHistory queries, cases and exports apply. Actual qualification is a synthetic SQLite 3.53.0 file with three captures and concurrent owned writes; other versions/layouts are refused.
+
+## Docker Linux aggregate CPU ticks
+
+`linux-proc-stat-json` accepts `linux-proc-stat.v1` from the explicit `capture-proc-stat.py --host-tag sanitized-vm --out new-capture.json` helper run inside the Docker Linux VM. Qualification is Linux 7.0.14-linuxkit / USER_HZ 100 only, with an actual 3-snapshot/10-field capture. No network or process attach is used.
+
+The cpu aggregate row represents the shared kernel, not the container or a process. All ten fields remain exact tick gauges: guest overlaps user and iowait may decrease. No summation, CPU percentage, monotonic rate or reset inference is added. The fixed scope/kernel/clock fields prevent promotion to other OS/version/container semantics. Existing MetricHistory queries and exports apply; larger byte/point budgets still limit captures.

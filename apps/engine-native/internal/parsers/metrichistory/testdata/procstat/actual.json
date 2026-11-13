@@ -1,0 +1,685 @@
+{
+  "contract": "linux-proc-stat.v1",
+  "collector_version": "1.0.0",
+  "producer_version": "7.0.14-linuxkit",
+  "history": {
+    "schema_version": "1.0.0",
+    "snapshots": [
+      {
+        "time_unix_nano": "1794529912316204752",
+        "metrics": [
+          {
+            "name": "linux.proc.stat.cpu.user",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "471114",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.nice",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.system",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "1611954",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.idle",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "37738091",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.iowait",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "67253",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.irq",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.softirq",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "535929",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.steal",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.guest",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.guest_nice",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          }
+        ]
+      },
+      {
+        "time_unix_nano": "1794529912516802044",
+        "metrics": [
+          {
+            "name": "linux.proc.stat.cpu.user",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "471118",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.nice",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.system",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "1611960",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.idle",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "37738280",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.iowait",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "67253",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.irq",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.softirq",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "535931",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.steal",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.guest",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.guest_nice",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          }
+        ]
+      },
+      {
+        "time_unix_nano": "1794529912718645711",
+        "metrics": [
+          {
+            "name": "linux.proc.stat.cpu.user",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "471122",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.nice",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.system",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "1611964",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.idle",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "37738472",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.iowait",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "67254",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.irq",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.softirq",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "535933",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.steal",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.guest",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          },
+          {
+            "name": "linux.proc.stat.cpu.guest_nice",
+            "unit": "{tick}",
+            "kind": "gauge",
+            "temporality": "unspecified",
+            "monotonic": false,
+            "value": "0",
+            "attributes": {
+              "user_hz": "100",
+              "scope": "Docker shared kernel aggregate; not container or process CPU; guest overlaps user and iowait may decrease"
+            },
+            "resource": {
+              "host_id": "synthetic-linux-vm",
+              "kernel_release": "7.0.14-linuxkit"
+            },
+            "scope": {
+              "name": "manual.linux.proc-stat",
+              "version": "1.0.0",
+              "attributes": {},
+              "dropped_attributes": "0"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

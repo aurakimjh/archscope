@@ -94,3 +94,9 @@ React/CLI DTO와 mock IPC의 범위이며 native WebView·Windows 실행 증거�
 `sqlite-pragma-snapshots-json`은 SQLite 3.53.0의 수동 `sqlite-pragma-snapshots.v1` wrapper를 받습니다. `python3 scripts/capture-sqlite.py --database owned.sqlite --instance-tag sanitized-instance --out new-capture.json`을 명시 실행한 뒤 메트릭 이력 원본 검사/가져오기를 사용합니다. 수집기는 한 읽기 전용 연결과 고정 PRAGMA 네 개만 사용하며 DB 경로·SQL 본문·행 데이터를 내보내지 않습니다. Import는 DB를 열지 않습니다.
 
 page_count·freelist_count·page_size·연결 로컬 data_version은 정확한 gauge이며 transaction counter나 rate로 바꾸지 않습니다. 순차 조회이므로 원자적 DB snapshot이 아닙니다. 새 연결·파일 재생성은 새 원본으로 구분합니다. 기존 MetricHistory 조회·케이스·export를 사용합니다. 실제 검증은 SQLite 3.53.0의 합성 파일을 소유한 writer가 변경하는 동안 세 번 읽은 범위이며 다른 버전/형식은 거절합니다.
+
+## Docker Linux 전체 CPU tick
+
+`linux-proc-stat-json`은 Docker Linux VM 안에서 명시 실행한 `capture-proc-stat.py --host-tag sanitized-vm --out new-capture.json`의 `linux-proc-stat.v1`을 받습니다. Linux 7.0.14-linuxkit / USER_HZ 100만 실제 3회·10필드 수집으로 검증했습니다. 네트워크나 process attach는 사용하지 않습니다.
+
+cpu 전체 행은 공유 커널이며 container·프로세스 귀속이 아닙니다. 열 개 값 모두 정확한 tick gauge로 유지합니다. Guest는 user와 겹치고 iowait는 감소할 수 있어 합계·CPU 비율·단조 rate·reset을 추정하지 않습니다. 고정 scope/kernel/clock 필드로 다른 OS/버전/container 의미로의 승격을 막습니다. 기존 MetricHistory 조회·export와 더 낮은 바이트/point 한도를 적용합니다.
