@@ -70,5 +70,29 @@
     "scale": "Windows100%,Office100%",
     "screenshot": "office-excel-svg-insert.jpg",
     "status": "PASS within recorded scope"
+  },
+  {
+    "id": "office-word-png-paste",
+    "archivedAt": "2026-11-13T22:52:29.020809+00:00",
+    "observed": "Native Copy image>Word CtrlV inserts one picture fitted to portrait text area with8rows,0.35seconds,unavailable andprovenance. Sparseimage text is small at100%; savedPNG subsequently proved exactbytes and2400x1600 RGBApixels.",
+    "scale": "Windows100%,Word100%",
+    "screenshot": "office-word-png-paste.jpg",
+    "status": "PASS within recorded scope"
+  },
+  {
+    "id": "office-excel-png-default",
+    "archivedAt": "2026-11-13T22:55:01.973057+00:00",
+    "observed": "NativePNG paste creates onepicture atoriginalpixel-sized Office dimensions. At100% it extends beyondvisibleworksheet width/bottom,so noautomaticviewport-fit claim; provenance requiresworksheet scroll ormanualzoom/resize. SavedPNG subsequently proved exactbytes andpixels.",
+    "scale": "Windows100%,Excel100%",
+    "screenshot": "office-excel-png-default.jpg",
+    "status": "PASS within recorded scope"
+  },
+  {
+    "id": "office-excel-png-zoom50",
+    "archivedAt": "2026-11-13T22:56:31.345240+00:00",
+    "observed": "Aftermanualworksheetzoom50% only,entirePNGincluding8rows,0.35seconds,unavailable andallprovenance isvisible. Noimage resize ordata edits. Default100% overflow recorded separately; savedPNGproved exactbytes andpixels.",
+    "scale": "Windows100%,Excel50%",
+    "screenshot": "office-excel-png-zoom50.jpg",
+    "status": "PASS within recorded scope"
   }
 ]

@@ -341,3 +341,11 @@ through native Insert>Picture. Office normalizes the14MB source to4120B,retains
 space on empty Annotation. SVG-byte/font equivalence is not claimed; PNG remains
 the primary paste format. Word fit is contained but sparse text is small at100%.
 Other versions/full typography and format combinations remain open.
+
+
+Word/Excel native PNG paste now also preserves exact2400x1600 PNG bytes andRGBA
+pixels,matching the earlier PowerPoint result. Word fits its text area but sparse
+text is small at100%. Excel defaults to pixel-sized placement beyond the100%
+viewport; a separatemanual50% worksheetzoom shows the entireimage/provenance.
+The selected one-fixture/installed-version PNG/table/SVG workflow matrix is
+recorded,with placement/font limits; fullT-627 acceptance remains open.

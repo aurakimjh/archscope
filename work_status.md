@@ -5233,3 +5233,8 @@ Actual Office16.0.10417.20228 native paste extends PowerPoint coverage to Word/E
 ### 2026-11-14 - T-627 installed Office SVG insertion
 
 Native Insert>Picture in Word/Excel/PowerPoint16.0.10417.20228 imports the selected14MB saved SVG asonegraphic with8rows/units/unavailable/provenance; Word fits default portrait area. All3savedOffice files normalize tosame4120B SVG,retain2400x1600 and27text contents exceptemptyAnnotation trailing space,removeembeddedfont andaddPNGfallback. This is insertion compatibility, not exactSVG/font or full typography acceptance; Word sparseimage text remains small at100%. RawOffice files stay ignored; parsedhashes/textchanges/screenshots attached. No product change. Historical10nativeFAIL entries nowlink toobservedfixes. OtherOffice versions/fullmatrix remain; T-627 REVIEW. Receipt: docs/review/evidence/2026-11-14-native-followup/README.md.
+
+
+### 2026-11-14 - T-627 primary PNG paste across installed Office
+
+Actual native Copyimage>CtrlV inWord/Excel16.0.10417.20228 saves exact2400x1600 PNG bytes/SHA andRGBApixels,matching priorPowerPoint. Word fits portrait area but sparse text small at100%; Excel defaults tooriginalpixel placement beyondviewport,withseparate manual50% worksheetzoom/fullprovenance observation andnoresize. Onefixture/installedversion PNG/table/SVG matrix nowrecorded withexplicit placement/fontlimits;12extraOffice observations retainhistoricWordwidthFAIL andfix,correctExcelSVG100% versusPNG50% labels,andarchive timestamps forPNG. No newproductcode. Completeoriginal-reference/DPI/conditionalmatrix remains;T-627 REVIEW. Receipt: docs/review/evidence/2026-11-14-native-followup/README.md.

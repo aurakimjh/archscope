@@ -290,3 +290,31 @@ source remain ignored local artifacts. No product source changes were needed.
 
 failure-resolutions.json links all10historic native failures across both case
 files to subsequent observed fixes; historicalFAIL entries remain unchanged.
+
+
+## Native PNG paste in Word and Excel
+
+Native Copy image followed by CtrlV in Word/Excel16.0.10417.20228 produces a
+picture. Each saved DOCX/XLSX contains exactly the originalPNG bytes (SHA256
+edd2ce7dfe31670ee6a47405c8bf9bbf7f7b5ec989455bb0c6a18ab6009b2293),2400x1600
+and equalRGBApixels. Earlier PowerPoint paste preserves the samePNG. This
+confirms the primary PNG path independently of SVG/font normalization.
+
+Word fits the portrait text area; sparse fixed-size text is small at100% and
+is not full typography acceptance. Excel pastes at pixel-sized dimensions,
+extending outside the default100% worksheet viewport. A separate50% worksheet
+zoom screenshot shows the complete image/provenance,without image resizing or
+data edits. Default and zoomed cases are distinguished. PNG observations use
+exact screenshot archive timestamps; the historicalOffice cases are preserved.
+
+Selected fixture/version matrix (not completeT-627 acceptance):
+
+| Application | PNG copy/paste | Whole table copy/paste | SVG Insert>Picture |
+| --- | --- | --- | --- |
+| Word | Exact bytes/pixels; fitted,small at100% | 11rows,relative100% width inside text area | Onegraphic,fit; embeddedfont removed |
+| Excel | Exact bytes/pixels; fullview atmanual50% | 14rows,strings/zeroformulas; narrowdefaultcolumns | Onegraphic; embeddedfont removed |
+| PowerPoint | Exact bytes/pixels | Oneeditable11rowtable inside slide | Onegraphic; embeddedfont removed |
+
+No new product code or additional test reruns were needed for these native
+observations. Other versions,providers,format/typography/error combinations and
+the complete original-reference/DPI matrix remain separate.

@@ -1,0 +1,46 @@
+{
+  "officeVersion": "16.0.10417.20228",
+  "sourcePngSha256": "edd2ce7dfe31670ee6a47405c8bf9bbf7f7b5ec989455bb0c6a18ab6009b2293",
+  "sourceDimensions": [
+    2400,
+    1600
+  ],
+  "scope": "NativeCopyimage>CtrlV inWord/Excel,plus earlieractualPowerPoint receipt; one8rowfixture. Screenfit/readability separatefromimageintegrity.",
+  "applications": {
+    "Word": {
+      "nativeFileBytes": 259664,
+      "nativeFileSha256": "3a9d70d00d78ce87100a65d93e91ab38cb5df37e6f26b95ed56383e0e3b6ad37",
+      "member": "word/media/image1.png",
+      "memberBytes": 247170,
+      "memberSha256": "edd2ce7dfe31670ee6a47405c8bf9bbf7f7b5ec989455bb0c6a18ab6009b2293",
+      "dimensions": [
+        2400,
+        1600
+      ],
+      "exactPngBytesPreserved": true,
+      "rgbaPixelsEqual": true
+    },
+    "Excel": {
+      "nativeFileBytes": 257026,
+      "nativeFileSha256": "1d628a2c57c8e98c3592be9c050f2ee50a7ab03b6bdea2fb45587c4d4bc1a34f",
+      "member": "xl/media/image1.png",
+      "memberBytes": 247170,
+      "memberSha256": "edd2ce7dfe31670ee6a47405c8bf9bbf7f7b5ec989455bb0c6a18ab6009b2293",
+      "dimensions": [
+        2400,
+        1600
+      ],
+      "exactPngBytesPreserved": true,
+      "rgbaPixelsEqual": true
+    },
+    "PowerPoint": {
+      "receipt": "office-integrity.json",
+      "exactPngBytesPreserved": true,
+      "rgbaPixelsEqual": true,
+      "dimensions": [
+        2400,
+        1600
+      ]
+    }
+  }
+}
