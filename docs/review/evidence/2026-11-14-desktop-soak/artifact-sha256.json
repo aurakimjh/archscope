@@ -1,7 +1,21 @@
 {
   "386-before-lock-fix-inspection.json": "55abd2200cca0653f38dbd42a30cc62c646a121c42d36114948b37bd5bc4f52e",
   "386-before-lock-fix.json": "281b4750b5fe8f498bf6bc37d3cbddc451803c097395cf89c40835638c1a7f20",
+  "amd64-before-lock-fix.json": "d60684a375249c3b187ede5177e07433a715658c7c95b41192e6de704afae9cc",
   "manifest-lock-before.log": "628efa3d5ffa3eee715e588015aa752d15b34f099296c264e5e19cdcc71d6800",
   "manifest-lock-tests-386.log": "159b71a73a0632a622788a4d219bf1335704169cd1ec32f458c4f91df84f2569",
-  "manifest-lock-tests-amd64.log": "28c61699c8778b851b9322ca33c37e34284e0854cf865cecdd0c8d2cebde8444"
+  "manifest-lock-tests-amd64.log": "28c61699c8778b851b9322ca33c37e34284e0854cf865cecdd0c8d2cebde8444",
+  "native-cases.json": "2fdebcb636ee430c6b4fda0bc3a8e2cb4953f01ee6a66172d40dacb7c0d63447",
+  "pre-fix-runner-used.mjs": "8339d03cf94bdd09f493fb970eba0ed1c666cefd5f27385e6ca5d42e9ce51160",
+  "soak-386-failed-before-manifest-fix.jpg": "8d97b6268b16656fe08a4c799d423f6af3b9f2a7fb0f155746a1481379432607",
+  "soak-386-live-body.jpg": "45e44763aaee1b44eacb03179f4445f203a6fe7932495e5bddfa3b0b16b8313c",
+  "soak-386-mid-away.jpg": "c5385aa9c22e7e085fad2048086eb29a46a169f667528e4c6d18c368a4236843",
+  "soak-386-mid-reentry.jpg": "935d36e84a52d46b8de71a268879abc5fa288a57ced4ba554ddf417173c77f6b",
+  "soak-amd64-live-headers.jpg": "b2f2f693c4279fc77d1ee9da3dac694e9058d62f55f0b70c6ea7bdd41ef71f67",
+  "soak-amd64-mid-away.jpg": "6807263dbb3c85457fa7ba81642e765a76099420164413a543d0bdd4a847cc71",
+  "soak-amd64-mid-reentry.jpg": "179cd18c468f1e4ddc39e01e8ea4e43b2153797edd83dadb287b060ff5400de4",
+  "soak-amd64-pre-fix-final-body.jpg": "1ab5734c815555b6dc148a596d80d7af3fd2a13b64b6898b232bb428a6099e7c",
+  "soak-amd64-pre-fix-final-headers.jpg": "f33593ff35ff793d657eb3e1c5db01d8e8a6708e1826a9b0920b0db1996b5bea",
+  "soak-amd64-pre-fix-final-raw.jpg": "e7406b13a78e1be34bc9ccdb6ab8bfcaf2a3a26b44aee6c0dcc68a3e1a49b778",
+  "soak-amd64-pre-fix-final-reentry.jpg": "f3f6b03a32877d0144343df551b148488710af800fbe9fb664bc46b75730eeb9"
 }

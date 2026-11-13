@@ -1,0 +1,77 @@
+[
+  {
+    "arch": "amd64",
+    "phase": "early-live-headers",
+    "observed": "At roughly10minutes,selected live GET200 shows Content-Type application/json,Content-Length45,Cache-Control no-store",
+    "screenshot": "soak-amd64-live-headers.jpg"
+  },
+  {
+    "arch": "386",
+    "phase": "early-live-body",
+    "observed": "After first scheduled clear,capture continues;request/response Body explicitly disabled",
+    "screenshot": "soak-386-live-body.jpg"
+  },
+  {
+    "arch": "amd64",
+    "phase": "mid-away",
+    "observed": "Around47minutes,native Analyze menu opens Profiler while the controller capture remains running",
+    "screenshot": "soak-amd64-mid-away.jpg",
+    "observedAt": "2026-11-13T20:24:49.611Z"
+  },
+  {
+    "arch": "amd64",
+    "phase": "mid-reentry",
+    "observed": "Around50minutes,Profiler -> HTTP capture reentry coincides with the scheduled clear and shows36 fresh running rows;no selection-preservation claim.",
+    "screenshot": "soak-amd64-mid-reentry.jpg",
+    "observedAt": "2026-11-13T20:27:33.902Z"
+  },
+  {
+    "arch": "386",
+    "phase": "mid-away",
+    "observed": "Around50minutes,native Analyze menu opens JFR while capture continues in background",
+    "screenshot": "soak-386-mid-away.jpg",
+    "observedAt": "2026-11-13T20:29:00.873Z"
+  },
+  {
+    "arch": "386",
+    "phase": "mid-reentry",
+    "observed": "Around63minutes,JFR -> HTTP capture returns running;live list132 rows and backend retained128,capture592 since last scheduled clear;new requests continue",
+    "screenshot": "soak-386-mid-reentry.jpg",
+    "observedAt": "2026-11-13T20:40:49.862Z"
+  },
+  {
+    "arch": "386",
+    "phase": "failed-before-manifest-fix",
+    "observed": "Native app shows recoverable state, captured886/persisted885,retained128,evicted757; red manifest rename Access is denied banner. Default UI list retains500 display rows. Error banner makes outer horizontal scrolling necessary before wrapping fix. This run FAILS.",
+    "screenshot": "soak-386-failed-before-manifest-fix.jpg",
+    "observedAt": "2026-11-13T21:30:03.623Z"
+  },
+  {
+    "arch": "amd64",
+    "phase": "pre-fix-final-raw",
+    "observed": "Original two-hour run saved/opened128rows. Native reopened selected first retained request sequence24736,200 GET; Raw shows JSON45B,no-store and explicit bodies-disabled notes. Finalized generation captured2040/persisted2040,retained128/evicted1912. OS125%/WebView100%. This predates manifest-lock fix.",
+    "screenshot": "soak-amd64-pre-fix-final-raw.jpg",
+    "observedAt": "2026-11-13T21:38:48.351Z"
+  },
+  {
+    "arch": "amd64",
+    "phase": "pre-fix-final-headers",
+    "observed": "Native final saved128rows selected sequence24736; Headers shows Content-Type application/json,Cache-Control no-store,Content-Length45,server/date. OS125%/WebView100%.",
+    "screenshot": "soak-amd64-pre-fix-final-headers.jpg",
+    "observedAt": "2026-11-13T21:39:02.608Z"
+  },
+  {
+    "arch": "amd64",
+    "phase": "pre-fix-final-body",
+    "observed": "Saved128row session Body tab explicitly says request and response bodies were not recorded because body capture is off; response transfer45B remains. Selected sequence24736 persists.",
+    "screenshot": "soak-amd64-pre-fix-final-body.jpg",
+    "observedAt": "2026-11-13T21:39:18.749Z"
+  },
+  {
+    "arch": "amd64",
+    "phase": "pre-fix-final-reentry",
+    "observed": "After Profiler menu roundtrip and asynchronous hydration, saved128rows and selected request sequence24736 return. Detail tab resets to Raw, which shows the same request and explicit bodies-disabled guidance. No live-capture restart.",
+    "screenshot": "soak-amd64-pre-fix-final-reentry.jpg",
+    "observedAt": "2026-11-13T21:40:35.351Z"
+  }
+]

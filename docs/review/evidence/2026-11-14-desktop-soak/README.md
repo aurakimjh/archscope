@@ -50,3 +50,26 @@ is not counted as a crash or a two-hour test. A fresh fixed-build long run is
 required and will be recorded separately. The runner now also keeps bounded
 private desktop logs and private failure journal/status, without retrying failed
 traffic or converting a failed run into a pass.
+
+## Original isolated amd64 two-hour PASS (before lock fix)
+
+The original amd64 production build7a0e1b1e completes7200.717s and24864 requests,
+119pause/resume cycles and11clears. Every retained snapshot is paginated and
+validated, max128rows and0drops; final generation captured/persisted2040/2040.
+Saved128rows reopen with exact selected-ID equality; file SHA is in the report.
+The desktop remains alive at completion. The unchanged schema2 runner used is
+attached. This successful run predates the Windows-sharing-lock fix and does
+not substitute for the separately running fixed-build verification.
+
+Native final readback shows128/128 saved rows and selected sequence24736. Raw
+and Headers show200GET,Content-Type application/json,Cache-Control no-store and
+Content-Length45. Body explicitly explains that both bodies were not recorded.
+A Profiler menu roundtrip restores128rows and the same selected request after
+asynchronous hydration; the detail tab resets to Raw. These final observations
+use OS125%/WebView100%; the run began at OS100%. Early Headers/Body and mid-run
+reentry observations are also attached. The mid amd64 reentry coincided with a
+clear and displayed36fresh rows; no preservation of a pre-clear selection is
+claimed. The mid386 reentry showed128rehydrated plus incoming rows.
+
+The failed386 and deliberate pre-fix diagnostic attempts remain separate. Both
+architectures now require completion of the fixed-build two-hour runs.
