@@ -20,7 +20,7 @@ OTLP JSON/JSONL(선택적 gzip)을 명시적 trace namespace·시계·의미 프
 실제 OTel Python SDK 1.38.0 span 객체와 OTLP protobuf encoder로 고정 합성
 fixture를 생성했다. 네트워크 exporter는 실행하지 않았으며 protobuf JSON의
 base64 ID를 OTLP JSON hex ID로 변환했다. 의미 규약/경계 fixture는 별도 합성
-자료다. Langfuse/LangSmith 제품 export를 검증한 것은 아니며 **Q01은 유지**한다.
+자료다. Langfuse/LangSmith 제품 export를 검증한 것은 아니며 Langfuse 4.79.0 observations API v2는 별도 제한 adapter로 검증하고 그 밖의 **Q01 경로는 보류**한다.
 공유 manifest가 원본·스키마·기대 모델 hash를 고정하고 앱이 필요한 자산을
 임베드하므로 실행 시 형제 checkout이나 인터넷에 의존하지 않는다.
 
@@ -139,3 +139,11 @@ trace 선택해 줄이는 기능은 없습니다.
 | neutral.v1 | 명시적 diag.llm first/last 속성 또는 event와 적격 span/clock/token 수 필요 |
 | otel-genai.v1.37.0 | 표준 GenAI usage로 timing을 추정하지 않으며 명시적 diag.llm 확장 필요 |
 | openinference.core.v1 | 표준 OpenInference span으로 timing을 추정하지 않으며 명시적 diag.llm 확장 필요 |
+
+## Langfuse 4.79 observations API 선택(Q01)
+
+의미 프로파일 `langfuse-observations.v4.79`, producer `langfuse`, 버전 `4.79.0`, 명시 namespace와 clock `unix`를 선택합니다. 본문 없는 observations API v2 JSON 선택 페이지를 받으며 이전 trace ingestion event나 LangSmith export는 다루지 않습니다. 고정 Docker 이미지로 로컬 self-hosted4.79.0을 실제 구동하고 합성 OTLP observation 세 건을 저장한 뒤 `GET /api/public/v2/observations?fields=core,basic,usage,model`로 읽었습니다. 외부 모델/서비스·cloud 계정은 사용하지 않았습니다.
+
+`export-langfuse-observations.py --trace-id HEX --out new-export.json`은 LANGFUSE_HOST / LANGFUSE_PUBLIC_KEY / LANGFUSE_SECRET_KEY 환경에서 loopback 주소와 자격 증명을 읽어 body-free 필드를 선택하고 disk 전에 allowlist로 정제합니다. Key는 증거에 저장하지 마세요. 비어 있지 않은 pagination metadata는 거절하며 선택 페이지를 명시적으로 내보냅니다. 결과는 trace/전체 수집 coverage를 주장하지 않습니다.
+
+명시적 usageDetails.input/output만 측정값입니다. API inputUsage/outputUsage의 기본 0은 무시하므로 누락은 관측 불가, 명시적 0은 0으로 유지합니다. GENERATION/RETRIEVER/EMBEDDING/SPAN을 role에 연결하고 이름·입출력 본문·임의 metadata·project/user/session·비용은 제외합니다. 관측되지 않은 boundary/outcome/token authority는 unknown이며 level ERROR만 failed로 연결합니다. 파생 latency/TTFT 필드에서 token 시각을 만들지 않습니다. 기존 LLMTrace1.0.0/trace_import0.3.0 조회·원본 좌표·공통 export를 재사용하고 기존 OTLP reader·저장 바이트를 유지합니다. LangSmith·다른 Langfuse 버전·client/server token 중복 제거를 검증한 자료는 아닙니다.

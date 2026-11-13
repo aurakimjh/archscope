@@ -109,6 +109,17 @@
         "input_tokens": "llm.token_count.prompt",
         "output_tokens": "llm.token_count.completion"
       }
+    },
+    {
+      "id": "langfuse-observations.v4.79",
+      "role_attribute": "type",
+      "roles": {
+        "GENERATION": "llm",
+        "RETRIEVER": "retriever",
+        "EMBEDDING": "embedding",
+        "SPAN": "unclassified"
+      },
+      "attributes": {}
     }
   ],
   "events": {

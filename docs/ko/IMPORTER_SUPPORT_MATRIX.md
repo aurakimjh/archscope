@@ -172,7 +172,7 @@ SystemEvidence 1.0.0 / system_evidence 0.1.0 저장 reader는 유지하며 새 1
 
 ## LLM trace 근거
 
-제한 importer `trace.llm-json`은 LLMTrace 1.0.0을 기존 trace_import 0.3.0 / llm_core 1.0.0으로 분석한다. 기존 trace 0.2.0 reader는 유지한다. Parent/link·자식 합집합 경과 시간·명시적 논리/시도 accounting·token 경계·lifecycle 집단을 구분하고 본문 제외 정규화를 케이스 복사/색인보다 먼저 적용한다. 정확한 페이지 query/UI와 기존 provider/export를 재사용한다. Q01 제품 JSON adapter는 실제 입력 검증 전까지 보류한다. [LLM trace 근거](LLM_TRACE_EVIDENCE.md) 참조. 추론 근거는 untyped range의 명시적 메타데이터와 입력 event ID 생성을 추가하며 1.0/1.1 모델·0.1/0.2 결과 reader를 유지한다. [추론 서빙 근거](INFERENCE_EVIDENCE.md) 참조.
+제한 importer `trace.llm-json`은 LLMTrace 1.0.0을 기존 trace_import 0.3.0 / llm_core 1.0.0으로 분석한다. 기존 trace 0.2.0 reader는 유지한다. Parent/link·자식 합집합 경과 시간·명시적 논리/시도 accounting·token 경계·lifecycle 집단을 구분하고 본문 제외 정규화를 케이스 복사/색인보다 먼저 적용한다. 정확한 페이지 query/UI와 기존 provider/export를 재사용한다. Langfuse 4.79.0 observation API v2는 별도 제한 adapter를 제공하며 다른 Q01 제품/버전은 실제 입력 검증 전까지 보류한다. [LLM trace 근거](LLM_TRACE_EVIDENCE.md) 참조. 추론 근거는 untyped range의 명시적 메타데이터와 입력 event ID 생성을 추가하며 1.0/1.1 모델·0.1/0.2 결과 reader를 유지한다. [추론 서빙 근거](INFERENCE_EVIDENCE.md) 참조.
 
 
 <a id="t-641-런타임-근거"></a>

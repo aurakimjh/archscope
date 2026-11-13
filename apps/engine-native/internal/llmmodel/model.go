@@ -154,7 +154,7 @@ func (s Set) Validate(ctx context.Context) error {
 	if s.Version != Version || s.Source.Privacy != PrivacyVersion || (s.Source.TokenTimingPolicy != "" && s.Source.TokenTimingPolicy != TokenTimingPolicy) {
 		return fmt.Errorf("LLMTRACE_VERSION_UNSUPPORTED")
 	}
-	if !digest.MatchString(s.Source.SHA256) || s.Source.Format != "otlp-json" || s.Source.Namespace == "" || !In(s.Source.Clock, "unix", "unknown") || s.Source.Profile == "" {
+	if !digest.MatchString(s.Source.SHA256) || (s.Source.Format != "otlp-json" && s.Source.Format != "langfuse-observations-v2-json") || s.Source.Namespace == "" || !In(s.Source.Clock, "unix", "unknown") || s.Source.Profile == "" {
 		return fmt.Errorf("LLMTRACE_SOURCE_INVALID")
 	}
 	for _, v := range []string{s.Source.Producer, s.Source.ProducerVersion, s.Source.Profile, s.Source.Namespace} {

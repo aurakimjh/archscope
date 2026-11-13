@@ -9,6 +9,7 @@ for lang in ('en','ko'):
   outputs[f'docs/{lang}/{name}.md']=(root/f'docs/{lang}/{name}.md').read_bytes()
 outputs['tools/capture-proc-stat.py']=(root/'scripts/capture-proc-stat.py').read_bytes()
 outputs['tools/capture-ollama-serving.py']=(root/'scripts/capture-ollama-serving.py').read_bytes()
+outputs['tools/export-langfuse-observations.py']=(root/'scripts/export-langfuse-observations.py').read_bytes()
 outputs['tools/capture-sqlite.py']=(root/'scripts/capture-sqlite.py').read_bytes()
 outputs['tools/capture-postgres.py']=(root/'scripts/capture-postgres.py').read_bytes()
 outputs['tools/subset-nsight-sqlite.py']=(root/'scripts/subset-nsight-sqlite.py').read_bytes()

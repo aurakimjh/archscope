@@ -1,0 +1,27 @@
+{
+  "task": "T-660",
+  "activation": "User requested creating absent environment/export route. Selected self-hosted Langfuse4.79.0 observations API v2, not LangSmith.",
+  "shared_commit": "1021f1f",
+  "images": {
+    "postgres": "postgres@sha256:95206741a5b214807675e14165369d05b93a9cf692223b616d07cca227e74b0b",
+    "clickhouse": "clickhouse/clickhouse-server@sha256:de3e47c64078aa196dae2349e048fc98ba81947f651f5c20e06e46baea8ae40a",
+    "redis": "redis@sha256:8b81dd37ff027bec4e516d41acfbe9fe2460070dc6d4a4570a2ac5b9d59df065",
+    "minio": "minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+    "web": "langfuse/langfuse@sha256:ab20d54ee3304ffc9f73965d9dde665eed64111ae32fca96b7449fc90d246bbe",
+    "worker": "langfuse/langfuse-worker@sha256:35e1ff6578a7d43458bf45c92eb46fcefa753967008d58bd98c961a09b1b3f03"
+  },
+  "actual": "Local internal-network Docker server persisted 3 manually instrumented synthetic OTLP observations; queried actual selected-fields API. Synthetic usage3/2 is declared test instrumentation, not actual model token billing/runtime proof.",
+  "reuse": "Body-free LLMTrace1.0.0 and trace_import0.3.0; existing detail/graph/export consumers and saved OTLP readers.",
+  "verification": [
+    "race parser/analyzer/llmmodel/architecture passed",
+    "distribution/catalog/inputassist and frontend build passed",
+    "manual loopback exporter actually executed in same container network; private env removed",
+    "explicit usageDetails counts vs API default0; missing and zero tested",
+    "exact timestamp/role/parent references and privacy sentinel tests",
+    "CSV/HTML and core validation passed, vet passed"
+  ],
+  "limits": [
+    "Pinned local version/selected page only; no full trace coverage claim, LangSmith, other versions, cost/billing or client/server authority inference.",
+    "Token timing unavailable; names/bodies/arbitrary metadata excluded. No secrets saved in evidence."
+  ]
+}

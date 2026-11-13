@@ -22,7 +22,7 @@ A fixture was generated using actual OTel Python SDK 1.38.0 span objects and its
 OTLP protobuf encoder, with deterministic synthetic data and no network exporter.
 The protobuf JSON conversion replaces base64 IDs with OTLP JSON hex IDs. Separate
 synthetic convention/edge fixtures test semantic mapping. These do not qualify
-Langfuse/LangSmith product exports; **Q01 remains open**. Shared manifests pin
+Langfuse/LangSmith product exports; **other Q01 vendor/version routes remain open**. Shared manifests pin
 source, schema and expected model bytes; production code embeds the required
 mapping and fixtures, so no sibling checkout or Internet is needed at runtime.
 
@@ -154,3 +154,11 @@ New normalization records token_timing_policy=token-boundaries.1.1.0. Contradict
 | neutral.v1 | Requires explicit diag.llm first/last attributes or events and qualified span/clock/token count |
 | otel-genai.v1.37.0 | Standard GenAI usage fields do not imply timing; explicit diag.llm extension required |
 | openinference.core.v1 | Standard OpenInference spans do not imply timing; explicit diag.llm extension required |
+
+## Langfuse 4.79 observations API selection (Q01)
+
+Select semantic profile `langfuse-observations.v4.79`, producer `langfuse`, version `4.79.0`, an explicit namespace and clock `unix`. It accepts a selected body-free observations API v2 JSON page, not legacy trace ingestion events or LangSmith exports. Local self-hosted 4.79.0 was actually started with pinned Docker images; three synthetic OTLP observations were persisted and read through `GET /api/public/v2/observations?fields=core,basic,usage,model`. No external model/service or cloud account was used.
+
+`export-langfuse-observations.py --trace-id HEX --out new-export.json` reads loopback hosting and credentials from LANGFUSE_HOST / LANGFUSE_PUBLIC_KEY / LANGFUSE_SECRET_KEY environment, selects body-free fields, and allowlists before disk. Never store keys in evidence. Nonempty pagination metadata is refused; export a selected page deliberately. The result does not claim full trace/collection coverage.
+
+Only explicit usageDetails.input/output are measurements. API inputUsage/outputUsage defaults are ignored, so absent counts stay unavailable and explicit zero stays zero. GENERATION/RETRIEVER/EMBEDDING/SPAN map to roles; names, input/output, arbitrary metadata, project/user/session and costs are excluded. Boundary/outcome/token authority remain unknown unless actually represented; level ERROR maps to failed. Derived latency/TTFT fields do not invent token timestamps. Existing LLMTrace1.0.0/trace_import0.3.0 queries, original coordinate refs and common exports apply; old OTLP readers and saved bytes remain supported. This pinned slice does not qualify LangSmith, other Langfuse versions or client/server token deduplication.

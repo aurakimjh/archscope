@@ -171,6 +171,9 @@ func ParseLLMBytes(ctx context.Context, original []byte, o LLMOptions) (l.Set, e
 	if o.Namespace == "" || !l.Text(o.Namespace) || !l.Text(o.Producer) || !l.Text(o.ProducerVersion) || !l.In(o.Clock, "unix", "unknown") {
 		return s, fmt.Errorf("LLMTRACE_OPTIONS_INVALID: explicit namespace, clock and semantic profile required")
 	}
+	if o.Profile == LangfuseProfile {
+		return parseLangfuse(ctx, original, o)
+	}
 	profiles, e := readProfiles()
 	if e != nil {
 		return s, e
