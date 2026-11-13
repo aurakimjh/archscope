@@ -1,0 +1,12 @@
+{
+  "task": "T-652",
+  "migration": "MetricHistory file acquisition and both stateless/prepared query cursors reuse domain-neutral ingestion/querypage helpers. Admission/deadline and semantic validation remain with parser.",
+  "verification": [
+    "race: ingestion/querypage/metricmodel/metrichistory/architecture passed",
+    "go vet affected packages passed",
+    "file/gzip bytes preserve ParseBytes normalized JSON and compressed-byte SHA",
+    "legacy cursor bytes, stale digest/selection/page, maximum-int bounds, decompression +1 ceiling and cancellation tested"
+  ],
+  "reuse_gate": "EN/KO PARSER_DESIGN requires existing-result assessment before new family.",
+  "limits": "No trust from cursor; current owner/result rehash checks unchanged. One family migrated."
+}

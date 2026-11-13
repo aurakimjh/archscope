@@ -1059,3 +1059,20 @@ Decode methods still enforce their own saved-model ceilings. Byte refusals retai
 the caller's domain and actual limit. Structural bounds apply independently, so
 fitting the byte allowance alone does not guarantee acceptance. Hash and canonical
 uint64/text helpers retain the established serialized identifier encoding.
+
+### Reuse assessment before a new result family
+
+Before registering a family, document which existing `AnalysisResult` payload,
+model, provider, query and export paths can represent the evidence. Prefer a new
+bounded producer adapter over a new result type when source semantics fit an
+existing model. State any lost semantics and justify a new model only when the
+existing contract cannot preserve them. Keep producer qualification separate
+from structural format support.
+
+`ingestion.WithSourceBytes` owns bounded snapshot acquisition, temporary cleanup
+and post-consumer digest verification; `ingestion.DecodeGzip` owns cancellable
+bounded decompression. Domain parsers keep admission, deadlines and validation.
+`querypage` retains the established digest/query/offset cursor bytes and safe
+page bounds. It grants no trust or owner access: consumers still verify the
+current immutable result and canonical selection, including page size. Metric
+History uses these helpers in both stateless and prepared query paths.

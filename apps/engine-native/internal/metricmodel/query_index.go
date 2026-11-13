@@ -2,9 +2,9 @@ package metricmodel
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/querypage"
 	"sort"
 	"unsafe"
 )
@@ -116,17 +116,9 @@ func (i *QueryIndex) Query(ctx context.Context, digest string, q Query) (Page, e
 	identity.Selection.SeriesIDs = append([]string(nil), q.Selection.SeriesIDs...)
 	sort.Strings(identity.Selection.SeriesIDs)
 	out.QuerySHA256 = Hash(identity)
-	offset := 0
-	if q.Cursor != "" {
-		var c struct {
-			Result, Query string
-			Offset        int
-		}
-		raw, e := base64.RawURLEncoding.DecodeString(q.Cursor)
-		if e != nil || json.Unmarshal(raw, &c) != nil || c.Result != digest || c.Query != out.QuerySHA256 || c.Offset < 0 {
-			return out, fmt.Errorf("METRIC_CURSOR_STALE")
-		}
-		offset = c.Offset
+	offset, cursorErr := querypage.Decode(q.Cursor, digest, out.QuerySHA256)
+	if cursorErr != nil {
+		return out, fmt.Errorf("METRIC_CURSOR_STALE")
 	}
 	if e := (Set{Series: i.series}).ValidateSelection(q.Selection); e != nil {
 		return out, e
@@ -200,11 +192,7 @@ func (i *QueryIndex) Query(ctx context.Context, digest string, q Query) (Page, e
 	}
 	end := offset + len(out.Rows)
 	if end < out.Total {
-		raw, _ := json.Marshal(struct {
-			Result, Query string
-			Offset        int
-		}{digest, out.QuerySHA256, end})
-		out.Next = base64.RawURLEncoding.EncodeToString(raw)
+		out.Next = querypage.Encode(digest, out.QuerySHA256, end)
 	}
 	raw, e := json.Marshal(out)
 	if e != nil {
@@ -226,11 +214,7 @@ func (index *QueryIndex) ProjectOffset(ctx context.Context, digest string, selec
 	q.Selection.SeriesIDs = append([]string(nil), selection.SeriesIDs...)
 	sort.Strings(q.Selection.SeriesIDs)
 	if offset > 0 {
-		raw, _ := json.Marshal(struct {
-			Result, Query string
-			Offset        int
-		}{digest, Hash(q), offset})
-		q.Cursor = base64.RawURLEncoding.EncodeToString(raw)
+		q.Cursor = querypage.Encode(digest, Hash(q), offset)
 	}
 	return index.Query(ctx, digest, q)
 }

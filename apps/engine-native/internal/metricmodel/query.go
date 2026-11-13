@@ -2,9 +2,9 @@ package metricmodel
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/querypage"
 	"sort"
 )
 
@@ -91,17 +91,9 @@ func QuerySet(ctx context.Context, set Set, digest string, q Query) (Page, error
 	identity.Selection.SeriesIDs = append([]string(nil), q.Selection.SeriesIDs...)
 	sort.Strings(identity.Selection.SeriesIDs)
 	out.QuerySHA256 = Hash(identity)
-	offset := 0
-	if q.Cursor != "" {
-		var c struct {
-			Result, Query string
-			Offset        int
-		}
-		raw, e := base64.RawURLEncoding.DecodeString(q.Cursor)
-		if e != nil || json.Unmarshal(raw, &c) != nil || c.Result != digest || c.Query != out.QuerySHA256 || c.Offset < 0 {
-			return out, fmt.Errorf("METRIC_CURSOR_STALE")
-		}
-		offset = c.Offset
+	offset, cursorErr := querypage.Decode(q.Cursor, digest, out.QuerySHA256)
+	if cursorErr != nil {
+		return out, fmt.Errorf("METRIC_CURSOR_STALE")
 	}
 	rows, e := SelectRows(ctx, set, q.Selection)
 	if e != nil {
@@ -111,14 +103,13 @@ func QuerySet(ctx context.Context, set Set, digest string, q Query) (Page, error
 	if offset > len(rows) {
 		return out, fmt.Errorf("METRIC_CURSOR_STALE")
 	}
-	end := min(offset+q.Limit, len(rows))
+	end, boundErr := querypage.Bounds(offset, q.Limit, len(rows))
+	if boundErr != nil {
+		return out, fmt.Errorf("METRIC_CURSOR_STALE")
+	}
 	out.Rows = append(out.Rows, rows[offset:end]...)
 	if end < len(rows) {
-		raw, _ := json.Marshal(struct {
-			Result, Query string
-			Offset        int
-		}{digest, out.QuerySHA256, end})
-		out.Next = base64.RawURLEncoding.EncodeToString(raw)
+		out.Next = querypage.Encode(digest, out.QuerySHA256, end)
 	}
 	body, _ := json.Marshal(out)
 	if len(body) > 1<<20 {

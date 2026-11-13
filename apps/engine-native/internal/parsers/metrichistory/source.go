@@ -1,14 +1,11 @@
 package metrichistory
 
 import (
-	"bytes"
-	"compress/gzip"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -66,50 +63,22 @@ func ParseFile(ctx context.Context, path string, options Options) (m.Set, error)
 	if stat, err := os.Stat(path); err == nil && stat.Size() > MaxInputBytes {
 		return m.Set{}, fmt.Errorf("METRIC_BUDGET_EXCEEDED: original is %d bytes; limit is %d", stat.Size(), MaxInputBytes)
 	}
-	dir, e := os.MkdirTemp("", "metric-history-")
-	if e != nil {
-		return m.Set{}, e
-	}
-	defer os.RemoveAll(dir)
-	lease, e := ingestion.Acquire(ctx, path, dir, "metric-source", ingestion.DefaultBudgets())
-	if e != nil {
-		return m.Set{}, e
-	}
-	defer lease.Close()
-	r, e := lease.Open(ctx)
-	if e != nil {
-		return m.Set{}, e
-	}
-	defer r.Close()
-	body, e := io.ReadAll(io.LimitReader(r, MaxInputBytes+1))
-	if e != nil {
-		return m.Set{}, e
-	}
-	set, e := ParseBytes(ctx, body, filepath.Base(path), options)
-	if e != nil {
-		return set, e
-	}
-	return set, lease.Verify(ctx)
+	var set m.Set
+	err := ingestion.WithSourceBytes(ctx, path, "metric-history-", "metric-source", ingestion.DefaultBudgets(), func(body []byte) error {
+		var parseErr error
+		set, parseErr = ParseBytes(ctx, body, filepath.Base(path), options)
+		return parseErr
+	})
+	return set, err
 }
 func ParseBytes(ctx context.Context, original []byte, name string, options Options) (m.Set, error) {
 	if len(original) > MaxInputBytes {
 		return m.Set{}, fmt.Errorf("METRIC_BUDGET_EXCEEDED: original exceeds 64 MiB")
 	}
 	sum := sha256.Sum256(original)
-	body := original
-	if bytes.HasPrefix(body, []byte{31, 139}) {
-		z, e := gzip.NewReader(bytes.NewReader(body))
-		if e != nil {
-			return m.Set{}, e
-		}
-		defer z.Close()
-		body, e = io.ReadAll(io.LimitReader(z, MaxInputBytes+1))
-		if e != nil {
-			return m.Set{}, e
-		}
-		if len(body) > MaxInputBytes {
-			return m.Set{}, fmt.Errorf("METRIC_BUDGET_EXCEEDED: decoded source exceeds 64 MiB")
-		}
+	body, decodeErr := ingestion.DecodeGzip(ctx, original, MaxInputBytes)
+	if decodeErr != nil {
+		return m.Set{}, decodeErr
 	}
 	format := options.Format
 	if format == "" || format == "auto" {
