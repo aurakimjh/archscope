@@ -43,6 +43,9 @@ func ContextIdentity(s Set) (string, []string) {
 	if s.Kind != "benchmark" || s.Context == nil {
 		return "", []string{"benchmark_context_required; crash context is not a numeric baseline"}
 	}
+	if s.Source.Qualification != "" {
+		reasons = append(reasons, "producer_version_unverified")
+	}
 	c := *s.Context
 	for _, v := range []struct{ name, value string }{{"scenario", c.Scenario}, {"workload", c.WorkloadSHA}, {"client_environment", c.ClientSHA}, {"target_environment", c.TargetSHA}, {"arrival_model", c.Arrival}, {"phase", c.Phase}, {"boundary", c.Boundary}, {"protocol", c.Protocol}} {
 		if !Known(v.value) {

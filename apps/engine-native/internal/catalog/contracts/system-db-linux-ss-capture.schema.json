@@ -20,7 +20,9 @@
       "const": "1.0.0"
     },
     "iproute2_version": {
-      "const": "6.1.0"
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.+:-]*$"
     },
     "kernel_release": {
       "type": "string",

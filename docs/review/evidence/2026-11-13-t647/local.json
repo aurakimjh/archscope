@@ -1,0 +1,30 @@
+{
+  "task": "T-647",
+  "producer_paths": [
+    "k6",
+    "llmperf",
+    "jmeter",
+    "pytorch",
+    "nsight-sqlite",
+    "nsight-summary",
+    "ollama",
+    "postgresql",
+    "iproute2"
+  ],
+  "validation": {
+    "focused_go": "PASS",
+    "focused_race": "PASS",
+    "default_refusal": "PASS",
+    "opt_in_structure_and_unknown": "PASS",
+    "source_version_conflicts": "PASS",
+    "canonical_readback": "PASS",
+    "json_csv_html_qualification": "PASS",
+    "benchmark_comparison_refusal": "PASS",
+    "old_fixture_projections": "PASS",
+    "shared_manifests_and_offline_mirrors": "PASS"
+  },
+  "shared_commit": "b836c27",
+  "other_actual_producer_versions": "NOT_QUALIFIED",
+  "independent_review": "NOT_RUN",
+  "hosted_ci": "NOT_RUN"
+}

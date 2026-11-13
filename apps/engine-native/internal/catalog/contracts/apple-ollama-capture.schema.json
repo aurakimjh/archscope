@@ -56,7 +56,9 @@
       "maxLength": 256
     },
     "ollama_version": {
-      "const": "0.40.16"
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.+:-]*$"
     },
     "snapshots": {
       "type": "array",

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	g "github.com/aurakimjh/archscope/apps/engine-native/internal/gputracemodel"
+	pp "github.com/aurakimjh/archscope/apps/engine-native/internal/producerpolicy"
 	"math/big"
 	_ "modernc.org/sqlite"
 	"net/url"
@@ -141,14 +142,21 @@ func (b *builder) sqlite(raw []byte) error {
 	if e != nil {
 		return e
 	}
-	if meta["EXPORT_PRODUCT_NAME"] != "NVIDIA Nsight Systems" || meta["EXPORT_PRODUCT_VERSION"] != "2024.2.3.38" || meta["EXPORT_SCHEMA_VERSION"] != "3.11.1" {
+	if meta["EXPORT_PRODUCT_NAME"] != "NVIDIA Nsight Systems" || meta["EXPORT_SCHEMA_VERSION"] != "3.11.1" {
 		return fmt.Errorf("GPU_TRACE_NSYS_VERSION: qualified export 2024.2.3.38 / schema3.11.1 required")
 	}
 	if b.o.ProducerVersion != "" && b.o.ProducerVersion != meta["EXPORT_PRODUCT_VERSION"] {
 		return fmt.Errorf("GPU_TRACE_NSYS_VERSION_CONFLICT")
 	}
 	b.source.Producer = "nsight-systems"
-	b.source.Version = meta["EXPORT_PRODUCT_VERSION"]
+	version, qualification, err := pp.Select(meta["EXPORT_PRODUCT_VERSION"], "2024.2.3.38", b.o.AllowUnverifiedVersion)
+	if err != nil {
+		return fmt.Errorf("GPU_TRACE_NSYS_VERSION: %w", err)
+	}
+	b.source.Version, b.source.Qualification = version, qualification
+	if qualification != "" {
+		b.set.Warnings = append(b.set.Warnings, pp.Limitation)
+	}
 	b.source.Schema = meta["EXPORT_SCHEMA_VERSION"]
 	if e = b.scope(); e != nil {
 		return e

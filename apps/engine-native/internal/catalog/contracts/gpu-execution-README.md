@@ -35,3 +35,14 @@ https://docs.nvidia.com/nsight-systems/AnalysisGuide/index.html#sqlite-schema-re
 지원 SQLite 테이블 4종의 present/absent를 명시하며 누락을 활동 0으로 해석하지 않는다. 선택 이름의 VIEW/가상 테이블 및 생성 열은 거절한다. 기존 저장 모델 경고는 변경하지 않는다.
 
 nsight-overlap-ambiguous.sqlite는 실측 정제본에서 kernel/runtime을 +2000ns 복제하고 stream을 분리한 구조적 변형이다. 독립 SQLite 구간 병합의 합/합집합 기대값은 structural-expected.json에 고정한다. 중복 launch 후보는 ambiguous_launch이며 임의 연결하지 않는다. structural-flow.json은 중복 시작·orphan·명시적 한 쌍을 구분한다. 두 변형은 실제 CUDA/NCCL 실행 검증이 아니다.
+
+
+## 미검증 생산자 버전의 명시적 선택
+
+고정 버전 외 입력은 기본 거부합니다. 호출자가 `allow_unverified_version:true`를
+명시한 경우에만 실제 버전(모르면 `unknown`)을 보존하여 구조 검증을 수행할 수
+있습니다. 결과 source의 `qualification:unverified_version`과 제한 설명은 저장·
+내보내기에서도 유지합니다. 스키마/필수 열/값/좌표/수치 한도는 완화하지 않으며
+버전 문자열을 검증된 버전으로 바꾸지 않습니다. 캡처가 버전을 포함하면 호출자
+선언과 일치해야 합니다. PostgreSQL의 문자열·숫자 버전도 일치해야 합니다.
+이 스키마가 구조를 허용해도 해당 생산자/버전의 실제 실행 검증을 뜻하지 않습니다.

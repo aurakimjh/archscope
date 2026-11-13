@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
+	pp "github.com/aurakimjh/archscope/apps/engine-native/internal/producerpolicy"
 	"math/big"
 	"regexp"
 	"strings"
@@ -219,10 +220,10 @@ func (c Context) Validate() error {
 	return nil
 }
 func (s Set) Validate(ctx context.Context) error {
-	if !In(s.Version, Version, DistributionVersion) || !In(s.Kind, "benchmark", "jvm_crash") || !Digest(s.Source.SHA) || !Known(s.Source.Format) || !Known(s.Source.Producer) || (!Known(s.Source.Version) && !(s.Source.Version == "unknown" && s.Source.Format == "jmeter-jtl-csv" && s.Source.Qualification == "unverified_version")) || len(s.Metrics) > MaxMetrics || len(s.Samples) > MaxSamples || s.IgnoredMetrics < 0 || len(s.Limitations) > 32 {
+	if !In(s.Version, Version, DistributionVersion) || !In(s.Kind, "benchmark", "jvm_crash") || !Digest(s.Source.SHA) || !Known(s.Source.Format) || !Known(s.Source.Producer) || (!Known(s.Source.Version) && !(s.Source.Version == "unknown" && s.Source.Qualification == pp.Unverified)) || len(s.Metrics) > MaxMetrics || len(s.Samples) > MaxSamples || s.IgnoredMetrics < 0 || len(s.Limitations) > 32 {
 		return fmt.Errorf("EXECUTION_MODEL_INVALID_OR_BUDGET")
 	}
-	if s.Source.Qualification != "" && (s.Source.Format != "jmeter-jtl-csv" || s.Source.Qualification != "unverified_version") {
+	if !pp.Valid(s.Source.Version, s.Source.Qualification) || s.Source.Qualification != "" && !In(s.Source.Format, "jmeter-jtl-csv", "k6-handle-summary-json", "llmperf-summary-json") {
 		return fmt.Errorf("EXECUTION_QUALIFICATION_INVALID")
 	}
 	for _, v := range s.Limitations {

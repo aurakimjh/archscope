@@ -24,10 +24,12 @@
       "const": "1.0.0"
     },
     "postgres_version": {
-      "const": "16.14"
+      "type": "string",
+      "pattern": "^([1-9][0-9]{1,2}\\.[0-9]{1,4}|unknown)$"
     },
     "server_version_num": {
-      "const": "160014"
+      "type": "string",
+      "pattern": "^([1-9][0-9]{5,6}|unknown)$"
     },
     "stats_fetch_consistency": {
       "const": "snapshot"

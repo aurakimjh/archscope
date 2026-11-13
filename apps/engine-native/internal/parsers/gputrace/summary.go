@@ -5,13 +5,19 @@ import (
 	"encoding/csv"
 	"fmt"
 	g "github.com/aurakimjh/archscope/apps/engine-native/internal/gputracemodel"
+	pp "github.com/aurakimjh/archscope/apps/engine-native/internal/producerpolicy"
 	"io"
 	"strconv"
 )
 
 func (b *builder) summary(raw []byte) error {
-	if b.source.Version != "2024.2.3.38" {
-		return fmt.Errorf("GPU_TRACE_NSYS_SUMMARY_VERSION")
+	version, qualification, err := pp.Select(b.source.Version, "2024.2.3.38", b.o.AllowUnverifiedVersion)
+	if err != nil {
+		return fmt.Errorf("GPU_TRACE_NSYS_SUMMARY_VERSION: %w", err)
+	}
+	b.source.Version, b.source.Qualification = version, qualification
+	if qualification != "" {
+		b.set.Warnings = append(b.set.Warnings, pp.Limitation)
 	}
 	if b.source.From != nil || b.source.To != nil {
 		return fmt.Errorf("GPU_TRACE_SUMMARY_NOT_TIMED")

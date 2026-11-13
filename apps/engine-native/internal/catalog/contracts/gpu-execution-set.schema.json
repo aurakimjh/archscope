@@ -136,6 +136,9 @@
           "clock_uncertainty_ns": {
             "type": "string",
             "maxLength": 1024
+          },
+          "qualification": {
+            "const": "unverified_version"
           }
         }
       },

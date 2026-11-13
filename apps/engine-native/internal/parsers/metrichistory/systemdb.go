@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
+	pp "github.com/aurakimjh/archscope/apps/engine-native/internal/producerpolicy"
 	"regexp"
 	"strconv"
 	"strings"
@@ -103,8 +104,20 @@ func (b *builder) postgres(body []byte, o Options) error {
 	if e := decodeSource(b.ctx, body, &c, true); e != nil {
 		return e
 	}
-	if c.Contract != "postgres-stat-database.v1" || c.Collector != "1.0.0" || c.Version != "16.14" || c.VersionNum != "160014" {
+	if c.Contract != "postgres-stat-database.v1" || c.Collector != "1.0.0" {
 		return fmt.Errorf("POSTGRES_CAPTURE_VERSION: qualified PostgreSQL16.14/server_version_num160014 and collector1.0.0 required")
+	}
+	version, qualification, err := pp.Select(c.Version, "16.14", o.AllowUnverifiedVersion)
+	if err != nil {
+		return fmt.Errorf("POSTGRES_CAPTURE_VERSION: %w", err)
+	}
+	if !postgresVersionMatches(c.Version, c.VersionNum) {
+		return fmt.Errorf("POSTGRES_CAPTURE_VERSION_CONFLICT")
+	}
+	c.Version = version
+	b.set.Sources[0].Qualification = qualification
+	if qualification != "" {
+		b.set.Warnings = append(b.set.Warnings, pp.Limitation)
 	}
 	if c.Consistency != "snapshot" || c.TrackCounts == nil || !*c.TrackCounts {
 		return fmt.Errorf("POSTGRES_CAPTURE_STATS: track_counts=true and stats_fetch_consistency=snapshot required")
@@ -211,8 +224,17 @@ func (b *builder) socketSummary(body []byte, o Options) error {
 	if e := decodeSource(b.ctx, body, &c, true); e != nil {
 		return e
 	}
-	if c.Contract != "linux-ss-summary.v1" || c.Collector != "1.0.0" || c.Version != "6.1.0" {
+	if c.Contract != "linux-ss-summary.v1" || c.Collector != "1.0.0" {
 		return fmt.Errorf("SS_CAPTURE_VERSION: qualified iproute2-6.1.0 and collector1.0.0 required")
+	}
+	version, qualification, err := pp.Select(c.Version, "6.1.0", o.AllowUnverifiedVersion)
+	if err != nil {
+		return fmt.Errorf("SS_CAPTURE_VERSION: %w", err)
+	}
+	c.Version = version
+	b.set.Sources[0].Qualification = qualification
+	if qualification != "" {
+		b.set.Warnings = append(b.set.Warnings, pp.Limitation)
 	}
 	for _, v := range []string{c.Host, c.Boot, c.Namespace} {
 		if !captureTag.MatchString(v) {
@@ -298,4 +320,25 @@ func (b *builder) socketSummary(body []byte, o Options) error {
 	b.set.Sources[0].Query = appleJSON(map[string]any{"contract": c.Contract, "collector_version": c.Collector, "command": "LC_ALL=C ss -s", "capture_windows": windows})
 	b.set.Warnings = append(b.set.Warnings, "iproute2-6.1.0 ss -s is a sequential /proc summary, not packet/flow evidence or cumulative counters. All fields remain gauges without rates. Linux qualification is the recorded kernel/environment, not netstat/per-process/Windows support.", "TCP reported total/closed/orphan allocation may include shared-kernel accounting outside the declared network namespace; context does not prove every value is namespace-local. Never sum overlapping totals/transport rows or infer throughput, drops, RTT, bandwidth, local ownership or causation. Signed reported_closed is retained because separately read counts enter the producer calculation.")
 	return nil
+}
+
+// PostgreSQL >=10 encodes major*10000+minor. Unknown versions must not
+// contradict the authoritative numeric server response.
+func postgresVersionMatches(version, number string) bool {
+	if version == "" || version == "unknown" {
+		return number == "unknown" || number == ""
+	}
+	parts := strings.Split(version, ".")
+	if len(parts) != 2 {
+		return false
+	}
+	major, e := strconv.Atoi(parts[0])
+	if e != nil || major < 10 || major > 999 {
+		return false
+	}
+	minor, e := strconv.Atoi(parts[1])
+	if e != nil || minor < 0 || minor > 9999 {
+		return false
+	}
+	return strconv.Itoa(major)+"."+strconv.Itoa(minor) == version && strconv.Itoa(major*10000+minor) == number
 }

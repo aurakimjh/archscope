@@ -124,3 +124,21 @@ substantial memory; streaming conversion/publication does not make the analyzer
 streaming. For output above 512 MiB, use a shorter recording or manually select
 required events in the collection environment, preserving originals and conversion
 provenance. Manual preconversion cannot bypass the JSON reader ceiling.
+
+## Explicit unverified producer versions
+
+Pinned versions remain the default. Source options may explicitly set
+`allow_unverified_version:true` for k6, LLMPerf and JMeter; PyTorch, Nsight SQLite
+and summary exports; or Ollama, PostgreSQL and iproute2 manual captures. This
+checks required structure and values, without qualifying a new producer version.
+Keep the actual `producer_version`, or `unknown` when unavailable. Capture-owned
+versions cannot be overridden, and PostgreSQL string/numeric versions must agree.
+Collector contracts, Nsight schema, required fields, numeric bounds and privacy
+rules remain enforced. Canonical saved-model inputs refuse this source option.
+
+Normalized sources retain `qualification:unverified_version`, warnings and the
+actual version through saved results and JSON/CSV/HTML exports. Unverified
+benchmark results refuse numeric baseline comparison; metric/GPU comparison
+remains unavailable under its existing policy. No compatible version range is
+inferred from a successful structural import. Existing saved results are read
+without adding qualification or rewriting identities.

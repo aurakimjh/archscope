@@ -51,3 +51,14 @@ https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/sysctl.h.
 가져오기는 각 VM 범주 ≤ 물리 capacity, size_vram ≤ size, swap_used ≤ total을 개별 확인한다. 범주는 합산하지 않는다. host/boot/device는 정제 태그만, 모든 텍스트는 제어 문자 없이, 모델 digest는 소문자 hex만 허용한다. 기존 저장 모델의 identity를 재작성하지 않으며 새 입력을 거절한다.
 
 apple-sustained-multi.json은 같은 장비/0.40.16에서 12회 2초 간격 실제 관측(선택1/제외1)이다. 이후 소유 모델을 모두 내리고 빈 상태를 확인했다. swap_used=0, pressure raw code=1이며 상승 상태라는 뜻이 아니다. qualification.json의 미확보 실제 입력은 계속 보류하며 강제 메모리 스트레스는 하지 않는다.
+
+
+## 미검증 생산자 버전의 명시적 선택
+
+고정 버전 외 입력은 기본 거부합니다. 호출자가 `allow_unverified_version:true`를
+명시한 경우에만 실제 버전(모르면 `unknown`)을 보존하여 구조 검증을 수행할 수
+있습니다. 결과 source의 `qualification:unverified_version`과 제한 설명은 저장·
+내보내기에서도 유지합니다. 스키마/필수 열/값/좌표/수치 한도는 완화하지 않으며
+버전 문자열을 검증된 버전으로 바꾸지 않습니다. 캡처가 버전을 포함하면 호출자
+선언과 일치해야 합니다. PostgreSQL의 문자열·숫자 버전도 일치해야 합니다.
+이 스키마가 구조를 허용해도 해당 생산자/버전의 실제 실행 검증을 뜻하지 않습니다.

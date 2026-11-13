@@ -25,3 +25,14 @@ stats_reset NULL은 reset 이력 미확보이며 같은 postmaster도 crash reco
 새 PostgreSQL 가져오기는 normalizer1.3.0: unknown→known 첫 전이는 epoch_transition_from_unknown으로 명시하고 delta/rate는 null, 다음 같은 epoch 관측부터 파생한다. 이전 unknown은 추정하지 않는다. 알려진→알려진 reset의 post-reset 파생은 유지하며 기존 저장 모델은 재해석하지 않는다.
 
 수집 backend를 포함하므로 numbackends≥1을 요구한다. 알려진 stats_reset timestamp는 unknown 관측을 사이에 두어도 비감소해야 한다. 역행은 명시적으로 거절하며 importer가 시각을 수정하지 않는다.
+
+
+## 미검증 생산자 버전의 명시적 선택
+
+고정 버전 외 입력은 기본 거부합니다. 호출자가 `allow_unverified_version:true`를
+명시한 경우에만 실제 버전(모르면 `unknown`)을 보존하여 구조 검증을 수행할 수
+있습니다. 결과 source의 `qualification:unverified_version`과 제한 설명은 저장·
+내보내기에서도 유지합니다. 스키마/필수 열/값/좌표/수치 한도는 완화하지 않으며
+버전 문자열을 검증된 버전으로 바꾸지 않습니다. 캡처가 버전을 포함하면 호출자
+선언과 일치해야 합니다. PostgreSQL의 문자열·숫자 버전도 일치해야 합니다.
+이 스키마가 구조를 허용해도 해당 생산자/버전의 실제 실행 검증을 뜻하지 않습니다.

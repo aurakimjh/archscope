@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	pp "github.com/aurakimjh/archscope/apps/engine-native/internal/producerpolicy"
 	"strings"
 	"unicode"
 
@@ -72,7 +73,7 @@ func (b *builder) apple(body []byte, options Options) error {
 	if e := decodeSource(b.ctx, body, &c, true); e != nil {
 		return e
 	}
-	if c.Contract != "apple-ollama-capture.v1" || (c.Collector != "1.0.0" && c.Collector != "1.1.0") || c.Engine != "0.40.16" {
+	if c.Contract != "apple-ollama-capture.v1" || (c.Collector != "1.0.0" && c.Collector != "1.1.0") {
 		return fmt.Errorf("APPLE_CAPTURE_VERSION: qualified collector 1.0.0 or 1.1.0 / Ollama 0.40.16 required")
 	}
 	for _, s := range []string{c.Host, c.Boot, c.Device, c.OS, c.Build, c.Hardware, c.Chip} {
@@ -90,6 +91,15 @@ func (b *builder) apple(body []byte, options Options) error {
 	}
 	if (options.Producer != "" && options.Producer != "ollama") || (options.ProducerVersion != "" && options.ProducerVersion != c.Engine) || options.Namespace != "" || options.ExportID != "" || string(b.set.Sources[0].Query) != "{}" {
 		return fmt.Errorf("APPLE_CAPTURE_OPTIONS: capture owns producer/platform identity; no overrides")
+	}
+	version, qualification, err := pp.Select(c.Engine, "0.40.16", options.AllowUnverifiedVersion)
+	if err != nil {
+		return fmt.Errorf("APPLE_CAPTURE_VERSION: %w", err)
+	}
+	b.set.Sources[0].Qualification = qualification
+	c.Engine = version
+	if qualification != "" {
+		b.set.Warnings = append(b.set.Warnings, pp.Limitation)
 	}
 	b.set.Sources[0].Producer = "ollama"
 	b.set.Sources[0].ProducerVersion = c.Engine

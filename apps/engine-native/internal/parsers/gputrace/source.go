@@ -17,20 +17,21 @@ import (
 )
 
 type Options struct {
-	Format          string            `json:"format"`
-	ProducerVersion string            `json:"producer_version,omitempty"`
-	Capture         string            `json:"capture_id,omitempty"`
-	Host            string            `json:"host_id,omitempty"`
-	Boot            string            `json:"boot_id,omitempty"`
-	Namespace       string            `json:"process_namespace,omitempty"`
-	Run             string            `json:"run_id,omitempty"`
-	Clock           string            `json:"clock_id,omitempty"`
-	ClockGroup      string            `json:"clock_group,omitempty"`
-	Offset          *string           `json:"clock_offset_ns,omitempty"`
-	Uncertainty     *string           `json:"clock_uncertainty_ns,omitempty"`
-	DeviceMap       map[string]string `json:"device_map,omitempty"`
-	From            *string           `json:"from_ns,omitempty"`
-	To              *string           `json:"to_ns,omitempty"`
+	AllowUnverifiedVersion bool              `json:"allow_unverified_version,omitempty"`
+	Format                 string            `json:"format"`
+	ProducerVersion        string            `json:"producer_version,omitempty"`
+	Capture                string            `json:"capture_id,omitempty"`
+	Host                   string            `json:"host_id,omitempty"`
+	Boot                   string            `json:"boot_id,omitempty"`
+	Namespace              string            `json:"process_namespace,omitempty"`
+	Run                    string            `json:"run_id,omitempty"`
+	Clock                  string            `json:"clock_id,omitempty"`
+	ClockGroup             string            `json:"clock_group,omitempty"`
+	Offset                 *string           `json:"clock_offset_ns,omitempty"`
+	Uncertainty            *string           `json:"clock_uncertainty_ns,omitempty"`
+	DeviceMap              map[string]string `json:"device_map,omitempty"`
+	From                   *string           `json:"from_ns,omitempty"`
+	To                     *string           `json:"to_ns,omitempty"`
 }
 
 var slots = make(chan struct{}, 2)

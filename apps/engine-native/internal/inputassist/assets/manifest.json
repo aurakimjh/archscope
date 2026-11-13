@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "source": "collection/manual-evidence-v1/recipes.json",
   "files": {
-    "INPUT_ASSISTANCE.en.md": "f9e84cbee226326ff550cef36126b59868e63b0fa4e8b25ebefefb0ce61df343",
-    "INPUT_ASSISTANCE.ko.md": "53871652a7fdb4f8a0badd495b3fc7484faae363b0a4e8b0ae4ac88f30caecf4",
+    "INPUT_ASSISTANCE.en.md": "1660c96fe644cd3430060e0aab229ef9de70951bb81b0c676c57619a79a30c21",
+    "INPUT_ASSISTANCE.ko.md": "f699a5597382ba96925a3e41ee0185d4c777c2266ffda0c17bf854fb477bfe0b",
     "recipes.json": "a8d198ef9b8b38436e53421b6df255b48f98928202e65aa65d65253ee76c846b"
   }
 }

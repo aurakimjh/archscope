@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
+	pp "github.com/aurakimjh/archscope/apps/engine-native/internal/producerpolicy"
 	"math/big"
 	"strings"
 	"unicode/utf8"
@@ -17,27 +18,28 @@ const MaxEvents = 50000
 const MaxTracks = 4096
 
 type Source struct {
-	DeviceMap   map[string]string `json:"device_map"`
-	ID          string            `json:"id"`
-	SHA         string            `json:"sha256"`
-	Format      string            `json:"format"`
-	Producer    string            `json:"producer"`
-	Version     string            `json:"producer_version"`
-	Schema      string            `json:"export_schema"`
-	Capture     string            `json:"capture_id"`
-	Host        string            `json:"host_id"`
-	Boot        string            `json:"boot_id"`
-	Namespace   string            `json:"process_namespace"`
-	Run         string            `json:"run_id"`
-	Clock       string            `json:"clock_id"`
-	ClockGroup  string            `json:"clock_group,omitempty"`
-	Offset      *string           `json:"clock_offset_ns,omitempty"`
-	Uncertainty *string           `json:"clock_uncertainty_ns,omitempty"`
-	Rank        *string           `json:"rank"`
-	WorldSize   *string           `json:"world_size"`
-	Backend     string            `json:"distributed_backend"`
-	From        *string           `json:"selection_from_ns"`
-	To          *string           `json:"selection_to_ns"`
+	Qualification string            `json:"qualification,omitempty"`
+	DeviceMap     map[string]string `json:"device_map"`
+	ID            string            `json:"id"`
+	SHA           string            `json:"sha256"`
+	Format        string            `json:"format"`
+	Producer      string            `json:"producer"`
+	Version       string            `json:"producer_version"`
+	Schema        string            `json:"export_schema"`
+	Capture       string            `json:"capture_id"`
+	Host          string            `json:"host_id"`
+	Boot          string            `json:"boot_id"`
+	Namespace     string            `json:"process_namespace"`
+	Run           string            `json:"run_id"`
+	Clock         string            `json:"clock_id"`
+	ClockGroup    string            `json:"clock_group,omitempty"`
+	Offset        *string           `json:"clock_offset_ns,omitempty"`
+	Uncertainty   *string           `json:"clock_uncertainty_ns,omitempty"`
+	Rank          *string           `json:"rank"`
+	WorldSize     *string           `json:"world_size"`
+	Backend       string            `json:"distributed_backend"`
+	From          *string           `json:"selection_from_ns"`
+	To            *string           `json:"selection_to_ns"`
 }
 type Track struct {
 	DeviceIndex string `json:"device_local_index"`
@@ -128,7 +130,7 @@ func (s Set) Validate(ctx context.Context) error {
 	events := map[string]bool{}
 	positions := map[string]bool{}
 	for _, v := range s.Sources {
-		if v.ID != SourceID(v) || sources[v.ID].ID != "" || len(v.SHA) != 64 || !Known(v.Format) || !Known(v.Producer) || !Known(v.Version) {
+		if v.ID != SourceID(v) || sources[v.ID].ID != "" || len(v.SHA) != 64 || !Known(v.Format) || !Known(v.Producer) || (!Known(v.Version) && !(v.Version == "unknown" && v.Qualification == pp.Unverified)) || !pp.Valid(v.Version, v.Qualification) {
 			return fmt.Errorf("GPU_TRACE_SOURCE_INVALID")
 		}
 		for _, r := range v.SHA {

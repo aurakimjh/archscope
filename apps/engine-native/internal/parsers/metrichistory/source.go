@@ -27,12 +27,13 @@ var slots = make(chan struct{}, 2)
 var numeric = regexp.MustCompile(`^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$`)
 
 type Options struct {
-	Format          string          `json:"format"`
-	Producer        string          `json:"producer"`
-	ProducerVersion string          `json:"producer_version"`
-	ExportID        string          `json:"export_id"`
-	Namespace       string          `json:"namespace"`
-	Query           json.RawMessage `json:"query"`
+	AllowUnverifiedVersion bool            `json:"allow_unverified_version,omitempty"`
+	Format                 string          `json:"format"`
+	Producer               string          `json:"producer"`
+	ProducerVersion        string          `json:"producer_version"`
+	ExportID               string          `json:"export_id"`
+	Namespace              string          `json:"namespace"`
+	Query                  json.RawMessage `json:"query"`
 }
 type Inventory struct {
 	SourceSHA256 string     `json:"source_sha256"`
@@ -157,6 +158,9 @@ func ParseBytes(ctx context.Context, original []byte, name string, options Optio
 	}
 	if format == "prometheus-range-json" {
 		b.origin += ":query:" + m.Hash(query)
+	}
+	if options.AllowUnverifiedVersion && format != "apple-ollama-capture-json" && format != "postgres-stat-database-json" && format != "linux-ss-summary-json" {
+		return m.Set{}, fmt.Errorf("METRIC_UNVERIFIED_OPTION_NOT_APPLICABLE")
 	}
 	switch format {
 	case "apple-ollama-capture-json":

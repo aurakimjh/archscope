@@ -10,7 +10,7 @@
     },
     {
       "file": "README.md",
-      "sha256": "1381fce1733d8d447c61b0fe9feb4906cff384c03b7ecd722ecf08071e21540e"
+      "sha256": "59d4b9b20e35d55097f9753470616e6e35c19598546029b42b1a5db03a7317c2"
     },
     {
       "file": "capture-postgres.py",
@@ -26,7 +26,7 @@
     },
     {
       "file": "linux-ss-capture.schema.json",
-      "sha256": "4359c8397658fae47ac86b9d3fb42798f4c4fe755c1f95c5865a43be8f5a98fd"
+      "sha256": "b0fd663577cd77e5b6347fe36a17374eae395a505844576c5731c0f30ba708fe"
     },
     {
       "file": "linux-ss-model.json",
@@ -38,7 +38,7 @@
     },
     {
       "file": "postgres-capture.schema.json",
-      "sha256": "05aa8a02fdb51f44a58337bb08fe662fa647ecd92ee773779a35eefd2f35d0b4"
+      "sha256": "5818ff6f9d79c71e52fd361d6d54673cff1c34ab73488329768debcf5edf8097"
     },
     {
       "file": "postgres-model.json",

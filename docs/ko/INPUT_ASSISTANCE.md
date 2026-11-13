@@ -109,3 +109,19 @@ JSON을 가져온다. 수동 키트, 탐색, 내보내기는 오프라인에서 
 않는다. 출력이 512 MiB를 넘으면 녹화를 줄이거나 수집 환경에서 필요한 이벤트를
 수동 선택하고 원본/provenance를 보존한다. 수동 사전 변환도 JSON 리더 상한을
 우회하지 못한다.
+
+## 미검증 생산자 버전의 명시적 선택
+
+고정 버전이 기본값입니다. k6·LLMPerf·JMeter, PyTorch·Nsight SQLite/summary,
+Ollama·PostgreSQL·iproute2 수동 캡처의 source options에
+`allow_unverified_version:true`를 명시하면 다른 버전을 구조 검증할 수 있습니다.
+실제 `producer_version`을 유지하며 모르면 `unknown`을 사용합니다. 캡처가
+기록한 버전은 덮어쓸 수 없고 PostgreSQL 문자열/숫자 버전은 일치해야 합니다.
+collector 계약·Nsight schema·필수 필드·수치 한도·민감정보 제외 규칙은 그대로
+검증하며 canonical 저장 모델에는 이 옵션을 적용할 수 없습니다.
+
+정규 source의 `qualification:unverified_version`, 실제 버전과 제한 설명을
+저장 결과 및 JSON/CSV/HTML 내보내기에 유지합니다. 미검증 벤치마크의 수치
+baseline 비교는 거부합니다. metric/GPU 비교는 기존 정책대로 제공하지 않습니다.
+구조 검증 성공으로 호환 버전 범위를 선언하지 않으며 과거 저장 결과의
+qualification이나 identity를 읽기 시 추가·변경하지 않습니다.

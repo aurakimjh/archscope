@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "synthetic": true,
   "qualification": "실제 CPU/Gloo 합성 실행 및 NVIDIA training 실측 부분집합의 공식 SQLite/CSV export",
-  "schema_sha256": "6fa80fafdd5dfb32e83026e4a7d778e7bb6d196537239d2286856a87286ec511",
+  "schema_sha256": "c77d1596f99e4f58035cd34d2736f31eb30c2aef03c74ec341385688c1708787",
   "files": [
     {
       "file": "LICENSE.txt",
@@ -11,7 +11,7 @@
     },
     {
       "file": "README.md",
-      "sha256": "36205e9718ae2b3c103b812b3721d77a51e45c7667fd9e566336e0071c8fb2d6"
+      "sha256": "9080e4bfff1057ea2a579461b3ea3d1e5a90cb6dec18eaaa3d0acb30459154d6"
     },
     {
       "file": "generate-torch.py",
@@ -23,7 +23,7 @@
     },
     {
       "file": "gpu-execution-set.schema.json",
-      "sha256": "6fa80fafdd5dfb32e83026e4a7d778e7bb6d196537239d2286856a87286ec511"
+      "sha256": "c77d1596f99e4f58035cd34d2736f31eb30c2aef03c74ec341385688c1708787"
     },
     {
       "file": "nsight-options.json",

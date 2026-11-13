@@ -65,6 +65,9 @@ func ExportPresentation(r models.AnalysisResult, html bool) (models.AnalysisResu
 	if e != nil {
 		return r, e
 	}
+	if e = addProducerQualifications(&copy); e != nil {
+		return r, e
+	}
 	if len(m) == 0 {
 		return copy, nil
 	}
@@ -152,4 +155,49 @@ func ExportPresentation(r models.AnalysisResult, html bool) (models.AnalysisResu
 		return addMetricIntervals(copy)
 	}
 	return copy, nil
+}
+
+// Generic CSV exports summary/series only. Carry source qualification into a
+// bounded disposable appendix so it cannot disappear from a shared report.
+// Stored canonical results and their identities are never modified here.
+func addProducerQualifications(r *models.AnalysisResult) error {
+	sources, _ := r.Tables["sources"].([]any)
+	if core, ok := r.Metadata.Extra["metrics_core"].(map[string]any); ok {
+		if model, ok := core["model"].(map[string]any); ok {
+			sources, _ = model["sources"].([]any)
+		}
+	}
+	rows := []map[string]any{}
+	for _, value := range sources {
+		source, ok := value.(map[string]any)
+		if !ok || source["qualification"] != "unverified_version" {
+			continue
+		}
+		row := map[string]any{}
+		for _, key := range []string{"producer", "producer_version", "qualification", "sha256"} {
+			row[key] = source[key]
+		}
+		rows = append(rows, row)
+	}
+	if len(rows) == 0 {
+		return nil
+	}
+	if len(rows) > 128 {
+		return &ProjectionBudgetError{"producer qualification count"}
+	}
+	body, err := json.Marshal(rows)
+	if err != nil {
+		return err
+	}
+	if len(body) > 64<<10 {
+		return &ProjectionBudgetError{"producer qualification bytes"}
+	}
+	if r.Series == nil {
+		r.Series = map[string]any{}
+	}
+	if _, exists := r.Series["producer_qualifications"]; exists {
+		return fmt.Errorf("export projection conflicts with series.producer_qualifications")
+	}
+	r.Series["producer_qualifications"] = rows
+	return nil
 }

@@ -12,6 +12,7 @@ import (
 	e "github.com/aurakimjh/archscope/apps/engine-native/internal/executionmodel"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/ingestion"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
+	pp "github.com/aurakimjh/archscope/apps/engine-native/internal/producerpolicy"
 	"io"
 	"math/big"
 	"os"
@@ -78,7 +79,7 @@ func ParseFile(parent context.Context, path string, o Options) (e.Set, string, e
 }
 func ParseBytes(ctx context.Context, original []byte, o Options) (e.Set, error) {
 	s := e.Empty()
-	if o.AllowUnverifiedVersion && o.Format != "jmeter-jtl-csv" {
+	if o.AllowUnverifiedVersion && o.Format != "jmeter-jtl-csv" && o.Format != "k6-handle-summary-json" && o.Format != "llmperf-summary-json" {
 		return s, fmt.Errorf("EXECUTION_UNVERIFIED_OPTION_NOT_APPLICABLE")
 	}
 	if len(original) > 64<<20 {
@@ -127,26 +128,34 @@ func ParseBytes(ctx context.Context, original []byte, o Options) (e.Set, error) 
 		switch o.Format {
 		case "k6-handle-summary-json":
 			s.Source.Producer = "k6"
-			if o.ProducerVersion != "1.3.0" {
-				return s, fmt.Errorf("EXECUTION_K6_VERSION_UNQUALIFIED: pinned 1.3.0 handleSummary only")
+			version, q, e := pp.Select(o.ProducerVersion, "1.3.0", o.AllowUnverifiedVersion)
+			if e != nil {
+				return s, fmt.Errorf("EXECUTION_K6_VERSION_UNQUALIFIED: %w", e)
+			}
+			s.Source.Version, s.Source.Qualification = version, q
+			if q != "" {
+				s.Limitations = append(s.Limitations, pp.Limitation)
 			}
 			err = parseK6(ctx, raw, &s)
 		case "llmperf-summary-json":
 			s.Source.Producer = "llmperf"
-			if o.ProducerVersion != LLMPerfRevision {
-				return s, fmt.Errorf("EXECUTION_LLMPERF_VERSION_UNQUALIFIED")
+			version, q, e := pp.Select(o.ProducerVersion, LLMPerfRevision, o.AllowUnverifiedVersion)
+			if e != nil {
+				return s, fmt.Errorf("EXECUTION_LLMPERF_VERSION_UNQUALIFIED: %w", e)
+			}
+			s.Source.Version, s.Source.Qualification = version, q
+			if q != "" {
+				s.Limitations = append(s.Limitations, pp.Limitation)
 			}
 			err = parseLLMPerf(ctx, raw, &s)
 		case "jmeter-jtl-csv":
 			s.Source.Producer = "Apache JMeter"
-			if o.ProducerVersion != "5.6.3" {
-				if !o.AllowUnverifiedVersion {
-					return s, fmt.Errorf("EXECUTION_JTL_VERSION_UNQUALIFIED: declare actual producer_version or unknown and explicitly set allow_unverified_version=true; never claim 5.6.3 for another producer")
-				}
-				if o.ProducerVersion == "" {
-					s.Source.Version = "unknown"
-				}
-				s.Source.Qualification = "unverified_version"
+			version, q, e := pp.Select(o.ProducerVersion, "5.6.3", o.AllowUnverifiedVersion)
+			if e != nil {
+				return s, fmt.Errorf("EXECUTION_JTL_VERSION_UNQUALIFIED: %w", e)
+			}
+			s.Source.Version, s.Source.Qualification = version, q
+			if q != "" {
 				s.Limitations = append(s.Limitations, "JMeter producer version is unverified: required CSV columns/values are structurally checked, not producer/version-qualified. The actual declared version is retained; never substitute 5.6.3.")
 			}
 			err = parseJTL(ctx, raw, &s)

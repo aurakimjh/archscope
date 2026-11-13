@@ -5,6 +5,7 @@ import (
 	"fmt"
 	g "github.com/aurakimjh/archscope/apps/engine-native/internal/gputracemodel"
 	m "github.com/aurakimjh/archscope/apps/engine-native/internal/metricmodel"
+	pp "github.com/aurakimjh/archscope/apps/engine-native/internal/producerpolicy"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
 	"math/big"
 	"strconv"
@@ -37,8 +38,13 @@ func ns(raw json.RawMessage) (string, error) {
 	return n.Num().String(), nil
 }
 func (b *builder) pytorch(raw []byte) error {
-	if b.source.Version != "2.15.0" {
-		return fmt.Errorf("GPU_TRACE_TORCH_VERSION: qualified 2.15.0 export required")
+	version, qualification, err := pp.Select(b.source.Version, "2.15.0", b.o.AllowUnverifiedVersion)
+	if err != nil {
+		return fmt.Errorf("GPU_TRACE_TORCH_VERSION: %w", err)
+	}
+	b.source.Version, b.source.Qualification = version, qualification
+	if qualification != "" {
+		b.set.Warnings = append(b.set.Warnings, pp.Limitation)
 	}
 	var input struct {
 		Schema      json.Number `json:"schemaVersion"`

@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	pp "github.com/aurakimjh/archscope/apps/engine-native/internal/producerpolicy"
 	"math/big"
 	"sort"
 	"strconv"
@@ -38,6 +39,7 @@ const MaxBuckets = 4096
 const MaxTotalBuckets = 500_000
 
 type Source struct {
+	Qualification   string          `json:"qualification,omitempty"`
 	ID              string          `json:"id"`
 	SHA256          string          `json:"sha256"`
 	Name            string          `json:"name"`
@@ -189,7 +191,7 @@ func (s Set) Validate(ctx context.Context) error {
 	buckets := 0
 	duplicateRefs := 0
 	for _, source := range s.Sources {
-		if source.ID == "" || sources[source.ID] || len(source.SHA256) != 64 || source.Format == "" || source.Producer == "" || len(source.Name) > 1024 || len(source.ExportID) > 1024 || len(source.ID) > 1024 || len(source.Format) > 256 || len(source.Producer) > 256 || len(source.ProducerVersion) > 256 {
+		if !pp.Valid(source.ProducerVersion, source.Qualification) || source.ID == "" || sources[source.ID] || len(source.SHA256) != 64 || source.Format == "" || source.Producer == "" || len(source.Name) > 1024 || len(source.ExportID) > 1024 || len(source.ID) > 1024 || len(source.Format) > 256 || len(source.Producer) > 256 || len(source.ProducerVersion) > 256 {
 			return fmt.Errorf("METRIC_SOURCE_INVALID")
 		}
 		if _, e := hex.DecodeString(source.SHA256); e != nil {
