@@ -214,7 +214,7 @@ completed the independent Lighthouse file-first engine slice.
 
 | Status | Count | Meaning |
 |---|---:|---|
-| `TODO` | 1 | Ready to start; prerequisites are satisfied |
+| `TODO` | 1 | Queued work; task-specific prerequisites and explicit user deferrals still apply |
 | `IN_PROGRESS` | 0 | Implementation or documentation work is actively underway |
 | `REVIEW` | 3 | Review or required remediation is underway; the gate has not passed |
 | `PENDING` | 2 | Waiting for a prerequisite, external condition, or activation trigger |
@@ -5104,3 +5104,7 @@ Repeated actual read-only collector1.1.0 capture on macOS27.2.1/build26B131/Olla
 ### Final source-time boundary check — 2026-11-13
 
 T-659/T-660 share exact source timestamp handling. Final review tightened RFC3339 timezone-normalized nonnegative/int64-nanosecond bounds without UnixNano overflow; negative UTC and int64+1ns are refused. Targeted actual Sentry/Langfuse race and parser vet passed. Actual fixture values, result payloads and saved readers are unchanged.
+
+### Final T-646–T-662 batch verification — 2026-11-13
+
+15 tasks (T-646–T-653, T-655–T-661) are locally implemented, qualified to their disclosed selected slices and committed individually. Final whole Go race: 131 passing packages, 4 without tests, zero failures (analysis466.163s); whole vet, frontend state/build, distribution/catalog/inputassist, deterministic bundle checks and changed-guide file links/fences pass. The final source-time boundary fix also passed targeted Sentry/Langfuse race/vet. Existing HTTP documentation/script hashes and user tracker block remain unchanged. Only the six owned Langfuse lab containers were stopped; reproducible private configuration/volumes remain. T-654 is user-deferred TODO; T-662 is PENDING for actual natural nonzero-swap/elevated-pressure evidence. User explicitly holds push until that natural evidence arrives: no batch push performed. Local verification is not an independent PASS or native acceptance. Final receipt: `docs/review/evidence/2026-11-13-followup-final/local.json`.

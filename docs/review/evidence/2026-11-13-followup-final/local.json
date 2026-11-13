@@ -1,0 +1,52 @@
+{
+  "completed_tasks": [
+    "T-646",
+    "T-647",
+    "T-648",
+    "T-649",
+    "T-650",
+    "T-651",
+    "T-652",
+    "T-653",
+    "T-655",
+    "T-656",
+    "T-657",
+    "T-658",
+    "T-659",
+    "T-660",
+    "T-661"
+  ],
+  "count": 15,
+  "latest_implementation_commit": "a0e8eb1ebb06dd09e1e34c84e0a25785d6121197",
+  "verification": {
+    "full_go_race": {
+      "command": "go test -race ./...",
+      "pass_packages": 131,
+      "no_test_packages": 4,
+      "failures": 0,
+      "analysis_package_seconds": 466.163
+    },
+    "whole_go_vet": "PASS",
+    "frontend_state_tests": "PASS",
+    "frontend_production_build": "PASS",
+    "distribution_catalog_inputassist": "PASS",
+    "deterministic_offline_input_asset_checks": "PASS",
+    "guide_local_file_links_fences": "PASS",
+    "final_time_boundary_fix": "Targeted Sentry/Langfuse race and parser vet passed after exact timezone/int64 boundary follow-up."
+  },
+  "log_sha256": {
+    "archscope-followup-final-race.log": "3ce4b06cc1aacea3bb6635aa9f9bd4eb0a0b881537c8fe4ed7d2431cd7b420f3",
+    "archscope-followup-final-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archscope-followup-final-ui-state.log": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb",
+    "archscope-t661-ui-build.log": "fb924568381f9cc5627747e388391732fdafc287f205e52059f5a959fd19e43d",
+    "archscope-followup-final-bundle.log": "c241bfc7c2ab49e49a821ff3653a6c04ed46e0c174fc65de65fef2d5c148a658"
+  },
+  "remaining": {
+    "T-654": "TODO: user deferred actual NVIDIA GPU execution; preflight/harness prepared only.",
+    "T-662": "PENDING: actual three-snapshot zero-swap/raw-pressure1 plus independent values; required natural nonzero/elevated evidence absent."
+  },
+  "publication": "NOT PUSHED. User explicitly holds push until natural observation evidence is available.",
+  "preservation": "Three preexisting HTTP docs/script SHA values and original user tracker block verified unchanged; no AGENTS committed. Shared assets committed separately and left unpushed.",
+  "environment_cleanup": "Only the six owned Langfuse lab containers stopped; private reproducible configuration/volumes retained. No existing user services stopped.",
+  "limits": "Local tests and actual selected producer slices only; no independent PASS or unperformed CUDA/native Windows/UI/Office acceptance."
+}
