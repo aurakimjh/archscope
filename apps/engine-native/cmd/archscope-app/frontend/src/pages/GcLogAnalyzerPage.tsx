@@ -696,9 +696,9 @@ export function GcLogAnalyzerPage(): React.JSX.Element {
         </TabsContent>
 
         <TabsContent value="events" className="mt-4">
-          <div className="grid gap-4">
+          <div className="grid min-w-0 grid-cols-1 gap-4">
             <AlertRowsTable rows={alertRows} t={t} onEvidence={addAlertEvidence} />
-            <Card>
+            <Card className="min-w-0">
               <CardHeader className="pb-3">
                 <CardTitle className="inline-flex items-center gap-2 text-sm">
                   {t("gcEventTable")}
@@ -771,7 +771,7 @@ function AlertRowsTable({
 }): React.JSX.Element {
   const { locale } = useI18n();
   return (
-    <Card>
+    <Card className="min-w-0">
       <CardHeader className="pb-3">
         <CardTitle className="inline-flex items-center gap-2 text-sm">
           {t("gcAlertTable")}

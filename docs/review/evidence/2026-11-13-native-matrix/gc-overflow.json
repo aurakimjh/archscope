@@ -1,0 +1,17 @@
+{
+  "task": "T-627",
+  "scope": "GC events native horizontal containment",
+  "input": "generated two-event no-clock GC log",
+  "before": "Auto minimum grid track made cards wider than the native viewport; main page scrolled horizontally and evidence action was off-screen.",
+  "fix": "Use a minmax(0,1fr) grid track and zero card minimum widths; retain internal table scrolling.",
+  "after": [
+    "1280x1000 outer /1264x941 viewport: evidence button visible; no main horizontal overflow",
+    "1024x768 outer /1008x709 viewport: both cards contained; wide table has internal horizontal scrollbar"
+  ],
+  "validation": [
+    "frontend state tests",
+    "frontend production build",
+    "rebuilt Windows native Wails/WebView2 observation"
+  ],
+  "overallTask": "REVIEW; this is the observed GC slice only"
+}

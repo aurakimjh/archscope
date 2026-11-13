@@ -5160,3 +5160,7 @@ Final product649aa15f passes native file-dialog cancellation (no raw banner) and
 ### 2026-11-13 - T-627 native profiler percentage correction
 
 Populated native Windows summary reproduced10000.00% for10000/10000 samples. The backend already returns percent; removed the renderer's extra multiplication. Rebuilt native Wails/WebView2 now shows100.00%; frontend state/build and profiler Go tests pass. Before/after screenshots and independent input counts: docs/review/evidence/2026-11-13-native-matrix/profiler-ratio.json. T-627 remains REVIEW for its remaining matrix.
+
+### 2026-11-13 - T-627 native GC event table containment
+
+Populated Windows GC events exposed page-level horizontal overflow from an implicit grid minimum. Constrained the grid track/cards so each wide table scrolls internally. Rebuilt native1280x1000 and1024x768 observations show contained cards and accessible alert evidence action; passive measurement reports no main/outer horizontal overflow. Frontend state/build pass. Receipt: docs/review/evidence/2026-11-13-native-matrix/gc-overflow.json. T-627 stays REVIEW.
