@@ -314,3 +314,13 @@ These are selected cases. The complete original-reference, conditional/error,
 locale and OS-DPI matrix remains open; T-627 stays REVIEW. Detailed inputs,
 failures, fixes, exports and exact hashes are in the
 [native follow-up receipt](../review/evidence/2026-11-14-native-followup/README.md).
+
+
+Actual OS125% follow-up subsequently became available through Control Panel >
+Appearance > Taskbar > Windows Settings. Passive Wails1.25 and physical3840x2160/
+logical3072x1728 distinguish it from WebView zoom. Selected MSA/JFR/JVM and visual
+actions were observed; dark timeline/topology labels and long HTTP persistence
+errors were corrected with native before/after evidence. JFR heatmap selection
+retains25/48events; native-memory all-allocation labels use12KB, and JVM SMR2/
+histogram2 remain populated. Windows100%,WebView100%,Korean/System were restored,
+confirmed by scale1.0/equal physical/logical app receipt. T-627 remains REVIEW.

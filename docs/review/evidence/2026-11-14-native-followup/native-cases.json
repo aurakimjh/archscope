@@ -626,5 +626,115 @@
     "locale": "recorded per scenario",
     "scale": "OS125%; WebView100%; native1024x768; System/light",
     "screenshot": "http-long-live-error-expanded.jpg"
+  },
+  {
+    "id": "jfr-os125-events",
+    "route": "JFR > recording > events",
+    "scenario": "Actual OS125% populated JFR",
+    "observed": "48/48events,18stack samples,1unique stack,eight available modes; native event table shows event types,durations,thread and evidence actions at1280x1000. Input opened through native file dialog.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1280x1000",
+    "screenshot": "jfr-os125-events.jpg"
+  },
+  {
+    "id": "jfr-os125-heatmap-filter",
+    "route": "JFR > wall-clock heatmap",
+    "scenario": "Native bucket selection and Analyze at actual OS125%",
+    "observed": "48-event heatmap rendered; clicking00:00:23 bucket then Analyze yields25/48events,9stack samples,1stack,range23..47seconds. Heatmap and reset control remain visible.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1280x1000",
+    "screenshot": "jfr-os125-heatmap-filter.jpg"
+  },
+  {
+    "id": "jfr-os125-stack",
+    "route": "JFR > stack profile",
+    "scenario": "Actual OS125% filtered stack profile",
+    "observed": "Filtered9samples render main/Worker flame frames,Worker.run top method9,package9 and three worker rows3each,with evidence actions. No outer horizontal scrollbar observed.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1280x1000",
+    "screenshot": "jfr-os125-stack.jpg"
+  },
+  {
+    "id": "jfr-os125-native-empty",
+    "route": "JFR > native memory",
+    "scenario": "Analyzed-empty native memory at actual OS125%",
+    "observed": "6allocations/6frees,12.0KB allocated,0unfreed/0B. Correct completed-analysis/no-remaining-bytes guidance is visible, not an instruction to run analysis first.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1280x1000",
+    "screenshot": "jfr-os125-native-empty.jpg"
+  },
+  {
+    "id": "jfr-os125-native-all",
+    "route": "JFR > native memory > all allocations",
+    "scenario": "Actual OS125% all-allocation labels and byte units",
+    "observed": "Unchecking leak-only then Analyze shows selected allocation events6/12.0KB,not unfreed;12.0KB callsite table uses byte heading and two-frame allocation stack. All6frees still shown separately.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1280x1000",
+    "screenshot": "jfr-os125-native-all.jpg"
+  },
+  {
+    "id": "jvm-os125-pinning",
+    "route": "Thread dumps > multi > JVM signals > pinning",
+    "scenario": "Actual OS125% typed JVM metadata",
+    "observed": "Real jstack file yields carrier1,SMR2,native1,histogram2. Pinning table contains ForkJoinPool-1-worker-1 and java.lang.VirtualThread.parkOnCarrierThread; all diagnostic tabs reachable.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1280x1000",
+    "screenshot": "jvm-os125-pinning.jpg"
+  },
+  {
+    "id": "jvm-os125-smr",
+    "route": "Thread dumps > JVM signals > SMR",
+    "scenario": "Actual OS125% populated SMR metadata",
+    "observed": "Two SMR rows retain tagged unresolved zombie thread0x9999abcd and untagged address0x9999abce,with dump0. No zero-row regression.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1280x1000",
+    "screenshot": "jvm-os125-smr.jpg"
+  },
+  {
+    "id": "jvm-os125-native",
+    "route": "Thread dumps > JVM signals > native",
+    "scenario": "Actual OS125% native method detail",
+    "observed": "native-reader row retains java.net.SocketInputStream.socketRead0(Native Method),dump0; native method count1.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1280x1000",
+    "screenshot": "jvm-os125-native.jpg"
+  },
+  {
+    "id": "jvm-os125-histogram",
+    "route": "Thread dumps > JVM signals > histogram",
+    "scenario": "Actual OS125% histogram metadata",
+    "observed": "Two classes sorted by bytes: java.lang.String100instances/2400B and acceptance.Order10instances/1600B. Native parser typed metadata stays populated across all four JVM diagnostic tabs.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1280x1000",
+    "screenshot": "jvm-os125-histogram.jpg"
+  },
+  {
+    "id": "jvm-os125-small-histogram",
+    "route": "Thread dumps > JVM signals > histogram",
+    "scenario": "Actual OS125%1024x768 selected-tab fit",
+    "observed": "Main JVM signals tab and all four child tabs remain reachable; selected histogram shows both100/2400 and10/1600 rows within card without outer horizontal scroll.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1024x768",
+    "screenshot": "jvm-os125-small-histogram.jpg"
+  },
+  {
+    "id": "os100-restored-jvm",
+    "route": "Windows display > restore > JVM histogram",
+    "scenario": "Actual Windows125-to100 restoration",
+    "observed": "Settings display1 restored100%,3840x2160. Same selected JVM histogram and100/2400,10/1600values retained; Korean/System theme and WebView100%. Settings closed.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%; WebView100%; native1024x768; Korean/System",
+    "screenshot": "os100-restored-jvm.jpg"
   }
 ]

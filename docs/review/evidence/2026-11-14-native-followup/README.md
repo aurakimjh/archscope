@@ -218,3 +218,25 @@ collapsing restores all five preview rows. The fifth unpersisted preview is red;
 the finalized store contains only four authoritative rows. Passive measurement
 records no main or outer horizontal overflow. Frontend state/production and
 native layoutaudit builds pass. This does not close the complete error matrix.
+
+## Additional JFR/JVM actual-DPI observations and restoration
+
+At actual display1 OS125%/WebView100%, native Open dialogs import the same
+48-event JFR and typed jstack fixtures. JFR events show48/48,18samples and one
+stack. Clicking heatmap00:00:23 then Analyze yields25/48events and nine samples;
+profile shows Worker.run9 and three worker rows3each. Native memory separately
+shows six allocations/six frees,12KB allocated,zero unfreed and the corrected
+analyzed-empty guidance. Turning off leak-only and analyzing shows selected
+six events/12KB, a populated allocation flamegraph and byte-labelled12KB callsite.
+
+JVM summary and all four diagnostic subtabs are populated at OS125%: carrier1,
+SMR2,native1,histogram2. Tagged/untagged SMR addresses survive; native-reader has
+socketRead0(Native Method). Histogram remains String100/2400B and Order10/1600B.
+At1024x768 all four subtabs and both rows remain inside the viewport. These are
+selected observations, not every reference/error/language/DPI combination.
+
+Windows display1 was restored to100%,3840x2160. The app receipt confirms scale1.0
+and equal physical/logical bounds, with WebView100%. Same selected histogram
+values survive restoration. Korean/System theme was restored; Settings and the
+owned Control Panel/PowerPoint test windows were closed. Account-bearing Settings
+screenshots were not archived. The independent full acceptance gates remain.
