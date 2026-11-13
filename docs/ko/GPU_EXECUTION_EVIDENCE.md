@@ -156,3 +156,11 @@ Nsight 가져오기는 지원 runtime/kernel/memcpy/NVTX 테이블 각각의 pre
 추가 구조 회귀 표본은 겹치는 스트림의 kernel 합 77,888 ns/합집합 51,968 ns, 중복 launch 후보, 모호/orphan/정상 flow endpoint를 구분합니다. 실제 정제 SQLite의 결정적 변형과 합성 Chrome flow이며 새로운 CUDA/NCCL 실측 검증이 아닙니다.
 
 검증된 버전이 기본값입니다. 다른 버전의 명시적 구조 검증 선택, 실제/미상 버전 보존과 제한은 [미검증 버전 정책](INPUT_ASSISTANCE.md#미검증-생산자-버전의-명시적-선택)을 참조하세요.
+
+## 실제 2-GPU NCCL 검증 준비
+
+`python3 scripts/capture-cuda-nccl.py --preflight`는 CPU/Gloo 대체 없이 준비 상태를 보고합니다. 선택한 harness에는 허가된 Linux 호스트의 NVIDIA GPU 최소2개·CUDA 지원 PyTorch2.15.0 build·동작하는 NCCL이 필요합니다. 현재 Darwin arm64 / Docker Linux aarch64 환경에는 해당 장치가 없습니다. 패키지 설치나 컨테이너 시작만으로 CUDA/NCCL 실행을 입증하지 않습니다.
+
+소유자가 허가한 해당 호스트에서 `torchrun --standalone --nproc-per-node=2 scripts/capture-cuda-nccl.py --out-dir new-private-capture`를 실행합니다. 작은 합성 sharded MLP 추론/all_reduce workload와 rank별 CPU/CUDA trace·sidecar의 전체 producer/CUDA/NCCL 버전·hash·크기를 기록합니다. 학습 모델·운영 요청·외부 endpoint·인과 진단은 없습니다. 원래 producer trace metadata를 유지하고 sidecar rank 선언은 별도로 둡니다. 이 checkout에서 CUDA 하드웨어 실행은 아직 하지 않았습니다.
+
+Raw trace는 비공개로 두고 공유 fixture 전에 정제하며 원본/정제 SHA 출처를 함께 기록합니다. Rank마다 capture/clock identity를 별도 지정해 가져오고 시계 정렬·rank 간 겹침을 증명하지 않습니다. 전체 build 버전을 유지하며 새 CUDA suffix/build는 실제 검증과 검토한 컴파일 버전 정책 전까지 명시 unverified 선택이 필요합니다. 64MiB 초과는 import가 거절하므로 자르지 말고 짧게 다시 수집합니다. 실제 실행 작업을 닫기 전에 정수 구간 독립 계산과 공통 조회/export 재열기를 검증해야 합니다. 기존 CPU/Gloo·외부 Nsight fixture의 근거 범위는 그대로입니다.
