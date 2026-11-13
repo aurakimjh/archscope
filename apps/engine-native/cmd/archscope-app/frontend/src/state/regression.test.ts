@@ -1,4 +1,5 @@
 import { fileDialogResult } from "./fileDialog.js";
+import { exportWorkspaceResult, backendWorkspaceExportSupported, type WorkspaceExportMode } from "./workspaceExport.js";
 import { resultPanelID, RESULT_PANEL_RENDERERS } from "./resultPanels.js";
 import { checkedProfilerResult, checkedProfilerStages } from "../bridge/profilerContract.js";
 import type { ProfilerMetadata } from "../bridge/types.js";
@@ -3498,5 +3499,37 @@ for (const failure of [new Error("access denied"), new Error("failed after cance
   catch (caught) { propagated = caught === failure; }
   assert(propagated, "all non-dialog failures propagate unchanged");
 }
+
+// Native Export Center must not export backend display placeholders.
+const workspaceExportCalls: Array<{route: string; format: string; path: string; value: unknown}> = [];
+const exportModes: WorkspaceExportMode[] = ["json", "html", "pptx", "csv", "csv_dir"];
+const exportPorts = {
+  backend: async (handle: string, path: string, format: string) => { workspaceExportCalls.push({route: "backend", format, path, value: handle}); },
+  legacy: Object.fromEntries(exportModes.map(mode => [mode, async (request: {path: string; result: unknown}) => {
+    workspaceExportCalls.push({route: "legacy", format: mode, path: request.path, value: request.result});
+  }])) as Record<WorkspaceExportMode, (request: {path: string; result: unknown}) => Promise<void>>,
+};
+const displayOnlyEntry = { backend_result_handle: "immutable-result", result: {type: "access_log", summary: {}} };
+for (const mode of ["json", "html", "csv"] as WorkspaceExportMode[]) {
+  await exportWorkspaceResult(displayOnlyEntry, mode, "fixture-output", exportPorts);
+  const call = workspaceExportCalls[workspaceExportCalls.length - 1]!;
+  assert(call.route === "backend" && call.value === "immutable-result" && call.path === "fixture-output", "handle exports use authoritative backend result, never display projection");
+  assert(call.format === (mode === "json" ? "raw-json" : mode), "original JSON uses exact-byte backend export");
+}
+for (const mode of ["pptx", "csv_dir"] as WorkspaceExportMode[]) {
+  const count = workspaceExportCalls.length; let refused = false;
+  try { await exportWorkspaceResult(displayOnlyEntry, mode, "must-not-write", exportPorts); }
+  catch (error) { refused = String(error).includes("RESULT_EXPORT_FORMAT_UNSUPPORTED"); }
+  assert(refused && workspaceExportCalls.length === count && !backendWorkspaceExportSupported(mode), "unsupported backend export never writes an empty legacy report");
+}
+const completeLegacyResult = {type: "access_log", summary: {total_requests: 6}, series: {requests: [{value: 6}]}};
+for (const mode of exportModes) {
+  await exportWorkspaceResult({result: completeLegacyResult}, mode, "legacy-output", exportPorts);
+  assert(workspaceExportCalls[workspaceExportCalls.length - 1]!.value === completeLegacyResult && workspaceExportCalls[workspaceExportCalls.length - 1]!.route === "legacy", "complete legacy results retain all existing formats and exact payload identity");
+}
+const refusedExport = new Error("unknown_result_type"); let exportFailurePropagated = false;
+try { await exportWorkspaceResult(displayOnlyEntry, "html", "must-not-succeed", {...exportPorts, backend: async () => { throw refusedExport; }}); }
+catch (error) { exportFailurePropagated = error === refusedExport; }
+assert(exportFailurePropagated, "backend format and stale-result refusal cannot become export success");
 
 })();

@@ -5172,3 +5172,7 @@ The actual V8 native page also multiplied the shared profiler top-child percent 
 ### 2026-11-13 - T-627 Windows client-area and control contrast
 
 Native Diff exposed white labels on the pale accent token; legacy primary buttons now use the primary token. At1280x800 outer, Windows provides1264x741 client pixels. Reduced only the HTTP route title from30px to18px: selected populated Headers union improves0.686 to0.702, complete request rows12 to13, first data174 to162;184px inspector retains2request/4response header rows. No outer/main horizontal overflow. Frontend state/build and rebuilt native observations pass. Receipt: docs/review/evidence/2026-11-13-native-matrix/native-layout-fixes.json. Sparse/other views do not inherit this70% verdict.
+
+### 2026-11-13 - T-627 native Export Center result integrity
+
+Handle-backed Workspace entries carry display projections, not the full result. Export Center previously sent that placeholder to legacy exporters and reported successful empty HTML/PPTX. Route these entries through backend export, preserve exact original JSON and disable unsupported PPTX/CSV-directory formats. Native unknown access_log HTML now refuses without creating a file; original JSON matches the source byte-for-byte. Legacy full payload routing, backend refusal and unsupported formats have state regressions; frontend state/build and all8 analysis/exporter Go packages pass. Receipt: docs/review/evidence/2026-11-13-native-matrix/export-integrity.json. T-627 remains REVIEW.

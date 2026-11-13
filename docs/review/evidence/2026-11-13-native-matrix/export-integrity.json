@@ -1,0 +1,24 @@
+{
+  "task": "T-627",
+  "scope": "Windows native Export Center handle-backed result integrity",
+  "before": {
+    "behavior": "Summary-only JS placeholder exported as successful empty HTML and two-slide PPTX",
+    "pptx_sha256": "95b523aea66986152a9e6d771e94d651e490736fc4c58250d154a35d41c7e230"
+  },
+  "after": {
+    "unknown_access_log_html": "UI unknown_result_type; no output created",
+    "pptx_csv_dir": "disabled for backend entries",
+    "original_json_sha256": "036de7920fd66b7e0811c11297112c90e22206ca1a0f5502e280664c760fabcd",
+    "byte_identical": true
+  },
+  "checks": [
+    "frontend state regressions (backend routing/refusal/no legacy fallthrough; legacy five formats preserve full payload)",
+    "frontend production build",
+    "go test ./internal/analysis ./internal/exporters/... -count=1: 8 packages pass"
+  ],
+  "limitations": [
+    "Native case uses read-only legacy access_log JSON. No claim that its HTML/CSV format is supported.",
+    "Other backend types and complete legacy format GUI acceptance remain separate.",
+    "T-627 remains REVIEW."
+  ]
+}

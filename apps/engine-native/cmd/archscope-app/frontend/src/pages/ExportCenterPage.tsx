@@ -2,7 +2,8 @@ import { Dialogs } from "@/bridge/dialogs";
 import { Download, FileText, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { engine } from "@/bridge/engine";
+import { engine, exportEvidenceResult } from "@/bridge/engine";
+import { backendWorkspaceExportSupported, exportWorkspaceResult, type WorkspaceExportMode } from "@/state/workspaceExport";
 import { HelpTip, HelpedLabel, HelpedTitle } from "@/components/HelpTip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +16,7 @@ import {
   type AnalysisWorkspaceEntry,
 } from "@/state/analysisWorkspace";
 
-type ExportMode = "json" | "html" | "pptx" | "csv" | "csv_dir";
+type ExportMode = WorkspaceExportMode;
 
 const MODE_EXTENSIONS: Record<Exclude<ExportMode, "csv_dir">, string> = {
   json: "json",
@@ -39,7 +40,8 @@ export function ExportCenterPage(): React.JSX.Element {
     [selectedID, workspace.entries],
   );
 
-  const canExport = Boolean(selectedEntry) && !busy;
+  const backendEntry = Boolean(selectedEntry?.backend_result_handle);
+  const canExport = Boolean(selectedEntry) && !busy && (!backendEntry || backendWorkspaceExportSupported(mode));
 
   const chooseOutput = async (): Promise<string> => {
     if (mode === "csv_dir") {
@@ -74,12 +76,10 @@ export function ExportCenterPage(): React.JSX.Element {
         return;
       }
       setOutputPath(destination);
-      const req = { path: destination, result: selectedEntry.result };
-      if (mode === "json") await engine.exportJSON(req);
-      else if (mode === "html") await engine.exportHTML(req);
-      else if (mode === "pptx") await engine.exportPPTX(req);
-      else if (mode === "csv") await engine.exportCSV(req);
-      else await engine.exportCSVDir(req);
+      await exportWorkspaceResult(selectedEntry, mode, destination, {
+        backend: exportEvidenceResult,
+        legacy: { json: engine.exportJSON, html: engine.exportHTML, pptx: engine.exportPPTX, csv: engine.exportCSV, csv_dir: engine.exportCSVDir },
+      });
       selectWorkspaceResult(selectedEntry.id);
       setNotice(`${t("exportCompleted")}: ${destination}`);
     } catch (caught) {
@@ -134,11 +134,14 @@ export function ExportCenterPage(): React.JSX.Element {
               }}
             >
               <option value="html">{t("htmlReport")}</option>
-              <option value="pptx">{t("powerPointReport")}</option>
+              <option value="pptx" disabled={backendEntry}>{t("powerPointReport")}</option>
               <option value="csv">{t("csvTableExport")}</option>
-              <option value="csv_dir">{t("csvDirectoryExport")}</option>
-              <option value="json">{t("jsonExport")}</option>
+              <option value="csv_dir" disabled={backendEntry}>{t("csvDirectoryExport")}</option>
+              <option value="json">{backendEntry ? (locale === "ko" ? "JSON (원본)" : "JSON (original)") : t("jsonExport")}</option>
             </select>
+            {backendEntry && <p className="text-xs text-muted-foreground">{locale === "ko"
+              ? "원본 JSON은 그대로 저장합니다. HTML·CSV는 결과 형식이 지원할 때 제공하며, 지원되지 않는 형식은 거절합니다."
+              : "Original JSON is preserved. HTML and CSV require a supported result format; unsupported formats are refused."}</p>}
           </label>
           <label className="workspace-field workspace-field-wide">
             <HelpedLabel help={getHelpText(locale, "optionOutputPath")}>
