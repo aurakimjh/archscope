@@ -752,18 +752,18 @@ export function LiveHttpCapturePanel({
         {showAnalyzer && <LiveHttpAnalyzer key={`${state.session?.sessionId ?? "idle"}:${state.session?.generation ?? 0}`}
           sessionId={state.session?.sessionId ?? ""} transactions={state.transactions}
           persisted={state.stats?.persisted ?? 0} retentionRows={state.stats?.retentionRows ?? 0} follow={state.follow} />}
-        {(showAnalyzer || state.session || state.error) && <footer role="status" className="flex flex-wrap items-center gap-3 border-t pt-1 text-[11px]">
+        {(showAnalyzer || state.session || state.error) && <footer role="status" className="flex min-w-0 flex-wrap items-center gap-3 border-t pt-1 text-[11px]">
           <span>{state.session ? t(SESSION_STATE_LABEL_KEYS[resolveLiveSessionState(state.session.state)]) : t("liveCaptureIdle")}</span>
           <span>{t("liveCaptureCaptured")}: {state.stats?.captured ?? 0}</span>
           <span>{t("liveCapturePersisted")}: {state.stats?.persisted ?? 0}</span>
           {!!state.stats?.retentionRows && <span>{t("liveCaptureRetained")}: {state.stats.retained ?? 0} · {t("liveCaptureEvicted")}: {state.stats.evicted ?? 0}</span>}
           {state.session?.allowedProcesses?.length ? <span>{t("httpCaptureSelectedProcesses")}: {state.session.allowedProcesses.length}</span> : null}
-        {state.error && <p role="alert" className="shrink-0 text-xs text-red-600">{state.error}</p>}
-        <details>
+        {state.error && <p role="alert" className="min-w-0 basis-full break-words text-xs text-destructive [overflow-wrap:anywhere]">{state.error}</p>}
+        <details className="min-w-0 max-w-full">
           <summary className="cursor-pointer text-xs">{t("httpCaptureSectionSession")}</summary>
         {state.error && (
           <div
-            className="rounded-md border border-red-500/40 bg-red-500/10 p-2 text-xs text-red-700 dark:text-red-400"
+            className="break-words rounded-md border border-red-500/40 bg-red-500/10 p-2 text-xs text-red-700 [overflow-wrap:anywhere] dark:text-red-400"
             role="alert"
           >
             {state.error}

@@ -1,0 +1,12 @@
+{
+  "scenario": "Controlled permanent Windows manifest read-sharing lock in isolated QA app; long-run apps untouched",
+  "lockHoldSeconds": 3,
+  "passed": true,
+  "state": "recoverable",
+  "captured": 5,
+  "persisted": 4,
+  "retained": 4,
+  "captureErrorEvents": 1,
+  "expectedError": "Manifest atomic replacement denied after bounded retry; four previously committed rows preserved",
+  "nativeUI": "Record separately"
+}

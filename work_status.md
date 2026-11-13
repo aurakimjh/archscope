@@ -5213,3 +5213,8 @@ New isolated386 soak fails after5640.540s checkpoint/19514 requests: socket hang
 ### 2026-11-14 - T-627 actual OS125% and dark MSA contrast
 
 Recovered a targetable Settings path through the delayed Control Panel window. Actual display1 scale125% verified by Wails1.25 and physical3840x2160/logical3072x1728, distinct from WebView100%. Selected visual actions and populated MSA standard/small English/Korean views retain values. Dark theme exposes light-palette axis/service/call labels; theme-aware timeline/grid and topology node/edge text now show readable native before/after contrast and live System/light recoloring. Frontend state/build and native layoutaudit build pass. Additional cases and OS100% restoration remain to record; T-627 REVIEW. Receipt: docs/review/evidence/2026-11-14-native-followup/README.md.
+
+
+### 2026-11-14 - T-627 bounded live-capture error layout
+
+The real386 failure exposes long-path footer overflow. Wrapped live errors/expanded alerts now stay within the viewport and use contrast-aware text. A separate isolated native QA permanent3s manifest reader lock verifies bounded retry refusal, recoverable captured5/persisted4/retained4 and preservation of committed data. OS125%1024x768 screenshot/passive checks show no main/outer horizontal overflow in collapsed/expanded errors; nine summary metrics fit and collapse restores preview rows. Synthetic fault harness/helper attached. Frontend state/build/native layoutaudit pass; T-627 REVIEW. Receipt: docs/review/evidence/2026-11-14-native-followup/README.md.

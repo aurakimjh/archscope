@@ -606,5 +606,25 @@
     "locale": "recorded per scenario",
     "scale": "OS125%; WebView100%; native1024x768; System/light",
     "screenshot": "msa-os125-system-topology.jpg"
+  },
+  {
+    "id": "http-long-live-error-after",
+    "route": "HTTP Capture > controlled permanent lock",
+    "scenario": "Actual bounded failure and wrapped long error at OS125%",
+    "observed": "QA-only permanent3s manifest lock reaches recoverable state:captured5/persisted4/retained4. Long Windows rename path wraps in footer within1024x768; no outer horizontal scrollbar, session summary remains accessible. Live preview contains fifth unpersisted row in red; finalized store authoritative.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1024x768; System/light",
+    "screenshot": "http-long-live-error-after.jpg"
+  },
+  {
+    "id": "http-long-live-error-expanded",
+    "route": "HTTP Capture > session summary",
+    "scenario": "Expanded permanent-lock error details at actual OS125%",
+    "observed": "Long rename path wraps both footer and expanded alert; all9metrics fit in3columns,showing observed5/captured5/persisted4 and0loss counters. Outer horizontal scrollbar absent. Expanding summary reduces row viewport; collapse restores it.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS125%; WebView100%; native1024x768; System/light",
+    "screenshot": "http-long-live-error-expanded.jpg"
   }
 ]

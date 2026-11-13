@@ -196,3 +196,25 @@ the50ms topology label and nodes are visible. Switching back to System/light
 recolors the same chart without changing selection/values. Frontend state and
 production/native layoutaudit builds pass. OS100% restoration will be recorded
 after the remaining selected cases. Full DPI/theme/reference matrix remains open.
+
+## Long live-capture failure paths at actual OS125%
+
+The real386 manifest replacement failure also exposed an independent UI issue:
+the long Windows path in the live footer forced outer horizontal scrolling.
+The footer error and expanded alert now wrap arbitrary long strings and remain
+inside the viewport; the compact error uses the shared contrast-aware color.
+
+A separate QA-only production app reproduces a permanent read-sharing lock for
+three seconds, after four committed synthetic requests. The fifth request reaches
+the proxy, but the bounded one-second manifest retry correctly fails and marks
+the session recoverable: captured5,persisted4,retained4,one error event. Existing
+committed records remain intact. This deliberate fault is not a long-run failure;
+long-run apps and profiles are untouched. Runner and helper used are attached.
+
+Actual1024x768/OS125%/WebView100% observations show the full error wrapped in
+the footer and expanded alert, with session-summary control reachable. Expanded
+summary shows all nine metrics in three columns and reduces the row viewport;
+collapsing restores all five preview rows. The fifth unpersisted preview is red;
+the finalized store contains only four authoritative rows. Passive measurement
+records no main or outer horizontal overflow. Frontend state/production and
+native layoutaudit builds pass. This does not close the complete error matrix.
