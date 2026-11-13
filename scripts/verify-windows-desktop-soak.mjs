@@ -22,7 +22,7 @@ const exe = path.resolve(options.exe), out = path.resolve(options.out);
 await mkdir(out, { recursive: false });
 const descriptorPath = path.join(out, '.private-controller.json');
 const binarySha256 = createHash('sha256').update(await readFile(exe)).digest('hex');
-const report = { schema: 1, platform: 'windows', scope: 'production Wails desktop/controller, synthetic Docker-loopback HTTP, bodies disabled', requestedSeconds: seconds, binarySha256, passed: false, requests: 0, pauses: 0, clears: 0, checkpoints: [], nativeUIObservations: 'record separately; controller/liveness is not a renderer correctness claim' };
+const report = { schema: 2, platform: 'windows', scope: 'production Wails desktop/controller, synthetic Docker-loopback HTTP, bodies disabled', memoryScope: 'root process plus currently alive descendants from one Windows process snapshot; not a leak proof', requestedSeconds: seconds, binarySha256, passed: false, requests: 0, pauses: 0, clears: 0, checkpoints: [], nativeUIObservations: 'record separately; controller/liveness is not a renderer correctness claim' };
 let child, descriptor, session, sequence = 0;
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function control(command, params = {}) {
@@ -43,14 +43,47 @@ function request(proxy, index) {
 async function checkpoint(elapsed) {
   if (child.exitCode !== null || child.signalCode !== null) throw Error('desktop process exited');
   const page = await control('list', { sessionId: session.sessionId, limit: 100 });
-  if (page.total > 128 || page.items.some(x => new URL(x.transaction.url).origin !== origin.origin || x.transaction.process?.key.pid !== process.pid || x.transaction.process?.attribution !== 'confirmed')) throw Error('retention/privacy/process mismatch');
+  let checkedRows = 0, current = page;
+  do {
+    if (page.total > 128 || current.items.some(x => new URL(x.transaction.url).origin !== origin.origin || x.transaction.process?.key.pid !== process.pid || x.transaction.process?.attribution !== 'confirmed')) throw Error('retention/privacy/process mismatch');
+    checkedRows += current.items.length;
+    if (!current.nextCursor) break;
+    current = await control('list', { sessionId: session.sessionId, limit: 100, cursor: current.nextCursor });
+  } while (checkedRows <= 128);
+  if (checkedRows !== page.total) throw Error('retained snapshot pagination mismatch');
   const stats = await control('stats', { sessionId: session.sessionId });
-  const script = `$p=Get-Process -Id ${child.pid} -ErrorAction Stop; $p | Select-Object WorkingSet64,PrivateMemorySize64,HandleCount,Responding,MainWindowHandle | ConvertTo-Json -Compress`;
+  if (stats.dropped !== 0) throw Error('unexpected captured-request drops');
+  const script = `
+$rootProcess=Get-Process -Id ${child.pid} -ErrorAction Stop
+$snapshot=@(Get-CimInstance Win32_Process)
+$rootEntry=$snapshot | Where-Object ProcessId -EQ ${child.pid}
+if (-not $rootEntry) { throw 'Owned root missing from process snapshot' }
+$queue=[System.Collections.Generic.Queue[object]]::new()
+$queue.Enqueue($rootEntry)
+$members=[System.Collections.Generic.List[object]]::new()
+$seen=@{}
+while ($queue.Count -gt 0) {
+  $parent=$queue.Dequeue()
+  if ($seen.ContainsKey([string]$parent.ProcessId)) { continue }
+  $seen[[string]$parent.ProcessId]=$true
+  $process=Get-Process -Id $parent.ProcessId -ErrorAction SilentlyContinue
+  if ($process) { $members.Add($process) }
+  foreach ($entry in $snapshot) {
+    if ($entry.ParentProcessId -eq $parent.ProcessId -and $entry.CreationDate -ge $parent.CreationDate) { $queue.Enqueue($entry) }
+  }
+}
+[ordered]@{
+  WorkingSet64=$rootProcess.WorkingSet64; PrivateMemorySize64=$rootProcess.PrivateMemorySize64
+  HandleCount=$rootProcess.HandleCount; Responding=$rootProcess.Responding; MainWindowHandle=[long]$rootProcess.MainWindowHandle
+  TreeProcessCount=$members.Count
+  TreePrivateMemorySize64=($members | Measure-Object PrivateMemorySize64 -Sum).Sum
+  TreeWorkingSet64=($members | Measure-Object WorkingSet64 -Sum).Sum
+} | ConvertTo-Json -Compress`;
   const memory = JSON.parse(execFileSync('powershell.exe', ['-NoProfile', '-Command', script], { encoding: 'utf8', windowsHide: true }));
   if (!memory.Responding || !memory.MainWindowHandle || memory.PrivateMemorySize64 > 1073741824) throw Error('desktop liveness/private-memory guard failed');
   const { sessionId: _privateID, ...counters } = stats;
   const { MainWindowHandle: _handle, ...memoryCounters } = memory;
-  report.checkpoints.push({ elapsedSeconds: elapsed, requests: report.requests, retainedRows: page.total, stats: counters, hasMainWindow: true, ...memoryCounters });
+  report.checkpoints.push({ elapsedSeconds: elapsed, requests: report.requests, retainedRows: page.total, checkedRows, stats: counters, hasMainWindow: true, ...memoryCounters });
   report.elapsedSeconds = elapsed;
   await writeFile(path.join(out, 'progress.json'), JSON.stringify(report, null, 2));
 }
@@ -92,7 +125,7 @@ try {
   await control('save', { source: { sessionId: session.sessionId }, destination, format: 'session', scope: 'all', ids: [], selectedId: page.items[0]?.transaction.id ?? '' });
   const saved = JSON.parse(await readFile(destination, 'utf8'));
   const opened = await control('open', { path: destination });
-  if (saved.transactions.length === 0 || saved.transactions.length !== page.total || opened.selectedId !== (page.items[0]?.transaction.id ?? '')) throw Error('saved-session readback mismatch');
+  if (!Array.isArray(saved.transactions) || saved.transactions.length === 0 || saved.transactions.length !== page.total || opened.selectedId !== (page.items[0]?.transaction.id ?? '')) throw Error('saved-session readback mismatch');
   report.savedRows = saved.transactions.length;
   report.savedSessionSha256 = createHash('sha256').update(await readFile(destination)).digest('hex');
   report.passed = true;

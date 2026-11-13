@@ -80,9 +80,13 @@ func main() {
 		return
 	}
 	captureService := NewCaptureService()
+	webviewDataPath := ""
 	if options.Descriptor != "" {
 		root := filepath.Join(filepath.Dir(options.Descriptor), ".archscope-captures")
 		captureService = newCaptureService(root, certstore.NewSystem(filepath.Join(root, "ca-trust.json")))
+		// Separate automation instances must not share a WebView browser process,
+		// local preferences or renderer state with the user's normal application.
+		webviewDataPath = filepath.Join(filepath.Dir(options.Descriptor), ".archscope-webview2")
 	}
 	captureService.launchOptions = options
 	engineService := &EngineService{}
@@ -103,6 +107,7 @@ func main() {
 		Windows: application.WindowsOptions{
 			AdditionalBrowserArgs: windowsAdditionalBrowserArgs(),
 			WebviewBrowserPath:    offline.Webview,
+			WebviewUserDataPath:   webviewDataPath,
 		},
 	})
 
