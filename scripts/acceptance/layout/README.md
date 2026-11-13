@@ -8,7 +8,8 @@ excludes the observer, QA menu and QA application name.
 With `ARCHSCOPE_LAYOUT_SCRIPT` unset, the embedded passive observer records
 geometry as a tester operates the native menus, file picker and controls. It
 never navigates, clicks, focuses or enters input. The QA menu offers 1280 × 800
-and 1024 × 768 window sizes plus 100% and 125% WebView zoom. WebView zoom is
+and 1024 × 768 window sizes, a 1280 × 1000 file-dialog size, plus 100%
+and 125% WebView zoom. WebView zoom is
 not an OS DPI test. The observer clips rows/canvases/details to scroll ancestors,
 counts HTTP request rows separately from header tables, and records no cell
 contents or file paths. Its area ratio is a conservative union of visible data
@@ -21,7 +22,8 @@ With `ARCHSCOPE_LAYOUT_SCRIPT` set to the absolute path of `measure.js`, the
 legacy initial-route sweep runs and exits after its report or three minutes.
 That script dispatches route events or sidebar clicks inside the native WebView;
 it does not establish actual OS menu interaction. The passive mode stays open
-for at most 30 minutes. Both modes use the pinned Wails runtime transport because
+for 30 minutes by default; an explicit `ARCHSCOPE_LAYOUT_MAX_SECONDS` from 30
+through 21600 permits a longer owned audit session. Both modes use the pinned Wails runtime transport because
 the npm-bundled SDK does not expose `window.wails`.
 
 Copy the JSON before quitting or restarting the audit app: a new process starts
@@ -45,3 +47,10 @@ remain separate from final geometry. Use a selected populated inspector when
 adjudicating HTTP detail area; a blank detail box is not result evidence. The
 HTTP default is 184px, restored by Home or double-click; saved user heights are
 preserved within the available viewport.
+
+The receipt records the actual Wails screen scale factor and logical/physical
+screen bounds separately from WebView DPR. Change OS scaling only through the
+normal Windows Display settings, record the selected display, and restore its
+original scale afterwards. A receipt can contain earlier observations from the
+same process at different scales; use each view DPR and the separately saved
+phase receipt, not only the latest screen metadata.

@@ -1,0 +1,378 @@
+{
+  "task": "T-627",
+  "overall": "REVIEW",
+  "observation_type": "Actual Windows Wails/WebView2 menus, file dialogs and controls operated by Computer Use; passive geometry observer never navigates/inputs.",
+  "case_history": [
+    {
+      "route": "profiler",
+      "case": "native Browse, shared sanitized DB-bottleneck profile, Analyze -> flamegraph",
+      "result": "PASS"
+    },
+    {
+      "route": "profiler",
+      "case": "OrderRepository frame zoom",
+      "result": "PASS",
+      "observed": "5300 samples / 53%; zoom reset action appears"
+    },
+    {
+      "route": "profiler",
+      "case": "frame search no match",
+      "result": "PASS",
+      "observed": "일치 없음 shown; existing flamegraph preserved"
+    },
+    {
+      "route": "profiler",
+      "case": "reset zoom and clear search",
+      "result": "PASS"
+    },
+    {
+      "route": "profiler",
+      "case": "summary top-child share",
+      "result": "FAIL",
+      "observed": "10000/10000 samples shown as 10000.00%; expected 100%"
+    },
+    {
+      "route": "profiler",
+      "case": "OrderRepository drilldown",
+      "result": "PASS",
+      "observed": "9000 matched samples, 90% of total"
+    },
+    {
+      "route": "profiler",
+      "case": "drilldown AND no-match",
+      "result": "PASS",
+      "observed": "0 samples / 0.00% and explicit no-match guidance"
+    },
+    {
+      "route": "profiler",
+      "case": "timeline",
+      "result": "PASS",
+      "observed": "10000 base samples; DB fetch 5300/53%, DB network wait3900/39%, full profile 1000s"
+    },
+    {
+      "route": "profiler",
+      "case": "execution breakdown",
+      "result": "PASS",
+      "observed": "SQL9200/92%, application500/5%, framework300/3%"
+    },
+    {
+      "route": "profiler",
+      "case": "top stacks",
+      "result": "PASS",
+      "observed": "bounded table with exact sample counts and percentages"
+    },
+    {
+      "route": "profiler",
+      "case": "parser report",
+      "result": "PASS",
+      "observed": "7 records, zero skipped/warnings/errors, 4940 bytes, max depth26"
+    },
+    {
+      "route": "profiler",
+      "case": "pinned help and Escape",
+      "result": "PASS",
+      "observed": "tooltip fits viewport; Escape dismisses only help"
+    },
+    {
+      "route": "profiler",
+      "case": "native PNG Save dialog",
+      "result": "PASS",
+      "observed": "decoded PNG1212x594,62297 bytes"
+    },
+    {
+      "case": "506-character Korean path native picker and analysis",
+      "status": "PASS",
+      "note": "Filename edit direct paste truncates near 260; native address bar navigated full directory and selected file from list. Analysis populated graph. Full selected path preserved."
+    },
+    {
+      "case": "1024x768 long-name truncation and options drawer",
+      "status": "PASS",
+      "note": "Browse/Analyze/options visible; drawer scrollable with fixed Analyze footer; Escape closes drawer."
+    },
+    {
+      "case": "Profiler summary percentage native fixed build",
+      "status": "PASS",
+      "before": "10000.00% for 10000/10000",
+      "after": "100.00% for 10000/10000"
+    },
+    {
+      "case": "GC no-clock summary",
+      "status": "PASS",
+      "note": "Two events,25/190.12ms,50/100MB; chart uses event index; unavailable-time metrics stay em dash."
+    },
+    {
+      "case": "GC events wide table",
+      "status": "FAIL",
+      "note": "1280 outer width: page-level horizontal overflow; alert evidence button and rightmost event columns outside viewport."
+    },
+    {
+      "case": "GC no-clock remaining tabs",
+      "status": "PASS",
+      "note": "Pause/heap use index axis; allocations absent; breakdown one of each type/cause; JVM explicitly unavailable; diagnostics2 parsed0 skipped."
+    },
+    {
+      "case": "GC events grid containment fixed native build",
+      "status": "PASS",
+      "note": "Alert evidence control visible; wide event table scrolls inside its card; no page horizontal scrollbar."
+    },
+    {
+      "case": "JFR recording populated nested tabs",
+      "status": "PASS",
+      "note": "3 events; GC42.5ms,Park12ms,CPU sample one; sparse-stack warning; profile1; event distribution1each; diagnostics3/0. All-mode wall heatmap empty, populated heatmap not established."
+    },
+    {
+      "case": "JFR native memory default leak branch",
+      "status": "PASS",
+      "note": "3 allocations3584B,1free; default10% tail excludes last512B allocation:1unfreed1024B displayed, callsite and graph visible."
+    },
+    {
+      "case": "Exception populated five tabs and detail drawer",
+      "status": "PASS",
+      "note": "2 IllegalStateException events; one signature count2; one SQLTimeoutException root cause; detail3frames; Findings repeated-signature warning/root cause info; diagnostics2/0; Escape closes drawer. UIA focus restore not established."
+    },
+    {
+      "case": "Single thread dump five tabs",
+      "status": "PASS",
+      "note": "2threads:1BLOCKED,1TIMED_WAITING;1lockholder,2signatures,2Findings; thread rows show expected lock/stack."
+    },
+    {
+      "case": "Multi dump eight tabs and JVM native signals",
+      "status": "PASS",
+      "note": "Native multi-select2files;4isolated observations; correlation-context warning; long/persistent empty; per-dump1BLOCKED1TIMED_WAITING;4thread rows,2dump rows,4findings;2native-method rows. Other JVM empty sub-tabs not exercised."
+    },
+    {
+      "case": "Lock contention branch populated/empty states",
+      "status": "PASS",
+      "note": "Same2dumps produce1contended lock,0deadlocks,2waiting observations,1class; lock/ranking1row and explicit no-deadlock state. Findings tab not separately inspected."
+    },
+    {
+      "case": "MSA four populated tabs",
+      "status": "PASS_WITH_LIMITATIONS",
+      "note": "2profiles1GUID1signature1matchededge; root84ms,external173/network89; SQL5006; parser2full,0errors1SQL_COUNT_MISMATCH. Categorized9182>root84 flagged neg. Populated summary/table labels still mix English in Korean; average mode/exports not yet verified."
+    },
+    {
+      "case": "Trace Import five populated tabs",
+      "status": "PASS",
+      "note": "3spans1trace2services1edge1error;120/70/63ms spans;edge70ms100%error; observed-chain estimate120ms; diagnostics3/0;critical edge finding visible."
+    },
+    {
+      "case": "Browser CPU top-frame percentage",
+      "status": "FAIL",
+      "note": "19000/19000 root displayed10000.00% in native page."
+    },
+    {
+      "case": "Lighthouse invalid then valid retry and native exports",
+      "status": "PASS",
+      "note": "Invalid JSON shows BROWSER_AUDIT_FAILED; valid retry clears error, score42/4audits/2requests/50000B, imported provenance and recomputed=false, warnings visible with metadata collapsed; native JSON8670B and HTML9745B saved and independently checked."
+    },
+    {
+      "case": "Browser CPU native corrected top-frame ratio",
+      "status": "PASS",
+      "note": "Root19000/19000 now100.00%; sampled duration19ms,5unique stacks,parser20/0/0/0; run disclaimer visible. Weighted value is not an actual sample-count claim."
+    },
+    {
+      "case": "Access log five populated tabs",
+      "status": "PASS",
+      "note": "6requests6timings,2errors33.33%,avg315.5ms,p951177.5ms;5URLs;2xx4/4xx1/5xx1;charts1timebucket;diagnostics6/0. Sparse fixture; no70% result-area claim."
+    },
+    {
+      "case": "Identical profile diff",
+      "status": "PASS",
+      "note": "32629weighted samples each,9common paths,0new/removed;gray unchanged graph. UI Automation set_value used after type_text duplicated a pasted path; no app paste handler exists, no software defect attributed from that tool artifact."
+    },
+    {
+      "case": "Legacy primary button contrast in light theme",
+      "status": "FAIL",
+      "note": "Diff native Browse/Run buttons render white labels over pale --accent background except hover. Pending switch to --primary token, native recheck required."
+    },
+    {
+      "case": "HTTP Windows standard result area",
+      "status": "FAIL",
+      "note": "1280x800 outer yields1264x741 client;30HAR selectedHeaders/Body union0.686,12fullrequestrows,184pxdetail; no outer/main horizontal overflow. Pending12px route-header compaction and native recheck."
+    },
+    {
+      "case": "HTTP small window125% WebView zoom",
+      "status": "PASS",
+      "note": "1024x768 outer; request selected,table internal horizontal scroll;Bodyresponse reachable by internal detail scrolling. This is WebView zoom, notOS DPI."
+    },
+    {
+      "case": "Analysis Workspace legacy saved-result/read-only/add",
+      "status": "PASS",
+      "note": "Raw.log auto detection asks explicit importer; saved access_log JSON opens as unknown_result_type read-only with declared/unverified identity; summary6requests/648.67ms/33.33% preserved; Add Workspace succeeds alongside current HAR/access results. This legacy saved summary is not a fresh analysis oracle."
+    },
+    {
+      "case": "Export Center backend-backed original result",
+      "status": "FAIL",
+      "note": "Read-only saved result preview shows5summary fields but HTML saysNoData andPPTXonly2metadata/empty slides; UI reports success. ExportCenter serialized JSplaceholder despite immutable backendhandle. Pending authoritative export routing; no successful content acceptance claimed for these files."
+    },
+    {
+      "case": "Legacy primary buttons fixed native light theme",
+      "status": "PASS",
+      "note": "Rebuilt native Diff Browse buttons use purple primary background with readable white labels;disabledCompare remains visiblydisabled."
+    },
+    {
+      "case": "HTTP Windows standard result area fixed",
+      "status": "PASS",
+      "note": "Same1280x800outer/1264x741client,184pxdetail: resultunion0.702 vs0.686;13fullrequestrows vs12,firstdata162vs174;2request+4responseheaders visible; no main/outer horizontal overflow."
+    },
+    {
+      "id": "export-backend-integrity",
+      "status": "PASS_SELECTED_CASE",
+      "observed": [
+        "Unknown read-only access_log HTML refused with unknown_result_type; no destination created",
+        "PPTX and CSV directory visibly disabled",
+        "JSON original saved byte-for-byte SHA256 036de7920fd66b7e0811c11297112c90e22206ca1a0f5502e280664c760fabcd"
+      ],
+      "limitations": [
+        "Other backend result types and complete legacy formats separately tested by state regressions; not native all-format acceptance"
+      ]
+    },
+    {
+      "id": "report-diff-identical",
+      "status": "PASS_SELECTED_CASE",
+      "observed": [
+        "Native menu entry; two identical saved access_log results yield 0 changed metrics, 0 finding delta; all 5 summary metrics match and show 0.00%"
+      ]
+    },
+    {
+      "id": "chart-studio-access",
+      "status": "PASS_SELECTED_CASE",
+      "observed": [
+        "Request count point 6, p95 latency point 1177.5ms",
+        "Canvas and SVG rendered",
+        "Native CSV save contains time/value and one row 6",
+        "Native SVG save valid XML 1214x700 3250 bytes"
+      ],
+      "limitations": [
+        "One time bucket; other type-specific templates and PNG export not checked in this case"
+      ]
+    },
+    {
+      "id": "incident-timeline-access",
+      "status": "PASS_SELECTED_CASE",
+      "observed": [
+        "4 emitted events, 4 groups, 2 critical and 2 warning, 1 source",
+        "Request-error burst 2/6 33.33% and p95 1177.5ms narrative",
+        "No-match search produces explicit empty table; counters/narrative describe emitted input and remain unchanged"
+      ],
+      "limitations": [
+        "Findings without source timestamps use analysis time; no causal inference or cross-source merge claim"
+      ]
+    },
+    {
+      "id": "slo-access",
+      "status": "PASS_SELECTED_CASE",
+      "observed": [
+        "36 signals and SLIs, 4 violations (1 critical/3 warning)",
+        "33.33% error and 1177.5ms global/1431.15ms endpoint p95 breach corresponding thresholds",
+        "13 unevaluated goals explicitly disclosed",
+        "Evidence button adds a board card with success status"
+      ]
+    },
+    {
+      "id": "service-flow-trace",
+      "status": "PASS_SELECTED_CASE",
+      "observed": [
+        "Access-only empty flow shows explicit no-edge/no-finding states",
+        "After native Trace Import, checkout-service to payment-service: 1 call, 70ms avg/max, 1 error 100%, 0 unmatched; network gap unavailable"
+      ],
+      "limitations": [
+        "Mermaid/JSON export and multi-source aggregation not checked here"
+      ]
+    },
+    {
+      "id": "evidence-board-slo",
+      "status": "PASS_SELECTED_CASE",
+      "observed": [
+        "1 SLO critical card contains actual 33.33, target10, source summary.error_rate and complete payload",
+        "Native JSON download 2134 bytes parsed as archscope_evidence_pack schema0.1.0 card_count1"
+      ],
+      "limitations": [
+        "Report pack and visual library lifecycle not exercised; no existing cards removed"
+      ]
+    },
+    {
+      "id": "settings-validation",
+      "status": "PASS_SELECTED_CASE",
+      "observed": [
+        "Negative sample interval and fractional Top-N refused with Korean validation message",
+        "Restored interval100/TopN20/wall, save reports saved; Korean/System retained"
+      ],
+      "limitations": [
+        "No security/privacy/data-pack controls changed"
+      ]
+    },
+    {
+      "id": "actual-os125-selected-matrix",
+      "status": "PASS_SELECTED_CASE",
+      "observed": [
+        "Windows Settings changed active display1 scaling100 to125 and restored100",
+        "Wails GetScreen scale1.25:3072x1728 logical/3840x2160 physical; WebView DPR1.25 with QA zoom100",
+        "1024x768 settings and populated Trace Canvas, contained help with Escape",
+        "1280x800 populated Trace chart and HTTP30 HAR Headers: request2/response4 header rows visible"
+      ],
+      "limitations": [
+        "Selected routes, not entire21-route conditional matrix at every DPI",
+        "Screenshots normalized by capture tool; raw geometry archived",
+        "No reference-baseline equivalence or blanket70% claim"
+      ]
+    },
+    {
+      "id": "native-locale-theme-populated",
+      "status": "PASS_SELECTED_CASE",
+      "observed": [
+        "Actual View menu switches populated HTTP headers to English and Dark",
+        "Native menus and10 detail tabs translate; request and response data retained",
+        "Restored Korean and System theme, OS scale100"
+      ]
+    },
+    {
+      "id": "chart-studio-eight-template-coverage",
+      "status": "PASS_SELECTED_RENDER_CASES",
+      "observed": [
+        "All8 templates rendered across native session: access.requests,access.p95,gc.pause,gc.heap,trace.services,trace.dependencies,profiler.components,comparison.deltas",
+        "GC60 pause10..21ms and heap50MB, Trace dependency70ms, profiler9200/500/300 component counts",
+        "Native Chart Studio PNG saved and decoded2428x1400; native CSV/SVG exports validated in access case"
+      ],
+      "limitations": [
+        "Identical comparison produces zero bars (not a nonzero comparison case)",
+        "Each template not exported in every renderer/format combination",
+        "Populated MSA label localization remains separate"
+      ]
+    },
+    {
+      "id": "export-legacy-full-result",
+      "status": "PASS_SELECTED_CASE",
+      "observed": [
+        "Fresh profiler result Export Center HTML149475 characters includes total_samples10000",
+        "PowerPoint6059 bytes: current implementation2slides, second slide7summary fields includes total_samples10000 and estimated_seconds1000",
+        "No backend handle on fresh entry; all5 legacy options available"
+      ],
+      "limitations": [
+        "PowerPoint has metadata/summary slides only; no chart/slides claim",
+        "Legacy CSV/CSV-directory/JSON native save not exercised in this case; routing covered by state tests"
+      ]
+    }
+  ],
+  "resolved_failures": {
+    "Profiler doubled ratio": "77f049db",
+    "GC page overflow": "86ab6eae",
+    "Browser CPU doubled ratio": "2c84f21a",
+    "Primary contrast and HTTP result area": "35671350",
+    "Export Center placeholder loss": "390c47ca"
+  },
+  "remaining": [
+    "Original reference screen/full feature equivalence is not established.",
+    "Selected OS125 routes do not establish every21-route populated/conditional/error/DPI combination.",
+    "MSA populated labels still mix English in Korean; average mode and exports remain separate.",
+    "JFR populated all-mode heatmap, remaining JVM subtabs, complete report-pack/visual-library lifecycle and every export/renderer combination are not established."
+  ],
+  "preferences_restored": [
+    "OS display1 scaling100%",
+    "Korean locale",
+    "System theme",
+    "sample interval100ms",
+    "TopN20",
+    "wall profile"
+  ]
+}

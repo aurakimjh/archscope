@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ArchScope Analysis Report - browser_audit_evidence</title>
+  <style>
+:root {
+  color: #111827;
+  background: #f5f7fb;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+body { max-width: 1180px; margin: 0 auto; padding: 32px; }
+h1 { margin: 0 0 20px; font-size: 30px; }
+h2 { margin: 0 0 14px; font-size: 19px; }
+h3 { margin: 18px 0 10px; font-size: 15px; }
+section {
+  margin: 0 0 18px;
+  padding: 18px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+.subsection {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+dt { color: #64748b; font-size: 12px; font-weight: 800; }
+dd { margin: 4px 0 0; font-weight: 700; overflow-wrap: anywhere; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  vertical-align: top;
+}
+th { color: #475569; background: #f8fafc; }
+pre {
+  max-height: 320px;
+  overflow: auto;
+  padding: 10px;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.flamegraph {
+  overflow-x: auto;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.flamegraph details { margin: 0; }
+.flamegraph summary { display: block; cursor: pointer; }
+.flame-row { min-width: 760px; padding: 2px 0; }
+.flame-bar {
+  display: flex;
+  min-width: 28px;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #fff;
+  background: #2563eb;
+  font-size: 12px;
+}
+.flame-bar span { overflow: hidden; text-overflow: ellipsis; }
+.flame-bar small { flex: 0 0 auto; opacity: 0.85; }
+.muted { color: #64748b; font-weight: 500; }
+
+  </style>
+</head>
+<body>
+  <h1>ArchScope Analysis Report - browser_audit_evidence</h1>
+<section><h2>Report Metadata</h2><dl><div><dt>Result type</dt><dd>browser_audit_evidence</dd></div><div><dt>Created at</dt><dd>2026-11-13T13:52:07.0454328Z</dd></div><div><dt>Schema version</dt><dd>0.1.0</dd></div><div><dt>Source files</dt><dd>C:\workspace\archscope\apps\engine-native\internal\parsers\lighthouse\testdata\populated_report.json</dd></div></dl></section>
+<section><h2>Summary</h2><dl><div><dt>audit_count</dt><dd>4</dd></div><div><dt>cumulative_layout_shift</dt><dd>0.08</dd></div><div><dt>fetch_time</dt><dd>2026-07-22T00:00:00.000Z</dd></div><div><dt>final_url</dt><dd>https://shop.example.test/products?campaign=summer</dd></div><div><dt>form_factor</dt><dd>mobile</dd></div><div><dt>largest_contentful_paint_ms</dt><dd>3180.5</dd></div><div><dt>lighthouse_version</dt><dd>13.0.1</dd></div><div><dt>network_request_count</dt><dd>2</dd></div><div><dt>performance_score_pct</dt><dd>42</dd></div><div><dt>poor_audit_count</dt><dd>1</dd></div><div><dt>requested_url</dt><dd>https://shop.example.test/products?token=%5BREDACTED%5D</dd></div><div><dt>resource_size_bytes</dt><dd>134000</dd></div><div><dt>run_warning_count</dt><dd>1</dd></div><div><dt>runtime_error</dt><dd>false</dd></div><div><dt>score_disclosure</dt><dd>Scores are preserved from the imported Lighthouse report; ArchScope does not recompute them.</dd></div><div><dt>score_source</dt><dd>imported_lighthouse_report</dd></div><div><dt>scored_audit_count</dt><dd>2</dd></div><div><dt>scores_recomputed</dt><dd>false</dd></div><div><dt>source_format</dt><dd>lighthouse-json</dd></div><div><dt>throttling_method</dt><dd>simulate</dd></div><div><dt>transfer_size_bytes</dt><dd>50000</dd></div></dl></section>
+<section><h2>Findings</h2><div class="table-wrap"><table><thead><tr><th>code</th><th>evidence</th><th>message</th><th>severity</th></tr></thead><tbody><tr><td>LIGHTHOUSE_PERFORMANCE_POOR</td><td><pre>{
+  &#34;score_pct&#34;: 42,
+  &#34;score_source&#34;: &#34;imported_lighthouse_report&#34;,
+  &#34;source_ref&#34;: &#34;category:performance&#34;
+}</pre></td><td>The imported Lighthouse report rated performance below 50.</td><td>warning</td></tr><tr><td>LIGHTHOUSE_AUDITS_POOR</td><td><pre>{
+  &#34;audit_ids&#34;: [
+    &#34;largest-contentful-paint&#34;
+  ],
+  &#34;count&#34;: 1,
+  &#34;score_source&#34;: &#34;imported_lighthouse_report&#34;,
+  &#34;source_ref&#34;: &#34;audits:poor&#34;
+}</pre></td><td>One or more scored Lighthouse audits are below 50.</td><td>warning</td></tr><tr><td>LIGHTHOUSE_RUN_WARNINGS</td><td><pre>{
+  &#34;count&#34;: 1,
+  &#34;source_ref&#34;: &#34;run_warnings&#34;,
+  &#34;warnings&#34;: [
+    &#34;The page redirected through https://auth.example.test/login?token=[REDACTED]&#34;
+  ]
+}</pre></td><td>Lighthouse emitted run warnings; review collection conditions before comparison.</td><td>info</td></tr></tbody></table></div></section>
+<section><h2>Parser Diagnostics</h2><dl><div><dt>error_count</dt><dd>0</dd></div><div><dt>format</dt><dd>lighthouse-json</dd></div><div><dt>parsed_records</dt><dd>4</dd></div><div><dt>skipped_lines</dt><dd>0</dd></div><div><dt>source_file</dt><dd>C:\workspace\archscope\apps\engine-native\internal\parsers\lighthouse\testdata\populated_report.json</dd></div><div><dt>total_lines</dt><dd>1</dd></div><div><dt>warning_count</dt><dd>0</dd></div></dl><h3>errors</h3><pre>[]</pre><h3>samples</h3><pre>[]</pre><h3>skipped_by_reason</h3><pre>{}</pre><h3>warnings</h3><pre>[]</pre></section>
+<section><h2>Series: category_scores</h2><div class="table-wrap"><table><thead><tr><th>id</th><th>score</th><th>score_pct</th><th>source_ref</th><th>title</th></tr></thead><tbody><tr><td>accessibility</td><td>0.92</td><td>92</td><td>category:accessibility</td><td>Accessibility</td></tr><tr><td>performance</td><td>0.42</td><td>42</td><td>category:performance</td><td>Performance</td></tr></tbody></table></div></section>
+<section><h2>Series: core_metrics</h2><div class="table-wrap"><table><thead><tr><th>display_value</th><th>id</th><th>score</th><th>source_ref</th><th>title</th><th>unit</th><th>value</th></tr></thead><tbody><tr><td>3.2 s</td><td>largest-contentful-paint</td><td>0.31</td><td>audit:largest-contentful-paint</td><td>Largest Contentful Paint</td><td>millisecond</td><td>3180.5</td></tr><tr><td>0.08</td><td>cumulative-layout-shift</td><td>0.96</td><td>audit:cumulative-layout-shift</td><td>Cumulative Layout Shift</td><td>unitless</td><td>0.08</td></tr></tbody></table></div></section>
+<section><h2>Series: resource_type_distribution</h2><div class="table-wrap"><table><thead><tr><th>request_count</th><th>resource_type</th><th>source_ref</th><th>transfer_size_bytes</th></tr></thead><tbody><tr><td>1</td><td>fetch</td><td>resource_type:fetch</td><td>8000</td></tr><tr><td>1</td><td>script</td><td>resource_type:script</td><td>42000</td></tr></tbody></table></div></section>
+<section><h2>Tables: audits</h2><div class="table-wrap"><table><thead><tr><th>description</th><th>display_value</th><th>id</th><th>numeric_unit</th><th>numeric_value</th><th>score</th><th>score_display_mode</th><th>score_pct</th><th>source_ref</th><th>title</th></tr></thead><tbody><tr><td>Largest element loaded from https://cdn.example.test/hero?api_key=[REDACTED]</td><td>3.2 s</td><td>largest-contentful-paint</td><td>millisecond</td><td>3180.5</td><td>0.31</td><td>numeric</td><td>31</td><td>audit:largest-contentful-paint</td><td>Largest Contentful Paint</td></tr><tr><td></td><td>0.08</td><td>cumulative-layout-shift</td><td>unitless</td><td>0.08</td><td>0.96</td><td>numeric</td><td>96</td><td>audit:cumulative-layout-shift</td><td>Cumulative Layout Shift</td></tr><tr><td></td><td></td><td>network-requests</td><td></td><td><span class="muted">null</span></td><td><span class="muted">null</span></td><td>informative</td><td><span class="muted">null</span></td><td>audit:network-requests</td><td>Network Requests</td></tr><tr><td></td><td></td><td>resource-summary</td><td></td><td><span class="muted">null</span></td><td><span class="muted">null</span></td><td>informative</td><td><span class="muted">null</span></td><td>audit:resource-summary</td><td>Resource Summary</td></tr></tbody></table></div></section>
+<section><h2>Tables: network_requests</h2><div class="table-wrap"><table><thead><tr><th>duration_ms</th><th>end_ms</th><th>initiator_type</th><th>mime_type</th><th>protocol</th><th>resource_size_bytes</th><th>resource_type</th><th>source_ref</th><th>start_ms</th><th>status_code</th><th>transfer_size_bytes</th><th>url</th></tr></thead><tbody><tr><td>73</td><td>85.5</td><td>script</td><td>application/javascript</td><td>h2</td><td>110000</td><td>Script</td><td>network_request:1</td><td>12.5</td><td>200</td><td>42000</td><td>https://cdn.example.test/app.js?session=%5BREDACTED%5D</td></tr><tr><td>66</td><td>96</td><td>fetch</td><td>application/json</td><td>h2</td><td>24000</td><td>Fetch</td><td>network_request:2</td><td>30</td><td>200</td><td>8000</td><td>https://shop.example.test/api/catalog?user=12345678</td></tr></tbody></table></div></section>
+<section><h2>Tables: resource_summary</h2><div class="table-wrap"><table><thead><tr><th>request_count</th><th>resource_type</th><th>source_ref</th><th>transfer_size_bytes</th></tr></thead><tbody><tr><td>1</td><td>fetch</td><td>resource_type:fetch</td><td>8000</td></tr><tr><td>1</td><td>script</td><td>resource_type:script</td><td>42000</td></tr></tbody></table></div></section>
+</body>
+</html>

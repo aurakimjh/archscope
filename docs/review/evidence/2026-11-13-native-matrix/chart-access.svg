@@ -1,0 +1,53 @@
+<svg width="1214" height="700" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseProfile="full" viewBox="0 0 1214 700">
+<rect width="1214" height="700" x="0" y="0" fill="none"></rect>
+<path d="M64 652.5L1186 652.5" fill="none" stroke="#dbdee4" class="zr1-cls-0"></path>
+<path d="M64 548.5L1186 548.5" fill="none" stroke="#dbdee4" class="zr1-cls-0"></path>
+<path d="M64 444.5L1186 444.5" fill="none" stroke="#dbdee4" class="zr1-cls-0"></path>
+<path d="M64 341.5L1186 341.5" fill="none" stroke="#dbdee4" class="zr1-cls-0"></path>
+<path d="M64 237.5L1186 237.5" fill="none" stroke="#dbdee4" class="zr1-cls-0"></path>
+<path d="M64 133.5L1186 133.5" fill="none" stroke="#dbdee4" class="zr1-cls-0"></path>
+<path d="M64 30.5L1186 30.5" fill="none" stroke="#dbdee4" class="zr1-cls-0"></path>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:12px;font-family:Microsoft YaHei;" y="-6" transform="translate(64 15)" fill="#54555a">건수</text>
+<path d="M64 652.5L1186 652.5" fill="none" stroke="#54555a" stroke-linecap="round" class="zr1-cls-0"></path>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(56 652)" fill="#54555a">0</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(56 548.3333)" fill="#54555a">1</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(56 444.6667)" fill="#54555a">2</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(56 341)" fill="#54555a">3</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(56 237.3333)" fill="#54555a">4</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(56 133.6667)" fill="#54555a">5</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(56 30)" fill="#54555a">6</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(625 660)" fill="#54555a">2026-04-27T10:00:00+0900</text>
+<g clip-path="url(#zr1-c0)">
+<path d="M625 30L625 652Z" fill="#5070dd" fill-opacity="0.14" class="zr1-cls-2"></path>
+<path d="M625 30" fill="none" stroke="#5070dd" stroke-width="2" stroke-linejoin="bevel" class="zr1-cls-3"></path>
+</g>
+<path d="M1 0A1 1 0 1 1 1 -0.0001" transform="matrix(3,0,0,3,625,30)" fill="#fff" stroke="#5070dd" stroke-width="0.6666666666666666" class="zr1-cls-4"></path>
+<defs >
+<clipPath id="zr1-c0">
+<path d="M63 29l1124 0l0 624l-1124 0Z" fill="#000" class="zr1-cls-1"></path>
+</clipPath>
+</defs>
+<style ><![CDATA[
+.zr1-cls-0:hover {
+pointer-events:none;
+}
+.zr1-cls-1:hover {
+cursor:pointer;
+fill:rgba(0,0,0,1);
+}
+.zr1-cls-2:hover {
+cursor:pointer;
+fill:rgba(88,123,243,1);
+}
+.zr1-cls-3:hover {
+cursor:pointer;
+}
+.zr1-cls-4:hover {
+cursor:pointer;
+fill:rgba(255,255,255,1);
+}
+
+]]>
+
+</style>
+</svg>

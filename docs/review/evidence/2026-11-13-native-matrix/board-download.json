@@ -1,0 +1,10 @@
+{
+  "type": "archscope_evidence_pack",
+  "schema_version": "0.1.0",
+  "card_count": 1,
+  "title": "Error rate under 10%",
+  "actual": 33.33,
+  "threshold": 10,
+  "source_ref": "summary.error_rate",
+  "original_sha256": "0b09985f8b4e05b50f482b21a0fdf261f1669adba798e390131c5aecb99ac76f"
+}

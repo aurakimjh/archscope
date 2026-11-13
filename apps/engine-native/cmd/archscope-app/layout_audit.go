@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -42,7 +43,13 @@ func configureLayoutAudit(app *application.App, window *application.WebviewWindo
 	app.Event.On("layout:audit", func(event *application.CustomEvent) {
 		x, y := window.Position()
 		width, height := window.Size()
-		data, err := json.MarshalIndent(map[string]any{"window": map[string]int{"x": x, "y": y, "width": width, "height": height}, "report": event.Data}, "", "  ")
+		receipt := map[string]any{"window": map[string]int{"x": x, "y": y, "width": width, "height": height}, "report": event.Data}
+		if screen, screenErr := window.GetScreen(); screenErr == nil && screen != nil {
+			receipt["osScreenScaleFactor"] = screen.ScaleFactor
+			receipt["screenLogicalBounds"] = screen.Bounds
+			receipt["screenPhysicalBounds"] = screen.PhysicalBounds
+		}
+		data, err := json.MarshalIndent(receipt, "", "  ")
 		if err == nil {
 			err = os.WriteFile(output, data, 0600)
 		}
@@ -64,6 +71,13 @@ func configureLayoutAudit(app *application.App, window *application.WebviewWindo
 		limit := 180 * time.Second
 		if passive {
 			limit = 30 * time.Minute
+			if value := os.Getenv("ARCHSCOPE_LAYOUT_MAX_SECONDS"); value != "" {
+				seconds, err := strconv.Atoi(value)
+				if err != nil || seconds < 30 || seconds > 21600 {
+					log.Fatal("ARCHSCOPE_LAYOUT_MAX_SECONDS must be 30..21600")
+				}
+				limit = time.Duration(seconds) * time.Second
+			}
 		}
 		time.Sleep(limit)
 		app.Quit()
@@ -81,7 +95,7 @@ func decorateLayoutAuditMenu(menu *application.Menu) {
 	for _, size := range []struct {
 		label         string
 		width, height int
-	}{{"1280 x 800", 1280, 800}, {"1024 x 768", 1024, 768}} {
+	}{{"1280 x 800", 1280, 800}, {"1024 x 768", 1024, 768}, {"1280 x 1000 (file dialogs)", 1280, 1000}} {
 		audit.Add(size.label).OnClick(func(_ *application.Context) { layoutAuditWindow.SetSize(size.width, size.height) })
 	}
 	audit.Add("100% zoom").OnClick(func(_ *application.Context) { layoutAuditWindow.SetZoom(1) })

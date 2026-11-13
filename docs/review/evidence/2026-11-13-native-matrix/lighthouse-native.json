@@ -1,0 +1,298 @@
+{
+  "charts": {},
+  "created_at": "2026-11-13T13:52:07.0454328Z",
+  "metadata": {
+    "analysis_options": {
+      "max_bytes": 67108864,
+      "top_n": 50
+    },
+    "browser_audit_contract": {
+      "bounded_tables": {
+        "audits": 50,
+        "network_requests": 50
+      },
+      "evidence_sources": [
+        "metadata.findings",
+        "series.category_scores",
+        "series.core_metrics",
+        "tables.audits",
+        "tables.network_requests",
+        "tables.resource_summary"
+      ],
+      "export_formats": [
+        "json",
+        "html",
+        "pptx",
+        "csv",
+        "csv_dir"
+      ],
+      "redaction": {
+        "applied": true,
+        "counts": {
+          "key_value": 2,
+          "query_value": 2
+        },
+        "known": true,
+        "rules": [
+          "key_value",
+          "query_value"
+        ],
+        "version": "har_redaction_1.0.0"
+      },
+      "result_type": "browser_audit_evidence",
+      "score_disclosure": "Scores are preserved from the imported Lighthouse report; ArchScope does not recompute them.",
+      "score_source": "imported_lighthouse_report",
+      "scores_recomputed": false,
+      "version": "1.0.0",
+      "view_keys": {
+        "series": [
+          "category_scores",
+          "core_metrics",
+          "resource_type_distribution"
+        ],
+        "tables": [
+          "audits",
+          "network_requests",
+          "resource_summary"
+        ]
+      }
+    },
+    "diagnostics": {
+      "error_count": 0,
+      "errors": [],
+      "format": "lighthouse-json",
+      "parsed_records": 4,
+      "samples": [],
+      "skipped_by_reason": {},
+      "skipped_lines": 0,
+      "source_file": "C:\\workspace\\archscope\\apps\\engine-native\\internal\\parsers\\lighthouse\\testdata\\populated_report.json",
+      "total_lines": 1,
+      "warning_count": 0,
+      "warnings": []
+    },
+    "findings": [
+      {
+        "code": "LIGHTHOUSE_PERFORMANCE_POOR",
+        "evidence": {
+          "score_pct": 42,
+          "score_source": "imported_lighthouse_report",
+          "source_ref": "category:performance"
+        },
+        "message": "The imported Lighthouse report rated performance below 50.",
+        "severity": "warning"
+      },
+      {
+        "code": "LIGHTHOUSE_AUDITS_POOR",
+        "evidence": {
+          "audit_ids": [
+            "largest-contentful-paint"
+          ],
+          "count": 1,
+          "score_source": "imported_lighthouse_report",
+          "source_ref": "audits:poor"
+        },
+        "message": "One or more scored Lighthouse audits are below 50.",
+        "severity": "warning"
+      },
+      {
+        "code": "LIGHTHOUSE_RUN_WARNINGS",
+        "evidence": {
+          "count": 1,
+          "source_ref": "run_warnings",
+          "warnings": [
+            "The page redirected through https://auth.example.test/login?token=[REDACTED]"
+          ]
+        },
+        "message": "Lighthouse emitted run warnings; review collection conditions before comparison.",
+        "severity": "info"
+      }
+    ],
+    "format": "lighthouse-json",
+    "parser": "lighthouse",
+    "schema_version": "0.1.0",
+    "source_metadata": [
+      {
+        "file": {
+          "base_name": "populated_report.json",
+          "extension": ".json",
+          "sanitized_id": "3f97cb2cc5d9d849b60a211a",
+          "sanitized_id_version": "basename-size-v1",
+          "size_bytes": 3021
+        },
+        "product": "Lighthouse",
+        "product_version": "13.0.1",
+        "source_format": "lighthouse-json",
+        "source_kind": "browser_audit"
+      }
+    ]
+  },
+  "series": {
+    "category_scores": [
+      {
+        "id": "accessibility",
+        "score": 0.92,
+        "score_pct": 92,
+        "source_ref": "category:accessibility",
+        "title": "Accessibility"
+      },
+      {
+        "id": "performance",
+        "score": 0.42,
+        "score_pct": 42,
+        "source_ref": "category:performance",
+        "title": "Performance"
+      }
+    ],
+    "core_metrics": [
+      {
+        "display_value": "3.2 s",
+        "id": "largest-contentful-paint",
+        "score": 0.31,
+        "source_ref": "audit:largest-contentful-paint",
+        "title": "Largest Contentful Paint",
+        "unit": "millisecond",
+        "value": 3180.5
+      },
+      {
+        "display_value": "0.08",
+        "id": "cumulative-layout-shift",
+        "score": 0.96,
+        "source_ref": "audit:cumulative-layout-shift",
+        "title": "Cumulative Layout Shift",
+        "unit": "unitless",
+        "value": 0.08
+      }
+    ],
+    "resource_type_distribution": [
+      {
+        "request_count": 1,
+        "resource_type": "fetch",
+        "source_ref": "resource_type:fetch",
+        "transfer_size_bytes": 8000
+      },
+      {
+        "request_count": 1,
+        "resource_type": "script",
+        "source_ref": "resource_type:script",
+        "transfer_size_bytes": 42000
+      }
+    ]
+  },
+  "source_files": [
+    "C:\\workspace\\archscope\\apps\\engine-native\\internal\\parsers\\lighthouse\\testdata\\populated_report.json"
+  ],
+  "summary": {
+    "audit_count": 4,
+    "cumulative_layout_shift": 0.08,
+    "fetch_time": "2026-07-22T00:00:00.000Z",
+    "final_url": "https://shop.example.test/products?campaign=summer",
+    "form_factor": "mobile",
+    "largest_contentful_paint_ms": 3180.5,
+    "lighthouse_version": "13.0.1",
+    "network_request_count": 2,
+    "performance_score_pct": 42,
+    "poor_audit_count": 1,
+    "requested_url": "https://shop.example.test/products?token=%5BREDACTED%5D",
+    "resource_size_bytes": 134000,
+    "run_warning_count": 1,
+    "runtime_error": false,
+    "score_disclosure": "Scores are preserved from the imported Lighthouse report; ArchScope does not recompute them.",
+    "score_source": "imported_lighthouse_report",
+    "scored_audit_count": 2,
+    "scores_recomputed": false,
+    "source_format": "lighthouse-json",
+    "throttling_method": "simulate",
+    "transfer_size_bytes": 50000
+  },
+  "tables": {
+    "audits": [
+      {
+        "description": "Largest element loaded from https://cdn.example.test/hero?api_key=[REDACTED]",
+        "display_value": "3.2 s",
+        "id": "largest-contentful-paint",
+        "numeric_unit": "millisecond",
+        "numeric_value": 3180.5,
+        "score": 0.31,
+        "score_display_mode": "numeric",
+        "score_pct": 31,
+        "source_ref": "audit:largest-contentful-paint",
+        "title": "Largest Contentful Paint"
+      },
+      {
+        "description": "",
+        "display_value": "0.08",
+        "id": "cumulative-layout-shift",
+        "numeric_unit": "unitless",
+        "numeric_value": 0.08,
+        "score": 0.96,
+        "score_display_mode": "numeric",
+        "score_pct": 96,
+        "source_ref": "audit:cumulative-layout-shift",
+        "title": "Cumulative Layout Shift"
+      },
+      {
+        "description": "",
+        "display_value": "",
+        "id": "network-requests",
+        "numeric_unit": "",
+        "score_display_mode": "informative",
+        "source_ref": "audit:network-requests",
+        "title": "Network Requests"
+      },
+      {
+        "description": "",
+        "display_value": "",
+        "id": "resource-summary",
+        "numeric_unit": "",
+        "score_display_mode": "informative",
+        "source_ref": "audit:resource-summary",
+        "title": "Resource Summary"
+      }
+    ],
+    "network_requests": [
+      {
+        "duration_ms": 73,
+        "end_ms": 85.5,
+        "initiator_type": "script",
+        "mime_type": "application/javascript",
+        "protocol": "h2",
+        "resource_size_bytes": 110000,
+        "resource_type": "Script",
+        "source_ref": "network_request:1",
+        "start_ms": 12.5,
+        "status_code": 200,
+        "transfer_size_bytes": 42000,
+        "url": "https://cdn.example.test/app.js?session=%5BREDACTED%5D"
+      },
+      {
+        "duration_ms": 66,
+        "end_ms": 96,
+        "initiator_type": "fetch",
+        "mime_type": "application/json",
+        "protocol": "h2",
+        "resource_size_bytes": 24000,
+        "resource_type": "Fetch",
+        "source_ref": "network_request:2",
+        "start_ms": 30,
+        "status_code": 200,
+        "transfer_size_bytes": 8000,
+        "url": "https://shop.example.test/api/catalog?user=12345678"
+      }
+    ],
+    "resource_summary": [
+      {
+        "request_count": 1,
+        "resource_type": "fetch",
+        "source_ref": "resource_type:fetch",
+        "transfer_size_bytes": 8000
+      },
+      {
+        "request_count": 1,
+        "resource_type": "script",
+        "source_ref": "resource_type:script",
+        "transfer_size_bytes": 42000
+      }
+    ]
+  },
+  "type": "browser_audit_evidence"
+}

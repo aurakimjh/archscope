@@ -1,0 +1,1479 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ArchScope Analysis Report - profiler_collapsed</title>
+  <style>
+:root {
+  color: #111827;
+  background: #f5f7fb;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+body { max-width: 1180px; margin: 0 auto; padding: 32px; }
+h1 { margin: 0 0 20px; font-size: 30px; }
+h2 { margin: 0 0 14px; font-size: 19px; }
+h3 { margin: 18px 0 10px; font-size: 15px; }
+section {
+  margin: 0 0 18px;
+  padding: 18px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+.subsection {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+dt { color: #64748b; font-size: 12px; font-weight: 800; }
+dd { margin: 4px 0 0; font-weight: 700; overflow-wrap: anywhere; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  vertical-align: top;
+}
+th { color: #475569; background: #f8fafc; }
+pre {
+  max-height: 320px;
+  overflow: auto;
+  padding: 10px;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.flamegraph {
+  overflow-x: auto;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.flamegraph details { margin: 0; }
+.flamegraph summary { display: block; cursor: pointer; }
+.flame-row { min-width: 760px; padding: 2px 0; }
+.flame-bar {
+  display: flex;
+  min-width: 28px;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #fff;
+  background: #2563eb;
+  font-size: 12px;
+}
+.flame-bar span { overflow: hidden; text-overflow: ellipsis; }
+.flame-bar small { flex: 0 0 auto; opacity: 0.85; }
+.muted { color: #64748b; font-weight: 500; }
+
+  </style>
+</head>
+<body>
+  <h1>ArchScope Analysis Report - profiler_collapsed</h1>
+<section><h2>Report Metadata</h2><dl><div><dt>Result type</dt><dd>profiler_collapsed</dd></div><div><dt>Created at</dt><dd>2026-11-13T14:54:42.6096596Z</dd></div><div><dt>Schema version</dt><dd>0.2.0</dd></div><div><dt>Source files</dt><dd>C:\workspace\projects-assets\test-data\demo-site\synthetic\db-bottleneck\profiler.collapsed</dd></div></dl></section>
+<section><h2>Summary</h2><dl><div><dt>aggregation</dt><dd>sample_count</dd></div><div><dt>estimated_seconds</dt><dd>1000</dd></div><div><dt>interval_ms</dt><dd>100</dd></div><div><dt>profile_kind</dt><dd>wall</dd></div><div><dt>seconds_per_weight</dt><dd>0.1</dd></div><div><dt>total_samples</dt><dd>10000</dd></div><div><dt>value_unit</dt><dd>samples</dd></div></dl></section>
+<section><h2>Parser Diagnostics</h2><dl><div><dt>bytes_read</dt><dd>4940</dd></div><div><dt>error_count</dt><dd>0</dd></div><div><dt>format</dt><dd>async_profiler_collapsed</dd></div><div><dt>max_observed_depth</dt><dd>26</dd></div><div><dt>parsed_records</dt><dd>7</dd></div><div><dt>skipped_lines</dt><dd>0</dd></div><div><dt>source_file</dt><dd>C:\workspace\projects-assets\test-data\demo-site\synthetic\db-bottleneck\profiler.collapsed</dd></div><div><dt>total_lines</dt><dd>7</dd></div><div><dt>warning_count</dt><dd>0</dd></div></dl><h3>skipped_by_reason</h3><pre>{}</pre></section>
+<section><h2>Series: component_breakdown</h2><div class="table-wrap"><table><thead><tr><th>component</th><th>samples</th></tr></thead><tbody><tr><td>Database</td><td>9200</td></tr><tr><td>Application</td><td>500</td></tr><tr><td>Framework</td><td>300</td></tr></tbody></table></div></section>
+<section><h2>Series: execution_breakdown</h2><div class="table-wrap"><table><thead><tr><th>category</th><th>elapsed_ratio</th><th>estimated_seconds</th><th>executive_label</th><th>parent_stage_ratio</th><th>primary_category</th><th>samples</th><th>top_methods</th><th>top_stacks</th><th>total_ratio</th><th>wait_reason</th></tr></thead><tbody><tr><td>SQL_DATABASE</td><td><span class="muted">null</span></td><td>920</td><td>SQL database</td><td>92</td><td>SQL_DATABASE</td><td>9200</td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 9200
+  }
+]</pre></td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.listOrders;com.example.order.OrderService.getOrders;com.example.order.OrderRepository.findByStatusAndDateRange;org.springframework.data.jpa.repository.query.JpaQueryExecution.execute;org.hibernate.query.internal.AbstractProducedQuery.list;org.hibernate.query.internal.AbstractProducedQuery.doList;org.hibernate.internal.SessionImpl.list;org.hibernate.loader.hql.QueryLoader.list;org.hibernate.loader.Loader.listIgnoreQueryCache;org.hibernate.loader.Loader.doList;org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections;org.hibernate.loader.Loader.executeQueryStatement;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract;org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;oracle.net.ns.NetInputStream.read;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 4500
+  },
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.report.ReportController.generateSalesReport;com.example.report.ReportService.buildReport;com.example.order.OrderRepository.findAllByDateRange;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 2500
+  },
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.createOrder;com.example.order.OrderService.createOrder;com.example.order.OrderRepository.save;org.hibernate.internal.SessionImpl.merge;org.hibernate.event.internal.DefaultMergeEventListener.onMerge;org.hibernate.action.internal.EntityInsertAction.execute;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 1200
+  },
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.listOrders;com.example.order.OrderService.getOrders;com.example.order.OrderRepository.findByStatusAndDateRange;org.hibernate.loader.Loader.executeQueryStatement;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe;oracle.jdbc.driver.T4C8Oall.doOALL;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 800
+  },
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.user.UserController.getCurrentUser;com.example.user.UserService.findById;com.example.user.UserRepository.findById;org.hibernate.loader.Loader.executeQueryStatement;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 200
+  }
+]</pre></td><td>92</td><td>NETWORK_IO_WAIT</td></tr><tr><td>APPLICATION_LOGIC</td><td><span class="muted">null</span></td><td>50</td><td>Application logic</td><td>5</td><td>APPLICATION_LOGIC</td><td>500</td><td><pre>[
+  {
+    &#34;name&#34;: &#34;com.example.health.HealthController.health&#34;,
+    &#34;samples&#34;: 500
+  }
+]</pre></td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;com.example.health.HealthController.health&#34;,
+    &#34;samples&#34;: 500
+  }
+]</pre></td><td>5</td><td><span class="muted">null</span></td></tr><tr><td>FRAMEWORK_MIDDLEWARE</td><td><span class="muted">null</span></td><td>30</td><td>Framework / middleware</td><td>3</td><td>FRAMEWORK_MIDDLEWARE</td><td>300</td><td><pre>[
+  {
+    &#34;name&#34;: &#34;org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;,
+    &#34;samples&#34;: 300
+  }
+]</pre></td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.product.ProductController.getProduct;com.example.product.ProductService.findById;com.example.product.ProductCache.get;org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;,
+    &#34;samples&#34;: 300
+  }
+]</pre></td><td>3</td><td><span class="muted">null</span></td></tr></tbody></table></div></section>
+<section><h2>Series: threads</h2><pre>[]</pre></section>
+<section><h2>Series: timeline_analysis</h2><div class="table-wrap"><table><thead><tr><th>elapsed_ratio</th><th>estimated_seconds</th><th>index</th><th>label</th><th>method_chains</th><th>samples</th><th>segment</th><th>stage_ratio</th><th>top_methods</th><th>top_stacks</th><th>total_ratio</th></tr></thead><tbody><tr><td><span class="muted">null</span></td><td>30</td><td>1</td><td>Framework / middleware</td><td><pre>[
+  {
+    &#34;chain&#34;: &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run -\u003e org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun -\u003e org.apache.coyote.AbstractProcessorLight.process -\u003e org.apache.coyote.http11.Http11Processor.service -\u003e org.springframework.web.servlet.DispatcherServlet.doDispatch -\u003e org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;,
+    &#34;frames&#34;: [
+      &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run&#34;,
+      &#34;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun&#34;,
+      &#34;org.apache.coyote.AbstractProcessorLight.process&#34;,
+      &#34;org.apache.coyote.http11.Http11Processor.service&#34;,
+      &#34;org.springframework.web.servlet.DispatcherServlet.doDispatch&#34;,
+      &#34;org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;
+    ],
+    &#34;samples&#34;: 300
+  }
+]</pre></td><td>300</td><td>FRAMEWORK_MIDDLEWARE</td><td>3</td><td><pre>[
+  {
+    &#34;name&#34;: &#34;org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;,
+    &#34;samples&#34;: 300
+  }
+]</pre></td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.product.ProductController.getProduct;com.example.product.ProductService.findById;com.example.product.ProductCache.get;org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;,
+    &#34;samples&#34;: 300
+  }
+]</pre></td><td>3</td></tr><tr><td><span class="muted">null</span></td><td>50</td><td>2</td><td>Internal method</td><td><pre>[
+  {
+    &#34;chain&#34;: &#34;java.lang.Thread.run -\u003e org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run -\u003e org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun -\u003e com.example.health.HealthController.health&#34;,
+    &#34;frames&#34;: [
+      &#34;java.lang.Thread.run&#34;,
+      &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run&#34;,
+      &#34;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun&#34;,
+      &#34;com.example.health.HealthController.health&#34;
+    ],
+    &#34;samples&#34;: 500
+  }
+]</pre></td><td>500</td><td>INTERNAL_METHOD</td><td>5</td><td><pre>[
+  {
+    &#34;name&#34;: &#34;com.example.health.HealthController.health&#34;,
+    &#34;samples&#34;: 500
+  }
+]</pre></td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;com.example.health.HealthController.health&#34;,
+    &#34;samples&#34;: 500
+  }
+]</pre></td><td>5</td></tr><tr><td><span class="muted">null</span></td><td>530</td><td>6</td><td>DB fetch</td><td><pre>[
+  {
+    &#34;chain&#34;: &#34;org.hibernate.loader.Loader.executeQueryStatement -\u003e org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract -\u003e org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet -\u003e oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForRows -\u003e oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+    &#34;frames&#34;: [
+      &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+      &#34;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract&#34;,
+      &#34;org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet&#34;,
+      &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+      &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+      &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;
+    ],
+    &#34;samples&#34;: 4500
+  },
+  {
+    &#34;chain&#34;: &#34;org.hibernate.loader.Loader.executeQueryStatement -\u003e org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract -\u003e oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe -\u003e oracle.jdbc.driver.T4C8Oall.doOALL -\u003e java.net.SocketInputStream.socketRead0&#34;,
+    &#34;frames&#34;: [
+      &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+      &#34;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract&#34;,
+      &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+      &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe&#34;,
+      &#34;oracle.jdbc.driver.T4C8Oall.doOALL&#34;,
+      &#34;java.net.SocketInputStream.socketRead0&#34;
+    ],
+    &#34;samples&#34;: 800
+  }
+]</pre></td><td>5300</td><td>DB_FETCH</td><td>53</td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 5300
+  }
+]</pre></td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.listOrders;com.example.order.OrderService.getOrders;com.example.order.OrderRepository.findByStatusAndDateRange;org.springframework.data.jpa.repository.query.JpaQueryExecution.execute;org.hibernate.query.internal.AbstractProducedQuery.list;org.hibernate.query.internal.AbstractProducedQuery.doList;org.hibernate.internal.SessionImpl.list;org.hibernate.loader.hql.QueryLoader.list;org.hibernate.loader.Loader.listIgnoreQueryCache;org.hibernate.loader.Loader.doList;org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections;org.hibernate.loader.Loader.executeQueryStatement;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract;org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;oracle.net.ns.NetInputStream.read;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 4500
+  },
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.listOrders;com.example.order.OrderService.getOrders;com.example.order.OrderRepository.findByStatusAndDateRange;org.hibernate.loader.Loader.executeQueryStatement;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe;oracle.jdbc.driver.T4C8Oall.doOALL;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 800
+  }
+]</pre></td><td>53</td></tr><tr><td><span class="muted">null</span></td><td>390</td><td>7</td><td>DB network wait</td><td><pre>[
+  {
+    &#34;chain&#34;: &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForRows -\u003e oracle.jdbc.driver.T4CMAREngine.unmarshalUB1 -\u003e java.net.SocketInputStream.socketRead0&#34;,
+    &#34;frames&#34;: [
+      &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+      &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+      &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+      &#34;java.net.SocketInputStream.socketRead0&#34;
+    ],
+    &#34;samples&#34;: 2500
+  },
+  {
+    &#34;chain&#34;: &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForRows -\u003e oracle.jdbc.driver.T4CMAREngine.unmarshalUB1 -\u003e java.net.SocketInputStream.socketRead0&#34;,
+    &#34;frames&#34;: [
+      &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate&#34;,
+      &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+      &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+      &#34;java.net.SocketInputStream.socketRead0&#34;
+    ],
+    &#34;samples&#34;: 1200
+  },
+  {
+    &#34;chain&#34;: &#34;org.hibernate.loader.Loader.executeQueryStatement -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForRows -\u003e java.net.SocketInputStream.socketRead0&#34;,
+    &#34;frames&#34;: [
+      &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+      &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+      &#34;java.net.SocketInputStream.socketRead0&#34;
+    ],
+    &#34;samples&#34;: 200
+  }
+]</pre></td><td>3900</td><td>DB_NETWORK_WAIT</td><td>39</td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 3900
+  }
+]</pre></td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.report.ReportController.generateSalesReport;com.example.report.ReportService.buildReport;com.example.order.OrderRepository.findAllByDateRange;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 2500
+  },
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.createOrder;com.example.order.OrderService.createOrder;com.example.order.OrderRepository.save;org.hibernate.internal.SessionImpl.merge;org.hibernate.event.internal.DefaultMergeEventListener.onMerge;org.hibernate.action.internal.EntityInsertAction.execute;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 1200
+  },
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.user.UserController.getCurrentUser;com.example.user.UserService.findById;com.example.user.UserRepository.findById;org.hibernate.loader.Loader.executeQueryStatement;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 200
+  }
+]</pre></td><td>39</td></tr></tbody></table></div></section>
+<section><h2>Series: top_stacks</h2><div class="table-wrap"><table><thead><tr><th>elapsed_ratio</th><th>estimated_seconds</th><th>sample_ratio</th><th>samples</th><th>stack</th></tr></thead><tbody><tr><td><span class="muted">null</span></td><td>450</td><td>45</td><td>4500</td><td>java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.listOrders;com.example.order.OrderService.getOrders;com.example.order.OrderRepository.findByStatusAndDateRange;org.springframework.data.jpa.repository.query.JpaQueryExecution.execute;org.hibernate.query.internal.AbstractProducedQuery.list;org.hibernate.query.internal.AbstractProducedQuery.doList;org.hibernate.internal.SessionImpl.list;org.hibernate.loader.hql.QueryLoader.list;org.hibernate.loader.Loader.listIgnoreQueryCache;org.hibernate.loader.Loader.doList;org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections;org.hibernate.loader.Loader.executeQueryStatement;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract;org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;oracle.net.ns.NetInputStream.read;java.net.SocketInputStream.socketRead0</td></tr><tr><td><span class="muted">null</span></td><td>250</td><td>25</td><td>2500</td><td>java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.report.ReportController.generateSalesReport;com.example.report.ReportService.buildReport;com.example.order.OrderRepository.findAllByDateRange;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0</td></tr><tr><td><span class="muted">null</span></td><td>120</td><td>12</td><td>1200</td><td>java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.createOrder;com.example.order.OrderService.createOrder;com.example.order.OrderRepository.save;org.hibernate.internal.SessionImpl.merge;org.hibernate.event.internal.DefaultMergeEventListener.onMerge;org.hibernate.action.internal.EntityInsertAction.execute;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0</td></tr><tr><td><span class="muted">null</span></td><td>80</td><td>8</td><td>800</td><td>java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.listOrders;com.example.order.OrderService.getOrders;com.example.order.OrderRepository.findByStatusAndDateRange;org.hibernate.loader.Loader.executeQueryStatement;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe;oracle.jdbc.driver.T4C8Oall.doOALL;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0</td></tr><tr><td><span class="muted">null</span></td><td>50</td><td>5</td><td>500</td><td>java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;com.example.health.HealthController.health</td></tr><tr><td><span class="muted">null</span></td><td>30</td><td>3</td><td>300</td><td>java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.product.ProductController.getProduct;com.example.product.ProductService.findById;com.example.product.ProductCache.get;org.springframework.cache.interceptor.CacheInterceptor.invoke</td></tr><tr><td><span class="muted">null</span></td><td>20</td><td>2</td><td>200</td><td>java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.user.UserController.getCurrentUser;com.example.user.UserService.findById;com.example.user.UserRepository.findById;org.hibernate.loader.Loader.executeQueryStatement;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0</td></tr></tbody></table></div></section>
+<section><h2>Tables: timeline_analysis</h2><div class="table-wrap"><table><thead><tr><th>elapsed_ratio</th><th>estimated_seconds</th><th>index</th><th>label</th><th>method_chains</th><th>samples</th><th>segment</th><th>stage_ratio</th><th>top_methods</th><th>top_stacks</th><th>total_ratio</th></tr></thead><tbody><tr><td><span class="muted">null</span></td><td>30</td><td>1</td><td>Framework / middleware</td><td><pre>[
+  {
+    &#34;chain&#34;: &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run -\u003e org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun -\u003e org.apache.coyote.AbstractProcessorLight.process -\u003e org.apache.coyote.http11.Http11Processor.service -\u003e org.springframework.web.servlet.DispatcherServlet.doDispatch -\u003e org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;,
+    &#34;frames&#34;: [
+      &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run&#34;,
+      &#34;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun&#34;,
+      &#34;org.apache.coyote.AbstractProcessorLight.process&#34;,
+      &#34;org.apache.coyote.http11.Http11Processor.service&#34;,
+      &#34;org.springframework.web.servlet.DispatcherServlet.doDispatch&#34;,
+      &#34;org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;
+    ],
+    &#34;samples&#34;: 300
+  }
+]</pre></td><td>300</td><td>FRAMEWORK_MIDDLEWARE</td><td>3</td><td><pre>[
+  {
+    &#34;name&#34;: &#34;org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;,
+    &#34;samples&#34;: 300
+  }
+]</pre></td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.product.ProductController.getProduct;com.example.product.ProductService.findById;com.example.product.ProductCache.get;org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;,
+    &#34;samples&#34;: 300
+  }
+]</pre></td><td>3</td></tr><tr><td><span class="muted">null</span></td><td>50</td><td>2</td><td>Internal method</td><td><pre>[
+  {
+    &#34;chain&#34;: &#34;java.lang.Thread.run -\u003e org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run -\u003e org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun -\u003e com.example.health.HealthController.health&#34;,
+    &#34;frames&#34;: [
+      &#34;java.lang.Thread.run&#34;,
+      &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run&#34;,
+      &#34;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun&#34;,
+      &#34;com.example.health.HealthController.health&#34;
+    ],
+    &#34;samples&#34;: 500
+  }
+]</pre></td><td>500</td><td>INTERNAL_METHOD</td><td>5</td><td><pre>[
+  {
+    &#34;name&#34;: &#34;com.example.health.HealthController.health&#34;,
+    &#34;samples&#34;: 500
+  }
+]</pre></td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;com.example.health.HealthController.health&#34;,
+    &#34;samples&#34;: 500
+  }
+]</pre></td><td>5</td></tr><tr><td><span class="muted">null</span></td><td>530</td><td>6</td><td>DB fetch</td><td><pre>[
+  {
+    &#34;chain&#34;: &#34;org.hibernate.loader.Loader.executeQueryStatement -\u003e org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract -\u003e org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet -\u003e oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForRows -\u003e oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+    &#34;frames&#34;: [
+      &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+      &#34;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract&#34;,
+      &#34;org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet&#34;,
+      &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+      &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+      &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;
+    ],
+    &#34;samples&#34;: 4500
+  },
+  {
+    &#34;chain&#34;: &#34;org.hibernate.loader.Loader.executeQueryStatement -\u003e org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract -\u003e oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe -\u003e oracle.jdbc.driver.T4C8Oall.doOALL -\u003e java.net.SocketInputStream.socketRead0&#34;,
+    &#34;frames&#34;: [
+      &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+      &#34;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract&#34;,
+      &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+      &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe&#34;,
+      &#34;oracle.jdbc.driver.T4C8Oall.doOALL&#34;,
+      &#34;java.net.SocketInputStream.socketRead0&#34;
+    ],
+    &#34;samples&#34;: 800
+  }
+]</pre></td><td>5300</td><td>DB_FETCH</td><td>53</td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 5300
+  }
+]</pre></td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.listOrders;com.example.order.OrderService.getOrders;com.example.order.OrderRepository.findByStatusAndDateRange;org.springframework.data.jpa.repository.query.JpaQueryExecution.execute;org.hibernate.query.internal.AbstractProducedQuery.list;org.hibernate.query.internal.AbstractProducedQuery.doList;org.hibernate.internal.SessionImpl.list;org.hibernate.loader.hql.QueryLoader.list;org.hibernate.loader.Loader.listIgnoreQueryCache;org.hibernate.loader.Loader.doList;org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections;org.hibernate.loader.Loader.executeQueryStatement;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract;org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;oracle.net.ns.NetInputStream.read;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 4500
+  },
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.listOrders;com.example.order.OrderService.getOrders;com.example.order.OrderRepository.findByStatusAndDateRange;org.hibernate.loader.Loader.executeQueryStatement;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe;oracle.jdbc.driver.T4C8Oall.doOALL;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 800
+  }
+]</pre></td><td>53</td></tr><tr><td><span class="muted">null</span></td><td>390</td><td>7</td><td>DB network wait</td><td><pre>[
+  {
+    &#34;chain&#34;: &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForRows -\u003e oracle.jdbc.driver.T4CMAREngine.unmarshalUB1 -\u003e java.net.SocketInputStream.socketRead0&#34;,
+    &#34;frames&#34;: [
+      &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+      &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+      &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+      &#34;java.net.SocketInputStream.socketRead0&#34;
+    ],
+    &#34;samples&#34;: 2500
+  },
+  {
+    &#34;chain&#34;: &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForRows -\u003e oracle.jdbc.driver.T4CMAREngine.unmarshalUB1 -\u003e java.net.SocketInputStream.socketRead0&#34;,
+    &#34;frames&#34;: [
+      &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate&#34;,
+      &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+      &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+      &#34;java.net.SocketInputStream.socketRead0&#34;
+    ],
+    &#34;samples&#34;: 1200
+  },
+  {
+    &#34;chain&#34;: &#34;org.hibernate.loader.Loader.executeQueryStatement -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForRows -\u003e java.net.SocketInputStream.socketRead0&#34;,
+    &#34;frames&#34;: [
+      &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+      &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+      &#34;java.net.SocketInputStream.socketRead0&#34;
+    ],
+    &#34;samples&#34;: 200
+  }
+]</pre></td><td>3900</td><td>DB_NETWORK_WAIT</td><td>39</td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 3900
+  }
+]</pre></td><td><pre>[
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.report.ReportController.generateSalesReport;com.example.report.ReportService.buildReport;com.example.order.OrderRepository.findAllByDateRange;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 2500
+  },
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.createOrder;com.example.order.OrderService.createOrder;com.example.order.OrderRepository.save;org.hibernate.internal.SessionImpl.merge;org.hibernate.event.internal.DefaultMergeEventListener.onMerge;org.hibernate.action.internal.EntityInsertAction.execute;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 1200
+  },
+  {
+    &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.user.UserController.getCurrentUser;com.example.user.UserService.findById;com.example.user.UserRepository.findById;org.hibernate.loader.Loader.executeQueryStatement;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+    &#34;samples&#34;: 200
+  }
+]</pre></td><td>39</td></tr></tbody></table></div></section>
+<section><h2>Tables: top_child_frames</h2><div class="table-wrap"><table><thead><tr><th>frame</th><th>ratio</th><th>samples</th></tr></thead><tbody><tr><td>java.lang.Thread.run</td><td>100</td><td>10000</td></tr></tbody></table></div></section>
+<section><h2>Tables: top_stacks</h2><div class="table-wrap"><table><thead><tr><th>elapsed_ratio</th><th>estimated_seconds</th><th>frames</th><th>sample_ratio</th><th>samples</th><th>stack</th></tr></thead><tbody><tr><td><span class="muted">null</span></td><td>450</td><td><pre>[
+  &#34;java.lang.Thread.run&#34;,
+  &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run&#34;,
+  &#34;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun&#34;,
+  &#34;org.apache.coyote.AbstractProcessorLight.process&#34;,
+  &#34;org.apache.coyote.http11.Http11Processor.service&#34;,
+  &#34;org.springframework.web.servlet.DispatcherServlet.doDispatch&#34;,
+  &#34;com.example.order.OrderController.listOrders&#34;,
+  &#34;com.example.order.OrderService.getOrders&#34;,
+  &#34;com.example.order.OrderRepository.findByStatusAndDateRange&#34;,
+  &#34;org.springframework.data.jpa.repository.query.JpaQueryExecution.execute&#34;,
+  &#34;org.hibernate.query.internal.AbstractProducedQuery.list&#34;,
+  &#34;org.hibernate.query.internal.AbstractProducedQuery.doList&#34;,
+  &#34;org.hibernate.internal.SessionImpl.list&#34;,
+  &#34;org.hibernate.loader.hql.QueryLoader.list&#34;,
+  &#34;org.hibernate.loader.Loader.listIgnoreQueryCache&#34;,
+  &#34;org.hibernate.loader.Loader.doList&#34;,
+  &#34;org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections&#34;,
+  &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+  &#34;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract&#34;,
+  &#34;org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet&#34;,
+  &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+  &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+  &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+  &#34;oracle.net.ns.Packet.receive&#34;,
+  &#34;oracle.net.ns.NetInputStream.read&#34;,
+  &#34;java.net.SocketInputStream.socketRead0&#34;
+]</pre></td><td>45</td><td>4500</td><td>java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.listOrders;com.example.order.OrderService.getOrders;com.example.order.OrderRepository.findByStatusAndDateRange;org.springframework.data.jpa.repository.query.JpaQueryExecution.execute;org.hibernate.query.internal.AbstractProducedQuery.list;org.hibernate.query.internal.AbstractProducedQuery.doList;org.hibernate.internal.SessionImpl.list;org.hibernate.loader.hql.QueryLoader.list;org.hibernate.loader.Loader.listIgnoreQueryCache;org.hibernate.loader.Loader.doList;org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections;org.hibernate.loader.Loader.executeQueryStatement;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract;org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;oracle.net.ns.NetInputStream.read;java.net.SocketInputStream.socketRead0</td></tr><tr><td><span class="muted">null</span></td><td>250</td><td><pre>[
+  &#34;java.lang.Thread.run&#34;,
+  &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run&#34;,
+  &#34;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun&#34;,
+  &#34;org.apache.coyote.AbstractProcessorLight.process&#34;,
+  &#34;org.apache.coyote.http11.Http11Processor.service&#34;,
+  &#34;org.springframework.web.servlet.DispatcherServlet.doDispatch&#34;,
+  &#34;com.example.report.ReportController.generateSalesReport&#34;,
+  &#34;com.example.report.ReportService.buildReport&#34;,
+  &#34;com.example.order.OrderRepository.findAllByDateRange&#34;,
+  &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+  &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+  &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+  &#34;oracle.net.ns.Packet.receive&#34;,
+  &#34;java.net.SocketInputStream.socketRead0&#34;
+]</pre></td><td>25</td><td>2500</td><td>java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.report.ReportController.generateSalesReport;com.example.report.ReportService.buildReport;com.example.order.OrderRepository.findAllByDateRange;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0</td></tr><tr><td><span class="muted">null</span></td><td>120</td><td><pre>[
+  &#34;java.lang.Thread.run&#34;,
+  &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run&#34;,
+  &#34;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun&#34;,
+  &#34;org.apache.coyote.AbstractProcessorLight.process&#34;,
+  &#34;org.apache.coyote.http11.Http11Processor.service&#34;,
+  &#34;org.springframework.web.servlet.DispatcherServlet.doDispatch&#34;,
+  &#34;com.example.order.OrderController.createOrder&#34;,
+  &#34;com.example.order.OrderService.createOrder&#34;,
+  &#34;com.example.order.OrderRepository.save&#34;,
+  &#34;org.hibernate.internal.SessionImpl.merge&#34;,
+  &#34;org.hibernate.event.internal.DefaultMergeEventListener.onMerge&#34;,
+  &#34;org.hibernate.action.internal.EntityInsertAction.execute&#34;,
+  &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate&#34;,
+  &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+  &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+  &#34;oracle.net.ns.Packet.receive&#34;,
+  &#34;java.net.SocketInputStream.socketRead0&#34;
+]</pre></td><td>12</td><td>1200</td><td>java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.createOrder;com.example.order.OrderService.createOrder;com.example.order.OrderRepository.save;org.hibernate.internal.SessionImpl.merge;org.hibernate.event.internal.DefaultMergeEventListener.onMerge;org.hibernate.action.internal.EntityInsertAction.execute;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0</td></tr><tr><td><span class="muted">null</span></td><td>80</td><td><pre>[
+  &#34;java.lang.Thread.run&#34;,
+  &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run&#34;,
+  &#34;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun&#34;,
+  &#34;org.apache.coyote.AbstractProcessorLight.process&#34;,
+  &#34;org.apache.coyote.http11.Http11Processor.service&#34;,
+  &#34;org.springframework.web.servlet.DispatcherServlet.doDispatch&#34;,
+  &#34;com.example.order.OrderController.listOrders&#34;,
+  &#34;com.example.order.OrderService.getOrders&#34;,
+  &#34;com.example.order.OrderRepository.findByStatusAndDateRange&#34;,
+  &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+  &#34;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract&#34;,
+  &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+  &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe&#34;,
+  &#34;oracle.jdbc.driver.T4C8Oall.doOALL&#34;,
+  &#34;oracle.net.ns.Packet.receive&#34;,
+  &#34;java.net.SocketInputStream.socketRead0&#34;
+]</pre></td><td>8</td><td>800</td><td>java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.listOrders;com.example.order.OrderService.getOrders;com.example.order.OrderRepository.findByStatusAndDateRange;org.hibernate.loader.Loader.executeQueryStatement;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe;oracle.jdbc.driver.T4C8Oall.doOALL;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0</td></tr><tr><td><span class="muted">null</span></td><td>50</td><td><pre>[
+  &#34;java.lang.Thread.run&#34;,
+  &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run&#34;,
+  &#34;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun&#34;,
+  &#34;com.example.health.HealthController.health&#34;
+]</pre></td><td>5</td><td>500</td><td>java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;com.example.health.HealthController.health</td></tr><tr><td><span class="muted">null</span></td><td>30</td><td><pre>[
+  &#34;java.lang.Thread.run&#34;,
+  &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run&#34;,
+  &#34;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun&#34;,
+  &#34;org.apache.coyote.AbstractProcessorLight.process&#34;,
+  &#34;org.apache.coyote.http11.Http11Processor.service&#34;,
+  &#34;org.springframework.web.servlet.DispatcherServlet.doDispatch&#34;,
+  &#34;com.example.product.ProductController.getProduct&#34;,
+  &#34;com.example.product.ProductService.findById&#34;,
+  &#34;com.example.product.ProductCache.get&#34;,
+  &#34;org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;
+]</pre></td><td>3</td><td>300</td><td>java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.product.ProductController.getProduct;com.example.product.ProductService.findById;com.example.product.ProductCache.get;org.springframework.cache.interceptor.CacheInterceptor.invoke</td></tr><tr><td><span class="muted">null</span></td><td>20</td><td><pre>[
+  &#34;java.lang.Thread.run&#34;,
+  &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run&#34;,
+  &#34;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun&#34;,
+  &#34;org.apache.coyote.AbstractProcessorLight.process&#34;,
+  &#34;org.apache.coyote.http11.Http11Processor.service&#34;,
+  &#34;org.springframework.web.servlet.DispatcherServlet.doDispatch&#34;,
+  &#34;com.example.user.UserController.getCurrentUser&#34;,
+  &#34;com.example.user.UserService.findById&#34;,
+  &#34;com.example.user.UserRepository.findById&#34;,
+  &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+  &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+  &#34;oracle.net.ns.Packet.receive&#34;,
+  &#34;java.net.SocketInputStream.socketRead0&#34;
+]</pre></td><td>2</td><td>200</td><td>java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.user.UserController.getCurrentUser;com.example.user.UserService.findById;com.example.user.UserRepository.findById;org.hibernate.loader.Loader.executeQueryStatement;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0</td></tr></tbody></table></div></section>
+<section><h2>Flamegraph</h2><div class="flamegraph" role="tree"><details open><summary><div class="flame-row" style="margin-left:0px"><div class="flame-bar" style="width:100.00%"><span>All</span><small>10000</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:14px"><div class="flame-bar" style="width:100.00%"><span>java.lang.Thread.run</span><small>10000</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:28px"><div class="flame-bar" style="width:100.00%"><span>org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run</span><small>10000</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:42px"><div class="flame-bar" style="width:100.00%"><span>org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun</span><small>10000</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:56px"><div class="flame-bar" style="width:95.00%"><span>org.apache.coyote.AbstractProcessorLight.process</span><small>9500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:70px"><div class="flame-bar" style="width:95.00%"><span>org.apache.coyote.http11.Http11Processor.service</span><small>9500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:84px"><div class="flame-bar" style="width:95.00%"><span>org.springframework.web.servlet.DispatcherServlet.doDispatch</span><small>9500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:98px"><div class="flame-bar" style="width:53.00%"><span>com.example.order.OrderController.listOrders</span><small>5300</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:112px"><div class="flame-bar" style="width:53.00%"><span>com.example.order.OrderService.getOrders</span><small>5300</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:126px"><div class="flame-bar" style="width:53.00%"><span>com.example.order.OrderRepository.findByStatusAndDateRange</span><small>5300</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:140px"><div class="flame-bar" style="width:45.00%"><span>org.springframework.data.jpa.repository.query.JpaQueryExecution.execute</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:154px"><div class="flame-bar" style="width:45.00%"><span>org.hibernate.query.internal.AbstractProducedQuery.list</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:168px"><div class="flame-bar" style="width:45.00%"><span>org.hibernate.query.internal.AbstractProducedQuery.doList</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:182px"><div class="flame-bar" style="width:45.00%"><span>org.hibernate.internal.SessionImpl.list</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:196px"><div class="flame-bar" style="width:45.00%"><span>org.hibernate.loader.hql.QueryLoader.list</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:210px"><div class="flame-bar" style="width:45.00%"><span>org.hibernate.loader.Loader.listIgnoreQueryCache</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:224px"><div class="flame-bar" style="width:45.00%"><span>org.hibernate.loader.Loader.doList</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:238px"><div class="flame-bar" style="width:45.00%"><span>org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:252px"><div class="flame-bar" style="width:45.00%"><span>org.hibernate.loader.Loader.executeQueryStatement</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:266px"><div class="flame-bar" style="width:45.00%"><span>org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:280px"><div class="flame-bar" style="width:45.00%"><span>org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:294px"><div class="flame-bar" style="width:45.00%"><span>oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:308px"><div class="flame-bar" style="width:45.00%"><span>oracle.jdbc.driver.T4CPreparedStatement.executeForRows</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:322px"><div class="flame-bar" style="width:45.00%"><span>oracle.jdbc.driver.T4CMAREngine.unmarshalUB1</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:336px"><div class="flame-bar" style="width:45.00%"><span>oracle.net.ns.Packet.receive</span><small>4500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:350px"><div class="flame-bar" style="width:45.00%"><span>oracle.net.ns.NetInputStream.read</span><small>4500</small></div></div></summary><div class="flame-row" style="margin-left:364px"><div class="flame-bar" style="width:45.00%"><span>java.net.SocketInputStream.socketRead0</span><small>4500</small></div></div></details></details></details></details></details></details></details></details></details></details></details></details></details></details></details></details><details open><summary><div class="flame-row" style="margin-left:140px"><div class="flame-bar" style="width:8.00%"><span>org.hibernate.loader.Loader.executeQueryStatement</span><small>800</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:154px"><div class="flame-bar" style="width:8.00%"><span>org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract</span><small>800</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:168px"><div class="flame-bar" style="width:8.00%"><span>oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery</span><small>800</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:182px"><div class="flame-bar" style="width:8.00%"><span>oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe</span><small>800</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:196px"><div class="flame-bar" style="width:8.00%"><span>oracle.jdbc.driver.T4C8Oall.doOALL</span><small>800</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:210px"><div class="flame-bar" style="width:8.00%"><span>oracle.net.ns.Packet.receive</span><small>800</small></div></div></summary><div class="flame-row" style="margin-left:224px"><div class="flame-bar" style="width:8.00%"><span>java.net.SocketInputStream.socketRead0</span><small>800</small></div></div></details></details></details></details></details></details></details></details></details><details open><summary><div class="flame-row" style="margin-left:98px"><div class="flame-bar" style="width:25.00%"><span>com.example.report.ReportController.generateSalesReport</span><small>2500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:112px"><div class="flame-bar" style="width:25.00%"><span>com.example.report.ReportService.buildReport</span><small>2500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:126px"><div class="flame-bar" style="width:25.00%"><span>com.example.order.OrderRepository.findAllByDateRange</span><small>2500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:140px"><div class="flame-bar" style="width:25.00%"><span>oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery</span><small>2500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:154px"><div class="flame-bar" style="width:25.00%"><span>oracle.jdbc.driver.T4CPreparedStatement.executeForRows</span><small>2500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:168px"><div class="flame-bar" style="width:25.00%"><span>oracle.jdbc.driver.T4CMAREngine.unmarshalUB1</span><small>2500</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:182px"><div class="flame-bar" style="width:25.00%"><span>oracle.net.ns.Packet.receive</span><small>2500</small></div></div></summary><div class="flame-row" style="margin-left:196px"><div class="flame-bar" style="width:25.00%"><span>java.net.SocketInputStream.socketRead0</span><small>2500</small></div></div></details></details></details></details></details></details></details><details open><summary><div class="flame-row" style="margin-left:98px"><div class="flame-bar" style="width:12.00%"><span>com.example.order.OrderController.createOrder</span><small>1200</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:112px"><div class="flame-bar" style="width:12.00%"><span>com.example.order.OrderService.createOrder</span><small>1200</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:126px"><div class="flame-bar" style="width:12.00%"><span>com.example.order.OrderRepository.save</span><small>1200</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:140px"><div class="flame-bar" style="width:12.00%"><span>org.hibernate.internal.SessionImpl.merge</span><small>1200</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:154px"><div class="flame-bar" style="width:12.00%"><span>org.hibernate.event.internal.DefaultMergeEventListener.onMerge</span><small>1200</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:168px"><div class="flame-bar" style="width:12.00%"><span>org.hibernate.action.internal.EntityInsertAction.execute</span><small>1200</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:182px"><div class="flame-bar" style="width:12.00%"><span>oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate</span><small>1200</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:196px"><div class="flame-bar" style="width:12.00%"><span>oracle.jdbc.driver.T4CPreparedStatement.executeForRows</span><small>1200</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:210px"><div class="flame-bar" style="width:12.00%"><span>oracle.jdbc.driver.T4CMAREngine.unmarshalUB1</span><small>1200</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:224px"><div class="flame-bar" style="width:12.00%"><span>oracle.net.ns.Packet.receive</span><small>1200</small></div></div></summary><div class="flame-row" style="margin-left:238px"><div class="flame-bar" style="width:12.00%"><span>java.net.SocketInputStream.socketRead0</span><small>1200</small></div></div></details></details></details></details></details></details></details></details></details></details><details open><summary><div class="flame-row" style="margin-left:98px"><div class="flame-bar" style="width:3.00%"><span>com.example.product.ProductController.getProduct</span><small>300</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:112px"><div class="flame-bar" style="width:3.00%"><span>com.example.product.ProductService.findById</span><small>300</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:126px"><div class="flame-bar" style="width:3.00%"><span>com.example.product.ProductCache.get</span><small>300</small></div></div></summary><div class="flame-row" style="margin-left:140px"><div class="flame-bar" style="width:3.00%"><span>org.springframework.cache.interceptor.CacheInterceptor.invoke</span><small>300</small></div></div></details></details></details><details open><summary><div class="flame-row" style="margin-left:98px"><div class="flame-bar" style="width:2.00%"><span>com.example.user.UserController.getCurrentUser</span><small>200</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:112px"><div class="flame-bar" style="width:2.00%"><span>com.example.user.UserService.findById</span><small>200</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:126px"><div class="flame-bar" style="width:2.00%"><span>com.example.user.UserRepository.findById</span><small>200</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:140px"><div class="flame-bar" style="width:2.00%"><span>org.hibernate.loader.Loader.executeQueryStatement</span><small>200</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:154px"><div class="flame-bar" style="width:2.00%"><span>oracle.jdbc.driver.T4CPreparedStatement.executeForRows</span><small>200</small></div></div></summary><details open><summary><div class="flame-row" style="margin-left:168px"><div class="flame-bar" style="width:2.00%"><span>oracle.net.ns.Packet.receive</span><small>200</small></div></div></summary><div class="flame-row" style="margin-left:182px"><div class="flame-bar" style="width:2.00%"><span>java.net.SocketInputStream.socketRead0</span><small>200</small></div></div></details></details></details></details></details></details></details></details></details><div class="flame-row" style="margin-left:56px"><div class="flame-bar" style="width:5.00%"><span>com.example.health.HealthController.health</span><small>500</small></div></div></details></details></details></details></div></section>
+<section><h2>Chart Data</h2><pre>{
+  &#34;drilldown_stages&#34;: [
+    {
+      &#34;breadcrumb&#34;: [
+        &#34;All&#34;
+      ],
+      &#34;diagnostics&#34;: null,
+      &#34;filter&#34;: null,
+      &#34;flamegraph&#34;: {
+        &#34;category&#34;: null,
+        &#34;children&#34;: [],
+        &#34;color&#34;: null,
+        &#34;id&#34;: &#34;&#34;,
+        &#34;name&#34;: &#34;&#34;,
+        &#34;parentId&#34;: null,
+        &#34;ratio&#34;: 0,
+        &#34;samples&#34;: 0
+      },
+      &#34;index&#34;: 0,
+      &#34;label&#34;: &#34;All&#34;,
+      &#34;metrics&#34;: {
+        &#34;elapsed_ratio&#34;: null,
+        &#34;estimated_seconds&#34;: 1000,
+        &#34;matched_samples&#34;: 10000,
+        &#34;parent_stage_ratio&#34;: 100,
+        &#34;total_ratio&#34;: 100,
+        &#34;total_samples&#34;: 10000
+      },
+      &#34;timeline_analysis&#34;: [
+        {
+          &#34;elapsed_ratio&#34;: null,
+          &#34;estimated_seconds&#34;: 30,
+          &#34;index&#34;: 1,
+          &#34;label&#34;: &#34;Framework / middleware&#34;,
+          &#34;method_chains&#34;: [
+            {
+              &#34;chain&#34;: &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run -\u003e org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun -\u003e org.apache.coyote.AbstractProcessorLight.process -\u003e org.apache.coyote.http11.Http11Processor.service -\u003e org.springframework.web.servlet.DispatcherServlet.doDispatch -\u003e org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;,
+              &#34;frames&#34;: [
+                &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run&#34;,
+                &#34;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun&#34;,
+                &#34;org.apache.coyote.AbstractProcessorLight.process&#34;,
+                &#34;org.apache.coyote.http11.Http11Processor.service&#34;,
+                &#34;org.springframework.web.servlet.DispatcherServlet.doDispatch&#34;,
+                &#34;org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;
+              ],
+              &#34;samples&#34;: 300
+            }
+          ],
+          &#34;samples&#34;: 300,
+          &#34;segment&#34;: &#34;FRAMEWORK_MIDDLEWARE&#34;,
+          &#34;stage_ratio&#34;: 3,
+          &#34;top_methods&#34;: [
+            {
+              &#34;name&#34;: &#34;org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;,
+              &#34;samples&#34;: 300
+            }
+          ],
+          &#34;top_stacks&#34;: [
+            {
+              &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.product.ProductController.getProduct;com.example.product.ProductService.findById;com.example.product.ProductCache.get;org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;,
+              &#34;samples&#34;: 300
+            }
+          ],
+          &#34;total_ratio&#34;: 3
+        },
+        {
+          &#34;elapsed_ratio&#34;: null,
+          &#34;estimated_seconds&#34;: 50,
+          &#34;index&#34;: 2,
+          &#34;label&#34;: &#34;Internal method&#34;,
+          &#34;method_chains&#34;: [
+            {
+              &#34;chain&#34;: &#34;java.lang.Thread.run -\u003e org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run -\u003e org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun -\u003e com.example.health.HealthController.health&#34;,
+              &#34;frames&#34;: [
+                &#34;java.lang.Thread.run&#34;,
+                &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run&#34;,
+                &#34;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun&#34;,
+                &#34;com.example.health.HealthController.health&#34;
+              ],
+              &#34;samples&#34;: 500
+            }
+          ],
+          &#34;samples&#34;: 500,
+          &#34;segment&#34;: &#34;INTERNAL_METHOD&#34;,
+          &#34;stage_ratio&#34;: 5,
+          &#34;top_methods&#34;: [
+            {
+              &#34;name&#34;: &#34;com.example.health.HealthController.health&#34;,
+              &#34;samples&#34;: 500
+            }
+          ],
+          &#34;top_stacks&#34;: [
+            {
+              &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;com.example.health.HealthController.health&#34;,
+              &#34;samples&#34;: 500
+            }
+          ],
+          &#34;total_ratio&#34;: 5
+        },
+        {
+          &#34;elapsed_ratio&#34;: null,
+          &#34;estimated_seconds&#34;: 530,
+          &#34;index&#34;: 6,
+          &#34;label&#34;: &#34;DB fetch&#34;,
+          &#34;method_chains&#34;: [
+            {
+              &#34;chain&#34;: &#34;org.hibernate.loader.Loader.executeQueryStatement -\u003e org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract -\u003e org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet -\u003e oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForRows -\u003e oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+              &#34;frames&#34;: [
+                &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+                &#34;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract&#34;,
+                &#34;org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet&#34;,
+                &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+                &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+                &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;
+              ],
+              &#34;samples&#34;: 4500
+            },
+            {
+              &#34;chain&#34;: &#34;org.hibernate.loader.Loader.executeQueryStatement -\u003e org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract -\u003e oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe -\u003e oracle.jdbc.driver.T4C8Oall.doOALL -\u003e java.net.SocketInputStream.socketRead0&#34;,
+              &#34;frames&#34;: [
+                &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+                &#34;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract&#34;,
+                &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+                &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe&#34;,
+                &#34;oracle.jdbc.driver.T4C8Oall.doOALL&#34;,
+                &#34;java.net.SocketInputStream.socketRead0&#34;
+              ],
+              &#34;samples&#34;: 800
+            }
+          ],
+          &#34;samples&#34;: 5300,
+          &#34;segment&#34;: &#34;DB_FETCH&#34;,
+          &#34;stage_ratio&#34;: 53,
+          &#34;top_methods&#34;: [
+            {
+              &#34;name&#34;: &#34;java.net.SocketInputStream.socketRead0&#34;,
+              &#34;samples&#34;: 5300
+            }
+          ],
+          &#34;top_stacks&#34;: [
+            {
+              &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.listOrders;com.example.order.OrderService.getOrders;com.example.order.OrderRepository.findByStatusAndDateRange;org.springframework.data.jpa.repository.query.JpaQueryExecution.execute;org.hibernate.query.internal.AbstractProducedQuery.list;org.hibernate.query.internal.AbstractProducedQuery.doList;org.hibernate.internal.SessionImpl.list;org.hibernate.loader.hql.QueryLoader.list;org.hibernate.loader.Loader.listIgnoreQueryCache;org.hibernate.loader.Loader.doList;org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections;org.hibernate.loader.Loader.executeQueryStatement;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract;org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;oracle.net.ns.NetInputStream.read;java.net.SocketInputStream.socketRead0&#34;,
+              &#34;samples&#34;: 4500
+            },
+            {
+              &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.listOrders;com.example.order.OrderService.getOrders;com.example.order.OrderRepository.findByStatusAndDateRange;org.hibernate.loader.Loader.executeQueryStatement;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe;oracle.jdbc.driver.T4C8Oall.doOALL;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+              &#34;samples&#34;: 800
+            }
+          ],
+          &#34;total_ratio&#34;: 53
+        },
+        {
+          &#34;elapsed_ratio&#34;: null,
+          &#34;estimated_seconds&#34;: 390,
+          &#34;index&#34;: 7,
+          &#34;label&#34;: &#34;DB network wait&#34;,
+          &#34;method_chains&#34;: [
+            {
+              &#34;chain&#34;: &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForRows -\u003e oracle.jdbc.driver.T4CMAREngine.unmarshalUB1 -\u003e java.net.SocketInputStream.socketRead0&#34;,
+              &#34;frames&#34;: [
+                &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+                &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+                &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+                &#34;java.net.SocketInputStream.socketRead0&#34;
+              ],
+              &#34;samples&#34;: 2500
+            },
+            {
+              &#34;chain&#34;: &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForRows -\u003e oracle.jdbc.driver.T4CMAREngine.unmarshalUB1 -\u003e java.net.SocketInputStream.socketRead0&#34;,
+              &#34;frames&#34;: [
+                &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate&#34;,
+                &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+                &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+                &#34;java.net.SocketInputStream.socketRead0&#34;
+              ],
+              &#34;samples&#34;: 1200
+            },
+            {
+              &#34;chain&#34;: &#34;org.hibernate.loader.Loader.executeQueryStatement -\u003e oracle.jdbc.driver.T4CPreparedStatement.executeForRows -\u003e java.net.SocketInputStream.socketRead0&#34;,
+              &#34;frames&#34;: [
+                &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+                &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+                &#34;java.net.SocketInputStream.socketRead0&#34;
+              ],
+              &#34;samples&#34;: 200
+            }
+          ],
+          &#34;samples&#34;: 3900,
+          &#34;segment&#34;: &#34;DB_NETWORK_WAIT&#34;,
+          &#34;stage_ratio&#34;: 39,
+          &#34;top_methods&#34;: [
+            {
+              &#34;name&#34;: &#34;java.net.SocketInputStream.socketRead0&#34;,
+              &#34;samples&#34;: 3900
+            }
+          ],
+          &#34;top_stacks&#34;: [
+            {
+              &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.report.ReportController.generateSalesReport;com.example.report.ReportService.buildReport;com.example.order.OrderRepository.findAllByDateRange;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+              &#34;samples&#34;: 2500
+            },
+            {
+              &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.createOrder;com.example.order.OrderService.createOrder;com.example.order.OrderRepository.save;org.hibernate.internal.SessionImpl.merge;org.hibernate.event.internal.DefaultMergeEventListener.onMerge;org.hibernate.action.internal.EntityInsertAction.execute;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+              &#34;samples&#34;: 1200
+            },
+            {
+              &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.user.UserController.getCurrentUser;com.example.user.UserService.findById;com.example.user.UserRepository.findById;org.hibernate.loader.Loader.executeQueryStatement;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+              &#34;samples&#34;: 200
+            }
+          ],
+          &#34;total_ratio&#34;: 39
+        }
+      ],
+      &#34;top_child_frames&#34;: [
+        {
+          &#34;frame&#34;: &#34;java.lang.Thread.run&#34;,
+          &#34;ratio&#34;: 100,
+          &#34;samples&#34;: 10000
+        }
+      ],
+      &#34;top_stacks&#34;: [
+        {
+          &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.listOrders;com.example.order.OrderService.getOrders;com.example.order.OrderRepository.findByStatusAndDateRange;org.springframework.data.jpa.repository.query.JpaQueryExecution.execute;org.hibernate.query.internal.AbstractProducedQuery.list;org.hibernate.query.internal.AbstractProducedQuery.doList;org.hibernate.internal.SessionImpl.list;org.hibernate.loader.hql.QueryLoader.list;org.hibernate.loader.Loader.listIgnoreQueryCache;org.hibernate.loader.Loader.doList;org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections;org.hibernate.loader.Loader.executeQueryStatement;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract;org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;oracle.net.ns.NetInputStream.read;java.net.SocketInputStream.socketRead0&#34;,
+          &#34;samples&#34;: 4500
+        },
+        {
+          &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.report.ReportController.generateSalesReport;com.example.report.ReportService.buildReport;com.example.order.OrderRepository.findAllByDateRange;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+          &#34;samples&#34;: 2500
+        },
+        {
+          &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.createOrder;com.example.order.OrderService.createOrder;com.example.order.OrderRepository.save;org.hibernate.internal.SessionImpl.merge;org.hibernate.event.internal.DefaultMergeEventListener.onMerge;org.hibernate.action.internal.EntityInsertAction.execute;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+          &#34;samples&#34;: 1200
+        },
+        {
+          &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.order.OrderController.listOrders;com.example.order.OrderService.getOrders;com.example.order.OrderRepository.findByStatusAndDateRange;org.hibernate.loader.Loader.executeQueryStatement;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery;oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe;oracle.jdbc.driver.T4C8Oall.doOALL;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+          &#34;samples&#34;: 800
+        },
+        {
+          &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;com.example.health.HealthController.health&#34;,
+          &#34;samples&#34;: 500
+        },
+        {
+          &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.product.ProductController.getProduct;com.example.product.ProductService.findById;com.example.product.ProductCache.get;org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;,
+          &#34;samples&#34;: 300
+        },
+        {
+          &#34;name&#34;: &#34;java.lang.Thread.run;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun;org.apache.coyote.AbstractProcessorLight.process;org.apache.coyote.http11.Http11Processor.service;org.springframework.web.servlet.DispatcherServlet.doDispatch;com.example.user.UserController.getCurrentUser;com.example.user.UserService.findById;com.example.user.UserRepository.findById;org.hibernate.loader.Loader.executeQueryStatement;oracle.jdbc.driver.T4CPreparedStatement.executeForRows;oracle.net.ns.Packet.receive;java.net.SocketInputStream.socketRead0&#34;,
+          &#34;samples&#34;: 200
+        }
+      ]
+    }
+  ],
+  &#34;flamegraph&#34;: {
+    &#34;category&#34;: null,
+    &#34;children&#34;: [
+      {
+        &#34;category&#34;: null,
+        &#34;children&#34;: [
+          {
+            &#34;category&#34;: null,
+            &#34;children&#34;: [
+              {
+                &#34;category&#34;: null,
+                &#34;children&#34;: [
+                  {
+                    &#34;category&#34;: null,
+                    &#34;children&#34;: [
+                      {
+                        &#34;category&#34;: null,
+                        &#34;children&#34;: [
+                          {
+                            &#34;category&#34;: null,
+                            &#34;children&#34;: [
+                              {
+                                &#34;category&#34;: null,
+                                &#34;children&#34;: [
+                                  {
+                                    &#34;category&#34;: null,
+                                    &#34;children&#34;: [
+                                      {
+                                        &#34;category&#34;: null,
+                                        &#34;children&#34;: [
+                                          {
+                                            &#34;category&#34;: null,
+                                            &#34;children&#34;: [
+                                              {
+                                                &#34;category&#34;: null,
+                                                &#34;children&#34;: [
+                                                  {
+                                                    &#34;category&#34;: null,
+                                                    &#34;children&#34;: [
+                                                      {
+                                                        &#34;category&#34;: null,
+                                                        &#34;children&#34;: [
+                                                          {
+                                                            &#34;category&#34;: null,
+                                                            &#34;children&#34;: [
+                                                              {
+                                                                &#34;category&#34;: null,
+                                                                &#34;children&#34;: [
+                                                                  {
+                                                                    &#34;category&#34;: null,
+                                                                    &#34;children&#34;: [
+                                                                      {
+                                                                        &#34;category&#34;: null,
+                                                                        &#34;children&#34;: [
+                                                                          {
+                                                                            &#34;category&#34;: null,
+                                                                            &#34;children&#34;: [
+                                                                              {
+                                                                                &#34;category&#34;: null,
+                                                                                &#34;children&#34;: [
+                                                                                  {
+                                                                                    &#34;category&#34;: null,
+                                                                                    &#34;children&#34;: [
+                                                                                      {
+                                                                                        &#34;category&#34;: null,
+                                                                                        &#34;children&#34;: [
+                                                                                          {
+                                                                                            &#34;category&#34;: null,
+                                                                                            &#34;children&#34;: [
+                                                                                              {
+                                                                                                &#34;category&#34;: null,
+                                                                                                &#34;children&#34;: [
+                                                                                                  {
+                                                                                                    &#34;category&#34;: null,
+                                                                                                    &#34;children&#34;: [
+                                                                                                      {
+                                                                                                        &#34;category&#34;: null,
+                                                                                                        &#34;children&#34;: [
+                                                                                                          {
+                                                                                                            &#34;category&#34;: null,
+                                                                                                            &#34;children&#34;: [],
+                                                                                                            &#34;color&#34;: null,
+                                                                                                            &#34;id&#34;: &#34;frame:java.net.SocketInputStream.socketRead0-b023a8a3b6709fe3&#34;,
+                                                                                                            &#34;name&#34;: &#34;java.net.SocketInputStream.socketRead0&#34;,
+                                                                                                            &#34;parentId&#34;: &#34;frame:oracle.net.ns.NetInputStream.read-72c37741c06a511a&#34;,
+                                                                                                            &#34;ratio&#34;: 45,
+                                                                                                            &#34;samples&#34;: 4500
+                                                                                                          }
+                                                                                                        ],
+                                                                                                        &#34;color&#34;: null,
+                                                                                                        &#34;id&#34;: &#34;frame:oracle.net.ns.NetInputStream.read-72c37741c06a511a&#34;,
+                                                                                                        &#34;name&#34;: &#34;oracle.net.ns.NetInputStream.read&#34;,
+                                                                                                        &#34;parentId&#34;: &#34;frame:oracle.net.ns.Packet.receive-a2112d65f66265ee&#34;,
+                                                                                                        &#34;ratio&#34;: 45,
+                                                                                                        &#34;samples&#34;: 4500
+                                                                                                      }
+                                                                                                    ],
+                                                                                                    &#34;color&#34;: null,
+                                                                                                    &#34;id&#34;: &#34;frame:oracle.net.ns.Packet.receive-a2112d65f66265ee&#34;,
+                                                                                                    &#34;name&#34;: &#34;oracle.net.ns.Packet.receive&#34;,
+                                                                                                    &#34;parentId&#34;: &#34;frame:oracle.jdbc.driver.T4CMAREngine.unmarshalUB1-350255770178636d&#34;,
+                                                                                                    &#34;ratio&#34;: 45,
+                                                                                                    &#34;samples&#34;: 4500
+                                                                                                  }
+                                                                                                ],
+                                                                                                &#34;color&#34;: null,
+                                                                                                &#34;id&#34;: &#34;frame:oracle.jdbc.driver.T4CMAREngine.unmarshalUB1-350255770178636d&#34;,
+                                                                                                &#34;name&#34;: &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+                                                                                                &#34;parentId&#34;: &#34;frame:oracle.jdbc.driver.T4CPreparedStatement.executeForRows-8a522daee8ceee30&#34;,
+                                                                                                &#34;ratio&#34;: 45,
+                                                                                                &#34;samples&#34;: 4500
+                                                                                              }
+                                                                                            ],
+                                                                                            &#34;color&#34;: null,
+                                                                                            &#34;id&#34;: &#34;frame:oracle.jdbc.driver.T4CPreparedStatement.executeForRows-8a522daee8ceee30&#34;,
+                                                                                            &#34;name&#34;: &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+                                                                                            &#34;parentId&#34;: &#34;frame:oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery-bc2040098a0148fe&#34;,
+                                                                                            &#34;ratio&#34;: 45,
+                                                                                            &#34;samples&#34;: 4500
+                                                                                          }
+                                                                                        ],
+                                                                                        &#34;color&#34;: null,
+                                                                                        &#34;id&#34;: &#34;frame:oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery-bc2040098a0148fe&#34;,
+                                                                                        &#34;name&#34;: &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+                                                                                        &#34;parentId&#34;: &#34;frame:org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet-fd75d1af623db82a&#34;,
+                                                                                        &#34;ratio&#34;: 45,
+                                                                                        &#34;samples&#34;: 4500
+                                                                                      }
+                                                                                    ],
+                                                                                    &#34;color&#34;: null,
+                                                                                    &#34;id&#34;: &#34;frame:org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet-fd75d1af623db82a&#34;,
+                                                                                    &#34;name&#34;: &#34;org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.getResultSet&#34;,
+                                                                                    &#34;parentId&#34;: &#34;frame:org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract-988198998faff2f1&#34;,
+                                                                                    &#34;ratio&#34;: 45,
+                                                                                    &#34;samples&#34;: 4500
+                                                                                  }
+                                                                                ],
+                                                                                &#34;color&#34;: null,
+                                                                                &#34;id&#34;: &#34;frame:org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract-988198998faff2f1&#34;,
+                                                                                &#34;name&#34;: &#34;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract&#34;,
+                                                                                &#34;parentId&#34;: &#34;frame:org.hibernate.loader.Loader.executeQueryStatement-78fe956c844244c4&#34;,
+                                                                                &#34;ratio&#34;: 45,
+                                                                                &#34;samples&#34;: 4500
+                                                                              }
+                                                                            ],
+                                                                            &#34;color&#34;: null,
+                                                                            &#34;id&#34;: &#34;frame:org.hibernate.loader.Loader.executeQueryStatement-78fe956c844244c4&#34;,
+                                                                            &#34;name&#34;: &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+                                                                            &#34;parentId&#34;: &#34;frame:org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections-5afaab0f1e005c98&#34;,
+                                                                            &#34;ratio&#34;: 45,
+                                                                            &#34;samples&#34;: 4500
+                                                                          }
+                                                                        ],
+                                                                        &#34;color&#34;: null,
+                                                                        &#34;id&#34;: &#34;frame:org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections-5afaab0f1e005c98&#34;,
+                                                                        &#34;name&#34;: &#34;org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections&#34;,
+                                                                        &#34;parentId&#34;: &#34;frame:org.hibernate.loader.Loader.doList-c9ae8e7d35a21bb4&#34;,
+                                                                        &#34;ratio&#34;: 45,
+                                                                        &#34;samples&#34;: 4500
+                                                                      }
+                                                                    ],
+                                                                    &#34;color&#34;: null,
+                                                                    &#34;id&#34;: &#34;frame:org.hibernate.loader.Loader.doList-c9ae8e7d35a21bb4&#34;,
+                                                                    &#34;name&#34;: &#34;org.hibernate.loader.Loader.doList&#34;,
+                                                                    &#34;parentId&#34;: &#34;frame:org.hibernate.loader.Loader.listIgnoreQueryCache-9dcb2407f471dadb&#34;,
+                                                                    &#34;ratio&#34;: 45,
+                                                                    &#34;samples&#34;: 4500
+                                                                  }
+                                                                ],
+                                                                &#34;color&#34;: null,
+                                                                &#34;id&#34;: &#34;frame:org.hibernate.loader.Loader.listIgnoreQueryCache-9dcb2407f471dadb&#34;,
+                                                                &#34;name&#34;: &#34;org.hibernate.loader.Loader.listIgnoreQueryCache&#34;,
+                                                                &#34;parentId&#34;: &#34;frame:org.hibernate.loader.hql.QueryLoader.list-4945dc1f618f45b1&#34;,
+                                                                &#34;ratio&#34;: 45,
+                                                                &#34;samples&#34;: 4500
+                                                              }
+                                                            ],
+                                                            &#34;color&#34;: null,
+                                                            &#34;id&#34;: &#34;frame:org.hibernate.loader.hql.QueryLoader.list-4945dc1f618f45b1&#34;,
+                                                            &#34;name&#34;: &#34;org.hibernate.loader.hql.QueryLoader.list&#34;,
+                                                            &#34;parentId&#34;: &#34;frame:org.hibernate.internal.SessionImpl.list-997611c4baacfa8f&#34;,
+                                                            &#34;ratio&#34;: 45,
+                                                            &#34;samples&#34;: 4500
+                                                          }
+                                                        ],
+                                                        &#34;color&#34;: null,
+                                                        &#34;id&#34;: &#34;frame:org.hibernate.internal.SessionImpl.list-997611c4baacfa8f&#34;,
+                                                        &#34;name&#34;: &#34;org.hibernate.internal.SessionImpl.list&#34;,
+                                                        &#34;parentId&#34;: &#34;frame:org.hibernate.query.internal.AbstractProducedQuery.doList-3d50272bf7fea692&#34;,
+                                                        &#34;ratio&#34;: 45,
+                                                        &#34;samples&#34;: 4500
+                                                      }
+                                                    ],
+                                                    &#34;color&#34;: null,
+                                                    &#34;id&#34;: &#34;frame:org.hibernate.query.internal.AbstractProducedQuery.doList-3d50272bf7fea692&#34;,
+                                                    &#34;name&#34;: &#34;org.hibernate.query.internal.AbstractProducedQuery.doList&#34;,
+                                                    &#34;parentId&#34;: &#34;frame:org.hibernate.query.internal.AbstractProducedQuery.list-385551d3b9c142a2&#34;,
+                                                    &#34;ratio&#34;: 45,
+                                                    &#34;samples&#34;: 4500
+                                                  }
+                                                ],
+                                                &#34;color&#34;: null,
+                                                &#34;id&#34;: &#34;frame:org.hibernate.query.internal.AbstractProducedQuery.list-385551d3b9c142a2&#34;,
+                                                &#34;name&#34;: &#34;org.hibernate.query.internal.AbstractProducedQuery.list&#34;,
+                                                &#34;parentId&#34;: &#34;frame:org.springframework.data.jpa.repository.query.JpaQueryExecution.execute-36e915114ad2bb40&#34;,
+                                                &#34;ratio&#34;: 45,
+                                                &#34;samples&#34;: 4500
+                                              }
+                                            ],
+                                            &#34;color&#34;: null,
+                                            &#34;id&#34;: &#34;frame:org.springframework.data.jpa.repository.query.JpaQueryExecution.execute-36e915114ad2bb40&#34;,
+                                            &#34;name&#34;: &#34;org.springframework.data.jpa.repository.query.JpaQueryExecution.execute&#34;,
+                                            &#34;parentId&#34;: &#34;frame:com.example.order.OrderRepository.findByStatusAndDateRange-dd9eedc1f5afbe4f&#34;,
+                                            &#34;ratio&#34;: 45,
+                                            &#34;samples&#34;: 4500
+                                          },
+                                          {
+                                            &#34;category&#34;: null,
+                                            &#34;children&#34;: [
+                                              {
+                                                &#34;category&#34;: null,
+                                                &#34;children&#34;: [
+                                                  {
+                                                    &#34;category&#34;: null,
+                                                    &#34;children&#34;: [
+                                                      {
+                                                        &#34;category&#34;: null,
+                                                        &#34;children&#34;: [
+                                                          {
+                                                            &#34;category&#34;: null,
+                                                            &#34;children&#34;: [
+                                                              {
+                                                                &#34;category&#34;: null,
+                                                                &#34;children&#34;: [
+                                                                  {
+                                                                    &#34;category&#34;: null,
+                                                                    &#34;children&#34;: [],
+                                                                    &#34;color&#34;: null,
+                                                                    &#34;id&#34;: &#34;frame:java.net.SocketInputStream.socketRead0-afba67c9eea5f9f2&#34;,
+                                                                    &#34;name&#34;: &#34;java.net.SocketInputStream.socketRead0&#34;,
+                                                                    &#34;parentId&#34;: &#34;frame:oracle.net.ns.Packet.receive-52e97856cbc2bf6&#34;,
+                                                                    &#34;ratio&#34;: 8,
+                                                                    &#34;samples&#34;: 800
+                                                                  }
+                                                                ],
+                                                                &#34;color&#34;: null,
+                                                                &#34;id&#34;: &#34;frame:oracle.net.ns.Packet.receive-52e97856cbc2bf6&#34;,
+                                                                &#34;name&#34;: &#34;oracle.net.ns.Packet.receive&#34;,
+                                                                &#34;parentId&#34;: &#34;frame:oracle.jdbc.driver.T4C8Oall.doOALL-51e59ada65060e11&#34;,
+                                                                &#34;ratio&#34;: 8,
+                                                                &#34;samples&#34;: 800
+                                                              }
+                                                            ],
+                                                            &#34;color&#34;: null,
+                                                            &#34;id&#34;: &#34;frame:oracle.jdbc.driver.T4C8Oall.doOALL-51e59ada65060e11&#34;,
+                                                            &#34;name&#34;: &#34;oracle.jdbc.driver.T4C8Oall.doOALL&#34;,
+                                                            &#34;parentId&#34;: &#34;frame:oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe-f16b310ef6e00841&#34;,
+                                                            &#34;ratio&#34;: 8,
+                                                            &#34;samples&#34;: 800
+                                                          }
+                                                        ],
+                                                        &#34;color&#34;: null,
+                                                        &#34;id&#34;: &#34;frame:oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe-f16b310ef6e00841&#34;,
+                                                        &#34;name&#34;: &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe&#34;,
+                                                        &#34;parentId&#34;: &#34;frame:oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery-33d0236b0bff59a8&#34;,
+                                                        &#34;ratio&#34;: 8,
+                                                        &#34;samples&#34;: 800
+                                                      }
+                                                    ],
+                                                    &#34;color&#34;: null,
+                                                    &#34;id&#34;: &#34;frame:oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery-33d0236b0bff59a8&#34;,
+                                                    &#34;name&#34;: &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+                                                    &#34;parentId&#34;: &#34;frame:org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract-ee0e1c62498e3dd6&#34;,
+                                                    &#34;ratio&#34;: 8,
+                                                    &#34;samples&#34;: 800
+                                                  }
+                                                ],
+                                                &#34;color&#34;: null,
+                                                &#34;id&#34;: &#34;frame:org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract-ee0e1c62498e3dd6&#34;,
+                                                &#34;name&#34;: &#34;org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract&#34;,
+                                                &#34;parentId&#34;: &#34;frame:org.hibernate.loader.Loader.executeQueryStatement-5d9020d3ababa928&#34;,
+                                                &#34;ratio&#34;: 8,
+                                                &#34;samples&#34;: 800
+                                              }
+                                            ],
+                                            &#34;color&#34;: null,
+                                            &#34;id&#34;: &#34;frame:org.hibernate.loader.Loader.executeQueryStatement-5d9020d3ababa928&#34;,
+                                            &#34;name&#34;: &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+                                            &#34;parentId&#34;: &#34;frame:com.example.order.OrderRepository.findByStatusAndDateRange-dd9eedc1f5afbe4f&#34;,
+                                            &#34;ratio&#34;: 8,
+                                            &#34;samples&#34;: 800
+                                          }
+                                        ],
+                                        &#34;color&#34;: null,
+                                        &#34;id&#34;: &#34;frame:com.example.order.OrderRepository.findByStatusAndDateRange-dd9eedc1f5afbe4f&#34;,
+                                        &#34;name&#34;: &#34;com.example.order.OrderRepository.findByStatusAndDateRange&#34;,
+                                        &#34;parentId&#34;: &#34;frame:com.example.order.OrderService.getOrders-628f3734291a2354&#34;,
+                                        &#34;ratio&#34;: 53,
+                                        &#34;samples&#34;: 5300
+                                      }
+                                    ],
+                                    &#34;color&#34;: null,
+                                    &#34;id&#34;: &#34;frame:com.example.order.OrderService.getOrders-628f3734291a2354&#34;,
+                                    &#34;name&#34;: &#34;com.example.order.OrderService.getOrders&#34;,
+                                    &#34;parentId&#34;: &#34;frame:com.example.order.OrderController.listOrders-c55f8ee11b8b37b7&#34;,
+                                    &#34;ratio&#34;: 53,
+                                    &#34;samples&#34;: 5300
+                                  }
+                                ],
+                                &#34;color&#34;: null,
+                                &#34;id&#34;: &#34;frame:com.example.order.OrderController.listOrders-c55f8ee11b8b37b7&#34;,
+                                &#34;name&#34;: &#34;com.example.order.OrderController.listOrders&#34;,
+                                &#34;parentId&#34;: &#34;frame:org.springframework.web.servlet.DispatcherServlet.doDispatch-8e7a02706ca8168b&#34;,
+                                &#34;ratio&#34;: 53,
+                                &#34;samples&#34;: 5300
+                              },
+                              {
+                                &#34;category&#34;: null,
+                                &#34;children&#34;: [
+                                  {
+                                    &#34;category&#34;: null,
+                                    &#34;children&#34;: [
+                                      {
+                                        &#34;category&#34;: null,
+                                        &#34;children&#34;: [
+                                          {
+                                            &#34;category&#34;: null,
+                                            &#34;children&#34;: [
+                                              {
+                                                &#34;category&#34;: null,
+                                                &#34;children&#34;: [
+                                                  {
+                                                    &#34;category&#34;: null,
+                                                    &#34;children&#34;: [
+                                                      {
+                                                        &#34;category&#34;: null,
+                                                        &#34;children&#34;: [
+                                                          {
+                                                            &#34;category&#34;: null,
+                                                            &#34;children&#34;: [],
+                                                            &#34;color&#34;: null,
+                                                            &#34;id&#34;: &#34;frame:java.net.SocketInputStream.socketRead0-49c79336040d59d5&#34;,
+                                                            &#34;name&#34;: &#34;java.net.SocketInputStream.socketRead0&#34;,
+                                                            &#34;parentId&#34;: &#34;frame:oracle.net.ns.Packet.receive-2825b21474dddab8&#34;,
+                                                            &#34;ratio&#34;: 25,
+                                                            &#34;samples&#34;: 2500
+                                                          }
+                                                        ],
+                                                        &#34;color&#34;: null,
+                                                        &#34;id&#34;: &#34;frame:oracle.net.ns.Packet.receive-2825b21474dddab8&#34;,
+                                                        &#34;name&#34;: &#34;oracle.net.ns.Packet.receive&#34;,
+                                                        &#34;parentId&#34;: &#34;frame:oracle.jdbc.driver.T4CMAREngine.unmarshalUB1-cb62b77812d863c1&#34;,
+                                                        &#34;ratio&#34;: 25,
+                                                        &#34;samples&#34;: 2500
+                                                      }
+                                                    ],
+                                                    &#34;color&#34;: null,
+                                                    &#34;id&#34;: &#34;frame:oracle.jdbc.driver.T4CMAREngine.unmarshalUB1-cb62b77812d863c1&#34;,
+                                                    &#34;name&#34;: &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+                                                    &#34;parentId&#34;: &#34;frame:oracle.jdbc.driver.T4CPreparedStatement.executeForRows-1a0df822696579b2&#34;,
+                                                    &#34;ratio&#34;: 25,
+                                                    &#34;samples&#34;: 2500
+                                                  }
+                                                ],
+                                                &#34;color&#34;: null,
+                                                &#34;id&#34;: &#34;frame:oracle.jdbc.driver.T4CPreparedStatement.executeForRows-1a0df822696579b2&#34;,
+                                                &#34;name&#34;: &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+                                                &#34;parentId&#34;: &#34;frame:oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery-ea8233e37f530cc0&#34;,
+                                                &#34;ratio&#34;: 25,
+                                                &#34;samples&#34;: 2500
+                                              }
+                                            ],
+                                            &#34;color&#34;: null,
+                                            &#34;id&#34;: &#34;frame:oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery-ea8233e37f530cc0&#34;,
+                                            &#34;name&#34;: &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery&#34;,
+                                            &#34;parentId&#34;: &#34;frame:com.example.order.OrderRepository.findAllByDateRange-998775b666ee297b&#34;,
+                                            &#34;ratio&#34;: 25,
+                                            &#34;samples&#34;: 2500
+                                          }
+                                        ],
+                                        &#34;color&#34;: null,
+                                        &#34;id&#34;: &#34;frame:com.example.order.OrderRepository.findAllByDateRange-998775b666ee297b&#34;,
+                                        &#34;name&#34;: &#34;com.example.order.OrderRepository.findAllByDateRange&#34;,
+                                        &#34;parentId&#34;: &#34;frame:com.example.report.ReportService.buildReport-77f8e713634c76cc&#34;,
+                                        &#34;ratio&#34;: 25,
+                                        &#34;samples&#34;: 2500
+                                      }
+                                    ],
+                                    &#34;color&#34;: null,
+                                    &#34;id&#34;: &#34;frame:com.example.report.ReportService.buildReport-77f8e713634c76cc&#34;,
+                                    &#34;name&#34;: &#34;com.example.report.ReportService.buildReport&#34;,
+                                    &#34;parentId&#34;: &#34;frame:com.example.report.ReportController.generateSalesReport-949e56d7b925820d&#34;,
+                                    &#34;ratio&#34;: 25,
+                                    &#34;samples&#34;: 2500
+                                  }
+                                ],
+                                &#34;color&#34;: null,
+                                &#34;id&#34;: &#34;frame:com.example.report.ReportController.generateSalesReport-949e56d7b925820d&#34;,
+                                &#34;name&#34;: &#34;com.example.report.ReportController.generateSalesReport&#34;,
+                                &#34;parentId&#34;: &#34;frame:org.springframework.web.servlet.DispatcherServlet.doDispatch-8e7a02706ca8168b&#34;,
+                                &#34;ratio&#34;: 25,
+                                &#34;samples&#34;: 2500
+                              },
+                              {
+                                &#34;category&#34;: null,
+                                &#34;children&#34;: [
+                                  {
+                                    &#34;category&#34;: null,
+                                    &#34;children&#34;: [
+                                      {
+                                        &#34;category&#34;: null,
+                                        &#34;children&#34;: [
+                                          {
+                                            &#34;category&#34;: null,
+                                            &#34;children&#34;: [
+                                              {
+                                                &#34;category&#34;: null,
+                                                &#34;children&#34;: [
+                                                  {
+                                                    &#34;category&#34;: null,
+                                                    &#34;children&#34;: [
+                                                      {
+                                                        &#34;category&#34;: null,
+                                                        &#34;children&#34;: [
+                                                          {
+                                                            &#34;category&#34;: null,
+                                                            &#34;children&#34;: [
+                                                              {
+                                                                &#34;category&#34;: null,
+                                                                &#34;children&#34;: [
+                                                                  {
+                                                                    &#34;category&#34;: null,
+                                                                    &#34;children&#34;: [
+                                                                      {
+                                                                        &#34;category&#34;: null,
+                                                                        &#34;children&#34;: [],
+                                                                        &#34;color&#34;: null,
+                                                                        &#34;id&#34;: &#34;frame:java.net.SocketInputStream.socketRead0-9c4f0f177248645f&#34;,
+                                                                        &#34;name&#34;: &#34;java.net.SocketInputStream.socketRead0&#34;,
+                                                                        &#34;parentId&#34;: &#34;frame:oracle.net.ns.Packet.receive-8d7b995a9acd535e&#34;,
+                                                                        &#34;ratio&#34;: 12,
+                                                                        &#34;samples&#34;: 1200
+                                                                      }
+                                                                    ],
+                                                                    &#34;color&#34;: null,
+                                                                    &#34;id&#34;: &#34;frame:oracle.net.ns.Packet.receive-8d7b995a9acd535e&#34;,
+                                                                    &#34;name&#34;: &#34;oracle.net.ns.Packet.receive&#34;,
+                                                                    &#34;parentId&#34;: &#34;frame:oracle.jdbc.driver.T4CMAREngine.unmarshalUB1-4ca6926ff7c16d5b&#34;,
+                                                                    &#34;ratio&#34;: 12,
+                                                                    &#34;samples&#34;: 1200
+                                                                  }
+                                                                ],
+                                                                &#34;color&#34;: null,
+                                                                &#34;id&#34;: &#34;frame:oracle.jdbc.driver.T4CMAREngine.unmarshalUB1-4ca6926ff7c16d5b&#34;,
+                                                                &#34;name&#34;: &#34;oracle.jdbc.driver.T4CMAREngine.unmarshalUB1&#34;,
+                                                                &#34;parentId&#34;: &#34;frame:oracle.jdbc.driver.T4CPreparedStatement.executeForRows-49d5c08678fd7eb8&#34;,
+                                                                &#34;ratio&#34;: 12,
+                                                                &#34;samples&#34;: 1200
+                                                              }
+                                                            ],
+                                                            &#34;color&#34;: null,
+                                                            &#34;id&#34;: &#34;frame:oracle.jdbc.driver.T4CPreparedStatement.executeForRows-49d5c08678fd7eb8&#34;,
+                                                            &#34;name&#34;: &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+                                                            &#34;parentId&#34;: &#34;frame:oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate-2ab6e00e64497540&#34;,
+                                                            &#34;ratio&#34;: 12,
+                                                            &#34;samples&#34;: 1200
+                                                          }
+                                                        ],
+                                                        &#34;color&#34;: null,
+                                                        &#34;id&#34;: &#34;frame:oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate-2ab6e00e64497540&#34;,
+                                                        &#34;name&#34;: &#34;oracle.jdbc.driver.OraclePreparedStatementWrapper.executeUpdate&#34;,
+                                                        &#34;parentId&#34;: &#34;frame:org.hibernate.action.internal.EntityInsertAction.execute-d60eb28b57b75c7&#34;,
+                                                        &#34;ratio&#34;: 12,
+                                                        &#34;samples&#34;: 1200
+                                                      }
+                                                    ],
+                                                    &#34;color&#34;: null,
+                                                    &#34;id&#34;: &#34;frame:org.hibernate.action.internal.EntityInsertAction.execute-d60eb28b57b75c7&#34;,
+                                                    &#34;name&#34;: &#34;org.hibernate.action.internal.EntityInsertAction.execute&#34;,
+                                                    &#34;parentId&#34;: &#34;frame:org.hibernate.event.internal.DefaultMergeEventListener.onMerge-a9db098f264e85c5&#34;,
+                                                    &#34;ratio&#34;: 12,
+                                                    &#34;samples&#34;: 1200
+                                                  }
+                                                ],
+                                                &#34;color&#34;: null,
+                                                &#34;id&#34;: &#34;frame:org.hibernate.event.internal.DefaultMergeEventListener.onMerge-a9db098f264e85c5&#34;,
+                                                &#34;name&#34;: &#34;org.hibernate.event.internal.DefaultMergeEventListener.onMerge&#34;,
+                                                &#34;parentId&#34;: &#34;frame:org.hibernate.internal.SessionImpl.merge-a3367ad0eeeaf847&#34;,
+                                                &#34;ratio&#34;: 12,
+                                                &#34;samples&#34;: 1200
+                                              }
+                                            ],
+                                            &#34;color&#34;: null,
+                                            &#34;id&#34;: &#34;frame:org.hibernate.internal.SessionImpl.merge-a3367ad0eeeaf847&#34;,
+                                            &#34;name&#34;: &#34;org.hibernate.internal.SessionImpl.merge&#34;,
+                                            &#34;parentId&#34;: &#34;frame:com.example.order.OrderRepository.save-15bf1ad9dc08e398&#34;,
+                                            &#34;ratio&#34;: 12,
+                                            &#34;samples&#34;: 1200
+                                          }
+                                        ],
+                                        &#34;color&#34;: null,
+                                        &#34;id&#34;: &#34;frame:com.example.order.OrderRepository.save-15bf1ad9dc08e398&#34;,
+                                        &#34;name&#34;: &#34;com.example.order.OrderRepository.save&#34;,
+                                        &#34;parentId&#34;: &#34;frame:com.example.order.OrderService.createOrder-fa62c495837cb307&#34;,
+                                        &#34;ratio&#34;: 12,
+                                        &#34;samples&#34;: 1200
+                                      }
+                                    ],
+                                    &#34;color&#34;: null,
+                                    &#34;id&#34;: &#34;frame:com.example.order.OrderService.createOrder-fa62c495837cb307&#34;,
+                                    &#34;name&#34;: &#34;com.example.order.OrderService.createOrder&#34;,
+                                    &#34;parentId&#34;: &#34;frame:com.example.order.OrderController.createOrder-b7d1684fd60a1f56&#34;,
+                                    &#34;ratio&#34;: 12,
+                                    &#34;samples&#34;: 1200
+                                  }
+                                ],
+                                &#34;color&#34;: null,
+                                &#34;id&#34;: &#34;frame:com.example.order.OrderController.createOrder-b7d1684fd60a1f56&#34;,
+                                &#34;name&#34;: &#34;com.example.order.OrderController.createOrder&#34;,
+                                &#34;parentId&#34;: &#34;frame:org.springframework.web.servlet.DispatcherServlet.doDispatch-8e7a02706ca8168b&#34;,
+                                &#34;ratio&#34;: 12,
+                                &#34;samples&#34;: 1200
+                              },
+                              {
+                                &#34;category&#34;: null,
+                                &#34;children&#34;: [
+                                  {
+                                    &#34;category&#34;: null,
+                                    &#34;children&#34;: [
+                                      {
+                                        &#34;category&#34;: null,
+                                        &#34;children&#34;: [
+                                          {
+                                            &#34;category&#34;: null,
+                                            &#34;children&#34;: [],
+                                            &#34;color&#34;: null,
+                                            &#34;id&#34;: &#34;frame:org.springframework.cache.interceptor.CacheInterceptor.invoke-75f1221cf952bd72&#34;,
+                                            &#34;name&#34;: &#34;org.springframework.cache.interceptor.CacheInterceptor.invoke&#34;,
+                                            &#34;parentId&#34;: &#34;frame:com.example.product.ProductCache.get-ded802bc94da30bd&#34;,
+                                            &#34;ratio&#34;: 3,
+                                            &#34;samples&#34;: 300
+                                          }
+                                        ],
+                                        &#34;color&#34;: null,
+                                        &#34;id&#34;: &#34;frame:com.example.product.ProductCache.get-ded802bc94da30bd&#34;,
+                                        &#34;name&#34;: &#34;com.example.product.ProductCache.get&#34;,
+                                        &#34;parentId&#34;: &#34;frame:com.example.product.ProductService.findById-ae541620a378b00c&#34;,
+                                        &#34;ratio&#34;: 3,
+                                        &#34;samples&#34;: 300
+                                      }
+                                    ],
+                                    &#34;color&#34;: null,
+                                    &#34;id&#34;: &#34;frame:com.example.product.ProductService.findById-ae541620a378b00c&#34;,
+                                    &#34;name&#34;: &#34;com.example.product.ProductService.findById&#34;,
+                                    &#34;parentId&#34;: &#34;frame:com.example.product.ProductController.getProduct-5a5fd77f7050d18d&#34;,
+                                    &#34;ratio&#34;: 3,
+                                    &#34;samples&#34;: 300
+                                  }
+                                ],
+                                &#34;color&#34;: null,
+                                &#34;id&#34;: &#34;frame:com.example.product.ProductController.getProduct-5a5fd77f7050d18d&#34;,
+                                &#34;name&#34;: &#34;com.example.product.ProductController.getProduct&#34;,
+                                &#34;parentId&#34;: &#34;frame:org.springframework.web.servlet.DispatcherServlet.doDispatch-8e7a02706ca8168b&#34;,
+                                &#34;ratio&#34;: 3,
+                                &#34;samples&#34;: 300
+                              },
+                              {
+                                &#34;category&#34;: null,
+                                &#34;children&#34;: [
+                                  {
+                                    &#34;category&#34;: null,
+                                    &#34;children&#34;: [
+                                      {
+                                        &#34;category&#34;: null,
+                                        &#34;children&#34;: [
+                                          {
+                                            &#34;category&#34;: null,
+                                            &#34;children&#34;: [
+                                              {
+                                                &#34;category&#34;: null,
+                                                &#34;children&#34;: [
+                                                  {
+                                                    &#34;category&#34;: null,
+                                                    &#34;children&#34;: [
+                                                      {
+                                                        &#34;category&#34;: null,
+                                                        &#34;children&#34;: [],
+                                                        &#34;color&#34;: null,
+                                                        &#34;id&#34;: &#34;frame:java.net.SocketInputStream.socketRead0-9598bec8f28cfe4a&#34;,
+                                                        &#34;name&#34;: &#34;java.net.SocketInputStream.socketRead0&#34;,
+                                                        &#34;parentId&#34;: &#34;frame:oracle.net.ns.Packet.receive-58186fa834630237&#34;,
+                                                        &#34;ratio&#34;: 2,
+                                                        &#34;samples&#34;: 200
+                                                      }
+                                                    ],
+                                                    &#34;color&#34;: null,
+                                                    &#34;id&#34;: &#34;frame:oracle.net.ns.Packet.receive-58186fa834630237&#34;,
+                                                    &#34;name&#34;: &#34;oracle.net.ns.Packet.receive&#34;,
+                                                    &#34;parentId&#34;: &#34;frame:oracle.jdbc.driver.T4CPreparedStatement.executeForRows-a2774b3216206371&#34;,
+                                                    &#34;ratio&#34;: 2,
+                                                    &#34;samples&#34;: 200
+                                                  }
+                                                ],
+                                                &#34;color&#34;: null,
+                                                &#34;id&#34;: &#34;frame:oracle.jdbc.driver.T4CPreparedStatement.executeForRows-a2774b3216206371&#34;,
+                                                &#34;name&#34;: &#34;oracle.jdbc.driver.T4CPreparedStatement.executeForRows&#34;,
+                                                &#34;parentId&#34;: &#34;frame:org.hibernate.loader.Loader.executeQueryStatement-3ddae182079db31e&#34;,
+                                                &#34;ratio&#34;: 2,
+                                                &#34;samples&#34;: 200
+                                              }
+                                            ],
+                                            &#34;color&#34;: null,
+                                            &#34;id&#34;: &#34;frame:org.hibernate.loader.Loader.executeQueryStatement-3ddae182079db31e&#34;,
+                                            &#34;name&#34;: &#34;org.hibernate.loader.Loader.executeQueryStatement&#34;,
+                                            &#34;parentId&#34;: &#34;frame:com.example.user.UserRepository.findById-51f70d087063e56&#34;,
+                                            &#34;ratio&#34;: 2,
+                                            &#34;samples&#34;: 200
+                                          }
+                                        ],
+                                        &#34;color&#34;: null,
+                                        &#34;id&#34;: &#34;frame:com.example.user.UserRepository.findById-51f70d087063e56&#34;,
+                                        &#34;name&#34;: &#34;com.example.user.UserRepository.findById&#34;,
+                                        &#34;parentId&#34;: &#34;frame:com.example.user.UserService.findById-a64728e4f1a7bf2f&#34;,
+                                        &#34;ratio&#34;: 2,
+                                        &#34;samples&#34;: 200
+                                      }
+                                    ],
+                                    &#34;color&#34;: null,
+                                    &#34;id&#34;: &#34;frame:com.example.user.UserService.findById-a64728e4f1a7bf2f&#34;,
+                                    &#34;name&#34;: &#34;com.example.user.UserService.findById&#34;,
+                                    &#34;parentId&#34;: &#34;frame:com.example.user.UserController.getCurrentUser-96c6b8ed96ab657a&#34;,
+                                    &#34;ratio&#34;: 2,
+                                    &#34;samples&#34;: 200
+                                  }
+                                ],
+                                &#34;color&#34;: null,
+                                &#34;id&#34;: &#34;frame:com.example.user.UserController.getCurrentUser-96c6b8ed96ab657a&#34;,
+                                &#34;name&#34;: &#34;com.example.user.UserController.getCurrentUser&#34;,
+                                &#34;parentId&#34;: &#34;frame:org.springframework.web.servlet.DispatcherServlet.doDispatch-8e7a02706ca8168b&#34;,
+                                &#34;ratio&#34;: 2,
+                                &#34;samples&#34;: 200
+                              }
+                            ],
+                            &#34;color&#34;: null,
+                            &#34;id&#34;: &#34;frame:org.springframework.web.servlet.DispatcherServlet.doDispatch-8e7a02706ca8168b&#34;,
+                            &#34;name&#34;: &#34;org.springframework.web.servlet.DispatcherServlet.doDispatch&#34;,
+                            &#34;parentId&#34;: &#34;frame:org.apache.coyote.http11.Http11Processor.service-c84dd41857abadd9&#34;,
+                            &#34;ratio&#34;: 95,
+                            &#34;samples&#34;: 9500
+                          }
+                        ],
+                        &#34;color&#34;: null,
+                        &#34;id&#34;: &#34;frame:org.apache.coyote.http11.Http11Processor.service-c84dd41857abadd9&#34;,
+                        &#34;name&#34;: &#34;org.apache.coyote.http11.Http11Processor.service&#34;,
+                        &#34;parentId&#34;: &#34;frame:org.apache.coyote.AbstractProcessorLight.process-fca9fa8dd5a2665e&#34;,
+                        &#34;ratio&#34;: 95,
+                        &#34;samples&#34;: 9500
+                      }
+                    ],
+                    &#34;color&#34;: null,
+                    &#34;id&#34;: &#34;frame:org.apache.coyote.AbstractProcessorLight.process-fca9fa8dd5a2665e&#34;,
+                    &#34;name&#34;: &#34;org.apache.coyote.AbstractProcessorLight.process&#34;,
+                    &#34;parentId&#34;: &#34;frame:org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun-e5378d5a826977d3&#34;,
+                    &#34;ratio&#34;: 95,
+                    &#34;samples&#34;: 9500
+                  },
+                  {
+                    &#34;category&#34;: null,
+                    &#34;children&#34;: [],
+                    &#34;color&#34;: null,
+                    &#34;id&#34;: &#34;frame:com.example.health.HealthController.health-14dbc213ca97ec89&#34;,
+                    &#34;name&#34;: &#34;com.example.health.HealthController.health&#34;,
+                    &#34;parentId&#34;: &#34;frame:org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun-e5378d5a826977d3&#34;,
+                    &#34;ratio&#34;: 5,
+                    &#34;samples&#34;: 500
+                  }
+                ],
+                &#34;color&#34;: null,
+                &#34;id&#34;: &#34;frame:org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun-e5378d5a826977d3&#34;,
+                &#34;name&#34;: &#34;org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun&#34;,
+                &#34;parentId&#34;: &#34;frame:org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run-1f5085a2d135923f&#34;,
+                &#34;ratio&#34;: 100,
+                &#34;samples&#34;: 10000
+              }
+            ],
+            &#34;color&#34;: null,
+            &#34;id&#34;: &#34;frame:org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run-1f5085a2d135923f&#34;,
+            &#34;name&#34;: &#34;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run&#34;,
+            &#34;parentId&#34;: &#34;frame:java.lang.Thread.run-2acb8fc2f90712e4&#34;,
+            &#34;ratio&#34;: 100,
+            &#34;samples&#34;: 10000
+          }
+        ],
+        &#34;color&#34;: null,
+        &#34;id&#34;: &#34;frame:java.lang.Thread.run-2acb8fc2f90712e4&#34;,
+        &#34;name&#34;: &#34;java.lang.Thread.run&#34;,
+        &#34;parentId&#34;: &#34;root&#34;,
+        &#34;ratio&#34;: 100,
+        &#34;samples&#34;: 10000
+      }
+    ],
+    &#34;color&#34;: null,
+    &#34;id&#34;: &#34;root&#34;,
+    &#34;name&#34;: &#34;All&#34;,
+    &#34;parentId&#34;: null,
+    &#34;ratio&#34;: 100,
+    &#34;samples&#34;: 10000
+  }
+}</pre></section>
+</body>
+</html>
