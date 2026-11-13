@@ -1,6 +1,6 @@
 {
   "task": "T-662",
-  "status": "PENDING",
+  "status": "TODO",
   "qualification": "EVIDENCE_PARTIAL; this capture is actual zero-swap/raw-pressure1 evidence, not natural nonzero-swap/elevated-pressure qualification.",
   "collector": {
     "version": "1.1.0",
@@ -31,5 +31,10 @@
   "action": "Read-only natural observation. No memory stress, model load, swap control or pressure injection. Selected model and other model counts were0.",
   "required": "Owner-authorized actual naturally occurring nonzero swap/elevated-pressure observations with independent values. Existing actual multi-load evidence remains partial.",
   "readback": "Actual capture accepted by existing metrics history-inspect CLI.",
-  "user_disposition": "User explicitly requested push remain on hold until natural observation evidence is available."
+  "user_disposition": "Latest instruction: queue T-662 for further work as TODO and push the entire committed batch; supersedes the prior publication hold without completing qualification.",
+  "previous_disposition": {
+    "status": "PENDING",
+    "user_disposition": "User explicitly requested push remain on hold until natural observation evidence is available."
+  },
+  "further_work_required": true
 }
