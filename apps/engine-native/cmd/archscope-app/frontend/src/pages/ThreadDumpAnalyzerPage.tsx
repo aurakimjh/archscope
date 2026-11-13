@@ -48,7 +48,8 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Dialogs, Events } from "@wailsio/runtime";
+import { Events } from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 
 import { engine } from "@/bridge/engine";
 import type {

@@ -1,4 +1,4 @@
-import { Dialogs } from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 import { Download, FileText, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 

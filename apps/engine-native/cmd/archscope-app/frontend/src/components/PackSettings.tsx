@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Dialogs } from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 import * as bridge from "@/bridge/engine";
 import { safeDisplayText } from "@/state/resultProviders";
 import { useI18n } from "@/i18n/I18nProvider";

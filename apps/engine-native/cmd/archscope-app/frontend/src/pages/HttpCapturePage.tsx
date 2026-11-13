@@ -4,7 +4,8 @@ import { HttpLegacyFileProbe } from "@/components/HttpLegacyFileProbe";
 import { findingRequestIds } from "@/state/httpAnnotations";
 import { HttpRequestBuilder } from "@/components/HttpRequestBuilder";
 import * as CaptureService from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
-import { Events, Dialogs } from "@wailsio/runtime";
+import { Events } from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] HttpCapturePage.tsx — 실시간 HTTP 캡처 + 오프라인 HAR 분석 페이지.
 //

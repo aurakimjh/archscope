@@ -1,4 +1,4 @@
-import { Dialogs } from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 import { GitCompareArrows, Loader2, Play } from "lucide-react";
 import { useState } from "react";
 

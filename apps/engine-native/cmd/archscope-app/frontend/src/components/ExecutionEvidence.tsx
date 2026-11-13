@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState} from "react";
-import {Dialogs} from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 import * as api from "@/bridge/executionEvidence";
 import {Button} from "@/components/ui/button";
 import {useI18n} from "@/i18n/I18nProvider";

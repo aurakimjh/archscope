@@ -1,3 +1,4 @@
+import { fileDialogResult } from "./fileDialog.js";
 import { resultPanelID, RESULT_PANEL_RENDERERS } from "./resultPanels.js";
 import { checkedProfilerResult, checkedProfilerStages } from "../bridge/profilerContract.js";
 import type { ProfilerMetadata } from "../bridge/types.js";
@@ -3478,3 +3479,19 @@ for (const [id, renderer] of Object.entries(RESULT_PANEL_RENDERERS)) {
 }
 assert(resultPanelID(panelBase) === null, "payload name/version alone grants no actions");
 assert(resultPanelID({ ...panelBase, panel: { id: "__proto__", version: "1.0.0", actions: ["details"] } }) === null, "unknown/foreign panel");
+
+void (async () => {
+// Only the native user-cancel sentinel is an empty file selection.
+for (const sentinel of [new Error("cancelled by user"), "cancelled by user"]) {
+  assert(await fileDialogResult(async () => { throw sentinel; }, "") === "", "native open/save cancellation returns empty selection");
+}
+const nativePaths = ["C:/자료/capture.har", "C:/자료/second.har"];
+assert(await fileDialogResult(async () => nativePaths, []) === nativePaths, "multi-file selection preserves identity and paths");
+for (const failure of [new Error("access denied"), new Error("failed after cancelled by user"), new Error("context canceled"), null]) {
+  let propagated = false;
+  try { await fileDialogResult(async () => { throw failure; }, ""); }
+  catch (caught) { propagated = caught === failure; }
+  assert(propagated, "all non-dialog failures propagate unchanged");
+}
+
+})();

@@ -12,7 +12,7 @@ import { ProfileEvidenceExplorer } from "@/components/ProfileEvidenceExplorer";
 import { ProfileSourceAssistance } from "@/components/ProfileSourceAssistance";
 import { InputAssistance } from "@/components/InputAssistance";
 import { useEffect, useRef, useState } from "react";
-import { Dialogs } from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
 import * as bridge from "@/bridge/engine";

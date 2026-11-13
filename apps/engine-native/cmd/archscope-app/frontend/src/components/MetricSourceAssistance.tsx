@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Dialogs } from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 import * as bridge from "@/bridge/engine";
 import { MetricSeriesPicker } from "@/components/MetricSeriesPicker";
 import { metricSelectionBytes, metricSelectionByteLimit } from "@/state/metricSeriesSelection";

@@ -1,6 +1,7 @@
 import { useHttpCommands } from "@/hooks/useHttpCommands";
 import { LiveHttpAnalyzer } from "./LiveHttpAnalyzer";
-import { Dialogs, Events } from "@wailsio/runtime";
+import { Events } from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 import {
   AlertTriangle,
   CircleStop,

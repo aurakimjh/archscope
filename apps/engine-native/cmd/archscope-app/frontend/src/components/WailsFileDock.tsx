@@ -25,7 +25,7 @@ import {
   type DragEvent,
   type ReactNode,
 } from "react";
-import { Dialogs } from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

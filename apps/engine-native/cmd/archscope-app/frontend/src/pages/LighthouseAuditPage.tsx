@@ -11,7 +11,7 @@
 //   - CPU 프로파일 샘플 모델(profile_evidence)과 절대 섞지 않음 —
 //     별도 browser_audit_evidence 계약만 사용.
 // ─────────────────────────────────────────────────────────────────────
-import { Dialogs } from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 import { FileDown, Loader2, Play, Plus } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 

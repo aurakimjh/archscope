@@ -1,5 +1,5 @@
 import { inspectForm } from "@/state/httpPayload";
-import { Dialogs } from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { HttpAnalyzerView } from "./HttpAnalyzerView";

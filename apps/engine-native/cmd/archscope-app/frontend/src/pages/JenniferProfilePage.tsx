@@ -46,7 +46,7 @@ import {
 } from "react";
 
 import { engine } from "../bridge/engine";
-import { Dialogs } from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 import type { AnalysisResult } from "../bridge/types";
 import { readJenniferDrilldown, isCurrentJenniferProjection, type MsaDrilldownScope, type JenniferDrilldownSelection } from "../state/jenniferDrilldown";
 

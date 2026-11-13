@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState} from "react";
-import {Dialogs} from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 import {addWorkspaceResult,getWorkspaceGeneration} from "@/state/analysisWorkspace";
 import {releaseEvidenceLease} from "@/bridge/engine";
 import * as api from "@/bridge/runtimeEvidence";

@@ -1,4 +1,4 @@
-import { Dialogs } from "@wailsio/runtime";
+import { Dialogs } from "@/bridge/dialogs";
 import { useState } from "react";
 import { useI18n } from "@/i18n/I18nProvider";
 import * as CaptureService from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
