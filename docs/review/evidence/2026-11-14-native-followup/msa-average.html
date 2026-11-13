@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Jennifer MSA Timeline Report</title>
+<style>
+:root { --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0; --text: #0f172a; --muted: #64748b; --accent: #4f46e5; --danger: #dc2626; --warn: #d97706; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; margin: 24px; font-size: 13px; line-height: 1.5; }
+h1 { font-size: 22px; margin: 0 0 8px; }
+h2 { font-size: 16px; margin: 28px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+.meta { color: var(--muted); margin: 0 0 24px; font-size: 12px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
+.card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 2px; }
+.card .value { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; font-size: 12px; }
+thead tr { background: #f1f5f9; }
+th, td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.mono { font-family: "JetBrains Mono", Consolas, monospace; font-size: 11px; }
+.pill { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+.pill.ok { background: rgba(79, 70, 229, 0.12); color: var(--accent); }
+.pill.danger { background: rgba(220, 38, 38, 0.12); color: var(--danger); }
+.pill.warn { background: rgba(217, 119, 6, 0.12); color: var(--warn); }
+.empty { color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body>
+<h1>ArchScope — Jennifer MSA Timeline Report</h1>
+<p class="meta">Generated 2026-11-13T19:30:33.1559779Z</p>
+<h2>Summary</h2>
+<div class="cards">
+<div class="card"><div class="label">Total files</div><div class="value">—</div></div>
+<div class="card"><div class="label">Total profiles</div><div class="value">4</div></div>
+<div class="card"><div class="label">Full profiles</div><div class="value">4</div></div>
+<div class="card"><div class="label">GUID groups</div><div class="value">2</div></div>
+<div class="card"><div class="label">Signatures</div><div class="value">—</div></div>
+<div class="card"><div class="label">Matched edges</div><div class="value">—</div></div>
+<div class="card"><div class="label">Unmatched edges</div><div class="value">—</div></div>
+<div class="card"><div class="label">Net gap (cum ms)</div><div class="value">—</div></div>
+<div class="card"><div class="label">SQL exec ms</div><div class="value">—</div></div>
+<div class="card"><div class="label">Fetch rows</div><div class="value">—</div></div>
+</div>
+<h2>Drilldown scope</h2><p>Contract 1.0.0 · samples 2 / candidates 2 · excluded 0</p><p class="mono">{&#34;mode&#34;:&#34;average&#34;,&#34;signature_hash&#34;:&#34;5c357286f6b7ed6bdb0fecad27e0938acc27f606b28c4d5f4fcf0aba3a11b156&#34;}</p><p>Cumulative costs; one representative per GUID. This is not a critical-path duration.</p>
+<h2>Mean response-time composition per GUID (ms)</h2><table><thead><tr><th>Component</th><th>Value</th></tr></thead><tbody><tr><td>check_query_ms</td><td class="num">1</td></tr><tr><td>connection_acquire_ms</td><td class="num">1478</td></tr><tr><td>fetch_ms</td><td class="num">20</td></tr><tr><td>method_time_ms</td><td class="num">0</td></tr><tr><td>network_call_ms</td><td class="num">47</td></tr><tr><td>network_prep_ms</td><td class="num">0</td></tr><tr><td>root_response_time_ms</td><td class="num">126</td></tr><tr><td>servlet_dispatch_ms</td><td class="num">84</td></tr><tr><td>sql_execute_ms</td><td class="num">5006</td></tr><tr><td>two_pc_ms</td><td class="num">2504</td></tr><tr><td>unprofiled_external_call_ms</td><td class="num">0</td></tr></tbody></table>
+<h2>GUID groups (parallelism)</h2>
+<table><thead><tr><th>GUID</th><th>Root</th><th>Profiles</th><th>Cumulative ms</th><th>Wall-clock ms</th><th>Ratio</th><th>Concurrency</th><th>Mode</th></tr></thead><tbody>
+<tr><td class="mono" title="2026050908316771PCMONLxtz8x0000001">…MONLxtz8x0000001</td><td class="mono">/prod/common/rule/testrule</td><td class="num">2</td><td class="num">173</td><td class="num">173</td><td class="num">1.00</td><td class="num">1</td><td><span class="pill ok">SEQUENTIAL</span></td></tr>
+<tr><td class="mono" title="2026050908316771PCMONLxtz8x0000002">…MONLxtz8x0000002</td><td class="mono">/prod/common/rule/testrule</td><td class="num">2</td><td class="num">173</td><td class="num">173</td><td class="num">1.00</td><td class="num">1</td><td><span class="pill ok">SEQUENTIAL</span></td></tr>
+</tbody></table>
+<h2>Top slow root response</h2>
+<table><thead><tr><th>Root</th><th>GUID</th><th class="num">Response ms</th></tr></thead><tbody>
+<tr><td class="mono">/prod/common/rule/testrule</td><td class="mono">2026050908316771PCMONLxtz8x0000002</td><td class="num">168</td></tr>
+<tr><td class="mono">/prod/common/rule/testrule</td><td class="mono">2026050908316771PCMONLxtz8x0000001</td><td class="num">84</td></tr>
+</tbody></table>
+<h2>Top network gap edges</h2>
+<table><thead><tr><th>Caller</th><th>Callee</th><th class="num">Adj gap ms</th></tr></thead><tbody>
+<tr><td class="mono">/prod/common/rule/testrule</td><td class="mono">/dev/common/rule/testrule</td><td class="num">0</td></tr>
+<tr><td class="mono">/prod/common/rule/testrule</td><td class="mono">/dev/common/rule/testrule</td><td class="num">0</td></tr>
+</tbody></table>
+<h2>Transaction profiles</h2>
+<table><thead><tr><th>TXID</th><th>Application</th><th>Resp ms</th><th>SQL ms</th><th>Check ms</th><th>2PC ms</th><th>Fetch ms</th><th>Ext call</th><th>Issues</th></tr></thead><tbody>
+<tr><td class="mono">922846047875413046</td><td class="mono">/prod/common/rule/testrule</td><td class="num">84</td><td class="num">5006</td><td class="num">1</td><td class="num">2504</td><td class="num">20</td><td class="num">1</td><td><span class="pill danger">1</span></td></tr>
+<tr><td class="mono">922846047875413047</td><td class="mono">/dev/common/rule/testrule</td><td class="num">84</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td>—</td></tr>
+<tr><td class="mono">922846047875413048</td><td class="mono">/prod/common/rule/testrule</td><td class="num">168</td><td class="num">5006</td><td class="num">1</td><td class="num">2504</td><td class="num">20</td><td class="num">1</td><td><span class="pill danger">1</span></td></tr>
+<tr><td class="mono">922846047875413049</td><td class="mono">/dev/common/rule/testrule</td><td class="num">168</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td>—</td></tr>
+</tbody></table>
+</body></html>

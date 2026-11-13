@@ -1,0 +1,966 @@
+{
+  "charts": {},
+  "created_at": "2026-11-13T19:30:33.1559779Z",
+  "metadata": {
+    "drilldown": {
+      "candidate_group_count": 2,
+      "cost_semantics": "cumulative_not_critical_path",
+      "excluded_group_count": 0,
+      "omitted_parent_statistics": [
+        "signature_statistics",
+        "file_summary",
+        "custom_rule_stats",
+        "unprofiled_external_call_groups",
+        "parallelism"
+      ],
+      "representative_policy": "slowest_matching_profile_per_guid_input_order_tie",
+      "sample_count": 2,
+      "selection": {
+        "mode": "average",
+        "signature_hash": "5c357286f6b7ed6bdb0fecad27e0938acc27f606b28c4d5f4fcf0aba3a11b156"
+      },
+      "version": "1.0.0"
+    },
+    "findings": [],
+    "parser": "jennifer_profile_export",
+    "schema_version": "0.1.0"
+  },
+  "series": {
+    "drilldown_average_breakdown": {
+      "check_query_ms": 1,
+      "connection_acquire_ms": 1478,
+      "fetch_ms": 20,
+      "method_time_ms": 0,
+      "network_call_ms": 47,
+      "network_prep_ms": 0,
+      "root_response_time_ms": 126,
+      "servlet_dispatch_ms": 84,
+      "sql_execute_ms": 5006,
+      "two_pc_ms": 2504,
+      "unprofiled_external_call_ms": 0
+    },
+    "drilldown_average_timeline_edges": [
+      {
+        "call_count": 2,
+        "callee_application": "/dev/common/rule/testrule",
+        "callee_response_time_ms": 126,
+        "callee_txid": "avg-drill-0-callee",
+        "caller_application": "/prod/common/rule/testrule",
+        "caller_event_start_ms": 0,
+        "caller_txid": "avg-drill-0-caller",
+        "external_call_elapsed_ms": 173,
+        "match_status": "MATCHED",
+        "network_gap_ms": 47,
+        "timeline_kind": "synthetic_average"
+      }
+    ],
+    "drilldown_scopes": [
+      {
+        "group": {
+          "call_graph": [
+            {
+              "callee_application": "/dev/common/rule/testrule",
+              "callee_body_start_ms": 58253000,
+              "callee_response_time_ms": 84,
+              "callee_txid": "922846047875413047",
+              "caller_application": "/prod/common/rule/testrule",
+              "caller_event_start_ms": 58254086,
+              "caller_txid": "922846047875413046",
+              "external_call_elapsed_ms": 173,
+              "guid": "2026050908316771PCMONLxtz8x0000001",
+              "match_status": "MATCHED",
+              "network_gap_ms": 89
+            }
+          ],
+          "excluded_from_signature_stats": false,
+          "guid": "2026050908316771PCMONLxtz8x0000001",
+          "incomplete_profile_count": 0,
+          "matched_edge_count": 1,
+          "method_hotspots": [],
+          "metrics": {
+            "external_call_parallelism_ratio": 1,
+            "group_execution_mode": "SEQUENTIAL",
+            "matched_external_call_count": 1,
+            "max_external_call_concurrency": 1,
+            "profile_count": 2,
+            "response_time_breakdown": {
+              "check_query_ms": 1,
+              "connection_acquire_ms": 1478,
+              "coverage": 109.30952380952381,
+              "custom_slices": null,
+              "fetch_ms": 20,
+              "method_time_ms": 0,
+              "method_time_ratio": 0,
+              "negative_method_time": true,
+              "network_call_ms": 89,
+              "network_prep_ms": 0,
+              "root_response_time_ms": 84,
+              "servlet_dispatch_ms": 84,
+              "sql_execute_ms": 5006,
+              "two_pc_ms": 2504,
+              "unprofiled_external_call_ms": 0
+            },
+            "total_check_query_ms": 1,
+            "total_connection_acquire_ms": 1478,
+            "total_external_call_cumulative_ms": 173,
+            "total_external_call_wall_time_ms": 173,
+            "total_fetch_ms": 20,
+            "total_fetch_rows": 1,
+            "total_network_gap_cumulative_ms": 89,
+            "total_sql_execute_ms": 5006,
+            "total_two_pc_ms": 2504,
+            "total_unprofiled_external_call_ms": 0,
+            "unmatched_external_call_count": 0
+          },
+          "profile_count": 2,
+          "profile_txids": [
+            "922846047875413046",
+            "922846047875413047"
+          ],
+          "root_application": "/prod/common/rule/testrule",
+          "root_body_start_ms": 58252608,
+          "root_response_time_ms": 84,
+          "root_txid": "922846047875413046",
+          "signature_hash": "5c357286f6b7ed6bdb0fecad27e0938acc27f606b28c4d5f4fcf0aba3a11b156",
+          "signature_version": "v1",
+          "unmatched_edge_count": 0,
+          "validation_status": "OK",
+          "warnings": null
+        },
+        "is_whole_transaction": true,
+        "network_time_by_txid": {
+          "922846047875413046": 89
+        },
+        "profile_rows": [
+          {
+            "application": "/prod/common/rule/testrule",
+            "body_metrics": {
+              "check_query_count": 1,
+              "check_query_cum_ms": 1,
+              "connection_acquire_count": 1,
+              "connection_acquire_cum_ms": 1478,
+              "external_call_count": 1,
+              "external_call_cum_ms": 173,
+              "fetch_count": 1,
+              "fetch_cum_ms": 20,
+              "fetch_total_rows": 1,
+              "network_prep_cum_ms": 0,
+              "network_prep_method_count": 0,
+              "network_prep_method_cum_ms": 0,
+              "servlet_dispatch_count": 0,
+              "servlet_dispatch_cum_ms": 0,
+              "sql_execute_count": 2,
+              "sql_execute_cum_ms": 5006,
+              "two_pc_count": 3,
+              "two_pc_cum_ms": 2504
+            },
+            "errors": [],
+            "guid": "2026050908316771PCMONLxtz8x0000001",
+            "header": {
+              "cpu_time_ms": 23,
+              "domain": "상품",
+              "external_call_time_ms": 173,
+              "fetch_time_ms": 20,
+              "http_status_code": 200,
+              "instance": "pgf-svc-djg4gjdgggg-wszldf",
+              "response_time_ms": 84,
+              "sql_count": 5,
+              "sql_time_ms": 57
+            },
+            "is_full_profile": true,
+            "is_incomplete": false,
+            "start_time": "2026-05-07 08:38:24 279",
+            "txid": "922846047875413046",
+            "warnings": [
+              {
+                "code": "SQL_COUNT_MISMATCH",
+                "message": "header SQL_COUNT=5 but body count=6"
+              }
+            ]
+          },
+          {
+            "application": "/dev/common/rule/testrule",
+            "body_metrics": {
+              "check_query_count": 0,
+              "check_query_cum_ms": 0,
+              "connection_acquire_count": 0,
+              "connection_acquire_cum_ms": 0,
+              "external_call_count": 0,
+              "external_call_cum_ms": 0,
+              "fetch_count": 0,
+              "fetch_cum_ms": 0,
+              "fetch_total_rows": 0,
+              "network_prep_cum_ms": 0,
+              "network_prep_method_count": 0,
+              "network_prep_method_cum_ms": 0,
+              "servlet_dispatch_count": 1,
+              "servlet_dispatch_cum_ms": 84,
+              "sql_execute_count": 0,
+              "sql_execute_cum_ms": 0,
+              "two_pc_count": 0,
+              "two_pc_cum_ms": 0
+            },
+            "errors": [],
+            "guid": "2026050908316771PCMONLxtz8x0000001",
+            "header": {
+              "cpu_time_ms": 4,
+              "domain": "결제",
+              "external_call_time_ms": 0,
+              "fetch_time_ms": 0,
+              "http_status_code": 200,
+              "instance": "pay-svc-aaaa",
+              "response_time_ms": 84,
+              "sql_count": 0,
+              "sql_time_ms": 0
+            },
+            "is_full_profile": true,
+            "is_incomplete": false,
+            "start_time": "2026-05-07 08:38:25 100",
+            "txid": "922846047875413047",
+            "warnings": []
+          }
+        ],
+        "selected_application": "/prod/common/rule/testrule",
+        "selected_txid": "",
+        "selected_value": "__whole__",
+        "service_network_edges": [
+          {
+            "callee_application": "/dev/common/rule/testrule",
+            "callee_body_start_ms": 58253000,
+            "callee_response_time_ms": 84,
+            "callee_txid": "922846047875413047",
+            "caller_application": "/prod/common/rule/testrule",
+            "caller_event_start_ms": 58254086,
+            "caller_txid": "922846047875413046",
+            "external_call_elapsed_ms": 173,
+            "guid": "2026050908316771PCMONLxtz8x0000001",
+            "match_status": "MATCHED",
+            "network_gap_ms": 89
+          }
+        ],
+        "slow_sql_rows": [
+          {
+            "application": "/prod/common/rule/testrule",
+            "elapsed_ms": 2503,
+            "event_no": "0013",
+            "event_start": "16:10:54 086",
+            "event_type": "SQL_EXECUTE_UPDATE",
+            "guid": "2026050908316771PCMONLxtz8x0000001",
+            "raw_message": "SQL-EXECUTE-UPDATE",
+            "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-two-guids.txt",
+            "sql_text": "INSERT INTO JOBS ...\nparam:[id,title,dev]",
+            "start_offset_ms": 1478,
+            "txid": "922846047875413046"
+          },
+          {
+            "application": "/prod/common/rule/testrule",
+            "elapsed_ms": 2503,
+            "event_no": "0014",
+            "event_start": "16:10:54 086",
+            "event_type": "SQL_EXECUTE_QUERY",
+            "guid": "2026050908316771PCMONLxtz8x0000001",
+            "raw_message": "SQL-EXECUTE-QUERY",
+            "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-two-guids.txt",
+            "sql_text": "SELECT a, b, c FROM ZZZ",
+            "start_offset_ms": 1478,
+            "txid": "922846047875413046"
+          }
+        ],
+        "timeline_edges": [
+          {
+            "callee_application": "/dev/common/rule/testrule",
+            "callee_body_start_ms": 58253000,
+            "callee_response_time_ms": 84,
+            "callee_txid": "922846047875413047",
+            "caller_application": "/prod/common/rule/testrule",
+            "caller_event_start_ms": 58254086,
+            "caller_txid": "922846047875413046",
+            "external_call_elapsed_ms": 173,
+            "guid": "2026050908316771PCMONLxtz8x0000001",
+            "match_status": "MATCHED",
+            "network_gap_ms": 89
+          }
+        ],
+        "topology_edges": [
+          {
+            "callee_application": "/dev/common/rule/testrule",
+            "callee_body_start_ms": 58253000,
+            "callee_response_time_ms": 84,
+            "callee_txid": "922846047875413047",
+            "caller_application": "/prod/common/rule/testrule",
+            "caller_event_start_ms": 58254086,
+            "caller_txid": "922846047875413046",
+            "external_call_elapsed_ms": 173,
+            "guid": "2026050908316771PCMONLxtz8x0000001",
+            "match_status": "MATCHED",
+            "network_gap_ms": 89
+          }
+        ]
+      },
+      {
+        "group": {
+          "call_graph": [
+            {
+              "callee_application": "/dev/common/rule/testrule",
+              "callee_body_start_ms": 58253000,
+              "callee_response_time_ms": 168,
+              "callee_txid": "922846047875413049",
+              "caller_application": "/prod/common/rule/testrule",
+              "caller_event_start_ms": 58254086,
+              "caller_txid": "922846047875413048",
+              "external_call_elapsed_ms": 173,
+              "guid": "2026050908316771PCMONLxtz8x0000002",
+              "match_status": "MATCHED",
+              "network_gap_ms": 5
+            }
+          ],
+          "excluded_from_signature_stats": false,
+          "guid": "2026050908316771PCMONLxtz8x0000002",
+          "incomplete_profile_count": 0,
+          "matched_edge_count": 1,
+          "method_hotspots": [],
+          "metrics": {
+            "external_call_parallelism_ratio": 1,
+            "group_execution_mode": "SEQUENTIAL",
+            "matched_external_call_count": 1,
+            "max_external_call_concurrency": 1,
+            "profile_count": 2,
+            "response_time_breakdown": {
+              "check_query_ms": 1,
+              "connection_acquire_ms": 1478,
+              "coverage": 54.154761904761905,
+              "custom_slices": null,
+              "fetch_ms": 20,
+              "method_time_ms": 0,
+              "method_time_ratio": 0,
+              "negative_method_time": true,
+              "network_call_ms": 5,
+              "network_prep_ms": 0,
+              "root_response_time_ms": 168,
+              "servlet_dispatch_ms": 84,
+              "sql_execute_ms": 5006,
+              "two_pc_ms": 2504,
+              "unprofiled_external_call_ms": 0
+            },
+            "total_check_query_ms": 1,
+            "total_connection_acquire_ms": 1478,
+            "total_external_call_cumulative_ms": 173,
+            "total_external_call_wall_time_ms": 173,
+            "total_fetch_ms": 20,
+            "total_fetch_rows": 1,
+            "total_network_gap_cumulative_ms": 5,
+            "total_sql_execute_ms": 5006,
+            "total_two_pc_ms": 2504,
+            "total_unprofiled_external_call_ms": 0,
+            "unmatched_external_call_count": 0
+          },
+          "profile_count": 2,
+          "profile_txids": [
+            "922846047875413048",
+            "922846047875413049"
+          ],
+          "root_application": "/prod/common/rule/testrule",
+          "root_body_start_ms": 58252608,
+          "root_response_time_ms": 168,
+          "root_txid": "922846047875413048",
+          "signature_hash": "5c357286f6b7ed6bdb0fecad27e0938acc27f606b28c4d5f4fcf0aba3a11b156",
+          "signature_version": "v1",
+          "unmatched_edge_count": 0,
+          "validation_status": "OK",
+          "warnings": null
+        },
+        "is_whole_transaction": true,
+        "network_time_by_txid": {
+          "922846047875413048": 5
+        },
+        "profile_rows": [
+          {
+            "application": "/prod/common/rule/testrule",
+            "body_metrics": {
+              "check_query_count": 1,
+              "check_query_cum_ms": 1,
+              "connection_acquire_count": 1,
+              "connection_acquire_cum_ms": 1478,
+              "external_call_count": 1,
+              "external_call_cum_ms": 173,
+              "fetch_count": 1,
+              "fetch_cum_ms": 20,
+              "fetch_total_rows": 1,
+              "network_prep_cum_ms": 0,
+              "network_prep_method_count": 0,
+              "network_prep_method_cum_ms": 0,
+              "servlet_dispatch_count": 0,
+              "servlet_dispatch_cum_ms": 0,
+              "sql_execute_count": 2,
+              "sql_execute_cum_ms": 5006,
+              "two_pc_count": 3,
+              "two_pc_cum_ms": 2504
+            },
+            "errors": [],
+            "guid": "2026050908316771PCMONLxtz8x0000002",
+            "header": {
+              "cpu_time_ms": 23,
+              "domain": "상품",
+              "external_call_time_ms": 173,
+              "fetch_time_ms": 20,
+              "http_status_code": 200,
+              "instance": "pgf-svc-djg4gjdgggg-wszldf",
+              "response_time_ms": 168,
+              "sql_count": 5,
+              "sql_time_ms": 57
+            },
+            "is_full_profile": true,
+            "is_incomplete": false,
+            "start_time": "2026-05-07 08:38:24 279",
+            "txid": "922846047875413048",
+            "warnings": [
+              {
+                "code": "SQL_COUNT_MISMATCH",
+                "message": "header SQL_COUNT=5 but body count=6"
+              }
+            ]
+          },
+          {
+            "application": "/dev/common/rule/testrule",
+            "body_metrics": {
+              "check_query_count": 0,
+              "check_query_cum_ms": 0,
+              "connection_acquire_count": 0,
+              "connection_acquire_cum_ms": 0,
+              "external_call_count": 0,
+              "external_call_cum_ms": 0,
+              "fetch_count": 0,
+              "fetch_cum_ms": 0,
+              "fetch_total_rows": 0,
+              "network_prep_cum_ms": 0,
+              "network_prep_method_count": 0,
+              "network_prep_method_cum_ms": 0,
+              "servlet_dispatch_count": 1,
+              "servlet_dispatch_cum_ms": 84,
+              "sql_execute_count": 0,
+              "sql_execute_cum_ms": 0,
+              "two_pc_count": 0,
+              "two_pc_cum_ms": 0
+            },
+            "errors": [],
+            "guid": "2026050908316771PCMONLxtz8x0000002",
+            "header": {
+              "cpu_time_ms": 4,
+              "domain": "결제",
+              "external_call_time_ms": 0,
+              "fetch_time_ms": 0,
+              "http_status_code": 200,
+              "instance": "pay-svc-aaaa",
+              "response_time_ms": 168,
+              "sql_count": 0,
+              "sql_time_ms": 0
+            },
+            "is_full_profile": true,
+            "is_incomplete": false,
+            "start_time": "2026-05-07 08:38:25 100",
+            "txid": "922846047875413049",
+            "warnings": []
+          }
+        ],
+        "selected_application": "/prod/common/rule/testrule",
+        "selected_txid": "",
+        "selected_value": "__whole__",
+        "service_network_edges": [
+          {
+            "callee_application": "/dev/common/rule/testrule",
+            "callee_body_start_ms": 58253000,
+            "callee_response_time_ms": 168,
+            "callee_txid": "922846047875413049",
+            "caller_application": "/prod/common/rule/testrule",
+            "caller_event_start_ms": 58254086,
+            "caller_txid": "922846047875413048",
+            "external_call_elapsed_ms": 173,
+            "guid": "2026050908316771PCMONLxtz8x0000002",
+            "match_status": "MATCHED",
+            "network_gap_ms": 5
+          }
+        ],
+        "slow_sql_rows": [
+          {
+            "application": "/prod/common/rule/testrule",
+            "elapsed_ms": 2503,
+            "event_no": "0013",
+            "event_start": "16:10:54 086",
+            "event_type": "SQL_EXECUTE_UPDATE",
+            "guid": "2026050908316771PCMONLxtz8x0000002",
+            "raw_message": "SQL-EXECUTE-UPDATE",
+            "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-two-guids.txt",
+            "sql_text": "INSERT INTO JOBS ...\nparam:[id,title,dev]",
+            "start_offset_ms": 1478,
+            "txid": "922846047875413048"
+          },
+          {
+            "application": "/prod/common/rule/testrule",
+            "elapsed_ms": 2503,
+            "event_no": "0014",
+            "event_start": "16:10:54 086",
+            "event_type": "SQL_EXECUTE_QUERY",
+            "guid": "2026050908316771PCMONLxtz8x0000002",
+            "raw_message": "SQL-EXECUTE-QUERY",
+            "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-two-guids.txt",
+            "sql_text": "SELECT a, b, c FROM ZZZ",
+            "start_offset_ms": 1478,
+            "txid": "922846047875413048"
+          }
+        ],
+        "timeline_edges": [
+          {
+            "callee_application": "/dev/common/rule/testrule",
+            "callee_body_start_ms": 58253000,
+            "callee_response_time_ms": 168,
+            "callee_txid": "922846047875413049",
+            "caller_application": "/prod/common/rule/testrule",
+            "caller_event_start_ms": 58254086,
+            "caller_txid": "922846047875413048",
+            "external_call_elapsed_ms": 173,
+            "guid": "2026050908316771PCMONLxtz8x0000002",
+            "match_status": "MATCHED",
+            "network_gap_ms": 5
+          }
+        ],
+        "topology_edges": [
+          {
+            "callee_application": "/dev/common/rule/testrule",
+            "callee_body_start_ms": 58253000,
+            "callee_response_time_ms": 168,
+            "callee_txid": "922846047875413049",
+            "caller_application": "/prod/common/rule/testrule",
+            "caller_event_start_ms": 58254086,
+            "caller_txid": "922846047875413048",
+            "external_call_elapsed_ms": 173,
+            "guid": "2026050908316771PCMONLxtz8x0000002",
+            "match_status": "MATCHED",
+            "network_gap_ms": 5
+          }
+        ]
+      }
+    ],
+    "guid_groups": [
+      {
+        "call_graph": [
+          {
+            "callee_application": "/dev/common/rule/testrule",
+            "callee_body_start_ms": 58253000,
+            "callee_response_time_ms": 84,
+            "callee_txid": "922846047875413047",
+            "caller_application": "/prod/common/rule/testrule",
+            "caller_event_start_ms": 58254086,
+            "caller_txid": "922846047875413046",
+            "external_call_elapsed_ms": 173,
+            "guid": "2026050908316771PCMONLxtz8x0000001",
+            "match_status": "MATCHED",
+            "network_gap_ms": 89
+          }
+        ],
+        "excluded_from_signature_stats": false,
+        "guid": "2026050908316771PCMONLxtz8x0000001",
+        "incomplete_profile_count": 0,
+        "matched_edge_count": 1,
+        "method_hotspots": [],
+        "metrics": {
+          "external_call_parallelism_ratio": 1,
+          "group_execution_mode": "SEQUENTIAL",
+          "matched_external_call_count": 1,
+          "max_external_call_concurrency": 1,
+          "profile_count": 2,
+          "response_time_breakdown": {
+            "check_query_ms": 1,
+            "connection_acquire_ms": 1478,
+            "coverage": 109.30952380952381,
+            "custom_slices": null,
+            "fetch_ms": 20,
+            "method_time_ms": 0,
+            "method_time_ratio": 0,
+            "negative_method_time": true,
+            "network_call_ms": 89,
+            "network_prep_ms": 0,
+            "root_response_time_ms": 84,
+            "servlet_dispatch_ms": 84,
+            "sql_execute_ms": 5006,
+            "two_pc_ms": 2504,
+            "unprofiled_external_call_ms": 0
+          },
+          "total_check_query_ms": 1,
+          "total_connection_acquire_ms": 1478,
+          "total_external_call_cumulative_ms": 173,
+          "total_external_call_wall_time_ms": 173,
+          "total_fetch_ms": 20,
+          "total_fetch_rows": 1,
+          "total_network_gap_cumulative_ms": 89,
+          "total_sql_execute_ms": 5006,
+          "total_two_pc_ms": 2504,
+          "total_unprofiled_external_call_ms": 0,
+          "unmatched_external_call_count": 0
+        },
+        "profile_count": 2,
+        "profile_txids": [
+          "922846047875413046",
+          "922846047875413047"
+        ],
+        "root_application": "/prod/common/rule/testrule",
+        "root_body_start_ms": 58252608,
+        "root_response_time_ms": 84,
+        "root_txid": "922846047875413046",
+        "signature_hash": "5c357286f6b7ed6bdb0fecad27e0938acc27f606b28c4d5f4fcf0aba3a11b156",
+        "signature_version": "v1",
+        "unmatched_edge_count": 0,
+        "validation_status": "OK",
+        "warnings": null
+      },
+      {
+        "call_graph": [
+          {
+            "callee_application": "/dev/common/rule/testrule",
+            "callee_body_start_ms": 58253000,
+            "callee_response_time_ms": 168,
+            "callee_txid": "922846047875413049",
+            "caller_application": "/prod/common/rule/testrule",
+            "caller_event_start_ms": 58254086,
+            "caller_txid": "922846047875413048",
+            "external_call_elapsed_ms": 173,
+            "guid": "2026050908316771PCMONLxtz8x0000002",
+            "match_status": "MATCHED",
+            "network_gap_ms": 5
+          }
+        ],
+        "excluded_from_signature_stats": false,
+        "guid": "2026050908316771PCMONLxtz8x0000002",
+        "incomplete_profile_count": 0,
+        "matched_edge_count": 1,
+        "method_hotspots": [],
+        "metrics": {
+          "external_call_parallelism_ratio": 1,
+          "group_execution_mode": "SEQUENTIAL",
+          "matched_external_call_count": 1,
+          "max_external_call_concurrency": 1,
+          "profile_count": 2,
+          "response_time_breakdown": {
+            "check_query_ms": 1,
+            "connection_acquire_ms": 1478,
+            "coverage": 54.154761904761905,
+            "custom_slices": null,
+            "fetch_ms": 20,
+            "method_time_ms": 0,
+            "method_time_ratio": 0,
+            "negative_method_time": true,
+            "network_call_ms": 5,
+            "network_prep_ms": 0,
+            "root_response_time_ms": 168,
+            "servlet_dispatch_ms": 84,
+            "sql_execute_ms": 5006,
+            "two_pc_ms": 2504,
+            "unprofiled_external_call_ms": 0
+          },
+          "total_check_query_ms": 1,
+          "total_connection_acquire_ms": 1478,
+          "total_external_call_cumulative_ms": 173,
+          "total_external_call_wall_time_ms": 173,
+          "total_fetch_ms": 20,
+          "total_fetch_rows": 1,
+          "total_network_gap_cumulative_ms": 5,
+          "total_sql_execute_ms": 5006,
+          "total_two_pc_ms": 2504,
+          "total_unprofiled_external_call_ms": 0,
+          "unmatched_external_call_count": 0
+        },
+        "profile_count": 2,
+        "profile_txids": [
+          "922846047875413048",
+          "922846047875413049"
+        ],
+        "root_application": "/prod/common/rule/testrule",
+        "root_body_start_ms": 58252608,
+        "root_response_time_ms": 168,
+        "root_txid": "922846047875413048",
+        "signature_hash": "5c357286f6b7ed6bdb0fecad27e0938acc27f606b28c4d5f4fcf0aba3a11b156",
+        "signature_version": "v1",
+        "unmatched_edge_count": 0,
+        "validation_status": "OK",
+        "warnings": null
+      }
+    ]
+  },
+  "source_files": [
+    "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-two-guids.txt"
+  ],
+  "summary": {
+    "avg_response_time_ms": 126,
+    "candidate_group_count": 2,
+    "excluded_group_count": 0,
+    "full_profile_count": 4,
+    "guid_group_count": 2,
+    "incomplete_profile_count": 0,
+    "sample_count": 2,
+    "total_errors": 0,
+    "total_profiles": 4,
+    "total_warnings": 2
+  },
+  "tables": {
+    "method_hotspots": [],
+    "msa_edges": [
+      {
+        "callee_application": "/dev/common/rule/testrule",
+        "callee_body_start_ms": 58253000,
+        "callee_response_time_ms": 84,
+        "callee_txid": "922846047875413047",
+        "caller_application": "/prod/common/rule/testrule",
+        "caller_event_start_ms": 58254086,
+        "caller_txid": "922846047875413046",
+        "external_call_elapsed_ms": 173,
+        "guid": "2026050908316771PCMONLxtz8x0000001",
+        "match_status": "MATCHED",
+        "network_gap_ms": 89
+      },
+      {
+        "callee_application": "/dev/common/rule/testrule",
+        "callee_body_start_ms": 58253000,
+        "callee_response_time_ms": 168,
+        "callee_txid": "922846047875413049",
+        "caller_application": "/prod/common/rule/testrule",
+        "caller_event_start_ms": 58254086,
+        "caller_txid": "922846047875413048",
+        "external_call_elapsed_ms": 173,
+        "guid": "2026050908316771PCMONLxtz8x0000002",
+        "match_status": "MATCHED",
+        "network_gap_ms": 5
+      }
+    ],
+    "network_prep_methods": [],
+    "profiles": [
+      {
+        "application": "/prod/common/rule/testrule",
+        "body_metrics": {
+          "check_query_count": 1,
+          "check_query_cum_ms": 1,
+          "connection_acquire_count": 1,
+          "connection_acquire_cum_ms": 1478,
+          "external_call_count": 1,
+          "external_call_cum_ms": 173,
+          "fetch_count": 1,
+          "fetch_cum_ms": 20,
+          "fetch_total_rows": 1,
+          "network_prep_cum_ms": 0,
+          "network_prep_method_count": 0,
+          "network_prep_method_cum_ms": 0,
+          "servlet_dispatch_count": 0,
+          "servlet_dispatch_cum_ms": 0,
+          "sql_execute_count": 2,
+          "sql_execute_cum_ms": 5006,
+          "two_pc_count": 3,
+          "two_pc_cum_ms": 2504
+        },
+        "errors": [],
+        "guid": "2026050908316771PCMONLxtz8x0000001",
+        "header": {
+          "cpu_time_ms": 23,
+          "domain": "상품",
+          "external_call_time_ms": 173,
+          "fetch_time_ms": 20,
+          "http_status_code": 200,
+          "instance": "pgf-svc-djg4gjdgggg-wszldf",
+          "response_time_ms": 84,
+          "sql_count": 5,
+          "sql_time_ms": 57
+        },
+        "is_full_profile": true,
+        "is_incomplete": false,
+        "start_time": "2026-05-07 08:38:24 279",
+        "txid": "922846047875413046",
+        "warnings": [
+          {
+            "code": "SQL_COUNT_MISMATCH",
+            "message": "header SQL_COUNT=5 but body count=6"
+          }
+        ]
+      },
+      {
+        "application": "/dev/common/rule/testrule",
+        "body_metrics": {
+          "check_query_count": 0,
+          "check_query_cum_ms": 0,
+          "connection_acquire_count": 0,
+          "connection_acquire_cum_ms": 0,
+          "external_call_count": 0,
+          "external_call_cum_ms": 0,
+          "fetch_count": 0,
+          "fetch_cum_ms": 0,
+          "fetch_total_rows": 0,
+          "network_prep_cum_ms": 0,
+          "network_prep_method_count": 0,
+          "network_prep_method_cum_ms": 0,
+          "servlet_dispatch_count": 1,
+          "servlet_dispatch_cum_ms": 84,
+          "sql_execute_count": 0,
+          "sql_execute_cum_ms": 0,
+          "two_pc_count": 0,
+          "two_pc_cum_ms": 0
+        },
+        "errors": [],
+        "guid": "2026050908316771PCMONLxtz8x0000001",
+        "header": {
+          "cpu_time_ms": 4,
+          "domain": "결제",
+          "external_call_time_ms": 0,
+          "fetch_time_ms": 0,
+          "http_status_code": 200,
+          "instance": "pay-svc-aaaa",
+          "response_time_ms": 84,
+          "sql_count": 0,
+          "sql_time_ms": 0
+        },
+        "is_full_profile": true,
+        "is_incomplete": false,
+        "start_time": "2026-05-07 08:38:25 100",
+        "txid": "922846047875413047",
+        "warnings": []
+      },
+      {
+        "application": "/prod/common/rule/testrule",
+        "body_metrics": {
+          "check_query_count": 1,
+          "check_query_cum_ms": 1,
+          "connection_acquire_count": 1,
+          "connection_acquire_cum_ms": 1478,
+          "external_call_count": 1,
+          "external_call_cum_ms": 173,
+          "fetch_count": 1,
+          "fetch_cum_ms": 20,
+          "fetch_total_rows": 1,
+          "network_prep_cum_ms": 0,
+          "network_prep_method_count": 0,
+          "network_prep_method_cum_ms": 0,
+          "servlet_dispatch_count": 0,
+          "servlet_dispatch_cum_ms": 0,
+          "sql_execute_count": 2,
+          "sql_execute_cum_ms": 5006,
+          "two_pc_count": 3,
+          "two_pc_cum_ms": 2504
+        },
+        "errors": [],
+        "guid": "2026050908316771PCMONLxtz8x0000002",
+        "header": {
+          "cpu_time_ms": 23,
+          "domain": "상품",
+          "external_call_time_ms": 173,
+          "fetch_time_ms": 20,
+          "http_status_code": 200,
+          "instance": "pgf-svc-djg4gjdgggg-wszldf",
+          "response_time_ms": 168,
+          "sql_count": 5,
+          "sql_time_ms": 57
+        },
+        "is_full_profile": true,
+        "is_incomplete": false,
+        "start_time": "2026-05-07 08:38:24 279",
+        "txid": "922846047875413048",
+        "warnings": [
+          {
+            "code": "SQL_COUNT_MISMATCH",
+            "message": "header SQL_COUNT=5 but body count=6"
+          }
+        ]
+      },
+      {
+        "application": "/dev/common/rule/testrule",
+        "body_metrics": {
+          "check_query_count": 0,
+          "check_query_cum_ms": 0,
+          "connection_acquire_count": 0,
+          "connection_acquire_cum_ms": 0,
+          "external_call_count": 0,
+          "external_call_cum_ms": 0,
+          "fetch_count": 0,
+          "fetch_cum_ms": 0,
+          "fetch_total_rows": 0,
+          "network_prep_cum_ms": 0,
+          "network_prep_method_count": 0,
+          "network_prep_method_cum_ms": 0,
+          "servlet_dispatch_count": 1,
+          "servlet_dispatch_cum_ms": 84,
+          "sql_execute_count": 0,
+          "sql_execute_cum_ms": 0,
+          "two_pc_count": 0,
+          "two_pc_cum_ms": 0
+        },
+        "errors": [],
+        "guid": "2026050908316771PCMONLxtz8x0000002",
+        "header": {
+          "cpu_time_ms": 4,
+          "domain": "결제",
+          "external_call_time_ms": 0,
+          "fetch_time_ms": 0,
+          "http_status_code": 200,
+          "instance": "pay-svc-aaaa",
+          "response_time_ms": 168,
+          "sql_count": 0,
+          "sql_time_ms": 0
+        },
+        "is_full_profile": true,
+        "is_incomplete": false,
+        "start_time": "2026-05-07 08:38:25 100",
+        "txid": "922846047875413049",
+        "warnings": []
+      }
+    ],
+    "slow_sql_events": [
+      {
+        "application": "/prod/common/rule/testrule",
+        "elapsed_ms": 2503,
+        "event_no": "0013",
+        "event_start": "16:10:54 086",
+        "event_type": "SQL_EXECUTE_UPDATE",
+        "guid": "2026050908316771PCMONLxtz8x0000001",
+        "raw_message": "SQL-EXECUTE-UPDATE",
+        "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-two-guids.txt",
+        "sql_text": "INSERT INTO JOBS ...\nparam:[id,title,dev]",
+        "start_offset_ms": 1478,
+        "txid": "922846047875413046"
+      },
+      {
+        "application": "/prod/common/rule/testrule",
+        "elapsed_ms": 2503,
+        "event_no": "0014",
+        "event_start": "16:10:54 086",
+        "event_type": "SQL_EXECUTE_QUERY",
+        "guid": "2026050908316771PCMONLxtz8x0000001",
+        "raw_message": "SQL-EXECUTE-QUERY",
+        "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-two-guids.txt",
+        "sql_text": "SELECT a, b, c FROM ZZZ",
+        "start_offset_ms": 1478,
+        "txid": "922846047875413046"
+      },
+      {
+        "application": "/prod/common/rule/testrule",
+        "elapsed_ms": 2503,
+        "event_no": "0013",
+        "event_start": "16:10:54 086",
+        "event_type": "SQL_EXECUTE_UPDATE",
+        "guid": "2026050908316771PCMONLxtz8x0000002",
+        "raw_message": "SQL-EXECUTE-UPDATE",
+        "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-two-guids.txt",
+        "sql_text": "INSERT INTO JOBS ...\nparam:[id,title,dev]",
+        "start_offset_ms": 1478,
+        "txid": "922846047875413048"
+      },
+      {
+        "application": "/prod/common/rule/testrule",
+        "elapsed_ms": 2503,
+        "event_no": "0014",
+        "event_start": "16:10:54 086",
+        "event_type": "SQL_EXECUTE_QUERY",
+        "guid": "2026050908316771PCMONLxtz8x0000002",
+        "raw_message": "SQL-EXECUTE-QUERY",
+        "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-two-guids.txt",
+        "sql_text": "SELECT a, b, c FROM ZZZ",
+        "start_offset_ms": 1478,
+        "txid": "922846047875413048"
+      }
+    ]
+  },
+  "type": "jennifer_profile"
+}

@@ -584,42 +584,40 @@ function signatureOptionLabel(signature: any): string {
 }
 
 function GuidTransactionSummary({ group }: { group: any }): React.JSX.Element {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const metrics = group?.metrics ?? {};
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="inline-flex items-center gap-2 text-sm">
-          단일 트랜잭션 기준값
+          {t("msaUiSingleTransactionBaseline")}
           <HelpTip text={getHelpText(locale, "sectionMsaSingleBaseline")} />
         </CardTitle>
-        <p className="text-xs text-muted-foreground">
-          선택한 GUID 하나의 실제 호출 순서와 elapsed 값을 그대로 표시합니다.
-        </p>
+        <p className="text-xs text-muted-foreground">{t("msaUiShowTheActualCallOrderAndElapsedValuesForTheSelectedGUID")}</p>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-6">
         <MetricCard
-          label="Root RT"
+          label={t("msaUiRootRT")}
           value={(group?.root_response_time_ms ?? 0).toLocaleString()}
         />
         <MetricCard
-          label="Profiles"
+          label={t("msaUiProfiles")}
           value={(group?.profile_count ?? 0).toLocaleString()}
         />
         <MetricCard
-          label="Matched"
+          label={t("msaUiMatched")}
           value={(group?.matched_edge_count ?? 0).toLocaleString()}
         />
         <MetricCard
-          label="External cum"
+          label={t("msaUiExternalCum")}
           value={(metrics.total_external_call_cumulative_ms ?? 0).toLocaleString()}
         />
         <MetricCard
-          label="Network gap"
+          label={t("msaUiNetworkGap")}
           value={(metrics.total_network_gap_cumulative_ms ?? 0).toLocaleString()}
         />
         <MetricCard
-          label="Mode"
+          label={t("msaUiMode")}
           value={String(metrics.group_execution_mode ?? "—")}
         />
       </CardContent>
@@ -628,46 +626,46 @@ function GuidTransactionSummary({ group }: { group: any }): React.JSX.Element {
 }
 
 function MsaCaptureStatusCard({ summary }: { summary: any }): React.JSX.Element {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="inline-flex items-center gap-2 text-sm">
-          MSA 캡처 상태 (체크쿼리 / 2PC / 외부호출 / 네트워크 준비)
+          {t("msaUiMSACaptureStatusCheckQuery2PCExternalCallsNetworkPreparation")}
           <HelpTip text={getHelpText(locale, "sectionMsaCaptureStatus")} />
         </CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <MetricCard
-          label="2PC (cum ms)"
+          label={t("msaUi2PCCumMs")}
           value={(summary.two_pc_cum_ms ?? 0).toLocaleString()}
         />
         <MetricCard
-          label="Check Query (cum ms)"
+          label={t("msaUiCheckQueryCumMs")}
           value={(summary.check_query_cum_ms ?? 0).toLocaleString()}
         />
         <MetricCard
-          label="External call (cum ms)"
+          label={t("msaUiExternalCallCumMs")}
           value={(summary.external_call_cum_ms ?? 0).toLocaleString()}
         />
         <MetricCard
-          label="External call count"
+          label={t("msaUiExternalCallCount")}
           value={(summary.external_call_count ?? 0).toLocaleString()}
         />
         <MetricCard
-          label="Network prep wrapper (ms)"
+          label={t("msaUiNetworkPrepWrapperMs")}
           value={(summary.network_prep_method_cum_ms ?? 0).toLocaleString()}
         />
         <MetricCard
-          label="Network prep wrapper count"
+          label={t("msaUiNetworkPrepWrapperCount")}
           value={(summary.network_prep_method_count ?? 0).toLocaleString()}
         />
         <MetricCard
-          label="Network prep (cum ms)"
+          label={t("msaUiNetworkPrepCumMs")}
           value={(summary.network_prep_cum_ms ?? 0).toLocaleString()}
         />
         <MetricCard
-          label="Connection acquire (ms)"
+          label={t("msaUiConnectionAcquireMs")}
           value={(summary.connection_acquire_cum_ms ?? 0).toLocaleString()}
         />
       </CardContent>
@@ -676,7 +674,7 @@ function MsaCaptureStatusCard({ summary }: { summary: any }): React.JSX.Element 
 }
 
 function IncompleteProfileWarning({ summary }: { summary: any }): React.JSX.Element | null {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const incomplete = Number(summary?.incomplete_profile_count ?? 0);
   const excludedGroups = Number(summary?.signature_excluded_group_count ?? 0);
   if (incomplete <= 0 && excludedGroups <= 0) return null;
@@ -684,7 +682,7 @@ function IncompleteProfileWarning({ summary }: { summary: any }): React.JSX.Elem
     <Card className="border-amber-500/50 bg-amber-500/5">
       <CardHeader className="pb-2">
         <CardTitle className="inline-flex items-center gap-2 text-sm text-amber-800 dark:text-amber-200">
-          불완전 프로파일 감지
+          {t("msaUiIncompleteProfilesDetected")}
           <HelpTip text={getHelpText(locale, "sectionMsaIncomplete")} variant="warning" />
         </CardTitle>
       </CardHeader>
@@ -704,7 +702,7 @@ function TransactionProfilesTable({
   rows: any[];
   networkTimeByTxid: Map<string, number>;
 }): React.JSX.Element {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const { visibleRows, expanded, setExpanded } = usePreviewRows(rows);
   return (
     <Card>
@@ -720,17 +718,17 @@ function TransactionProfilesTable({
             <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
               <th className="px-3 py-2 text-left font-medium">TXID</th>
               <th className="px-3 py-2 text-left font-medium">GUID</th>
-              <th className="px-3 py-2 text-left font-medium">Application</th>
-              <th className="px-3 py-2 text-right font-medium">Resp ms</th>
-              <th className="px-3 py-2 text-right font-medium">Network ms</th>
-              <th className="px-3 py-2 text-right font-medium">Prep ms</th>
-              <th className="px-3 py-2 text-right font-medium">SQL Exec ms</th>
-              <th className="px-3 py-2 text-right font-medium">Check Q ms</th>
-              <th className="px-3 py-2 text-right font-medium">2PC ms</th>
-              <th className="px-3 py-2 text-right font-medium">Fetch ms</th>
-              <th className="px-3 py-2 text-right font-medium">Ext call</th>
-              <th className="px-3 py-2 text-right font-medium">Ext call ms</th>
-              <th className="px-3 py-2 text-right font-medium">Issues</th>
+              <th className="px-3 py-2 text-left font-medium">{t("msaUiApplication")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("msaUiRespMs")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("msaUiNetworkMs")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("msaUiPrepMs")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("msaUiSQLExecMs")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("msaUiCheckQMs")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("msaUi2PCMs")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("msaUiFetchMs")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("msaUiExtCall")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("msaUiExtCallMs")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("msaUiIssues")}</th>
             </tr>
           </thead>
           <tbody>
@@ -801,7 +799,7 @@ function TransactionProfilesTable({
 }
 
 function NetworkPrepMethodsTable({ rows }: { rows: any[] }): React.JSX.Element {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const { visibleRows, expanded, setExpanded } = usePreviewRows(rows);
   return (
     <Card>
@@ -817,23 +815,21 @@ function NetworkPrepMethodsTable({ rows }: { rows: any[] }): React.JSX.Element {
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
         {rows.length === 0 ? (
-          <p className="px-4 py-3 text-xs text-muted-foreground">
-            네트워크 준비시간으로 포함된 메소드가 없습니다.
-          </p>
+          <p className="px-4 py-3 text-xs text-muted-foreground">{t("msaUiNoMethodsClassifiedAsNetworkPreparation")}</p>
         ) : (
           <>
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
                   <th className="px-3 py-2 text-left font-medium">TXID</th>
-                  <th className="px-3 py-2 text-left font-medium">Application</th>
-                  <th className="px-3 py-2 text-left font-medium">Method</th>
-                  <th className="px-3 py-2 text-right font-medium">Calls</th>
-                  <th className="px-3 py-2 text-right font-medium">Method ms</th>
-                  <th className="px-3 py-2 text-right font-medium">Call sum</th>
-                  <th className="px-3 py-2 text-right font-medium">Prep ms</th>
-                  <th className="px-3 py-2 text-left font-medium">URLs</th>
-                  <th className="px-3 py-2 text-left font-medium">Status</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("msaUiApplication")}</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("msaUiMethod")}</th>
+                  <th className="px-3 py-2 text-right font-medium">{t("msaUiCalls")}</th>
+                  <th className="px-3 py-2 text-right font-medium">{t("msaUiMethodMs")}</th>
+                  <th className="px-3 py-2 text-right font-medium">{t("msaUiCallSum")}</th>
+                  <th className="px-3 py-2 text-right font-medium">{t("msaUiPrepMs")}</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("msaUiURLs")}</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("msaUiStatus")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -876,13 +872,9 @@ function NetworkPrepMethodsTable({ rows }: { rows: any[] }): React.JSX.Element {
                           <span
                             className="rounded bg-amber-500/10 px-1.5 py-0.5 text-xs text-amber-700 dark:text-amber-300"
                             title={(row.warnings ?? []).join(", ")}
-                          >
-                            확인 필요
-                          </span>
+                          >{t("msaUiNeedsReview")}</span>
                         ) : (
-                          <span className="rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
-                            포함
-                          </span>
+                          <span className="rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">{t("msaUiInclude")}</span>
                         )}
                       </td>
                     </tr>
@@ -904,7 +896,7 @@ function NetworkPrepMethodsTable({ rows }: { rows: any[] }): React.JSX.Element {
 }
 
 function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): React.JSX.Element {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const { visibleRows, expanded, setExpanded } = usePreviewRows(rows);
   return (
     <Card>
@@ -920,22 +912,20 @@ function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): React.JSX
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
         {rows.length === 0 ? (
-          <p className="px-4 py-3 text-xs text-muted-foreground">
-            프로파일 미수집 외부호출이 없습니다.
-          </p>
+          <p className="px-4 py-3 text-xs text-muted-foreground">{t("msaUiNoUnprofiledExternalCalls")}</p>
         ) : (
           <>
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                  <th className="px-3 py-2 text-left font-medium">Caller</th>
-                  <th className="px-3 py-2 text-left font-medium">Target</th>
-                  <th className="px-3 py-2 text-left font-medium">Client</th>
-                  <th className="px-3 py-2 text-right font-medium">Count</th>
-                  <th className="px-3 py-2 text-right font-medium">Total ms</th>
-                  <th className="px-3 py-2 text-right font-medium">Avg ms</th>
-                  <th className="px-3 py-2 text-right font-medium">Max ms</th>
-                  <th className="px-3 py-2 text-left font-medium">Sample URLs</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("msaUiCaller")}</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("msaUiTarget")}</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("msaUiClient")}</th>
+                  <th className="px-3 py-2 text-right font-medium">{t("msaUiCount")}</th>
+                  <th className="px-3 py-2 text-right font-medium">{t("msaUiTotalMs")}</th>
+                  <th className="px-3 py-2 text-right font-medium">{t("msaUiAvgMs")}</th>
+                  <th className="px-3 py-2 text-right font-medium">{t("msaUiMaxMs")}</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("msaUiSampleURLs")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1009,7 +999,7 @@ function ApiCallAnalysisPanel({
   valueMode?: ApiCallValueMode;
   sampleCount?: number;
 }): React.JSX.Element {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const [sortKey, setSortKey] = useState<ApiCallSortKey>("apiTotalMs");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const normalizedSampleCount = Math.max(1, Math.round(sampleCount || 1));
@@ -1103,19 +1093,17 @@ function ApiCallAnalysisPanel({
       </CardHeader>
       <CardContent className="p-0">
         {rows.length === 0 ? (
-          <p className="px-4 py-3 text-xs text-muted-foreground">
-            표시할 API 호출이 없습니다.
-          </p>
+          <p className="px-4 py-3 text-xs text-muted-foreground">{t("msaUiNoAPICallsToDisplay")}</p>
         ) : (
           <>
             <div className="grid gap-3 border-b border-border p-3 sm:grid-cols-2 xl:grid-cols-4">
               <ApiCallHighlight
-                label="가장 느린 API"
+                label={t("msaUiSlowestAPI")}
                 row={slowest}
                 value={formatMsValue(slowest?.apiMaxMs)}
               />
               <ApiCallHighlight
-                label="최다 호출 API"
+                label={t("msaUiMostCalledAPI")}
                 row={mostCalled}
                 value={
                   mostCalled
@@ -1124,12 +1112,12 @@ function ApiCallAnalysisPanel({
                 }
               />
               <ApiCallHighlight
-                label="누적 수행시간 상위"
+                label={t("msaUiTopCumulativeDuration")}
                 row={highestTotal}
                 value={formatMsValue(highestTotal?.apiTotalMs)}
               />
               <ApiCallHighlight
-                label="p95 응답시간 상위"
+                label={t("msaUiTopP95ResponseTime")}
                 row={highestP95}
                 value={formatMsValue(highestP95?.apiP95Ms)}
               />
@@ -1139,39 +1127,39 @@ function ApiCallAnalysisPanel({
                 <thead>
                   <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
                     <th className="px-3 py-2 text-left font-medium">
-                      {sortHeader("API URL", "apiUrl")}
+                      {sortHeader(t("msaUiAPIURL"), "apiUrl")}
                     </th>
                     <th className="px-3 py-2 text-left font-medium">
-                      {sortHeader("Target", "target")}
+                      {sortHeader(t("msaUiTarget"), "target")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
-                      {sortHeader(isAverageView ? "Calls / tx" : "Calls", "count", "right")}
+                      {sortHeader(isAverageView ? t("msaUiCallsTx") : t("msaUiCalls"), "count", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
-                      {sortHeader("External_Call avg", "calleeAvgMs", "right")}
+                      {sortHeader(t("msaUiExternalCallAvg"), "calleeAvgMs", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
                       {sortHeader(
-                        isAverageView ? "External_Call Sum / tx" : "External_Call Sum",
+                        isAverageView ? t("msaUiExternalCallSumTx") : t("msaUiExternalCallSum"),
                         "calleeTotalMs",
                         "right",
                       )}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
-                      {sortHeader("API avg", "apiAvgMs", "right")}
+                      {sortHeader(t("msaUiAPIAvg"), "apiAvgMs", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
-                      {sortHeader(isAverageView ? "API cum / tx" : "API cum", "apiTotalMs", "right")}
+                      {sortHeader(isAverageView ? t("msaUiAPICumTx") : t("msaUiAPICum"), "apiTotalMs", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
                       {sortHeader("API p95", "apiP95Ms", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
-                      {sortHeader("API max", "apiMaxMs", "right")}
+                      {sortHeader(t("msaUiAPIMax"), "apiMaxMs", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
                       {sortHeader(
-                        isAverageView ? "Network cum / tx" : "Network cum",
+                        isAverageView ? t("msaUiNetworkCumTx") : t("msaUiNetworkCum"),
                         "networkTotalMs",
                         "right",
                       )}
@@ -1180,7 +1168,7 @@ function ApiCallAnalysisPanel({
                       {sortHeader("Network p95", "networkP95Ms", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
-                      {sortHeader("Network max", "networkMaxMs", "right")}
+                      {sortHeader(t("msaUiNetworkMax"), "networkMaxMs", "right")}
                     </th>
                   </tr>
                 </thead>
@@ -1274,7 +1262,7 @@ function ApiCallHighlight({
 }
 
 function SlowSqlTable({ rows }: { rows: any[] }): React.JSX.Element {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const [minElapsedInput, setMinElapsedInput] = useState(
     String(DEFAULT_SLOW_SQL_THRESHOLD_MS),
   );
@@ -1295,15 +1283,11 @@ function SlowSqlTable({ rows }: { rows: any[] }): React.JSX.Element {
               성능 저하 SQL 후보 ({filteredRows.length}/{rows.length})
               <HelpTip text={getHelpText(locale, "sectionMsaSlowSql")} />
             </CardTitle>
-            <p className="mt-1 text-xs text-muted-foreground">
-              기본값은 1초 이상 수행된 SQL만 표시합니다.
-            </p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("msaUiSQLEventsLastingAtLeastOneSecondAreShownByDefault")}</p>
           </div>
           <div className="flex flex-wrap items-end gap-2 text-xs">
             <label className="flex flex-col gap-1">
-              <HelpedLabel help={getHelpText(locale, "sectionMsaSlowSql")} className="font-medium text-foreground/80">
-                최소 응답시간(ms)
-              </HelpedLabel>
+              <HelpedLabel help={getHelpText(locale, "sectionMsaSlowSql")} className="font-medium text-foreground/80">{t("msaUiMinimumResponseTimeMs")}</HelpedLabel>
               <input
                 type="number"
                 min={0}
@@ -1318,9 +1302,7 @@ function SlowSqlTable({ rows }: { rows: any[] }): React.JSX.Element {
               size="sm"
               variant="outline"
               onClick={() => setMinElapsedInput("0")}
-            >
-              전체
-            </Button>
+            >{t("msaUiWholeResult")}</Button>
             <Button
               type="button"
               size="sm"
@@ -1342,19 +1324,17 @@ function SlowSqlTable({ rows }: { rows: any[] }): React.JSX.Element {
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
         {visibleRows.length === 0 ? (
-          <p className="px-4 py-3 text-xs text-muted-foreground">
-            조건에 맞는 SQL 실행 이벤트가 없습니다.
-          </p>
+          <p className="px-4 py-3 text-xs text-muted-foreground">{t("msaUiNoSQLExecutionEventsMatchTheFilters")}</p>
         ) : (
           <>
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
                   <th className="px-3 py-2 text-left font-medium">TXID</th>
-                  <th className="px-3 py-2 text-left font-medium">Application</th>
-                  <th className="px-3 py-2 text-left font-medium">Type</th>
-                  <th className="px-3 py-2 text-right font-medium">Elapsed ms</th>
-                  <th className="px-3 py-2 text-left font-medium">SQL / Message</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("msaUiApplication")}</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("msaUiType")}</th>
+                  <th className="px-3 py-2 text-right font-medium">{t("msaUiElapsedMs")}</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("msaUiSQLMessage")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1412,6 +1392,7 @@ function CustomAnalysisRulesEditor({
   presetInputRef: RefObject<HTMLInputElement | null>;
   onLoadPresetFile: (file?: File) => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
   const updateRule = (id: string, patch: Partial<CustomAnalysisRule>) => {
     onChange(
       rules.map((rule) => (rule.id === id ? { ...rule, ...patch } : rule)),
@@ -1421,9 +1402,7 @@ function CustomAnalysisRulesEditor({
     <div className="flex flex-col gap-3 rounded-md border border-border bg-muted/20 p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="text-xs font-semibold text-foreground/80">
-            분석 옵션 프리셋 / 사용자 정의 카드
-          </p>
+          <p className="text-xs font-semibold text-foreground/80">{t("msaUiAnalysisPresetsCustomCards")}</p>
           <p className="mt-1 text-[11px] text-muted-foreground">
             MSA 이벤트 분류 패턴과 사용자 정의 카드를 함께 저장하고 읽습니다.
             카드는 응답시간 구성에도 반영됩니다.
@@ -1447,9 +1426,7 @@ function CustomAnalysisRulesEditor({
             disabled={disabled}
             onClick={onSavePreset}
           >
-            <Save className="h-3.5 w-3.5" />
-            전체 설정 저장
-          </Button>
+            <Save className="h-3.5 w-3.5" />{t("msaUiSaveAllSettings")}</Button>
           <Button
             type="button"
             size="sm"
@@ -1457,9 +1434,7 @@ function CustomAnalysisRulesEditor({
             disabled={disabled}
             onClick={onLoadPresetClick}
           >
-            <Upload className="h-3.5 w-3.5" />
-            전체 설정 읽기
-          </Button>
+            <Upload className="h-3.5 w-3.5" />{t("msaUiLoadAllSettings")}</Button>
           <input
             ref={presetInputRef}
             type="file"
@@ -1471,9 +1446,7 @@ function CustomAnalysisRulesEditor({
       </div>
 
       {rules.length === 0 ? (
-        <p className="rounded border border-dashed border-border bg-background/50 px-3 py-2 text-xs text-muted-foreground">
-          추가된 카드가 없습니다.
-        </p>
+        <p className="rounded border border-dashed border-border bg-background/50 px-3 py-2 text-xs text-muted-foreground">{t("msaUiNoCardsAdded")}</p>
       ) : (
         <div className="grid grid-cols-1 gap-3">
           {rules.map((rule) => (
@@ -1554,7 +1527,7 @@ function CustomAnalysisRulesEditor({
 }
 
 function CustomRuleStatsPanel({ rows }: { rows: any[] }): React.JSX.Element | null {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const { visibleRows, expanded, setExpanded } = usePreviewRows(rows);
   if (rows.length === 0) return null;
   return (
@@ -1574,14 +1547,14 @@ function CustomRuleStatsPanel({ rows }: { rows: any[] }): React.JSX.Element | nu
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-              <th className="px-3 py-2 text-left font-medium">Group</th>
-              <th className="px-3 py-2 text-left font-medium">Card</th>
-              <th className="px-3 py-2 text-left font-medium">Source</th>
-              <th className="px-3 py-2 text-right font-medium">Count</th>
-              <th className="px-3 py-2 text-right font-medium">Total ms</th>
-              <th className="px-3 py-2 text-right font-medium">Avg ms</th>
-              <th className="px-3 py-2 text-right font-medium">Max ms</th>
-              <th className="px-3 py-2 text-left font-medium">Patterns</th>
+              <th className="px-3 py-2 text-left font-medium">{t("msaUiGroup")}</th>
+              <th className="px-3 py-2 text-left font-medium">{t("msaUiCard")}</th>
+              <th className="px-3 py-2 text-left font-medium">{t("msaUiSource")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("msaUiCount")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("msaUiTotalMs")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("msaUiAvgMs")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("msaUiMaxMs")}</th>
+              <th className="px-3 py-2 text-left font-medium">{t("msaUiPatterns")}</th>
             </tr>
           </thead>
           <tbody>
@@ -2630,7 +2603,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                 type="button"
                 className="text-muted-foreground hover:text-destructive"
                 onClick={() => handleClear(s.filePath)}
-                aria-label="Remove"
+                aria-label={t("msaUiRemove")}
               >
                 <X className="h-3 w-3" />
               </button>
@@ -2664,59 +2637,59 @@ export function JenniferProfilePage(): React.JSX.Element {
           <>
           <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-8">
             <MetricCard
-              label="Total files"
+              label={t("msaUiTotalFiles")}
               value={(summary.total_files ?? 0).toLocaleString()}
             />
             <MetricCard
-              label="Total profiles"
+              label={t("msaUiTotalProfiles")}
               value={(summary.total_profiles ?? 0).toLocaleString()}
             />
             <MetricCard
-              label="GUID groups"
+              label={t("msaUiGUIDGroups")}
               value={(summary.guid_group_count ?? 0).toLocaleString()}
             />
             <MetricCard
-              label="Signatures"
+              label={t("msaUiSignatures")}
               value={(summary.unique_signature_count ?? 0).toLocaleString()}
             />
             <MetricCard
-              label="Incomplete profiles"
+              label={t("msaUiIncompleteProfiles")}
               value={(summary.incomplete_profile_count ?? 0).toLocaleString()}
             />
             <MetricCard
-              label="Avg excluded groups"
+              label={t("msaUiAvgExcludedGroups")}
               value={(summary.signature_excluded_group_count ?? 0).toLocaleString()}
             />
             <MetricCard
-              label="Matched edges"
+              label={t("msaUiMatchedEdges")}
               value={(summary.matched_external_call_count ?? 0).toLocaleString()}
             />
             <MetricCard
-              label="Unmatched edges"
+              label={t("msaUiUnmatchedEdges")}
               value={(summary.unmatched_external_call_count ?? 0).toLocaleString()}
             />
             <MetricCard
-              label="Net Gap (cum ms)"
+              label={t("msaUiNetGapCumMs")}
               value={(summary.total_network_gap_cum_ms ?? 0).toLocaleString()}
             />
             <MetricCard
-              label="SQL Execute (cum ms)"
+              label={t("msaUiSQLExecuteCumMs")}
               value={(summary.sql_execute_cum_ms ?? 0).toLocaleString()}
             />
             <MetricCard
-              label="네트워크 준비시간 (cum ms)"
+              label={t("msaUiNetworkPreparationCumulativeMs")}
               value={(summary.network_prep_cum_ms ?? 0).toLocaleString()}
             />
             <MetricCard
-              label="미수집 외부호출 (cum ms)"
+              label={t("msaUiUnprofiledExternalCallsCumulativeMs")}
               value={(summary.total_unprofiled_external_call_ms ?? 0).toLocaleString()}
             />
             <MetricCard
-              label="네트워크 wrapper 합계 (cum ms)"
+              label={t("msaUiNetworkWrapperCumulativeMs")}
               value={(summary.network_prep_method_cum_ms ?? 0).toLocaleString()}
             />
             <MetricCard
-              label="Fetch rows"
+              label={t("msaUiFetchRows")}
               value={(summary.fetch_total_rows ?? 0).toLocaleString()}
             />
           </section>
@@ -2735,7 +2708,7 @@ export function JenniferProfilePage(): React.JSX.Element {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="inline-flex items-center gap-2 text-sm">
-                  File errors
+                  {t("msaUiFileErrors")}
                   <HelpTip text={getHelpText(locale, "sectionMsaFileErrors")} />
                 </CardTitle>
               </CardHeader>
@@ -2743,9 +2716,9 @@ export function JenniferProfilePage(): React.JSX.Element {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                      <th className="px-4 py-2 text-left font-medium">Source file</th>
-                      <th className="px-4 py-2 text-left font-medium">Code</th>
-                      <th className="px-4 py-2 text-left font-medium">Message</th>
+                      <th className="px-4 py-2 text-left font-medium">{t("msaUiSourceFile")}</th>
+                      <th className="px-4 py-2 text-left font-medium">{t("msaUiCode")}</th>
+                      <th className="px-4 py-2 text-left font-medium">{t("msaUiMessage")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2768,7 +2741,7 @@ export function JenniferProfilePage(): React.JSX.Element {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="inline-flex items-center gap-2 text-sm">
-                  File summary
+                  {t("msaUiFileSummary")}
                   <HelpTip text={getHelpText(locale, "sectionMsaFileSummary")} />
                 </CardTitle>
               </CardHeader>
@@ -2776,11 +2749,11 @@ export function JenniferProfilePage(): React.JSX.Element {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                      <th className="px-4 py-2 text-left font-medium">Source file</th>
-                      <th className="px-4 py-2 text-right font-medium">Declared</th>
-                      <th className="px-4 py-2 text-right font-medium">Detected</th>
-                      <th className="px-4 py-2 text-right font-medium">Profiles</th>
-                      <th className="px-4 py-2 text-right font-medium">Incomplete</th>
+                      <th className="px-4 py-2 text-left font-medium">{t("msaUiSourceFile")}</th>
+                      <th className="px-4 py-2 text-right font-medium">{t("msaUiDeclared")}</th>
+                      <th className="px-4 py-2 text-right font-medium">{t("msaUiDetected")}</th>
+                      <th className="px-4 py-2 text-right font-medium">{t("msaUiProfiles")}</th>
+                      <th className="px-4 py-2 text-right font-medium">{t("msaUiIncomplete")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2821,17 +2794,17 @@ export function JenniferProfilePage(): React.JSX.Element {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                      <th className="px-3 py-2 text-left font-medium">Hash</th>
-                      <th className="px-3 py-2 text-left font-medium">Root</th>
-                      <th className="px-3 py-2 text-right font-medium">Edges</th>
-                      <th className="px-3 py-2 text-right font-medium">Samples</th>
-                      <th className="px-3 py-2 text-right font-medium">Resp avg</th>
-                      <th className="px-3 py-2 text-right font-medium">Resp p95</th>
-                      <th className="px-3 py-2 text-right font-medium">Ext avg</th>
-                      <th className="px-3 py-2 text-right font-medium">Ext p95</th>
-                      <th className="px-3 py-2 text-right font-medium">Gap avg</th>
-                      <th className="px-3 py-2 text-right font-medium">Gap p95</th>
-                      <th className="px-3 py-2 text-right font-medium">SQL avg</th>
+                      <th className="px-3 py-2 text-left font-medium">{t("msaUiHash")}</th>
+                      <th className="px-3 py-2 text-left font-medium">{t("msaUiRoot")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiEdges")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiSamples")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiRespAvg")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiRespP95")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiExtAvg")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiExtP95")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiGapAvg")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiGapP95")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiSQLAvg")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2890,7 +2863,7 @@ export function JenniferProfilePage(): React.JSX.Element {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="inline-flex items-center gap-2 text-sm">
-                  Edge statistics
+                  {t("msaUiEdgeStatistics")}
                   <HelpTip text={getHelpText(locale, "sectionMsaEdgeStats")} />
                 </CardTitle>
               </CardHeader>
@@ -2898,16 +2871,16 @@ export function JenniferProfilePage(): React.JSX.Element {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                      <th className="px-3 py-2 text-left font-medium">Caller → Callee</th>
+                      <th className="px-3 py-2 text-left font-medium">{t("msaUiCallerCallee")}</th>
                       <th className="px-3 py-2 text-right font-medium">#</th>
-                      <th className="px-3 py-2 text-right font-medium">Count</th>
-                      <th className="px-3 py-2 text-right font-medium">Ext avg</th>
-                      <th className="px-3 py-2 text-right font-medium">Ext p95</th>
-                      <th className="px-3 py-2 text-right font-medium">Ext max</th>
-                      <th className="px-3 py-2 text-right font-medium">Callee RT avg</th>
-                      <th className="px-3 py-2 text-right font-medium">Adj Gap avg</th>
-                      <th className="px-3 py-2 text-right font-medium">Adj Gap p95</th>
-                      <th className="px-3 py-2 text-right font-medium">Adj Gap max</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiCount")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiExtAvg")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiExtP95")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiExtMax")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiCalleeRTAvg")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiAdjGapAvg")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiAdjGapP95")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiAdjGapMax")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2978,16 +2951,16 @@ export function JenniferProfilePage(): React.JSX.Element {
                   <thead>
                     <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
                       <th className="px-3 py-2 text-left font-medium">GUID</th>
-                      <th className="px-3 py-2 text-left font-medium">Root</th>
-                      <th className="px-3 py-2 text-right font-medium">Profiles</th>
-                      <th className="px-3 py-2 text-right font-medium">Matched</th>
-                      <th className="px-3 py-2 text-right font-medium">Cum ms</th>
-                      <th className="px-3 py-2 text-right font-medium">Wall ms</th>
-                      <th className="px-3 py-2 text-right font-medium">Ratio</th>
-                      <th className="px-3 py-2 text-right font-medium">Conc</th>
-                      <th className="px-3 py-2 text-right font-medium">Net Gap</th>
-                      <th className="px-3 py-2 text-right font-medium">Mode</th>
-                      <th className="px-3 py-2 text-right font-medium">Status</th>
+                      <th className="px-3 py-2 text-left font-medium">{t("msaUiRoot")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiProfiles")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiMatched")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiCumMs")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiWallMs")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiRatio")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiConc")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiNetGap")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiMode")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiStatus")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -3063,14 +3036,14 @@ export function JenniferProfilePage(): React.JSX.Element {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                      <th className="px-3 py-2 text-left font-medium">Caller</th>
+                      <th className="px-3 py-2 text-left font-medium">{t("msaUiCaller")}</th>
                       <th className="px-3 py-2 text-left font-medium">URL</th>
-                      <th className="px-3 py-2 text-left font-medium">Callee</th>
-                      <th className="px-3 py-2 text-right font-medium">Ext ms</th>
-                      <th className="px-3 py-2 text-right font-medium">Callee RT</th>
-                      <th className="px-3 py-2 text-right font-medium">Raw Gap</th>
-                      <th className="px-3 py-2 text-right font-medium">Adj Gap</th>
-                      <th className="px-3 py-2 text-left font-medium">Status</th>
+                      <th className="px-3 py-2 text-left font-medium">{t("msaUiCallee")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiExtMs")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiCalleeRT")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiRawGap")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaUiAdjGap")}</th>
+                      <th className="px-3 py-2 text-left font-medium">{t("msaUiStatus")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -3128,7 +3101,7 @@ export function JenniferProfilePage(): React.JSX.Element {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="inline-flex items-center gap-2 text-sm">
-                  MSA 타임라인 분석 모드
+                  {t("msaUiMSATimelineAnalysisMode")}
                   <HelpTip text={getHelpText(locale, "sectionMsaTimelineMode")} />
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
@@ -3145,18 +3118,14 @@ export function JenniferProfilePage(): React.JSX.Element {
                     variant={msaTimelineMode === "single" ? "default" : "outline"}
                     onClick={() => setMsaTimelineMode("single")}
                   >
-                    <Network className="h-3.5 w-3.5" />
-                    단일 트랜잭션
-                  </Button>
+                    <Network className="h-3.5 w-3.5" />{t("msaUiSingleTransaction")}</Button>
                   <Button
                     type="button"
                     size="sm"
                     variant={msaTimelineMode === "average" ? "default" : "outline"}
                     onClick={() => setMsaTimelineMode("average")}
                   >
-                    <Rows3 className="h-3.5 w-3.5" />
-                    평균 트랜잭션
-                  </Button>
+                    <Rows3 className="h-3.5 w-3.5" />{t("msaUiAverageTransaction")}</Button>
                 </div>
                 {msaTimelineMode === "single" ? (
                   <>
@@ -3164,9 +3133,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                       <span className="font-medium text-foreground/80">
                         <HelpedLabel
                           help={getHelpText(locale, "optionMsaTimelineGuid")}
-                        >
-                          분석할 트랜잭션
-                        </HelpedLabel>
+                        >{t("msaUiTransactionToAnalyze")}</HelpedLabel>
                       </span>
                       <select
                         className="h-9 rounded-md border border-input bg-background px-3 text-xs"
@@ -3187,9 +3154,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                       </select>
                     </label>
                     <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs lg:max-w-xl">
-                      <span className="font-medium text-foreground/80">
-                        분석 기준 앱
-                      </span>
+                      <span className="font-medium text-foreground/80">{t("msaUiScopeApplication")}</span>
                       <select
                         className="h-9 rounded-md border border-input bg-background px-3 text-xs"
                         value={selectedMsaDrilldownValue}
@@ -3211,9 +3176,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                       <span className="font-medium text-foreground/80">
                         <HelpedLabel
                           help={getHelpText(locale, "optionMsaTimelineSignature")}
-                        >
-                          평균을 낼 signature
-                        </HelpedLabel>
+                        >{t("msaUiSignatureToAverage")}</HelpedLabel>
                       </span>
                       <select
                         className="h-9 rounded-md border border-input bg-background px-3 text-xs"
@@ -3234,9 +3197,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                       </select>
                     </label>
                     <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs lg:max-w-xl">
-                      <span className="font-medium text-foreground/80">
-                        평균 기준 앱
-                      </span>
+                      <span className="font-medium text-foreground/80">{t("msaUiAverageScopeApplication")}</span>
                       <select
                         className="h-9 rounded-md border border-input bg-background px-3 text-xs"
                         value={selectedAverageMsaDrilldownValue}
@@ -3419,9 +3380,7 @@ export function JenniferProfilePage(): React.JSX.Element {
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <CardTitle className="inline-flex items-center gap-2 text-sm">
-                    부가/검증 범위
-                  </CardTitle>
+                  <CardTitle className="inline-flex items-center gap-2 text-sm">{t("msaUiDetailsValidationScope")}</CardTitle>
                   <div className="flex flex-wrap items-center gap-2">
                     <div className="flex items-center gap-1 rounded-md border border-border bg-muted/20 p-1">
                       <Button
@@ -3430,9 +3389,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                         variant={profilesViewScope === "all" ? "default" : "outline"}
                         onClick={() => setProfilesViewScope("all")}
                         title="모든 파일의 프로파일/규칙/네트워크준비/외부호출을 그대로 표시"
-                      >
-                        전체
-                      </Button>
+                      >{t("msaUiWholeResult")}</Button>
                       <Button
                         type="button"
                         size="sm"
@@ -3446,9 +3403,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                             ? "MSA 탭에서 선택한 단일/평균 드릴다운에 맞춰 좁혀 표시"
                             : "MSA 탭에서 드릴다운 범위를 먼저 선택하세요"
                         }
-                      >
-                        MSA 드릴다운 기준
-                      </Button>
+                      >{t("msaUiUseMSADrilldown")}</Button>
                     </div>
                     {profilesScopeActive && (
                       <span className="rounded bg-primary/10 px-2 py-1 text-[11px] text-primary">
@@ -3479,33 +3434,33 @@ export function JenniferProfilePage(): React.JSX.Element {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="inline-flex items-center gap-2 text-sm">
-                  파서 보고서
+                  {t("msaUiParserReport")}
                   <HelpTip text={getHelpText(locale, "sectionMsaParserReport")} />
                 </CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <MetricCard
-                  label="Files"
+                  label={t("msaUiFiles")}
                   value={(summary.total_files ?? 0).toLocaleString()}
                 />
                 <MetricCard
-                  label="Profiles parsed"
+                  label={t("msaUiProfilesParsed")}
                   value={(summary.total_profiles ?? 0).toLocaleString()}
                 />
                 <MetricCard
-                  label="Full profiles"
+                  label={t("msaUiFullProfiles")}
                   value={(summary.full_profile_count ?? 0).toLocaleString()}
                 />
                 <MetricCard
-                  label="Total errors"
+                  label={t("msaUiTotalErrors")}
                   value={(summary.total_errors ?? 0).toLocaleString()}
                 />
                 <MetricCard
-                  label="Total warnings"
+                  label={t("msaUiTotalWarnings")}
                   value={(summary.total_warnings ?? 0).toLocaleString()}
                 />
                 <MetricCard
-                  label="Unique signatures"
+                  label={t("msaUiUniqueSignatures")}
                   value={(summary.unique_signature_count ?? 0).toLocaleString()}
                 />
               </CardContent>
@@ -3519,16 +3474,14 @@ export function JenniferProfilePage(): React.JSX.Element {
               </CardHeader>
               <CardContent className="overflow-x-auto p-0">
                 {fileErrors.length === 0 ? (
-                  <p className="px-4 py-3 text-xs text-muted-foreground">
-                    파일 단위 오류가 없습니다.
-                  </p>
+                  <p className="px-4 py-3 text-xs text-muted-foreground">{t("msaUiNoFileLevelErrors")}</p>
                 ) : (
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                        <th className="px-4 py-2 text-left font-medium">Source file</th>
-                        <th className="px-4 py-2 text-left font-medium">Code</th>
-                        <th className="px-4 py-2 text-left font-medium">Message</th>
+                        <th className="px-4 py-2 text-left font-medium">{t("msaUiSourceFile")}</th>
+                        <th className="px-4 py-2 text-left font-medium">{t("msaUiCode")}</th>
+                        <th className="px-4 py-2 text-left font-medium">{t("msaUiMessage")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -3549,7 +3502,7 @@ export function JenniferProfilePage(): React.JSX.Element {
             <Card className="mt-3">
               <CardHeader className="pb-3">
                 <CardTitle className="inline-flex items-center gap-2 text-sm">
-                  프로파일별 이슈 (errors / warnings)
+                  {t("msaUiProfileIssuesErrorsWarnings")}
                   <HelpTip text={getHelpText(locale, "sectionMsaProfileIssues")} />
                 </CardTitle>
               </CardHeader>
@@ -3578,9 +3531,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                   }
                   if (issueRows.length === 0) {
                     return (
-                      <p className="px-4 py-3 text-xs text-muted-foreground">
-                        프로파일 단위 이슈가 없습니다.
-                      </p>
+                      <p className="px-4 py-3 text-xs text-muted-foreground">{t("msaUiNoProfileLevelIssues")}</p>
                     );
                   }
                   return (
@@ -3588,10 +3539,10 @@ export function JenniferProfilePage(): React.JSX.Element {
                       <thead>
                         <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
                           <th className="px-3 py-2 text-left font-medium">TXID</th>
-                          <th className="px-3 py-2 text-left font-medium">Application</th>
-                          <th className="px-3 py-2 text-left font-medium">Severity</th>
-                          <th className="px-3 py-2 text-left font-medium">Code</th>
-                          <th className="px-3 py-2 text-left font-medium">Message</th>
+                          <th className="px-3 py-2 text-left font-medium">{t("msaUiApplication")}</th>
+                          <th className="px-3 py-2 text-left font-medium">{t("msaUiSeverity")}</th>
+                          <th className="px-3 py-2 text-left font-medium">{t("msaUiCode")}</th>
+                          <th className="px-3 py-2 text-left font-medium">{t("msaUiMessage")}</th>
                         </tr>
                       </thead>
                       <tbody>

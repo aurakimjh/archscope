@@ -109,3 +109,5 @@ docs/review/evidence/2026-11-13-desktop-soak/* -text whitespace=cr-at-eol
 # The native soak receipt pins the reusable runner source digest.
 scripts/verify-windows-desktop-soak.mjs text eol=lf
 scripts/acceptance/layout/soak-origin.py text eol=lf
+
+docs/review/evidence/2026-11-14-native-followup/* -text whitespace=cr-at-eol
