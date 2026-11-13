@@ -138,10 +138,6 @@ first-byte/connect·thread count·response code는 보관하지 않는다는 제
 독립 기대 count/error/7개 지연 통계와 대조합니다. 분포·통계 변조 및 버전 바꾸기를
 거부합니다. 50,000개 한도는 과거 개별 표본 배열의 읽기 검증에만 남습니다.
 
-R19-02(실제 hs_err elapsed/심볼/구역), R19-03(JTL 타당성 진단),
-R19-04(미검증 JMeter 버전 정책)는 후속 큐에 남겼으며 producer 버전 제한은 유지합니다.
-새 네이티브 Windows/WebView 검증을 주장하지 않습니다.
-
 HotSpot은 독립 elapsed 줄과 Time 헤더에 붙은 elapsed를 읽고 공백을 포함한 제한된 native 심볼을 보존하며 명령 offset·절대 경로 주석을 제거합니다. frame에 선택적 section=problematic/native/java를 기록해 다른 구역의 같은 심볼을 좌표와 함께 별도 관측으로 유지합니다. section 없는 과거 frame도 읽습니다. core dump를 끈 별도 Temurin21.0.10+7 실제 합성 crash에서 inline elapsed·세 구역만 정제한 표본을 추가했으며 환경·인자·사용자 경로를 저장하지 않습니다.
 
 공유 계약의 epoch-ms-plausibility.1.0.0 정책을 포함합니다. 2000년 이전/2100년 이후 epoch-ms는 단위를 추정하지 않고 경고하며 원래 선언된 ms→ns 시각을 보존합니다. first-byte>elapsed 또는 Connect>first-byte/elapsed는 해당 수치를 null로 하고 timing_warnings와 전체 affected_rows 수에 기록합니다. 큰 입력의 분포 전용 모드에서도 경고 수를 유지하며 정상 elapsed 분포·백분위와 과거 저장 표본은 재해석하지 않습니다.

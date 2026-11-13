@@ -161,10 +161,6 @@ row / 3-label test checks exact independent expected counts/errors and all seven
 latency statistics. Distribution/metric tampering and version relabeling are
 refused. The 50,000 limit remains only for legacy saved sample-array validation.
 
-R19-02 (actual hs_err elapsed/symbol/section), R19-03 (JTL consistency diagnostics)
-and R19-04 (unverified JMeter version policy) remain explicitly queued; current
-pinned producer restrictions continue. No new native Windows/WebView claim.
-
 HotSpot parsing reads elapsed time from standalone or inline Time headers, retains bounded native symbols including spaces while stripping instruction offsets/absolute-path annotations, and records optional frame section=problematic/native/java. Repeated symbols in different sections remain separate observations with source coordinates. Old frames without section remain readable. Added a sanitized actual Temurin21.0.10+7 isolated crash excerpt, including inline elapsed and all three sections; no core dump, environment, command line or user paths are stored.
 
 JTL timing policy epoch-ms-plausibility.1.0.0 is bundled from the shared contract. Epoch-ms before2000/after2100 is flagged without reinterpreting units; original declared ms→ns timestamps remain. First-byte>elapsed or Connect>first-byte/elapsed becomes null with per-sample timing_warnings and aggregate affected_rows counts, including distribution-only large input. Valid elapsed distributions/percentiles are unchanged. Legacy saved samples are not reinterpreted.

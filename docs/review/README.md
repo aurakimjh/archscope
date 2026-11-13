@@ -4,14 +4,13 @@
 
 ## 미처리
 
-| 날짜 | 문서 | 대상 | 판정 |
-|---|---|---|---|
-| 2026-11-13 | [T-628~T-645 로컬 진단 확장 구현 종합 리뷰](2026-11-13_claude-code_T-628-T-645_comprehensive-review.ko.md) | `f69daa2` | CONDITIONAL(P2 3/P3 7, P1 없음). 계산·계약 결함 없음, R19~R22 수정 배치 재검증 통과. RS-01 잔여 범위의 작업 ID 등록, RS-02 패치 버전 고정의 공통 미검증 정책, RS-03 air-gapped 보장의 회귀 보호를 후속 작업으로 등록 권고. 기존 DONE 유지 |
+미처리 리뷰 문서 없음.
 
 ## 처리 기록
 
 | 날짜 | 문서 | 대상 | 판정·처리 |
 |---|---|---|---|
+| 2026-11-13 | [T-628~T-645 로컬 진단 확장 구현 종합 리뷰](done/2026-11-13_claude-code_T-628-T-645_comprehensive-review.ko.md) | `f69daa2` | CONDITIONAL(P2 3/P3 7, P1 없음) 유지. RS-01 잔여 범위 T-654~T-662(PENDING) 등록, T-644/T-645 bounded first batch 명시. RS-03/10→T-646, RS-02→T-647, RS-04~09→T-648~T-653을 우선순위·의존성 순으로 등록. RS-09 EN/KO 모순 문장·번들 미러 정정, 나머지 개선은 열린 작업 유지. 작업표 반영 후 원문 해시 보존·이동. 기존 DONE 유지; 독립 PASS·추가 런타임 수용 주장 없음. |
 | 2026-11-12 | [T-645 DB·OS 스냅샷 구현 독립 리뷰](done/2026-11-12_claude-code_T-645_implementation-review.ko.md) | `b36d83e` | CONDITIONAL(P3 3, P1/P2 없음). 실제 PostgreSQL14 counter delta·ss84 값과 R21-01/03 해소 독립 확인. 작업표 반영 후 원문 보관. 명시적 허용으로 T-645 DONE, R22-03/01/02를 기존 P3 뒤에 대기. 원 CONDITIONAL 유지. |
 | 2026-11-12 | [T-644 CPU/GPU 실행 구현 독립 리뷰](done/2026-11-12_claude-code_T-644_implementation-review.ko.md) | `09413bf` | CONDITIONAL(P2 1/P3 3). R21-01 수정·로컬 검증 완료(원본64MiB 선행 제한 명시, 수동 subset 도구,114.9MB 실제 export 변형→24KiB/20구간, 무시 metadata 예산 분리). R21-03 schema/at_least 문구도 수정. 명시적 허용에 따라 T-644 DONE, R21-02/04 후속 큐, 원 CONDITIONAL 보존. 최종 독립 PASS 아님; evidence/2026-11-12-t645/local.json. 작업표 반영 후 원문 보관. |
 | 2026-11-12 | [T-642 부하·LLM 벤치마크·JVM 크래시 비교 근거 구현 독립 리뷰](done/2026-11-12_claude-code_T-642_implementation-review.ko.md) | `efb9c7c` | CONDITIONAL(P2 1/P3 3, P1 없음). R19-01(JTL 5만 행 한도와 백분위 합성 불가)을 먼저 처리한 뒤 DONE 복귀 허용, R19-01 로컬 수정·검증 완료, T-642 DONE. P3는 후속 큐. 원 CONDITIONAL 유지; evidence/2026-11-12-t643/local.json. |
@@ -33,4 +32,4 @@
 | 2026-11-11 | [T-628 구현 재리뷰 R2](done/2026-11-11_claude-code_T-628_implementation-re-review-R2.ko.md) | `63d3b6a` | CONDITIONAL 유지. N-01~N-04를 작업표에 반영한 뒤 원문 보관. R2 후속 수정·회귀 검증 완료(비교 출처/호환 분리, 공개 해제 제거, EOF 경계, 투영 예산); R3에서 R2 수정분 해소 확인. T-629 비차단; 독립 PASS 선언 없음. |
 | 2026-11-11 | [T-628 구현 독립 리뷰](done/2026-11-11_claude-code_T-628_implementation-review.ko.md) | `a698d26` | 원 판정 CONDITIONAL 유지. R-01~R-14를 work_status.md에 반영한 뒤 원문 보존·이동; R-01~R-14 후속 수정·로컬 검증 완료. 독립 재리뷰 전 T-628 REVIEW 유지; 원 리뷰의 R-01 조건을 충족하여 T-629 착수 가능. |
 
-2026-11-13 후속 일괄 처리: R14-02–07, R15-03–05, R17-05, R19-02–04, R20-02/03, R21-02/04, R22-03/01/02는 로컬 수정·검증. R20-04는 실제 다중 로드 보강 후에도 자연 상태 swap 사용/pressure 상승 표본 미확보로 EVIDENCE_PARTIAL. 원 CONDITIONAL과 native 수용 범위를 보존하며 최종 독립 PASS는 주장하지 않는다. 전체 완료 후 푸시 조건에 따라 아직 푸시하지 않음. 현재 작업표와 evidence/2026-11-13-review-followups/local.json을 참조한다.
+2026-11-13 후속 일괄 처리: R14-02–07, R15-03–05, R17-05, R19-02–04, R20-02/03, R21-02/04, R22-03/01/02는 로컬 수정·검증. R20-04는 실제 다중 로드 보강 후에도 자연 상태 swap 사용/pressure 상승 표본 미확보로 EVIDENCE_PARTIAL. 원 CONDITIONAL과 native 수용 범위를 보존하며 최종 독립 PASS는 주장하지 않는다. 이전 배치 기록의 푸시 보류는 이번 사용자의 커밋·푸시 지시로 대체되었다. 누락된 R20-04 자연 swap/pressure 근거는 T-662 PENDING으로 유지한다. 현재 작업표와 evidence/2026-11-13-review-followups/local.json을 참조한다.
