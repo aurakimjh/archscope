@@ -5228,3 +5228,8 @@ Native OS125%/WebView100% JFR Open/48events/heatmap23s-to25events/stack9 and nat
 ### 2026-11-14 - T-627 Word width and Excel clipboard acceptance
 
 Actual Office16.0.10417.20228 native paste extends PowerPoint coverage to Word/Excel. Word fixed900px table clips portrait text area; clipboard-only100% width now fits9010/9026twip without manual formatting, exact11rows/8data rows/provenance unchanged. PowerPoint regression retains one11rowtable inside slide, zerooutside text shapes. Excel before/after exactcell values/types match, all populated cells strings and0formulas; default columns stay narrow and manual widening is separately disclosed. All6saved visual members remain byte-identical. Visuals/clipboard tests pass both arches; integrated production builds pass. Other Office/version/SVG and complete native matrix remain open; T-627 REVIEW. Receipt: docs/review/evidence/2026-11-14-native-followup/README.md.
+
+
+### 2026-11-14 - T-627 installed Office SVG insertion
+
+Native Insert>Picture in Word/Excel/PowerPoint16.0.10417.20228 imports the selected14MB saved SVG asonegraphic with8rows/units/unavailable/provenance; Word fits default portrait area. All3savedOffice files normalize tosame4120B SVG,retain2400x1600 and27text contents exceptemptyAnnotation trailing space,removeembeddedfont andaddPNGfallback. This is insertion compatibility, not exactSVG/font or full typography acceptance; Word sparseimage text remains small at100%. RawOffice files stay ignored; parsedhashes/textchanges/screenshots attached. No product change. Historical10nativeFAIL entries nowlink toobservedfixes. OtherOffice versions/fullmatrix remain; T-627 REVIEW. Receipt: docs/review/evidence/2026-11-14-native-followup/README.md.

@@ -1,0 +1,178 @@
+{
+  "officeVersion": "16.0.10417.20228",
+  "scope": "One fixed8row2400x1600SVG fixture, actualInsert>Picture onWord/Excel/PowerPoint. Neither fullformat/typography coverage nor exactSVGbyte preservation.",
+  "source": {
+    "bytes": 13893567,
+    "sha256": "417f4487552ffbbbb8a835dad3319a4edecb787411321cc75a763e6becd10208"
+  },
+  "applications": {
+    "PowerPoint": {
+      "fileBytes": 156200,
+      "fileSha256": "c96d4c88f326defb0c174c76d09abaa3f58181b90c93a849373da4c8882dc90b",
+      "svgMember": "ppt/media/image2.svg",
+      "svgBytes": 4120,
+      "svgSha256": "cc14f6e6e35e9a1e352d8da4bb0e2ceeca0ed551c733df9209e9a8978f8b5251",
+      "root": {
+        "version": "1.1",
+        "width": "2400",
+        "height": "1600",
+        "viewBox": "0 0 2400 1600",
+        "overflow": "hidden"
+      },
+      "textPreservedExceptTrailingWhitespace": true,
+      "textChanges": [
+        {
+          "index": 26,
+          "before": "Annotation: ",
+          "after": "Annotation:"
+        }
+      ],
+      "exactSourceBytesPreserved": false,
+      "embeddedFontPreserved": false,
+      "text": [
+        "Selected evidence table",
+        "provider_table · per-cell units · denominator not declared by provider · rows 1–8 / 8 · image 1/1",
+        "Time: not declared; no clock alignment inferred · exact strings in table.tsv/view.json; areas/label clipping are presentation only.",
+        "key",
+        "value",
+        "measurement_kind",
+        "wall_time",
+        "metric_id",
+        "duration",
+        "profile_count",
+        "2",
+        "sample_records",
+        "3",
+        "scale",
+        "1",
+        "total_samples",
+        "— (unavailable)",
+        "total_weight",
+        "0.35 seconds",
+        "unit",
+        "seconds",
+        "Source c8c2d7eb13df011a · view 02c579e4cfe99f4d · identity declared",
+        "Scope: provider=generic:summary; selected columns=key,value; requested rows 0..25",
+        "Quality: Provider cell availability/truncation retained; no quality certification",
+        "Limitations: 2 recorded flags; labels/areas may be limited; full context in view.json",
+        "Query 0ef0a70aa5428d68 · no inferred cross-source alignment",
+        "Annotation:"
+      ],
+      "pngFallbackMembers": [
+        "ppt/media/image1.png"
+      ]
+    },
+    "Word": {
+      "fileBytes": 132823,
+      "fileSha256": "68a9d1f4663085777e3411f0d529120e6d71a6f6bd5c46dc3112dcfd462adec5",
+      "svgMember": "word/media/image2.svg",
+      "svgBytes": 4120,
+      "svgSha256": "cc14f6e6e35e9a1e352d8da4bb0e2ceeca0ed551c733df9209e9a8978f8b5251",
+      "root": {
+        "version": "1.1",
+        "width": "2400",
+        "height": "1600",
+        "viewBox": "0 0 2400 1600",
+        "overflow": "hidden"
+      },
+      "textPreservedExceptTrailingWhitespace": true,
+      "textChanges": [
+        {
+          "index": 26,
+          "before": "Annotation: ",
+          "after": "Annotation:"
+        }
+      ],
+      "exactSourceBytesPreserved": false,
+      "embeddedFontPreserved": false,
+      "text": [
+        "Selected evidence table",
+        "provider_table · per-cell units · denominator not declared by provider · rows 1–8 / 8 · image 1/1",
+        "Time: not declared; no clock alignment inferred · exact strings in table.tsv/view.json; areas/label clipping are presentation only.",
+        "key",
+        "value",
+        "measurement_kind",
+        "wall_time",
+        "metric_id",
+        "duration",
+        "profile_count",
+        "2",
+        "sample_records",
+        "3",
+        "scale",
+        "1",
+        "total_samples",
+        "— (unavailable)",
+        "total_weight",
+        "0.35 seconds",
+        "unit",
+        "seconds",
+        "Source c8c2d7eb13df011a · view 02c579e4cfe99f4d · identity declared",
+        "Scope: provider=generic:summary; selected columns=key,value; requested rows 0..25",
+        "Quality: Provider cell availability/truncation retained; no quality certification",
+        "Limitations: 2 recorded flags; labels/areas may be limited; full context in view.json",
+        "Query 0ef0a70aa5428d68 · no inferred cross-source alignment",
+        "Annotation:"
+      ],
+      "pngFallbackMembers": [
+        "word/media/image1.png"
+      ]
+    },
+    "Excel": {
+      "fileBytes": 130167,
+      "fileSha256": "50c52cb5f275b1f28e2561499db895a5874ee17543220065d0a1c8e2f4aafea5",
+      "svgMember": "xl/media/image2.svg",
+      "svgBytes": 4120,
+      "svgSha256": "cc14f6e6e35e9a1e352d8da4bb0e2ceeca0ed551c733df9209e9a8978f8b5251",
+      "root": {
+        "version": "1.1",
+        "width": "2400",
+        "height": "1600",
+        "viewBox": "0 0 2400 1600",
+        "overflow": "hidden"
+      },
+      "textPreservedExceptTrailingWhitespace": true,
+      "textChanges": [
+        {
+          "index": 26,
+          "before": "Annotation: ",
+          "after": "Annotation:"
+        }
+      ],
+      "exactSourceBytesPreserved": false,
+      "embeddedFontPreserved": false,
+      "text": [
+        "Selected evidence table",
+        "provider_table · per-cell units · denominator not declared by provider · rows 1–8 / 8 · image 1/1",
+        "Time: not declared; no clock alignment inferred · exact strings in table.tsv/view.json; areas/label clipping are presentation only.",
+        "key",
+        "value",
+        "measurement_kind",
+        "wall_time",
+        "metric_id",
+        "duration",
+        "profile_count",
+        "2",
+        "sample_records",
+        "3",
+        "scale",
+        "1",
+        "total_samples",
+        "— (unavailable)",
+        "total_weight",
+        "0.35 seconds",
+        "unit",
+        "seconds",
+        "Source c8c2d7eb13df011a · view 02c579e4cfe99f4d · identity declared",
+        "Scope: provider=generic:summary; selected columns=key,value; requested rows 0..25",
+        "Quality: Provider cell availability/truncation retained; no quality certification",
+        "Limitations: 2 recorded flags; labels/areas may be limited; full context in view.json",
+        "Query 0ef0a70aa5428d68 · no inferred cross-source alignment",
+        "Annotation:"
+      ],
+      "pngFallbackMembers": [
+        "xl/media/image1.png"
+      ]
+    }
+  }
+}

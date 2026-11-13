@@ -35,7 +35,7 @@
     "id": "office-ppt-relative-width",
     "observedAt": "2026-11-13T22:11:38.374Z",
     "observed": "PASS: PowerPoint blank slide native paste after relative-width fix remains oneeditable11rowtable,all8data rows,caption andprovenance inside slide;0.35seconds/unavailable preserved,nooutsideprovenance overlay. No manual table resizing.",
-    "scale": "Windows100%,Office100%",
+    "scale": "Windows100%,PowerPoint122%",
     "screenshot": "office-ppt-relative-width.jpg",
     "status": "PASS within recorded scope"
   },
@@ -45,6 +45,30 @@
     "observed": "PASS for data integrity on final relative-width transport: actual native Excel paste retains8data rows,units/unavailable andallfourprovenance lines,matching earlier paste. Default column widths remain narrow; no automatic width/layout pass claimed.",
     "scale": "Windows100%,Office100%",
     "screenshot": "office-excel-relative-width.jpg",
+    "status": "PASS within recorded scope"
+  },
+  {
+    "id": "office-ppt-svg-insert",
+    "observedAt": "2026-11-13T22:30:24.583Z",
+    "observed": "PASS within scope: Actual PowerPoint16 Insert>Picture imports exact13,893,567B SVG as onegraphic. All8data rows,0.35seconds,unavailable,scope/quality/provenance visible. No pixel/font-metric equivalence to native PNG claimed.",
+    "scale": "Windows100%,PowerPoint122%",
+    "screenshot": "office-ppt-svg-insert.jpg",
+    "status": "PASS within recorded scope"
+  },
+  {
+    "id": "office-word-svg-insert",
+    "observedAt": "2026-11-13T22:33:47.834Z",
+    "observed": "PASS for insertion/containment: actual Word16 Insert>Picture embeds SVG as graphic,automatically fits portrait text area15.92x10.61cm,showing8rows andprovenance within page. Sparse fixed2400x1600 image text is small at100%; no full typography/readability acceptance claimed.",
+    "scale": "Windows100%,Office100%",
+    "screenshot": "office-word-svg-insert.jpg",
+    "status": "PASS within recorded scope"
+  },
+  {
+    "id": "office-excel-svg-insert",
+    "observedAt": "2026-11-13T22:36:29.218Z",
+    "observed": "PASS for insertion/display: Excel16 Insert>Picture imports exactSVG as onegraphic at27.94x18.63cm,all8rows,0.35seconds,unavailable andscope/provenance visible. Graphic is separatefromworksheet cells; not an editable data table.",
+    "scale": "Windows100%,Office100%",
+    "screenshot": "office-excel-svg-insert.jpg",
     "status": "PASS within recorded scope"
   }
 ]

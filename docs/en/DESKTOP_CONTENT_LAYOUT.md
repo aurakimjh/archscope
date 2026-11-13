@@ -333,3 +333,11 @@ one11-row table inside the slide. Excel preserves strings and zero formulas,
 but keeps narrow default column widths; manual widening is recorded separately.
 Saved visual PNG/SVG/HTML/TSV/view/spec bytes remain unchanged. Other Office
 versions/SVG insertion and the complete T-627 matrix remain open.
+
+
+Installed Word/Excel/PowerPoint16.0.10417.20228 also accept one selected saved SVG
+through native Insert>Picture. Office normalizes the14MB source to4120B,retains
+2400x1600 anddata/provenance text,removes the embedded font,and trims one trailing
+space on empty Annotation. SVG-byte/font equivalence is not claimed; PNG remains
+the primary paste format. Word fit is contained but sparse text is small at100%.
+Other versions/full typography and format combinations remain open.

@@ -268,3 +268,25 @@ public receipts. No account/recent-file/save-dialog screenshot was archived.
 Visuals/clipboard suites pass amd64 (7.542s/cached) and386 (12.176s/cached), and
 both integrated production builds pass. Remaining Office versions/SVG insertion
 and complete reference/conditional/error/DPI coverage are still unverified.
+
+
+## Actual SVG insertion in installed Office
+
+Word,Excel and PowerPoint16.0.10417.20228 each import the exact13,893,567B saved
+SVG through native Insert>Picture. One graphic displays all8rows,0.35seconds,
+unavailable sample count and scope/quality/provenance. Word automatically fits
+15.92x10.61cm inside the default portrait text area; the sparse fixed-size image
+has small text at100%, so this is not full typography/readability acceptance.
+PowerPoint uses122% document zoom; Word/Excel use100%,Windows remains100%.
+
+All three saved Office files normalize SVG to the same4120B member, retain its
+2400x1600/viewBox and27text contents except one trailing space on empty Annotation,
+and add a PNG fallback. They remove the embedded font. Exact input SVG bytes and
+font metrics therefore are not preserved by Office. PNG remains the primary
+paste path. This covers one selected8row fixture and installed version only;
+other versions/format/typography combinations remain open. Parsed member hashes,
+text changes and native screenshots are attached; the raw Office files and14MB
+source remain ignored local artifacts. No product source changes were needed.
+
+failure-resolutions.json links all10historic native failures across both case
+files to subsequent observed fixes; historicalFAIL entries remain unchanged.

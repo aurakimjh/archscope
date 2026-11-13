@@ -1,0 +1,65 @@
+{
+  "scope": "Historical native failures retained as evidence,each with subsequent observed fix. This index does not close full T-627 acceptance.",
+  "resolutions": [
+    {
+      "before": "jfr-native-freed",
+      "after": "jfr-native-empty-fixed",
+      "fixCommit": "ba540a57",
+      "caseFile": "native-cases.json"
+    },
+    {
+      "before": "jfr-native-all-before",
+      "after": "jfr-native-unit-fixed",
+      "fixCommit": "ba540a57",
+      "caseFile": "native-cases.json"
+    },
+    {
+      "before": "jfr-native-unit-before",
+      "after": "jfr-native-unit-fixed",
+      "fixCommit": "ba540a57",
+      "caseFile": "native-cases.json"
+    },
+    {
+      "before": "jvm-histogram-before",
+      "after": "jvm-histogram-fixed",
+      "fixCommit": "e976b85c",
+      "caseFile": "native-cases.json"
+    },
+    {
+      "before": "jvm-smr-before",
+      "after": "jvm-smr-fixed",
+      "fixCommit": "e976b85c",
+      "caseFile": "native-cases.json"
+    },
+    {
+      "before": "msa-treemap-before",
+      "after": "msa-treemap-after",
+      "fixCommit": "b5a88952",
+      "caseFile": "native-cases.json"
+    },
+    {
+      "before": "office-ppt-table-before",
+      "after": "office-ppt-table-after",
+      "fixCommit": "af2f9e8a",
+      "caseFile": "native-cases.json"
+    },
+    {
+      "before": "msa-os125-dark-before",
+      "after": "msa-os125-dark-after",
+      "fixCommit": "9521267a",
+      "caseFile": "native-cases.json"
+    },
+    {
+      "before": "http-long-live-error-before",
+      "after": "http-long-live-error-after",
+      "fixCommit": "5592cde2",
+      "caseFile": "native-cases.json"
+    },
+    {
+      "before": "office-word-width-before",
+      "after": "office-word-width-after",
+      "fixCommit": "5153161b",
+      "caseFile": "office-extra-cases.json"
+    }
+  ]
+}
