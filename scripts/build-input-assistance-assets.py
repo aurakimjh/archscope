@@ -11,7 +11,7 @@ for lang in ('en','ko'):
  source=root/f'docs/{lang}/INPUT_ASSISTANCE.md';target=dest/f'INPUT_ASSISTANCE.{lang}.md'
  if a.check:assert source.read_bytes()==target.read_bytes(),target
  else:target.write_bytes(source.read_bytes())
-recipes=json.loads((dest/'recipes.json').read_text());assert recipes['execution']=='manual_only';assert recipes['schema_version']=='1.0.0'
+recipes=json.loads((dest/'recipes.json').read_text(encoding='utf-8'));assert recipes['execution']=='manual_only';assert recipes['schema_version']=='1.0.0'
 for recipe in recipes['recipes']:assert set(recipe)>={'id','commands','context','limitations_en','limitations_ko'}
 manifest={'asset_id':recipes['asset_id'],'version':'1.0.0','source':'collection/manual-evidence-v1/recipes.json','files':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(dest.iterdir()) if p.name!='manifest.json'}}
 body=(json.dumps(manifest,indent=2)+'\n').encode();target=dest/'manifest.json'

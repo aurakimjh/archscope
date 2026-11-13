@@ -5120,3 +5120,7 @@ The latest user instruction moves T-662 from PENDING to TODO and explicitly mark
 ### 2026-11-13 - Windows checkout resource parity
 
 Pulled f25ab80a with --ff-only, preserving existing untracked .tmp directories. Native Windows checkout reproduced six bundled collector source and four input-assistance asset CRLF/hash mismatches. Pin LF for the copied sources and preserve exact embedded asset bytes. A fresh core.autocrlf=true index checkout matches all ten Git blobs byte-for-byte. Offline/input-assistance checks pass (the latter with PYTHONUTF8=1); default cp949 decoding is a separate next fix. Receipt: docs/review/evidence/2026-11-13-windows/checkout-parity.json. No native acceptance task is closed.
+
+### 2026-11-13 - Korean Windows Python resource builders
+
+Reproduced cp949 UnicodeDecodeError in recipe JSON and go list JSON. Resource builders now decode UTF-8 explicitly and notice manifests emit deterministic UTF-8/LF bytes. Added an optional notice --out directory to verify host-specific inventories without replacing shipped notices. With PYTHONUTF8=0/default cp949, both asset checks pass and actual Windows notice generation in a Korean/space path verifies all84 dependency entries and every notice hash. Existing shipped notices remain unchanged. Receipt: docs/review/evidence/2026-11-13-windows/python-encoding.json.

@@ -1,0 +1,16 @@
+{
+  "source_commit": "d169bb62a2c0e77a7371f02ca94c12824663eb17",
+  "reproduced": "Korean Windows Python 3.10 defaults to cp949: recipe JSON and go list UTF-8 output raised UnicodeDecodeError.",
+  "fix": "Explicit UTF-8 decoding for asset/recipe/npm/Go JSON; deterministic UTF-8 LF manifest emission. Notice builder --out permits host-specific validation without replacing shipped notices.",
+  "validation": {
+    "PYTHONUTF8": "0",
+    "default_encoding": "cp949",
+    "input_assistance_check": "PASS",
+    "offline_assets_check": "PASS",
+    "isolated_unicode_path_notice_generation": "PASS",
+    "dependencies": 84,
+    "notice_hash_checks": 90,
+    "manifest_utf8_lf": true
+  },
+  "shipped_notices": "Preserved; generated Windows dependency inventory is local only."
+}

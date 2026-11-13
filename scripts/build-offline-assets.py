@@ -50,7 +50,7 @@ for n,b in outputs.items():
  if '--check' in sys.argv:
   if not p.exists() or p.read_bytes()!=b:raise SystemExit('stale/missing offline resource: '+str(p))
  else:p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b)
-notices=json.loads((dest/'licenses/manifest.json').read_text())
+notices=json.loads((dest/'licenses/manifest.json').read_text(encoding='utf-8'))
 if notices['go_sum_sha256']!=hashlib.sha256((app/'go.sum').read_bytes()).hexdigest() or notices['npm_lock_sha256']!=hashlib.sha256((app/'cmd/archscope-app/frontend/package-lock.json').read_bytes()).hexdigest():
  raise SystemExit('stale dependency notices: run scripts/build-offline-notices.py')
 print('offline resources verified' if '--check' in sys.argv else 'offline resources built')
