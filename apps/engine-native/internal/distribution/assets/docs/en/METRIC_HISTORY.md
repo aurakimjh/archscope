@@ -252,3 +252,5 @@ and AnalysisResult remain unchanged. Closed Apple/DB/Linux adapters retain their
 existing semantic diagnostics; JSON type errors use the safe shared decoder.
 
 The compiled generic detail provider metrics:intervals returns bounded exact value/delta/rate/time/status/ref pages through the verified metric cache. HTML exports add disposable metric_intervals with observed/derived bucket JSON; Report Packs include separate presentations tied to source SHA. Stored minimal0.2 tables and JSON bytes are unchanged. Presentation overflow refuses standalone HTML; Report Packs retain original source JSON and explicitly record presentation_unavailable with budget guidance. Dedicated interval CSV remains the full-selection path.
+
+A selected actual manual GenAI metric route is now documented in [Inference evidence](INFERENCE_EVIDENCE.md#selected-manual-otel--genai-metric-aliases-q04). Generic OTLP history still performs no automatic GenAI aliasing; other Q04 producers/routes remain unqualified.

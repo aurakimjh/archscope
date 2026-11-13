@@ -176,3 +176,5 @@ METRIC_INTEGER_RANGE: path=/resourceMetrics/0/scopeMetrics/0/metrics/0/sum/dataP
 오류 시 파일 전체를 거부하고 부분 모델이나 정규화/결과 파일을 게시하지 않습니다. `1e-200`·지수308 같은 유한 값도 기존 exact 한도대로 거부하며 반올림·누락·새 관측 상태로 바꾸지 않습니다. 성공한 모델/normalizer 버전·point/ref ID·저장0.1.0/0.2.0 reader·공통 AnalysisResult는 그대로입니다. Apple/DB/Linux 전용 어댑터의 의미 오류 계약은 유지하며 JSON 타입 오류에는 공통 안전 decoder를 적용합니다.
 
 컴파일된 공통 상세 provider metrics:intervals가 검증된 메트릭 캐시로 정확한 값/delta/rate/시각/상태/ref 페이지를 제공합니다. HTML에는 관측·파생 bucket JSON을 포함한 일회성 metric_intervals를 추가하고 Report Pack은 원본 SHA에 연결한 별도 표시 자료를 포함합니다. 저장0.2 최소 표·JSON 바이트는 유지합니다. 표시 한도를 넘으면 단독 HTML은 거부하고 Report Pack은 원본 JSON을 보존하면서 표시 불가·한도 사유를 명시합니다. 전체 선택은 전용 구간 CSV를 사용합니다.
+
+선택한 실제 수동 GenAI metric 경로는 [추론 근거](INFERENCE_EVIDENCE.md#선택한-수동-otel--genai-metric-aliasq04)에 있습니다. 일반 OTLP 이력은 자동 GenAI alias를 수행하지 않으며 다른 Q04 producer/경로는 미검증입니다.

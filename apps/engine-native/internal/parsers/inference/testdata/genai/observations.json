@@ -1,0 +1,37 @@
+{
+  "producer": "ollama",
+  "producer_version": "0.40.16",
+  "sdk": {
+    "name": "opentelemetry-python",
+    "version": "1.38.0"
+  },
+  "scope": "manual.ollama.genai/1.0.0; actual synthetic local requests; bodies/model names excluded",
+  "observations": [
+    {
+      "capture_start_ns": "1794533428091334000",
+      "capture_end_ns": "1794533428708896000",
+      "client_elapsed_ns": "617558042",
+      "metrics": {
+        "total_duration": "615027583",
+        "load_duration": "539118917",
+        "prompt_eval_count": "25",
+        "prompt_eval_duration": "36184000",
+        "eval_count": "8",
+        "eval_duration": "37655000"
+      }
+    },
+    {
+      "capture_start_ns": "1794533428709352000",
+      "capture_end_ns": "1794533428751658000",
+      "client_elapsed_ns": "42303041",
+      "metrics": {
+        "total_duration": "40994625",
+        "load_duration": "1451000",
+        "prompt_eval_count": "25",
+        "prompt_eval_duration": "5119000",
+        "eval_count": "8",
+        "eval_duration": "33177000"
+      }
+    }
+  ]
+}

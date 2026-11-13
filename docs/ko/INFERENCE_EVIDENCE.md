@@ -141,3 +141,11 @@ Payload 0.3.0은 단위 환산 뒤에도 정확한 유리수 counter rate(100 / 
 `ollama-generate-final-json`은 Ollama 0.40.16 로컬 `/api/generate`의 최종 응답 필드를 `ollama-generate-final.v1`로 제한 검증합니다. 수동 `capture-ollama-serving.py`는 이미 캐시한 completion 모델로 num_predict=8·temperature=0의 합성 비스트리밍 요청 두 번을 실행하며 모델을 내려받지 않습니다. 정제 host/boot tag와 새 출력 경로를 지정합니다. 수집 전 로드되지 않은 모델은 종료 시 내립니다. Import는 요청을 실행하지 않습니다.
 
 실제 검증은 로컬 두 응답의 startup/load 포함 total/prompt-eval/eval 시간·token 수와 별도 측정한 client 경과 시간입니다. 보고된 정수 ns를 정확히 seconds로 바꾸고 수는 응답별 gauge로 유지합니다. Client/server 모집단을 구분하며 token 도착을 관측하지 않아 TTFT·ITL·TPOT는 관측 불가입니다. 모델 정체성은 정제하고 미확인 설정은 unknown이므로 통제한 모델 간 benchmark가 아닙니다. 기존 InferenceEvidence·원본 MetricHistory·저장 reader·export를 재사용합니다. Ollama가 vLLM Q03 alias 검증을 대신하지 않습니다.
+
+## 선택한 수동 OTel / GenAI metric alias(Q04)
+
+`otlp-genai-ollama-json`과 bindings의 semantic_profile `otel-genai-ollama.v1.37`, producer `opentelemetry-python`, producer_version `1.38.0`, engine_version `0.40.16`, 명시 정제 host_id/boot_id를 선택합니다. Scope manual.ollama.genai1.0.0 및 schema URL https://opentelemetry.io/schemas/1.37.0만 검증합니다. 수동 `capture-otel-genai.py`는 공식 SDK/OTLP encoder로 실제 로컬 합성 Ollama 요청 두 건을 기록합니다. 캐시한 completion 모델과 SDK/HTTP exporter1.38.0의 별도 Python 환경을 사용합니다.
+
+명시 프로파일은 cumulative explicit histogram gen_ai.client.operation.duration(`s`) 및 gen_ai.client.token.usage(`{token}`, input/output 구분)를 기존 client 서빙 signal에 연결합니다. gen_ai.provider.name=ollama·operation text_completion이 필요합니다. SDK 버전은 manifest 선언이며 이름에서 추정하지 않습니다. 다른 scope/schema/provider/unit/temporality는 alias를 거절하되 일반 OTLP는 계속 사용할 수 있습니다. 원본 MetricHistory identity·bucket/count/sum/min/max·시각을 유지합니다. SDK histogram sum은 SDK가 보고한 float를 보존하며 정확한 개별 요청 시간을 역산하지 않습니다.
+
+첫 cumulative histogram의 선행값을 만들지 않습니다. 누락 시계열은 없고 명시0은 관측값입니다. 백분위·개별 요청·token 경계·client/server 중복 제거·시계열 합산은 추정하지 않습니다. Alias 프로파일은 context identity에 포함하며 다른 profile/schema를 이 경로로 재명명할 수 없습니다. 수동 metric 범위만 검증하며 자동 vendor 계측·다른 GenAI trace/export·후속 convention은 보류합니다.

@@ -1,0 +1,232 @@
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "synthetic-genai-app"
+            }
+          },
+          {
+            "key": "service.instance.id",
+            "value": {
+              "stringValue": "synthetic-instance"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {
+            "name": "manual.ollama.genai",
+            "version": "1.0.0"
+          },
+          "metrics": [
+            {
+              "name": "gen_ai.client.operation.duration",
+              "unit": "s",
+              "histogram": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1794533428709210000",
+                    "timeUnixNano": "1794533428751707000",
+                    "count": "2",
+                    "sum": 0.659861083,
+                    "bucketCounts": [
+                      "0",
+                      "1",
+                      "1",
+                      "0",
+                      "0",
+                      "0"
+                    ],
+                    "explicitBounds": [
+                      0.01,
+                      0.1,
+                      1.0,
+                      10.0,
+                      100.0
+                    ],
+                    "attributes": [
+                      {
+                        "key": "gen_ai.operation.name",
+                        "value": {
+                          "stringValue": "text_completion"
+                        }
+                      },
+                      {
+                        "key": "gen_ai.provider.name",
+                        "value": {
+                          "stringValue": "ollama"
+                        }
+                      },
+                      {
+                        "key": "gen_ai.request.model",
+                        "value": {
+                          "stringValue": "synthetic-local-model"
+                        }
+                      }
+                    ],
+                    "min": 0.042303041,
+                    "max": 0.617558042
+                  }
+                ],
+                "aggregationTemporality": 2
+              }
+            },
+            {
+              "name": "gen_ai.client.token.usage",
+              "unit": "{token}",
+              "histogram": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1794533428709310000",
+                    "timeUnixNano": "1794533428751707000",
+                    "count": "2",
+                    "sum": 50.0,
+                    "bucketCounts": [
+                      "0",
+                      "0",
+                      "0",
+                      "2",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0"
+                    ],
+                    "explicitBounds": [
+                      0.0,
+                      5.0,
+                      10.0,
+                      25.0,
+                      50.0,
+                      75.0,
+                      100.0,
+                      250.0,
+                      500.0,
+                      750.0,
+                      1000.0,
+                      2500.0,
+                      5000.0,
+                      7500.0,
+                      10000.0
+                    ],
+                    "attributes": [
+                      {
+                        "key": "gen_ai.operation.name",
+                        "value": {
+                          "stringValue": "text_completion"
+                        }
+                      },
+                      {
+                        "key": "gen_ai.provider.name",
+                        "value": {
+                          "stringValue": "ollama"
+                        }
+                      },
+                      {
+                        "key": "gen_ai.request.model",
+                        "value": {
+                          "stringValue": "synthetic-local-model"
+                        }
+                      },
+                      {
+                        "key": "gen_ai.token.type",
+                        "value": {
+                          "stringValue": "input"
+                        }
+                      }
+                    ],
+                    "min": 25.0,
+                    "max": 25.0
+                  },
+                  {
+                    "startTimeUnixNano": "1794533428709335000",
+                    "timeUnixNano": "1794533428751707000",
+                    "count": "2",
+                    "sum": 16.0,
+                    "bucketCounts": [
+                      "0",
+                      "0",
+                      "2",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0",
+                      "0"
+                    ],
+                    "explicitBounds": [
+                      0.0,
+                      5.0,
+                      10.0,
+                      25.0,
+                      50.0,
+                      75.0,
+                      100.0,
+                      250.0,
+                      500.0,
+                      750.0,
+                      1000.0,
+                      2500.0,
+                      5000.0,
+                      7500.0,
+                      10000.0
+                    ],
+                    "attributes": [
+                      {
+                        "key": "gen_ai.operation.name",
+                        "value": {
+                          "stringValue": "text_completion"
+                        }
+                      },
+                      {
+                        "key": "gen_ai.provider.name",
+                        "value": {
+                          "stringValue": "ollama"
+                        }
+                      },
+                      {
+                        "key": "gen_ai.request.model",
+                        "value": {
+                          "stringValue": "synthetic-local-model"
+                        }
+                      },
+                      {
+                        "key": "gen_ai.token.type",
+                        "value": {
+                          "stringValue": "output"
+                        }
+                      }
+                    ],
+                    "min": 8.0,
+                    "max": 8.0
+                  }
+                ],
+                "aggregationTemporality": 2
+              }
+            }
+          ],
+          "schemaUrl": "https://opentelemetry.io/schemas/1.37.0"
+        }
+      ]
+    }
+  ]
+}

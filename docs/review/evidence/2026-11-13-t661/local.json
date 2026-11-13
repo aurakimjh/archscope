@@ -1,0 +1,16 @@
+{
+  "task": "T-661",
+  "activation": "Selected actual local Ollama0.40.16 manually instrumented with OTel Python SDK/HTTP exporter1.38.0, OTLP JSON encoder, scope manual.ollama.genai1.0.0 / schema1.37.0.",
+  "shared_commit": "d87cceb",
+  "profile": "Explicit otel-genai-ollama.v1.37 with consumed shared-asset mirror; generic OTLP unchanged.",
+  "actual": "2 newly executed local synthetic requests after correcting provider attribute to gen_ai.provider.name; old output was not relabeled. Histograms preserve count2 and token sums50/16. Shipped manual collector also executed successfully.",
+  "reuse": "Original MetricHistory -> existing InferenceEvidence client histogram signals; no request/span generation.",
+  "verification": [
+    "race parser/analyzer/model/metricmodel/architecture passed",
+    "independent token sums from body-free actual response observations",
+    "incompatible scope/schema/provider/temporality refused; missing differs from explicit zero",
+    "first cumulative predecessor/rate unavailable; raw histogram retained; generic comparison policy remains unqualified",
+    "common CSV/HTML, frontend build and parser vet passed"
+  ],
+  "limits": "Manual metric slice only; declared SDK/engine identity, SDK float histogram sums, no broad automatic instrumentation, GenAI traces, quantiles, token timing, aggregation or client/server deduplication."
+}
