@@ -47,3 +47,22 @@ sequence now displays12,288 Bytes /100% /1 frame, selected events6, selected byt
 12.0KB, and an allocation-stack title. State regressions and production frontend
 build passed; production+layoutaudit Windows build passed. Binary JFR conversion
 and full event-mode parity are outside these JSON/UI observations.
+
+## JVM metadata integration defect
+
+The actual multi-dump/JVM screen showed carrier pinning1 and native method1, but
+SMR0 and histogram0 despite populated input. The native Go parser emits
+`[]map[string]any`; the analyzer accepted only JSON-decoded `[]any`. Normalizing
+both supported row representations restores tagged/unmatched-address SMR rows
+and class histogram entries without a JSON round trip.
+
+A new real-jstack parser-to-analyzer integration test covers native and JSON
+bundles, both SMR forms with deduplication, and histogram bytes/order. Both
+architectures passed multithread and javajstack package tests (amd641.088s/0.629s,
+3861.100s/0.644s). The production+layoutaudit native build passed. In the native
+fixed app, `jvm-signals-jstack.txt` displays pinning1, native1, SMR2 and histogram2.
+The four JVM subtabs were observed: populated carrier/native before the fix,
+SMR and histogram before/after. Histogram is100 String instances/2400 bytes and
+10 Order instances/1600 bytes, descending by bytes. The fixed fixture adds one
+untagged SMR address to the original before fixture to cover both diagnostic forms.
+No Java process or driver was required for this synthetic file analysis.

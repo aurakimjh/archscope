@@ -83,59 +83,41 @@ func buildJVMMetadataTables(bundles []models.ThreadDumpBundle, topN int) jvmTabl
 		}
 
 		if smr, ok := bundle.Metadata["smr"].(map[string]any); ok {
-			if entries, ok := smr["unresolved"].([]any); ok {
-				for _, raw := range entries {
-					entry, ok := raw.(map[string]any)
-					if !ok {
-						continue
-					}
-					t.smrUnresolved = append(t.smrUnresolved, map[string]any{
-						"dump_index":   bundle.DumpIndex,
-						"dump_label":   derefString(bundle.DumpLabel),
-						"section_line": entry["section_line"],
-						"line":         entry["line"],
-						"kind":         "tagged",
-					})
-				}
+			for _, entry := range jvmMetadataRows(smr["unresolved"]) {
+				t.smrUnresolved = append(t.smrUnresolved, map[string]any{
+					"dump_index":   bundle.DumpIndex,
+					"dump_label":   derefString(bundle.DumpLabel),
+					"section_line": entry["section_line"],
+					"line":         entry["line"],
+					"kind":         "tagged",
+				})
 			}
-			if entries, ok := smr["addresses_unresolved"].([]any); ok {
-				for _, raw := range entries {
-					entry, ok := raw.(map[string]any)
-					if !ok {
-						continue
-					}
-					if isTrue(entry["tagged_unresolved"]) {
-						continue
-					}
-					address, _ := entry["address"].(string)
-					t.smrUnresolved = append(t.smrUnresolved, map[string]any{
-						"dump_index":   bundle.DumpIndex,
-						"dump_label":   derefString(bundle.DumpLabel),
-						"section_line": entry["section_line"],
-						"line":         "address=" + address,
-						"address":      entry["address"],
-						"kind":         "address_unresolved",
-					})
+			for _, entry := range jvmMetadataRows(smr["addresses_unresolved"]) {
+				if isTrue(entry["tagged_unresolved"]) {
+					continue
 				}
+				address, _ := entry["address"].(string)
+				t.smrUnresolved = append(t.smrUnresolved, map[string]any{
+					"dump_index":   bundle.DumpIndex,
+					"dump_label":   derefString(bundle.DumpLabel),
+					"section_line": entry["section_line"],
+					"line":         "address=" + address,
+					"address":      entry["address"],
+					"kind":         "address_unresolved",
+				})
 			}
 		}
 
 		if histogram, ok := bundle.Metadata["class_histogram"].(map[string]any); ok {
-			if classes, ok := histogram["classes"].([]any); ok {
-				for _, raw := range classes {
-					entry, ok := raw.(map[string]any)
-					if !ok {
-						continue
-					}
-					t.histogramRows = append(t.histogramRows, map[string]any{
-						"dump_index": bundle.DumpIndex,
-						"dump_label": derefString(bundle.DumpLabel),
-						"rank":       entry["rank"],
-						"class_name": entry["class_name"],
-						"instances":  entry["instances"],
-						"bytes":      entry["bytes"],
-					})
-				}
+			for _, entry := range jvmMetadataRows(histogram["classes"]) {
+				t.histogramRows = append(t.histogramRows, map[string]any{
+					"dump_index": bundle.DumpIndex,
+					"dump_label": derefString(bundle.DumpLabel),
+					"rank":       entry["rank"],
+					"class_name": entry["class_name"],
+					"instances":  entry["instances"],
+					"bytes":      entry["bytes"],
+				})
 			}
 			if isTrue(histogram["incomplete"]) {
 				t.histogramIncomplete = append(t.histogramIncomplete, map[string]any{
@@ -177,6 +159,25 @@ func buildJVMMetadataTables(bundles []models.ThreadDumpBundle, topN int) jvmTabl
 	t.histogramRows = capRows(t.histogramRows, topN)
 	t.histogramIncomplete = capRows(t.histogramIncomplete, topN)
 	return t
+}
+
+// Native parsers retain typed map slices; JSON-imported bundles use []any.
+// Accept both without requiring a lossy serialization round trip.
+func jvmMetadataRows(value any) []map[string]any {
+	switch rows := value.(type) {
+	case []map[string]any:
+		return rows
+	case []any:
+		out := make([]map[string]any, 0, len(rows))
+		for _, value := range rows {
+			if row, ok := value.(map[string]any); ok {
+				out = append(out, row)
+			}
+		}
+		return out
+	default:
+		return nil
+	}
 }
 
 func capRows(rows []map[string]any, n int) []map[string]any {

@@ -127,5 +127,65 @@
     "locale": "recorded per scenario",
     "scale": "OS100%, WebView100%",
     "screenshot": "jfr-native-unit-fixed.jpg"
+  },
+  {
+    "id": "jvm-pinning",
+    "route": "thread_dump",
+    "scenario": "Multi-dump -> JVM signals -> virtual carriers",
+    "observed": "One carrier candidate with ForkJoinPool and virtual-thread frame",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jvm-pinning.jpg"
+  },
+  {
+    "id": "jvm-native",
+    "route": "thread_dump",
+    "scenario": "JVM signals Native methods",
+    "observed": "One native-reader thread with SocketInputStream.socketRead0(Native Method)",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jvm-native.jpg"
+  },
+  {
+    "id": "jvm-histogram-before",
+    "route": "thread_dump",
+    "scenario": "Histogram tab with two real parsed rows in input",
+    "observed": "Shows Histogram classes0 and empty card: typed metadata dropped",
+    "result": "FAIL",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jvm-histogram-before.jpg"
+  },
+  {
+    "id": "jvm-smr-before",
+    "route": "thread_dump",
+    "scenario": "SMR tab with unresolved zombie row in jstack input",
+    "observed": "SMR unresolved0 and empty card before typed-slice fix",
+    "result": "FAIL",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jvm-smr-before.jpg"
+  },
+  {
+    "id": "jvm-smr-fixed",
+    "route": "thread_dump",
+    "scenario": "Real jstack parser -> multi-dump -> SMR",
+    "observed": "Two rows:tagged zombie and normalized untagged address;no duplicate tagged address",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jvm-smr-fixed.jpg"
+  },
+  {
+    "id": "jvm-histogram-fixed",
+    "route": "thread_dump",
+    "scenario": "JVM histogram after typed-slice fix",
+    "observed": "java.lang.String100 instances/2400 bytes before Order10/1600;two populated rows",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "jvm-histogram-fixed.jpg"
   }
 ]

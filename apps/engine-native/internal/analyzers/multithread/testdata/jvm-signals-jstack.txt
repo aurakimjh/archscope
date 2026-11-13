@@ -1,0 +1,23 @@
+2026-11-14 09:00:00
+Full thread dump OpenJDK 64-Bit Server VM (21 synthetic):
+
+"ForkJoinPool-1-worker-1" #20 prio=5 tid=0x000000001234abcd nid=0x20 runnable
+   java.lang.Thread.State: RUNNABLE
+   Carrying virtual thread #123
+    at java.lang.VirtualThread.parkOnCarrierThread(VirtualThread.java:680)
+    at com.example.acceptance.BlockingService.call(BlockingService.java:77)
+
+"native-reader" #21 prio=5 tid=0x000000001234abce nid=0x21 runnable
+   java.lang.Thread.State: RUNNABLE
+    at java.net.SocketInputStream.socketRead0(Native Method)
+    at com.example.acceptance.Reader.run(Reader.java:42)
+
+Threads class SMR info:
+  unresolved zombie thread 0x000000009999abcd
+  0x000000009999abce
+
+ num     #instances         #bytes  class name
+-------------------------------------------------------
+   1:           100           2400  java.lang.String
+   2:            10           1600  com.example.acceptance.Order
+Total           110           4000
