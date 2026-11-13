@@ -28,7 +28,7 @@ func TestActualSentrySDKAndExactTime(t *testing.T) {
 			t.Fatal(n, e)
 		}
 	}
-	for _, raw := range []string{`1e999999999`, `0.0000000001`, `"2026-11-13T00:33:55.0000000001Z"`, `-1`, `null`} {
+	for _, raw := range []string{`1e999999999`, `0.0000000001`, `"2026-11-13T00:33:55.0000000001Z"`, `-1`, `null`, `"1970-01-01T00:00:00+01:00"`, `"2262-04-11T23:47:16.854775808Z"`} {
 		if _, e := sentryTime(json.RawMessage(raw)); e == nil {
 			t.Fatal("accepted timestamp", raw)
 		}

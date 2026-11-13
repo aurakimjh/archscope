@@ -5100,3 +5100,7 @@ Prepared a manual two-GPU PyTorch2.15.0 CUDA/NCCL synthetic sharded-inference ca
 ### T-662 natural memory observation and publication hold — 2026-11-13
 
 Repeated actual read-only collector1.1.0 capture on macOS27.2.1/build26B131/Ollama0.40.16: three snapshots all swap_used_bytes=0 and raw pressure1. Independent binary sysctl xsw_usage decoding before/after agrees with zero swap and pressure1. Existing metrics history-inspect accepts the actual capture. No model load, memory stress, swap/pressure injection or causal claim. This is not the required actual nonzero-swap/elevated-pressure evidence: T-662 stays PENDING. The user explicitly requested push remain on hold until natural evidence arrives; T-654 is separately deferred TODO at user request. Receipt and actual zero-swap capture: `docs/review/evidence/2026-11-13-t662/`.
+
+### Final source-time boundary check — 2026-11-13
+
+T-659/T-660 share exact source timestamp handling. Final review tightened RFC3339 timezone-normalized nonnegative/int64-nanosecond bounds without UnixNano overflow; negative UTC and int64+1ns are refused. Targeted actual Sentry/Langfuse race and parser vet passed. Actual fixture values, result payloads and saved readers are unchanged.

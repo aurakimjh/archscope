@@ -46,10 +46,15 @@ func sentryTime(raw json.RawMessage) (int64, error) {
 			return 0, fmt.Errorf("SENTRY_TIME_INVALID")
 		}
 		v, e := time.Parse(time.RFC3339Nano, text)
-		if e != nil || v.Year() < 1970 || v.Year() > 2261 {
+		if e != nil || v.Unix() < 0 {
 			return 0, fmt.Errorf("SENTRY_TIME_INVALID")
 		}
-		return v.UnixNano(), nil
+		ns := new(big.Int).Mul(big.NewInt(v.Unix()), big.NewInt(1000000000))
+		ns.Add(ns, big.NewInt(int64(v.Nanosecond())))
+		if !ns.IsInt64() {
+			return 0, fmt.Errorf("SENTRY_TIME_INVALID")
+		}
+		return ns.Int64(), nil
 	}
 	if len(raw) > 128 {
 		return 0, fmt.Errorf("SENTRY_TIME_INVALID")

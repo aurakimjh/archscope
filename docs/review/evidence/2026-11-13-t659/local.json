@@ -15,5 +15,6 @@
   ],
   "limits": [
     "Pinned SDK/config only; no Sentry cloud API or other SDK qualification. No causal path/coverage claim."
-  ]
+  ],
+  "final_time_boundary_followup": "RFC3339 uses exact big-integer ns bounds after timezone normalization; negative UTC and int64+1 ns refused. Targeted Sentry/Langfuse race and parser vet passed after this final fix."
 }
