@@ -1,0 +1,4 @@
+Windows386 real FILE_SHARE_READ|WRITE reader holding manifest without FILE_SHARE_DELETE.
+--- FAIL: TestWindowsRollingAppendWaitsForManifestReader (0.04s)
+    replace_windows_test.go:39: append did not tolerate transient manifest reader: rename <pending> <manifest.json>: Access is denied.
+FAIL (expected reproduction before fix)
