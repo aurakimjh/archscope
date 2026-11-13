@@ -131,7 +131,7 @@ func init() {
 		command.Flags().StringSliceVar(&seriesIDs, "retained-series-id", nil, "retain all points of selected original series during normalization")
 		command.Flags().StringVar(&input, "in", "", "original file or saved inference result")
 		command.Flags().StringVar(&output, "out", "-", "new destination or stdout")
-		command.Flags().StringVar(&format, "format", "inference-evidence-json", "nvidia-smi-csv, metric-bindings-json or inference-evidence-json")
+		command.Flags().StringVar(&format, "format", "inference-evidence-json", "nvidia-smi-csv, ollama-generate-final-json, metric-bindings-json or inference-evidence-json")
 		command.Flags().StringVar(&captureFile, "capture-file", "", "explicit NVIDIA capture contract, at most 128 KiB")
 		command.Flags().StringVar(&bindingsFile, "bindings-file", "", "explicit manifest without metrics, at most 128 KiB")
 		command.Flags().StringVar(&signal, "signal-id", "", "one signal from inventory; no cross-scope aggregation")

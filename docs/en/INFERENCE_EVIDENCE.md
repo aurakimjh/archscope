@@ -164,3 +164,9 @@ To reduce result size, pass repeated --retained-series-id to normalize-source/im
 
 
 Payload 0.3.0 preserves exact rational counter rates through unit conversion (100 / 15 = 20/3), including scaled byte rates; failed conversion is an error. Saved 0.1.0/0.2.0 readers keep their original projections, including the old missing rational-rate cells. Explicit re-analysis creates 0.3.0.
+
+## Ollama final-response serving adapter
+
+`ollama-generate-final-json` qualifies Ollama 0.40.16 local `/api/generate` final-response fields under `ollama-generate-final.v1`. The manual `capture-ollama-serving.py` helper runs two synthetic unstreamed completions with an already cached completion model, num_predict=8 and temperature=0; it never pulls a model. Supply sanitized host/boot tags and a new output path. It unloads its model if it was not loaded before collection. Import itself performs no requests.
+
+Actual qualification covers two local responses, startup/load-inclusive total/prompt-eval/eval durations and token counts, plus independently measured client elapsed. Durations convert exactly from reported integer ns to seconds; counts are per-response gauges, not cumulative counters. Client/server populations remain separate. No token arrival was observed: TTFT, ITL and TPOT stay unavailable. Model identity is redacted and configuration fields remain unknown; this is not controlled cross-model benchmarking. Common InferenceEvidence, original MetricHistory, saved readers and exports are reused. vLLM Q03 aliases remain gated and are not qualified by Ollama.

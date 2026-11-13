@@ -177,6 +177,15 @@ func ParseBytes(ctx context.Context, original []byte, name string, o Options) (n
 			return empty, e
 		}
 		return n.SelectSeries(ctx, s, retained)
+	case "ollama-generate-final-json":
+		if o.Capture != nil || len(o.Bindings) != 0 {
+			return empty, fmt.Errorf("INFERENCE_OPTIONS_INVALID")
+		}
+		set, err := parseOllama(ctx, body, Digest(original), name)
+		if err != nil {
+			return empty, err
+		}
+		return n.SelectSeries(ctx, set, o.SeriesIDs)
 	case "nvidia-smi-csv":
 		if o.Capture == nil || len(o.Bindings) != 0 {
 			return empty, fmt.Errorf("INFERENCE_CAPTURE_REQUIRED")

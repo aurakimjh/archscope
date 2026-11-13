@@ -1,0 +1,45 @@
+{
+  "producer": "ollama",
+  "producer_version": "0.40.16",
+  "sdk": {
+    "name": "opentelemetry-python",
+    "version": "1.38.0"
+  },
+  "scope": "manual.ollama.genai/1.0.0; actual synthetic local requests; bodies/model names excluded",
+  "observations": [
+    {
+      "capture_start_ns": "1794530304810877000",
+      "capture_end_ns": "1794530305416808000",
+      "client_elapsed_ns": "605923542",
+      "metrics": {
+        "total_duration": "602603417",
+        "load_duration": "531442084",
+        "prompt_eval_count": "25",
+        "prompt_eval_duration": "33290999",
+        "eval_count": "8",
+        "eval_duration": "36658000"
+      }
+    },
+    {
+      "capture_start_ns": "1794530305416977000",
+      "capture_end_ns": "1794530305459316000",
+      "client_elapsed_ns": "42336917",
+      "metrics": {
+        "total_duration": "40870833",
+        "load_duration": "1688667",
+        "prompt_eval_count": "25",
+        "prompt_eval_duration": "4922000",
+        "eval_count": "8",
+        "eval_duration": "32765000"
+      }
+    }
+  ],
+  "contract": "ollama-generate-final.v1",
+  "host_id": "declared-local-host",
+  "boot_id": "declared-capture-lifetime",
+  "config": {
+    "num_predict": "8",
+    "temperature": "0",
+    "stream": false
+  }
+}

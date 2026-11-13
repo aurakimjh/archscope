@@ -1,0 +1,14 @@
+{
+  "task": "T-656",
+  "activation": "Selected locally available Ollama0.40.16 under user environment/input creation authorization; Q03 vLLM aliases remain separately unqualified.",
+  "reuse": "Existing InferenceEvidence + MetricHistory -> inference_serving, no new result type.",
+  "shared_commit": "876803e",
+  "actual": "2 local cached-model unstreamed synthetic /api/generate responses; num_predict8 temperature0; warmup/load included; bodies/model name removed.",
+  "verification": [
+    "race inference parser/analyzer/model/architecture/distribution passed",
+    "independent rational client ns->seconds; source final gauges and separate client/server populations",
+    "missing vs zero token counts, unknown producer refusal, missing token boundaries -> TTFT/TPOT null",
+    "common result validation and CSV/HTML, frontend build, parser vet passed"
+  ],
+  "limits": "Pinned final-response layout only; model identity redacted and unknown context stays unknown; no controlled model comparison or token arrival reconstruction."
+}
