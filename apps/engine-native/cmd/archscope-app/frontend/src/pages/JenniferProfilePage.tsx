@@ -78,8 +78,11 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { getHelpText } from "@/help/helpCatalog";
-import { useI18n } from "../i18n/I18nProvider";
+import { useI18n, type MessageKey } from "../i18n/I18nProvider";
+
 import { addWorkspaceResult } from "../state/analysisWorkspace";
+
+type MsaTranslate = (key: MessageKey) => string;
 
 // MSA event-category segments — these match JenniferEventType values
 // that the backend classifier accepts via EventCategoryPatterns.
@@ -137,6 +140,22 @@ const MSA_EVENT_PRESETS: Preset[] = [
     },
   },
 ];
+
+const MSA_SEGMENT_MESSAGE_KEYS: Record<string, MessageKey> = {
+  "EXTERNAL_CALL": "msaCopyExternalSegment",
+  "NETWORK_PREP_METHOD": "msaCopyPrepSegment",
+  "SERVLET_DISPATCH_METHOD": "msaCopyDispatchSegment",
+  "TWO_PC_UNKNOWN": "msaCopyTwoPcSegment",
+  "CHECK_QUERY": "msaCopyCheckSegment",
+  "CONNECTION_ACQUIRE": "msaCopyAcquireSegment",
+  "FETCH": "msaCopyFetchSegment",
+};
+const MSA_PRESET_MESSAGE_KEYS: Record<string, MessageKey> = {
+  "msa-servlet-dispatch": "msaCopyDispatchPreset",
+  "msa-network-prep": "msaCopyPrepPreset",
+  "msa-2pc-extra": "msaCopyTwoPcPreset",
+  "msa-check-query-extra": "msaCopyCheckPreset",
+};
 
 const FILE_FILTERS = [
   {
@@ -218,20 +237,20 @@ type MsaDrilldownOption = {
 
 const CUSTOM_RULE_GROUPS: Array<{
   id: CustomAnalysisRuleGroup;
-  label: string;
+  labelKey: MessageKey;
 }> = [
-  { id: "database", label: "Database" },
-  { id: "external", label: "External" },
-  { id: "internal", label: "Internal" },
+  { id: "database", labelKey: "msaBreakdownDatabase" },
+  { id: "external", labelKey: "msaBreakdownExternalGroup" },
+  { id: "internal", labelKey: "msaBreakdownInternal" },
 ];
 
 const CUSTOM_RULE_SOURCES: Array<{
   id: CustomAnalysisRuleSource;
-  label: string;
+  labelKey: MessageKey;
 }> = [
-  { id: "profile_application", label: "프로파일 URL 전체시간" },
-  { id: "method", label: "메소드/이벤트 처리시간" },
-  { id: "external_call_url", label: "EXTERNAL_CALL URL" },
+  { id: "profile_application", labelKey: "msaCopyProfileUrlTime" },
+  { id: "method", labelKey: "msaCopyMethodEventTime" },
+  { id: "external_call_url", labelKey: "msaCopyExternalUrl" },
 ];
 
 function basenameOf(p: string): string {
@@ -370,38 +389,39 @@ function PreviewRowsToggle({
   expanded: boolean;
   onToggle: () => void;
 }): React.JSX.Element | null {
+  const { t } = useI18n();
   if (total <= MSA_TABLE_PREVIEW_LIMIT) return null;
   const hiddenCount = Math.max(0, total - visibleCount);
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-3 py-2 text-xs text-muted-foreground">
       <span>
         {expanded
-          ? `전체 ${total.toLocaleString()}건을 표시 중입니다.`
-          : `상위 ${visibleCount.toLocaleString()}건만 표시합니다. 숨김 ${hiddenCount.toLocaleString()}건.`}
+          ? t("msaCopyAllRows").replace("{count}", total.toLocaleString())
+          : t("msaCopyTopRows").replace("{shown}", visibleCount.toLocaleString()).replace("{hidden}", hiddenCount.toLocaleString())}
       </span>
       <Button type="button" size="sm" variant="outline" onClick={onToggle}>
-        {expanded ? "접기" : `더 보기 (${hiddenCount.toLocaleString()}건)`}
+        {expanded ? t("msaHotspotCollapse") : `${t("msaHotspotShowMore")} (${hiddenCount.toLocaleString()})`}
       </Button>
     </div>
   );
 }
 
-function msaDrilldownOptionLabel(row: any): string {
+function msaDrilldownOptionLabel(row: any, t: MsaTranslate): string {
   const app = String(row?.application || "unknown");
   const txid = txidOf(row?.txid);
   const response = profileResponseTime(row);
-  const suffix = txid ? `TXID …${txid.slice(-10)}` : "TXID 없음";
+  const suffix = txid ? `TXID …${txid.slice(-10)}` : t("msaCopyNoTxid");
   return response > 0
     ? `${app} · ${suffix} · ${response.toLocaleString()} ms`
     : `${app} · ${suffix}`;
 }
 
-function buildMsaDrilldownOptions(group: any, rows: any[]): MsaDrilldownOption[] {
+function buildMsaDrilldownOptions(group: any, rows: any[], t: MsaTranslate): MsaDrilldownOption[] {
   if (!group) return [];
   const options: MsaDrilldownOption[] = [
     {
       value: "__whole__",
-      label: "전체 트랜잭션 기준",
+      label: t("msaCopyWholeTransaction"),
     },
   ];
   const txidOrder = new Set(
@@ -423,17 +443,17 @@ function buildMsaDrilldownOptions(group: any, rows: any[]): MsaDrilldownOption[]
     options.push({
       value: txid,
       txid,
-      label: msaDrilldownOptionLabel(row),
+      label: msaDrilldownOptionLabel(row, t),
     });
   }
   return options;
 }
 
-function buildMsaAverageDrilldownOptions(rows: any[]): MsaDrilldownOption[] {
+function buildMsaAverageDrilldownOptions(rows: any[], t: MsaTranslate): MsaDrilldownOption[] {
   const options: MsaDrilldownOption[] = [
     {
       value: "__whole__",
-      label: "전체 평균 트랜잭션 기준",
+      label: t("msaCopyWholeAverage"),
     },
   ];
   const byApplication = new Map<
@@ -475,8 +495,8 @@ function buildMsaAverageDrilldownOptions(rows: any[]): MsaDrilldownOption[] {
           application: entry.application,
           label:
             avg > 0
-              ? `${entry.application} · ${entry.count.toLocaleString()}건 · avg ${Math.round(avg).toLocaleString()} ms`
-              : `${entry.application} · ${entry.count.toLocaleString()}건`,
+              ? `${entry.application} · ${t("msaHotspotSamples").replace("{count}", entry.count.toLocaleString())} · ${t("msaBreakdownAverage")} ${Math.round(avg).toLocaleString()} ms`
+              : `${entry.application} · ${t("msaHotspotSamples").replace("{count}", entry.count.toLocaleString())}`,
         };
       }),
   ];
@@ -559,7 +579,7 @@ function compactJenniferResult(raw: any): any {
   };
 }
 
-function guidOptionLabel(group: any): string {
+function guidOptionLabel(group: any, t: MsaTranslate): string {
   const guid = String(group?.guid ?? "");
   const root = group?.root_application || "unknown";
   const responseTime = toFiniteNumber(group?.root_response_time_ms);
@@ -569,18 +589,18 @@ function guidOptionLabel(group: any): string {
       ? `TXID …${String(txids[0]).slice(-10)}`
       : guid
         ? `…${guid.slice(-10)}`
-        : "단일 프로파일";
+        : t("msaCopySingleProfile");
   return responseTime != null
     ? `${root} · ${suffix} · ${Math.round(responseTime).toLocaleString()} ms`
     : `${root} · ${suffix}`;
 }
 
-function signatureOptionLabel(signature: any): string {
+function signatureOptionLabel(signature: any, t: MsaTranslate): string {
   const hash = String(signature?.signature_hash ?? "");
   const root = signature?.root_application || "unknown";
   const samples = Number(signature?.sample_count ?? 0).toLocaleString();
-  const suffix = hash ? `…${hash.slice(-8)}` : "signature 없음";
-  return `${root} · ${suffix} · ${samples}건`;
+  const suffix = hash ? `…${hash.slice(-8)}` : t("msaCopyNoSignature");
+  return `${root} · ${suffix} · ${t("msaHotspotSamples").replace("{count}", samples)}`;
 }
 
 function GuidTransactionSummary({ group }: { group: any }): React.JSX.Element {
@@ -687,9 +707,7 @@ function IncompleteProfileWarning({ summary }: { summary: any }): React.JSX.Elem
         </CardTitle>
       </CardHeader>
       <CardContent className="text-xs text-amber-900 dark:text-amber-100">
-        Jennifer의 5MB Profile capacity exceeded 문구가 포함된 프로파일{" "}
-        {incomplete.toLocaleString()}건이 있습니다. 해당 GUID 그룹{" "}
-        {excludedGroups.toLocaleString()}건은 시그니처 평균 통계에서 제외했습니다.
+        {t("msaCopyIncompleteNotice").replace("{profiles}", incomplete.toLocaleString()).replace("{groups}", excludedGroups.toLocaleString())}
       </CardContent>
     </Card>
   );
@@ -805,12 +823,11 @@ function NetworkPrepMethodsTable({ rows }: { rows: any[] }): React.JSX.Element {
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="inline-flex items-center gap-2 text-sm">
-          네트워크 준비시간 포함 메소드 ({rows.length})
+          {t("msaCopyNetworkMethods")} ({rows.length})
           <HelpTip text={getHelpText(locale, "sectionMsaNetworkPrep")} />
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          wrapper 메소드 안에 포함된 EXTERNAL_CALL 합계를 빼고 남은 시간을
-          네트워크 준비시간으로 계산합니다.
+          {t("msaCopyNetworkMethodsHint")}
         </p>
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
@@ -902,12 +919,11 @@ function UnprofiledExternalCallGroupsTable({ rows }: { rows: any[] }): React.JSX
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="inline-flex items-center gap-2 text-sm">
-          프로파일 미수집 외부호출 ({rows.length})
+          {t("msaCopyUnprofiled")} ({rows.length})
           <HelpTip text={getHelpText(locale, "sectionMsaUnprofiledExternal")} />
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          callee profile이 없는 EXTERNAL_CALL은 Method 잔여시간에서 분리해
-          별도 외부호출 시간으로 계산합니다.
+          {t("msaCopyUnprofiledHint")}
         </p>
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
@@ -1035,7 +1051,7 @@ function ApiCallAnalysisPanel({
     undefined,
   );
   const isAverageView = effectiveValueMode === "avg";
-  const countUnit = isAverageView ? "calls/tx" : "calls";
+  const countUnit = isAverageView ? t("msaUiCallsTxUnit") : t("msaUiCallsUnit");
 
   const updateSort = (nextKey: ApiCallSortKey) => {
     if (nextKey === sortKey) {
@@ -1075,19 +1091,18 @@ function ApiCallAnalysisPanel({
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="inline-flex items-center gap-2 text-sm">
-          External Call 응답시간 분석 ({rows.length})
+          {t("msaCopyExternalAnalysis")} ({rows.length})
           <HelpTip text={getHelpText(locale, "sectionMsaExternalTop")} />
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          EXTERNAL_CALL 원본 URL별로 묶어 External_Call(callee 응답시간)·API(호출자
-          측정 시간)·네트워크 시간을 함께 집계합니다.
+          {t("msaCopyExternalAnalysisHint")}
         </p>
         {scopeLabel ? (
           <div className="mt-2 inline-flex w-fit rounded-md border border-border bg-muted/20 px-2 py-1 text-[11px] text-muted-foreground">
             {scopeLabel}
             {isAverageView
-              ? ` · 평균 트랜잭션 기준 · n=${normalizedSampleCount.toLocaleString()}`
-              : " · 단일/선택 범위 기준"}
+              ? ` · ${t("msaCopyAverageBasis")} · n=${normalizedSampleCount.toLocaleString()}`
+              : ` · ${t("msaCopySelectionBasis")}`}
           </div>
         ) : null}
       </CardHeader>
@@ -1152,7 +1167,7 @@ function ApiCallAnalysisPanel({
                       {sortHeader(isAverageView ? t("msaUiAPICumTx") : t("msaUiAPICum"), "apiTotalMs", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
-                      {sortHeader("API p95", "apiP95Ms", "right")}
+                      {sortHeader(t("msaUiCallerP95"), "apiP95Ms", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
                       {sortHeader(t("msaUiAPIMax"), "apiMaxMs", "right")}
@@ -1165,7 +1180,7 @@ function ApiCallAnalysisPanel({
                       )}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
-                      {sortHeader("Network p95", "networkP95Ms", "right")}
+                      {sortHeader(t("msaUiGapP95"), "networkP95Ms", "right")}
                     </th>
                     <th className="px-3 py-2 text-right font-medium">
                       {sortHeader(t("msaUiNetworkMax"), "networkMaxMs", "right")}
@@ -1183,7 +1198,7 @@ function ApiCallAnalysisPanel({
                       </td>
                       <td
                         className="max-w-[260px] px-3 py-2 font-mono text-xs"
-                        title={`${row.target}\nCaller: ${row.callers}\nCallee: ${row.callees}`}
+                        title={`${row.target}\n${t("msaUiCaller")}: ${row.callers}\n${t("msaUiCallee")}: ${row.callees}`}
                       >
                         <span className="block truncate">{row.target || "—"}</span>
                       </td>
@@ -1280,7 +1295,7 @@ function SlowSqlTable({ rows }: { rows: any[] }): React.JSX.Element {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <CardTitle className="inline-flex items-center gap-2 text-sm">
-              성능 저하 SQL 후보 ({filteredRows.length}/{rows.length})
+              {t("msaCopySlowSql")} ({filteredRows.length}/{rows.length})
               <HelpTip text={getHelpText(locale, "sectionMsaSlowSql")} />
             </CardTitle>
             <p className="mt-1 text-xs text-muted-foreground">{t("msaUiSQLEventsLastingAtLeastOneSecondAreShownByDefault")}</p>
@@ -1309,7 +1324,7 @@ function SlowSqlTable({ rows }: { rows: any[] }): React.JSX.Element {
               variant="outline"
               onClick={() => setMinElapsedInput("1000")}
             >
-              1초+
+              {t("msaCopyOneSecond")}
             </Button>
             <Button
               type="button"
@@ -1317,7 +1332,7 @@ function SlowSqlTable({ rows }: { rows: any[] }): React.JSX.Element {
               variant="outline"
               onClick={() => setMinElapsedInput("3000")}
             >
-              3초+
+              {t("msaCopyThreeSeconds")}
             </Button>
           </div>
         </div>
@@ -1404,8 +1419,7 @@ function CustomAnalysisRulesEditor({
         <div>
           <p className="text-xs font-semibold text-foreground/80">{t("msaUiAnalysisPresetsCustomCards")}</p>
           <p className="mt-1 text-[11px] text-muted-foreground">
-            MSA 이벤트 분류 패턴과 사용자 정의 카드를 함께 저장하고 읽습니다.
-            카드는 응답시간 구성에도 반영됩니다.
+            {t("msaCopyPresetHint")}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
@@ -1417,7 +1431,7 @@ function CustomAnalysisRulesEditor({
             onClick={() => onChange([...rules, makeCustomRule()])}
           >
             <Plus className="h-3.5 w-3.5" />
-            카드
+            {t("msaCopyCard")}
           </Button>
           <Button
             type="button"
@@ -1459,7 +1473,7 @@ function CustomAnalysisRulesEditor({
                   type="text"
                   value={rule.label}
                   disabled={disabled}
-                  placeholder="카드 이름"
+                  placeholder={t("msaCopyCardName")}
                   onChange={(event) =>
                     updateRule(rule.id, { label: event.target.value })
                   }
@@ -1477,7 +1491,7 @@ function CustomAnalysisRulesEditor({
                 >
                   {CUSTOM_RULE_GROUPS.map((group) => (
                     <option key={group.id} value={group.id}>
-                      {group.label}
+                      {t(group.labelKey)}
                     </option>
                   ))}
                 </select>
@@ -1493,7 +1507,7 @@ function CustomAnalysisRulesEditor({
                 >
                   {CUSTOM_RULE_SOURCES.map((source) => (
                     <option key={source.id} value={source.id}>
-                      {source.label}
+                      {t(source.labelKey)}
                     </option>
                   ))}
                 </select>
@@ -1510,7 +1524,7 @@ function CustomAnalysisRulesEditor({
               <textarea
                 value={rule.patterns.join("\n")}
                 disabled={disabled}
-                placeholder="패턴을 줄 단위로 입력"
+                placeholder={t("msaCopyPatternsPlaceholder")}
                 onChange={(event) =>
                   updateRule(rule.id, {
                     patterns: parsePatternText(event.target.value),
@@ -1534,13 +1548,11 @@ function CustomRuleStatsPanel({ rows }: { rows: any[] }): React.JSX.Element | nu
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="inline-flex items-center gap-2 text-sm">
-          사용자 정의 카드 통계 ({rows.length})
+          {t("msaCopyCustomStats")} ({rows.length})
           <HelpTip text={getHelpText(locale, "sectionMsaCustomCards")} />
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          분석 옵션에서 추가한 카드별 집계입니다. 프로파일 URL은 전체
-          응답시간, 메소드는 내부 DB/External 등 포함 비용을 제외한 처리시간,
-          EXTERNAL_CALL은 호출 URL elapsed를 합산합니다.
+          {t("msaCopyCustomStatsHint")}
         </p>
       </CardHeader>
       <CardContent className="overflow-x-auto p-0">
@@ -1976,7 +1988,7 @@ export function JenniferProfilePage(): React.JSX.Element {
           setError("");
         })
         .catch((err) => {
-          setError(`프리셋 파일을 읽지 못했습니다: ${String(err?.message ?? err)}`);
+          setError(`${t("msaCopyPresetReadError")}: ${String(err?.message ?? err)}`);
         })
         .finally(() => {
           if (customPresetInputRef.current) {
@@ -1984,7 +1996,7 @@ export function JenniferProfilePage(): React.JSX.Element {
           }
         });
     },
-    [],
+    [t],
   );
 
   const handleAnalyze = async () => {
@@ -2125,8 +2137,8 @@ export function JenniferProfilePage(): React.JSX.Element {
   }, [profileRows, selectedGuidGroup]);
 
   const msaDrilldownOptions = useMemo(
-    () => buildMsaDrilldownOptions(selectedGuidGroup, singleProfileRows),
-    [selectedGuidGroup, singleProfileRows],
+    () => buildMsaDrilldownOptions(selectedGuidGroup, singleProfileRows, t),
+    [selectedGuidGroup, singleProfileRows, t],
   );
 
   const selectedMsaDrilldownValue = useMemo(() => {
@@ -2202,8 +2214,8 @@ export function JenniferProfilePage(): React.JSX.Element {
   );
 
   const averageDrilldownOptions = useMemo(
-    () => buildMsaAverageDrilldownOptions(signatureProfileRows),
-    [signatureProfileRows],
+    () => buildMsaAverageDrilldownOptions(signatureProfileRows, t),
+    [signatureProfileRows, t],
   );
 
   const selectedAverageMsaDrilldownValue = useMemo(() => {
@@ -2328,8 +2340,8 @@ export function JenniferProfilePage(): React.JSX.Element {
         guids.add(String(singleDrilldownScope.group.guid));
       const label =
         singleDrilldownScope?.isWholeTransaction === false
-          ? `단일 · ${singleDrilldownScope?.selectedApplication ?? ""}`
-          : `단일 · ${selectedGuidGroup?.root_application ?? "트랜잭션"}`;
+          ? `${t("msaCopySingle")} · ${singleDrilldownScope?.selectedApplication ?? ""}`
+          : `${t("msaCopySingle")} · ${selectedGuidGroup?.root_application ?? t("msaCopyTransaction")}`;
       return { txids, guids, label, available: profiles.length > 0 };
     }
     const groupRows =
@@ -2346,8 +2358,8 @@ export function JenniferProfilePage(): React.JSX.Element {
     }
     const label =
       selectedAverageMsaDrilldownValue === "__whole__"
-        ? `평균 · ${selectedSignature?.root_application ?? "시그니처"}`
-        : `평균 · ${selectedAverageMsaDrilldownValue}`;
+        ? `${t("msaBreakdownAverage")} · ${selectedSignature?.root_application ?? t("msaCopySignature")}`
+        : `${t("msaBreakdownAverage")} · ${selectedAverageMsaDrilldownValue}`;
     return { txids, guids, label, available: profiles.length > 0 };
   }, [
     averageDrilldownGroups,
@@ -2358,6 +2370,7 @@ export function JenniferProfilePage(): React.JSX.Element {
     selectedSignature,
     signatureProfileRows,
     singleDrilldownScope,
+    t,
   ]);
 
   const profilesScopeActive = profilesViewScope === "drilldown";
@@ -2391,6 +2404,7 @@ export function JenniferProfilePage(): React.JSX.Element {
     msaTimelineMode,
     selectedSignature,
     singleDrilldownScope,
+    t,
   ]);
 
   const msaTabApiSampleCount =
@@ -2479,7 +2493,7 @@ export function JenniferProfilePage(): React.JSX.Element {
           className="min-w-0 flex-1"
           label={t("dropOrBrowseJennifer")}
           helpText={getHelpText(locale, "pageMsaProfile")}
-          description="Jennifer profile export 파일 또는 같은 트랜잭션 묶음 파일을 선택하세요."
+          description={t("msaCopyInputHint")}
           accept=".txt,.log,.profile"
           selectedFiles={selectedFileDockItems}
           onSelect={handleFileSelected}
@@ -2515,7 +2529,7 @@ export function JenniferProfilePage(): React.JSX.Element {
           }
         />
         <AnalyzerOptionsDock
-          title="Jennifer 분석 옵션"
+          title={t("msaCopyOptions")}
           label={t("analyzerOptions")}
           width={560}
           footer={
@@ -2552,20 +2566,19 @@ export function JenniferProfilePage(): React.JSX.Element {
               fallback correlation = TXID
             </HelpedLabel>
             <span className="text-muted-foreground">
-              (기본: 꺼짐 — GUID 누락 시에만 켜세요)
+              {t("msaCopyFallbackHint")}
             </span>
           </label>
           <div>
             <p className="mb-2 text-xs font-semibold text-foreground/80">
-              MSA 이벤트 분류 패턴 (METHOD/UNKNOWN 라인 추가 분류)
+              {t("msaCopyEventPatterns")}
             </p>
             <p className="mb-2 text-[11px] text-muted-foreground">
-              기본값: NETWORK_PREP_METHOD = "IntegrationUtil.sendToService"는 항상 적용.
-              여기에 추가한 값은 기본값에 더해집니다.
+              {t("msaCopyPatternDefaults")}
             </p>
             <CustomCategoriesEditor
-              segments={MSA_EVENT_SEGMENTS}
-              presets={MSA_EVENT_PRESETS}
+              segments={MSA_EVENT_SEGMENTS.map(segment => ({ ...segment, label: MSA_SEGMENT_MESSAGE_KEYS[segment.id] ? t(MSA_SEGMENT_MESSAGE_KEYS[segment.id]) : segment.label }))}
+              presets={MSA_EVENT_PRESETS.map(preset => ({ ...preset, label: MSA_PRESET_MESSAGE_KEYS[preset.id] ? t(MSA_PRESET_MESSAGE_KEYS[preset.id]) : preset.label }))}
               value={eventCategoryPatterns}
               onChange={setEventCategoryPatterns}
               disabled={analyzing}
@@ -3105,9 +3118,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                   <HelpTip text={getHelpText(locale, "sectionMsaTimelineMode")} />
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  단일 트랜잭션은 GUID 하나의 실제 호출 흐름을, 평균
-                  트랜잭션은 같은 signature로 묶인 여러 GUID의 평균 호출
-                  흐름을 표시합니다.
+                  {t("msaChartModeHint")}
                 </p>
               </CardHeader>
               <CardContent className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
@@ -3148,7 +3159,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                           : guidGroups
                         ).map((group) => (
                           <option key={group?.guid} value={group?.guid ?? ""}>
-                            {guidOptionLabel(group)}
+                            {guidOptionLabel(group, t)}
                           </option>
                         ))}
                       </select>
@@ -3191,7 +3202,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                             key={signature?.signature_hash}
                             value={signature?.signature_hash ?? ""}
                           >
-                            {signatureOptionLabel(signature)}
+                            {signatureOptionLabel(signature, t)}
                           </option>
                         ))}
                       </select>
@@ -3239,8 +3250,8 @@ export function JenniferProfilePage(): React.JSX.Element {
                   <MsaTopology
                     title={
                       singleDrilldownScope.isWholeTransaction
-                        ? "단일 트랜잭션 호출 토폴로지"
-                        : `드릴다운 호출 토폴로지 (${singleDrilldownScope.selectedApplication})`
+                        ? t("msaChartSingleTopology")
+                        : `${t("msaChartDrilldownTopology")} (${singleDrilldownScope.selectedApplication})`
                     }
                     edges={singleDrilldownScope.topologyEdges as any}
                     rootApplication={singleDrilldownScope.selectedApplication}
@@ -3264,11 +3275,11 @@ export function JenniferProfilePage(): React.JSX.Element {
                     title={
                       singleTimelineLayout === "grouped"
                         ? singleDrilldownScope.isWholeTransaction
-                          ? "단일 트랜잭션 타임라인 (서비스 그룹)"
-                          : "드릴다운 타임라인 (서비스 그룹)"
+                          ? t("msaChartSingleServiceTimeline")
+                          : t("msaChartDrillServiceTimeline")
                         : singleDrilldownScope.isWholeTransaction
-                          ? "단일 트랜잭션 타임라인 (개별 호출)"
-                          : "드릴다운 타임라인 (개별 호출)"
+                          ? t("msaChartSingleCallsTimeline")
+                          : t("msaChartDrillCallsTimeline")
                     }
                     edges={singleDrilldownScope.timelineEdges as any}
                     mode={
@@ -3291,8 +3302,8 @@ export function JenniferProfilePage(): React.JSX.Element {
                   <MsaTimelineTreemap
                     title={
                       singleDrilldownScope.isWholeTransaction
-                        ? "단일 트랜잭션 트리맵 (elapsed 합계)"
-                        : "드릴다운 트리맵 (elapsed 합계)"
+                        ? t("msaChartSingleTreemap")
+                        : t("msaChartDrillTreemap")
                     }
                     edges={singleDrilldownScope.timelineEdges as any}
                     rootApplication={singleDrilldownScope.selectedApplication}
@@ -3302,8 +3313,7 @@ export function JenniferProfilePage(): React.JSX.Element {
               ) : (
                 <Card>
                   <CardContent className="p-4 text-xs text-muted-foreground">
-                    분석할 트랜잭션 프로파일이 없습니다. 원본 프로파일의 TXID,
-                    RESPONSE_TIME 또는 본문 이벤트를 확인하세요.
+                  {t("msaChartNoProfiles")}
                   </CardContent>
                 </Card>
               )
@@ -3316,8 +3326,8 @@ export function JenniferProfilePage(): React.JSX.Element {
                 <MsaTopology
                   title={
                     selectedAverageMsaDrilldownValue === "__whole__"
-                      ? "평균 트랜잭션 호출 토폴로지"
-                      : `평균 드릴다운 호출 토폴로지 (${selectedAverageMsaDrilldownValue})`
+                      ? t("msaChartAverageTopology")
+                      : `${t("msaChartAverageDrillTopology")} (${selectedAverageMsaDrilldownValue})`
                   }
                   edges={averageDrilldownTimelineEdges as any}
                   rootApplication={averageDrilldownRootApplication}
@@ -3340,8 +3350,8 @@ export function JenniferProfilePage(): React.JSX.Element {
                 <MsaTimeline
                   title={
                     selectedAverageMsaDrilldownValue === "__whole__"
-                      ? "평균 트랜잭션 타임라인 (서비스 그룹)"
-                      : "평균 드릴다운 타임라인 (서비스 그룹)"
+                      ? t("msaChartAverageServiceTimeline")
+                      : t("msaChartAverageDrillTimeline")
                   }
                   edges={averageDrilldownTimelineEdges as any}
                   mode="by-service"
@@ -3351,8 +3361,8 @@ export function JenniferProfilePage(): React.JSX.Element {
                 <MsaTimelineTreemap
                   title={
                     selectedAverageMsaDrilldownValue === "__whole__"
-                      ? "평균 트랜잭션 트리맵 (avg elapsed 합계)"
-                      : "평균 드릴다운 트리맵 (avg elapsed 합계)"
+                      ? t("msaChartAverageTreemap")
+                      : t("msaChartAverageDrillTreemap")
                   }
                   edges={averageDrilldownTimelineEdges as any}
                   rootApplication={averageDrilldownRootApplication}
@@ -3362,9 +3372,7 @@ export function JenniferProfilePage(): React.JSX.Element {
             ) : (
               <Card>
                 <CardContent className="p-4 text-xs text-muted-foreground">
-                  같은 호출 구조로 묶을 signature 통계가 없습니다. 같은 MSA
-                  트랜잭션 파일 여러 개를 함께 분석하면 평균 모드를 사용할 수
-                  있습니다.
+                  {t("msaChartNoSignatures")}
                 </CardContent>
               </Card>
             )}
@@ -3388,7 +3396,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                         size="sm"
                         variant={profilesViewScope === "all" ? "default" : "outline"}
                         onClick={() => setProfilesViewScope("all")}
-                        title="모든 파일의 프로파일/규칙/네트워크준비/외부호출을 그대로 표시"
+                        title={t("msaCopyWholeScopeHint")}
                       >{t("msaUiWholeResult")}</Button>
                       <Button
                         type="button"
@@ -3400,14 +3408,14 @@ export function JenniferProfilePage(): React.JSX.Element {
                         disabled={!activeMsaScope.available}
                         title={
                           activeMsaScope.available
-                            ? "MSA 탭에서 선택한 단일/평균 드릴다운에 맞춰 좁혀 표시"
-                            : "MSA 탭에서 드릴다운 범위를 먼저 선택하세요"
+                            ? t("msaCopyDrillScopeHint")
+                            : t("msaCopySelectScopeFirst")
                         }
                       >{t("msaUiUseMSADrilldown")}</Button>
                     </div>
                     {profilesScopeActive && (
                       <span className="rounded bg-primary/10 px-2 py-1 text-[11px] text-primary">
-                        {activeMsaScope.label} · TXID {activeMsaScope.txids.size.toLocaleString()}건
+                        {activeMsaScope.label} · TXID {activeMsaScope.txids.size.toLocaleString()}
                       </span>
                     )}
                   </div>
@@ -3468,7 +3476,7 @@ export function JenniferProfilePage(): React.JSX.Element {
             <Card className="mt-3">
               <CardHeader className="pb-3">
                 <CardTitle className="inline-flex items-center gap-2 text-sm">
-                  파일 오류
+                  {t("msaCopyFileErrors")}
                   <HelpTip text={getHelpText(locale, "sectionMsaFileErrors")} />
                 </CardTitle>
               </CardHeader>

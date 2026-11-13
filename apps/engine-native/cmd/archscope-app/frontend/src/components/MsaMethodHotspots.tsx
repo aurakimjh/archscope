@@ -9,6 +9,8 @@
 import { BarChart3, Table2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
+import { useI18n } from "@/i18n/I18nProvider";
+
 import { useHelpText } from "@/help/helpCatalog";
 
 import { HelpTip } from "./HelpTip";
@@ -71,11 +73,11 @@ type MsaMethodHotspotsProps = {
 // child_method/other have no breakdown equivalent; other is kept light
 // gray so it stays distinct from self.
 const CATEGORY = {
-  self: { color: "#94a3b8", label: "미분류 메소드 시간" },
-  child_method: { color: "#6366f1", label: "중첩 메소드" },
-  sql: { color: "#2563eb", label: "SQL" },
-  external: { color: "#14b8a6", label: "외부 호출" },
-  other: { color: "#cbd5e1", label: "기타" },
+  self: { color: "#94a3b8", labelKey: "msaHotspotResidual" },
+  child_method: { color: "#6366f1", labelKey: "msaHotspotChildMethod" },
+  sql: { color: "#2563eb", labelKey: "msaHotspotSql" },
+  external: { color: "#14b8a6", labelKey: "msaHotspotExternal" },
+  other: { color: "#cbd5e1", labelKey: "msaHotspotOther" },
 } as const;
 
 const KEY_DELIMITER = "\u001f";
@@ -186,6 +188,7 @@ function HotspotBreakdownBar({
   divisor: number;
   valueLabel: string;
 }) {
+  const { t } = useI18n();
   const segs: Array<[keyof typeof CATEGORY, number]> = [
     ["self", a.self / divisor],
     ["child_method", a.childMethod / divisor],
@@ -204,7 +207,7 @@ function HotspotBreakdownBar({
               width: `${(v / total) * 100}%`,
               backgroundColor: CATEGORY[k].color,
             }}
-            title={`${CATEGORY[k].label} ${valueLabel} ${formatMs(v)}`}
+            title={`${t(CATEGORY[k].labelKey)} ${valueLabel} ${formatMs(v)}`}
           />
         ) : null,
       )}
@@ -215,12 +218,14 @@ function HotspotBreakdownBar({
 export function MsaMethodHotspots({
   rows,
   txids,
-  title = "메소드 미분류 응답시간",
+  title,
   limit = 10,
   defaultAggregationMode = "sum",
   sampleCount = 1,
   scopeLabel,
 }: MsaMethodHotspotsProps) {
+  const { t } = useI18n();
+  const displayTitle = title ?? t("msaHotspotTitle");
   const [expanded, setExpanded] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("chart");
   const [aggregationMode, setAggregationMode] = useState<AggregationMode>(
@@ -237,7 +242,7 @@ export function MsaMethodHotspots({
   const canToggle = normalizedSampleCount > 1;
   const effectiveMode: AggregationMode = canToggle ? aggregationMode : "sum";
   const divisor = effectiveMode === "avg" ? normalizedSampleCount : 1;
-  const valueLabel = effectiveMode === "avg" ? "평균" : "합계";
+  const valueLabel = t(effectiveMode === "avg" ? "msaBreakdownAverage" : "msaBreakdownSum");
   const shown = expanded ? agg : agg.slice(0, limit);
   const maxSelf = agg.length > 0 ? agg[0].self / divisor : 0;
   const totalSelf = useMemo(
@@ -245,15 +250,15 @@ export function MsaMethodHotspots({
     [agg, divisor],
   );
   const scopeSummary = scopeLabel
-    ? `${scopeLabel} · ${normalizedSampleCount.toLocaleString()}건`
-    : `${normalizedSampleCount.toLocaleString()}건`;
+    ? `${scopeLabel} · ${t("msaHotspotSamples").replace("{count}", normalizedSampleCount.toLocaleString())}`
+    : t("msaHotspotSamples").replace("{count}", normalizedSampleCount.toLocaleString());
 
   return (
     <Card>
       <CardHeader className="pb-2">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <CardTitle className="inline-flex items-center gap-2 text-sm">
-            {title}
+            {displayTitle}
             <HelpTip text={helpText} />
           </CardTitle>
           <div className="flex flex-wrap items-center justify-end gap-2">
@@ -264,18 +269,18 @@ export function MsaMethodHotspots({
                   size="sm"
                   variant={effectiveMode === "sum" ? "default" : "outline"}
                   onClick={() => setAggregationMode("sum")}
-                  title="선택 범위의 모든 메소드 미분류 시간을 합산"
+                  title={t("msaHotspotSumHint")}
                 >
-                  합계
+                  {t("msaBreakdownSum")}
                 </Button>
                 <Button
                   type="button"
                   size="sm"
                   variant={effectiveMode === "avg" ? "default" : "outline"}
                   onClick={() => setAggregationMode("avg")}
-                  title="선택된 트랜잭션 표본 수로 나눈 평균 미분류 시간"
+                  title={t("msaHotspotAverageHint")}
                 >
-                  평균
+                  {t("msaBreakdownAverage")}
                 </Button>
               </div>
             ) : null}
@@ -285,28 +290,28 @@ export function MsaMethodHotspots({
                 size="sm"
                 variant={viewMode === "chart" ? "default" : "outline"}
                 onClick={() => setViewMode("chart")}
-                title="차트 보기"
+                title={t("msaHotspotChart")}
               >
                 <BarChart3 className="h-3.5 w-3.5" />
-                차트
+                {t("msaHotspotChart")}
               </Button>
               <Button
                 type="button"
                 size="sm"
                 variant={viewMode === "table" ? "default" : "outline"}
                 onClick={() => setViewMode("table")}
-                title="표 보기"
+                title={t("msaHotspotTable")}
               >
                 <Table2 className="h-3.5 w-3.5" />
-                표
+                {t("msaHotspotTable")}
               </Button>
             </div>
             <div className="rounded-md border border-border bg-muted/20 px-3 py-2 text-right">
               <div className="text-[10px] font-medium text-muted-foreground">
-                {valueLabel} 기준 · {scopeSummary}
+                {valueLabel} · {scopeSummary}
               </div>
               <div className="font-mono text-xs tabular-nums text-foreground">
-                {agg.length}개 메소드 · 미분류 {valueLabel}{" "}
+                {agg.length} {t("msaHotspotMethods")} · {t("msaHotspotResidual")} {valueLabel}{" "}
                 {formatMs(totalSelf)}
               </div>
             </div>
@@ -316,9 +321,7 @@ export function MsaMethodHotspots({
       <CardContent className="pt-0">
         {agg.length === 0 ? (
           <p className="py-3 text-xs text-muted-foreground">
-            미분류 메소드 시간이 없습니다 (대부분 SQL·외부 호출·Network
-            Prep·사용자 정의 규칙으로 식별되었거나 본문 이벤트에 offset 이
-            없습니다).
+            {t("msaHotspotEmpty")}
           </p>
         ) : (
           <>
@@ -328,29 +331,29 @@ export function MsaMethodHotspots({
                   <thead>
                     <tr className="border-b border-border bg-muted/40 text-[11px] text-muted-foreground">
                       <th className="px-3 py-2 text-right font-medium">#</th>
-                      <th className="px-3 py-2 text-left font-medium">Application</th>
-                      <th className="px-3 py-2 text-left font-medium">Method</th>
-                      <th className="px-3 py-2 text-right font-medium">Calls</th>
+                      <th className="px-3 py-2 text-left font-medium">{t("msaHotspotApplication")}</th>
+                      <th className="px-3 py-2 text-left font-medium">{t("msaHotspotMethod")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaHotspotCalls")}</th>
                       <th className="px-3 py-2 text-right font-medium">
-                        미분류 {valueLabel} ms
+                        {t("msaHotspotResidual")} {valueLabel} ms
                       </th>
                       <th className="px-3 py-2 text-right font-medium">
-                        Total {valueLabel} ms
+                        {t("msaHotspotElapsed")} {valueLabel} ms
                       </th>
                       <th className="px-3 py-2 text-right font-medium">
-                        Child method {valueLabel} ms
+                        {t("msaHotspotChildMethod")} {valueLabel} ms
                       </th>
                       <th className="px-3 py-2 text-right font-medium">
                         SQL {valueLabel} ms
                       </th>
                       <th className="px-3 py-2 text-right font-medium">
-                        External {valueLabel} ms
+                        {t("msaHotspotExternal")} {valueLabel} ms
                       </th>
                       <th className="px-3 py-2 text-right font-medium">
-                        Other {valueLabel} ms
+                        {t("msaHotspotOther")} {valueLabel} ms
                       </th>
-                      <th className="px-3 py-2 text-right font-medium">Max self ms</th>
-                      <th className="px-3 py-2 text-right font-medium">Self %</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaHotspotMaxSelf")}</th>
+                      <th className="px-3 py-2 text-right font-medium">{t("msaHotspotSelfShare")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -423,16 +426,16 @@ export function MsaMethodHotspots({
                         className="inline-block h-2 w-2 rounded-sm"
                         style={{ backgroundColor: c.color }}
                       />
-                      {c.label}
+                      {t(c.labelKey)}
                     </span>
                   ))}
                 </div>
                 <div className="mb-1 hidden items-center gap-2 text-[10px] text-muted-foreground sm:flex">
                   <span className="w-5 shrink-0" />
-                  <span className="min-w-0 flex-1">응답시간 구성</span>
-                  <span className="w-24 shrink-0 text-center">미분류 시간</span>
+                  <span className="min-w-0 flex-1">{t("msaBreakdownTitle")}</span>
+                  <span className="w-24 shrink-0 text-center">{t("msaHotspotResidual")}</span>
                   <span className="w-[8.5rem] shrink-0 text-right">
-                    미분류 {valueLabel} · 비중
+                    {t("msaHotspotResidual")} {valueLabel} · {t("msaChartRatio")}
                   </span>
                 </div>
 
@@ -474,13 +477,13 @@ export function MsaMethodHotspots({
                               className="shrink-0 text-[10px] text-muted-foreground"
                               title={
                                 effectiveMode === "avg"
-                                  ? `총 ${a.calls.toLocaleString()}회 호출`
+                                  ? t("msaHotspotTotalCalls").replace("{count}", a.calls.toLocaleString())
                                   : undefined
                               }
                             >
                               {effectiveMode === "avg"
-                                ? `평균 ${formatCount(averageCalls)}회/트랜잭션`
-                                : `총 ${a.calls.toLocaleString()}회`}
+                                ? t("msaHotspotAverageCalls").replace("{count}", formatCount(averageCalls))
+                                : t("msaHotspotTotalCalls").replace("{count}", a.calls.toLocaleString())}
                             </span>
                           </div>
                           {method.qualifier ? (
@@ -502,7 +505,7 @@ export function MsaMethodHotspots({
                             <div className="hidden w-24 shrink-0 sm:block">
                               <div
                                 className="h-2 w-full overflow-hidden rounded-sm bg-muted"
-                                title={`미분류 ${valueLabel} ${formatMs(displaySelf)}`}
+                                title={`${t("msaHotspotResidual")} ${valueLabel} ${formatMs(displaySelf)}`}
                               >
                                 <div
                                   className="h-full rounded-sm"
@@ -517,28 +520,28 @@ export function MsaMethodHotspots({
                               <span className="flex items-baseline justify-end gap-1.5">
                                 <span
                                   className="font-semibold"
-                                  title={`${valueLabel} 미분류 시간`}
+                                  title={`${valueLabel} ${t("msaHotspotResidual")}`}
                                 >
                                   {formatMs(displaySelf)}
                                 </span>
                                 <span
                                   className="font-semibold text-muted-foreground"
-                                  title="전체 미분류 메소드 합에서의 비율"
+                                  title={t("msaHotspotShareHint")}
                                 >
                                   {shareOfTotal.toFixed(0)}%
                                 </span>
                               </span>
                               {a.calls > 0 ? (
                                 <span className="block text-[10px] text-muted-foreground">
-                                  호출당 {formatMs(perCallSelf)} · max{" "}
+                                  {t("msaHotspotPerCall")} {formatMs(perCallSelf)} · {t("msaHotspotMax")}{" "}
                                   {formatMs(a.maxSelf)}
                                 </span>
                               ) : null}
                               <span
                                 className="block text-[10px] text-muted-foreground"
-                                title="자신의 메소드 내 비율 (미분류 self / total)"
+                                title={t("msaHotspotSelfHint")}
                               >
-                                메소드 내 {selfRatio.toFixed(0)}%
+                                {t("msaHotspotWithinMethod")} {selfRatio.toFixed(0)}%
                               </span>
                             </span>
                           </div>
@@ -556,7 +559,7 @@ export function MsaMethodHotspots({
                 onClick={() => setExpanded((v) => !v)}
                 className="mt-2 text-xs text-primary hover:underline"
               >
-                {expanded ? "접기" : `더 보기 (${agg.length - limit}개)`}
+                {expanded ? t("msaHotspotCollapse") : `${t("msaHotspotShowMore")} (${agg.length - limit})`}
               </button>
             ) : null}
           </>

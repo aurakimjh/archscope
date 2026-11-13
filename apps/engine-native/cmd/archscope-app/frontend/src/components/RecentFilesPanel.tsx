@@ -28,20 +28,21 @@ export type RecentFilesPanelProps = {
   maxVisible?: number;
 };
 
-function formatWhen(iso?: string): string {
+function formatWhen(iso: string | undefined, locale: string): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
   const now = Date.now();
   const diffMs = now - d.getTime();
   const min = Math.round(diffMs / 60_000);
-  if (min < 1) return "방금";
-  if (min < 60) return `${min}분 전`;
+  const relative = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+  if (min < 1) return relative.format(0, "second");
+  if (min < 60) return relative.format(-min, "minute");
   const hr = Math.round(min / 60);
-  if (hr < 24) return `${hr}시간 전`;
+  if (hr < 24) return relative.format(-hr, "hour");
   const day = Math.round(hr / 24);
-  if (day < 30) return `${day}일 전`;
-  return d.toLocaleDateString();
+  if (day < 30) return relative.format(-day, "day");
+  return d.toLocaleDateString(locale);
 }
 
 export function RecentFilesPanel({
@@ -50,11 +51,12 @@ export function RecentFilesPanel({
   onRemove,
   onClear,
   emptyLabel: _emptyLabel,
-  title = "최근 분석",
+  title,
   helpText,
   maxVisible = 6,
 }: RecentFilesPanelProps): React.JSX.Element | null {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
+  const displayTitle = title ?? t("recentFiles");
   const resolvedHelp =
     helpText === null ? null : helpText ?? getHelpText(locale, "recentFiles");
 
@@ -64,11 +66,11 @@ export function RecentFilesPanel({
 
   return (
     <details className="recent-files rounded-md border border-border bg-muted/20 px-2 py-1">
-      <summary className="cursor-pointer text-xs">{title} ({entries.length})</summary>
+      <summary className="cursor-pointer text-xs">{displayTitle} ({entries.length})</summary>
       <div className="mb-2 flex items-center justify-between">
         <span className="inline-flex min-w-0 items-center gap-1.5 text-xs font-semibold text-foreground/80">
           <Clock className="mr-1 inline-block h-3.5 w-3.5 align-text-bottom" />
-          <span className="truncate">{title}</span>
+          <span className="truncate">{displayTitle}</span>
           {resolvedHelp && <HelpTip text={resolvedHelp} />}
         </span>
         {onClear && entries.length > 0 && (
@@ -79,7 +81,7 @@ export function RecentFilesPanel({
             className="h-6 px-2 text-[11px]"
             onClick={onClear}
           >
-            전체 지우기
+            {t("recentFilesClear")}
           </Button>
         )}
       </div>
@@ -101,7 +103,7 @@ export function RecentFilesPanel({
                 </span>
               )}
               <span className="ml-auto whitespace-nowrap text-[10px] text-muted-foreground">
-                {formatWhen(entry.analyzedAt)}
+                {formatWhen(entry.analyzedAt, locale)}
               </span>
             </button>
             {onRemove && (
@@ -109,7 +111,7 @@ export function RecentFilesPanel({
                 type="button"
                 className="text-muted-foreground hover:text-destructive"
                 onClick={() => onRemove(entry.path)}
-                aria-label="Remove from recent"
+                aria-label={t("recentFilesRemove")}
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>

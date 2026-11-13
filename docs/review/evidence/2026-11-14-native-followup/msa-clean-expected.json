@@ -1,0 +1,19 @@
+{
+  "profiles": 4,
+  "guid_groups": 2,
+  "signatures": 1,
+  "matched_edges": 2,
+  "incomplete_profiles": 0,
+  "average": {
+    "sample_count": 2,
+    "root_response_time_ms": 1100,
+    "sql_execute_ms": 200,
+    "network_call_ms": 50,
+    "method_time_ms": 850
+  },
+  "average_method_self_ms": {
+    "com.example.OrderService.handle": 250,
+    "com.example.OrderService.process": 400,
+    "com.example.StockService.handle": 200
+  }
+}

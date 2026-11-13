@@ -1,0 +1,1233 @@
+{
+  "charts": {},
+  "created_at": "2026-11-13T20:30:51.1500849Z",
+  "metadata": {
+    "drilldown": {
+      "candidate_group_count": 2,
+      "cost_semantics": "cumulative_not_critical_path",
+      "excluded_group_count": 0,
+      "omitted_parent_statistics": [
+        "signature_statistics",
+        "file_summary",
+        "custom_rule_stats",
+        "unprofiled_external_call_groups",
+        "parallelism"
+      ],
+      "representative_policy": "slowest_matching_profile_per_guid_input_order_tie",
+      "sample_count": 2,
+      "selection": {
+        "mode": "average",
+        "signature_hash": "8a297710bbc0be735a29c689092cefe43687848fc3d1a634c9ca1e660338c28e"
+      },
+      "version": "1.0.0"
+    },
+    "findings": [],
+    "parser": "jennifer_profile_export",
+    "schema_version": "0.1.0"
+  },
+  "series": {
+    "drilldown_average_breakdown": {
+      "check_query_ms": 0,
+      "connection_acquire_ms": 0,
+      "fetch_ms": 0,
+      "method_time_ms": 850,
+      "network_call_ms": 50,
+      "network_prep_ms": 0,
+      "root_response_time_ms": 1100,
+      "servlet_dispatch_ms": 0,
+      "sql_execute_ms": 200,
+      "two_pc_ms": 0,
+      "unprofiled_external_call_ms": 0
+    },
+    "drilldown_average_timeline_edges": [
+      {
+        "call_count": 2,
+        "callee_application": "/stock",
+        "callee_response_time_ms": 200,
+        "callee_txid": "avg-drill-0-callee",
+        "caller_application": "/orders",
+        "caller_event_start_ms": 0,
+        "caller_txid": "avg-drill-0-caller",
+        "external_call_elapsed_ms": 250,
+        "match_status": "MATCHED",
+        "network_gap_ms": 50,
+        "timeline_kind": "synthetic_average"
+      }
+    ],
+    "drilldown_scopes": [
+      {
+        "group": {
+          "call_graph": [
+            {
+              "callee_application": "/stock",
+              "callee_body_start_ms": 36000720,
+              "callee_response_time_ms": 150,
+              "callee_txid": "100000000000000011",
+              "caller_application": "/orders",
+              "caller_event_start_ms": 36000700,
+              "caller_txid": "100000000000000010",
+              "external_call_elapsed_ms": 200,
+              "guid": "native-synthetic-guid-0001",
+              "match_status": "MATCHED",
+              "network_gap_ms": 50
+            }
+          ],
+          "excluded_from_signature_stats": false,
+          "guid": "native-synthetic-guid-0001",
+          "incomplete_profile_count": 0,
+          "matched_edge_count": 1,
+          "method_hotspots": [
+            {
+              "application": "/orders",
+              "avg_self_ms": 400,
+              "calls": 1,
+              "child_method_ms": 0,
+              "external_ms": 0,
+              "guid": "native-synthetic-guid-0001",
+              "max_self_ms": 400,
+              "method": "public void com.example.OrderService.process()",
+              "other_ms": 0,
+              "self_ratio": 0.6666666666666666,
+              "self_time_ms": 400,
+              "sql_ms": 200,
+              "total_elapsed_ms": 600,
+              "txid": ""
+            },
+            {
+              "application": "/orders",
+              "avg_self_ms": 200,
+              "calls": 1,
+              "child_method_ms": 600,
+              "external_ms": 200,
+              "guid": "native-synthetic-guid-0001",
+              "max_self_ms": 200,
+              "method": "public void com.example.OrderService.handle()",
+              "other_ms": 0,
+              "self_ratio": 0.2,
+              "self_time_ms": 200,
+              "sql_ms": 0,
+              "total_elapsed_ms": 1000,
+              "txid": ""
+            },
+            {
+              "application": "/stock",
+              "avg_self_ms": 150,
+              "calls": 1,
+              "child_method_ms": 0,
+              "external_ms": 0,
+              "guid": "native-synthetic-guid-0001",
+              "max_self_ms": 150,
+              "method": "public void com.example.StockService.handle()",
+              "other_ms": 0,
+              "self_ratio": 1,
+              "self_time_ms": 150,
+              "sql_ms": 0,
+              "total_elapsed_ms": 150,
+              "txid": ""
+            }
+          ],
+          "metrics": {
+            "external_call_parallelism_ratio": 1,
+            "group_execution_mode": "SEQUENTIAL",
+            "matched_external_call_count": 1,
+            "max_external_call_concurrency": 1,
+            "profile_count": 2,
+            "response_time_breakdown": {
+              "check_query_ms": 0,
+              "connection_acquire_ms": 0,
+              "coverage": 0.25,
+              "custom_slices": null,
+              "fetch_ms": 0,
+              "method_time_ms": 750,
+              "method_time_ratio": 0.75,
+              "negative_method_time": false,
+              "network_call_ms": 50,
+              "network_prep_ms": 0,
+              "root_response_time_ms": 1000,
+              "servlet_dispatch_ms": 0,
+              "sql_execute_ms": 200,
+              "two_pc_ms": 0,
+              "unprofiled_external_call_ms": 0
+            },
+            "total_check_query_ms": 0,
+            "total_connection_acquire_ms": 0,
+            "total_external_call_cumulative_ms": 200,
+            "total_external_call_wall_time_ms": 200,
+            "total_fetch_ms": 0,
+            "total_fetch_rows": 0,
+            "total_network_gap_cumulative_ms": 50,
+            "total_sql_execute_ms": 200,
+            "total_two_pc_ms": 0,
+            "total_unprofiled_external_call_ms": 0,
+            "unmatched_external_call_count": 0
+          },
+          "profile_count": 2,
+          "profile_txids": [
+            "100000000000000010",
+            "100000000000000011"
+          ],
+          "root_application": "/orders",
+          "root_body_start_ms": 36000000,
+          "root_response_time_ms": 1000,
+          "root_txid": "100000000000000010",
+          "signature_hash": "8a297710bbc0be735a29c689092cefe43687848fc3d1a634c9ca1e660338c28e",
+          "signature_version": "v1",
+          "unmatched_edge_count": 0,
+          "validation_status": "GROUP_FAILED",
+          "warnings": null
+        },
+        "is_whole_transaction": true,
+        "network_time_by_txid": {
+          "100000000000000010": 50
+        },
+        "profile_rows": [
+          {
+            "application": "/orders",
+            "body_metrics": {
+              "check_query_count": 0,
+              "check_query_cum_ms": 0,
+              "connection_acquire_count": 0,
+              "connection_acquire_cum_ms": 0,
+              "external_call_count": 1,
+              "external_call_cum_ms": 200,
+              "fetch_count": 0,
+              "fetch_cum_ms": 0,
+              "fetch_total_rows": 0,
+              "network_prep_cum_ms": 0,
+              "network_prep_method_count": 0,
+              "network_prep_method_cum_ms": 0,
+              "servlet_dispatch_count": 0,
+              "servlet_dispatch_cum_ms": 0,
+              "sql_execute_count": 1,
+              "sql_execute_cum_ms": 200,
+              "two_pc_count": 0,
+              "two_pc_cum_ms": 0
+            },
+            "errors": [
+              {
+                "code": "MISSING_TOTAL",
+                "message": "Body TOTAL line not found"
+              }
+            ],
+            "guid": "native-synthetic-guid-0001",
+            "header": {
+              "cpu_time_ms": 20,
+              "domain": "NativeAcceptance",
+              "external_call_time_ms": 200,
+              "fetch_time_ms": 0,
+              "http_status_code": 200,
+              "instance": "synthetic",
+              "response_time_ms": 1000,
+              "sql_count": 1,
+              "sql_time_ms": 200
+            },
+            "is_full_profile": false,
+            "is_incomplete": false,
+            "start_time": "2026-11-14 10:00:00 000",
+            "txid": "100000000000000010",
+            "warnings": []
+          },
+          {
+            "application": "/stock",
+            "body_metrics": {
+              "check_query_count": 0,
+              "check_query_cum_ms": 0,
+              "connection_acquire_count": 0,
+              "connection_acquire_cum_ms": 0,
+              "external_call_count": 0,
+              "external_call_cum_ms": 0,
+              "fetch_count": 0,
+              "fetch_cum_ms": 0,
+              "fetch_total_rows": 0,
+              "network_prep_cum_ms": 0,
+              "network_prep_method_count": 0,
+              "network_prep_method_cum_ms": 0,
+              "servlet_dispatch_count": 0,
+              "servlet_dispatch_cum_ms": 0,
+              "sql_execute_count": 0,
+              "sql_execute_cum_ms": 0,
+              "two_pc_count": 0,
+              "two_pc_cum_ms": 0
+            },
+            "errors": [
+              {
+                "code": "MISSING_TOTAL",
+                "message": "Body TOTAL line not found"
+              }
+            ],
+            "guid": "native-synthetic-guid-0001",
+            "header": {
+              "cpu_time_ms": 20,
+              "domain": "NativeAcceptance",
+              "external_call_time_ms": 0,
+              "fetch_time_ms": 0,
+              "http_status_code": 200,
+              "instance": "synthetic",
+              "response_time_ms": 150,
+              "sql_count": 0,
+              "sql_time_ms": 0
+            },
+            "is_full_profile": false,
+            "is_incomplete": false,
+            "start_time": "2026-11-14 10:00:00 720",
+            "txid": "100000000000000011",
+            "warnings": []
+          }
+        ],
+        "selected_application": "/orders",
+        "selected_txid": "",
+        "selected_value": "__whole__",
+        "service_network_edges": [
+          {
+            "callee_application": "/stock",
+            "callee_body_start_ms": 36000720,
+            "callee_response_time_ms": 150,
+            "callee_txid": "100000000000000011",
+            "caller_application": "/orders",
+            "caller_event_start_ms": 36000700,
+            "caller_txid": "100000000000000010",
+            "external_call_elapsed_ms": 200,
+            "guid": "native-synthetic-guid-0001",
+            "match_status": "MATCHED",
+            "network_gap_ms": 50
+          }
+        ],
+        "slow_sql_rows": [
+          {
+            "application": "/orders",
+            "elapsed_ms": 200,
+            "event_no": "0003",
+            "event_start": "10:00:00 200",
+            "event_type": "SQL_EXECUTE_QUERY",
+            "guid": "native-synthetic-guid-0001",
+            "raw_message": "SQL-EXECUTE-QUERY",
+            "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-clean-methods.txt",
+            "sql_text": "SELECT synthetic_value FROM acceptance_rows",
+            "start_offset_ms": 200,
+            "txid": "100000000000000010"
+          }
+        ],
+        "timeline_edges": [
+          {
+            "callee_application": "/stock",
+            "callee_body_start_ms": 36000720,
+            "callee_response_time_ms": 150,
+            "callee_txid": "100000000000000011",
+            "caller_application": "/orders",
+            "caller_event_start_ms": 36000700,
+            "caller_txid": "100000000000000010",
+            "external_call_elapsed_ms": 200,
+            "guid": "native-synthetic-guid-0001",
+            "match_status": "MATCHED",
+            "network_gap_ms": 50
+          }
+        ],
+        "topology_edges": [
+          {
+            "callee_application": "/stock",
+            "callee_body_start_ms": 36000720,
+            "callee_response_time_ms": 150,
+            "callee_txid": "100000000000000011",
+            "caller_application": "/orders",
+            "caller_event_start_ms": 36000700,
+            "caller_txid": "100000000000000010",
+            "external_call_elapsed_ms": 200,
+            "guid": "native-synthetic-guid-0001",
+            "match_status": "MATCHED",
+            "network_gap_ms": 50
+          }
+        ]
+      },
+      {
+        "group": {
+          "call_graph": [
+            {
+              "callee_application": "/stock",
+              "callee_body_start_ms": 36000820,
+              "callee_response_time_ms": 250,
+              "callee_txid": "100000000000000021",
+              "caller_application": "/orders",
+              "caller_event_start_ms": 36000800,
+              "caller_txid": "100000000000000020",
+              "external_call_elapsed_ms": 300,
+              "guid": "native-synthetic-guid-0002",
+              "match_status": "MATCHED",
+              "network_gap_ms": 50
+            }
+          ],
+          "excluded_from_signature_stats": false,
+          "guid": "native-synthetic-guid-0002",
+          "incomplete_profile_count": 0,
+          "matched_edge_count": 1,
+          "method_hotspots": [
+            {
+              "application": "/orders",
+              "avg_self_ms": 400,
+              "calls": 1,
+              "child_method_ms": 0,
+              "external_ms": 0,
+              "guid": "native-synthetic-guid-0002",
+              "max_self_ms": 400,
+              "method": "public void com.example.OrderService.process()",
+              "other_ms": 0,
+              "self_ratio": 0.6666666666666666,
+              "self_time_ms": 400,
+              "sql_ms": 200,
+              "total_elapsed_ms": 600,
+              "txid": ""
+            },
+            {
+              "application": "/orders",
+              "avg_self_ms": 300,
+              "calls": 1,
+              "child_method_ms": 600,
+              "external_ms": 300,
+              "guid": "native-synthetic-guid-0002",
+              "max_self_ms": 300,
+              "method": "public void com.example.OrderService.handle()",
+              "other_ms": 0,
+              "self_ratio": 0.25,
+              "self_time_ms": 300,
+              "sql_ms": 0,
+              "total_elapsed_ms": 1200,
+              "txid": ""
+            },
+            {
+              "application": "/stock",
+              "avg_self_ms": 250,
+              "calls": 1,
+              "child_method_ms": 0,
+              "external_ms": 0,
+              "guid": "native-synthetic-guid-0002",
+              "max_self_ms": 250,
+              "method": "public void com.example.StockService.handle()",
+              "other_ms": 0,
+              "self_ratio": 1,
+              "self_time_ms": 250,
+              "sql_ms": 0,
+              "total_elapsed_ms": 250,
+              "txid": ""
+            }
+          ],
+          "metrics": {
+            "external_call_parallelism_ratio": 1,
+            "group_execution_mode": "SEQUENTIAL",
+            "matched_external_call_count": 1,
+            "max_external_call_concurrency": 1,
+            "profile_count": 2,
+            "response_time_breakdown": {
+              "check_query_ms": 0,
+              "connection_acquire_ms": 0,
+              "coverage": 0.20833333333333334,
+              "custom_slices": null,
+              "fetch_ms": 0,
+              "method_time_ms": 950,
+              "method_time_ratio": 0.7916666666666666,
+              "negative_method_time": false,
+              "network_call_ms": 50,
+              "network_prep_ms": 0,
+              "root_response_time_ms": 1200,
+              "servlet_dispatch_ms": 0,
+              "sql_execute_ms": 200,
+              "two_pc_ms": 0,
+              "unprofiled_external_call_ms": 0
+            },
+            "total_check_query_ms": 0,
+            "total_connection_acquire_ms": 0,
+            "total_external_call_cumulative_ms": 300,
+            "total_external_call_wall_time_ms": 300,
+            "total_fetch_ms": 0,
+            "total_fetch_rows": 0,
+            "total_network_gap_cumulative_ms": 50,
+            "total_sql_execute_ms": 200,
+            "total_two_pc_ms": 0,
+            "total_unprofiled_external_call_ms": 0,
+            "unmatched_external_call_count": 0
+          },
+          "profile_count": 2,
+          "profile_txids": [
+            "100000000000000020",
+            "100000000000000021"
+          ],
+          "root_application": "/orders",
+          "root_body_start_ms": 36000000,
+          "root_response_time_ms": 1200,
+          "root_txid": "100000000000000020",
+          "signature_hash": "8a297710bbc0be735a29c689092cefe43687848fc3d1a634c9ca1e660338c28e",
+          "signature_version": "v1",
+          "unmatched_edge_count": 0,
+          "validation_status": "GROUP_FAILED",
+          "warnings": null
+        },
+        "is_whole_transaction": true,
+        "network_time_by_txid": {
+          "100000000000000020": 50
+        },
+        "profile_rows": [
+          {
+            "application": "/orders",
+            "body_metrics": {
+              "check_query_count": 0,
+              "check_query_cum_ms": 0,
+              "connection_acquire_count": 0,
+              "connection_acquire_cum_ms": 0,
+              "external_call_count": 1,
+              "external_call_cum_ms": 300,
+              "fetch_count": 0,
+              "fetch_cum_ms": 0,
+              "fetch_total_rows": 0,
+              "network_prep_cum_ms": 0,
+              "network_prep_method_count": 0,
+              "network_prep_method_cum_ms": 0,
+              "servlet_dispatch_count": 0,
+              "servlet_dispatch_cum_ms": 0,
+              "sql_execute_count": 1,
+              "sql_execute_cum_ms": 200,
+              "two_pc_count": 0,
+              "two_pc_cum_ms": 0
+            },
+            "errors": [
+              {
+                "code": "MISSING_TOTAL",
+                "message": "Body TOTAL line not found"
+              }
+            ],
+            "guid": "native-synthetic-guid-0002",
+            "header": {
+              "cpu_time_ms": 20,
+              "domain": "NativeAcceptance",
+              "external_call_time_ms": 300,
+              "fetch_time_ms": 0,
+              "http_status_code": 200,
+              "instance": "synthetic",
+              "response_time_ms": 1200,
+              "sql_count": 1,
+              "sql_time_ms": 200
+            },
+            "is_full_profile": false,
+            "is_incomplete": false,
+            "start_time": "2026-11-14 10:00:00 000",
+            "txid": "100000000000000020",
+            "warnings": []
+          },
+          {
+            "application": "/stock",
+            "body_metrics": {
+              "check_query_count": 0,
+              "check_query_cum_ms": 0,
+              "connection_acquire_count": 0,
+              "connection_acquire_cum_ms": 0,
+              "external_call_count": 0,
+              "external_call_cum_ms": 0,
+              "fetch_count": 0,
+              "fetch_cum_ms": 0,
+              "fetch_total_rows": 0,
+              "network_prep_cum_ms": 0,
+              "network_prep_method_count": 0,
+              "network_prep_method_cum_ms": 0,
+              "servlet_dispatch_count": 0,
+              "servlet_dispatch_cum_ms": 0,
+              "sql_execute_count": 0,
+              "sql_execute_cum_ms": 0,
+              "two_pc_count": 0,
+              "two_pc_cum_ms": 0
+            },
+            "errors": [
+              {
+                "code": "MISSING_TOTAL",
+                "message": "Body TOTAL line not found"
+              }
+            ],
+            "guid": "native-synthetic-guid-0002",
+            "header": {
+              "cpu_time_ms": 20,
+              "domain": "NativeAcceptance",
+              "external_call_time_ms": 0,
+              "fetch_time_ms": 0,
+              "http_status_code": 200,
+              "instance": "synthetic",
+              "response_time_ms": 250,
+              "sql_count": 0,
+              "sql_time_ms": 0
+            },
+            "is_full_profile": false,
+            "is_incomplete": false,
+            "start_time": "2026-11-14 10:00:00 820",
+            "txid": "100000000000000021",
+            "warnings": []
+          }
+        ],
+        "selected_application": "/orders",
+        "selected_txid": "",
+        "selected_value": "__whole__",
+        "service_network_edges": [
+          {
+            "callee_application": "/stock",
+            "callee_body_start_ms": 36000820,
+            "callee_response_time_ms": 250,
+            "callee_txid": "100000000000000021",
+            "caller_application": "/orders",
+            "caller_event_start_ms": 36000800,
+            "caller_txid": "100000000000000020",
+            "external_call_elapsed_ms": 300,
+            "guid": "native-synthetic-guid-0002",
+            "match_status": "MATCHED",
+            "network_gap_ms": 50
+          }
+        ],
+        "slow_sql_rows": [
+          {
+            "application": "/orders",
+            "elapsed_ms": 200,
+            "event_no": "0003",
+            "event_start": "10:00:00 200",
+            "event_type": "SQL_EXECUTE_QUERY",
+            "guid": "native-synthetic-guid-0002",
+            "raw_message": "SQL-EXECUTE-QUERY",
+            "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-clean-methods.txt",
+            "sql_text": "SELECT synthetic_value FROM acceptance_rows",
+            "start_offset_ms": 200,
+            "txid": "100000000000000020"
+          }
+        ],
+        "timeline_edges": [
+          {
+            "callee_application": "/stock",
+            "callee_body_start_ms": 36000820,
+            "callee_response_time_ms": 250,
+            "callee_txid": "100000000000000021",
+            "caller_application": "/orders",
+            "caller_event_start_ms": 36000800,
+            "caller_txid": "100000000000000020",
+            "external_call_elapsed_ms": 300,
+            "guid": "native-synthetic-guid-0002",
+            "match_status": "MATCHED",
+            "network_gap_ms": 50
+          }
+        ],
+        "topology_edges": [
+          {
+            "callee_application": "/stock",
+            "callee_body_start_ms": 36000820,
+            "callee_response_time_ms": 250,
+            "callee_txid": "100000000000000021",
+            "caller_application": "/orders",
+            "caller_event_start_ms": 36000800,
+            "caller_txid": "100000000000000020",
+            "external_call_elapsed_ms": 300,
+            "guid": "native-synthetic-guid-0002",
+            "match_status": "MATCHED",
+            "network_gap_ms": 50
+          }
+        ]
+      }
+    ],
+    "guid_groups": [
+      {
+        "call_graph": [
+          {
+            "callee_application": "/stock",
+            "callee_body_start_ms": 36000720,
+            "callee_response_time_ms": 150,
+            "callee_txid": "100000000000000011",
+            "caller_application": "/orders",
+            "caller_event_start_ms": 36000700,
+            "caller_txid": "100000000000000010",
+            "external_call_elapsed_ms": 200,
+            "guid": "native-synthetic-guid-0001",
+            "match_status": "MATCHED",
+            "network_gap_ms": 50
+          }
+        ],
+        "excluded_from_signature_stats": false,
+        "guid": "native-synthetic-guid-0001",
+        "incomplete_profile_count": 0,
+        "matched_edge_count": 1,
+        "method_hotspots": [
+          {
+            "application": "/orders",
+            "avg_self_ms": 400,
+            "calls": 1,
+            "child_method_ms": 0,
+            "external_ms": 0,
+            "guid": "native-synthetic-guid-0001",
+            "max_self_ms": 400,
+            "method": "public void com.example.OrderService.process()",
+            "other_ms": 0,
+            "self_ratio": 0.6666666666666666,
+            "self_time_ms": 400,
+            "sql_ms": 200,
+            "total_elapsed_ms": 600,
+            "txid": ""
+          },
+          {
+            "application": "/orders",
+            "avg_self_ms": 200,
+            "calls": 1,
+            "child_method_ms": 600,
+            "external_ms": 200,
+            "guid": "native-synthetic-guid-0001",
+            "max_self_ms": 200,
+            "method": "public void com.example.OrderService.handle()",
+            "other_ms": 0,
+            "self_ratio": 0.2,
+            "self_time_ms": 200,
+            "sql_ms": 0,
+            "total_elapsed_ms": 1000,
+            "txid": ""
+          },
+          {
+            "application": "/stock",
+            "avg_self_ms": 150,
+            "calls": 1,
+            "child_method_ms": 0,
+            "external_ms": 0,
+            "guid": "native-synthetic-guid-0001",
+            "max_self_ms": 150,
+            "method": "public void com.example.StockService.handle()",
+            "other_ms": 0,
+            "self_ratio": 1,
+            "self_time_ms": 150,
+            "sql_ms": 0,
+            "total_elapsed_ms": 150,
+            "txid": ""
+          }
+        ],
+        "metrics": {
+          "external_call_parallelism_ratio": 1,
+          "group_execution_mode": "SEQUENTIAL",
+          "matched_external_call_count": 1,
+          "max_external_call_concurrency": 1,
+          "profile_count": 2,
+          "response_time_breakdown": {
+            "check_query_ms": 0,
+            "connection_acquire_ms": 0,
+            "coverage": 0.25,
+            "custom_slices": null,
+            "fetch_ms": 0,
+            "method_time_ms": 750,
+            "method_time_ratio": 0.75,
+            "negative_method_time": false,
+            "network_call_ms": 50,
+            "network_prep_ms": 0,
+            "root_response_time_ms": 1000,
+            "servlet_dispatch_ms": 0,
+            "sql_execute_ms": 200,
+            "two_pc_ms": 0,
+            "unprofiled_external_call_ms": 0
+          },
+          "total_check_query_ms": 0,
+          "total_connection_acquire_ms": 0,
+          "total_external_call_cumulative_ms": 200,
+          "total_external_call_wall_time_ms": 200,
+          "total_fetch_ms": 0,
+          "total_fetch_rows": 0,
+          "total_network_gap_cumulative_ms": 50,
+          "total_sql_execute_ms": 200,
+          "total_two_pc_ms": 0,
+          "total_unprofiled_external_call_ms": 0,
+          "unmatched_external_call_count": 0
+        },
+        "profile_count": 2,
+        "profile_txids": [
+          "100000000000000010",
+          "100000000000000011"
+        ],
+        "root_application": "/orders",
+        "root_body_start_ms": 36000000,
+        "root_response_time_ms": 1000,
+        "root_txid": "100000000000000010",
+        "signature_hash": "8a297710bbc0be735a29c689092cefe43687848fc3d1a634c9ca1e660338c28e",
+        "signature_version": "v1",
+        "unmatched_edge_count": 0,
+        "validation_status": "GROUP_FAILED",
+        "warnings": null
+      },
+      {
+        "call_graph": [
+          {
+            "callee_application": "/stock",
+            "callee_body_start_ms": 36000820,
+            "callee_response_time_ms": 250,
+            "callee_txid": "100000000000000021",
+            "caller_application": "/orders",
+            "caller_event_start_ms": 36000800,
+            "caller_txid": "100000000000000020",
+            "external_call_elapsed_ms": 300,
+            "guid": "native-synthetic-guid-0002",
+            "match_status": "MATCHED",
+            "network_gap_ms": 50
+          }
+        ],
+        "excluded_from_signature_stats": false,
+        "guid": "native-synthetic-guid-0002",
+        "incomplete_profile_count": 0,
+        "matched_edge_count": 1,
+        "method_hotspots": [
+          {
+            "application": "/orders",
+            "avg_self_ms": 400,
+            "calls": 1,
+            "child_method_ms": 0,
+            "external_ms": 0,
+            "guid": "native-synthetic-guid-0002",
+            "max_self_ms": 400,
+            "method": "public void com.example.OrderService.process()",
+            "other_ms": 0,
+            "self_ratio": 0.6666666666666666,
+            "self_time_ms": 400,
+            "sql_ms": 200,
+            "total_elapsed_ms": 600,
+            "txid": ""
+          },
+          {
+            "application": "/orders",
+            "avg_self_ms": 300,
+            "calls": 1,
+            "child_method_ms": 600,
+            "external_ms": 300,
+            "guid": "native-synthetic-guid-0002",
+            "max_self_ms": 300,
+            "method": "public void com.example.OrderService.handle()",
+            "other_ms": 0,
+            "self_ratio": 0.25,
+            "self_time_ms": 300,
+            "sql_ms": 0,
+            "total_elapsed_ms": 1200,
+            "txid": ""
+          },
+          {
+            "application": "/stock",
+            "avg_self_ms": 250,
+            "calls": 1,
+            "child_method_ms": 0,
+            "external_ms": 0,
+            "guid": "native-synthetic-guid-0002",
+            "max_self_ms": 250,
+            "method": "public void com.example.StockService.handle()",
+            "other_ms": 0,
+            "self_ratio": 1,
+            "self_time_ms": 250,
+            "sql_ms": 0,
+            "total_elapsed_ms": 250,
+            "txid": ""
+          }
+        ],
+        "metrics": {
+          "external_call_parallelism_ratio": 1,
+          "group_execution_mode": "SEQUENTIAL",
+          "matched_external_call_count": 1,
+          "max_external_call_concurrency": 1,
+          "profile_count": 2,
+          "response_time_breakdown": {
+            "check_query_ms": 0,
+            "connection_acquire_ms": 0,
+            "coverage": 0.20833333333333334,
+            "custom_slices": null,
+            "fetch_ms": 0,
+            "method_time_ms": 950,
+            "method_time_ratio": 0.7916666666666666,
+            "negative_method_time": false,
+            "network_call_ms": 50,
+            "network_prep_ms": 0,
+            "root_response_time_ms": 1200,
+            "servlet_dispatch_ms": 0,
+            "sql_execute_ms": 200,
+            "two_pc_ms": 0,
+            "unprofiled_external_call_ms": 0
+          },
+          "total_check_query_ms": 0,
+          "total_connection_acquire_ms": 0,
+          "total_external_call_cumulative_ms": 300,
+          "total_external_call_wall_time_ms": 300,
+          "total_fetch_ms": 0,
+          "total_fetch_rows": 0,
+          "total_network_gap_cumulative_ms": 50,
+          "total_sql_execute_ms": 200,
+          "total_two_pc_ms": 0,
+          "total_unprofiled_external_call_ms": 0,
+          "unmatched_external_call_count": 0
+        },
+        "profile_count": 2,
+        "profile_txids": [
+          "100000000000000020",
+          "100000000000000021"
+        ],
+        "root_application": "/orders",
+        "root_body_start_ms": 36000000,
+        "root_response_time_ms": 1200,
+        "root_txid": "100000000000000020",
+        "signature_hash": "8a297710bbc0be735a29c689092cefe43687848fc3d1a634c9ca1e660338c28e",
+        "signature_version": "v1",
+        "unmatched_edge_count": 0,
+        "validation_status": "GROUP_FAILED",
+        "warnings": null
+      }
+    ]
+  },
+  "source_files": [
+    "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-clean-methods.txt"
+  ],
+  "summary": {
+    "avg_response_time_ms": 1100,
+    "candidate_group_count": 2,
+    "excluded_group_count": 0,
+    "full_profile_count": 0,
+    "guid_group_count": 2,
+    "incomplete_profile_count": 0,
+    "sample_count": 2,
+    "total_errors": 4,
+    "total_profiles": 4,
+    "total_warnings": 0
+  },
+  "tables": {
+    "method_hotspots": [
+      {
+        "application": "/orders",
+        "avg_self_ms": 400,
+        "calls": 1,
+        "child_method_ms": 0,
+        "external_ms": 0,
+        "guid": "native-synthetic-guid-0001",
+        "max_self_ms": 400,
+        "method": "public void com.example.OrderService.process()",
+        "other_ms": 0,
+        "self_ratio": 0.6666666666666666,
+        "self_time_ms": 400,
+        "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-clean-methods.txt",
+        "sql_ms": 200,
+        "total_elapsed_ms": 600,
+        "txid": "100000000000000010"
+      },
+      {
+        "application": "/orders",
+        "avg_self_ms": 200,
+        "calls": 1,
+        "child_method_ms": 600,
+        "external_ms": 200,
+        "guid": "native-synthetic-guid-0001",
+        "max_self_ms": 200,
+        "method": "public void com.example.OrderService.handle()",
+        "other_ms": 0,
+        "self_ratio": 0.2,
+        "self_time_ms": 200,
+        "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-clean-methods.txt",
+        "sql_ms": 0,
+        "total_elapsed_ms": 1000,
+        "txid": "100000000000000010"
+      },
+      {
+        "application": "/stock",
+        "avg_self_ms": 150,
+        "calls": 1,
+        "child_method_ms": 0,
+        "external_ms": 0,
+        "guid": "native-synthetic-guid-0001",
+        "max_self_ms": 150,
+        "method": "public void com.example.StockService.handle()",
+        "other_ms": 0,
+        "self_ratio": 1,
+        "self_time_ms": 150,
+        "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-clean-methods.txt",
+        "sql_ms": 0,
+        "total_elapsed_ms": 150,
+        "txid": "100000000000000011"
+      },
+      {
+        "application": "/orders",
+        "avg_self_ms": 400,
+        "calls": 1,
+        "child_method_ms": 0,
+        "external_ms": 0,
+        "guid": "native-synthetic-guid-0002",
+        "max_self_ms": 400,
+        "method": "public void com.example.OrderService.process()",
+        "other_ms": 0,
+        "self_ratio": 0.6666666666666666,
+        "self_time_ms": 400,
+        "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-clean-methods.txt",
+        "sql_ms": 200,
+        "total_elapsed_ms": 600,
+        "txid": "100000000000000020"
+      },
+      {
+        "application": "/orders",
+        "avg_self_ms": 300,
+        "calls": 1,
+        "child_method_ms": 600,
+        "external_ms": 300,
+        "guid": "native-synthetic-guid-0002",
+        "max_self_ms": 300,
+        "method": "public void com.example.OrderService.handle()",
+        "other_ms": 0,
+        "self_ratio": 0.25,
+        "self_time_ms": 300,
+        "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-clean-methods.txt",
+        "sql_ms": 0,
+        "total_elapsed_ms": 1200,
+        "txid": "100000000000000020"
+      },
+      {
+        "application": "/stock",
+        "avg_self_ms": 250,
+        "calls": 1,
+        "child_method_ms": 0,
+        "external_ms": 0,
+        "guid": "native-synthetic-guid-0002",
+        "max_self_ms": 250,
+        "method": "public void com.example.StockService.handle()",
+        "other_ms": 0,
+        "self_ratio": 1,
+        "self_time_ms": 250,
+        "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-clean-methods.txt",
+        "sql_ms": 0,
+        "total_elapsed_ms": 250,
+        "txid": "100000000000000021"
+      }
+    ],
+    "msa_edges": [
+      {
+        "callee_application": "/stock",
+        "callee_body_start_ms": 36000720,
+        "callee_response_time_ms": 150,
+        "callee_txid": "100000000000000011",
+        "caller_application": "/orders",
+        "caller_event_start_ms": 36000700,
+        "caller_txid": "100000000000000010",
+        "external_call_elapsed_ms": 200,
+        "guid": "native-synthetic-guid-0001",
+        "match_status": "MATCHED",
+        "network_gap_ms": 50
+      },
+      {
+        "callee_application": "/stock",
+        "callee_body_start_ms": 36000820,
+        "callee_response_time_ms": 250,
+        "callee_txid": "100000000000000021",
+        "caller_application": "/orders",
+        "caller_event_start_ms": 36000800,
+        "caller_txid": "100000000000000020",
+        "external_call_elapsed_ms": 300,
+        "guid": "native-synthetic-guid-0002",
+        "match_status": "MATCHED",
+        "network_gap_ms": 50
+      }
+    ],
+    "network_prep_methods": [],
+    "profiles": [
+      {
+        "application": "/orders",
+        "body_metrics": {
+          "check_query_count": 0,
+          "check_query_cum_ms": 0,
+          "connection_acquire_count": 0,
+          "connection_acquire_cum_ms": 0,
+          "external_call_count": 1,
+          "external_call_cum_ms": 200,
+          "fetch_count": 0,
+          "fetch_cum_ms": 0,
+          "fetch_total_rows": 0,
+          "network_prep_cum_ms": 0,
+          "network_prep_method_count": 0,
+          "network_prep_method_cum_ms": 0,
+          "servlet_dispatch_count": 0,
+          "servlet_dispatch_cum_ms": 0,
+          "sql_execute_count": 1,
+          "sql_execute_cum_ms": 200,
+          "two_pc_count": 0,
+          "two_pc_cum_ms": 0
+        },
+        "errors": [
+          {
+            "code": "MISSING_TOTAL",
+            "message": "Body TOTAL line not found"
+          }
+        ],
+        "guid": "native-synthetic-guid-0001",
+        "header": {
+          "cpu_time_ms": 20,
+          "domain": "NativeAcceptance",
+          "external_call_time_ms": 200,
+          "fetch_time_ms": 0,
+          "http_status_code": 200,
+          "instance": "synthetic",
+          "response_time_ms": 1000,
+          "sql_count": 1,
+          "sql_time_ms": 200
+        },
+        "is_full_profile": false,
+        "is_incomplete": false,
+        "start_time": "2026-11-14 10:00:00 000",
+        "txid": "100000000000000010",
+        "warnings": []
+      },
+      {
+        "application": "/stock",
+        "body_metrics": {
+          "check_query_count": 0,
+          "check_query_cum_ms": 0,
+          "connection_acquire_count": 0,
+          "connection_acquire_cum_ms": 0,
+          "external_call_count": 0,
+          "external_call_cum_ms": 0,
+          "fetch_count": 0,
+          "fetch_cum_ms": 0,
+          "fetch_total_rows": 0,
+          "network_prep_cum_ms": 0,
+          "network_prep_method_count": 0,
+          "network_prep_method_cum_ms": 0,
+          "servlet_dispatch_count": 0,
+          "servlet_dispatch_cum_ms": 0,
+          "sql_execute_count": 0,
+          "sql_execute_cum_ms": 0,
+          "two_pc_count": 0,
+          "two_pc_cum_ms": 0
+        },
+        "errors": [
+          {
+            "code": "MISSING_TOTAL",
+            "message": "Body TOTAL line not found"
+          }
+        ],
+        "guid": "native-synthetic-guid-0001",
+        "header": {
+          "cpu_time_ms": 20,
+          "domain": "NativeAcceptance",
+          "external_call_time_ms": 0,
+          "fetch_time_ms": 0,
+          "http_status_code": 200,
+          "instance": "synthetic",
+          "response_time_ms": 150,
+          "sql_count": 0,
+          "sql_time_ms": 0
+        },
+        "is_full_profile": false,
+        "is_incomplete": false,
+        "start_time": "2026-11-14 10:00:00 720",
+        "txid": "100000000000000011",
+        "warnings": []
+      },
+      {
+        "application": "/orders",
+        "body_metrics": {
+          "check_query_count": 0,
+          "check_query_cum_ms": 0,
+          "connection_acquire_count": 0,
+          "connection_acquire_cum_ms": 0,
+          "external_call_count": 1,
+          "external_call_cum_ms": 300,
+          "fetch_count": 0,
+          "fetch_cum_ms": 0,
+          "fetch_total_rows": 0,
+          "network_prep_cum_ms": 0,
+          "network_prep_method_count": 0,
+          "network_prep_method_cum_ms": 0,
+          "servlet_dispatch_count": 0,
+          "servlet_dispatch_cum_ms": 0,
+          "sql_execute_count": 1,
+          "sql_execute_cum_ms": 200,
+          "two_pc_count": 0,
+          "two_pc_cum_ms": 0
+        },
+        "errors": [
+          {
+            "code": "MISSING_TOTAL",
+            "message": "Body TOTAL line not found"
+          }
+        ],
+        "guid": "native-synthetic-guid-0002",
+        "header": {
+          "cpu_time_ms": 20,
+          "domain": "NativeAcceptance",
+          "external_call_time_ms": 300,
+          "fetch_time_ms": 0,
+          "http_status_code": 200,
+          "instance": "synthetic",
+          "response_time_ms": 1200,
+          "sql_count": 1,
+          "sql_time_ms": 200
+        },
+        "is_full_profile": false,
+        "is_incomplete": false,
+        "start_time": "2026-11-14 10:00:00 000",
+        "txid": "100000000000000020",
+        "warnings": []
+      },
+      {
+        "application": "/stock",
+        "body_metrics": {
+          "check_query_count": 0,
+          "check_query_cum_ms": 0,
+          "connection_acquire_count": 0,
+          "connection_acquire_cum_ms": 0,
+          "external_call_count": 0,
+          "external_call_cum_ms": 0,
+          "fetch_count": 0,
+          "fetch_cum_ms": 0,
+          "fetch_total_rows": 0,
+          "network_prep_cum_ms": 0,
+          "network_prep_method_count": 0,
+          "network_prep_method_cum_ms": 0,
+          "servlet_dispatch_count": 0,
+          "servlet_dispatch_cum_ms": 0,
+          "sql_execute_count": 0,
+          "sql_execute_cum_ms": 0,
+          "two_pc_count": 0,
+          "two_pc_cum_ms": 0
+        },
+        "errors": [
+          {
+            "code": "MISSING_TOTAL",
+            "message": "Body TOTAL line not found"
+          }
+        ],
+        "guid": "native-synthetic-guid-0002",
+        "header": {
+          "cpu_time_ms": 20,
+          "domain": "NativeAcceptance",
+          "external_call_time_ms": 0,
+          "fetch_time_ms": 0,
+          "http_status_code": 200,
+          "instance": "synthetic",
+          "response_time_ms": 250,
+          "sql_count": 0,
+          "sql_time_ms": 0
+        },
+        "is_full_profile": false,
+        "is_incomplete": false,
+        "start_time": "2026-11-14 10:00:00 820",
+        "txid": "100000000000000021",
+        "warnings": []
+      }
+    ],
+    "slow_sql_events": [
+      {
+        "application": "/orders",
+        "elapsed_ms": 200,
+        "event_no": "0003",
+        "event_start": "10:00:00 200",
+        "event_type": "SQL_EXECUTE_QUERY",
+        "guid": "native-synthetic-guid-0001",
+        "raw_message": "SQL-EXECUTE-QUERY",
+        "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-clean-methods.txt",
+        "sql_text": "SELECT synthetic_value FROM acceptance_rows",
+        "start_offset_ms": 200,
+        "txid": "100000000000000010"
+      },
+      {
+        "application": "/orders",
+        "elapsed_ms": 200,
+        "event_no": "0003",
+        "event_start": "10:00:00 200",
+        "event_type": "SQL_EXECUTE_QUERY",
+        "guid": "native-synthetic-guid-0002",
+        "raw_message": "SQL-EXECUTE-QUERY",
+        "source_file": "C:\\workspace\\archscope\\.tmp\\native-followup-20261114\\msa-clean-methods.txt",
+        "sql_text": "SELECT synthetic_value FROM acceptance_rows",
+        "start_offset_ms": 200,
+        "txid": "100000000000000020"
+      }
+    ]
+  },
+  "type": "jennifer_profile"
+}

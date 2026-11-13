@@ -70,15 +70,16 @@ const LATENCY_GROUPS: LatencyGroup[] = [
 ];
 
 export function MsaTopology({
-  title = "MSA 호출 토폴로지",
+  title,
   edges,
   rootApplication,
   height = 420,
 }: MsaTopologyProps): React.JSX.Element {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
+  const displayTitle = title ?? t("msaChartTopology");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<ECharts | null>(null);
-  const helpText = getGenericChartHelpText(locale, title);
+  const helpText = getGenericChartHelpText(locale, displayTitle);
 
   const { option, latencyGroups } = useMemo<{
     option: EChartsOption;
@@ -259,8 +260,8 @@ export function MsaTopology({
           show: a.count > 0,
           formatter:
             a.count === 1
-              ? `net ${formatMs(a.avgNetworkGap)}`
-              : `net ${formatMs(a.avgNetworkGap)} ×${a.count}`,
+              ? `${t("msaChartGapShort")} ${formatMs(a.avgNetworkGap)}`
+              : `${t("msaChartGapShort")} ${formatMs(a.avgNetworkGap)} ×${a.count}`,
           fontSize: 10,
         },
         lineStyle: {
@@ -286,11 +287,11 @@ export function MsaTopology({
             if (p.dataType === "edge") {
               return [
                 `${p.data.source} → ${p.data.target}`,
-                `network avg=${formatMs(Number(p.data.avgNetworkGap ?? 0))}`,
-                `network max=${formatMs(Number(p.data.maxNetworkGap ?? 0))}`,
-                `elapsed avg=${formatMs(Number(p.data.avgElapsed ?? 0))}`,
-                `callee avg=${formatMs(Number(p.data.avgCalleeResponse ?? 0))}`,
-                `group=${p.data.groupLabel ?? "—"}`,
+                `${t("msaChartGapAverage")}=${formatMs(Number(p.data.avgNetworkGap ?? 0))}`,
+                `${t("msaChartGapMax")}=${formatMs(Number(p.data.maxNetworkGap ?? 0))}`,
+                `${t("msaChartElapsedAverage")}=${formatMs(Number(p.data.avgElapsed ?? 0))}`,
+                `${t("msaChartCalleeAverage")}=${formatMs(Number(p.data.avgCalleeResponse ?? 0))}`,
+                `${t("msaChartGroup")}=${p.data.groupLabel ?? "—"}`,
               ].join("<br/>");
             }
             return p.data.name;
@@ -315,7 +316,7 @@ export function MsaTopology({
         ],
       },
     };
-  }, [edges, rootApplication]);
+  }, [edges, rootApplication, t]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -344,7 +345,7 @@ export function MsaTopology({
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="inline-flex items-center gap-2 text-sm">
-          {title}
+          {displayTitle}
           <HelpTip text={helpText} />
         </CardTitle>
       </CardHeader>
@@ -365,8 +366,7 @@ export function MsaTopology({
         )}
         {edges.length === 0 && (
           <p className="mt-2 text-xs text-muted-foreground">
-            매칭된 외부 호출이 없습니다 — 캡처된 EXTERNAL_CALL이 없거나 매칭 점수
-            (containment + 시간 일치)가 모두 임계 미만입니다.
+            {t("msaChartTopologyEmpty")}
           </p>
         )}
       </CardContent>

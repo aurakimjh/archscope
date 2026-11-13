@@ -16,7 +16,7 @@
 import { echarts, type ECharts, type EChartsOption } from "@/charts/echartsCore";
 import { HelpTip } from "@/components/HelpTip";
 import { getGenericChartHelpText } from "@/help/helpCatalog";
-import { useI18n } from "@/i18n/I18nProvider";
+import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { useEffect, useMemo, useRef } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -68,7 +68,7 @@ export type MsaTimelineProps = {
 };
 
 export function MsaTimeline({
-  title = "MSA 타임라인",
+  title,
   edges,
   mode = "overall",
   rootApplication,
@@ -79,7 +79,8 @@ export function MsaTimeline({
   height,
   maxBars = DEFAULT_MAX_BARS,
 }: MsaTimelineProps): React.JSX.Element {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
+  const displayTitle = title ?? t("msaChartTimeline");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<ECharts | null>(null);
 
@@ -135,16 +136,16 @@ export function MsaTimeline({
     };
     const pushRootSpan = () => {
       if (!hasRootSpan) return;
-      const row = rootApplication ? `최초 서비스 · ${rootApplication}` : "최초 서비스";
+      const row = rootApplication ? `${t("msaChartRootService")} · ${rootApplication}` : t("msaChartRootService");
       const rowIndex = pushRow(row);
       bars.push({
         row,
         rowIndex,
         start: 0,
         end: rootDuration,
-        label: `${rootApplication || "Root"} · ${Math.round(rootDuration).toLocaleString()} ms`,
+        label: `${rootApplication || t("msaChartRootService")} · ${Math.round(rootDuration).toLocaleString()} ms`,
         color: "#dbeafe",
-        tooltip: `${row}<br/>root response = ${Math.round(rootDuration).toLocaleString()} ms`,
+        tooltip: `${row}<br/>${t("msaChartRootResponse")} = ${Math.round(rootDuration).toLocaleString()} ms`,
         kind: "root",
       });
     };
@@ -169,7 +170,7 @@ export function MsaTimeline({
           end: start + elapsed,
           label: `${e.caller_application || "?"} → ${e.callee_application || "?"} ${elapsed} ms`,
           color: edgeColor(e),
-          tooltip: tooltipFor(e, start, elapsed),
+          tooltip: tooltipFor(e, start, elapsed, t),
           kind: "call",
         });
       });
@@ -221,7 +222,7 @@ export function MsaTimeline({
               end: cursor + elapsed,
               label: `${e.callee_application ?? "?"} ${elapsed} ms`,
               color: edgeColor(e),
-              tooltip: tooltipFor(e, cursor, elapsed),
+              tooltip: tooltipFor(e, cursor, elapsed, t),
               kind: "call",
             });
             cursor += elapsed + 4;
@@ -237,7 +238,7 @@ export function MsaTimeline({
               end: start + elapsed,
               label: `→ ${e.callee_application ?? "?"} ${elapsed} ms`,
               color: edgeColor(e),
-              tooltip: tooltipFor(e, start, elapsed),
+              tooltip: tooltipFor(e, start, elapsed, t),
               kind: "call",
             });
           }
@@ -351,7 +352,7 @@ export function MsaTimeline({
       visibleCount: cappedItems.length,
       totalCount: items.length,
     };
-  }, [edges, maxBars, mode, rootApplication, rootDurationMs, rootStartMs, useResponseTimeOrder]);
+  }, [edges, maxBars, mode, rootApplication, rootDurationMs, rootStartMs, useResponseTimeOrder, t]);
 
   const maxHeight =
     mode === "overall" ? MAX_INDIVIDUAL_TIMELINE_HEIGHT : MAX_TIMELINE_HEIGHT;
@@ -387,8 +388,8 @@ export function MsaTimeline({
     <Card>
       <CardHeader className="flex flex-col gap-2 pb-3 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle className="inline-flex items-center gap-2 text-sm">
-          {title}
-          <HelpTip text={getGenericChartHelpText(locale, title)} />
+          {displayTitle}
+          <HelpTip text={getGenericChartHelpText(locale, displayTitle)} />
         </CardTitle>
         {layoutToggle && (
           <div className="flex items-center gap-1 rounded-md border border-border bg-muted/20 p-1">
@@ -398,7 +399,7 @@ export function MsaTimeline({
               variant={layoutToggle.value === "individual" ? "default" : "outline"}
               onClick={() => layoutToggle.onChange("individual")}
             >
-              개별
+              {t("msaChartIndividual")}
             </Button>
             <Button
               type="button"
@@ -406,7 +407,7 @@ export function MsaTimeline({
               variant={layoutToggle.value === "grouped" ? "default" : "outline"}
               onClick={() => layoutToggle.onChange("grouped")}
             >
-              그룹
+              {t("msaChartGrouped")}
             </Button>
           </div>
         )}
@@ -414,13 +415,13 @@ export function MsaTimeline({
       <CardContent>
         {rowCount === 0 ? (
           <p className="text-xs text-muted-foreground">
-            타임라인에 표시할 외부 호출이 없습니다.
+            {t("msaChartTimelineEmpty")}
           </p>
         ) : (
           <>
             {visibleCount < totalCount && (
               <p className="mb-2 text-xs text-muted-foreground">
-                호출 {visibleCount.toLocaleString()} / {totalCount.toLocaleString()} 표시
+                {t("msaChartCallsShown")} {visibleCount.toLocaleString()} / {totalCount.toLocaleString()}
               </p>
             )}
             <div ref={containerRef} style={{ width: "100%", height: finalHeight }} />
@@ -432,7 +433,7 @@ export function MsaTimeline({
 }
 
 export function MsaTimelineTreemap({
-  title = "MSA 트리맵",
+  title,
   edges,
   rootApplication,
   height = 360,
@@ -441,11 +442,12 @@ export function MsaTimelineTreemap({
   MsaTimelineProps,
   "title" | "edges" | "rootApplication" | "height" | "maxBars"
 >): React.JSX.Element {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
+  const displayTitle = title ?? t("msaChartTreemap");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<ECharts | null>(null);
 
-  const { option, visibleCount, totalCount, leafCount } = useMemo(() => {
+  const { option, visibleCount, totalCount, hasCalls } = useMemo(() => {
     const items = edges.filter(
       (e) =>
         Number.isFinite(e.external_call_elapsed_ms) &&
@@ -456,7 +458,7 @@ export function MsaTimelineTreemap({
         option: {} as EChartsOption,
         visibleCount: 0,
         totalCount: 0,
-        leafCount: 0,
+        hasCalls: false,
       };
     }
 
@@ -477,15 +479,15 @@ export function MsaTimelineTreemap({
           const ratio = Number(data.ratioPct ?? 0);
           const lines = [
             path,
-            `elapsed = ${Math.round(elapsed).toLocaleString()} ms`,
+            `${t("msaChartElapsed")} = ${Math.round(elapsed).toLocaleString()} ms`,
           ];
-          if (ratio > 0) lines.push(`ratio = ${ratio.toFixed(1)}%`);
-          if (count > 0) lines.push(`calls = ${count.toLocaleString()}`);
+          if (ratio > 0) lines.push(`${t("msaChartRatio")} = ${ratio.toFixed(1)}%`);
+          if (count > 0) lines.push(`${t("msaChartCalls")} = ${count.toLocaleString()}`);
           if (response > 0) {
-            lines.push(`callee response = ${Math.round(response).toLocaleString()} ms`);
+            lines.push(`${t("msaChartCalleeResponse")} = ${Math.round(response).toLocaleString()} ms`);
           }
-          if (gap > 0) lines.push(`network gap = ${Math.round(gap).toLocaleString()} ms`);
-          if (data.status) lines.push(`status = ${data.status}`);
+          if (gap > 0) lines.push(`${t("msaChartCallGap")} = ${Math.round(gap).toLocaleString()} ms`);
+          if (data.status) lines.push(`${t("msaChartStatus")} = ${data.status}`);
           return lines.join("<br/>");
         },
       },
@@ -506,7 +508,7 @@ export function MsaTimelineTreemap({
               const count = Number(p.data?.count ?? 0);
               const ratio = Number(p.data?.ratioPct ?? 0);
               const ratioLabel = ratio > 0 ? `${ratio.toFixed(1)}%` : "";
-              const countLabel = count > 0 ? `${count.toLocaleString()}건` : "";
+              const countLabel = count > 0 ? `×${count.toLocaleString()}` : "";
               return [p.name, [ratioLabel, countLabel].filter(Boolean).join(" · ")]
                 .filter(Boolean)
                 .join("\n");
@@ -557,12 +559,10 @@ export function MsaTimelineTreemap({
       option: opt,
       visibleCount: cappedItems.length,
       totalCount: items.length,
-      leafCount: (root.children ?? []).reduce(
-        (sum, node) => sum + (node.children?.length ?? 0),
-        0,
-      ),
+      // Direct root-to-service leaves have no grandchildren but still render.
+      hasCalls: cappedItems.length > 0,
     };
-  }, [edges, maxBars, rootApplication]);
+  }, [edges, maxBars, rootApplication, t]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -593,25 +593,25 @@ export function MsaTimelineTreemap({
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="inline-flex items-center gap-2 text-sm">
-          {title}
-          <HelpTip text={getGenericChartHelpText(locale, title)} />
+          {displayTitle}
+          <HelpTip text={getGenericChartHelpText(locale, displayTitle)} />
         </CardTitle>
-        {leafCount > 0 && (
+        {hasCalls && (
           <p className="text-xs text-muted-foreground">
-            사각형 면적은 external call elapsed 합계 기준입니다.
+            {t("msaChartTreemapArea")}
           </p>
         )}
       </CardHeader>
       <CardContent>
-        {leafCount === 0 ? (
+        {!hasCalls ? (
           <p className="text-xs text-muted-foreground">
-            트리맵에 표시할 외부 호출이 없습니다.
+            {t("msaChartTreemapEmpty")}
           </p>
         ) : (
           <>
             {visibleCount < totalCount && (
               <p className="mb-2 text-xs text-muted-foreground">
-                호출 {visibleCount.toLocaleString()} / {totalCount.toLocaleString()} 표시
+                {t("msaChartCallsShown")} {visibleCount.toLocaleString()} / {totalCount.toLocaleString()}
               </p>
             )}
             <div ref={containerRef} style={{ width: "100%", height }} />
@@ -761,17 +761,17 @@ function assignTreemapRatios(node: TreemapNode, total: number): void {
   }
 }
 
-function tooltipFor(e: MsaTimelineEdge, start: number, elapsed: number): string {
+function tooltipFor(e: MsaTimelineEdge, start: number, elapsed: number, t: (key: MessageKey) => string): string {
   const lines = [
     `${e.caller_application ?? "?"} → ${e.callee_application ?? "?"}`,
-    `start=${start} ms · elapsed=${elapsed} ms`,
+    `${t("msaChartStart")}=${start} ms · ${t("msaChartElapsed")}=${elapsed} ms`,
   ];
   if (e.callee_response_time_ms != null) {
-    lines.push(`callee response = ${e.callee_response_time_ms} ms`);
+    lines.push(`${t("msaChartCalleeResponse")} = ${e.callee_response_time_ms} ms`);
   }
   if (e.network_gap_ms != null) {
-    lines.push(`network gap = ${e.network_gap_ms} ms`);
+    lines.push(`${t("msaChartCallGap")} = ${e.network_gap_ms} ms`);
   }
-  if (e.match_status) lines.push(`status = ${e.match_status}`);
+  if (e.match_status) lines.push(`${t("msaChartStatus")} = ${e.match_status}`);
   return lines.join("<br/>");
 }

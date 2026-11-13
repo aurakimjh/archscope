@@ -326,5 +326,145 @@
     "locale": "recorded per scenario",
     "scale": "OS100%, WebView100%",
     "screenshot": "visual-report-result.jpg"
+  },
+  {
+    "id": "msa-clean-single-en",
+    "route": "msa",
+    "scenario": "New four-profile clean fixture,Single transaction English",
+    "observed": "Root1000=SQL200+gap50+method750;three residual methods400/200/150;charts localized",
+    "result": "PASS",
+    "locale": "en",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "msa-clean-single-en.jpg"
+  },
+  {
+    "id": "msa-clean-average-en",
+    "route": "msa",
+    "scenario": "Clean two-GUID average English charts",
+    "observed": "1100ms root/categorised=SQL200+gap50+method850;two samples;no over-root warning",
+    "result": "PASS",
+    "locale": "en",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "msa-clean-average-en.jpg"
+  },
+  {
+    "id": "msa-clean-method-table-en",
+    "route": "msa",
+    "scenario": "Average populated method table,English",
+    "observed": "Three rows self400/250/200ms,total850ms;calls1 per transaction;wide columns scroll within card",
+    "result": "PASS",
+    "locale": "en",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "msa-clean-method-table-en.jpg"
+  },
+  {
+    "id": "msa-treemap-before",
+    "route": "msa",
+    "scenario": "Clean average has one matched service edge and visible250ms timeline call",
+    "observed": "Treemap incorrectly says no external calls;direct root leaf counted as zero",
+    "result": "FAIL",
+    "locale": "en",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "msa-treemap-before.jpg"
+  },
+  {
+    "id": "msa-treemap-after",
+    "route": "MSA > Average",
+    "scenario": "Direct root-to-leaf external call after treemap empty-state fix",
+    "observed": "English average selected. Timeline /orders 1100ms and /stock 250ms; treemap shows green /stock rectangle 100.0% x2 instead of no calls.",
+    "result": "PASS",
+    "locale": "en",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "msa-treemap-after.jpg"
+  },
+  {
+    "id": "msa-treemap-after-ko",
+    "route": "MSA > Average > language",
+    "scenario": "Change English to Korean on populated average view",
+    "observed": "Average /orders selection remains; 2 samples, method residual850ms; timeline root1100ms/stock250ms and green stock100%x2 rectangle retained; Korean chart titles, controls, per-call labels update.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "msa-treemap-after-ko.jpg"
+  },
+  {
+    "id": "msa-final-average-ko",
+    "route": "MSA > Average",
+    "scenario": "Final build average composition and labels",
+    "observed": "Final native build: 2 samples; root1100=SQL200+gap50+method850ms. Caller average250ms, callee200ms, gap50ms, callerp95=295ms/max300. Korean recent relative time and count units render.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%, WebView100%",
+    "screenshot": "msa-final-average-ko.jpg"
+  },
+  {
+    "id": "msa-small125-ko",
+    "route": "MSA > Average",
+    "scenario": "1024x768 with WebView125% and OS100%",
+    "observed": "Two-sample average selection, scope and export actions remain visible in one column; recent-file labels/times localized. This is WebView zoom, not OS DPI.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%; WebView125%; native1024x768",
+    "screenshot": "msa-small125-ko.jpg"
+  },
+  {
+    "id": "msa-small125-composition-ko",
+    "route": "MSA > Average > composition",
+    "scenario": "Small zoomed populated composition",
+    "observed": "SQL200ms18.2%, gap50ms4.5%, method850ms77.3% remain readable in stacked legend; per-GUID1200/1000ms and50ms topology edge shown.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%; WebView125%; native1024x768",
+    "screenshot": "msa-small125-composition-ko.jpg"
+  },
+  {
+    "id": "msa-small125-composition-en",
+    "route": "MSA > Average > language",
+    "scenario": "Live Korean-to-English at WebView125%",
+    "observed": "English chart title, legend, method label,50ms gap label and200ms SQL tooltip update without changing selected average or numeric values.",
+    "result": "PASS",
+    "locale": "en",
+    "scale": "OS100%; WebView125%; native1024x768",
+    "screenshot": "msa-small125-composition-en.jpg"
+  },
+  {
+    "id": "msa-small125-api-hotspots-en",
+    "route": "MSA > Average > API/hotspots",
+    "scenario": "Explicit caller/callee/gap table at narrow zoomed width",
+    "observed": "Callee200, caller250, p95295/max300, gap50ms and1call/tx displayed under correct units. Chart shows self400/250/200ms and max400/300/250ms. Table wraps in card without outer horizontal overflow observed.",
+    "result": "PASS",
+    "locale": "en",
+    "scale": "OS100%; WebView125%; native1024x768",
+    "screenshot": "msa-small125-api-hotspots-en.jpg"
+  },
+  {
+    "id": "msa-small125-hotspot-table-en",
+    "route": "MSA > Average > hotspots table",
+    "scenario": "Table view and internal horizontal scroll",
+    "observed": "Average table retains process400/handle250/stock200ms; rightmost columns accessible through internal horizontal scroll, maxima400/300/250ms and self shares67/23/100%. Timeline retains1100ms.",
+    "result": "PASS",
+    "locale": "en",
+    "scale": "OS100%; WebView125%; native1024x768",
+    "screenshot": "msa-small125-hotspot-table-en.jpg"
+  },
+  {
+    "id": "msa-options-small125-en",
+    "route": "MSA > Analyzer options",
+    "scenario": "Localized options drawer at small zoomed width",
+    "observed": "Pattern categories, fallback guidance, substring placeholders, Add pattern, presets and Analyze footer are English; scrollable drawer is bounded. No rules changed.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%; WebView125%; native1024x768",
+    "screenshot": "msa-options-small125-en.jpg"
+  },
+  {
+    "id": "msa-presets-small125-en",
+    "route": "MSA > Analyzer options > presets",
+    "scenario": "Built-in preset names",
+    "observed": "All four immutable built-in preset IDs display English names (servlet, network preparation,2PC/XA,driver-specific queries); selection remains none.",
+    "result": "PASS",
+    "locale": "recorded per scenario",
+    "scale": "OS100%; WebView125%; native1024x768",
+    "screenshot": "msa-presets-small125-en.jpg"
   }
 ]

@@ -113,3 +113,36 @@ Final production app tests passed amd6442.960s and38650.208s. The386 supported
 A direct unpatched386 `go test` attempt panicked during Wails callback startup;
 that unsupported invocation is not counted as a product test pass. No SDK cache
 was edited. T-627 remains REVIEW.
+
+## MSA child charts, options and direct-leaf treemap
+
+Follow-up converts the response composition, topology, timeline, treemap,
+method hotspots, explanatory text, pattern groups and built-in preset names
+to the same live EN/KO catalog. Recent-file actions and relative times now
+follow the selected language. Rule IDs, user names and calculations are unchanged.
+The API table now correctly labels callee response, caller-measured duration
+and their difference with millisecond units; the difference is not wire latency.
+
+A new coherent synthetic four-profile/two-GUID fixture independently expects
+average root1100ms = SQL200ms + call-duration gap50ms + method850ms. Average
+method self times are400/250/200ms, per-call maxima400/300/250ms. Native analysis
+and saved average JSON match these values. Caller mean250ms, callee mean200ms,
+caller p95295ms/max300ms and one call per transaction display under the corrected
+headers. This small deterministic example is not a performance benchmark.
+
+The populated fixture exposed a real treemap defect: a direct root-to-service
+leaf has no grandchildren, so the old leaf counter incorrectly showed an empty
+state. Gate rendering on the actual positive elapsed call input instead. The
+before screenshot and FAIL observation remain; the fixed native view shows
+/stock100.0% x2 with a250ms timeline call. English/Korean switching preserves
+the selected average and values.
+
+Native1024x768 at WebView125%/OS100% covers stacked composition legends, chart
+and table modes, internal horizontal scrolling to maximum/share columns and
+the English options drawer/preset list. Main and outer horizontal overflow
+are false in the attached passive layout report. Windows Settings and Control
+Panel launch attempts did not expose a targetable window in the current UI
+tool, so no additional actual OS125% case is claimed in this section. Earlier
+actual OS125% evidence stays separate. Frontend state tests and the final
+production frontend/layoutaudit build pass. Remaining complete reference,
+conditional/locale/DPI combinations keep T-627 REVIEW.

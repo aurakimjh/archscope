@@ -25,7 +25,7 @@ import { useMemo, useState } from "react";
 
 import { HelpTip } from "@/components/HelpTip";
 import { getGenericChartHelpText } from "@/help/helpCatalog";
-import { useI18n } from "@/i18n/I18nProvider";
+import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -84,25 +84,25 @@ type SliceDef = {
   hint?: string;
 };
 
-const SLICE_DEFS: SliceDef[] = [
-  { key: "sql_execute_ms", label: "SQL", group: "database", color: "#2563eb", hint: "DB 쿼리 수행 누적" },
-  { key: "check_query_ms", label: "Check Query", group: "database", color: "#06b6d4", hint: "select 1 같은 헬스체크" },
-  { key: "two_pc_ms", label: "2PC / XA", group: "database", color: "#f59e0b", hint: "분산트랜잭션 prepare/commit" },
-  { key: "fetch_ms", label: "Fetch", group: "database", color: "#fbbf24", hint: "ResultSet fetch" },
-  { key: "connection_acquire_ms", label: "Conn Acquire", group: "database", color: "#ef4444", hint: "DB 풀 대기" },
-  { key: "network_call_ms", label: "Network", group: "external", color: "#10b981", hint: "외부호출 - callee 응답시간 (실제 망 시간)" },
-  { key: "unprofiled_external_call_ms", label: "External Call", group: "external", color: "#14b8a6", hint: "callee profile 없이 caller EXTERNAL_CALL elapsed만 확인된 외부호출" },
-  { key: "network_prep_ms", label: "Network Prep", group: "external", color: "#a78bfa", hint: "sendToService 등 wrapper의 비-네트워크 부분" },
-  { key: "servlet_dispatch_ms", label: "Servlet Dispatch", group: "internal", color: "#f97316", hint: "service() 등 콜리 프레임워크 dispatch self-time (업무 메소드 제외)" },
-  { key: "method_time_ms", label: "Method", group: "internal", color: "#94a3b8", hint: "잔여 메소드 수행시간 (전체 - 위 합계)" },
+const SLICE_DEFS: Array<Omit<SliceDef, "label" | "hint"> & { labelKey: MessageKey; hintKey: MessageKey }> = [
+  { key: "sql_execute_ms", labelKey: "msaBreakdownSql", hintKey: "msaBreakdownSqlHint", group: "database", color: "#2563eb" },
+  { key: "check_query_ms", labelKey: "msaBreakdownCheck", hintKey: "msaBreakdownCheckHint", group: "database", color: "#06b6d4" },
+  { key: "two_pc_ms", labelKey: "msaBreakdownTwoPc", hintKey: "msaBreakdownTwoPcHint", group: "database", color: "#f59e0b" },
+  { key: "fetch_ms", labelKey: "msaBreakdownFetch", hintKey: "msaBreakdownFetchHint", group: "database", color: "#fbbf24" },
+  { key: "connection_acquire_ms", labelKey: "msaBreakdownAcquire", hintKey: "msaBreakdownAcquireHint", group: "database", color: "#ef4444" },
+  { key: "network_call_ms", labelKey: "msaBreakdownNetwork", hintKey: "msaBreakdownNetworkHint", group: "external", color: "#10b981" },
+  { key: "unprofiled_external_call_ms", labelKey: "msaBreakdownExternal", hintKey: "msaBreakdownExternalHint", group: "external", color: "#14b8a6" },
+  { key: "network_prep_ms", labelKey: "msaBreakdownPrep", hintKey: "msaBreakdownPrepHint", group: "external", color: "#a78bfa" },
+  { key: "servlet_dispatch_ms", labelKey: "msaBreakdownDispatch", hintKey: "msaBreakdownDispatchHint", group: "internal", color: "#f97316" },
+  { key: "method_time_ms", labelKey: "msaBreakdownMethod", hintKey: "msaBreakdownMethodHint", group: "internal", color: "#94a3b8" },
 ];
 
 const GROUP_ORDER: SliceGroupId[] = ["database", "external", "internal"];
 
-const GROUP_LABELS: Record<SliceGroupId, string> = {
-  database: "Database",
-  external: "External",
-  internal: "Internal",
+const GROUP_LABEL_KEYS: Record<SliceGroupId, MessageKey> = {
+  database: "msaBreakdownDatabase",
+  external: "msaBreakdownExternalGroup",
+  internal: "msaBreakdownInternal",
 };
 
 const GROUP_COLORS: Record<SliceGroupId, string> = {
@@ -126,8 +126,9 @@ export function MsaResponseTimeBreakdown({
   groups,
   defaultAggregationMode = "sum",
 }: MsaResponseTimeBreakdownProps): React.JSX.Element {
-  const { locale } = useI18n();
-  const helpText = getGenericChartHelpText(locale, "응답시간 구성");
+  const { locale, t } = useI18n();
+  const baseSliceDefs = useMemo(() => SLICE_DEFS.map(({ labelKey, hintKey, ...def }) => ({ ...def, label: t(labelKey), hint: t(hintKey) })), [t]);
+  const helpText = getGenericChartHelpText(locale, t("msaBreakdownTitle"));
   const [aggregationMode, setAggregationMode] = useState<AggregationMode>(
     defaultAggregationMode,
   );
@@ -145,7 +146,7 @@ export function MsaResponseTimeBreakdown({
       // First pass: SUMS across all groups. AVG is derived later by
       // dividing each total by sampleCount so files with very
       // different response times don't drown each other out.
-      const sumTotals = SLICE_DEFS.reduce<Record<string, number>>((acc, def) => {
+      const sumTotals = baseSliceDefs.reduce<Record<string, number>>((acc, def) => {
         acc[def.key] = 0;
         return acc;
       }, {});
@@ -156,7 +157,7 @@ export function MsaResponseTimeBreakdown({
         if (!bd) continue;
         nextSampleCount += 1;
         sumTotalRoot += Number(bd.root_response_time_ms ?? 0);
-        for (const def of SLICE_DEFS) {
+        for (const def of baseSliceDefs) {
           sumTotals[def.key] += Math.max(0, Number((bd as any)[def.key] ?? 0));
         }
         for (const slice of bd.custom_slices ?? []) {
@@ -165,10 +166,10 @@ export function MsaResponseTimeBreakdown({
           if (!customDefs.has(key)) {
             customDefs.set(key, {
               key,
-              label: String(slice?.label || "Custom"),
+              label: String(slice?.label || t("msaBreakdownCustom")),
               group: normalizeGroup(slice?.group),
               color: CUSTOM_COLORS[customDefs.size % CUSTOM_COLORS.length],
-              hint: `사용자 정의 카드${slice?.source ? ` · ${slice.source}` : ""}`,
+              hint: `${t("msaBreakdownCustomHint")}${slice?.source ? ` · ${slice.source}` : ""}`,
             });
             sumTotals[key] = 0;
           }
@@ -182,7 +183,7 @@ export function MsaResponseTimeBreakdown({
       for (const key of Object.keys(sumTotals)) {
         nextTotals[key] = sumTotals[key] / divisor;
       }
-      const nextSliceDefs = [...SLICE_DEFS, ...customDefs.values()];
+      const nextSliceDefs = [...baseSliceDefs, ...customDefs.values()];
       const nextTotalCovered = nextSliceDefs.reduce(
         (sum, def) => sum + Number(nextTotals[def.key] ?? 0),
         0,
@@ -232,21 +233,20 @@ export function MsaResponseTimeBreakdown({
         perGroup: nextPerGroup,
         sampleCount: nextSampleCount,
       };
-    }, [aggregationMode, groups]);
+    }, [aggregationMode, groups, baseSliceDefs, t]);
 
   if (totalRoot === 0 && totalCovered === 0 && perGroup.length === 0) {
     return (
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="inline-flex items-center gap-2 text-sm">
-            응답시간 구성
+            {t("msaBreakdownTitle")}
             <HelpTip text={helpText} />
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-xs text-muted-foreground">
-            root response_time_ms 가 비어있어 분해할 수 없습니다 — 헤더의
-            RESPONSE_TIME 필드를 확인하세요.
+            {t("msaBreakdownEmpty")}
           </p>
         </CardContent>
       </Card>
@@ -257,14 +257,14 @@ export function MsaResponseTimeBreakdown({
   const effectiveMode: AggregationMode = canToggle ? aggregationMode : "sum";
   const summaryLabel =
     effectiveMode === "avg"
-      ? `Avg Root RT / Avg Categorised · n=${sampleCount}`
-      : "Root RT / Categorised";
+      ? `${t("msaBreakdownAverageSummary")} · n=${sampleCount}`
+      : t("msaBreakdownSummary");
   return (
     <Card>
       <CardHeader className="pb-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <CardTitle className="inline-flex items-center gap-2 text-sm">
-            응답시간 구성
+            {t("msaBreakdownTitle")}
             <HelpTip text={helpText} />
           </CardTitle>
           <div className="flex flex-wrap items-center justify-end gap-2">
@@ -275,18 +275,18 @@ export function MsaResponseTimeBreakdown({
                   size="sm"
                   variant={effectiveMode === "sum" ? "default" : "outline"}
                   onClick={() => setAggregationMode("sum")}
-                  title="모든 그룹의 시간을 합산해 비율을 봅니다 — 전체 비용 분포에 적합"
+                  title={t("msaBreakdownSumHint")}
                 >
-                  합계
+                  {t("msaBreakdownSum")}
                 </Button>
                 <Button
                   type="button"
                   size="sm"
                   variant={effectiveMode === "avg" ? "default" : "outline"}
                   onClick={() => setAggregationMode("avg")}
-                  title="그룹당 평균으로 봅니다 — 응답시간 편차가 큰 파일들을 균등 비교할 때 적합"
+                  title={t("msaBreakdownAverageHint")}
                 >
-                  평균
+                  {t("msaBreakdownAverage")}
                 </Button>
               </div>
             )}
@@ -316,13 +316,13 @@ export function MsaResponseTimeBreakdown({
         {perGroup.length > 0 && (
           <section>
             <header className="mb-1.5 text-xs font-semibold">
-              GUID 그룹별 (root 응답시간 큰 순서)
+              {t("msaBreakdownGroups")}
             </header>
             <div className="flex flex-col gap-1.5">
               {perGroup.slice(0, 25).map(({ g, bd, root }, idx) => {
                 if (!bd) return null;
                 const slices: Record<string, number> = {};
-                for (const def of SLICE_DEFS) {
+                for (const def of baseSliceDefs) {
                   slices[def.key] = Math.max(0, Number((bd as any)[def.key] ?? 0));
                 }
                 for (const slice of bd.custom_slices ?? []) {
@@ -381,13 +381,14 @@ function GroupedTimelineBar({
   }>;
   base: number;
 }): React.JSX.Element {
+  const { t } = useI18n();
   return (
     <div className="flex flex-col gap-2">
       <div className="flex h-9 overflow-hidden">
         {groups.map((group) => {
           const widthPct = pct(group.value, base);
           const color = GROUP_COLORS[group.id];
-          const label = GROUP_LABELS[group.id];
+          const label = t(GROUP_LABEL_KEYS[group.id]);
           return (
             <div
               key={group.id}
@@ -517,6 +518,7 @@ function GroupRow({
   sliceDefs: SliceDef[];
   negativeMethod: boolean;
 }): React.JSX.Element {
+  const { t } = useI18n();
   const covered = sliceDefs.reduce((s, d) => s + (slices[d.key] ?? 0), 0);
   const base = Math.max(root, covered, 1);
   return (
@@ -547,9 +549,9 @@ function GroupRow({
       {negativeMethod && (
         <span
           className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] text-amber-700 dark:text-amber-300"
-          title="categorised time exceeds root response time — likely missing data"
+          title={t("msaBreakdownOverRootHint")}
         >
-          neg
+          {t("msaBreakdownOverRoot")}
         </span>
       )}
     </div>
