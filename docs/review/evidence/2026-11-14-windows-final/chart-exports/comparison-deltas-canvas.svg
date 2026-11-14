@@ -1,0 +1,33 @@
+<svg width="1199" height="551" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseProfile="full" viewBox="0 0 1199 551">
+<rect width="1199" height="551" x="0" y="0" fill="none"></rect>
+<path d="M160.5 24L160.5 509" fill="none" stroke="#dbdee4" class="zr0-cls-0"></path>
+<path d="M358.5 24L358.5 509" fill="none" stroke="#dbdee4" class="zr0-cls-0"></path>
+<path d="M556.5 24L556.5 509" fill="none" stroke="#dbdee4" class="zr0-cls-0"></path>
+<path d="M754.5 24L754.5 509" fill="none" stroke="#dbdee4" class="zr0-cls-0"></path>
+<path d="M952.5 24L952.5 509" fill="none" stroke="#dbdee4" class="zr0-cls-0"></path>
+<path d="M1151.5 24L1151.5 509" fill="none" stroke="#dbdee4" class="zr0-cls-0"></path>
+<path d="M754.5 24L754.5 509" fill="none" stroke="#54555a" stroke-linecap="round" class="zr0-cls-0"></path>
+<text dominant-baseline="central" text-anchor="start" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(1165.7539 509)" fill="#54555a">Delta</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(152 145.25)" fill="#54555a">avg_response_ms</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(152 387.75)" fill="#54555a">total_requests</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(160 517)" fill="#54555a">-60</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(358.1508 517)" fill="#54555a">-40</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(556.3016 517)" fill="#54555a">-20</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(754.4523 517)" fill="#54555a">0</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(952.6031 517)" fill="#54555a">20</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(1150.7539 517)" fill="#54555a">40</text>
+<path d="M754.4523 61.5875l-495.377 0l0 167.325l495.377 0Z" fill="#2563eb" class="zr0-cls-1"></path>
+<path d="M754.4523 304.0875l247.6885 0l0 167.325l-247.6885 0Z" fill="#2563eb" class="zr0-cls-1"></path>
+<style ><![CDATA[
+.zr0-cls-0:hover {
+pointer-events:none;
+}
+.zr0-cls-1:hover {
+cursor:pointer;
+fill:rgba(40,108,255,1);
+}
+
+]]>
+
+</style>
+</svg>

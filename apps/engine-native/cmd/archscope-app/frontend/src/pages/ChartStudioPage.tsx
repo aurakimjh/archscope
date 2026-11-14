@@ -8,6 +8,7 @@ import { HelpedLabel, HelpedTitle } from "@/components/HelpTip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getHelpText } from "@/help/helpCatalog";
+import { chartRowsToCSV } from "@/state/chartStudioExport";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import {
   selectWorkspaceResult,
@@ -19,6 +20,7 @@ type Renderer = "canvas" | "svg";
 
 type ChartTemplate = {
   id: string;
+  unit: string;
   labelKey: MessageKey;
   resultTypes: string[];
   build: (entry: AnalysisWorkspaceEntry, labels: ChartStudioLabels) => ChartBuild;
@@ -39,30 +41,35 @@ type ChartStudioLabels = {
 const TEMPLATES: ChartTemplate[] = [
   {
     id: "access.requests",
+    unit: "count",
     labelKey: "chartTemplateAccessRequests",
     resultTypes: ["access_log"],
     build: (entry, labels) => timeSeriesOption(entry, "requests_per_minute", labels.count),
   },
   {
     id: "access.p95",
+    unit: "ms",
     labelKey: "chartTemplateAccessP95",
     resultTypes: ["access_log"],
     build: (entry, labels) => timeSeriesOption(entry, "p95_response_time_per_minute", labels.milliseconds),
   },
   {
     id: "gc.pause",
+    unit: "ms",
     labelKey: "chartTemplateGcPause",
     resultTypes: ["gc_log"],
     build: (entry, labels) => timeSeriesOption(entry, "pause_timeline", labels.milliseconds),
   },
   {
     id: "gc.heap",
+    unit: "MB",
     labelKey: "chartTemplateGcHeap",
     resultTypes: ["gc_log"],
     build: (entry, labels) => timeSeriesOption(entry, "heap_after_mb", "MB"),
   },
   {
     id: "trace.services",
+    unit: "ms",
     labelKey: "chartTemplateTraceServices",
     resultTypes: ["trace_import"],
     build: (entry, labels) =>
@@ -70,6 +77,7 @@ const TEMPLATES: ChartTemplate[] = [
   },
   {
     id: "trace.dependencies",
+    unit: "ms",
     labelKey: "chartTemplateTraceDependencies",
     resultTypes: ["trace_import"],
     build: (entry, labels) =>
@@ -77,6 +85,7 @@ const TEMPLATES: ChartTemplate[] = [
   },
   {
     id: "profiler.components",
+    unit: "samples",
     labelKey: "chartTemplateProfilerComponents",
     resultTypes: ["profiler_collapsed"],
     build: (entry, labels) =>
@@ -84,6 +93,7 @@ const TEMPLATES: ChartTemplate[] = [
   },
   {
     id: "comparison.deltas",
+    unit: "metric-specific",
     labelKey: "chartTemplateComparisonDeltas",
     resultTypes: ["comparison_report"],
     build: (entry, labels) =>
@@ -159,7 +169,12 @@ export function ChartStudioPage(): React.JSX.Element {
     setSaving(true);setError(null);setNotice(null);
     let rendered: ECharts | null = null;
     try {
-      let data = rowsToCSV(build.rows);
+      let data = chartRowsToCSV(build.rows, {
+        template: selectedTemplate?.id ?? "",
+        unit: selectedTemplate?.unit ?? "",
+        resultType: selectedEntry?.result_type ?? "",
+        sourceFiles: selectedEntry?.source_files ?? [],
+      });
       if (type !== "csv") {
         // Render with the output format's renderer, independent of the on-screen renderer.
         rendered = echarts.init(document.createElement("div"), undefined, {renderer:type === "svg" ? "svg" : "canvas",width:chart.getWidth(),height:chart.getHeight()});
@@ -228,6 +243,10 @@ export function ChartStudioPage(): React.JSX.Element {
           </label>
         </div>
       </section>
+
+      {selectedTemplate?.unit === "metric-specific" && (
+        <p role="status" className="text-xs text-muted-foreground">{t("chartStudioMetricSpecificUnits")}</p>
+      )}
 
       {build ? (
         <ChartPanel
@@ -378,19 +397,4 @@ function stringValue(value: unknown): string {
 
 function numberValue(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
-}
-
-function rowsToCSV(rows: Array<Record<string, string | number | null>>): string {
-  if (rows.length === 0) return "";
-  const headers = Object.keys(rows[0]);
-  const lines = [
-    headers.join(","),
-    ...rows.map((row) => headers.map((header) => csvCell(row[header])).join(",")),
-  ];
-  return `${lines.join("\n")}\n`;
-}
-
-function csvCell(value: string | number | null | undefined): string {
-  const text = value == null ? "" : String(value);
-  return /[",\n]/.test(text) ? `"${text.replace(/"/g, "\"\"")}"` : text;
 }

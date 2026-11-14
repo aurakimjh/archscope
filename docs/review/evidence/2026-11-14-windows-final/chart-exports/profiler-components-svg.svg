@@ -1,0 +1,31 @@
+<svg width="1199" height="551" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseProfile="full" viewBox="0 0 1199 551">
+<rect width="1199" height="551" x="0" y="0" fill="none"></rect>
+<path d="M160.5 24L160.5 509" fill="none" stroke="#dbdee4" class="zr2-cls-2"></path>
+<path d="M360.5 24L360.5 509" fill="none" stroke="#dbdee4" class="zr2-cls-2"></path>
+<path d="M559.5 24L559.5 509" fill="none" stroke="#dbdee4" class="zr2-cls-2"></path>
+<path d="M759.5 24L759.5 509" fill="none" stroke="#dbdee4" class="zr2-cls-2"></path>
+<path d="M959.5 24L959.5 509" fill="none" stroke="#dbdee4" class="zr2-cls-2"></path>
+<path d="M1159.5 24L1159.5 509" fill="none" stroke="#dbdee4" class="zr2-cls-2"></path>
+<path d="M160.5 24L160.5 509" fill="none" stroke="#54555a" stroke-linecap="round" class="zr2-cls-2"></path>
+<text dominant-baseline="central" text-anchor="start" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(1173.92 509)" fill="#54555a">건수</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(152 266.5)" fill="#54555a">Framework</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(160 517)" fill="#54555a">0</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(359.784 517)" fill="#54555a">5,000</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(559.568 517)" fill="#54555a">10,000</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(759.352 517)" fill="#54555a">15,000</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(959.136 517)" fill="#54555a">20,000</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(1158.92 517)" fill="#54555a">25,000</text>
+<path d="M160 99.175l803.1317 0l0 334.65l-803.1317 0Z" fill="#0f766e" class="zr2-cls-3"></path>
+<style ><![CDATA[
+.zr2-cls-2:hover {
+pointer-events:none;
+}
+.zr2-cls-3:hover {
+cursor:pointer;
+fill:rgba(16,129,121,1);
+}
+
+]]>
+
+</style>
+</svg>

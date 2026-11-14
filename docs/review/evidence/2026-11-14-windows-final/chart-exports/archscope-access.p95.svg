@@ -1,0 +1,51 @@
+<svg width="1199" height="551" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseProfile="full" viewBox="0 0 1199 551">
+<rect width="1199" height="551" x="0" y="0" fill="none"></rect>
+<path d="M64 503.5L1171 503.5" fill="none" stroke="#dbdee4" class="zr14-cls-23"></path>
+<path d="M64 408.5L1171 408.5" fill="none" stroke="#dbdee4" class="zr14-cls-23"></path>
+<path d="M64 314.5L1171 314.5" fill="none" stroke="#dbdee4" class="zr14-cls-23"></path>
+<path d="M64 219.5L1171 219.5" fill="none" stroke="#dbdee4" class="zr14-cls-23"></path>
+<path d="M64 124.5L1171 124.5" fill="none" stroke="#dbdee4" class="zr14-cls-23"></path>
+<path d="M64 30.5L1171 30.5" fill="none" stroke="#dbdee4" class="zr14-cls-23"></path>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:12px;font-family:Microsoft YaHei;" y="-6" transform="translate(64 15)" fill="#54555a">ms</text>
+<path d="M64 503.5L1171 503.5" fill="none" stroke="#54555a" stroke-linecap="round" class="zr14-cls-23"></path>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(56 503)" fill="#54555a">0</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(56 408.4)" fill="#54555a">300</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(56 313.8)" fill="#54555a">600</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(56 219.2)" fill="#54555a">900</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(56 124.6)" fill="#54555a">1,200</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(56 30)" fill="#54555a">1,500</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(617.5 511)" fill="#54555a">2026-04-27T10:00:00+0900</text>
+<g clip-path="url(#zr14-c0)">
+<path d="M617.5 30L617.5 503Z" fill="#5070dd" fill-opacity="0.14" class="zr14-cls-25"></path>
+<path d="M617.5 30" fill="none" stroke="#5070dd" stroke-width="2" stroke-linejoin="bevel" class="zr14-cls-26"></path>
+</g>
+<path d="M1 0A1 1 0 1 1 1 -0.0001" transform="matrix(3,0,0,3,617.5,30)" fill="#fff" stroke="#5070dd" stroke-width="0.6666666666666666" class="zr14-cls-27"></path>
+<defs >
+<clipPath id="zr14-c0">
+<path d="M63 29l1109 0l0 475l-1109 0Z" fill="#000" class="zr14-cls-24"></path>
+</clipPath>
+</defs>
+<style ><![CDATA[
+.zr14-cls-23:hover {
+pointer-events:none;
+}
+.zr14-cls-24:hover {
+cursor:pointer;
+fill:rgba(0,0,0,1);
+}
+.zr14-cls-25:hover {
+cursor:pointer;
+fill:rgba(88,123,243,1);
+}
+.zr14-cls-26:hover {
+cursor:pointer;
+}
+.zr14-cls-27:hover {
+cursor:pointer;
+fill:rgba(255,255,255,1);
+}
+
+]]>
+
+</style>
+</svg>

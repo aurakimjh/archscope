@@ -1,0 +1,2 @@
+time,value,value_unit,template_id,result_type,source_files
+2026-04-27T10:00:00+0900,1500,ms,access.p95,access_log,"[""C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\access-120-partial.log""]"

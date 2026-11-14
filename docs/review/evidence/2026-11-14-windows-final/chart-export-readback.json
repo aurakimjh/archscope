@@ -1,0 +1,396 @@
+{
+  "passed": true,
+  "buildCommit": "e50b0f48-plus-chart-csv",
+  "nativeRenderer": {
+    "comparison.deltas": "canvas",
+    "otherSeven": "svg"
+  },
+  "scope": "8 templates x 3 output formats; OS100/Web100/KO; not every renderer/locale/DPI Cartesian combination",
+  "templates": [
+    {
+      "template": "comparison.deltas",
+      "unit": "metric-specific",
+      "resultType": "comparison_report",
+      "rows": 2,
+      "sourceFiles": [
+        "C:/workspace/archscope/.tmp/windows-final-20261114/ui-fixtures/report-before.json",
+        "C:/workspace/archscope/.tmp/windows-final-20261114/ui-fixtures/report-after.json"
+      ],
+      "values": [
+        -50,
+        25
+      ],
+      "files": [
+        {
+          "file": "chart-exports/comparison-deltas-canvas.csv",
+          "bytes": 555,
+          "sha256": "eb0ffd1aadf87f7910dc016ad3ffaaddedd662db528181505c1941396e984bb9"
+        },
+        {
+          "file": "chart-exports/comparison-deltas-canvas.png",
+          "bytes": 65733,
+          "sha256": "dc215e511d3a4a26cd5eb75dbf691731bd4e854bb9f6ee07c5120b85376a45c7",
+          "width": 2398,
+          "height": 1102
+        },
+        {
+          "file": "chart-exports/comparison-deltas-canvas.svg",
+          "bytes": 2762,
+          "sha256": "9c4fd41ba66fece6aa09eb44ebac06d8863d826062eda88db0837bea95b26dcf",
+          "width": "1199",
+          "height": "551"
+        }
+      ]
+    },
+    {
+      "template": "profiler.components",
+      "unit": "samples",
+      "resultType": "profiler_collapsed",
+      "rows": 1,
+      "sourceFiles": [
+        "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\profiler-deep.collapsed"
+      ],
+      "values": [
+        20100
+      ],
+      "files": [
+        {
+          "file": "chart-exports/profiler-components-svg.csv",
+          "bytes": 226,
+          "sha256": "ba79314d0976d3cfbedfa522b533a561e25ba809fe67da1608d2e5f76892c6ce"
+        },
+        {
+          "file": "chart-exports/profiler-components-svg.png",
+          "bytes": 62691,
+          "sha256": "b95cceb5ad3492c26e469d722f03c397f34e3efe441082dbc557aca72c3a1bc0",
+          "width": 2398,
+          "height": 1102
+        },
+        {
+          "file": "chart-exports/profiler-components-svg.svg",
+          "bytes": 2480,
+          "sha256": "8324a7b787419579950af1b2b09726bfc5ee866c25bcbf2d3f280bf1ddd50648",
+          "width": "1199",
+          "height": "551"
+        }
+      ]
+    },
+    {
+      "template": "trace.services",
+      "unit": "ms",
+      "resultType": "trace_import",
+      "rows": 2,
+      "sourceFiles": [
+        "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json"
+      ],
+      "values": [
+        3960,
+        840
+      ],
+      "files": [
+        {
+          "file": "chart-exports/archscope-trace.services.csv",
+          "bytes": 359,
+          "sha256": "c243a14ade15e95092fb2747502502ffed5c46add9ad2c43dd2a0e2ec100c4fc"
+        },
+        {
+          "file": "chart-exports/archscope-trace.services.png",
+          "bytes": 64890,
+          "sha256": "bab07eebf1e621f8d927f4be7620dc30563653cc08b4a3b55f98dc221d8e0f12",
+          "width": 2398,
+          "height": 1102
+        },
+        {
+          "file": "chart-exports/archscope-trace.services.svg",
+          "bytes": 2505,
+          "sha256": "e50293cbe898727c14af0e85e75094f2384cfcf5d5b7a2084db28e55a9961067",
+          "width": "1199",
+          "height": "551"
+        }
+      ]
+    },
+    {
+      "template": "trace.dependencies",
+      "unit": "ms",
+      "resultType": "trace_import",
+      "rows": 1,
+      "sourceFiles": [
+        "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json"
+      ],
+      "values": [
+        1080
+      ],
+      "files": [
+        {
+          "file": "chart-exports/archscope-trace.dependencies.csv",
+          "bytes": 215,
+          "sha256": "ac9cfd812a3fc077df357e07fb98bb730cbc03ce1fbd6b04b6ad3a3945d90b24"
+        },
+        {
+          "file": "chart-exports/archscope-trace.dependencies.png",
+          "bytes": 63472,
+          "sha256": "ec36d8d0c117b5c02ea5c12413b47b202abb9c307c7e9bfc474a446d394cefc8",
+          "width": 2398,
+          "height": 1102
+        },
+        {
+          "file": "chart-exports/archscope-trace.dependencies.svg",
+          "bytes": 2742,
+          "sha256": "533a110a3f4c8f9502bae3e4ca557f8587d9a9611735d1063990a35b57860e59",
+          "width": "1199",
+          "height": "551"
+        }
+      ]
+    },
+    {
+      "template": "gc.pause",
+      "unit": "ms",
+      "resultType": "gc_log",
+      "rows": 60,
+      "sourceFiles": [
+        "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\gc-60.log"
+      ],
+      "values": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "files": [
+        {
+          "file": "chart-exports/archscope-gc.pause.csv",
+          "bytes": 6951,
+          "sha256": "ba33db871f9c85a49681c5b987f8526e2dbf771af6b7347a4151855a10762eed"
+        },
+        {
+          "file": "chart-exports/archscope-gc.pause.png",
+          "bytes": 139761,
+          "sha256": "97414724d8f5a71d8eb324388b3e79e9123a04b14d3ecc6ef1934ad6d1ffa98c",
+          "width": 2398,
+          "height": 1102
+        },
+        {
+          "file": "chart-exports/archscope-gc.pause.svg",
+          "bytes": 23688,
+          "sha256": "5ed6a2b88162d23aa86e5d384cee83b7544a7c4b8d04bb5f913cdd6117879317",
+          "width": "1199",
+          "height": "551"
+        }
+      ]
+    },
+    {
+      "template": "gc.heap",
+      "unit": "MB",
+      "resultType": "gc_log",
+      "rows": 60,
+      "sourceFiles": [
+        "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\gc-60.log"
+      ],
+      "values": [
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50
+      ],
+      "files": [
+        {
+          "file": "chart-exports/archscope-gc.heap.csv",
+          "bytes": 6891,
+          "sha256": "5394fcb950ef79449e14c7356b70f2ced8595d7a23b332e933c5ad834fea3238"
+        },
+        {
+          "file": "chart-exports/archscope-gc.heap.png",
+          "bytes": 78530,
+          "sha256": "abe1797670b2063dd3091fba585d051b0502d4f2a2ff0b6629c343ae48eaafd8",
+          "width": 2398,
+          "height": 1102
+        },
+        {
+          "file": "chart-exports/archscope-gc.heap.svg",
+          "bytes": 22135,
+          "sha256": "99e165e3603490ff8e2e2aaea11c22f2f2a9529440ee147612d6478eda9a9353",
+          "width": "1199",
+          "height": "551"
+        }
+      ]
+    },
+    {
+      "template": "access.requests",
+      "unit": "count",
+      "resultType": "access_log",
+      "rows": 1,
+      "sourceFiles": [
+        "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\access-120-partial.log"
+      ],
+      "values": [
+        120
+      ],
+      "files": [
+        {
+          "file": "chart-exports/archscope-access.requests.csv",
+          "bytes": 223,
+          "sha256": "4afbf39d56f4907dc48b2696f1aa1b2f9c9b1dfcca3aa66dc0718a77ca13a831"
+        },
+        {
+          "file": "chart-exports/archscope-access.requests.png",
+          "bytes": 66385,
+          "sha256": "f7861b56f3f6bc2aa42c37c8bd3623f6cb8c78317f2a0ba1c5f31acff88e0c2d",
+          "width": 2398,
+          "height": 1102
+        },
+        {
+          "file": "chart-exports/archscope-access.requests.svg",
+          "bytes": 3306,
+          "sha256": "2fb0d0cef5cc02a738262617fae8716c88d7d097a7e2eb385069f962d3350a82",
+          "width": "1199",
+          "height": "551"
+        }
+      ]
+    },
+    {
+      "template": "access.p95",
+      "unit": "ms",
+      "resultType": "access_log",
+      "rows": 1,
+      "sourceFiles": [
+        "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\access-120-partial.log"
+      ],
+      "values": [
+        1500
+      ],
+      "files": [
+        {
+          "file": "chart-exports/archscope-access.p95.csv",
+          "bytes": 216,
+          "sha256": "0bbbf250732cf9bdd40a91a4396059900d11f9ea6b02020fcbc80c6b03065e00"
+        },
+        {
+          "file": "chart-exports/archscope-access.p95.png",
+          "bytes": 67044,
+          "sha256": "b2e9bc5914f105b1158c1fd5650ae790f65272413923fbf1f05a0fcb98aa7165",
+          "width": 2398,
+          "height": 1102
+        },
+        {
+          "file": "chart-exports/archscope-access.p95.svg",
+          "bytes": 3048,
+          "sha256": "57a28189dd7baefb0a925e043678582f738e8519105df2867f9e59d0f6f4181d",
+          "width": "1199",
+          "height": "551"
+        }
+      ]
+    }
+  ]
+}

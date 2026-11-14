@@ -1,0 +1,27 @@
+차트 스튜디오
+차트 스튜디오
+도움말 보기
+분석 결과
+도움말 보기
+￼
+차트 템플릿
+도움말 보기
+￼
+렌더러
+도움말 보기
+￼
+액세스 로그 요청 수
+도움말 보기
+PNG
+SVG
+CSV
+건수
+0
+20
+40
+60
+80
+100
+120
+2026-04-27T10:00:00+0900
+Export 완료: C:\workspace\archscope\.tmp\windows-final-20261114\chart-exports\archscope-access.requests.svg

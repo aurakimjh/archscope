@@ -1,0 +1,33 @@
+<svg width="1199" height="551" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseProfile="full" viewBox="0 0 1199 551">
+<rect width="1199" height="551" x="0" y="0" fill="none"></rect>
+<path d="M160.5 24L160.5 509" fill="none" stroke="#dbdee4" class="zr6-cls-6"></path>
+<path d="M327.5 24L327.5 509" fill="none" stroke="#dbdee4" class="zr6-cls-6"></path>
+<path d="M494.5 24L494.5 509" fill="none" stroke="#dbdee4" class="zr6-cls-6"></path>
+<path d="M662.5 24L662.5 509" fill="none" stroke="#dbdee4" class="zr6-cls-6"></path>
+<path d="M829.5 24L829.5 509" fill="none" stroke="#dbdee4" class="zr6-cls-6"></path>
+<path d="M997.5 24L997.5 509" fill="none" stroke="#dbdee4" class="zr6-cls-6"></path>
+<path d="M1164.5 24L1164.5 509" fill="none" stroke="#dbdee4" class="zr6-cls-6"></path>
+<path d="M160.5 24L160.5 509" fill="none" stroke="#54555a" stroke-linecap="round" class="zr6-cls-6"></path>
+<text dominant-baseline="central" text-anchor="start" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(1179.2012 509)" fill="#54555a">ms</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:10px;font-family:Microsoft YaHei;" transform="translate(152 266.5)" fill="#54555a">inventory-service</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(160 517)" fill="#54555a">0</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(327.3669 517)" fill="#54555a">200</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(494.7337 517)" fill="#54555a">400</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(662.1006 517)" fill="#54555a">600</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(829.4674 517)" fill="#54555a">800</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(996.8343 517)" fill="#54555a">1,000</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:10px;font-family:Microsoft YaHei;" y="5" transform="translate(1164.2012 517)" fill="#54555a">1,200</text>
+<path d="M160 99.175l903.7811 0l0 334.65l-903.7811 0Z" fill="#2563eb" class="zr6-cls-7"></path>
+<style ><![CDATA[
+.zr6-cls-6:hover {
+pointer-events:none;
+}
+.zr6-cls-7:hover {
+cursor:pointer;
+fill:rgba(40,108,255,1);
+}
+
+]]>
+
+</style>
+</svg>

@@ -1,0 +1,3 @@
+label,value,value_unit,template_id,result_type,source_files
+checkout-service,3960,ms,trace.services,trace_import,"[""C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json""]"
+inventory-service,840,ms,trace.services,trace_import,"[""C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json""]"

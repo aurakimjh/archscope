@@ -653,5 +653,70 @@
     "id": "pptx-stable-native-repeat",
     "result": "PASS",
     "observed": "Two NativeExportCenter outputs fromsameimmutableAccess result are byte-identical7245B,hash0045e3cd7737ab4042508c296c9e7b494cdc0bc59605a498e9a11b592e0469b2;exactsorted10keys and22omitted independentlyverified."
+  },
+  {
+    "id": "chart-access-count-native",
+    "result": "PASS",
+    "observed": "SelectedAccess ChartStudio requests template renders oneobservedminute120 withcountaxis; sparsepointnotdensecoverage. Canvasrenderer; all3outputactions visible."
+  },
+  {
+    "id": "chart-access-png",
+    "result": "PASS",
+    "observed": "Canvas→PNG saved66385B usingnativeSave. Initialslash-formfilenamewasWindowsinvalid; backslashpathretry succeeds. Harnesspathcorrection,notproductbug. Sourcepoint120unchanged."
+  },
+  {
+    "id": "chart-csv-unit-provenance-before",
+    "result": "FAIL",
+    "observed": "Native ChartStudioCSV has onlytime,value and120; omits measurementunit/template/source needed to distinguish countfromms across exportedcharts. PNG/SVGsaved; slashpathharness correctionexcludedasproductbug."
+  },
+  {
+    "id": "chart-metric-specific-warning-fixed",
+    "result": "PASS",
+    "observed": "Comparison bars show-50avg_response_ms/+25total_requests with explicitKO warning that unlike metricunits cannot be compared; CSV encodesmetric-specific rather than inventingcommonunit."
+  },
+  {
+    "id": "chart-comparison-three-formats",
+    "result": "PASS",
+    "observed": "e50b0f48-plus-chart-csv: nativeCanvascomparison exportsPNG65733B/SVG2762B/CSV555B; CSVpreserves-50/+25,metric-specificunit,bothsourcepaths/template/type. Mixedunitwarningvisible. Independentartifactvalidationfollows."
+  },
+  {
+    "id": "chart-profiler-three-formats",
+    "result": "PASS",
+    "observed": "Native SVG renderer; Framework 20100 samples; CSV, PNG, SVG saved through native dialogs. Artifact readback recorded separately."
+  },
+  {
+    "id": "chart-trace-services-three-formats",
+    "result": "PASS",
+    "observed": "Native SVG renderer; service duration totals checkout 3960 ms, inventory 840 ms; three native exports. Readback separate."
+  },
+  {
+    "id": "chart-trace-dependencies-three-formats",
+    "result": "PASS",
+    "observed": "Native SVG renderer; inventory-service dependency total 1080 ms; PNG/SVG/CSV native exports."
+  },
+  {
+    "id": "chart-gc-pause-three-formats",
+    "result": "PASS",
+    "observed": "Native SVG; 60 events 10–21 ms repeating, five cycles; three native exports."
+  },
+  {
+    "id": "chart-gc-heap-three-formats",
+    "result": "PASS",
+    "observed": "Native SVG; 60 heap-after points at 50 MB; PNG/SVG/CSV native exports."
+  },
+  {
+    "id": "chart-access-requests-three-formats",
+    "result": "PASS",
+    "observed": "Native SVG; one minute bucket 120 requests; three exports."
+  },
+  {
+    "id": "chart-access-p95-three-formats",
+    "result": "PASS",
+    "observed": "Native SVG; one minute P95 1500 ms; native PNG/SVG/CSV exports."
+  },
+  {
+    "id": "chart-save-cancel",
+    "result": "PASS",
+    "observed": "Escape closes native Save without writing/overwriting; same Access P95 source/template/SVG chart retained; no false completion."
   }
 ]

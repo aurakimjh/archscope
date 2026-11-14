@@ -5681,3 +5681,14 @@ IntegratednativeExportCenter repeats sameAccess result to twofiles: byte-identic
 passes; oldrandomsubsetartifact preserved. Fullguardedapp testsafterPPTXchange
 Windowsamd6437.231s/38643.895s pass. Office rendering/fullmatrix separate.
 Evidence:2026-11-14-windows-final/pptx-stable-native.json.
+
+### 2026-11-15 - T-627 Chart Studio eight-template output matrix
+
+All eight templates exported through native dialogs to PNG/SVG/CSV; independent
+24-file readback verifies exact fixture values, units, full source vectors and
+valid raster/vector artifacts. CSV lacked units/provenance; added explicit
+metadata with meaningful formatting regressions, plus comparison mixed-unit
+warning. Native Save cancel preserves source/template/chart. State/build pass.
+Scope: KO, OS100/Web100, Canvas comparison and SVG other templates; full locale/
+DPI/renderer/reference matrix remains separate. T-627 REVIEW.
+Evidence: 2026-11-14-windows-final/chart-export-readback.json.

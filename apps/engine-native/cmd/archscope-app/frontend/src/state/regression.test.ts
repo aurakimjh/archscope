@@ -1,4 +1,5 @@
 import { fileDialogResult } from "./fileDialog.js";
+import { chartRowsToCSV } from "./chartStudioExport.js";
 import { loadLiveCaptureBootstrap } from "./liveCaptureBootstrap.js";
 import { exportWorkspaceResult, backendWorkspaceExportSupported, type WorkspaceExportMode } from "./workspaceExport.js";
 import { resultPanelID, RESULT_PANEL_RENDERERS } from "./resultPanels.js";
@@ -156,6 +157,15 @@ for (const host of [{ chrome: { webview: { postMessage() {} } } },
 function assert(condition: unknown, message: string): void {
   if (!condition) throw new Error(message);
 }
+
+const chartCSV = chartRowsToCSV([{label: 'first,\r"line"', value: 0}, {label: "missing", value: null}], {
+  template: "access.p95", unit: "ms", resultType: "access_log", sourceFiles: ["first.json", "second.json"],
+});
+assert(chartCSV.startsWith("label,value,value_unit,template_id,result_type,source_files\r\n"), "chart CSV names its measurement and provenance fields");
+assert(chartCSV.includes('"first,\r""line""",0,ms,access.p95,access_log,'), "chart CSV quotes commas, CR and quotes while preserving measured zero");
+assert(chartCSV.includes("missing,,ms,access.p95,access_log,"), "chart CSV preserves missing values without fabricating zero");
+assert(chartCSV.includes('"[""first.json"",""second.json""]"'), "chart CSV retains the complete source vector");
+assert(chartRowsToCSV([], {template: "access.p95", unit: "ms", resultType: "access_log", sourceFiles: []}) === "", "empty chart data does not invent a measurement row");
 
 function entry(id: string, type: string, result: Partial<WorkspaceAnalysisResult>): AnalysisWorkspaceEntry {
   return {

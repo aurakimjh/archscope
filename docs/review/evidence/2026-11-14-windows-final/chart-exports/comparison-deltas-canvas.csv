@@ -1,0 +1,3 @@
+label,value,value_unit,template_id,result_type,source_files
+avg_response_ms,-50,metric-specific,comparison.deltas,comparison_report,"[""C:/workspace/archscope/.tmp/windows-final-20261114/ui-fixtures/report-before.json"",""C:/workspace/archscope/.tmp/windows-final-20261114/ui-fixtures/report-after.json""]"
+total_requests,25,metric-specific,comparison.deltas,comparison_report,"[""C:/workspace/archscope/.tmp/windows-final-20261114/ui-fixtures/report-before.json"",""C:/workspace/archscope/.tmp/windows-final-20261114/ui-fixtures/report-after.json""]"

@@ -465,3 +465,24 @@ Access fixture and exports twice through ExportCenter. Both outputs are identica
 Slide2has sortedfirst10keys and exact22omittednotice; all selectedvalues match
 priorJSONsummary. This closes native-after pending above; Office rendering remains
 separate. FullguardedWindowsapp suites afterPPTX change passamd6437.231s/38643.895s.
+
+## Chart Studio native output matrix and CSV provenance
+
+Build `e50b0f48-plus-chart-csv` saves all eight templates through native Windows
+Save dialogs to PNG, vector SVG and CSV (24 files). Comparison uses Canvas;
+seven other templates use SVG. OS100/Web100/KO, 1280x800. Independent readback
+checks Access 120 requests/P95 1500 ms; GC 60 pauses (10–21 ms)/heap-after 50 MB;
+Trace service totals 3960/840 ms and dependency 1080 ms; profiler 20100 samples;
+comparison -50/+25. PNGs decode and contain nonuniform pixels; SVGs parse as
+vector paths with no raster image. These are eight template/output combinations,
+not the full renderer/locale/DPI Cartesian product. Save→Escape retains the
+selected source, template and chart without a false completion message.
+
+Before correction, CSV only carried labels/time and values. It now also carries
+value_unit, template_id, result_type and the full JSON source_files vector.
+Regression checks include quoting, embedded CR, zero versus absent values, and
+two-source provenance. Comparison explicitly warns that deltas use each metric's
+own units and unlike-unit bar lengths are not comparable. State tests and the
+frontend build pass. Original pre-fix CSV and native observation remain separate.
+See chart-export-readback.json, chart-exports/ and verify-chart-exports-used.py.
+No independent reference parity or full acceptance closure is inferred.

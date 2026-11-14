@@ -1,0 +1,2 @@
+label,value,value_unit,template_id,result_type,source_files
+inventory-service,1080,ms,trace.dependencies,trace_import,"[""C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json""]"
