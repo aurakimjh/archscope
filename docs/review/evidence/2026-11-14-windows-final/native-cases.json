@@ -228,5 +228,45 @@
     "id": "gc-events-small-fixed",
     "result": "PASS",
     "observed": "1024x768 actualOS100/WebView100 retains Events tab and at least14complete event rows. Long cause remains fully readable and overflow stays inside the table; no OS125claim."
+  },
+  {
+    "id": "jfr-invalid-json",
+    "result": "PASS",
+    "observed": "1024x768 native malformed JSON reports ENGINE_FAILED line1col4; Analyze/Browse remain reachable; no fabricated result."
+  },
+  {
+    "id": "jfr-invalid-valid-retry",
+    "result": "PASS",
+    "observed": "After malformed JSON failure, valid3-event JSON retry removes error and shows3events,2sample-events,1stack,42.5ms GC/12ms park, explicit sparse-stack warning.1024x768 fits mandatory controls; sparse area exempt."
+  },
+  {
+    "id": "jfr-stack-keyboard-heatmap",
+    "result": "PASS",
+    "observed": "Sparse3-event result keeps stack sample PaymentService.authorize=1. Right from Stack Profile activates Wall-clock tab with focus outline. This all-mode sparse fixture has no heatmap cells; no populated heatmap/area claim."
+  },
+  {
+    "id": "jfr-stale-result-before",
+    "result": "FAIL",
+    "observed": "After changing3-event JSON to a different binary JFR then failing without explicit JDK CLI configuration, old3-event summary and sparse-stack warning remain under new filename. New source must not inherit prior result."
+  },
+  {
+    "id": "jfr-binary-jdk-count",
+    "result": "PARTIAL",
+    "observed": "Explicit absolute installed MicrosoftJDK25 jfr.exe converts owned binary recording. Native3010total/filtered agrees independent jfr print JSON count;153stack samples/29unique stacks. Notable table shows fewer than10complete rows due timestamp wrapping; layout fix follows."
+  },
+  {
+    "id": "jfr-input-clear-fixed",
+    "result": "PASS",
+    "observed": "Switching from populated3010-event binary to malformed JSON immediately clears both result projections and findings. No stale3010count/old summary under new filename."
+  },
+  {
+    "id": "jfr-failure-clear-fixed",
+    "result": "PASS",
+    "observed": "Malformed input analysis reports actual line1col4 error while all result metrics and prior findings remain empty after source replacement."
+  },
+  {
+    "id": "jfr-notable-dense-fixed",
+    "result": "PASS",
+    "observed": "Same binary SHA and native3010/153/29counts. Default1280x800 OS100/WebView100 now shows11complete notable-event rows; full timestamp stays one line,24px evidence targets and internal horizontal scroller. No blanket70percent verdict."
   }
 ]

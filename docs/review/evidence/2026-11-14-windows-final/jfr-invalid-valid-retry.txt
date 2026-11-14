@@ -1,0 +1,77 @@
+JFR
+jfr-valid.json
+도움말 보기
+jfr-valid.json
+찾아보기
+Clear file
+분석
+분석 옵션
+JFR 레코딩
+네이티브 메모리
+필터된 이벤트
+도움말 보기
+3
+총 이벤트
+도움말 보기
+3
+선택된 모드
+도움말 보기
+all
+사용 가능 모드
+도움말 보기
+cpu, wall, lock, gc
+샘플 이벤트
+도움말 보기
+2
+스택 샘플
+도움말 보기
+1
+고유 스택
+도움말 보기
+1
+JFR 범위
+도움말 보기
+Binary .jfr files are converted by the JDK jfr CLI using `jfr print --json`; ArchScope analyzes the JSON output.
+ArchScope surfaces report-oriented event summaries, stack aggregation, hints, and evidence rows. It does not attempt to replace the full JDK `jfr view` or `jfr summary` UI.
+분석 결과
+도움말 보기
+WARNING
+Only a few JFR events include stack frames. Treat top method and flamegraph rankings as directional, not statistically stable.
+추가
+주요 이벤트
+스택 프로파일
+월-클럭 히트맵
+이벤트 유형 분포
+파서 리포트
+주요 이벤트
+도움말 보기
+시각
+￼
+이벤트 유형
+￼
+지속 시간 (MS)
+￼
+쓰레드
+￼
+메시지
+￼
+증거
+￼
+2026-04-30T01:00:01.000000000Z
+jdk.GCPhasePause
+42.5
+VM Thread
+Pause Young
+￼
+2026-04-30T01:00:02.000000000Z
+jdk.ThreadPark
+12
+worker-1
+Thread parked waiting for condition
+￼
+2026-04-30T01:00:00.123456789Z
+jdk.CPUTimeSample
+—
+http-nio-8080-exec-7
+—
+￼

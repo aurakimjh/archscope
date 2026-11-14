@@ -1,0 +1,174 @@
+JFR
+native-recording.jfr
+도움말 보기
+native-recording.jfr
+찾아보기
+Clear file
+분석
+분석 옵션
+JFR 레코딩
+네이티브 메모리
+필터된 이벤트
+도움말 보기
+3,010
+총 이벤트
+도움말 보기
+3,010
+선택된 모드
+도움말 보기
+all
+사용 가능 모드
+도움말 보기
+cpu, wall, alloc, gc, exception
+샘플 이벤트
+도움말 보기
+153
+스택 샘플
+도움말 보기
+153
+고유 스택
+도움말 보기
+29
+JFR 범위
+도움말 보기
+Binary .jfr files are converted by the JDK jfr CLI using `jfr print --json`; ArchScope analyzes the JSON output.
+ArchScope surfaces report-oriented event summaries, stack aggregation, hints, and evidence rows. It does not attempt to replace the full JDK `jfr view` or `jfr summary` UI.
+주요 이벤트
+스택 프로파일
+월-클럭 히트맵
+이벤트 유형 분포
+파서 리포트
+주요 이벤트
+도움말 보기
+시각
+￼
+이벤트 유형
+￼
+지속 시간 (MS)
+￼
+쓰레드
+￼
+메시지
+￼
+증거
+￼
+2026-11-15T00:01:48.660644100+09:00
+jdk.SafepointBegin
+—
+VM Thread
+—
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+throttle
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+enabled
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+enabled
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+stackTrace
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+enabled
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+stackTrace
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+enabled
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+stackTrace
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+enabled
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+threshold
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+stackTrace
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+throttle
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+enabled
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+threshold
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+stackTrace
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+throttle
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+enabled
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+threshold
+￼
+2026-11-15T00:01:48.662940800+09:00
+jdk.ActiveSetting
+—
+—
+stackTrace
+￼

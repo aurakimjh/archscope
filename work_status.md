@@ -5555,3 +5555,13 @@ Fixed wrapped long GC event cells: native complete rows increase7to16at1280x800,
 with at least14at1024x768. Existing table internal scrolling preserves full text.
 Frontend build passes; actualOS125/reference/full locale matrix remains separate.
 Evidence: docs/review/evidence/2026-11-14-windows-final/README.md. T-627 REVIEW.
+
+### 2026-11-15 Windows follow-up: JFR input and provenance
+
+Verified malformed/valid retry, sparse-stack disclosure, keyboard conditional tab
+movement and real binary JFR conversion using explicit installed JDK25path. Native
+3010events match independent jfr print JSON. Fixed source replacement retaining
+prior results/findings and invalidated late inflight callbacks. Fixed timestamp
+wrapping/event spacing to show11complete notable rows at1280x800. Frontend state/
+build and native before/after checks pass. Raw JFR stays private; aggregate oracle
+and generator are archived in2026-11-14-windows-final. T-627 remains REVIEW.

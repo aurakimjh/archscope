@@ -1,0 +1,102 @@
+{
+  "osScreenScaleFactor": 1,
+  "report": {
+    "geometry": "clipped row/plot/detail union; plots include axes",
+    "mode": "passive",
+    "views": [
+      {
+        "canvasCount": 0,
+        "chromeHeight": 18,
+        "detailHeight": 179,
+        "dpr": 1,
+        "firstDataTop": 524,
+        "fullRequestRows": 0,
+        "fullRows": 0,
+        "height": 741,
+        "helpFitsViewport": true,
+        "helpOpen": false,
+        "mainHorizontalOverflow": false,
+        "mainScrollTop": 0,
+        "mainWidth": 1264,
+        "outerOverflow": false,
+        "plotCount": 0,
+        "renderedRows": 0,
+        "resultAreaRatio": 0.233,
+        "route": "http_capture",
+        "selectedTabFits": true,
+        "sidebarWidth": 0,
+        "svgCount": 0,
+        "tab": "",
+        "width": 1264
+      },
+      {
+        "canvasCount": 0,
+        "chromeHeight": 30,
+        "detailHeight": 0,
+        "dpr": 1,
+        "firstDataTop": null,
+        "fullRequestRows": 0,
+        "fullRows": 0,
+        "height": 741,
+        "helpFitsViewport": true,
+        "helpOpen": false,
+        "mainHorizontalOverflow": false,
+        "mainScrollTop": 0,
+        "mainWidth": 1264,
+        "outerOverflow": false,
+        "plotCount": 0,
+        "renderedRows": 0,
+        "resultAreaRatio": 0,
+        "route": "jfr",
+        "selectedTabFits": true,
+        "sidebarWidth": 0,
+        "svgCount": 0,
+        "tab": "JFR 레코딩",
+        "width": 1264
+      },
+      {
+        "canvasCount": 0,
+        "chromeHeight": 30,
+        "detailHeight": 0,
+        "dpr": 1,
+        "firstDataTop": 387,
+        "fullRequestRows": 0,
+        "fullRows": 11,
+        "height": 741,
+        "helpFitsViewport": true,
+        "helpOpen": false,
+        "mainHorizontalOverflow": false,
+        "mainScrollTop": 0,
+        "mainWidth": 1264,
+        "outerOverflow": false,
+        "plotCount": 0,
+        "renderedRows": 20,
+        "resultAreaRatio": 0.463,
+        "route": "jfr",
+        "selectedTabFits": true,
+        "sidebarWidth": 0,
+        "svgCount": 0,
+        "tab": "JFR 레코딩",
+        "width": 1264
+      }
+    ]
+  },
+  "screenLogicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 3840,
+    "Height": 2160
+  },
+  "screenPhysicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 3840,
+    "Height": 2160
+  },
+  "window": {
+    "height": 800,
+    "width": 1280,
+    "x": 1280,
+    "y": 656
+  }
+}

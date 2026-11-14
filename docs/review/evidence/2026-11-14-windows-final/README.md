@@ -211,3 +211,31 @@ The row now keeps text on one line inside its existing horizontal scroller.
 Same native input shows16complete rows at1280x800and at least14at1024x768.
 Frontend build passes; this is a CSS-only change, verified in real native views.
 No blanket70percent/actualOS125percent/original-reference verdict is claimed.
+
+## JFR source replacement, binary input and event rows (continued November15)
+
+Malformed JSON reports line1col4/ENGINE_FAILED and valid sparse3-event JSON retry
+removes it, preserving42.5ms GC/12ms park and sparse-stack warning. Stack→Right
+activates Wall-clock tab; sparse all-mode input has no heatmap cells. Selected
+previous heatmap/native-memory receipts remain separate.
+
+Replacing the file left the old result/findings under a new filename, including
+when the new analysis failed. File select/clear now invalidate both inflight
+identities, projections and errors; each new analysis starts empty. Native fixed
+binary3010-event→invalidJSON replacement immediately empties old metrics and
+findings, and subsequent actual parse failure leaves them empty.
+
+An owned4second Java workload records a real .jfr with MicrosoftJDK25.0.1.8.
+Without ARCHSCOPE_JFR_CLI the existing explicit-config boundary correctly refuses
+binary conversion. A separate owned app launched with the absolute installed
+jfr.exe path converts it and reports3010total/filtered events,153stack samples,
+29unique stacks. Independent jfr print JSON confirms3010events/55types. Aggregate
+oracle/hash and generator source are archived; raw JFR/JSON stay private because
+JDK startup metadata contains host details. No foreign JFR/full-parser claim.
+
+Long timestamps and row spacing initially permit fewer than10notable rows. Rows
+now preserve timestamps on one line with compact24px evidence targets and existing
+internal horizontal scrolling; same binary shows11complete rows at1280x800.
+Frontend state/build pass. No global area/actualOS125/locale/reference/cancel claim.
+Initial build overlapped the final frontend build; that candidate was discarded
+and rebuilt after frontend completion before any launch or verdict.

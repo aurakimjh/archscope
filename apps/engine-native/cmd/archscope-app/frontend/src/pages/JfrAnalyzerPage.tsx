@@ -182,28 +182,37 @@ export function JfrAnalyzerPage(): React.JSX.Element {
   const topSites = nativeMemResult?.tables?.top_call_sites ?? [];
 
   const handleFileSelected = useCallback((file: FileDockSelection) => {
+    inflightRef.current = null;
+    nativeMemInflightRef.current = null;
     setSelectedFile(file);
+    setJfrResult(null);
+    setNativeMemResult(null);
     setJfrState("ready");
     setJfrError(null);
     setEngineMessages([]);
-    if (nativeMemState !== "running") setNativeMemState("ready");
+    setNativeMemState("ready");
     setNativeMemError(null);
-  }, [nativeMemState]);
+  }, []);
 
   const handleClearFile = useCallback(() => {
+    inflightRef.current = null;
+    nativeMemInflightRef.current = null;
     setSelectedFile(null);
     setJfrResult(null);
     setNativeMemResult(null);
-    if (jfrState !== "running") setJfrState("idle");
-    if (nativeMemState !== "running") setNativeMemState("idle");
+    setJfrState("idle");
+    setNativeMemState("idle");
+    setJfrError(null);
+    setNativeMemError(null);
     setEngineMessages([]);
-  }, [jfrState, nativeMemState]);
+  }, []);
 
   // ── JFR analysis ────────────────────────────────────────────────
   const analyzeJfr = useCallback(async () => {
     if (!canAnalyzeJfr) return;
     setJfrState("running");
     setJfrError(null);
+    setJfrResult(null);
     setEngineMessages([]);
     const token = Symbol("jfr-analysis");
     inflightRef.current = token;
@@ -280,6 +289,7 @@ export function JfrAnalyzerPage(): React.JSX.Element {
     if (!canAnalyzeNativeMem) return;
     setNativeMemState("running");
     setNativeMemError(null);
+    setNativeMemResult(null);
     const token = Symbol("native-memory");
     nativeMemInflightRef.current = token;
 
@@ -1200,7 +1210,7 @@ function CompactTableCard({
 
 function EvidenceButton({ onClick }: { onClick: () => void }): React.JSX.Element {
   return (
-    <Button type="button" size="sm" variant="outline" onClick={onClick}>
+    <Button type="button" size="sm" variant="outline" className="h-6 w-6 p-0" onClick={onClick}>
       <Plus className="h-3.5 w-3.5" />
     </Button>
   );
@@ -1259,7 +1269,7 @@ function NotableEventsPanel({
               {rows.map((row, index) => (
                 <tr
                   key={`${row.time ?? ""}-${index}`}
-                  className="border-b border-border last:border-0"
+                  className="whitespace-nowrap border-b border-border last:border-0 [&>td]:py-1"
                 >
                   <td className="px-3 py-2 font-mono text-[11px] text-muted-foreground">
                     {row.time || "—"}

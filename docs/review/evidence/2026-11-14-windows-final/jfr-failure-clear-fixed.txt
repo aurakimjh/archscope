@@ -1,0 +1,42 @@
+JFR
+invalid.json
+도움말 보기
+invalid.json
+찾아보기
+Clear file
+분석
+분석 옵션
+JFR 레코딩
+네이티브 메모리
+분석 오류
+invalid character 'd' looking for beginning of object key string: line 1 col 4
+코드: ENGINE_FAILED
+필터된 이벤트
+도움말 보기
+—
+총 이벤트
+도움말 보기
+—
+선택된 모드
+도움말 보기
+all
+사용 가능 모드
+도움말 보기
+—
+샘플 이벤트
+도움말 보기
+—
+스택 샘플
+도움말 보기
+—
+고유 스택
+도움말 보기
+—
+주요 이벤트
+스택 프로파일
+월-클럭 히트맵
+이벤트 유형 분포
+파서 리포트
+주요 이벤트
+도움말 보기
+—
