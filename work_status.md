@@ -5252,3 +5252,8 @@ Both fixed production capture binaries completed two hours:7200.507s/24780reques
 ### 2026-11-14 - T-627/T-613 explicit remaining acceptance inventory
 
 Reconciled selected2026-11-12/13/14 receipts against the21-route desktop acceptance and16-case Stand-alone contract. Paired EN/KO docs now distinguish completed slices from missing per-route conditions, exact layout/keyboard/OS-DPI gates, local fixture work and live-body/vendor/transparent-driver/clean-Windows gates. Existing two-hour and genuine675entry codec work remains completed in its scope; full UI REVIEW/parity PENDING remain unchanged. New recovery staging/blob experiment exposed lost discardedBytes/retained-count reporting; correction and native reruns are separately recorded.
+
+
+### 2026-11-14 - T-613 exact recovery summary
+
+Reproduced actual Windows recovery dropping27Bstaging+35Borphanblob but showing0B. d91376ea preserves openingRecoveryReport and actualretainedrowcount; tests cover NDJSONtail,rollingretention2of3,orphan cleanup andno repeatedbytes. Fullcapture/app suites passamd64/386 (app42.123s/44.388s),state/build pass; bothproduction native recovery62B/12records and exact committedbytes/IDs/save-open selection pass. HistoricalUIFAIL and architecture-ambiguousINCONCLUSIVE images retained; singled-outamd64rerun recorded. Prior2h capturescope unchanged; fullparity PENDING. Receipt: docs/review/evidence/2026-11-14-acceptance-remaining/recovery-summary.json.

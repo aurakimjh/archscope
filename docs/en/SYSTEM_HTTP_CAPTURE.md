@@ -1899,3 +1899,10 @@ claim is made with CGO=0. Crash recovery with uncommitted staging/blob cleanup
 also does not establish power-loss or every committed-corruption/low-disk fault.
 T-613 stays PENDING; additional receipts are in the dated remaining-acceptance
 folder under docs/review/evidence.
+
+
+### 2026-11-14 exact recovery reporting
+
+Forced termination plus27B uncommitted rolling staging and35B orphan blob exposed recovery reporting0B. OpenWithRecovery now forwards the actual discarded bytes and retained row count. Both capture suites, app42.123s/44.388s and frontend state/build pass. Current production crash/restart preserves12record bytes/IDs/selection and native62B on both arches; ambiguous concurrentamd64 images remain INCONCLUSIVE and a single-window rerun is separate. This is not power-loss, committed-row corruption or leak-free acceptance; earlier2h capture binaries predate this reporting fix.
+
+Evidence: docs/review/evidence/2026-11-14-acceptance-remaining/recovery-summary.json.

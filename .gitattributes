@@ -113,3 +113,7 @@ scripts/acceptance/layout/soak-origin.py text eol=lf
 docs/review/evidence/2026-11-14-native-followup/* -text whitespace=cr-at-eol
 
 docs/review/evidence/2026-11-14-desktop-soak/* -text whitespace=cr-at-eol
+
+# Exact bytes for the follow-up native acceptance receipts.
+docs/review/evidence/2026-11-14-acceptance-remaining/* -text whitespace=cr-at-eol
+scripts/verify-windows-desktop-recovery.mjs text eol=lf

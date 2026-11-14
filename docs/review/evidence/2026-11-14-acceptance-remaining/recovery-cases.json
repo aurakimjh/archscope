@@ -1,0 +1,85 @@
+[
+  {
+    "id": "recovery-amd64-before",
+    "observed": "Forcedrestart preserves12records but native recovery summary shows0B discarded after harness injected62 orphan bytes; actual orphan files were removed.",
+    "result": "INCONCLUSIVE",
+    "observedAt": "2026-11-14T00:29:49.333Z",
+    "locale": "ko",
+    "scale": "OS100%,WebView100%",
+    "screenshot": "recovery-amd64-before.jpg",
+    "expectedDiscardedBytes": 62,
+    "historicalResult": "FAIL",
+    "qualification": "Concurrent same-title windows: screenshot foreground is not sufficient to attribute this image to amd64. Retained as history; use single-window amd64 followup or separately matched386 screenshot."
+  },
+  {
+    "id": "recovery-386-before",
+    "observed": "Native recovery summary shows1session/12records/0B despite62bytes of uncommitted staging and orphanblob being removed; reproduced on386.",
+    "result": "FAIL",
+    "observedAt": "2026-11-14T00:30:23.057Z",
+    "locale": "ko",
+    "scale": "OS100%,WebView100%",
+    "screenshot": "recovery-386-before.jpg",
+    "expectedDiscardedBytes": 62
+  },
+  {
+    "id": "recovery-amd64-after",
+    "observed": "Fixed production native summary:1session,12records,62Bdiscarded data, exactly27Buncommittedstaging+35Borphanblob; existing12committedrows retained.",
+    "result": "INCONCLUSIVE",
+    "observedAt": "2026-11-14T00:39:05.648Z",
+    "locale": "ko",
+    "scale": "OS100%,WebView100%",
+    "screenshot": "recovery-amd64-after.jpg",
+    "expectedDiscardedBytes": 62,
+    "historicalResult": "PASS",
+    "qualification": "Concurrent same-title windows: screenshot foreground is not sufficient to attribute this image to amd64. Retained as history; use single-window amd64 followup or separately matched386 screenshot."
+  },
+  {
+    "id": "recovery-386-after",
+    "observed": "Fixed386production native summary:1session/12records/62Bdiscarded data, matches27Bstaging+35Borphanblob; no committedrow corruption injected.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:39:20.559Z",
+    "locale": "ko",
+    "scale": "OS100%,WebView100%",
+    "screenshot": "recovery-386-after.jpg",
+    "expectedDiscardedBytes": 62
+  },
+  {
+    "id": "recovery-amd64-reopen",
+    "observed": "After actual recovery observation, controller saves/opens12rows; selected sequence1/query0 native Raw includes query and Host11508port;200GET/JSON45B/bodiesdisabled.",
+    "result": "INCONCLUSIVE",
+    "observedAt": "2026-11-14T00:39:33.025Z",
+    "locale": "ko",
+    "scale": "OS100%,WebView100%",
+    "screenshot": "recovery-amd64-reopen.jpg",
+    "historicalResult": "PASS",
+    "qualification": "Concurrent same-title windows: screenshot foreground is not sufficient to attribute this image to amd64. Retained as history; use single-window amd64 followup or separately matched386 screenshot."
+  },
+  {
+    "id": "recovery-386-reopen",
+    "observed": "Actual rendered timestamps00:37:14.680..959 match386 savedfile;12rows,selectedquery0/sequence1,Raw200GET/Host11508/bodydisabled.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:40:43.379Z",
+    "locale": "ko",
+    "scale": "OS100%,WebView100%",
+    "screenshot": "recovery-386-reopen.jpg"
+  },
+  {
+    "id": "recovery-amd64-reopen-single",
+    "observed": "Onlyamd64testwindow remains; rendered00:37:14.644..919 matchesamd64 savedfile;12rows/sequence1/query0/Host11508/200GET. Concurrentearlier screenshot attribution is separately qualified.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:41:05.638Z",
+    "locale": "ko",
+    "scale": "OS100%,WebView100%",
+    "screenshot": "recovery-amd64-reopen-single.jpg"
+  },
+  {
+    "id": "recovery-amd64-after-single",
+    "observed": "Singleownedwindow,verifiedamd64executable;recovery summary1session/12records/62Bdiscardeddata, exactinjected27+35B. Replaces architecture-ambiguous concurrent screenshot.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:42:45.739Z",
+    "locale": "ko",
+    "scale": "OS100%,WebView100%",
+    "screenshot": "recovery-amd64-after-single.jpg",
+    "expectedDiscardedBytes": 62
+  }
+]

@@ -5147,3 +5147,10 @@ handles가 증가했으며 root1GiB guard 통과는 tree 전체·장기 plateau�
 
 추가 실행은 최신 source/hash가 명시된 격리된 소유 프로세스·합성 loopback
 fixture로 한정하고 원본 실패 기록을 보존합니다. T-613은 PENDING입니다.
+
+
+### 2026-11-14 exact recovery reporting
+
+강제 종료 후 rolling 임시 파일27B와 미참조 blob35B를 정리한 실제 결과가 UI에서0B로 사라지는 오류를 수정했습니다. 누적 저장 수 대신 복구된 보존 행 수도 전달합니다. x64/x86 전체 capture 패키지와 앱42.123s/44.388s, state/build를 통과했습니다. 최신 production 양쪽에서12행/정확한62B 복구 및 바이트·ID·선택 동일성을 검증했습니다. 동시 창의 일부 x64 이미지는 미확정으로 보존하고 단일 창으로 재검증했습니다. 전원 손실·커밋된 행 손상·전체 장기 메모리 인수는 별도이며, 기존2시간 결과는 이 보고 수정 이전 빌드입니다.
+
+Evidence: docs/review/evidence/2026-11-14-acceptance-remaining/recovery-summary.json.

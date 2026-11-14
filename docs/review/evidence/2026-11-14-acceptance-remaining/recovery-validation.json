@@ -1,0 +1,110 @@
+{
+  "toolchain": "go version go1.26.10 windows/amd64",
+  "sourceCommit": "d91376eafe9e6421eb73dab5bab3fd6c1b9c2893",
+  "tests": {
+    "capture-amd64": {
+      "result": "PASS",
+      "logSha256": "0a009a30fdf60632e2e2906da1fb7e173d028913ebebfc959dce46a0f0ce9125",
+      "output": [
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance\t1.013s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/admission\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/backend\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/browsercache\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/comautomation\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/content\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/legacy\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/processlaunch\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/procmap\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/requestbuilder\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/session\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/store\t2.183s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/stream\t1.604s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/summary\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/transparent\t(cached)"
+      ]
+    },
+    "capture-386": {
+      "result": "PASS",
+      "logSha256": "f9a25df92e55f97b5e1b3d25519e66236905a94e011032cb0e8c80fc59086cff",
+      "output": [
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance\t0.943s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/admission\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/backend\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/browsercache\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/comautomation\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/content\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/legacy\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/processlaunch\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/procmap\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/requestbuilder\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/session\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/store\t2.199s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/stream\t1.562s",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/summary\t(cached)",
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/internal/capture/transparent\t(cached)"
+      ]
+    },
+    "app-amd64": {
+      "result": "PASS",
+      "logSha256": "9e1d798a44ce73274408cf8b154ef2589f0f666481c8b88502718f8632489c87",
+      "output": [
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app\t42.123s"
+      ]
+    },
+    "app-386": {
+      "result": "PASS",
+      "logSha256": "f2a5a788acb4c7348dd2ba13ad09836713a4dbf61b66d2762b5534bac6c86adb",
+      "output": [
+        "ok  \tgithub.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app\t44.388s"
+      ]
+    },
+    "frontend-state": {
+      "result": "PASS",
+      "logSha256": "3e6dc9263931725271709552759a92e933f7959e2b1b9c69475a3e30a57ee0ec",
+      "output": []
+    },
+    "frontend-build": {
+      "result": "PASS",
+      "logSha256": "6f1dae3f71262c58345969e57d1f2e57012afbdd61e3299d993343eff70244da",
+      "output": [
+        "\u2713 built in 1.24s"
+      ]
+    }
+  },
+  "productionBuilds": {
+    "amd64": {
+      "result": "PASS",
+      "bytes": 56240128,
+      "sha256": "cad799791b6518252ca8d66a16f3056bc5e424fbf28f66ae5ae83674fb983c8f",
+      "buildCommit": "d91376eafe9e6421eb73dab5bab3fd6c1b9c2893"
+    },
+    "386": {
+      "result": "PASS",
+      "bytes": 54292480,
+      "sha256": "aa59f9e1598ff35cb1182a2c7b72f5f2fb5a3b0b42a36f487889c46782403ba7",
+      "buildCommit": "d91376eafe9e6421eb73dab5bab3fd6c1b9c2893"
+    }
+  },
+  "limitations": [
+    "CGO_ENABLED=0,noWindowsrace; fullapptestscoverrecoveryfix before subsequentBuilder-reveal-onlychange",
+    "FrontendandbuildvalidationforBuilderfix are recordedseparately atsessioncompletion"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "scope": "Owned Windows production desktop crash/restart with12committed synthetic HTTP records, bodiesdisabled, isolatedDockerloopback; uncommitted staging/orphanblob injection only",
+  "fixCommit": "d91376eafe9e6421eb73dab5bab3fd6c1b9c2893",
+  "runs": {
+    "recovery-amd64": {
+      "backendResult": "PASS",
+      "nativeUIResult": "INCONCLUSIVE concurrent screenshot attribution",
+      "binarySha256": "54456b761c0798db4cc1bbcf8d067037e2c3552da202feb85048fa043e6b7e0a",
+      "buildCommit": "eb4049b5ef6d49bc6177a394a256716a7b2886e7",
+      "discardedBytesExpected": 62,
+      "recoveredRows": 12,
+      "committedRecordBytesUnchanged": true
+    },
+    "recovery-386": {
+      "backendResult": "PASS",
+      "nativeUIResult": "FAIL discardedBytes0 instead62",
+      "binarySha256": "199fccf349d2f7d2e638a03648919f4d23f47c2cbdef437c4e65770e5f9f23f0",
+      "buildCommit": "eb4049b5ef6d49bc6177a394a256716a7b2886e7",
+      "discardedBytesExpected": 62,
+      "recoveredRows": 12,
+      "committedRecordBytesUnchanged": true
+    },
+    "recovery-amd64-fixed": {
+      "backendResult": "PASS",
+      "nativeUIResult": "INCONCLUSIVE concurrent screenshot attribution; subsequent single-window rerun PASS",
+      "binarySha256": "cad799791b6518252ca8d66a16f3056bc5e424fbf28f66ae5ae83674fb983c8f",
+      "buildCommit": "d91376eafe9e6421eb73dab5bab3fd6c1b9c2893",
+      "discardedBytesExpected": 62,
+      "recoveredRows": 12,
+      "committedRecordBytesUnchanged": true
+    },
+    "recovery-386-fixed": {
+      "backendResult": "PASS",
+      "nativeUIResult": "PASS native1session/12records/62B",
+      "binarySha256": "aa59f9e1598ff35cb1182a2c7b72f5f2fb5a3b0b42a36f487889c46782403ba7",
+      "buildCommit": "d91376eafe9e6421eb73dab5bab3fd6c1b9c2893",
+      "discardedBytesExpected": 62,
+      "recoveredRows": 12,
+      "committedRecordBytesUnchanged": true
+    },
+    "recovery-amd64-single": {
+      "backendResult": "PASS",
+      "nativeUIResult": "PASS native1session/12records/62B",
+      "binarySha256": "cad799791b6518252ca8d66a16f3056bc5e424fbf28f66ae5ae83674fb983c8f",
+      "buildCommit": "d91376eafe9e6421eb73dab5bab3fd6c1b9c2893",
+      "discardedBytesExpected": 62,
+      "recoveredRows": 12,
+      "committedRecordBytesUnchanged": true
+    }
+  },
+  "limitations": [
+    "No power-loss test or corruption of a committed row; knownuncommitted27Bstaging/35Borphanblob only",
+    "Baselinebackend recovery passeswhileUIreport fails; historicfailure notconvertedtooverallPASS",
+    "Concurrent same-title desktop screenshots foramd64 were ambiguous; nativecases retainINCONCLUSIVE history and single-window amd64 rerecord",
+    "Oldtwo-hourcapture runs predate recovery-report/UI-only fixes; theirsource/hashscope remains separate",
+    "No full vendor/COM/transparent/service/body-policy/race/leak-free acceptance"
+  ]
+}

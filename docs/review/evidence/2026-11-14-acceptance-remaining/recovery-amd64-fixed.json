@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "platform": "windows",
+  "scope": "production Wails desktop/controller, synthetic Docker-loopback HTTP, bodies disabled",
+  "scenario": "forced owned-process termination, orphan rolling staging/blob cleanup, exact committed-row preservation",
+  "binarySha256": "cad799791b6518252ca8d66a16f3056bc5e424fbf28f66ae5ae83674fb983c8f",
+  "passed": true,
+  "requests": 12,
+  "pauses": 0,
+  "clears": 0,
+  "checkpoints": [
+    {
+      "elapsedSeconds": 1.5,
+      "requests": 12,
+      "retainedRows": 12,
+      "stats": {
+        "retentionRows": 128,
+        "retained": 12,
+        "generation": 0,
+        "state": "running",
+        "observed": 12,
+        "captured": 12,
+        "persisted": 12,
+        "bodyOmitted": 0,
+        "eventSkipped": 0,
+        "kernelDropped": 0,
+        "parseFailed": 0,
+        "unsupported": 0,
+        "passthrough": 0,
+        "unattributed": 0,
+        "dropped": 0,
+        "backpressured": false,
+        "snapshotVersion": 12,
+        "sequence": 12,
+        "storeBytes": 22397
+      },
+      "hasMainWindow": true,
+      "WorkingSet64": 102010880,
+      "PrivateMemorySize64": 103026688,
+      "HandleCount": 568,
+      "Responding": true
+    }
+  ],
+  "nativeUIObservations": "record separately; controller/liveness is not a renderer correctness claim",
+  "buildCommit": "d91376eafe9e6421eb73dab5bab3fd6c1b9c2893",
+  "elapsedSeconds": 1.5,
+  "injectedOrphanBytes": 62,
+  "injectedOrphanArtifacts": [
+    {
+      "kind": "uncommitted rolling staging",
+      "bytes": 27,
+      "sha256": "44ad80a424af23b49ba16ae92e209fc4214b487d62b57858014b17f43acbd0c0"
+    },
+    {
+      "kind": "unreferenced synthetic blob",
+      "bytes": 35,
+      "sha256": "79207aa566be6923ac1b87b0840d34473ebc2ccec90d6f29b554acdddf843539"
+    }
+  ],
+  "nativeRecoveryRequired": true,
+  "committedRecordBytesUnchanged": true,
+  "recoveredIDsEqual": true,
+  "injectedOrphansRemoved": true,
+  "committedRecordHashSetSha256": "24488122481c777b84da56a90b2cf5a4ccc91f3adaacf9499773f0da8417c0c4",
+  "recoveredRows": 12,
+  "savedSessionSha256": "b62042160048b5bad27b8bb5cb6b1f701d6898c718f23b992483b72392019bd5"
+}
