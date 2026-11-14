@@ -16,7 +16,7 @@
 //
 // 의존성 주의: Wails 자동 생성 bindings 모듈을 직접 import.
 // ─────────────────────────────────────────────────────────────────────
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   ProfilerService,
@@ -78,6 +78,12 @@ export function DiffPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
+
+  // A result belongs to the exact input pair and normalization option.
+  useEffect(() => {
+    setResult(null);
+    setError("");
+  }, [baseline, target, normalize]);
 
   const flame = useMemo(() => adaptDiffNode(result?.charts?.flamegraph), [result]);
 

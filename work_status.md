@@ -1247,6 +1247,11 @@ cancel preserving result,32level default plot union0.727,worker.4selection4100/
 fixture ratio0.598is disclosed; no universal70percent/reference/actualOS125percent/
 locale/in-flight-cancel PASS. Receipt:2026-11-14-windows-final/README.md.
 
+T-627 diff path/normalization edits now invalidate the previous result/error.
+Native stale-summary before FAIL/after PASS, missing-target refusal and valid
+retry pass. Forward20100→22600 regression12.4percent and reverse improvement
+-11.1percent match fixture arithmetic; complete diff conditions remain separate.
+
 Revised-runner long duration and the10-minute Clear path are now verified on
 Windows x64/x86 with an isolated shared Docker origin. Source324a8d97 app binaries
 are unchanged; runner1b30244b adds explicit empty-generation/reset/refill checks.

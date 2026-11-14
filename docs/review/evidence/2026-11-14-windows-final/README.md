@@ -168,3 +168,13 @@ trigger roundtrip and unchanged selected path. Intermediate animation frames are
 not used for fit verdicts. File-picker Escape preserves the prior input/result;
 this is not in-flight analysis cancellation. Full original-reference, actual
 OS125percent/locale combinations and remaining profiler conditions stay open.
+
+## T-627 diff input provenance
+
+Raw-weight forward20100→22600shows12.4percent regression; reverse22600→20100shows
+-11.1percent improvement, matching fixture arithmetic. Replacing a path initially
+left the old chart/summary under the new input. DiffPage now clears result/error
+when either path or normalization changes. Native before FAIL/after PASS verifies
+immediate invalidation, actual missing-target error and successful valid retry.
+The initial forward screen is1024x768; the fixed reverse/retry is1280x800. This
+does not close every mismatch/cancellation/locale/DPI/reference condition.
