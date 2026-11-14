@@ -277,6 +277,8 @@ function FindingRow({
   finding: ServiceFlowFinding;
   onAddEvidence: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
+  const evidenceLabel = `${t("evidenceAdd")}: ${finding.code}`;
   return (
     <tr className="border-b border-border align-top last:border-0">
       <td className="px-3 py-2">
@@ -294,8 +296,9 @@ function FindingRow({
         </div>
       </td>
       <td className="px-3 py-2 text-right">
-        <Button type="button" size="sm" variant="outline" onClick={onAddEvidence}>
-          <ClipboardPlus className="h-3.5 w-3.5" />
+        <Button type="button" size="sm" variant="outline" onClick={onAddEvidence}
+          aria-label={evidenceLabel} title={evidenceLabel}>
+          <ClipboardPlus className="h-3.5 w-3.5" aria-hidden="true" />
         </Button>
       </td>
     </tr>
@@ -303,6 +306,8 @@ function FindingRow({
 }
 
 function EdgeRow({ edge, onAddEvidence }: { edge: ServiceEdge; onAddEvidence: () => void }): React.JSX.Element {
+  const { t } = useI18n();
+  const evidenceLabel = `${t("evidenceAdd")}: ${edge.caller} -> ${edge.callee}`;
   return (
     <tr className="border-b border-border align-top last:border-0">
       <td className="px-3 py-2 font-medium">{edge.caller}</td>
@@ -320,8 +325,9 @@ function EdgeRow({ edge, onAddEvidence }: { edge: ServiceEdge; onAddEvidence: ()
         <div className="text-[10px] text-muted-foreground">{edge.evidence_refs.join(", ")}</div>
       </td>
       <td className="px-3 py-2 text-right">
-        <Button type="button" size="sm" variant="outline" onClick={onAddEvidence}>
-          <ClipboardPlus className="h-3.5 w-3.5" />
+        <Button type="button" size="sm" variant="outline" onClick={onAddEvidence}
+          aria-label={evidenceLabel} title={evidenceLabel}>
+          <ClipboardPlus className="h-3.5 w-3.5" aria-hidden="true" />
         </Button>
       </td>
     </tr>

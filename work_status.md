@@ -5709,3 +5709,12 @@ and P95 units/thresholds observed. No-match and evidence add pass. Add missing
 accessible names to evidence icons; state/build pass, integrated label follow-up
 pending. Fixed-default targets have no editor/save/cancel UI. T-627 REVIEW.
 Evidence: 2026-11-14-windows-final/slo-*.jpg/.txt.
+
+### 2026-11-15 - T-627 Service Flow native edge and exports
+
+One edge/12calls/90ms avg-max/zeroerrors; no-match and edge evidence add pass.
+Native JSON/Mermaid files independently match values and source provenance.
+Add missing accessible names to edge/finding actions; state/build pass, final
+native label follow-up pending. No alias editing control or cross-source/full
+reference acceptance claimed. T-627 REVIEW.
+Evidence: 2026-11-14-windows-final/service-flow-readback.json.

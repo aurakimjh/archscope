@@ -763,5 +763,25 @@
     "id": "slo-add-critical-evidence",
     "result": "PASS",
     "observed": "Native critical Access error-rate violation evidence add success notice; Board payload checked separately."
+  },
+  {
+    "id": "service-flow-populated",
+    "result": "PASS",
+    "observed": "Native one edge checkout-service→inventory-service,12 calls,average/max90ms,0errors,0unmatched,0findings; network gap unavailable dash. No alias editing controls."
+  },
+  {
+    "id": "service-flow-evidence-name-before",
+    "result": "FAIL",
+    "observed": "Native edge icon has no accessible name; same source pattern in finding row. Correction labels action plus endpoint/finding identity."
+  },
+  {
+    "id": "service-flow-add-edge",
+    "result": "PASS",
+    "observed": "Selected checkout→inventory edge added to Board; native success notice."
+  },
+  {
+    "id": "service-flow-no-match",
+    "result": "PASS",
+    "observed": "Nonmatching search empties edge table explicitly; whole-analysis summary remains1edge/12calls, not a filtered counter."
   }
 ]

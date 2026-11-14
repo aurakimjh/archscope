@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "buildCommit": "e50b0f48-plus-chart-csv",
+  "edge": {
+    "id": "svc-edge-f8fa906f",
+    "caller": "checkout-service",
+    "callee": "inventory-service",
+    "call_count": 12,
+    "latency_sample_count": 12,
+    "total_latency_ms": 1080,
+    "avg_latency_ms": 90,
+    "max_latency_ms": 90,
+    "error_count": 0,
+    "error_rate": 0,
+    "network_gap_sample_count": 0,
+    "matched_call_count": 0,
+    "unmatched_call_count": 0,
+    "source_types": [
+      "trace_import_dependency"
+    ],
+    "source_analyzers": [
+      "trace_import"
+    ],
+    "source_result_ids": [
+      "ar-1794674875224-6a48499162963"
+    ],
+    "source_files": [
+      "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json"
+    ],
+    "evidence_refs": [
+      "tables.service_dependencies"
+    ],
+    "input_edge_ids": [
+      "sfi-49a1723d"
+    ]
+  },
+  "files": [
+    {
+      "file": "service-flow-export.json",
+      "bytes": 4816,
+      "sha256": "3299e6610a32129941c587b11edb67350a4bcb68ff12f252bee2f57f1de5e584"
+    },
+    {
+      "file": "service-flow-export.mmd",
+      "bytes": 149,
+      "sha256": "a29a8f6d1b8314bb55ae2dee146abe8f0c429942569f17b61d0694527629b7b5"
+    }
+  ]
+}

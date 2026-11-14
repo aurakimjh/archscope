@@ -1,0 +1,189 @@
+{
+  "type": "service_flow",
+  "source_files": [
+    "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json"
+  ],
+  "created_at": "2026-11-14T17:14:59.048Z",
+  "schema_version": "0.1.0",
+  "generated_at": "2026-11-14T17:14:59.048Z",
+  "summary": {
+    "source_count": 5,
+    "input_edge_count": 1,
+    "edge_count": 1,
+    "total_call_count": 12,
+    "total_error_count": 0,
+    "total_unmatched_call_count": 0,
+    "finding_count": 0
+  },
+  "series": {
+    "edges_by_source_type": [
+      {
+        "source_type": "trace_import_dependency",
+        "count": 1
+      },
+      {
+        "source_type": "access_edge_dependency",
+        "count": 0
+      },
+      {
+        "source_type": "database_dependency",
+        "count": 0
+      },
+      {
+        "source_type": "broker_dependency",
+        "count": 0
+      },
+      {
+        "source_type": "stitched_dependency",
+        "count": 0
+      },
+      {
+        "source_type": "jennifer_msa_edge",
+        "count": 0
+      },
+      {
+        "source_type": "jennifer_unprofiled_external_call_group",
+        "count": 0
+      }
+    ],
+    "findings_by_severity": [
+      {
+        "severity": "critical",
+        "count": 0
+      },
+      {
+        "severity": "warning",
+        "count": 0
+      },
+      {
+        "severity": "info",
+        "count": 0
+      }
+    ]
+  },
+  "tables": {
+    "input_edges": [
+      {
+        "id": "sfi-49a1723d",
+        "source_type": "trace_import_dependency",
+        "source_analyzer": "trace_import",
+        "source_result_id": "ar-1794674875224-6a48499162963",
+        "source_title": "trace_import: trace-twelve.json",
+        "source_file": "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json",
+        "caller": "checkout-service",
+        "callee": "inventory-service",
+        "call_count": 12,
+        "total_latency_ms": 1080,
+        "avg_latency_ms": 90,
+        "error_count": 0,
+        "error_rate": 0,
+        "evidence_ref": "tables.service_dependencies",
+        "payload": {
+          "avg_duration_ms": 90,
+          "call_count": 12,
+          "callee": "inventory-service",
+          "caller": "checkout-service",
+          "error_count": 0,
+          "error_rate": 0,
+          "total_duration_ms": 1080
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "svc-edge-f8fa906f",
+        "caller": "checkout-service",
+        "callee": "inventory-service",
+        "call_count": 12,
+        "latency_sample_count": 12,
+        "total_latency_ms": 1080,
+        "avg_latency_ms": 90,
+        "max_latency_ms": 90,
+        "error_count": 0,
+        "error_rate": 0,
+        "network_gap_sample_count": 0,
+        "matched_call_count": 0,
+        "unmatched_call_count": 0,
+        "source_types": [
+          "trace_import_dependency"
+        ],
+        "source_analyzers": [
+          "trace_import"
+        ],
+        "source_result_ids": [
+          "ar-1794674875224-6a48499162963"
+        ],
+        "source_files": [
+          "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json"
+        ],
+        "evidence_refs": [
+          "tables.service_dependencies"
+        ],
+        "input_edge_ids": [
+          "sfi-49a1723d"
+        ]
+      }
+    ],
+    "findings": []
+  },
+  "charts": {},
+  "metadata": {
+    "schema_version": "0.1.0",
+    "parser": "wails_session_service_flow",
+    "projection": "wails_session",
+    "diagnostics": {
+      "source_count": 5,
+      "input_edge_count": 1,
+      "edge_count": 1,
+      "finding_count": 0
+    },
+    "findings": [],
+    "extra": {
+      "source_results": [
+        {
+          "id": "ar-1794674875224-6a48499162963",
+          "result_type": "trace_import",
+          "source_files": [
+            "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json"
+          ]
+        }
+      ]
+    }
+  },
+  "edges": [
+    {
+      "id": "svc-edge-f8fa906f",
+      "caller": "checkout-service",
+      "callee": "inventory-service",
+      "call_count": 12,
+      "latency_sample_count": 12,
+      "total_latency_ms": 1080,
+      "avg_latency_ms": 90,
+      "max_latency_ms": 90,
+      "error_count": 0,
+      "error_rate": 0,
+      "network_gap_sample_count": 0,
+      "matched_call_count": 0,
+      "unmatched_call_count": 0,
+      "source_types": [
+        "trace_import_dependency"
+      ],
+      "source_analyzers": [
+        "trace_import"
+      ],
+      "source_result_ids": [
+        "ar-1794674875224-6a48499162963"
+      ],
+      "source_files": [
+        "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json"
+      ],
+      "evidence_refs": [
+        "tables.service_dependencies"
+      ],
+      "input_edge_ids": [
+        "sfi-49a1723d"
+      ]
+    }
+  ],
+  "findings": []
+}

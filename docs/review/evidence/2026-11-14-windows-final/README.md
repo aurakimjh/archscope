@@ -515,3 +515,17 @@ target and metric as aria-label/title. State/build pass; final integrated native
 label check follows. Targets are fixed defaults: the page exposes no target
 editor/save/cancel control. No such absent control, full target boundary,
 independent reference or locale/DPI matrix is marked complete.
+
+## Service Flow scoped native checks
+
+Native Trace dependency yields one checkout-service→inventory-service edge,
+12 calls, average/max 90 ms, zero errors/unmatched/findings. Missing network gap
+stays unavailable (dash). Nonmatching search empties edges; summary remains the
+whole analysis. Edge evidence add succeeds. Native JSON and Mermaid downloads
+are independently read back for values, endpoints and original Trace source.
+No alias editor exists in this page. This one-source fixture does not close
+cross-source stitching, aliases, partial-input findings or full reference parity.
+Native edge icon lacks an accessible name; the same source pattern affects
+finding icons. Correction adds action plus endpoint/finding identity; state/build
+pass, integrated native edge label observation follows. Evidence and output pins
+remain e50b0f48-plus-chart-csv until that observation.
