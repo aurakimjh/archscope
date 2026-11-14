@@ -1195,6 +1195,12 @@ the helper rejects the Hangul composition key; no actual IME PASS is claimed.
 Separate import-memory history-saturation measurement is continuing. Receipt:
 `docs/review/evidence/2026-11-14-windows-final/README.md`.
 
+Imported-session annotation masking now rejects output above4096bytes: native
+baseline and a new regression reproduced3300input→6000masked bytes being accepted.
+Windows amd64/386 sessionfile suites pass with valid4096-byte Unicode boundaries
+and unchanged source bytes; fixed native desktop rejects the same input and valid
+retry works. The separate collapsed-file-tools hidden-error UI is under correction.
+
 Revised-runner long duration and the10-minute Clear path are now verified on
 Windows x64/x86 with an isolated shared Docker origin. Source324a8d97 app binaries
 are unchanged; runner1b30244b adds explicit empty-generation/reset/refill checks.

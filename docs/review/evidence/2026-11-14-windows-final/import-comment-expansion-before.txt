@@ -1,0 +1,78 @@
+HTTP 캡처
+파일·요청 작성
+캡처 설정
+캡처 시작
+캡처 중지
+자동 추적 중
+일시정지
+비우기
+메서드, URL, 호스트, 상태로 필터 · 1 / 1
+세션 도구
+열 필터
+그룹 기준
+표시 열
+캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+#
+￼
+시작
+￼
+메서드
+￼
+결과
+￼
+호스트
+￼
+경로
+￼
+종류
+￼
+크기
+￼
+시간
+￼
+타임라인
+￼
+프로세스
+￼
+▾
+synthetic-fixture [4242] · 2026-11-14T00:00:00Z
+1 · ↑ 0 B · ↓ 45 B
+1
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=0
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+트랜잭션 목록 크기 조절
+Request Builder로 복사
+200
+GET
+http://127.0.0.1:11514/import?size=32&row=0
+신규 연결
+와이어 복호화
+힌트 / 상태 / 주석
+Raw
+스트림
+헤더
+쿼리 문자열
+POST 데이터
+본문
+타이밍
+쿠키
+프로세스
+200 OK
+성공 응답입니다. 요청 메서드에 맞춰 본문을 해석하세요.
+BODY_OMITTED · 보존하지 않은 본문이 있습니다.
+￼
+요청 주석
+password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] password=[REDACTED] 
+6000 / 4096 UTF-8 바이트 · 주석을 줄인 뒤 저장하세요.
+주석 저장
+라이브 주석은 요청 ID로 저장합니다. 열린 파일의 편집은 세션·XML·ArchScope HAR 저장에 반영합니다. 주석도 마스킹합니다.
+세션 요약 및 근거

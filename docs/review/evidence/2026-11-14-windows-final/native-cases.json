@@ -28,5 +28,35 @@
     "id": "notes-unicode-reopen",
     "result": "PASS",
     "observed": "Native saved/reopened32row session retains selected star and exact33UTF8byte Hangul/emoji/combining-accent comment. Independent full-field policy1.0.0 readback accounts only for omitted false/empty annotation defaults."
+  },
+  {
+    "id": "builder-redirect",
+    "result": "PASS",
+    "observed": "Native explicit GET to owned Docker/redirect yields302 in separate Builder response while original32-row session and note remain visible. Origin event log has one/redirect and no/must-not-follow request."
+  },
+  {
+    "id": "builder-cancel",
+    "result": "PASS",
+    "observed": "Native Cancel during owned15s delayed GET returns a failed exchange at8400ms, restores Send and leaves original32-row session/selection/note intact. This is explicit cancellation, not timeout."
+  },
+  {
+    "id": "builder-invalid-header",
+    "result": "PASS",
+    "observed": "Native malformed header is rejected before sending with Error:Header1:name:value; Send is restored and original session remains32rows. Origin log still contains only the previous redirect and slow requests."
+  },
+  {
+    "id": "builder-retry-patch",
+    "result": "PASS",
+    "observed": "After malformed-header refusal, native edited PATCH/echo with18UTF8-byte JSON succeeds200. Origin SHA256matches exact synthetic body; original32-row saved file and annotation are unchanged."
+  },
+  {
+    "id": "import-comment-expansion-before",
+    "result": "FAIL",
+    "observed": "Baseline native Open accepts3300input bytes that sanitize to6000bytes, exposing an unsaveable over-limit draft. Controller accepts one row; unit regression independently fails at6000sanitized bytes."
+  },
+  {
+    "id": "import-comment-expansion-rejected",
+    "result": "PASS",
+    "observed": "Fixed native CtrlO rejects the same synthetic file with redacted comment exceeds4096bytes. Both architecture controller matrices confirm rejection and unchanged input bytes. Error was initially hidden inside collapsed file tools; manual expansion reveals it, a separate UI defect."
   }
 ]

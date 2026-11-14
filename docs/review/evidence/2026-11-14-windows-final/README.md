@@ -40,3 +40,14 @@ limit. Its result will be recorded after completion. No GC/cache trim is forced.
 
 Native amd64 Workspace→Capture reentry restores32rows, selected first request and
 Raw200. The route transition is separate from the automatic matched samples.
+
+## Imported annotation growth defect
+
+Baseline native Open and a new Go regression accept3300input bytes that expand
+to6000redacted comment bytes. Sanitize now checks the4096-byte limit after masking
+as well as before. Windows amd64/386 sessionfile suites pass1.124s/1.008s; exact
+ASCII/Hangul/emoji4096-byte boundaries remain valid and source bytes never change.
+Both fixed desktop controller matrices reject the expanding input, truncated JSON
+and duplicate IDs, and subsequently open the valid32-row file. Native CtrlO also
+shows the refusal after expanding file tools. The initially hidden error is a
+separate UI defect still being corrected; no silent rejection UI PASS is claimed.
