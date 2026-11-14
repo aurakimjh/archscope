@@ -123,6 +123,8 @@ docs/review/evidence/2026-11-14-live-grid/* -text whitespace=cr-at-eol
 
 docs/review/evidence/2026-11-14-grid-boundaries/* -text whitespace=cr-at-eol
 
+docs/review/evidence/2026-11-14-p2-windows/* -text whitespace=cr-at-eol
+
 # Preserve remediation evidence and the shared native soak predicate sources.
 docs/review/evidence/2026-11-14-p2-remediation/* -text whitespace=cr-at-eol
 # Native accessibility snapshots retain observed trailing text verbatim.

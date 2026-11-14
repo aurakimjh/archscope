@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "baseAndProductCommit": "324a8d97432a8f9a144cb48b545cc7cb8f21da08",
+  "finding": "WR-01",
+  "scope": "Native Windows production live capture, not HAR-only; bodies disabled",
+  "binaries": {
+    "amd64": {
+      "sha256": "3396e69d0afd2d9d324dcb828033ecf84935149d906c5c338a55b61b3b72130b",
+      "peMachine": "0x8664"
+    },
+    "386": {
+      "sha256": "49f13c089c27f6a21ff929c862130a957c675e1a81a54d77bc0b3f9112782f8c",
+      "peMachine": "0x14c"
+    }
+  },
+  "frontendState": "PASS on Windows",
+  "frontendProductionBuild": "PASS",
+  "appTests": {
+    "amd64": {
+      "passed": true,
+      "seconds": 38.091
+    },
+    "386": {
+      "passed": true,
+      "seconds": 42.259
+    }
+  },
+  "capturePackages": {
+    "amd64": 24,
+    "386": 24,
+    "result": "PASS"
+  },
+  "nativeObservations": 15,
+  "nativeSelectedPass": 15,
+  "independentDataReadbacks": 2,
+  "originalReviewVerdict": "CONDITIONAL unchanged; no final independent review/whole-product acceptance claim",
+  "limitations": [
+    "Fragment/malformed percent/explicit-query precedence are Windows state-test coverage, not transmitted HTTP fragment observations.",
+    "One386ascending-sort screenshot was occluded by an unrelated user window and excluded; its native accessibility order is retained. Later own-window screenshot confirms descending order.",
+    "No body/trust/driver/COM/privacy settings changed; full reference/locale/actual-DPI/long-memory gates remain."
+  ]
+}

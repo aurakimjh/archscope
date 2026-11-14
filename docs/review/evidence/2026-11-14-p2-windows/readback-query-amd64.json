@@ -1,0 +1,21 @@
+{
+  "arch": "amd64",
+  "scope": "query",
+  "rows": 4,
+  "allIdsUniqueAndEqual": true,
+  "allOtherFieldsEqualAfterPortableURLNormalization": true,
+  "selectedSequence": 2,
+  "selectedURL": "http://127.0.0.1:11510/lookup?next=/detail?id=7&keep=2",
+  "fileSha256": "7bd66fafaba7b27b133f320a08e24f5e5736c2dfe281c72009fa212a2d47442d",
+  "fileBytes": 14063,
+  "idSetSha256": "d9d927dd4410705dc7591682254294e9448d3dd756c1b440c52a327473f1769f",
+  "retention": {
+    "limitRows": 128,
+    "persisted": 4,
+    "retained": 4,
+    "evicted": 0
+  },
+  "passed": true,
+  "separateLiveQueryEmpty": true,
+  "retainedURLSpellingExact": true
+}

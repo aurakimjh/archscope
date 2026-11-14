@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "arch": "386",
+  "buildCommit": "324a8d97432a8f9a144cb48b545cc7cb8f21da08",
+  "binarySha256": "49f13c089c27f6a21ff929c862130a957c675e1a81a54d77bc0b3f9112782f8c",
+  "captureBodies": false,
+  "requests": 4,
+  "confirmedOwnProducer": true,
+  "separateQueryEmpty": true,
+  "retainedURLs": [
+    "http://127.0.0.1:11510/lookup?next=/detail?id=3&keep=1",
+    "http://127.0.0.1:11510/lookup?next=/detail?id=7&keep=2",
+    "http://127.0.0.1:11510/repeat?value=??tail?&raw=%3F%26&raw=%3f",
+    "http://127.0.0.1:11510/plain?x=1"
+  ],
+  "stats": {
+    "retentionRows": 128,
+    "retained": 4,
+    "generation": 0,
+    "state": "running",
+    "observed": 4,
+    "captured": 4,
+    "persisted": 4,
+    "bodyOmitted": 0,
+    "eventSkipped": 0,
+    "kernelDropped": 0,
+    "parseFailed": 0,
+    "unsupported": 0,
+    "passthrough": 0,
+    "unattributed": 0,
+    "dropped": 0,
+    "backpressured": false,
+    "snapshotVersion": 4,
+    "sequence": 4,
+    "storeBytes": 7536
+  },
+  "passed": true
+}

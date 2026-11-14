@@ -1,0 +1,18 @@
+{
+  "apps/engine-native/cmd/archscope-app/frontend/src/state/httpPayload.ts": {
+    "executedWorktreeSha256": "69c391cd9e9fa3cf579b777046c54a4366e0cf613952700cc26ec8909b6c1602",
+    "gitBlobSha256": "cdfad62c947d21d76fb3423978212f1297da9ab7fa48d9641d46ed834151e115"
+  },
+  "apps/engine-native/cmd/archscope-app/frontend/src/state/httpColumns.ts": {
+    "executedWorktreeSha256": "8b377370c30467577e5b66e0cf526e4046babc630d5f3a0be9ead03d56b58e92",
+    "gitBlobSha256": "47ff924d66347f011066ef4ea5213f9f884ad43b708abbc044f96613e0776dd5"
+  },
+  "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts": {
+    "executedWorktreeSha256": "465ea697789001a23ad7e2168ab05392d123d9f8b1d39ad9e3018dc54e13fd3d",
+    "gitBlobSha256": "93f287cfa8c45d2edde6e5cb672b72db18ea5ea5b2bbfb0781e35d1d63e6ca6f"
+  },
+  "scripts/acceptance/layout/soak-origin.py": {
+    "executedWorktreeSha256": "435ddcff66e17fad0a9da18c7e96ffbb8803f049cfedc1990518472301dafacd",
+    "gitBlobSha256": "435ddcff66e17fad0a9da18c7e96ffbb8803f049cfedc1990518472301dafacd"
+  }
+}
