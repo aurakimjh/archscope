@@ -1,0 +1,41 @@
+Settings
+SETTINGS
+Show help
+Language
+Show help
+English
+한국어
+Theme
+Show help
+Light
+Dark
+System
+Default sample interval (ms)
+Show help
+42.5
+Default top-N
+Show help
+20
+Default profile kind
+Show help
+Default profile kind
+Save
+Recent files
+Show help
+About
+Show help
+DATA PACKS
+Install trusted data mappings, then activate a version. Running jobs keep their original version.
+Standard session · Korean font: Loaded locally
+Install scope
+application
+￼
+Install ZIP
+Refresh
+Resolve alias conflicts
+State revision: 3 · Trust sequence: 0
+diagnostics.snapshot-foundation 1.0.0 · application · signed · Active
+SHA-256 ff5d7263cb411431d7382fe1a8d208a59fc8e374e65358ef30e1f07eefb7f79c
+ActivateRoll back to this versionDeactivateExport ZIP
+Public trust keys
+English manual · 한국어 매뉴얼 · OFL-1.1

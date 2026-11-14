@@ -544,3 +544,18 @@ Cards appear below the visual library and require scrolling; no density pass.
 No card text editor or reorder UI exists. Native trash buttons have no accessible
 name; add localized Remove evidence plus card title. State/build pass; native
 label and restart-persistence follow-up uses the final integrated build.
+
+## Settings validation, persistence and accessible fields
+
+Native 0ms Save refuses invalid defaults with an explicit error; corrected42.5ms
+saves. Switch to English/Dark, stop the owned process and restart the final build
+with the same isolated WebView profile: English/Dark/42.5ms/20/wall persist.
+An initial launch into a new descriptor directory correctly had a fresh profile;
+it is a harness isolation correction, not a product persistence failure. Exact
+original KO/System/100ms/20/wall restored through UI and Save. Existing pack
+registry revision3/trust0 is preserved; no installation/trust mutation performed.
+Native input fields exposed values without names. Explicit localized aria-labels
+now name interval, TopN and profile kind; final native EN/KO trees verify them.
+State/build pass; guarded native amd64/386 builds pass at
+6b3cf283-plus-settings-labels. No separate save-cancel UI, storage-failure,
+pack-install/rollback or full theme/locale/DPI matrix closure is inferred.

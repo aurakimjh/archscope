@@ -798,5 +798,35 @@
     "id": "board-remove-one-owned-card",
     "result": "PASS",
     "observed": "Remove owned ServiceFlow card only; SLO and Timeline cards remain, all7preexisting visual artifacts preserved. Restart persistence checked in final integrated app."
+  },
+  {
+    "id": "settings-original-state",
+    "result": "PASS",
+    "observed": "Native original localeKO/themeSystem,interval100ms,TopN20,kindwall. Pack state revision3/trust0; existing registry preserved."
+  },
+  {
+    "id": "settings-invalid-interval",
+    "result": "PASS",
+    "observed": "0ms Save is refused with explicit ≥1ms/integerTopN1–100 message. Draft remains editable."
+  },
+  {
+    "id": "settings-valid-english-dark",
+    "result": "PASS",
+    "observed": "Native42.5ms saved after0msrefusal; languageEnglish/themeDark switch displays correct values and labels. Original100/20/wall,KO/System restored after restart check."
+  },
+  {
+    "id": "settings-field-names-before",
+    "result": "FAIL",
+    "observed": "Native interval/topN spinners and profile-kind combo expose values without accessible labels. Add explicit localized aria-labels; state/build pass, native restart verification follows."
+  },
+  {
+    "id": "settings-restart-labels-fixed",
+    "result": "PASS",
+    "observed": "Same isolated profile after actual process restart retains English/Dark/42.5ms,TopN20/wall. All3input controls now expose localized accessible labels. New unrelated profile initial reset was harness isolation, not lost persistence."
+  },
+  {
+    "id": "settings-restored-original",
+    "result": "PASS",
+    "observed": "Restore exact original KO/System,100ms/20/wall through native controls and Save; localized input names observed. Existing pack registry untouched."
   }
 ]

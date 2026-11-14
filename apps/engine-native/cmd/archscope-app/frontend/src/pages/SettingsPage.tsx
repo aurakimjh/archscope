@@ -104,6 +104,7 @@ export function SettingsPage() {
             </HelpedLabel>
             <input
               type="number"
+              aria-label={t("settingsDefaultInterval")}
               min={1}
               step="any"
               value={intervalDraft}
@@ -118,6 +119,7 @@ export function SettingsPage() {
             </HelpedLabel>
             <input
               type="number"
+              aria-label={t("settingsDefaultTopN")}
               min={1}
               max={100}
               value={topNDraft}
@@ -131,6 +133,7 @@ export function SettingsPage() {
               {t("settingsDefaultProfileKind")}
             </HelpedLabel>
             <select
+              aria-label={t("settingsDefaultProfileKind")}
               value={defaults.profileKind}
               onChange={(e) =>
                 setDefaults({

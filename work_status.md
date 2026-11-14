@@ -5727,3 +5727,12 @@ owned card, preserve two others and7existingvisualartifacts. Add missing trash
 button accessible names; state/build pass; integrated label/persistence check
 follows. No absent edit/reorder or dense layout acceptance. T-627 REVIEW.
 Evidence: 2026-11-14-windows-final/board-export-readback.json.
+
+### 2026-11-15 - T-627 Settings retry, restart and field names
+
+Invalid0ms refused;42.5ms saves. Same-profile actual process restart preserves
+English/Dark/42.5ms/20/wall; restore original KO/System/100ms/20/wall. Missing
+accessible input labels fixed and native EN/KO verified. State/build and guarded
+amd64/386 native builds pass. Existing pack/trust registry preserved; full pack
+lifecycle/locale/DPI matrix separate. T-627 REVIEW.
+Evidence: 2026-11-14-windows-final/settings-*.jpg/.txt.
