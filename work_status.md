@@ -1201,6 +1201,10 @@ Windows amd64/386 sessionfile suites pass with valid4096-byte Unicode boundaries
 and unchanged source bytes; fixed native desktop rejects the same input and valid
 retry works. The separate collapsed-file-tools hidden-error UI is under correction.
 
+Collapsed-file-tools import errors now automatically reveal the error and retry
+controls. Native CtrlO before FAIL/after PASS is recorded with the same rejected
+input; valid32-row retry works. Frontend state/build and both desktop builds pass.
+
 Revised-runner long duration and the10-minute Clear path are now verified on
 Windows x64/x86 with an isolated shared Docker origin. Source324a8d97 app binaries
 are unchanged; runner1b30244b adds explicit empty-generation/reset/refill checks.

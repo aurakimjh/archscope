@@ -58,5 +58,15 @@
     "id": "import-comment-expansion-rejected",
     "result": "PASS",
     "observed": "Fixed native CtrlO rejects the same synthetic file with redacted comment exceeds4096bytes. Both architecture controller matrices confirm rejection and unchanged input bytes. Error was initially hidden inside collapsed file tools; manual expansion reveals it, a separate UI defect."
+  },
+  {
+    "id": "import-error-hidden-before",
+    "result": "FAIL",
+    "observed": "On the actual baseline CtrlO failure from collapsed tools, no error or retry controls become visible; expanding file tools separately exposes HTTP_SESSION_OPEN_FAILED."
+  },
+  {
+    "id": "import-error-auto-visible-after",
+    "result": "PASS",
+    "observed": "Fixed native CtrlO failure automatically opens file tools, shows redacted comment exceeds4096bytes and HTTP_SESSION_OPEN_FAILED without any manual reveal; Open controls remain reachable."
   }
 ]

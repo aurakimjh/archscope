@@ -51,3 +51,12 @@ Both fixed desktop controller matrices reject the expanding input, truncated JSO
 and duplicate IDs, and subsequently open the valid32-row file. Native CtrlO also
 shows the refusal after expanding file tools. The initially hidden error is a
 separate UI defect still being corrected; no silent rejection UI PASS is claimed.
+
+## Hidden import-error correction
+
+Native CtrlO from collapsed file tools reproduced an invisible failure despite
+the typed refusal. HttpCapturePage now expands file tools when an import error
+arrives. The same native CtrlO flow automatically shows the error and Open retry
+controls with no reveal click. Frontend state tests and production build pass;
+both guarded desktop builds succeed. A valid32-row retry succeeds. This changes
+error visibility, not file contents or the validation refusal.

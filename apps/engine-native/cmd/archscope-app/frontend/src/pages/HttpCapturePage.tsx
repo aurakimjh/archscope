@@ -262,6 +262,12 @@ function HttpCaptureWorkspace(): React.JSX.Element {
     if (fileToolsRef.current) fileToolsRef.current.open=false;
   }, [state.resultSource]);
 
+  // Desktop shortcuts can fail while file tools are collapsed. Show the
+  // refusal together with the controls needed to retry the import.
+  useEffect(() => {
+    if (error && fileToolsRef.current) fileToolsRef.current.open = true;
+  }, [error]);
+
   const summary = useMemo(() => selectHttpSummary(result), [result]);
   const captureMeta = useMemo(() => extractCaptureMeta(result), [result]);
   const redaction = useMemo(() => extractRedaction(result), [result]);
