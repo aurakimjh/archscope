@@ -24,7 +24,7 @@ type Part = {
   filename?: string;
   contentType?: string;
 };
-export function HttpRequestBuilder(): React.JSX.Element {
+export function HttpRequestBuilder({ onReveal }: { onReveal?: () => void }): React.JSX.Element {
   const { t } = useI18n();
   const panel = useRef<HTMLDetailsElement>(null);
   const [method, setMethod] = useState("GET");
@@ -47,6 +47,8 @@ export function HttpRequestBuilder(): React.JSX.Element {
   const load = async (value: BuilderCopy) => {
     if (active.current) return;
     const attempt = ++copyAttempt.current;
+    // Copy may originate in the inspector while the outer file tools are closed.
+    onReveal?.();
     if (panel.current) panel.current.open = true;
     setError("");
     setCopying(true);

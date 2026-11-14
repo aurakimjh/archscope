@@ -333,7 +333,9 @@ function HttpCaptureWorkspace(): React.JSX.Element {
           </Button>
         )}
       </div>
-      <HttpRequestBuilder />
+      <HttpRequestBuilder onReveal={() => {
+        if (fileToolsRef.current) fileToolsRef.current.open = true;
+      }} />
 
       {/* Capture source. Once a session is loaded this collapses by default so
           the analyzer gets the screen; reopening it is one click. */}
