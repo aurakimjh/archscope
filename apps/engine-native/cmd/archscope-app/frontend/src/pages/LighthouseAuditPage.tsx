@@ -13,7 +13,7 @@
 // ─────────────────────────────────────────────────────────────────────
 import { Dialogs } from "@/bridge/dialogs";
 import { FileDown, Loader2, Play, Plus } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { engine } from "@/bridge/engine";
 import type { BrowserAuditAnalysisResult } from "@/bridge/types";
@@ -72,16 +72,30 @@ export function LighthouseAuditPage(): React.JSX.Element {
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<{ code: string; message: string } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const inflightRef = useRef<symbol | null>(null);
+  useEffect(() => () => { inflightRef.current = null; }, []);
+  const selectFile = useCallback((next: FileDockSelection | null) => {
+    inflightRef.current = null;
+    setFile(next);
+    setResult(null);
+    setError(null);
+    setNotice(null);
+    setRunning(false);
+  }, []);
 
   const sourceFile = result?.source_files?.[0] ?? file?.filePath;
 
   const analyze = useCallback(async () => {
     if (!file || running) return;
     setRunning(true);
+    setResult(null);
     setError(null);
     setNotice(null);
+    const token = Symbol("browser-audit-analysis");
+    inflightRef.current = token;
     try {
       const next = await engine.analyzeBrowserAudit({ path: file.filePath });
+      if (inflightRef.current !== token) return;
       setResult(next);
       addWorkspaceResult({
         result: next,
@@ -89,6 +103,7 @@ export function LighthouseAuditPage(): React.JSX.Element {
         sourceLabel: file.originalName,
       });
     } catch (caught) {
+      if (inflightRef.current !== token) return;
       // A→B provenance: a failed run must drop any prior result so the page
       // never shows stale scores next to a new file.
       setResult(null);
@@ -97,7 +112,10 @@ export function LighthouseAuditPage(): React.JSX.Element {
         message: caught instanceof Error ? caught.message : String(caught),
       });
     } finally {
-      setRunning(false);
+      if (inflightRef.current === token) {
+        inflightRef.current = null;
+        setRunning(false);
+      }
     }
   }, [file, running]);
 
@@ -177,8 +195,8 @@ export function LighthouseAuditPage(): React.JSX.Element {
         description={t("lighthouseDescription")}
         accept=".json,.gz,.json.gz"
         selected={file}
-        onSelect={setFile}
-        onClear={() => setFile(null)}
+        onSelect={selectFile}
+        onClear={() => selectFile(null)}
         browseLabel={t("browseFile")}
         dropHereLabel={t("dropHere")}
         errorLabel={t("error")}

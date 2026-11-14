@@ -364,3 +364,20 @@ Frontend state/build pass. Native77dc2bb4-plus-cpu precedes the final EN/KO
 screen-reader caption correction(sample share→recorded weight share); that text
 is build-verified. Sparse2stack fixture does not qualify dense70percent/all-format/
 actualOS-DPI/reference matrix or native inflight cancellation.
+
+## Lighthouse partial values and result lifecycle
+
+Owned partial fixture replaces performance score with null, removes LCP numeric
+measurement and declares runtime interruption. Native shows unavailable—not0—
+performance/LCP score, retains CLS0.08/96 and4audits/2requests/48.8KB; explicit
+LIGHTHOUSE_RUNTIME_ERROR warns incomplete data. Network73/66ms match input.
+Malformed JSON refuses BROWSER_AUDIT_FAILED and valid partial retry clears error.
+The route has no audit filter control; no0filter interaction is asserted.
+
+Clear initially retained all result/export content without an input. Select/clear/
+new-run now reset result/error/notice and retire inflight identity, including on
+unmount; late replies cannot repopulate a changed input. Native5f28e08d-plus-audit
+fixed Clear removes all prior content/actions. Frontend state/build pass. Per-audit
+failure detail, every format/locale/DPI/reference/export combination remain
+separate from the tested null-score/global runtime warning and prior42score
+JSON/HTML export evidence.

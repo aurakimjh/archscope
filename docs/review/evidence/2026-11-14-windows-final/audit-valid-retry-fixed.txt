@@ -1,0 +1,115 @@
+Lighthouse 감사
+lighthouse-partial.json
+도움말 보기
+lighthouse-partial.json
+찾아보기
+Clear file
+분석
+점수 출처 · imported_lighthouse_report · ArchScope 재계산 여부: 아니오
+성능 점수
+도움말 보기
+—
+감사 항목
+도움말 보기
+4
+네트워크 요청
+도움말 보기
+2
+전송 크기
+도움말 보기
+48.8 KB
+점수 출처
+카테고리 점수
+Core Web Vitals
+Core Web Vitals
+지표
+값
+점수
+Cumulative Layout Shift
+0.08
+96
+발견 사항
+ERROR
+LIGHTHOUSE_RUNTIME_ERROR
+Lighthouse reported a runtime error; results may be incomplete.
+추가
+INFO
+LIGHTHOUSE_RUN_WARNINGS
+Lighthouse emitted run warnings; review collection conditions before comparison.
+추가
+감사
+감사 항목은 점수가 낮은 순으로 정렬되며 가져온 리포트의 상위 행으로 제한됩니다.
+감사
+감사
+￼
+점수
+￼
+값
+￼
+￼
+Cumulative Layout Shift
+cumulative-layout-shift
+96
+0.08
+추가: Cumulative Layout Shift
+Largest Contentful Paint
+largest-contentful-paint
+—
+￼
+추가: Largest Contentful Paint
+Network Requests
+network-requests
+—
+￼
+추가: Network Requests
+Resource Summary
+resource-summary
+—
+￼
+추가: Resource Summary
+네트워크 요청
+네트워크 요청은 전송 크기 순으로 정렬되며 상위 행으로 제한됩니다.
+네트워크 요청
+URL
+￼
+유형
+￼
+전송량
+￼
+소요 시간
+￼
+https://cdn.example.test/app.js?session=%5BREDACTED%5D
+Script
+41.0 KB
+73 ms
+https://shop.example.test/api/catalog?user=12345678
+Fetch
+7.8 KB
+66 ms
+리소스 요약
+리소스 요약
+유형
+￼
+요청 수
+￼
+전송량
+￼
+fetch
+1
+7.8 KB
+script
+1
+41.0 KB
+파서 리포트
+파싱된 레코드
+4
+스킵된 라인
+0
+경고
+0
+에러
+0
+리포트 내보내기
+이 브라우저 감사를 독립 실행형 리포트로 내보냅니다. Analysis Workspace 를 통해 Export Center 에서도 사용할 수 있습니다.
+HTML 내보내기
+JSON 내보내기

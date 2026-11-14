@@ -5621,3 +5621,12 @@ profile_sample_count and table/flame weights explicitly useµs. SelectedrenderLi
 input/reset/new-run/unmount now retire result/request identity and native fixed
 Clear passes. Frontend state/build pass. Dense/reference/DPI acceptance separate;
 T-627 REVIEW. Evidence:2026-11-14-windows-final.
+
+### 2026-11-15 - T-627 Lighthouse partial result and input identity
+
+Native null-score/runtime-error fixture keeps unavailable values distinct from0,
+CLS0.08/96and2network durations73/66ms; malformed JSON refusal/valid retry pass.
+File Clear previously retained result/export controls; select/clear/new-run and
+unmount now retire request/result identity, native fixed Clear passes. Frontend
+state/build pass. Per-audit error detail/full reference-DPI matrix separate;
+T-627 REVIEW. Evidence:2026-11-14-windows-final.

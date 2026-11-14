@@ -498,5 +498,30 @@
     "id": "cpu-clear-fixed",
     "result": "PASS",
     "observed": "Clear now removes all summary/chart/run/parser content and resets input/disabled Analyze. Request identity also retires on select/clear/unmount; no simulated inflight native claim."
+  },
+  {
+    "id": "audit-partial-null-score",
+    "result": "PASS",
+    "observed": "Partial imported Lighthouse:performance unavailable(—),4audits/2requests/48.8KB,CLS0.08score96,LCP score—rather than0,and explicit runtime incomplete warning. Network73/66ms from input intervals; token redacted. No filter control exists on route."
+  },
+  {
+    "id": "audit-clear-before",
+    "result": "FAIL",
+    "observed": "Clear removes input but retains partial scores/audits/network rows and export actions, allowing wrong current-file provenance."
+  },
+  {
+    "id": "audit-invalid-json-fixed",
+    "result": "PASS",
+    "observed": "Final5f28e08d-plus-audit rejects malformed JSON withBROWSER_AUDIT_FAILED and no prior result/export actions; retry controls visible."
+  },
+  {
+    "id": "audit-valid-retry-fixed",
+    "result": "PASS",
+    "observed": "After malformed JSON, selecting partial valid input clears old error and rerun restores exact4audits/2requests/CLS0.08/96/unavailable performance and incomplete warning."
+  },
+  {
+    "id": "audit-clear-fixed",
+    "result": "PASS",
+    "observed": "Fixed Clear removes provenance/scores/audits/findings/network/export controls together and disables Analyze. No old result under empty input."
   }
 ]
