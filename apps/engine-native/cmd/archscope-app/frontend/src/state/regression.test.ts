@@ -3120,13 +3120,20 @@ let invalidBuilderHeader=false;try{parseBuilderHeaders("invalid")}catch{invalidB
 assert(invalidBuilderHeader, "builder must reject malformed header lines before sending");
 assert(JSON.stringify(selectedLiveRow) === builderOriginal, "builder copy must keep original exchange unchanged");
 
-import {summarizeHttpRows,relativeProcessRows} from "./httpSummary.js";
+import {summarizeHttpRows,relativeProcessRows,processStartTimes} from "./httpSummary.js";
 const summaryRows=[{...selectedLiveRow,id:"summary-one",connection_id:"reused",started_at:"2026-11-10T00:00:00Z",ended_at:"",duration_ms:40,status:200,request:{...selectedLiveRow.request,bodySize:10},response:{...selectedLiveRow.response,bodySize:20,bodyDecoded:30}},{...reusedPid,id:"summary-two",connection_id:"reused",started_at:"2026-11-10T00:00:00.050Z",ended_at:"",duration_ms:20,status:503,request:{...selectedLiveRow.request,bodySize:-1},response:{...selectedLiveRow.response,bodySize:-1,bodyDecoded:-1}}];
 const totals=summarizeHttpRows(summaryRows);
 assert(totals.connections===1&&totals.elapsedMs===70&&totals.sent.bytes===10&&totals.sent.unknown===1&&totals.compressionSaved===10,"summary must preserve unknown sizes, distinct connections and observed elapsed span");
 const relativeRows=relativeProcessRows(summaryRows);
 assert(relativeRows.every(row=>row.offsetMs===0),"PID reuse must give each process instance its own time origin");
 assert(relativeProcessRows([{...selectedLiveRow,started_at:"invalid"}])[0]?.offsetMs===null,"unknown process time must not become zero");
+const offsetRows=[summaryRows[0],summaryRows[1],{...summaryRows[0],id:"later-a",started_at:"2026-11-10T00:00:00.125Z"},{...summaryRows[1],id:"later-b",started_at:"2026-11-10T00:00:00.175Z"}];
+for(const grouping of ["process","host","method","status","mime","none"]){
+ const groupedRows=httpGroupedEntries(offsetRows,new Set(),grouping).flatMap(entry=>entry.kind==="request"?[entry.row]:[]);
+ const starts=processStartTimes(groupedRows);
+ for(const row of groupedRows){const offset=Date.parse(row.started_at)-starts.get(httpProcessKey(row))!;assert(offset===(row.id.startsWith("later-")?125:0),"grouping must not change process Offset: "+grouping+" "+row.id)}
+}
+assert(processStartTimes([{...selectedLiveRow,started_at:"invalid"}]).size===0,"invalid timestamps must not create process origins");
 
 import {hexPreview,inertHtml,coloredTokens,streamText,safeRaster} from "./httpContent.js";
 assert(hexPreview("가A").lines[0]?.includes("ea b0 80 41"),"hex offsets must use UTF-8 bytes rather than character indexes");

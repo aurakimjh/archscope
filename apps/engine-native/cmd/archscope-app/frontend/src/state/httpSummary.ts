@@ -17,8 +17,13 @@ export function summarizeHttpRows(rows:HttpCaptureTransactionRow[]):HttpSummary{
  return out;
 }
 // Each process has its own zero point. Missing timestamps never become epoch 0.
+export function processStartTimes(rows:HttpCaptureTransactionRow[]) {
+ const starts=new Map<string,number>();
+ for(const row of rows){const start=Date.parse(row.started_at);if(!Number.isFinite(start))continue;const key=httpProcessKey(row);starts.set(key,Math.min(starts.get(key)??Infinity,start))}
+ return starts;
+}
 export function relativeProcessRows(rows:HttpCaptureTransactionRow[]){
- const first=new Map<string,number>(),last=new Map<string,number>();
- for(const row of rows){const start=Date.parse(row.started_at);if(!Number.isFinite(start))continue;const key=httpProcessKey(row);first.set(key,Math.min(first.get(key)??Infinity,start));last.set(key,Math.max(last.get(key)??-Infinity,start+Math.max(0,row.duration_ms||0)))}
+ const first=processStartTimes(rows),last=new Map<string,number>();
+ for(const row of rows){const start=Date.parse(row.started_at);if(!Number.isFinite(start))continue;const key=httpProcessKey(row);last.set(key,Math.max(last.get(key)??-Infinity,start+Math.max(0,row.duration_ms||0)))}
  return rows.map(row=>{const key=httpProcessKey(row),base=first.get(key),end=last.get(key),start=Date.parse(row.started_at);return {row,offsetMs:base!==undefined&&Number.isFinite(start)?start-base:null,spanMs:base!==undefined&&end!==undefined?end-base:null,waterfall:buildWaterfall(row,availablePerspectives(row)[0]??null)}});
 }

@@ -7,6 +7,7 @@ import type { HttpAnnotation } from "@/state/httpAnnotations";
 import type { HttpCaptureFinding } from "@/bridge/types";
 import { HttpStyledText, HttpHex, HttpPreview, HttpStreamView } from "./HttpContentView";
 import { HttpSessionSummary } from "./HttpSessionSummary";
+import { processStartTimes } from "@/state/httpSummary";
 import { copyToHttpBuilder, HTTP_BUILDER_DRAG } from "@/state/httpRequestBuilder";
 import { HttpSessionFiles, type HttpFileSource } from "./HttpSessionFiles";
 import { HTTP_COLUMNS, restoreHttpColumns, httpColumnValue, httpColumnMatches, type HttpColumn } from "@/state/httpColumns";
@@ -625,13 +626,7 @@ function TransactionGrid({
     [next[index],next[other]]=[next[other],next[index]];
     updateColumns(next);
   };
-  const groupKey=(row:HttpCaptureTransactionRow) => groupBy==="process"?httpProcessKey(row):groupBy==="none"?"":String(httpColumnValue(row,groupBy));
-  const starts=new Map<string,number>();
-  for(const row of rows) {
-    const started=Date.parse(row.started_at);
-    const key=groupKey(row);
-    if(Number.isFinite(started)) starts.set(key,Math.min(starts.get(key)??started,started));
-  }
+  const starts=useMemo(() => processStartTimes(rows),[rows]);
   const entries = useMemo(() => httpGroupedEntries(rows, collapsed,groupBy), [rows, collapsed,groupBy]);
   useHttpCommands(commandsEnabled ? {
     collapse: () => setCollapsed(new Set(httpGroupedEntries(rows, new Set(), groupBy).flatMap(entry => entry.kind === "process" ? [entry.key] : []))),
@@ -784,7 +779,7 @@ function TransactionGrid({
             )}
             {visible.map((entry) => entry.kind === "request" ? (
               <GridRow key={entry.row.id} tx={entry.row} index={entry.index}
-                builderSessionId={builderSessionId} columns={visibleColumns} offsetSeconds={(Date.parse(entry.row.started_at)-(starts.get(groupKey(entry.row))??NaN))/1000} span={span} selected={entry.row.id === selectedId} onSelect={onSelect} t={t} />
+                builderSessionId={builderSessionId} columns={visibleColumns} offsetSeconds={(Date.parse(entry.row.started_at)-(starts.get(httpProcessKey(entry.row))??NaN))/1000} span={span} selected={entry.row.id === selectedId} onSelect={onSelect} t={t} />
             ) : (
               <tr key={"group:" + entry.key} style={{height: ROW_HEIGHT}} className="border-y bg-muted/60">
                 <td colSpan={visibleColumns.length} className="px-2">
