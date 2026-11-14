@@ -30,6 +30,7 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
     return [labels[kind] ?? kind, ["summary", "diagnostics", "chart"].includes(kind) ? "" : key].filter(Boolean).map(safeDisplayText).join(" · ");
   };
   const [presetScope, setPresetScope] = useState("");
+  const [importOpen, setImportOpen] = useState(entries.length === 0);
   const [path, setPath] = useState(""); const [importer, setImporter] = useState("auto");
   const [formats, setFormats] = useState<Array<{ id: string; limitations: string[] }>>([]);
   const [options, setOptions] = useState("{}"); const [partial, setPartial] = useState(false);
@@ -173,7 +174,9 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
   const selected = caps?.providers.find(c => c.id === provider);
   const selectedFormat = formats.find(f => f.id === importer);
   return <section className="card min-w-0 space-y-3" aria-label={words("Evidence results", "근거 결과")}>
-    <h3>{words("Import and explore evidence", "근거 가져오기 및 조회")}</h3>
+    <details open={importOpen} onToggle={event => setImportOpen(event.currentTarget.open)}>
+    <summary className="cursor-pointer font-medium">{words("Import and explore evidence", "근거 가져오기 및 조회")}</summary>
+    <div className="mt-3 space-y-3">
     <div className="flex flex-wrap items-center gap-2">
       <input className="min-w-0 flex-1 rounded border border-border bg-background p-2" aria-label={words("Local evidence path", "로컬 근거 경로")} value={path} onChange={e => setPath(e.target.value)} placeholder={words("Local file", "로컬 파일")} disabled={busy} />
       <Button variant="outline" disabled={busy} onClick={() => void (async () => { try { const picked = await Dialogs.OpenFile({ Title: words("Choose evidence", "근거 선택") }); if (typeof picked === "string") setPath(picked); } catch (error) { setProblem(resultProblem(error)); } })()}>{words("Browse", "파일 선택")}</Button>
@@ -196,6 +199,8 @@ export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWork
       <textarea aria-label={words("JSON options", "JSON 옵션")} value={options} onChange={e => setOptions(e.target.value)} disabled={busy} className="w-full rounded border border-border bg-background p-2" />
       <label><input type="checkbox" checked={partial} disabled={busy} onChange={e => setPartial(e.target.checked)} /> {words("Allow explicitly bounded partial results", "명시적으로 제한된 부분 결과 허용")}</label>
       {selectedFormat?.limitations?.map(text => <p key={text} className="text-xs">{text}</p>)}
+    </details>
+    </div>
     </details>
     {job && <div role="status"><span>{words("Import state", "가져오기 상태")}: {jobLabel(job.state)}</span>{job.packs?.map(pack => <p key={`${pack.scope}|${pack.sha256}`} className="break-all">{pack.id} {pack.version} · {pack.origin} · {pack.scope} · SHA-256 {pack.sha256}</p>)}{job.cleanupPending && <p>{words("Temporary cleanup remains pending.", "임시 자료 정리가 남아 있습니다.")}</p>}
       {job.state === "needs_selection" && job.detection.candidates.map(c => <Button key={c.importerId} variant="outline" disabled={busy} onClick={() => void chooseImporter(c.importerId)}>{c.importerId} · {c.reason}</Button>)}

@@ -1,0 +1,45 @@
+분석 작업 공간
+분석 작업 공간
+도움말 보기
+저장된 케이스
+작업 공간 비우기
+케이스 검색과 재사용 baseline
+근거 가져오기 및 조회
+trace_import: trace-twelve.json
+도움말 보기
+활성
+추가
+￼
+trace_import
+2026. 11. 15. 오전 1:15:08
+C:\workspace\archscope\.tmp\windows-final-20261114\ui-fixtures\trace-twelve.json
+clock_skew_suspected_spans: 0
+error_spans: 0
+high_error_service_edges: 0
+max_trace_duration_ms: 240
+missing_parent_spans: 0
+p95_trace_duration_ms: 240
+path_elapsed_available_traces: 12
+path_elapsed_unavailable_traces: 0
+AI 출처
+도움말 보기
+없음
+access_log: access-120-partial.log
+도움말 보기
+사용
+추가
+￼
+access_log
+2026. 11. 15. 오전 1:14:28
+C:\workspace\archscope\.tmp\windows-final-20261114\ui-fixtures\access-120-partial.log
+api_avg_response_ms: 315.5
+api_bytes: 66,900
+api_count: 120
+api_p95_response_ms: 1,500
+avg_bytes_per_sec: 13,380
+avg_requests_per_sec: 24
+avg_response_ms: 315.5
+detected_format_count: 1
+AI 출처
+도움말 보기
+없음

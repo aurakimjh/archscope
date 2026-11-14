@@ -5638,3 +5638,12 @@ Native owned SafepointBegin table and Evidence Board card preserve unavailable
 value and payload null with exact source reference. Frontend state/build pass;
 7preexisting visual artifacts preserved. T-627 REVIEW; full Board/DPI/reference
 matrix separate. Evidence:2026-11-14-windows-final.
+
+### 2026-11-15 - T-627 visible Workspace results and keyboard import toggle
+
+Expanded import assistance hid registered results below the default viewport.
+Existing-result entry now starts collapsed; empty starts open, explicit toggle
+is retained and status/error/providers stay visible. NativeAccess+Trace cards fit,
+active selection andSpacecollapse focus pass; own-result removal gives empty.
+Frontend state/build pass. T-627 REVIEW; full kinds/reference/DPI matrix separate.
+Evidence:2026-11-14-windows-final.

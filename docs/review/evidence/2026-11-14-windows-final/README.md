@@ -393,3 +393,19 @@ payload/source/jfr:event:1. No backend mutation or0ms assertion. Card is below
 Frontend state/build pass. Native5f28e08d-plus-audit-jfr-evidence includes this
 change plus the prior CPU caption and Lighthouse fixes. Source review is the
 before evidence; no native before screenshot is claimed for the callback bug.
+
+## Workspace registration, active selection and visible results
+
+Native registered JFR1event and removal gives explicit empty state; removing that
+owned result leaves independent evidence/artifacts intact. Initial expanded
+import assistance pushed result cards below the default viewport. Import controls
+now start collapsed when existing entries are present, and start open for an
+empty workspace; explicit user toggle remains stable. Job/status/error/result
+provider content stays outside the collapsed import form.
+
+Fresh4677d721-plus-workspace-fold analyzes ownedAccess120requests andTrace12/36.
+Both cards, exact source paths and summaries now fit before scroll at1280x800.
+Use onAccess switches active selection without altering values. Import assistance
+reopens all controls; Spacecollapses it with visible focus and preserves selection.
+Frontend state/build pass. Scoped improvement, not every result kind/70percent/
+locale/DPI/reference/provider-combination acceptance.

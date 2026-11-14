@@ -533,5 +533,30 @@
     "id": "jfr-missing-duration-evidence-fixed",
     "result": "PASS",
     "observed": "Evidence Board card keeps missing duration summary as- and payload duration_ms:null,with exactsource path/jfr:event:1. No invented0ms. Card is below7preexisting visual artifacts and requires scroll,not immediateviewport pass."
+  },
+  {
+    "id": "workspace-result-below-import-form",
+    "result": "PARTIAL",
+    "observed": "JFR analysis registers correct1event result and active source in accessibility, but expanded import/options forms push card below default viewport; scrolling is required."
+  },
+  {
+    "id": "workspace-remove-own-result-empty",
+    "result": "PASS",
+    "observed": "Removing only ownedJFR entry yields explicit empty workspace; independent Evidence Board cards/artifact library not cleared."
+  },
+  {
+    "id": "workspace-results-visible-fixed",
+    "result": "PASS",
+    "observed": "4677d721-plus-workspace-fold: existingTrace+Access results both fit1280x800before scroll with import assistance collapsed; exactsource paths and240ms/120requests retained. No70percent/full-matrix claim."
+  },
+  {
+    "id": "workspace-switch-active",
+    "result": "PASS",
+    "observed": "Native Use on Access changes active border/button fromTrace toAccess without altering source summaries; selection drives later consumers."
+  },
+  {
+    "id": "workspace-import-toggle-keyboard",
+    "result": "PASS",
+    "observed": "Import assistance can be reopened with all original controls, thenSpacecollapses with visible summary focus and both resultcards restored; activeAccess preserved."
   }
 ]

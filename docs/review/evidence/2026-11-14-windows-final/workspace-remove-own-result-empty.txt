@@ -1,0 +1,25 @@
+분석 작업 공간
+분석 작업 공간
+도움말 보기
+저장된 케이스
+작업 공간 비우기
+케이스 검색과 재사용 baseline
+근거 가져오기 및 조회
+로컬 근거 경로
+파일 선택
+가져오기 형식
+분석
+저장 결과 열기
+취소
+CPU/GPU 실행: PyTorch / Nsight / rank 문맥
+부하 / LLM 벤치마크 / JVM 크래시 원본
+런타임 / 스레드 / TA / 실행계획 근거
+LLM / gateway trace 근거
+GPU / 추론 서빙 근거
+perf / 제한된 BPF 근거
+메트릭 이력: OTLP / snapshots / Prometheus / Apple / DB / Linux
+원본 py-spy / Speedscope / pprof 프로파일
+입력 안내와 수동 수집
+가져오기 옵션
+￼
+아직 작업 공간에 분석 결과가 없습니다.
