@@ -828,5 +828,40 @@
     "id": "settings-restored-original",
     "result": "PASS",
     "observed": "Restore exact original KO/System,100ms/20/wall through native controls and Save; localized input names observed. Existing pack registry untouched."
+  },
+  {
+    "id": "board-restart-removal-labels-fixed",
+    "result": "PASS",
+    "observed": "Final6b3cf283-plus-settings-labels same-profile restart retains exactly2cards (removedServiceFlow staysabsent),7visualartifacts; both owned trash actions now localized and named by card title."
+  },
+  {
+    "id": "body-memory-final-native-raw",
+    "result": "PASS",
+    "observed": "After2470s run app responsive; finalized512captured/persisted,128retained/384evicted. Direct first-row select shows GET/large?sequence=4992 andHTTP200 Raw. No rendering verdict inferred from resource counters."
+  },
+  {
+    "id": "body-memory-final-native-body",
+    "result": "PASS",
+    "observed": "Native selectedlarge response shows256KiBdecoded/293KiBwire,explicit message truncated at per-message capture cap and exact visible capture-body-prefix. Request has0B/no-body. UI remains responsive after finite memory run."
+  },
+  {
+    "id": "timeline-evidence-labels-fixed",
+    "result": "PASS",
+    "observed": "Final6b3cf283-plus-settings-labels native 5Access events expose Add:event-name labels/title in KO. Data/source semantics unchanged; no unlabelled row evidence action remains in observed table."
+  },
+  {
+    "id": "slo-evidence-labels-fixed",
+    "result": "PASS",
+    "observed": "Final6b3cf283-plus-settings-labels native 4Access violations expose localized Add:target/metric accessible names and titles; unchanged33.33percent/P951500ms thresholds."
+  },
+  {
+    "id": "service-flow-edge-label-fixed",
+    "result": "PASS",
+    "observed": "Final6b3cf283-plus-settings-labels native edge action has localized Add:checkout-service→inventory-service accessible name/title; exact12calls/90msunchanged. No findingfixture, so findinglabel verified by source/build only."
+  },
+  {
+    "id": "diff-final-386-normalized-fraction",
+    "result": "PASS",
+    "observed": "Final6b3cf283-plus-settings-labels Windows386 normalized before20100→after22600; clicked worker4 native tooltip0.220874 정규화비중/20.39%, not integerzero or millions. Independent rounded-union-envelope oracle matches; union percentage is not either input individual share."
   }
 ]

@@ -5747,3 +5747,13 @@ of300020Bresponses. Native final Raw/Body/truncation/liveness pass. Add explicit
 body mode to maintained harness; default false unchanged. Not universal leak
 freedom or amd64body/fullT613closure; T-613PENDING. Pin40188233/5ecff72f….
 Evidence:2026-11-14-windows-final/body-memory-independent.json.
+
+### 2026-11-15 - final integrated Windows native follow-up
+
+Guarded amd64/386 builds pass. Actual same-profile restart verifies Settings and
+remaining Board cards; KO Timeline/SLO/ServiceFlowedge/Board labels verified in
+native tree. Final386 normalized Diff tooltip0.220874/20.39percent matches an
+independent rounded-union-envelope oracle. Earlier label/formatting pending
+observations are closed within these selected fixtures. Full reference and
+locale/DPI acceptance remains separate; T-613PENDING/T-627REVIEW unchanged.
+Evidence:2026-11-14-windows-final/diff-final-normalized-oracle.json.

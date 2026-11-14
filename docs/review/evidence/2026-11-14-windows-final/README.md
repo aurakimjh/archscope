@@ -589,3 +589,20 @@ end. Per-cycle first/last body checks plus final all128 checks pass. Public resu
 contains ordinal process samples only; tokens/controller/raw stores stay private.
 Evidence: body-memory-386-result.json,body-memory-independent.json and native
 body-memory-final-* receipts. T-613 remains PENDING for full outstanding scope.
+
+## Final integrated native follow-up
+
+Guarded amd64/386 builds at6b3cf283-plus-settings-labels pass. Same-profile amd64
+restart confirms Settings persistence and exact restore, plus two Evidence Board
+cards surviving while the removed card stays absent. Native KO names verify all
+observed Timeline/SLO/ServiceFlow-edge evidence actions and Board removal names.
+This closes the pending native label observations above. ServiceFlow finding-row
+label has source/build coverage only because this fixture has no findings.
+
+Final386 normalized Diff uses before20100/after22600. Selectedworker.4tooltip
+shows0.220874 정규화비중 and20.39percent, preserving fractional weights instead
+of zero/million-scaled integers. Independent Python reconstructs rounded6decimal
+canonical a/b and inclusive max-envelope geometry. This percentage is a share
+of the union tree, not either input's individual share. It closes the final
+formatting-only smoke pending in the earlier Diff receipt. Remaining original
+reference and full condition/locale/DPI scope is unchanged.

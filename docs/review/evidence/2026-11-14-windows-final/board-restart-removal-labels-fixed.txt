@@ -1,0 +1,160 @@
+Evidence Board
+Evidence Board
+도움말 보기
+2 카드
+보고서 내보내기
+JSON 내보내기
+Report pack HTML
+Report pack ZIP
+보드 비우기
+시각 자료 보관함
+저장 이미지는 과거 스냅샷입니다. 원버전 재생성에는 고정된 결과와 동일한 template·renderer·글꼴이 필요합니다. 명시적 업그레이드는 새 리비전을 만듭니다. 보관함은 케이스와 별도로 관리합니다.
+보관함 새로 고침
+시각 자료 ZIP 열기
+선택한 시각 자료 Report Pack
+￼
+￼
+visual-f9260afbeeb2807da88b54842b4f5b24cfd78f2587e5026d01b687b45afde805 · 1 · 2026-11-13T22:07:54.0471667Z
+과거 이미지 열기
+원버전 재생성
+새 버전으로 리비전 생성
+묶음 저장
+시각 자료 삭제
+￼
+visual-9a26f3288165954cea26c4ae194c5e941815d42d04f122b1cdd338963029c37f · 1 · 2026-11-13T21:59:24.9044625Z
+과거 이미지 열기
+원버전 재생성
+새 버전으로 리비전 생성
+묶음 저장
+시각 자료 삭제
+￼
+visual-68548dab8dc92349e06740f6291aeab891dca26d3835fb19bde386ccbd7793eb · 1 · 2026-11-13T21:05:14.3168079Z
+과거 이미지 열기
+원버전 재생성
+새 버전으로 리비전 생성
+묶음 저장
+시각 자료 삭제
+￼
+visual-ff19afa0701bfed1061d51a0c15f74d75a7990c6ffc85324eeee53522241d3a8 · 1 · 2026-11-13T20:57:54.8570864Z
+과거 이미지 열기
+원버전 재생성
+새 버전으로 리비전 생성
+묶음 저장
+시각 자료 삭제
+￼
+visual-9b69cb2bb8b966d4b93f7032d01a15fa7bc712fb90d8a79830a6d27e04ff55a9 · 2 · 2026-11-13T20:05:29.1390371Z
+과거 이미지 열기
+원버전 재생성
+새 버전으로 리비전 생성
+묶음 저장
+시각 자료 삭제
+￼
+visual-9a90d89380a89de3582bc682e5d7b4d468072377fc6f3ac9b0baa3e36b57f043 · 2 · 2026-11-13T20:04:10.7375037Z
+과거 이미지 열기
+원버전 재생성
+새 버전으로 리비전 생성
+묶음 저장
+시각 자료 삭제
+￼
+visual-446470ee57d9bdb978083a91d57d887a749269c8dd502394af53fafc2034ee47 · 2 · 2026-11-13T20:01:29.3780714Z
+과거 이미지 열기
+원버전 재생성
+새 버전으로 리비전 생성
+묶음 저장
+시각 자료 삭제
+Error rate under 10%
+도움말 보기
+SLO_GOLDEN_SIGNALS
+SLO_VIOLATION
+CRITICAL
+증거 삭제: Error rate under 10%
+Access error rate: 33.33 percent <= 10 percent
+-
+summary.error_rate
+{
+  "id": "slo-9016e8cf",
+  "target_id": "error-rate-10pct-critical",
+  "target_name": "Error rate under 10%",
+  "severity": "critical",
+  "metric_id": "sli-951b1397",
+  "metric_key": "errors:access_error_rate::percent:rate:global:global",
+  "metric_name": "Access error rate",
+  "kind": "errors",
+  "actual": 33.33,
+  "threshold": 10,
+  "comparator": "lte",
+  "unit": "percent",
+  "window_label": "session",
+  "delta": 23.33,
+  "ratio_to_threshold": 3.333,
+  "burn_rate": 3.333,
+  "error_budget_consumed_percent": 333.3,
+  "error_budget_remaining_percent": 0,
+  "affected_scope_type": "global",
+  "affected_scope": "global",
+  "source_analyzers": [
+    "access_log"
+  ],
+  "source_result_ids": [
+    "ar-1794674775926-ad6138cf939398"
+  ],
+  "evidence_refs": [
+    "summary.error_rate"
+  ],
+  "tags": {
+    "metric_family": "access_error_rate",
+    "rate_unit": "percent"
+  },
+  "target": {
+    "id": "error-rate-10pct-critical",
+    "name": "Error rate under 10%",
+    "severity": "critical",
+    "comparator": "lte",
+    "threshold": 10,
+    "unit": "percent",
+    "objective_percent": 90,
+    "window_label": "session",
+    "match": {
+      "kind": "errors",
+      "units": [
+        "percent"
+      ],
+      "nameIncludes": [
+        "error",
+        "rate"
+      ]
+    }
+  }
+}
+TRACE_IMPORT_CROSS_SERVICE_TRACE
+도움말 보기
+INCIDENT_TIMELINE
+TIMELINE_EVENT
+INFO
+증거 삭제: TRACE_IMPORT_CROSS_SERVICE_TRACE
+At least one imported trace spans multiple services.
+C:\workspace\archscope\.tmp\windows-final-20261114\ui-fixtures\trace-twelve.json
+TRACE_IMPORT_CROSS_SERVICE_TRACE
+{
+  "timestamp": "2026-11-14T16:47:55.210Z",
+  "start_time": "2026-11-14T16:47:55.210Z",
+  "range_label": "2026-11-14T16:47:55.210Z",
+  "time_label": "2026-11-14T16:47:55.210Z",
+  "source_analyzer": "trace_import",
+  "source_result_id": "ar-1794674875224-6a48499162963",
+  "source_title": "trace_import: trace-twelve.json",
+  "category": "trace",
+  "group_key": "category:trace:TRACE_IMPORT_CROSS_SERVICE_TRACE:C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json",
+  "group_label": "trace / TRACE_IMPORT_CROSS_SERVICE_TRACE",
+  "group_category": "trace",
+  "correlation_ids": {},
+  "evidence_ref": "TRACE_IMPORT_CROSS_SERVICE_TRACE",
+  "payload": {
+    "code": "TRACE_IMPORT_CROSS_SERVICE_TRACE",
+    "evidence": {
+      "cross_service_traces": 12
+    },
+    "message": "At least one imported trace spans multiple services.",
+    "severity": "info"
+  }
+}

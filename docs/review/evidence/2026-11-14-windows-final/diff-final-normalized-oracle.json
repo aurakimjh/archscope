@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "buildCommit": "6b3cf283-plus-settings-labels",
+  "arch": "386",
+  "normalized": true,
+  "inputs": [
+    {
+      "file": "profiler-before.collapsed",
+      "sha256": "1f572b33a35c66b0c97c4123e9d22e7e7c6c0d2a3a7f5d0c45685268e1bde7a1",
+      "total": 20100
+    },
+    {
+      "file": "profiler-after.collapsed",
+      "sha256": "091562b7d4f08f761262e7934b77e6f69d0a5d6d06ef84517a5200c0b91f1b8f",
+      "total": 22600
+    }
+  ],
+  "worker4UnionEnvelope": 0.220874,
+  "unionRoot": 1.083373,
+  "displayWeight": "0.220874",
+  "displayPercent": "20.39%",
+  "semantics": "Rounded six-decimal canonical a/b; union max-envelope laid out from inclusive values; percentage is share of this union tree, not either individual profile."
+}
