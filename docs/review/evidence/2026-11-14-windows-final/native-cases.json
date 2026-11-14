@@ -468,5 +468,35 @@
     "id": "trace-span-units-fixed",
     "result": "PASS",
     "observed": "Final native Span table explicitly labels ms and retains240/90/70values with20complete rows before scroll atOS100/Web100."
+  },
+  {
+    "id": "cpu-weight-label-before",
+    "result": "FAIL",
+    "observed": "12 parsed sampled records produce11ms CPU and11000microsecond canonical weight, but summary/top column incorrectly label11000as sample count. Runs1ms at1000..11000us are correct."
+  },
+  {
+    "id": "cpu-search-zero",
+    "result": "PASS",
+    "observed": "Nonmatching search explicitly shows no match while source flamegraph remains; no loss of source result."
+  },
+  {
+    "id": "cpu-clear-before",
+    "result": "FAIL",
+    "observed": "Native Clear removes input and disables Analyze but retains old11000weight/11ms summary, flamegraph and runs under empty input."
+  },
+  {
+    "id": "cpu-weight-label-fixed",
+    "result": "PASS",
+    "observed": "Same12records now show sample count12,CPU11ms and top-frame11000underµs. Engine canonical weights unchanged."
+  },
+  {
+    "id": "cpu-frame-zoom-units",
+    "result": "PASS",
+    "observed": "Selecting renderList zooms to that frame and reveals6000µs/54.55percent,matching6weighted1ms observations of11000µs total. Reset remains visible."
+  },
+  {
+    "id": "cpu-clear-fixed",
+    "result": "PASS",
+    "observed": "Clear now removes all summary/chart/run/parser content and resets input/disabled Analyze. Request identity also retires on select/clear/unmount; no simulated inflight native claim."
   }
 ]

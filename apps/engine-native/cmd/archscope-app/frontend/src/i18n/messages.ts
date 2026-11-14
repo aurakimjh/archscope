@@ -1172,7 +1172,7 @@ export const messages = {
     browserCpuFlamegraphHint:
       "Click a frame to zoom in — the flamegraph doubles as an interactive drilldown; click Reset to zoom back out.",
     browserCpuTopFramesTitle: "Top frames",
-    browserCpuTopFramesCaption: "Frames ranked by sample share.",
+    browserCpuTopFramesCaption: "Frames ranked by recorded weight share.",
     browserCpuRunsTitle: "Sampled CPU runs",
     browserCpuRunsDisclaimer:
       "These are sampled CPU observations, not browser Long Tasks.",
@@ -3057,7 +3057,7 @@ export const messages = {
     browserCpuFlamegraphHint:
       "프레임을 클릭하면 확대됩니다 — 플레임그래프가 인터랙티브 드릴다운 역할을 합니다. 초기화를 누르면 다시 축소됩니다.",
     browserCpuTopFramesTitle: "상위 프레임",
-    browserCpuTopFramesCaption: "샘플 비중 순으로 정렬한 프레임.",
+    browserCpuTopFramesCaption: "기록된 가중치 비중 순으로 정렬한 프레임.",
     browserCpuRunsTitle: "샘플링된 CPU run",
     browserCpuRunsDisclaimer:
       "이것은 샘플링된 CPU 관측이며 브라우저 Long Task 가 아닙니다.",

@@ -346,3 +346,21 @@ unit-omission PARTIAL is preserved. Pre-fix span layout had20complete rows and
 not establish every tab/locale/DPI/reference combination. Trace route exposes
 tabs/options/evidence; it has no per-trace selection/filter control, so those
 checklist interactions are not asserted complete. Frontend state/build pass.
+
+## Browser CPU count, weight units, search and input lifecycle
+
+Owned V8 fixture has12sample records, twelve1000us deltas and12000us recording.
+By the existing observation-interval convention, eleven1ms weighted runs remain
+(the final observation has zero tail):11000us/11ms, renderList6000us/54.55percent.
+Native initially mislabeled11000as sample count and kept all results after Clear.
+The count now uses profile_sample_count(12), while table/flame tooltip weights
+explicitly useµs when value_unit=microseconds. No engine values changed. A missing
+count is shown as unavailable instead of inventing0. Nonmatching search says no
+match; selecting renderList zooms and shows exact6000µs/54.55percent.
+
+Select/clear/new-run now clear prior result/error and retire request identity;
+unmount also ignores late replies. Native fixed Clear removes all prior content.
+Frontend state/build pass. Native77dc2bb4-plus-cpu precedes the final EN/KO
+screen-reader caption correction(sample share→recorded weight share); that text
+is build-verified. Sparse2stack fixture does not qualify dense70percent/all-format/
+actualOS-DPI/reference matrix or native inflight cancellation.

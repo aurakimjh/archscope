@@ -1,0 +1,84 @@
+브라우저 CPU
+cpu-twelve.cpuprofile
+도움말 보기
+cpu-twelve.cpuprofile
+찾아보기
+Clear file
+분석
+샘플 수
+도움말 보기
+11,000
+포맷
+도움말 보기
+v8-cpuprofile
+CPU 시간 (MS)
+도움말 보기
+11
+스택 수
+도움말 보기
+2
+플레임그래프
+도움말 보기
+프레임 검색
+검색 범위
+PNG 저장
+￼
+상위 프레임
+샘플 비중 순으로 정렬한 프레임.
+프레임
+샘플
+비율
+(root)
+11,000
+100.00%
+샘플링된 CPU run
+이것은 샘플링된 CPU 관측이며 브라우저 Long Task 가 아닙니다.
+관측된 지속 시간 순으로 정렬된 샘플 CPU run.
+스택
+￼
+지속 시간 (ms)
+￼
+시작 (µs)
+￼
+(root);renderList
+1
+1000
+(root);layout
+1
+2000
+(root);renderList
+1
+3000
+(root);layout
+1
+4000
+(root);renderList
+1
+5000
+(root);layout
+1
+6000
+(root);renderList
+1
+7000
+(root);layout
+1
+8000
+(root);renderList
+1
+9000
+(root);layout
+1
+10000
+(root);renderList
+1
+11000
+파서 리포트
+파싱된 레코드
+12
+스킵된 라인
+0
+경고
+0
+에러
+0

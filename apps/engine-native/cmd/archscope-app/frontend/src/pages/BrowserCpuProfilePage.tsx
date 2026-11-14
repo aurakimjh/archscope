@@ -1,5 +1,5 @@
 import { Loader2, Play } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { engine } from "@/bridge/engine";
 import type { ProfileEvidenceAnalysisResult } from "@/bridge/types";
@@ -40,17 +40,30 @@ export function BrowserCpuProfilePage(): React.JSX.Element {
   const [result, setResult] = useState<ProfileEvidenceAnalysisResult | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<{ code: string; message: string } | null>(null);
+  const inflightRef = useRef<symbol | null>(null);
+  useEffect(() => () => { inflightRef.current = null; }, []);
+  const selectFile = useCallback((next: FileDockSelection | null) => {
+    inflightRef.current = null;
+    setFile(next);
+    setResult(null);
+    setError(null);
+    setRunning(false);
+  }, []);
 
   const analyze = useCallback(async () => {
     if (!file || running) return;
     setRunning(true);
+    setResult(null);
     setError(null);
+    const token = Symbol("browser-cpu-analysis");
+    inflightRef.current = token;
     try {
       const next = await engine.analyzeProfileEvidence({
         path: file.filePath,
         format: "auto",
         profileKind: "cpu",
       });
+      if (inflightRef.current !== token) return;
       setResult(next);
       addWorkspaceResult({
         result: next,
@@ -58,16 +71,21 @@ export function BrowserCpuProfilePage(): React.JSX.Element {
         sourceLabel: file.originalName,
       });
     } catch (caught) {
+      if (inflightRef.current !== token) return;
       setError({
         code: "BROWSER_CPU_PROFILE_FAILED",
         message: caught instanceof Error ? caught.message : String(caught),
       });
     } finally {
-      setRunning(false);
+      if (inflightRef.current === token) {
+        inflightRef.current = null;
+        setRunning(false);
+      }
     }
   }, [file, running]);
 
   const summary = result?.summary as Record<string, unknown> | undefined;
+  const weightLabel = summary?.value_unit === "microseconds" ? "µs" : t("samplesColumn");
   const rows = useMemo(() => selectSampledRuns(result), [result]);
   const flamegraph = useMemo(() => extractProfileFlamegraph(result), [result]);
   const diagnostics = useMemo(() => extractProfileDiagnostics(result), [result]);
@@ -88,8 +106,8 @@ export function BrowserCpuProfilePage(): React.JSX.Element {
         description={t("browserCpuDescription")}
         accept=".json,.cpuprofile,.gz,.json.gz"
         selected={file}
-        onSelect={setFile}
-        onClear={() => setFile(null)}
+        onSelect={selectFile}
+        onClear={() => selectFile(null)}
         browseLabel={t("browseFile")}
         dropHereLabel={t("dropHere")}
         errorLabel={t("error")}
@@ -135,7 +153,7 @@ export function BrowserCpuProfilePage(): React.JSX.Element {
         <section className="grid gap-3 sm:grid-cols-4">
           <MetricCard
             label={t("browserCpuMetricSamples")}
-            value={formatNumber(Number(summary.total_samples ?? 0))}
+            value={formatNumber(typeof summary.profile_sample_count === "number" ? summary.profile_sample_count : undefined)}
           />
           <MetricCard
             label={t("browserCpuMetricFormat")}
@@ -175,7 +193,7 @@ export function BrowserCpuProfilePage(): React.JSX.Element {
             <CardTitle className="flex items-center gap-2">{t("flamegraphTitle")}<HelpTip text={t("browserCpuFlamegraphHint")} /></CardTitle>
           </CardHeader>
           <CardContent>
-            <CanvasFlameGraph data={flamegraph} exportName={exportName} />
+            <CanvasFlameGraph data={flamegraph} exportName={exportName} weightLabel={weightLabel} />
           </CardContent>
         </Card>
       )}
@@ -194,7 +212,7 @@ export function BrowserCpuProfilePage(): React.JSX.Element {
                     {t("framesColumn")}
                   </th>
                   <th scope="col" className="p-2 text-right font-medium">
-                    {t("samplesColumn")}
+                    {weightLabel}
                   </th>
                   <th scope="col" className="p-2 text-right font-medium">
                     {t("ratioColumn")}

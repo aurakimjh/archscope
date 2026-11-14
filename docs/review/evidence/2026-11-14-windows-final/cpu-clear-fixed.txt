@@ -1,0 +1,6 @@
+브라우저 CPU
+Chrome CPU 프로파일
+도움말 보기
+찾아보기
+분석
+Chrome Performance 트레이스, V8 .cpuprofile, 또는 gzip 압축된 .json.gz 를 선택하고 분석을 누르면 플레임그래프·샘플 CPU run·파서 리포트가 표시됩니다.

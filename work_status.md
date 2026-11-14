@@ -5612,3 +5612,12 @@ EN/KO duration headers explicitly state ms. Native12trace/36span values and
 missing-parent1warning pass; malformed-input retry and prior-unit PARTIAL remain
 archived. Frontend state/build pass. No absent per-trace filter/selection UI or
 full reference/DPI acceptance claim. Evidence:2026-11-14-windows-final. T-627 REVIEW.
+
+### 2026-11-15 - T-627 Browser CPU actual counts and result identity
+
+Native12record input incorrectly displayed11000µs as samples; summary now reads
+profile_sample_count and table/flame weights explicitly useµs. SelectedrenderList
+6000µs/54.55percent and zero-match search pass. Clear previously retained graphs;
+input/reset/new-run/unmount now retire result/request identity and native fixed
+Clear passes. Frontend state/build pass. Dense/reference/DPI acceptance separate;
+T-627 REVIEW. Evidence:2026-11-14-windows-final.
