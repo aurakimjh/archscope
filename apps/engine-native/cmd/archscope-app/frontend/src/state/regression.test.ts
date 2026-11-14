@@ -3109,6 +3109,10 @@ assert(restoredColumns.length===HTTP_COLUMNS.length && restoredColumns[0]?.width
 assert(restoredColumns.filter(c=>c.key==="path").length===1 && restoredColumns.some(c=>c.visible), "column preferences must keep unique keys and a visible column");
 assert(httpColumnValue({...selectedLiveRow,connection_id:"connection-7"},"connection")==="connection-7", "connection evidence must be available as a column");
 assert(httpColumnMatches(selectedLiveRow,"status","gte","200") && !httpColumnMatches(selectedLiveRow,"status","gte","bad"), "numeric field filtering must reject invalid thresholds");
+const queryColumnRow={...selectedLiveRow,path:"/fixture",query:"",url:"http://example.test/fixture?slot=004&token=%5BREDACTED%5D",response:{...selectedLiveRow.response,contentType:"application/json",bodySize:-1}};
+assert(httpColumnValue(queryColumnRow,"kind")==="json" && httpColumnMatches(queryColumnRow,"kind","equals","json"),"Type field filtering must use the displayed resource classification");
+assert(httpColumnValue(queryColumnRow,"path")==="/fixture?slot=004&token=%5BREDACTED%5D" && httpColumnMatches(queryColumnRow,"path","contains","slot=004"),"live Path filtering must include the retained redacted URL query when the separate query is empty");
+assert(!httpColumnMatches(queryColumnRow,"bodySize","lte","100"),"unknown body size must not match a numeric bound as negative one");
 assert(httpGroupedEntries([selectedLiveRow,reusedPid],new Set(),"host").length===3, "host grouping must join requests from separate process instances");
 
 import { builderHeaders, parseBuilderHeaders } from "./httpRequestBuilder.js";

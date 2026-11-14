@@ -547,7 +547,7 @@ function sortValue(tx: HttpCaptureTransactionRow, column: SortColumn): number | 
     case "host":
       return tx.host ?? "";
     case "path":
-      return tx.path ?? "";
+      return httpColumnValue(tx,"path");
     case "kind":
       return resourceKindOf(tx);
     case "size":

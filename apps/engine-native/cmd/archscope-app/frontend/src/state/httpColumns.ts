@@ -1,4 +1,6 @@
 import {rowHints} from "./httpAnnotations.js";
+import {resourceKindOf} from "./httpAnalyzer.js";
+import {requestQuery} from "./httpPayload.js";
 import type { MessageKey } from "../i18n/messages";
 import type { HttpCaptureTransactionRow } from "../bridge/types";
 
@@ -56,7 +58,8 @@ export function httpColumnValue(row: HttpCaptureTransactionRow,key: string): str
     case "method": return row.method;
     case "status": return row.status || row.state;
     case "host": return row.host;
-    case "path": return row.path + (row.query ? "?" + row.query : "");
+    case "path": { const query=requestQuery(row.query,row.url); return row.path + (query ? "?" + query : ""); }
+    case "kind": return resourceKindOf(row);
     case "url": return row.url;
     case "size": return row.response_bytes;
     case "sent": return row.request_bytes;
@@ -86,7 +89,8 @@ export function httpColumnMatches(row: HttpCaptureTransactionRow,key:string,oper
   if (operator==="gte" || operator==="lte") {
     const number=Number(value);
     const bound=Number(needle);
-    return value!=="—" && Number.isFinite(number) && Number.isFinite(bound) && (operator==="gte"?number>=bound:number<=bound);
+    const unknownSize=["size","sent","bodySize"].includes(key)&&number<0;
+    return value!=="—" && !unknownSize && Number.isFinite(number) && Number.isFinite(bound) && (operator==="gte"?number>=bound:number<=bound);
   }
   const text=String(value).toLowerCase();
   return operator==="equals" ? text===needle.toLowerCase() : text.includes(needle.toLowerCase());
