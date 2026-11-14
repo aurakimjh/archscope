@@ -5426,3 +5426,25 @@ WREV-01 LOCALLY_VERIFIED, independent review/native acceptance separate. User
 authorizes committing/pushing this fix, review evidence and tracker changes;
 T-613 PENDING/T-627 REVIEW/T-662 TODO and task counts remain unchanged.
 Receipt: `docs/review/evidence/2026-11-14-p2-windows-review/regression-results.json`.
+
+### 2026-11-14 - Screen-by-screen user manual
+
+Expanded the existing Korean/English USER_GUIDE into a product user manual for
+all 21 desktop routes. Covers purpose, supported input selection, controls,
+interpretation, missing/partial evidence and follow-up investigation. Detailed
+Workspace procedures cover exact imports/profile queries, case save/reopen,
+source search, immutable baselines, comparisons, specialized evidence panels
+and report visuals. Includes four guided investigations and explanations of
+the existing access-log/thread-dump/profile teaching files. Updated all five
+root/language documentation indexes; retained build/CLI examples in appendices.
+
+Validation: source review against navigation, pages/components and current
+support documents; all21route anchors present in both languages, matching
+language anchors, 150local manual links and balanced code fences; git diff
+--check passes. Documented nginx CLI example runs successfully with6requests,
+2analyzer-counted errors and6latency samples/no unknown latency values.
+Existing offline-resource and input-assistance asset --check commands pass.
+USER_GUIDE is not currently included in those generated asset lists, so no
+bundle regeneration is needed. Documentation validation does not constitute
+new native UI/Windows acceptance. Application behavior, task counts and
+existing environment-dependent acceptance statuses are unchanged.

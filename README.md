@@ -72,6 +72,7 @@ archscope/
 
 - [English documentation index](docs/en/README.md)
 - [Korean documentation index](docs/ko/README.md)
+- [User manual](docs/en/USER_GUIDE.md) · [사용자 매뉴얼](docs/ko/USER_GUIDE.md)
 - [Architecture](docs/en/ARCHITECTURE.md) · [아키텍처](docs/ko/ARCHITECTURE.md)
 - [Native app guide](docs/en/NATIVE_APP.md) · [네이티브 앱 가이드](docs/ko/NATIVE_APP.md)
 
