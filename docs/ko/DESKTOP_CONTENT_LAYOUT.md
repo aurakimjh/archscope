@@ -356,3 +356,55 @@ sparse 글자는 작습니다. Excel 기본 픽셀 크기는100% 화면을 넘�
 ### 2026-11-14 HTTP Raw URL
 
 라이브 HTTP Raw는 중복 query가 비워져도 보관된 마스킹 URL에서 쿼리와 일치하는 호스트 포트를 복원합니다. 실제 네이티브 4건의 수정 전후 화면과 IPv6·불완전 URL 회귀를 검증했고 명시적 Host·다른 가상 호스트를 보존합니다. 저장 파일의 정규화 경로와 구분하며 전체 네이티브 인수는 열려 있습니다.
+
+
+## 2026-11-14 T-627 remaining acceptance checklist
+
+기준은 위 Acceptance와 상세 동작 조건입니다. 2026-11-12의21개 빈 화면/폼 진입,
+2026-11-13/14의 선택된 populated·오류·DPI·Office PASS를 전체 화면 완료로 합산하지
+않습니다. 이미 검증한 JFR heatmap/JVM4subtabs/MSA 평균·내보내기/시각자료
+저장·재열기·재생성/설치된 Office1버전의 PNG·표·SVG는 다시 미검증으로 돌리지 않습니다.
+다음 표는 **그 증거 외에 아직 채워야 할 조건**입니다. 모두 현재 Windows에서
+fixture를 사용해 추가할 수 있지만, 완전한 원본 비교에는 같은 입력·화면·배율의
+원본 측 증거가 필요합니다.
+
+| 화면 | 아직 필요한 구체적 관찰 |
+| --- | --- |
+| profiler | 충분한 깊이/행의 기본 창 면적·선택 경로, 동일 fixture 원본 비교, 취소/오류 후 재시도 및 옵션/help 키보드 복귀 |
+| diff | 동일 입력의0차이 외 실제 회귀·개선/불일치 조건, 두 입력 교체·실패·취소·좁은 창 선택 보존 |
+| gc_log | clock 없는 로그의 사유, 충분한60events에서 추세+10행, 선택/Heap/JVM·resize·키보드와 실제 DPI 조합 |
+| jfr | 기록/스택/네이티브 메모리 선택된 PASS 외 입력형식/부분·실패·취소, 모든 조건부 탭의 키보드·면적 조합 |
+| access_log | 충분한 데이터의 latency/status/URL 탭·필터0행·파서 부분/실패, 원본동일입력과 출력 형식 전체 |
+| exception | signature/group·선택 스택 drawer·부분/오류·닫기 후 초점, 긴 스택·좁은 창/실제 DPI |
+| thread_dump | 단일/복수·deadlock/lock contention·입력순서·부분/오류와 선택 보존; JVM4subtabs PASS 외 조합 |
+| msa_profile | coherent 평균/SQL/methods/차트 PASS 외 CSV mapping·부분/불완전/경고·취소, 모든 locale/DPI·원본 비교 |
+| trace_import | 다중 trace/span 선택·누락/오류·지원하지 않는 형식, 긴 경로·필터0행·단위/내보내기 |
+| http_capture | 열·그룹·정렬·full-store 검색·키보드·주석 저장/재열기·Builder 불변성, legacy/inert viewer 조건부 상태; T-613 표와 연결 |
+| browser_cpu | 충분한 stack 선택/검색/zoom·부분/실패·취소·resize와 실제 DPI/locale |
+| browser_audit | score42 JSON/HTML PASS 외 누락/실패한 audits·필터0행·긴 provenance/단위/지원 형식 조합 |
+| analysis_workspace | 결과 등록→선택→차트/증거/내보내기의 모든 데이터종류,0선택·누락/오래된 참조·오류·키보드 |
+| export_center | 각 지원 형식/단일·다중선택/파일·폴더/취소·실패; unknown saved JSON의 정확한 보존과 refusal 외 조합 |
+| report_diff | 비0차이·누락/불일치 보고서·선택/필터/긴 값·내보내기·좁은 창 |
+| chart_studio |8templates의 selected render PASS 외 데이터종류×PNG/SVG/CSV 전체, renderer 변경/resize·실패·단위·출처 |
+| incident_timeline | 충분한 이벤트·선택·시간/group/filter·omitted/partial·0행·오류·내보내기 |
+| slo_golden_signals | 측정/위반/미평가/부분 데이터 구분, target편집·저장·취소·실패·키보드/단위 |
+| service_flow | 서비스/edge 선택·aliases·필터·부분/누락·시간단위·좁은 창/실제 DPI |
+| evidence_board |2카드/ReportPack/시각자료 lifecycle PASS 외 나머지 카드/형식·누락/불일치/오류·키보드·출처 조합 |
+| settings | editable groups 저장/취소/재시작 보존, 긴 값·실패·키보드 초점·폼의 필수 동작이 기본 창 안에 있는지 |
+
+공통 완료 기준:
+
+- 기본1280×800/100%, 스크롤 전, 메뉴/help 닫힘 상태에서 실제 CSS WebView를
+  분모로 행/플롯/선택 상세의 겹치지 않는 union을 측정. 충분한 결과는70% 목표,
+  표10완전행, chart300CSSpx. HTTP는10요청행+상세4줄 동시 표시.
+- 빈 화면·설정/내보내기 폼·sparse fixture는 제외 이유와 필수 동작 접근성을 기록.
+  passive observer의 보수적 면적 수치만으로 자동70% PASS를 만들지 않음.
+- 같은 fixture/탭/레이아웃의 원본·현재 paired 화면과 수치,1024×768의 실제 OS125%
+  및 KO/EN, 선택 탭/내부 스크롤/닫기·주요 명령 도달성. WebView125%와 구별.
+- 입력/분석/취소/실패/재시도/부분/0행/선택, help pin·Escape·초점 복귀,
+  메뉴·단축키1회 dispatch와 창 변경/재시작 시 splitter·선택·초안 보존.
+- 보고서/시각자료는 값·단위·출처·페이지/행 전체를 검증. 설치된 Office16.0.10417의
+  한 fixture 결과를 모든 버전·글꼴·배치로 확대하지 않음.
+
+T-627은 REVIEW를 유지합니다. 추가 검증/발견 오류는
+`docs/review/evidence/2026-11-14-acceptance-remaining`에 별도 기록합니다.

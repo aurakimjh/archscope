@@ -354,3 +354,29 @@ recorded,with placement/font limits; fullT-627 acceptance remains open.
 ### 2026-11-14 HTTP Raw URL
 
 Live HTTP Raw now reconstructs a cleared duplicate query from the retained redacted URL and restores its matching authority port. Native four-request before/after evidence and IPv6/incomplete-URL regressions pass; explicit captured/differing virtual hosts retain priority. Saved-file normalization is a separate path. Full native acceptance remains open.
+
+
+## 2026-11-14 remaining T-627 acceptance
+
+The Acceptance section above remains the closure checklist. The21 empty/form
+routes and selected populated/error/DPI observations are distinct evidence.
+Completed JFR heatmap/JVM subtabs/MSA averages and exports/visual lifecycle and
+the selected installed Office PNG/table/SVG paths need not be repeated as missing.
+Remaining work covers every applicable condition on every route: sufficient-data
+layout versus identical original input; error/partial/cancel/retry/empty-filter;
+selection and keyboard/help focus; resize and actual OS125% with KO/EN; exact
+export values, units and provenance. The detailed21-route remaining-case table
+is in docs/ko/DESKTOP_CONTENT_LAYOUT.md, under the matching dated checklist.
+
+Measure the nonoverlapping clipped union against the actual CSS viewport before
+scrolling at1280x800/100%, menus/help closed. Gates are70% result area with enough
+data,10full table rows,300CSSpx plot, and HTTP10requests plus4inspector lines.
+Forms, empty and sparse results need explicit exclusions and accessible required
+actions, not invented ratio passes. A passive conservative union alone is not
+an automatic verdict.1024x768 at actual OS125% is distinct from WebView zoom.
+Record same-input original/current pairs, tab and saved-layout settings.
+
+Current Windows can extend fixture/UI/keyboard/export cases. Complete original
+comparison requires its matching reference evidence; selected Office16.0.10417
+results cannot establish other versions/fonts/placement. T-627 stays REVIEW.
+Additional receipts are in docs/review/evidence/2026-11-14-acceptance-remaining.

@@ -1869,3 +1869,33 @@ separate product checks, local and hosted soak, and the test-only follow-up.
 T-611 remains REVIEW for current vendor-client interoperability, missing native
 filter/cache-origin evidence and foreign-process in-memory cookies. Transparent
 driver reach, full native menu/DPI and GUI/driver long-run parity remain separate.
+
+
+## 2026-11-14 remaining T-613 acceptance
+
+The16-case contract is scripts/http-standalone-parity-contract.json. The detailed
+case-by-case completed slice, missing observation and environment gate is in the
+matching dated table in docs/ko/SYSTEM_HTTP_CAPTURE.md. Earlier4/16 automation
+reports are immutable; later selected native receipts do not silently rewrite
+them into an overall parity PASS.
+
+Additional local cases can cover grid/group/search/keyboard, notes through
+sort/save/reload, Builder explicit loopback sends with immutable source, timing,
+inert content/legacy states and current-source crash/restart recovery. Genuine
+675-entry HALOG codec byte roundtrip and the two-hour fixed capture runs on both
+architectures are already recorded; they are not newly missing tests.
+
+Full live BODY depends on the existing verified body gate (currently disabled).
+Transparent/proxy-ignoring/service reach requires an implemented Windows backend;
+it is not supplied by Linux Docker. Vendor COM foreign-process/session-cookie
+semantics and collision-free public registration need the appropriate original
+client and clean Windows user/VM, preserving current registrations. Full reference
+interoperability is distinct from ABI/local-ArchScope contract tests.
+
+Root memory guards do not establish total WebView or handle-leak acceptance:
+previous two-hour tree private bytes and root handles increased. Longer/idle,
+pressure and input comparisons with diagnosis remain separate; no Windows race
+claim is made with CGO=0. Crash recovery with uncommitted staging/blob cleanup
+also does not establish power-loss or every committed-corruption/low-disk fault.
+T-613 stays PENDING; additional receipts are in the dated remaining-acceptance
+folder under docs/review/evidence.

@@ -5112,3 +5112,38 @@ GUI·드라이버·원본 클라이언트 장시간 검증은 T-613으로 남습
 T-611은 현재 원본 클라이언트 호환성, 미확인 원본 필터·캐시 출처, 다른 프로세스의
 메모리 세션 쿠키 연동 때문에 REVIEW를 유지합니다. 투명 드라이버 도달 범위,
 전체 네이티브 메뉴·DPI와 GUI·드라이버 장시간 동등성 검증도 별도로 남습니다.
+
+
+## 2026-11-14 T-613 remaining acceptance by contract case
+
+계약은 scripts/http-standalone-parity-contract.json의16건입니다. 이전 자동화 보고서의
+4/16과 별도로 최신 증거를 아래처럼 대조합니다. 이 표의 ‘부분’은 전체 case PASS가
+아니며 원래 UNVERIFIED 보고서를 소급 수정하지 않습니다.
+
+| ID | 이미 확인한 범위 | 남은 인수 조건/현재 환경 |
+| --- | --- | --- |
+| CONTROL-01 | visible-app 인증 제어·event·pause/resume/stop | 지원 명령/실패/취소 전체와 최신 통합 빌드의 네이티브 동작 대조; 로컬 가능 |
+| PROCESS-01 | 실제 Node PID+start, 두 프로세스 귀속·launch fixture | 서비스·타세션·proxy무시 앱은 별도 backend/reach 증거 필요; 선택 프록시 범위는 로컬 가능 |
+| EXCHANGE-01 | 합성103/302/final 자동화 | 지원 조합의 원본동일 exchange·native 표시·내보내기 비교; 합성 추가는 로컬 가능 |
+| BODY-01 | body-disabled 동작·HAR/codec의 payload | 실제 request/response body 및 중복cookie 전체. 현재 dump-policy gate로 live bodies 금지; 보안정책 변경으로 통과시키지 않음 |
+| SESSION-01 | native save/open ID·선택, 양쪽128행 | 주석/정렬/필터/오류·부분 파일 전체의 native 재열기; 로컬 가능 |
+| WINDOW-01 | 컨트롤·process grid·상세 한 창, selected geometry | 충분한 결과의70%/10요청+4상세와 모든 locale/DPI/조건 조합; 로컬 추가 가능 |
+| GRID-01 | 기본 그룹/행선택·retention·backend pagination | 표시열/그룹/정렬/전체 저장소 검색·키보드와 선택 보존을 실제 UI로 연결; 로컬 가능 |
+| TIMING-01 | timing/summary 구현·일부 fixture | summary filter와 process-relative waterfall의 실제 값/선택·지연/오류·원본 비교; 합성 UI 가능 |
+| CONTENT-01 | Raw/Headers/disabledBody selected PASS | cookies/streams, inert text/HTML/raster 및 오류/미지원/제한 native 상태; import fixture는 로컬 가능 |
+| NOTES-01 | 단위/저장 회귀 | 별/주석의 sort→save→reload ID불변성 실제 UI; 로컬 가능 |
+| BUILDER-01 | 구현·자동화 회귀 | copy/drag/edit/explicit send, 취소/오류·원본불변 실제 UI; Docker loopback 가능 |
+| LEGACY-VIEW-01 | AMF/ViewState inert decoder·한도/roundtrip | tree/text/오류/한도/미지원 실제 native 상태와 reference 호환; base64 editor/import는 로컬 가능 |
+| COVERAGE-01 | Windows x86/x64 explicit proxy | windows_transparent는 구현되지 않음. driver/WFP·proxy무시·서비스/다른 세션 reach가 필요; Linux Docker로 대체 불가 |
+| HALOG-01 | T-608 genuine675건/35463916B codec byte-exact roundtrip 완료 | 전체 계약의 원본 도구에서 신규 writer출력/변경필드 재검증은 별도. codec 완료를 취소하거나 자체 JSON fixture로 대체하지 않음 |
+| COM-01 |28interfaces/227vendor slots, native ArchScope late-bound/RPC/events | 원본 client 실제 전체 메서드/상태/foreign session-cookie. 충돌 없는 clean Windows 사용자/VM의 등록·교체·해제; 현재 등록 보존, Docker대체 불가 |
+| LONG-01 | 고정 capture빌드 양쪽2h/24780·24804건,482checks,0drop,128행/선택/reentry | 최신 복구 시 정확한 폐기량·retained행, 미완료 staging/blob·손상/디스크부족/영구잠금·서비스 복구. 실제 전원손실/모든 손상종류와 메모리 누수 없음은 미검증 |
+
+메모리 인수는 완료되지 않았습니다. 기존2h에서 WebView tree private bytes와 root
+handles가 증가했으며 root1GiB guard 통과는 tree 전체·장기 plateau·누수 없음의
+증거가 아닙니다. 더 긴 부하/idle 회복·다른 입력/메모리 압력 시험과 원인분석을
+분리해 기록해야 합니다. 현재 Windows의 CGO=0에서는 race detector를 실행하지
+못하며 Linux container race도 Windows race를 대신하지 않습니다.
+
+추가 실행은 최신 source/hash가 명시된 격리된 소유 프로세스·합성 loopback
+fixture로 한정하고 원본 실패 기록을 보존합니다. T-613은 PENDING입니다.

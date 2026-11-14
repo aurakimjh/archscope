@@ -5247,3 +5247,8 @@ Fixed lost query/Host port in semantic live Raw reconstruction using only retain
 ### 2026-11-14 - T-613 fixed x64/x86 two-hour desktop completion
 
 Both fixed production capture binaries completed two hours:7200.507s/24780requests amd64 and7200.681s/24804requests386;119pause/resume and11clears each. All482checkpoints fully paginate retainedrows<=128,zero drops,captured=persisted/responding. Independently validated saved128complete200rows,hash/selected-ID and real native Raw/Headers/Body/Profiler roundtrip with matching selectedURL. Seven-process resource scope/handle increases disclosed, no leak-free claim. Latest eb4049b5 production builds include subsequent UI/Office fixes; their validation scopes are separately pinned. Owned apps/fixture stopped after observation. Historical386 failure retained. T-613 PENDING for full original/vendor/driver/service gates; T-627 REVIEW for full reference/conditional/locale/DPI matrix. Receipts: docs/review/evidence/2026-11-14-desktop-soak/README.md and docs/review/evidence/2026-11-14-native-followup/README.md.
+
+
+### 2026-11-14 - T-627/T-613 explicit remaining acceptance inventory
+
+Reconciled selected2026-11-12/13/14 receipts against the21-route desktop acceptance and16-case Stand-alone contract. Paired EN/KO docs now distinguish completed slices from missing per-route conditions, exact layout/keyboard/OS-DPI gates, local fixture work and live-body/vendor/transparent-driver/clean-Windows gates. Existing two-hour and genuine675entry codec work remains completed in its scope; full UI REVIEW/parity PENDING remain unchanged. New recovery staging/blob experiment exposed lost discardedBytes/retained-count reporting; correction and native reruns are separately recorded.
