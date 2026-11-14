@@ -1,0 +1,20 @@
+예외 분석
+예외 로그 파일 선택
+도움말 보기
+찾아보기
+분석
+분석 옵션
+최근 파일 (1)
+이벤트
+상위 타입
+상위 시그니처
+Findings
+파서 리포트
+시그니처별 예외
+도움말 보기
+—
+시그니처
+도움말 보기
+닫기
+건수: 1
+java.lang.IllegalStateException|app.Case1.run(Case1.java:10)

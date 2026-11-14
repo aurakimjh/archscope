@@ -303,5 +303,50 @@
     "id": "access-clear-result-fixed",
     "result": "PASS",
     "observed": "Native Clear file now removes prior120-request aggregates, findings and errors while Analyze becomes disabled; URL empty-state remains reachable."
+  },
+  {
+    "id": "exception-long-events-before",
+    "result": "PARTIAL",
+    "observed": "35exceptions/1type/35signatures/51frames each match synthetic fixture. First page10rows but fewer than10complete rows visible due wrapped frame-count label; compact layout follow-up needed."
+  },
+  {
+    "id": "exception-long-stack-bottom",
+    "result": "PASS",
+    "observed": "Selected Case0 detail has51frames; native drawer scroll reaches ProcessingStage49 and internal horizontal bar while header Close stays reachable. No animation-frame clipping verdict."
+  },
+  {
+    "id": "exception-detail-keyboard",
+    "result": "PASS",
+    "observed": "Escape returns focus outline to Case0 Details; Return reopens same Case0/51frames. Header Close remains inside settled viewport."
+  },
+  {
+    "id": "exception-clear-stale-before",
+    "result": "FAIL",
+    "observed": "Native Clear file leaves prior35exceptions/35signatures and selectable rows visible with empty input. Baseline for file lifecycle correction."
+  },
+  {
+    "id": "exception-ten-rows-fixed",
+    "result": "PASS",
+    "observed": "Same35event/51frame fixture now shows all10first-page event rows and paging controls before scrolling at1280x800. Full type/frame label stays one line; values unchanged."
+  },
+  {
+    "id": "exception-zero-search",
+    "result": "PASS",
+    "observed": "Unknown search string gives explicit no matching items while authoritative35total/35signatures remain visible. This empty filter is not a parse failure."
+  },
+  {
+    "id": "exception-signature-selected",
+    "result": "PASS",
+    "observed": "Signature Case1 group selects count1 and exact Case1 signature in a separate card below35rows; two native scrolls reach it. This is an inline card, not an event-stack drawer or immediate-viewport PASS."
+  },
+  {
+    "id": "exception-signature-stale-intermediate",
+    "result": "FAIL",
+    "observed": "Intermediate source-reset candidate cleared result but retained selected Case1 signature card after Clear file. Final correction additionally clears activeSignature on select/clear/new-run; intermediate not counted PASS."
+  },
+  {
+    "id": "exception-clear-final-fixed",
+    "result": "PASS",
+    "observed": "Final native build clears35-event result AND selected Case1 signature detail on Clear file. Input empty, Analyze disabled, no old count/signature/stack remains."
   }
 ]

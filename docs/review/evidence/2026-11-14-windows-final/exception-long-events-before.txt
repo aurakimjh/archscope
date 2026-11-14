@@ -1,0 +1,97 @@
+예외 분석
+exception-35-long.txt
+도움말 보기
+exception-35-long.txt
+찾아보기
+Clear file
+분석
+분석 옵션
+최근 파일 (1)
+총 예외
+도움말 보기
+35
+고유 타입
+도움말 보기
+1
+고유 시그니처
+도움말 보기
+35
+최다 타입
+도움말 보기
+java.lang.IllegalStateException
+근본원인 포함
+도움말 보기
+0
+이벤트
+상위 타입
+상위 시그니처
+Findings
+파서 리포트
+이벤트
+도움말 보기
+￼
+시각
+￼
+언어
+￼
+예외 타입
+￼
+최상단 프레임
+￼
+￼
+2026-11-15 00:20:00
+JAVA
+java.lang.IllegalStateException51 프레임
+app.Case0.run(Case0.java:10)
+상세
+2026-11-15 00:20:01
+JAVA
+java.lang.IllegalStateException51 프레임
+app.Case1.run(Case1.java:10)
+상세
+2026-11-15 00:20:02
+JAVA
+java.lang.IllegalStateException51 프레임
+app.Case2.run(Case2.java:10)
+상세
+2026-11-15 00:20:03
+JAVA
+java.lang.IllegalStateException51 프레임
+app.Case3.run(Case3.java:10)
+상세
+2026-11-15 00:20:04
+JAVA
+java.lang.IllegalStateException51 프레임
+app.Case4.run(Case4.java:10)
+상세
+2026-11-15 00:20:05
+JAVA
+java.lang.IllegalStateException51 프레임
+app.Case5.run(Case5.java:10)
+상세
+2026-11-15 00:20:06
+JAVA
+java.lang.IllegalStateException51 프레임
+app.Case6.run(Case6.java:10)
+상세
+2026-11-15 00:20:07
+JAVA
+java.lang.IllegalStateException51 프레임
+app.Case7.run(Case7.java:10)
+상세
+2026-11-15 00:20:08
+JAVA
+java.lang.IllegalStateException51 프레임
+app.Case8.run(Case8.java:10)
+상세
+2026-11-15 00:20:09
+JAVA
+java.lang.IllegalStateException51 프레임
+app.Case9.run(Case9.java:10)
+상세
+1–10 / 전체 35
+페이지당
+￼
+이전
+1 / 4 페이지
+다음

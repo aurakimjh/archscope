@@ -124,19 +124,30 @@ export function ExceptionAnalyzerPage(): React.JSX.Element {
   );
 
   const handleFileSelected = useCallback((file: FileDockSelection) => {
+    inflightRef.current = null;
     setSelectedFile(file);
+    setResult(null);
     setState("ready");
     setError(null);
     setEngineMessages([]);
     setPage(1);
     setFilter("");
     setActiveEventKey(null);
+    setActiveSignature(null);
   }, []);
 
   const handleClearFile = useCallback(() => {
+    inflightRef.current = null;
     setSelectedFile(null);
-    if (state !== "running") setState("idle");
-  }, [state]);
+    setResult(null);
+    setError(null);
+    setEngineMessages([]);
+    setPage(1);
+    setFilter("");
+    setActiveEventKey(null);
+    setActiveSignature(null);
+    setState("idle");
+  }, []);
 
   const analyze = useCallback(async () => {
     if (!canAnalyze) return;
@@ -150,6 +161,9 @@ export function ExceptionAnalyzerPage(): React.JSX.Element {
     }
 
     setState("running");
+    setResult(null);
+    setActiveEventKey(null);
+    setActiveSignature(null);
     setError(null);
     setEngineMessages([]);
     setPage(1);
@@ -688,7 +702,7 @@ function EventsTable({
             return (
               <tr
                 key={key}
-                className={`cursor-pointer border-b border-border last:border-0 hover:bg-muted/40 ${
+                className={`whitespace-nowrap cursor-pointer border-b border-border last:border-0 hover:bg-muted/40 [&>td]:py-1 ${
                   isActive ? "bg-muted/60" : ""
                 }`}
                 onClick={() => onRowClick(evt, pageStart + index)}

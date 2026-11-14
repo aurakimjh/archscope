@@ -257,3 +257,22 @@ aggregation/schema. Clear file also left old aggregates visible with no input;
 select/clear/new-run now invalidate inflight identity and prior result/error.
 Native before FAIL/after PASS and frontend state/build pass. Sparse5URI/one-minute
 views do not establish the full70percent/dense/OS-DPI/reference/output matrix.
+
+## Exception groups, long stacks and input lifecycle
+
+The owned generator creates35exceptions/35signatures/1type with51frames each.
+Native totals match. Case0 detail drawer scroll reaches ProcessingStage49;
+Escape returns focus to Details and Return reopens the same event. A nonmatching
+search gives explicit0items while source totals stay35; clearing restores rows.
+Case1signature group shows its exact signature/count1in an inline card below the
+35-row table, reachable with two scrolls. This is not an immediate-viewport or
+signature-drawer PASS.
+
+Initial event rows wrap the frame-count label and expose fewer than10complete
+rows. One-line cells and compact padding now show10plus paging before scrolling.
+Clear file also left all old results visible. Select/clear/new-run now invalidate
+inflight identity, result, filter, page and active event/signature. An intermediate
+candidate cleared result but retained the selected signature card; that FAIL is
+preserved. Final native Case1select→Clear removes both result and selected card.
+Frontend state/build pass. Small-window/actualOS125/locale/reference/partial-file
+matrix remains separate; no universal70percent verdict.

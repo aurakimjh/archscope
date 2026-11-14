@@ -5574,3 +5574,13 @@ clear/select/new-run; native before/after checks pass. Clarified URL aggregate
 representative method as Sample method in EN/KO. Frontend state/build pass.
 T-627 REVIEW; dense/all-format/reference/actualOS-DPI matrix stays separate.
 Evidence: docs/review/evidence/2026-11-14-windows-final/README.md.
+
+### 2026-11-15 Windows follow-up: exception groups and long stacks
+
+Native35exceptions/35signatures/51frames verify selected stack end, Escape/Return
+focus,0row search/recovery and exact Case1signature/count. Fixed wrapped event
+rows to show10plus paging before scroll. Fixed file lifecycle to clear both old
+result and selected event/signature; intermediate stale-signature failure remains
+archived and final native clear passes. Frontend state/build pass. T-627 REVIEW;
+full narrow/actualOS-DPI/locale/reference matrix stays open. Evidence:
+docs/review/evidence/2026-11-14-windows-final/README.md.
