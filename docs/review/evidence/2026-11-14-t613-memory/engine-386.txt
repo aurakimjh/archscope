@@ -1,0 +1,1 @@
+ok  	github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app	161.962s

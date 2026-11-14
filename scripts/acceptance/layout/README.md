@@ -89,6 +89,20 @@ exact source/hash with future archived runner receipts. Host-side failure
 regressions run with `node --test scripts/test-desktop-soak-checks.mjs`.
 Earlier archived runners and their native evidence remain unchanged.
 
+For a fixed repeated-load/idle growth screen, use
+`node scripts/verify-windows-desktop-memory.mjs --exe <owned-production.exe> --out <new-private-dir> --origin http://127.0.0.1:<fixture-port>/`.
+It runs two warmup and eight measured512-request/Clear/180-second-idle cycles,
+then finalizes/saves/opens and observes300seconds of idle. The owned-process
+sampler checks executable/start identity and reports per-role memory/handles/
+threads with private process identities replaced by run-local ordinals. Its
+predeclared median-delta and Theil-Sen budgets are finite screening criteria,
+not universal leak-free acceptance. Native UI verification remains separate;
+after observation stop only descriptor-owned apps and the labeled fixture.
+Run `node --test scripts/test-desktop-memory-checks.mjs` for the pure predicates.
+The Windows app opt-in `TestCaptureLifecyclePostGCMemory` uses24cycles when
+ARCHSCOPE_CAPTURE_MEMORY_CYCLES=24 is set, with an optional absolute
+ARCHSCOPE_CAPTURE_MEMORY_REPORT path; use the guarded Windows test wrapper on386.
+
 The archived2026-11-13 two-hour runner predates the4-request final seed and
 referenced-child change. Its actual source is preserved with the evidence. Empty
 boundary saves, if any, must be disclosed and supplemented by a separate

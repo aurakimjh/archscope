@@ -1,0 +1,50 @@
+{
+  "nativeAppBuildCommit": "324a8d97432a8f9a144cb48b545cc7cb8f21da08",
+  "bootstrapFixCommitValidatedSeparately": "8985736f",
+  "sources": {
+    "scripts/verify-windows-desktop-memory.mjs": {
+      "receipt": "memory-runner-used.mjs",
+      "executedWorktreeSha256": "975df9b62ce8e9a269e228ba0c193418ebeb1aaae737c033cbda1915668335b6"
+    },
+    "scripts/lib/desktop-memory-checks.mjs": {
+      "receipt": "memory-checks-used.mjs",
+      "executedWorktreeSha256": "f6d06aef60e34b29174b77c4f830c96718af57f54d596e0700b153f1d419a324"
+    },
+    "scripts/test-desktop-memory-checks.mjs": {
+      "receipt": "memory-check-tests-used.mjs",
+      "executedWorktreeSha256": "f13b7c8d03ee86ebcdf3c3792a5b761da35d2a74ed8ef10d353c8bcbb43e6dcc"
+    },
+    "scripts/acceptance/layout/sample-owned-process-tree.ps1": {
+      "receipt": "process-sampler-used.ps1",
+      "executedWorktreeSha256": "ec5b8e791f1ed422d49d42b84e30c76193f0bf5eb16f6ef19fb4c0a16a807cb4"
+    },
+    "scripts/lib/desktop-soak-checks.mjs": {
+      "receipt": "soak-checks-used.mjs",
+      "executedWorktreeSha256": "b0e65dae7357040027605dc505d08738efaddb307735924f9bcad0ea6257bbdc"
+    },
+    "scripts/acceptance/layout/soak-origin.py": {
+      "receipt": "origin-used.py",
+      "executedWorktreeSha256": "435ddcff66e17fad0a9da18c7e96ffbb8803f049cfedc1990518472301dafacd"
+    },
+    "scripts/acceptance/layout/verify_p2_windows_readback.py": {
+      "receipt": "comparator-used.py",
+      "executedWorktreeSha256": "825d37ff5356b4676259328ff54db14fdcd208a6ae7a1be00c6d39b6a9324a2a"
+    },
+    "apps/engine-native/cmd/archscope-app/capturememory_test.go": {
+      "receipt": "engine-memory-test-used.go",
+      "executedWorktreeSha256": "51d600999ef5882b94ea5ed1e6029a48b00d59430d640b39e4c2a8b000f939b5"
+    },
+    ".tmp/t613-memory-20261114/verify-memory.py": {
+      "receipt": "readback-verifier-used.py",
+      "executedWorktreeSha256": "53e5db01668627e2c2684ebe62e2418fd85383a1a92d1cd3d7b9c8f9aba3e4b4"
+    },
+    "apps/engine-native/cmd/archscope-app/build/windows/go.mjs": {
+      "executedWorktreeSha256": "750a562265e51707d9b8165167803d7a366d743b1989072ebd36041d33571c65",
+      "gitBlobSha256": "750a562265e51707d9b8165167803d7a366d743b1989072ebd36041d33571c65"
+    },
+    "apps/engine-native/cmd/archscope-app/build/windows/test.mjs": {
+      "executedWorktreeSha256": "4af5dc262446ca5a199ac0a9027b1dc201bca487b307a9e1755786bfcaf34831",
+      "gitBlobSha256": "4af5dc262446ca5a199ac0a9027b1dc201bca487b307a9e1755786bfcaf34831"
+    }
+  }
+}

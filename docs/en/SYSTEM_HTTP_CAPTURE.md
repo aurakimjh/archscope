@@ -2004,3 +2004,29 @@ Power loss, actual Windows disk exhaustion and full service/driver recovery rema
 separate. T-613 stays PENDING; previous evidence and independent verdicts are unchanged.
 
 Evidence: docs/review/evidence/2026-11-14-t613-failures/README.md.
+
+### 2026-11-14 memory growth screen and post-GC engine lifecycle
+
+Both source324a8d97 production apps ran about41minutes, repeating512requests,
+128retained rows/Clear and180seconds of running idle ten times. Two cycles warm
+up the app; eight matched capture-state idle points and300seconds of finalized
+save/open idle are measured. Predeclared median-delta/Theil-Sen slope budgets pass
+with the same seven process identities. Root handle medians are613→613/685→693,
+then609/689 at final idle. Tree private deltas are+9.125/+13.125MiB, with observed
+renderer/GPU increases; the responsible objects are not established.
+
+The Windows common engine also passes24real proxy lifecycle cycles, sampling
+retained heap after two GCs and50ms settle in the test process only. Excluding
+eight warmup cycles, heap median deltas are262248/18568B and goroutine deltas0/0.
+The production apps are not forced through GC. Separately,24capture packages pass
+race on Docker Go1.26.10; Windows CGO=0 is not a Windows race result.
+
+The classification is BOUNDED_IN_THIS_RUN, not zero growth, every-input leak
+freedom or a complete GUI-heap verdict. Other tests share the host and native
+observation includes a selection change, so this is not an exclusive-resource or
+identical-renderer-state benchmark. Source324memory evidence and8985736f recovery
+bootstrap native checks remain separately pinned. Longer/other workload, pressure,
+body-tier, driver/service and full reference acceptance remain separate. T-613
+PENDING/T-627 REVIEW and existing independent verdicts are preserved.
+
+Evidence: docs/review/evidence/2026-11-14-t613-memory/README.md.

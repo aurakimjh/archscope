@@ -148,3 +148,5 @@ docs/review/evidence/2026-11-14-wr02-long-windows/* -text whitespace=cr-at-eol
 docs/review/evidence/2026-11-14-t613-readback-v2/* -text whitespace=cr-at-eol
 docs/review/evidence/2026-11-14-t613-failures/* -text whitespace=cr-at-eol
 docs/review/evidence/2026-11-14-t613-failures/*.txt -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+docs/review/evidence/2026-11-14-t613-memory/* -text whitespace=cr-at-eol
+docs/review/evidence/2026-11-14-t613-memory/*.txt -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol

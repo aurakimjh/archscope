@@ -5243,3 +5243,27 @@ Windows 양쪽의 reserve 주입 검사는 기존 커밋 행과 manifest 불변�
 T-613은 PENDING이며 이전 증거와 원 독립 판정을 변경하지 않습니다.
 
 Evidence: docs/review/evidence/2026-11-14-t613-failures/README.md.
+
+### 2026-11-14 메모리 증가 screening과 GC 후 엔진 수명주기
+
+source324a8d97 production 양쪽은 각 약41분 동안512요청/128행 보관/Clear 뒤
+180초 running-idle을10회 반복했습니다.2회 워밍업을 제외한8회와 finalized
+저장/재열기 후300초 idle을 측정했습니다. 같은7개 프로세스 identity에서 사전에
+정한 중앙값 차이·Theil-Sen 기울기 기준을 통과했습니다. 루트 핸들 중앙값은
+x64 613→613/x86 685→693, 최종 idle은609/689입니다. tree private 차이는
++9.125/+13.125MiB로 renderer/GPU 증분이 관측됐지만 객체 원인은 확정하지 않습니다.
+
+공통 엔진은 Windows 양쪽24회 실제 proxy 수명주기의 GC2회/50ms settle 후
+잔존 힙을 측정했습니다. 워밍업8회를 제외한 힙 중앙값 차이는262,248/18,568B,
+goroutine 차이는0/0으로 사전 기준을 통과했습니다. production 앱에 GC를
+강제하지 않았으며, 별도 Docker Go1.26.10의24개 capture 패키지는 race를
+통과했습니다. Windows CGO=0에서 race 통과를 주장하지 않습니다.
+
+이 결과의 분류는 BOUNDED_IN_THIS_RUN이며0증가·모든 입력의 누수 없음·전체
+GUI heap 판정이 아닙니다. 같은 호스트에서 다른 검증이 실행됐고 native 관측 중
+선택 상태 변화도 있어 독점 자원/완전히 동일한 renderer-state benchmark가 아닙니다.
+source324 메모리 실행과8985736f 복구 초기화 수정의 native 검증은 구분합니다.
+더 긴/다른 입력·압력·본문 tier와 driver/service/전체 원본 수용은 별도이며,
+T-613 PENDING/T-627 REVIEW 및 기존 독립 판정은 유지합니다.
+
+Evidence: docs/review/evidence/2026-11-14-t613-memory/README.md.

@@ -1,0 +1,124 @@
+{
+  "files": {
+    "386-final-idle-roundtrip.jpg": {
+      "bytes": 148612,
+      "sha256": "dc2be7ba74ba1757fbcded8ab6d8369b844490fe203c83094d5e1eff481f8c05"
+    },
+    "386-running-idle.jpg": {
+      "bytes": 114511,
+      "sha256": "5e4fc3c96fc4d5927c59e9f43a64debd423de87c101f8c933f767f7eb0e796a8"
+    },
+    "amd64-final-idle-roundtrip.jpg": {
+      "bytes": 149415,
+      "sha256": "3f6ce4fda360318c968382c6a027b9fc91d2d080067c22c408e50752cc17f622"
+    },
+    "amd64-running-idle.jpg": {
+      "bytes": 140491,
+      "sha256": "c2b88b4bd4373f7724b0ca28dd6c7ab23875c8876214ed81e97824f275bbf471"
+    },
+    "cleanup.json": {
+      "bytes": 521,
+      "sha256": "311cec385704b143e26d51fcd77048a6d4c8abca05c0eef8e87b5015c930dfda"
+    },
+    "comparator-used.py": {
+      "bytes": 8438,
+      "sha256": "825d37ff5356b4676259328ff54db14fdcd208a6ae7a1be00c6d39b6a9324a2a"
+    },
+    "docker-core-race.txt": {
+      "bytes": 2261,
+      "sha256": "0b6f8814e13f1d62692fd3f568a402741a5d411616a140351a8d9e6c7ba46696"
+    },
+    "engine-386.json": {
+      "bytes": 3009,
+      "sha256": "6e8085835741125078026339ec6c9d7286de8c094e1ac7509416b239c262acbb"
+    },
+    "engine-386.txt": {
+      "bytes": 83,
+      "sha256": "0b5e30a7d0b4c8e9a090b494cbf5d2eb1cf61231f2166dce38d3dc6939d29a62"
+    },
+    "engine-amd64.json": {
+      "bytes": 3013,
+      "sha256": "bb2741b0fa7bfe4b475b782d1b840962ab0eb173ece92a215bd69e258f4197be"
+    },
+    "engine-amd64.txt": {
+      "bytes": 83,
+      "sha256": "d6e7c2b06db74535cb93f753f15713846cf09e4822fa5874af0a27be60e6869f"
+    },
+    "engine-memory-test-used.go": {
+      "bytes": 5961,
+      "sha256": "51d600999ef5882b94ea5ed1e6029a48b00d59430d640b39e4c2a8b000f939b5"
+    },
+    "matched-idle-cycles.csv": {
+      "bytes": 1177,
+      "sha256": "d9616aa936669480cebdfa86af1db52b64d2c1c0d5e88bd73ffe851c0428b6f3"
+    },
+    "memory-check-tests-used.mjs": {
+      "bytes": 1423,
+      "sha256": "f13b7c8d03ee86ebcdf3c3792a5b761da35d2a74ed8ef10d353c8bcbb43e6dcc"
+    },
+    "memory-checks-used.mjs": {
+      "bytes": 1705,
+      "sha256": "f6d06aef60e34b29174b77c4f830c96718af57f54d596e0700b153f1d419a324"
+    },
+    "memory-predicates.tap": {
+      "bytes": 1635,
+      "sha256": "3c16c91867683cfaff864bb0ac25b0b1a30931b7e641229adac5f1b4923441f8"
+    },
+    "memory-runner-used.mjs": {
+      "bytes": 9272,
+      "sha256": "975df9b62ce8e9a269e228ba0c193418ebeb1aaae737c033cbda1915668335b6"
+    },
+    "native-386.json": {
+      "bytes": 338297,
+      "sha256": "f4ea348c5ca2fed574d6ba72af52db8cea2361661cf0a1657706acca7f84e383"
+    },
+    "native-amd64.json": {
+      "bytes": 338122,
+      "sha256": "44b219e01daff6bd2c29e75af9202924d853a9aa404ac836071a32ac13eef35d"
+    },
+    "native-cases.json": {
+      "bytes": 2126,
+      "sha256": "8c3c15f54c828d27a0d73136cad84b6bea41b37518a5045917e658dca4293de0"
+    },
+    "origin-used.py": {
+      "bytes": 707,
+      "sha256": "435ddcff66e17fad0a9da18c7e96ffbb8803f049cfedc1990518472301dafacd"
+    },
+    "process-sampler-used.ps1": {
+      "bytes": 2831,
+      "sha256": "ec5b8e791f1ed422d49d42b84e30c76193f0bf5eb16f6ef19fb4c0a16a807cb4"
+    },
+    "readback-386.json": {
+      "bytes": 2395,
+      "sha256": "4096a6e2baac8afe41683ad35545a245e8b230cc62221b552daf8238f315d6ec"
+    },
+    "readback-amd64.json": {
+      "bytes": 2366,
+      "sha256": "0066db505ce0f1baef69580ad1fd68b2f0de029285420fc1299e08b607739846"
+    },
+    "readback-verifier-used.py": {
+      "bytes": 5618,
+      "sha256": "53e5db01668627e2c2684ebe62e2418fd85383a1a92d1cd3d7b9c8f9aba3e4b4"
+    },
+    "README.md": {
+      "bytes": 7174,
+      "sha256": "8c3eca8a741ad965aa79994f6094e8d9dfb9685216cc1be9c0528d8c204f5e5f"
+    },
+    "remaining-acceptance.json": {
+      "bytes": 6141,
+      "sha256": "71b9f3e6206048f24a0e7d7d37d2c8e220d907c8f2dad5fa6aadb146200db8e9"
+    },
+    "soak-checks-used.mjs": {
+      "bytes": 4586,
+      "sha256": "b0e65dae7357040027605dc505d08738efaddb307735924f9bcad0ea6257bbdc"
+    },
+    "source-hashes.json": {
+      "bytes": 2559,
+      "sha256": "a419c86c6940ff843a4614640ba1cb91197776e81581392d1f4bf26e9dca7a25"
+    },
+    "validation.json": {
+      "bytes": 998,
+      "sha256": "ecff0cbfc6882411ff920423f52132fd9d20d7e4222b1321c78f9b71a17f9431"
+    }
+  }
+}

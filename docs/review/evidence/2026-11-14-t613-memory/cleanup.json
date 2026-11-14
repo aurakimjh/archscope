@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "observedAt": "2026-11-14T12:58:01.9608760Z",
+  "ownedAppProcesses": 0,
+  "ownedProducerProcesses": 0,
+  "ownedWebViewProcesses": 0,
+  "ownedNativeWindows": 0,
+  "ownedContainers": 0,
+  "preExistingDockerContainersPreserved": 7,
+  "setupFixtureBackupRestored": true,
+  "privateCapturesPreserved": true,
+  "manualBodyOrSecurityUIChanges": false,
+  "normalAppPerExecutablePreflightRan": true,
+  "ownershipChecks": "descriptor PID/executable path and Docker label checked before stop"
+}

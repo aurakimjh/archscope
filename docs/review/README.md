@@ -16,6 +16,8 @@ WREV-01 Windows private-file 후속: 기존 양쪽 query4행·130초128행·live
 
 T-613 실패 경계 후속: 커밋된 행 손상 읽기 거절·정확한 backup 복원·export 거절/재시도를 양쪽 production 앱에서 검증했다. 손상 복구 오류가 정상 capability 초기화까지 막던 renderer 오류를8985736f로 수정하고 native로 재확인했다. Windows reserve 주입 및 Docker 실제 제한 공간 재시도도 통과했다([근거](evidence/2026-11-14-t613-failures/README.md)). 전원 손실·Windows 실제 디스크 고갈·전체 수용 판정은 별도다.
 
+T-613 메모리 후속: source324 production 양쪽 약41분 고정 반복 부하/idle의 사전 증가 기준, Windows 공통 엔진 양쪽24cycle GC후 힙/goroutine 검사와 Docker24capture 패키지 race를 통과했다([근거·남은 인수](evidence/2026-11-14-t613-memory/README.md)). 관측된 WebView 증분과 유한 기준의 한계를 명시하며 전체 누수 없음·T-613 완료·독립 PASS는 주장하지 않는다.
+
 ## 처리 기록
 
 | 날짜 | 문서 | 대상 | 판정·처리 |

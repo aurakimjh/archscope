@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "scope": "Common engine real loopback proxy; post-GC retained heap and goroutines; no WebView/driver/body-tier claim",
+  "os": "windows",
+  "arch": "386",
+  "passed": true,
+  "requests": 12288,
+  "warmupCycles": 8,
+  "samples": [
+    {
+      "cycle": 1,
+      "heapBytes": 3244288,
+      "heapObjects": 18722,
+      "goroutines": 3
+    },
+    {
+      "cycle": 2,
+      "heapBytes": 3818240,
+      "heapObjects": 19147,
+      "goroutines": 3
+    },
+    {
+      "cycle": 3,
+      "heapBytes": 4391520,
+      "heapObjects": 19555,
+      "goroutines": 3
+    },
+    {
+      "cycle": 4,
+      "heapBytes": 4049872,
+      "heapObjects": 19547,
+      "goroutines": 3
+    },
+    {
+      "cycle": 5,
+      "heapBytes": 4595560,
+      "heapObjects": 19789,
+      "goroutines": 3
+    },
+    {
+      "cycle": 6,
+      "heapBytes": 4281368,
+      "heapObjects": 19801,
+      "goroutines": 3
+    },
+    {
+      "cycle": 7,
+      "heapBytes": 4822888,
+      "heapObjects": 20081,
+      "goroutines": 3
+    },
+    {
+      "cycle": 8,
+      "heapBytes": 4422392,
+      "heapObjects": 19775,
+      "goroutines": 3
+    },
+    {
+      "cycle": 9,
+      "heapBytes": 4961240,
+      "heapObjects": 19968,
+      "goroutines": 3
+    },
+    {
+      "cycle": 10,
+      "heapBytes": 4147576,
+      "heapObjects": 19801,
+      "goroutines": 3
+    },
+    {
+      "cycle": 11,
+      "heapBytes": 4666088,
+      "heapObjects": 19829,
+      "goroutines": 3
+    },
+    {
+      "cycle": 12,
+      "heapBytes": 4066696,
+      "heapObjects": 19705,
+      "goroutines": 3
+    },
+    {
+      "cycle": 13,
+      "heapBytes": 4591896,
+      "heapObjects": 19755,
+      "goroutines": 3
+    },
+    {
+      "cycle": 14,
+      "heapBytes": 5114872,
+      "heapObjects": 19931,
+      "goroutines": 3
+    },
+    {
+      "cycle": 15,
+      "heapBytes": 4454032,
+      "heapObjects": 19825,
+      "goroutines": 3
+    },
+    {
+      "cycle": 16,
+      "heapBytes": 4989856,
+      "heapObjects": 20070,
+      "goroutines": 3
+    },
+    {
+      "cycle": 17,
+      "heapBytes": 4393992,
+      "heapObjects": 19904,
+      "goroutines": 3
+    },
+    {
+      "cycle": 18,
+      "heapBytes": 4925288,
+      "heapObjects": 19979,
+      "goroutines": 3
+    },
+    {
+      "cycle": 19,
+      "heapBytes": 4261864,
+      "heapObjects": 19885,
+      "goroutines": 3
+    },
+    {
+      "cycle": 20,
+      "heapBytes": 4785192,
+      "heapObjects": 20040,
+      "goroutines": 3
+    },
+    {
+      "cycle": 21,
+      "heapBytes": 4127168,
+      "heapObjects": 19913,
+      "goroutines": 3
+    },
+    {
+      "cycle": 22,
+      "heapBytes": 4669840,
+      "heapObjects": 20224,
+      "goroutines": 3
+    },
+    {
+      "cycle": 23,
+      "heapBytes": 4180960,
+      "heapObjects": 20155,
+      "goroutines": 3
+    },
+    {
+      "cycle": 24,
+      "heapBytes": 4703504,
+      "heapObjects": 20297,
+      "goroutines": 3
+    }
+  ],
+  "heapMedianDelta": 18568,
+  "objectMedianDelta": 374,
+  "goroutineMedianDelta": 0,
+  "elapsedSeconds": 161.566293
+}

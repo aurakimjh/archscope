@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "task": "T-613",
+  "status": "PENDING",
+  "scope": "Latest follow-up delta; scoped checks do not close every combination of the16-case parity contract",
+  "newlyVerified": {
+    "memory": "Both production architectures pass the predeclared finite matched-load/idle growth screen; both Windows common engines pass24post-GC lifecycle cycles. No universal leak-free verdict.",
+    "storedReadback": "Six existing Windows exports, including both nonempty live640-row annotation cases, match the maintained full-field policy.",
+    "failureRetry": "Both fixed production architectures reject committed corruption, preserve other row bytes, allow a distinct capture, restore an exact backup and preserve export/selection through failed-save retry.",
+    "diskReserve": "Windows injected free-space refusal/retry and Linux Docker real600MiB tmpfs reserve/retry pass; host disk not filled.",
+    "productFix": "8985736f retains actual platform capabilities while historical recovery failure remains visible."
+  },
+  "contractCases": [
+    {"id":"CONTROL-01","state":"PARTIAL","latest":"Recovery failure no longer discards platform/body capability; critical core failure remains fail-closed.","remaining":"All supported commands/cancellation/failure combinations and original-client equivalence."},
+    {"id":"PROCESS-01","state":"PARTIAL","latest":"Owned producer PID/start identity and explicit proxy retained in new tests.","remaining":"Service/other-session/proxy-ignoring reach; requires corresponding native backend evidence."},
+    {"id":"EXCHANGE-01","state":"PARTIAL","latest":"Synthetic HTTP200 repeated workload; older103/302/final evidence unchanged.","remaining":"Full supported exchange combinations with identical reference inputs and native display/export."},
+    {"id":"BODY-01","state":"PARTIAL","latest":"Body capture remained off. New fixed x64 preflight was gated; new fixed386exe reported verified capability, which was left off.","remaining":"Fresh synthetic request/response-body and duplicate-cookie matrix only where actual SEC-10 preflight permits; no policy bypass."},
+    {"id":"SESSION-01","state":"PARTIAL","latest":"Failed-save retry preserves six committed rows; restored exports and prior4/128/640-row files match full-field/annotation policy.","remaining":"All filter/partial-file/import/cancellation/format combinations."},
+    {"id":"WINDOW-01","state":"PARTIAL","latest":"Selected running/final Raw128-row views and recovery warning/capabilities observed on both architectures.","remaining":"Full reference/70percent area/10requests+4details/locale/OS-DPI/conditional-state matrix."},
+    {"id":"GRID-01","state":"PARTIAL","latest":"Earlier live column/group/full-store search and keyboard slices preserved.","remaining":"Every optional column/filter/keyboard/drag/IME/locale/DPI/reference combination."},
+    {"id":"TIMING-01","state":"PARTIAL","latest":"Existing timing/summary evidence unchanged.","remaining":"Process-relative waterfall and summary filter values across delayed/error/reference cases."},
+    {"id":"CONTENT-01","state":"PARTIAL","latest":"New selected Raw HTTP200 readback; body-disabled previews remain explicit.","remaining":"Cookies/streams/inert text/HTML/raster and all failure/unsupported/limit body combinations."},
+    {"id":"NOTES-01","state":"PARTIAL","latest":"Both retained live640-row exports preserve a selected star/nonempty Unicode comment under authoritative sidecar policy.","remaining":"All live multiselection/boundary/error/IME paths and oversized historical-file handling; orphan annotation compaction remains separate."},
+    {"id":"BUILDER-01","state":"PARTIAL","latest":"Earlier explicit Docker GET and original-file immutability slices preserved.","remaining":"Drag replacement/cancellation/error/body/multipart/redirect/reference combinations."},
+    {"id":"LEGACY-VIEW-01","state":"PARTIAL","latest":"Earlier inert manual AMF/ViewState slices unchanged.","remaining":"Attached/imported bodies, redaction and full original/format combinations."},
+    {"id":"COVERAGE-01","state":"PARTIAL","latest":"Explicit proxy amd64/386 validated.","remaining":"Transparent/WFP/driver, proxy-ignoring/service/other-session reach; Linux Docker cannot substitute."},
+    {"id":"HALOG-01","state":"PARTIAL","latest":"Prior genuine675-entry codec/interoperability completion remains valid.","remaining":"Additional changed writer fields and full-contract reference revalidation, separate from completed codec scope."},
+    {"id":"COM-01","state":"PARTIAL","latest":"Earlier native ArchScope RPC/events evidence unchanged; registration not modified here.","remaining":"Original foreign client/whole method matrix/session-cookie semantics and clean-host registration replacement/cleanup."},
+    {"id":"LONG-01","state":"PARTIAL","latest":"Two-hour schema4/Clear proof plus finite post-warmup idle memory screen, post-GC engine lifecycle, committed-corruption rejection, export retry and bounded Docker disk-reserve retry.","remaining":"Other workloads/longer pressure/body-enabled memory qualification, actual Windows disk exhaustion/power loss and full service/driver fault recovery. Source324a8d97 memory workload and8985736f recovery-UI verification remain separately pinned."}
+  ],
+  "localFollowupCandidates": [
+    "Additional owned workload sizes and import/reentry memory phases using the maintained sampler; extend the declared protocol before collecting samples.",
+    "Remaining native conditional-grid/timing/Builder/content combinations with prepared synthetic fixtures and unchanged policies.",
+    "Body-tier fixtures on an executable whose actual preflight permits them; current observations are not a body-tier PASS."
+  ],
+  "separatePrerequisites": [
+    "Original reference application/client and identical supported fixtures for parity/interoperability.",
+    "Implemented native transparent/driver/service/other-session reach and a clean registration environment.",
+    "An isolated host/VM for actual Windows disk exhaustion or power-loss scenarios."
+  ],
+  "originalReviewVerdict": "CONDITIONAL unchanged; no independent PASS claim"
+}

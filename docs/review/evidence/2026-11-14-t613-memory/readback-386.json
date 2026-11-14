@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "arch": "386",
+  "passed": true,
+  "functionalPassed": true,
+  "classification": "BOUNDED_IN_THIS_RUN",
+  "seconds": 2483.7277959000003,
+  "cycles": 10,
+  "warmupCycles": 2,
+  "measuredCycles": 8,
+  "totalRequests": 5120,
+  "sameSevenProcessIdentitiesAtMatchedIdle": true,
+  "assessmentArithmeticIndependentlyRecalculated": true,
+  "metrics": {
+    "treePrivateBytes": {
+      "firstMedian": 395493376,
+      "lastMedian": 409255936,
+      "delta": 13762560,
+      "slopePerCycle": 2966869.333333333
+    },
+    "rootPrivateBytes": {
+      "firstMedian": 69177344,
+      "lastMedian": 70926336,
+      "delta": 1748992,
+      "slopePerCycle": -17578.666666666668
+    },
+    "rootHandles": {
+      "firstMedian": 685,
+      "lastMedian": 693,
+      "delta": 8,
+      "slopePerCycle": 1.2380952380952381
+    },
+    "rootThreads": {
+      "firstMedian": 33,
+      "lastMedian": 33,
+      "delta": 0,
+      "slopePerCycle": 0.0
+    }
+  },
+  "rolePrivateMedianDeltas": {
+    "app": 1748992,
+    "browser": -1724416,
+    "crashpad": 0,
+    "gpu": 4894720,
+    "renderer": 13537280,
+    "utility": 16384
+  },
+  "finalizedIdleSecondsObserved": 299.8571194000001,
+  "finalIdleRootHandles": 689,
+  "finalIdleRootThreads": 33,
+  "finalIdleTreePrivateBytes": 392253440,
+  "finalIdleRootPrivateBytes": 66633728,
+  "selectedSequence": 4993,
+  "selectedURL": "http://127.0.0.1:11512/soak?sequence=4992",
+  "fileSha256": "beea9abe258b54ad4e4d8bfe00cb80db670a343971e5e44ff64d34ad479ced69",
+  "fileBytes": 442254,
+  "comparisonPolicyVersion": "1.0.0",
+  "allTransactionFieldsMatchDeclaredPolicy": true,
+  "annotationsMatch": true,
+  "rows": 128,
+  "comparisonPolicy": {
+    "excludedFields": [],
+    "expectedURLFields": "host/query derived from source retained URL; exported fields are checked",
+    "annotationSource": "store annotations.json replaces inline live-row starred/comment by transaction ID",
+    "missingAnnotationDefaults": {
+      "starred": false,
+      "comment": ""
+    },
+    "annotationTypes": {
+      "starred": "boolean",
+      "comment": "string"
+    },
+    "requestAnnotationOverrides": "not supported by this verification scope"
+  },
+  "limitations": "Fixed synthetic body-disabled128retained workload on source324a8d97, shared host; finite budgets, no universal leak-free/pressure/body/renderer-selection claim. Bootstrap fix8985736f is validated separately."
+}

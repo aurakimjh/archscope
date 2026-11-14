@@ -1174,6 +1174,19 @@ reserve/retry pass without filling the host disk. These do not establish actual
 Windows disk exhaustion, power loss or service recovery. Receipt:
 `docs/review/evidence/2026-11-14-t613-failures/README.md`.
 
+T-613 memory follow-up: source324a8d97 production amd64/386 each pass about41minutes
+of repeated512-request load/180second idle,2warmup+8measured cycles and300second
+finalized/open idle. The predeclared delta/Theil-Sen screening budgets pass on the
+same7process identities: root handle medians613→613 /685→693; final idle609/689.
+Common-engine Windows24cycle post-GC tests pass with heap median deltas262248/18568B,
+objects239/374 and goroutine deltas0/0. Docker24capture packages pass race. Private
+tree increases remain observed, primarily renderer/GPU; finite budgets do not
+prove universal leak freedom or a flat renderer heap. Bootstrap8985736f's native
+failure/retry validation is separate from this source324memory run. All owned
+apps/producers/WebViews/containers stopped; existing7Docker containers preserved.
+Receipt and updated16-case remaining inventory:
+`docs/review/evidence/2026-11-14-t613-memory/README.md`.
+
 Revised-runner long duration and the10-minute Clear path are now verified on
 Windows x64/x86 with an isolated shared Docker origin. Source324a8d97 app binaries
 are unchanged; runner1b30244b adds explicit empty-generation/reset/refill checks.

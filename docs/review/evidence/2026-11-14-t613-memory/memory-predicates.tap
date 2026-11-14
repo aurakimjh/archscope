@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: matched flat samples meet the declared budgets
+ok 1 - matched flat samples meet the declared budgets
+  ---
+  duration_ms: 1.2802
+  type: 'test'
+  ...
+# Subtest: cache-like fluctuations do not imply monotonic growth
+ok 2 - cache-like fluctuations do not imply monotonic growth
+  ---
+  duration_ms: 0.8074
+  type: 'test'
+  ...
+# Subtest: sustained treePrivateBytes growth cannot pass a peak-only memory guard
+ok 3 - sustained treePrivateBytes growth cannot pass a peak-only memory guard
+  ---
+  duration_ms: 0.2006
+  type: 'test'
+  ...
+# Subtest: sustained rootPrivateBytes growth cannot pass a peak-only memory guard
+ok 4 - sustained rootPrivateBytes growth cannot pass a peak-only memory guard
+  ---
+  duration_ms: 0.1254
+  type: 'test'
+  ...
+# Subtest: sustained rootHandles growth cannot pass a peak-only memory guard
+ok 5 - sustained rootHandles growth cannot pass a peak-only memory guard
+  ---
+  duration_ms: 0.2041
+  type: 'test'
+  ...
+# Subtest: sustained rootThreads growth cannot pass a peak-only memory guard
+ok 6 - sustained rootThreads growth cannot pass a peak-only memory guard
+  ---
+  duration_ms: 0.111
+  type: 'test'
+  ...
+# Subtest: large retained step fails even with a shallow median slope
+ok 7 - large retained step fails even with a shallow median slope
+  ---
+  duration_ms: 0.2488
+  type: 'test'
+  ...
+# Subtest: missing and invalid samples cannot yield a memory verdict
+ok 8 - missing and invalid samples cannot yield a memory verdict
+  ---
+  duration_ms: 0.308
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 168.1315

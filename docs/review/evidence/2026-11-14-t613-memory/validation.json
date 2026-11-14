@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "nativePassedArchitectures": [
+    "amd64",
+    "386"
+  ],
+  "scope": "Finite matched running-idle process growth screen plus Windows common-engine post-GC lifecycle; not universal leak-free acceptance",
+  "nativeSeconds": {
+    "amd64": 2482.9065404,
+    "386": 2483.7277959000003
+  },
+  "nativeRequestsPerArch": 5120,
+  "nativeMeasuredCyclesPerArch": 8,
+  "nativeWarmupCyclesPerArch": 2,
+  "engineCyclesPerArch": 24,
+  "engineRequestsPerArch": 12288,
+  "engineGoroutineMedianDeltas": {
+    "amd64": 0,
+    "386": 0
+  },
+  "memoryPredicateTests": 8,
+  "dockerCoreRacePackages": 24,
+  "nativeUISelectedPass": 4,
+  "oldEvidenceUnchanged": true,
+  "originalVerdict": "CONDITIONAL unchanged; T-613 PENDING/T-627 REVIEW",
+  "setupCorrections": [
+    "Direct386Go test bypassed existing Wails ABI wrapper; guarded rerun passes.",
+    "Initial Docker toolchain could not execute on noexec tmpfs; private executable build tmpfs rerun passes."
+  ]
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "amd64-running-idle",
+    "result": "PASS",
+    "observed": "Native x64, visible proxy127.0.0.1:5698, running512captured=512persisted,retained128/evicted384; selected sequence1531 has Raw GET URL sequence1530 and HTTP200. Tool only activated/read the window; row selection changed between observations, so this is a visible-running check, not identical renderer-state proof.",
+    "recordedAt": "2026-11-14T12:24:50.287Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "amd64-running-idle.jpg"
+  },
+  {
+    "id": "386-running-idle",
+    "result": "PASS",
+    "observed": "Native x86, visible proxy127.0.0.1:5699, running512captured=512persisted,retained128/evicted384, and successful new Docker-loopback rows. No request selected. This is visible-running evidence, not a memory-leak verdict.",
+    "recordedAt": "2026-11-14T12:25:04.605Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-running-idle.jpg"
+  },
+  {
+    "id": "amd64-final-idle-roundtrip",
+    "result": "PASS",
+    "observed": "After the full finalized idle phase, native x64 matched by proxy127.0.0.1:5698 shows ended capture512=persisted512,retained128/evicted384; selected4993 GET/soak?sequence=4992 has matching Raw target and HTTP200 response. Matches independent store/export comparison.",
+    "recordedAt": "2026-11-14T12:54:45.032Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "amd64-final-idle-roundtrip.jpg"
+  },
+  {
+    "id": "386-final-idle-roundtrip",
+    "result": "PASS",
+    "observed": "After the full finalized idle phase, native x86 matched by proxy127.0.0.1:5699 shows ended capture512=persisted512,retained128/evicted384; selected4993 GET/soak?sequence=4992 has matching Raw target and HTTP200 response. Matches independent store/export comparison. User-input/occluded intermediate frames were refreshed and excluded.",
+    "recordedAt": "2026-11-14T12:55:56.917Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-final-idle-roundtrip.jpg"
+  }
+]
