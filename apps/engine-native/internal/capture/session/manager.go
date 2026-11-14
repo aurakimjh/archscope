@@ -603,19 +603,16 @@ func (m *Manager) RecoverSessions() ([]store.RecoveryReport, error) {
 		if activePath != "" && filepath.Clean(dir) == filepath.Clean(activePath) {
 			continue
 		}
-		st, openErr := store.Open(dir)
+		st, report, openErr := store.OpenWithRecovery(dir)
 		if openErr != nil {
 			return reports, openErr
 		}
-		meta := st.Meta()
 		closeErr := st.Close()
 		if closeErr != nil {
 			return reports, closeErr
 		}
-		if meta.State == StateRecoverable {
-			reports = append(reports, store.RecoveryReport{
-				Recovered: true, Records: int(meta.Counters.Persisted),
-			})
+		if report.Recovered {
+			reports = append(reports, report)
 		}
 	}
 	return reports, nil

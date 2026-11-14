@@ -101,16 +101,19 @@ func TestRecoverDiscardsOnlyIncompleteTail(t *testing.T) {
 	s.index.Close()
 	s.closed = true
 
-	reopened, err := Open(path)
+	reopened, openingReport, err := OpenWithRecovery(path)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer reopened.Finalize(capture.StateFinalized)
+	if !openingReport.Recovered || openingReport.Records != 1 || openingReport.DiscardedBytes != int64(len(`{"seq":2,"transaction":`)) {
+		t.Fatalf("opening recovery=%+v", openingReport)
+	}
 	report, err := reopened.Recover()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if report.Records != 1 {
+	if report.Records != 1 || report.DiscardedBytes != 0 {
 		t.Fatalf("recovery=%+v", report)
 	}
 	indexInfo, err := os.Stat(filepath.Join(path, offsetIndexFile))

@@ -221,49 +221,57 @@ func New(cfg Config) (*Store, error) {
 }
 
 func Open(dir string) (*Store, error) {
+	st, _, err := OpenWithRecovery(dir)
+	return st, err
+}
+
+// OpenWithRecovery preserves the report from the opening recovery pass. A later
+// Recover call cannot report bytes already discarded by that first pass.
+func OpenWithRecovery(dir string) (*Store, RecoveryReport, error) {
 	data, err := os.ReadFile(filepath.Join(dir, manifestFile))
 	if err != nil {
-		return nil, err
+		return nil, RecoveryReport{}, err
 	}
 	var manifest Manifest
 	if err := json.Unmarshal(data, &manifest); err != nil {
-		return nil, fmt.Errorf("decode capture manifest: %w", err)
+		return nil, RecoveryReport{}, fmt.Errorf("decode capture manifest: %w", err)
 	}
 	cfg := Config{Root: filepath.Dir(dir), SessionID: manifest.SessionID, OverflowPolicy: manifest.OverflowPolicy, MaxRecords: manifest.RetentionRows}
 	normalizeConfig(&cfg)
 	if cfg.MaxRecords < 0 || cfg.MaxRecords > 100000 {
-		return nil, fmt.Errorf("invalid retained row count")
+		return nil, RecoveryReport{}, fmt.Errorf("invalid retained row count")
 	}
 	f, err := os.OpenFile(filepath.Join(dir, transactionsFile), os.O_RDWR, 0o600)
 	if err != nil {
-		return nil, err
+		return nil, RecoveryReport{}, err
 	}
 	index, err := os.OpenFile(filepath.Join(dir, offsetIndexFile), os.O_CREATE|os.O_RDWR, 0o600)
 	if err != nil {
 		f.Close()
-		return nil, err
+		return nil, RecoveryReport{}, err
 	}
 	s := &Store{
 		cfg: cfg, dir: dir, file: f, writer: bufio.NewWriterSize(f, 64<<10),
 		index: index, indexWriter: bufio.NewWriterSize(index, 64<<10),
 		manifest: manifest, lastFlush: time.Now().UTC(),
 	}
-	if _, err := s.Recover(); err != nil {
+	report, err := s.Recover()
+	if err != nil {
 		f.Close()
 		index.Close()
-		return nil, err
+		return nil, RecoveryReport{}, err
 	}
 	if _, err := f.Seek(0, io.SeekEnd); err != nil {
 		f.Close()
 		index.Close()
-		return nil, err
+		return nil, RecoveryReport{}, err
 	}
 	if _, err := index.Seek(0, io.SeekEnd); err != nil {
 		f.Close()
 		index.Close()
-		return nil, err
+		return nil, RecoveryReport{}, err
 	}
-	return s, nil
+	return s, report, nil
 }
 
 // OpenReadOnly opens a capture store without recovery or lifecycle writes.

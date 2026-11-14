@@ -3,7 +3,9 @@ package session
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -12,6 +14,48 @@ import (
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
+
+func TestRecoverSessionsReportsActualCleanupAndRetainedRows(t *testing.T) {
+	root := t.TempDir()
+	st, err := store.New(store.Config{Root: root, SessionID: "cap-recovery-report", MaxRecords: 2, FreeBytes: func(string) (uint64, error) { return ^uint64(0), nil }})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i := 0; i < 3; i++ {
+		_, err = st.Append(models.CaptureTransaction{ID: fmt.Sprintf("tx-%d", i), Sequence: i, Method: "GET", URL: "http://example.test/", StatusCode: 200, State: models.TxComplete})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	dir := st.Path()
+	if err = st.Close(); err != nil {
+		t.Fatal(err)
+	}
+	staging, blob := []byte(`{"unfinished":`), []byte("orphan blob")
+	for name, data := range map[string][]byte{filepath.Join("rolling", "pending-test"): staging, filepath.Join("blobs", "orphan-test"): blob} {
+		if err = os.WriteFile(filepath.Join(dir, name), data, 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	manager := NewManagerForPlatform(root, nil, "windows")
+	reports, err := manager.RecoverSessions()
+	if err != nil || len(reports) != 1 {
+		t.Fatalf("reports=%+v err=%v", reports, err)
+	}
+	wantBytes := int64(len(staging) + len(blob))
+	if reports[0].Records != 2 || reports[0].DiscardedBytes != wantBytes {
+		t.Fatalf("report=%+v want 2 retained rows/%d discarded bytes", reports[0], wantBytes)
+	}
+	// A later scan must not invent repeated discarded bytes or cumulative rows.
+	reports, err = manager.RecoverSessions()
+	if err != nil || len(reports) != 1 || reports[0].Records != 2 || reports[0].DiscardedBytes != 0 {
+		t.Fatalf("second reports=%+v err=%v", reports, err)
+	}
+	page, err := manager.Fetch("cap-recovery-report", store.Filter{}, "", 10)
+	if err != nil || page.Total != 2 || page.Items[0].Transaction.ID != "tx-1" || page.Items[1].Transaction.ID != "tx-2" {
+		t.Fatalf("retained page=%+v err=%v", page, err)
+	}
+}
 
 type idleCapturer struct {
 	failedPartialCapturer
