@@ -1,0 +1,140 @@
+HTTP 캡처
+파일·요청 작성
+캡처 설정
+캡처 시작
+캡처 중지
+자동 추적 중
+일시정지
+비우기
+메서드, URL, 호스트, 상태로 필터 · 6 / 6
+세션 도구
+열 필터
+그룹 기준
+표시 열
+캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+#
+￼
+시작
+￼
+메서드
+￼
+결과
+￼
+호스트
+￼
+경로
+￼
+종류
+￼
+크기
+￼
+시간
+￼
+타임라인
+￼
+프로세스
+￼
+▾
+node.exe [25448] · 2026-11-14T12:38:23.6353737Z
+6 · ↑ 0 B · ↓ 270 B
+1
+12:38:32.614
+GET
+200
+127.0.0.1:11512
+/soak?sequence=0
+JSON
+45 B
+5 ms
+￼
+node.exe
+2
+12:38:32.648
+GET
+200
+127.0.0.1:11512
+/soak?sequence=1
+JSON
+45 B
+4 ms
+￼
+node.exe
+3
+12:38:32.681
+GET
+200
+127.0.0.1:11512
+/soak?sequence=2
+JSON
+45 B
+10 ms
+￼
+node.exe
+4
+12:38:32.718
+GET
+200
+127.0.0.1:11512
+/soak?sequence=3
+JSON
+45 B
+8 ms
+￼
+node.exe
+5
+12:38:32.751
+GET
+200
+127.0.0.1:11512
+/soak?sequence=4
+JSON
+45 B
+6 ms
+￼
+node.exe
+6
+12:38:32.782
+GET
+200
+127.0.0.1:11512
+/soak?sequence=5
+JSON
+45 B
+4 ms
+￼
+node.exe
+방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+트랜잭션 목록 크기 조절
+Request Builder로 복사
+200
+GET
+http://127.0.0.1:11512/soak?sequence=0
+신규 연결
+와이어 복호화
+힌트 / 상태 / 주석
+Raw
+스트림
+헤더
+쿼리 문자열
+POST 데이터
+본문
+타이밍
+쿠키
+프로세스
+정규화된 모델에서 재구성한 텍스트입니다. 헤더 이름·값·중복은 보존되지만 원본 필드 순서·대소문자·프레이밍은 보존되지 않습니다 — 이 캡처 tier는 raw wire가 아니라 semantic 등급입니다.
+요청
+복사
+GET /soak?sequence=0 HTTP/1.1
+Host: 127.0.0.1:11512
+Connection: close
+본문이 기록되지 않았습니다. 이 세션은 본문 캡처가 꺼져 있습니다.
+응답
+복사
+HTTP/1.1 200 OK
+Server: BaseHTTP/0.6 Python/3.12.16
+Date: Sat, 14 Nov 2026 12:38:32 GMT
+Content-Type: application/json
+Cache-Control: no-store
+Content-Length: 45
+본문이 기록되지 않았습니다. 이 세션은 본문 캡처가 꺼져 있습니다.
+세션 요약 및 근거

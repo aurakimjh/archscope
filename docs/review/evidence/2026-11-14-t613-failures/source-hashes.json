@@ -1,0 +1,11 @@
+{
+  "fixedAppCommit": "8985736f793fa02511f3d4d371d66fafc50733f7",
+  "baselineAppCommit": "324a8d97432a8f9a144cb48b545cc7cb8f21da08",
+  "executedWorktreeSha256": {
+    ".tmp/t613-memory-20261114/fault-native.mjs": "e86f10ec3783ada42d02b3929b9e9d9d3f93c1ca1656256f55f317ea5b391c2e",
+    ".tmp/t613-memory-20261114/verify-fault-exports.py": "40c8d1236fb9bd66900cb8833295eceeda5ac932061dcb8b567b3b6ee10d78f0",
+    "scripts/acceptance/layout/verify_p2_windows_readback.py": "825d37ff5356b4676259328ff54db14fdcd208a6ae7a1be00c6d39b6a9324a2a",
+    "apps/engine-native/internal/capture/store/reserve_retry_test.go": "4b02c39bcbd742b3ef6d2992a94d5caa0104a6c588459622e0f4a7715a64a616",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/liveCaptureBootstrap.ts": "f30aadea238cfbf224f7d08a856fe1d81e488ed737ca0e24149397936509c0d0"
+  }
+}

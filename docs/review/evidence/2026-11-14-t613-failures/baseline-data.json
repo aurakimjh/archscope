@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "scope": "Native production Windows, synthetic HTTP bodies disabled; owned committed-row corruption and export refusal/retry",
+  "binarySha256": "3396e69d0afd2d9d324dcb828033ecf84935149d906c5c338a55b61b3b72130b",
+  "passed": true,
+  "buildCommit": "324a8d97432a8f9a144cb48b545cc7cb8f21da08",
+  "exportRefusalPreservedRecords": true,
+  "existingDestinationPreserved": true,
+  "explicitExportRetryAndSelection": true,
+  "exportSha256": "ece19fe433ce092930e5a32a07593fb80d2d186af4061998cc6588234ffddbaa",
+  "committedCorruptionRejectedWithoutTruncation": true,
+  "otherCommittedBytesPreserved": true,
+  "newCaptureIndependentOfCorruptStore": true,
+  "exactBackupRestored": true,
+  "restoredStoreAndExportReadable": true,
+  "committedHashSetSha256": "e0145d1efcee7f1afbca77a5e491410ea745857378fd73795c90247b5f4e6e7c",
+  "desktopAliveAtEnd": true
+}

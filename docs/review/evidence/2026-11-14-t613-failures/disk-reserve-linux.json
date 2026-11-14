@@ -1,0 +1,12 @@
+{
+  "constrainedAvailableBytes": 535822336,
+  "hostDiskFilled": false,
+  "initialAvailableBytes": 629141504,
+  "passed": true,
+  "platform": "Linux Docker bounded tmpfs",
+  "rejectedRowsPublished": 0,
+  "reserveBytes": 536870912,
+  "restoredAvailableBytes": 629141504,
+  "retryRows": 1,
+  "temporaryAllocatedBytes": 93319168
+}

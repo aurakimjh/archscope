@@ -14,6 +14,8 @@ WR-02 장시간 후속: 실제 Windows x64/x86 각2시간,241체크포인트·10
 
 WREV-01 Windows private-file 후속: 기존 양쪽 query4행·130초128행·live640행 총6파일을 명시적 정책으로 재비교했다. 별/비어 있지 않은 Unicode 주석을 포함해 일치하며 원 export 해시·길이도 보존된다([근거](evidence/2026-11-14-t613-readback-v2/README.md)). 기존 증거 수정이나 새 주석 편집 UI 관측은 아니다.
 
+T-613 실패 경계 후속: 커밋된 행 손상 읽기 거절·정확한 backup 복원·export 거절/재시도를 양쪽 production 앱에서 검증했다. 손상 복구 오류가 정상 capability 초기화까지 막던 renderer 오류를8985736f로 수정하고 native로 재확인했다. Windows reserve 주입 및 Docker 실제 제한 공간 재시도도 통과했다([근거](evidence/2026-11-14-t613-failures/README.md)). 전원 손실·Windows 실제 디스크 고갈·전체 수용 판정은 별도다.
+
 ## 처리 기록
 
 | 날짜 | 문서 | 대상 | 판정·처리 |

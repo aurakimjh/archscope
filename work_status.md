@@ -1165,6 +1165,15 @@ document remains pending for a different AI.
 |---:|---|---|---|---|
 | 1 | WREV-01 | P3 | WINDOWS_VERIFIED_SCOPED | Maintained schema2 comparison checks all transaction fields, expected host/query and authoritative annotations by ID.23regressions pass on Mac/Docker/Windows. Windows private-file rechecks now pass both architectures' query4row, short-soak128row and live640row exports, including the selected live star/nonempty Unicode comment. All6export hashes/lengths match original receipts. New long-run files also pass its core. Historical bytes/flags stay unchanged; independent review and full UI acceptance remain separate. Receipt: docs/review/evidence/2026-11-14-t613-readback-v2/README.md. |
 
+Controlled Windows committed-row corruption/read refusal, exact backup restore,
+export failure/retry and separate new capture now pass on both architectures.
+8985736f fixes recovery failure discarding valid renderer capabilities; native
+fixed options retain actual Windows/body-policy metadata and the corruption
+warning. Windows reserve refusal/retry tests and a real bounded Docker tmpfs
+reserve/retry pass without filling the host disk. These do not establish actual
+Windows disk exhaustion, power loss or service recovery. Receipt:
+`docs/review/evidence/2026-11-14-t613-failures/README.md`.
+
 Revised-runner long duration and the10-minute Clear path are now verified on
 Windows x64/x86 with an isolated shared Docker origin. Source324a8d97 app binaries
 are unchanged; runner1b30244b adds explicit empty-generation/reset/refill checks.

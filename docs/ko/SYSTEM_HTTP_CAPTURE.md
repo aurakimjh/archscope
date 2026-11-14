@@ -5220,3 +5220,26 @@ header drag resize 구현이나 모든 열 값/필터/키보드·실패/IME/DPI/
 T-613은 PENDING이며 기존2h 증거는 변경하지 않습니다.
 
 Evidence: docs/review/evidence/2026-11-14-grid-boundaries/README.md.
+
+### 2026-11-14 커밋된 행 손상·저장 실패 후 재시도
+
+후속8985736f는 과거 저장소의 복구 실패가 정상 Windows capability·백엔드·CA
+정보 적용까지 막던 renderer 초기화 오류를 수정합니다. 손상 데이터 읽기 거절과
+경고는 유지하며 core capability 자체의 실패도 계속 거절합니다. 정상 모드나
+본문 정책을 임의의 성공 기본값으로 대체하지 않습니다.
+
+양쪽 production 앱에서 소유 fixture의6행 중1행을 정지 후 손상시켜 읽기 거절과
+나머지5행 bytes 보존을 확인했습니다. 별도 새4행 캡처는 정상 종료하고, 소유 앱을
+다시 정지한 뒤 정확한 backup을 복원하면 기존6행 ID/bytes와 export 선택이
+보존됩니다. 기존 디렉터리로 저장 시 거절·원본 보존, 디렉터리 보존 이동 후
+동일 경로 재시도·재열기도 통과합니다. 새 export는 명시적 주석 정책까지 비교하고
+native Raw200/선택 화면을 확인했습니다. 본문·CA·첫 사용 UI 설정은 바꾸지 않았습니다.
+
+Windows 양쪽의 reserve 주입 검사는 기존 커밋 행과 manifest 불변·재시도를
+확인합니다. Docker600MiB tmpfs에서는 실제 여유 공간이 기본512MiB reserve
+아래가 되면0행을 공개하고 거절하며, 소유 임시 파일을 제거하면 동일 요청이
+저장됩니다. 호스트 디스크를 채우거나 실제 ENOSPC까지 밀어붙이지 않았습니다.
+실제 전원 손실·Windows 디스크 고갈·service/driver 복구 전체는 별도입니다.
+T-613은 PENDING이며 이전 증거와 원 독립 판정을 변경하지 않습니다.
+
+Evidence: docs/review/evidence/2026-11-14-t613-failures/README.md.

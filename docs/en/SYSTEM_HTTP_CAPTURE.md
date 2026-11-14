@@ -1979,3 +1979,28 @@ file migration and body/vendor/driver/long-memory gates remain separate. T-613 s
 PENDING; earlier2h receipts are unchanged.
 
 Evidence: docs/review/evidence/2026-11-14-grid-boundaries/README.md.
+
+### 2026-11-14 committed-row corruption and failed-save retry
+
+8985736f fixes renderer bootstrap discarding valid Windows capability/backend/CA
+information when recovery of a historical store fails. Corrupt reads and their
+warning remain rejected; core capability failures also still fail closed, without
+inventing successful platform or body-policy defaults.
+
+Both production architectures reject a deliberately corrupted committed row in
+an owned stopped six-row fixture while preserving the other five record bytes.
+A distinct new four-row capture finalizes successfully. After stopping the owned
+app and restoring the exact backup, the six original IDs/bytes and export selection
+survive. Saving over an existing directory refuses without changing its contents
+or the store; preserving that directory elsewhere inside the fixture then permits
+an explicit same-path retry/open. All export fields/annotation policy and native
+selected Raw200 screens pass. Body/CA/first-use UI settings were not changed.
+
+Windows reserve-injection checks preserve committed rows/manifest and permit retry.
+A600MiB Docker tmpfs also exercises the real OS free-space reader: below the default
+512MiB reserve, no row is published; reclaiming the owned temporary filler permits
+the same append. The host disk was not filled and actual ENOSPC was not forced.
+Power loss, actual Windows disk exhaustion and full service/driver recovery remain
+separate. T-613 stays PENDING; previous evidence and independent verdicts are unchanged.
+
+Evidence: docs/review/evidence/2026-11-14-t613-failures/README.md.

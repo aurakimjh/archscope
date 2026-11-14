@@ -1,0 +1,16 @@
+{
+  "nativeFixedArchitectures": [
+    "amd64",
+    "386"
+  ],
+  "baselineNativeFail": 1,
+  "fixedNativePass": 4,
+  "exportFieldsAndAnnotations": "PASS for both6row exports",
+  "reserveTests": "Windows x64/x86 injected free-space, Docker race actual bounded tmpfs",
+  "frontendState": "PASS",
+  "frontendBuild": "PASS",
+  "productFixCommit": "8985736f",
+  "noHostDiskFill": true,
+  "noPowerLossClaim": true,
+  "originalVerdict": "CONDITIONAL unchanged; T-613 PENDING"
+}
