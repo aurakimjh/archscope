@@ -1,0 +1,137 @@
+프로파일러
+profiler-deep.collapsed
+도움말 보기
+profiler-deep.collapsed
+파일 선택
+Clear file
+분석
+분석 옵션
+￼
+분석 옵션
+도움말 보기
+Close panel
+형식
+도움말 보기
+￼
+프로파일 종류
+도움말 보기
+￼
+입력 카운터 단위
+￼
+샘플 간격 (ms) (기본: 100)
+도움말 보기
+100
+경과 시간(초, 선택) (기본: 자동)
+도움말 보기
+￼
+Top N (기본: 20)
+도움말 보기
+20
+타임라인 기준 메서드 (선택) (기본: 미설정)
+도움말 보기
+￼
+메모리 가드 (대용량 wall 파일)
+도움말 보기
+최대 유니크 스택 수
+도움말 보기
+￼
+최대 스택 깊이
+도움말 보기
+￼
+최대 RSS (MB) (기본: 4096)
+도움말 보기
+￼
+진행 로그 디렉터리 (기본: 실행파일 옆 archscope-logs/)
+도움말 보기
+￼
+타임라인 카테고리 커스터마이즈
+프리셋:
+￼
+대소문자 무시 부분일치. 첫 매칭 우선. 내장 분류는 그대로 동작합니다.
+STARTUP / FRAMEWORK
+STARTUP_FRAMEWORK
+—
+￼
+패턴 추가
+FRAMEWORK / MIDDLEWARE
+FRAMEWORK_MIDDLEWARE
+—
+￼
+패턴 추가
+INTERNAL METHOD
+INTERNAL_METHOD
+—
+￼
+패턴 추가
+DTO CREATION / MAPPING
+DTO_MAPPING
+—
+￼
+패턴 추가
+LOGGING
+LOGGING
+—
+￼
+패턴 추가
+SQL EXECUTION
+SQL_EXECUTION
+—
+￼
+패턴 추가
+DB FETCH
+DB_FETCH
+—
+￼
+패턴 추가
+DB NETWORK WAIT
+DB_NETWORK_WAIT
+—
+￼
+패턴 추가
+EXTERNAL CALL PREP (NETWORK)
+NETWORK_PREP
+—
+￼
+패턴 추가
+EXTERNAL CALL
+EXTERNAL_CALL
+—
+￼
+패턴 추가
+EXTERNAL NETWORK WAIT
+EXTERNAL_NETWORK_WAIT
+—
+￼
+패턴 추가
+CONNECTION POOL WAIT
+CONNECTION_POOL_WAIT
+—
+￼
+패턴 추가
+LOCK / SYNCHRONIZATION WAIT
+LOCK_SYNCHRONIZATION_WAIT
+—
+￼
+패턴 추가
+FILE I/O
+FILE_IO
+—
+￼
+패턴 추가
+분석
+최근 파일 (3)
+진행 로그
+요약
+플레임그래프
+타임라인
+드릴다운
+실행 분류
+상위 스택
+파서 리포트
+pprof로 내보내기 (.pb.gz)
+도움말 보기
+프레임 검색
+검색 범위
+줌 초기화
+PNG 저장
+￼

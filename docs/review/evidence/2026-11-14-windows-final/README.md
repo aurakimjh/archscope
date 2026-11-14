@@ -150,3 +150,21 @@ Preview incorrectly said the payload was not retained. The fallback now explains
 HTML/raster support and points to Raw/JSON whenever retained text is present.
 Absent text keeps the existing unavailable message. EN/KO labels compile;
 frontend state/build pass and native KO before FAIL/after PASS uses the same file.
+
+## 5. T-627 profiler native conditions
+
+Malformed input produces0records/1skipped line with INVALID_SAMPLE_COUNT and
+NO_VALID_RECORDS in Parser Report. A valid200path/20level retry renders normally;
+its clipped plot ratio0.598is disclosed, not relabeled70percent. A separately
+prepared200path/32level fixture fills0.727of the default1264x741CSSviewport at
+1280x800native size/actualOS100percent/WebView100percent before scrolling. The
+colored data rows visibly occupy that area; no blank canvas inflation is used.
+
+Selecting worker.4 shows4100/20100weight(20.40percent), matching fixture arithmetic.
+At1024x768the selected path and reset control survive. Help fits, Escape dismisses
+and Return reopens from the help trigger. Options settle fully inside the small
+window with internal scrolling, reachable Close/footer Analyze, Escape/Return
+trigger roundtrip and unchanged selected path. Intermediate animation frames are
+not used for fit verdicts. File-picker Escape preserves the prior input/result;
+this is not in-flight analysis cancellation. Full original-reference, actual
+OS125percent/locale combinations and remaining profiler conditions stay open.

@@ -1,0 +1,43 @@
+프로파일러
+invalid.json
+도움말 보기
+invalid.json
+파일 선택
+Clear file
+분석
+분석 옵션
+최근 파일 (1)
+진행 로그
+요약
+플레임그래프
+타임라인
+드릴다운
+실행 분류
+상위 스택
+파서 리포트
+2
+pprof로 내보내기 (.pb.gz)
+파서 리포트
+도움말 보기
+디버그 로그 저장
+파싱된 레코드
+0
+스킵된 라인
+1
+경고
+1
+에러
+1
+BYTES READ
+35
+스킵 사유
+INVALID_SAMPLE_COUNT
+1
+에러
+INVALID_SAMPLE_COUNT
+L1
+Invalid sample count: "fixture".
+{ deliberately invalid JSON fixture
+경고
+NO_VALID_RECORDS
+No valid collapsed profiler records were parsed.

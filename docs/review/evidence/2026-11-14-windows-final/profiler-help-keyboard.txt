@@ -1,0 +1,25 @@
+프로파일러
+profiler-deep.collapsed
+도움말 보기
+profiler-deep.collapsed
+파일 선택
+Clear file
+분석
+분석 옵션
+최근 파일 (3)
+진행 로그
+요약
+플레임그래프
+타임라인
+드릴다운
+실행 분류
+상위 스택
+파서 리포트
+pprof로 내보내기 (.pb.gz)
+도움말 보기
+프레임 검색
+검색 범위
+줌 초기화
+PNG 저장
+￼
+Flamegraph는 stack sample을 call path 기준으로 합산합니다. frame을 클릭해 확대하고 reset으로 전체로 돌아갑니다.

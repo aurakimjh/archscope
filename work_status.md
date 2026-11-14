@@ -1241,6 +1241,12 @@ HTML/raster-support and Raw/JSON instruction instead of a false missing-payload
 notice. Native same-file KO before/after and frontend state/build pass; EN label
 is included. Missing retained content retains its separate unavailable message.
 
+T-627 profiler follow-up: malformed-input diagnostics→valid200path retry, picker
+cancel preserving result,32level default plot union0.727,worker.4selection4100/
+20100 and1024x768selection/help/options Escape/Return/fit pass natively. The20level
+fixture ratio0.598is disclosed; no universal70percent/reference/actualOS125percent/
+locale/in-flight-cancel PASS. Receipt:2026-11-14-windows-final/README.md.
+
 Revised-runner long duration and the10-minute Clear path are now verified on
 Windows x64/x86 with an isolated shared Docker origin. Source324a8d97 app binaries
 are unchanged; runner1b30244b adds explicit empty-generation/reset/refill checks.
