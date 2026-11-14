@@ -142,3 +142,11 @@ Docker24capture packages pass race before the redacted-flag correction; a final
 Docker sessionfile race run including both new regressions passes1.206s. Windows
 CGO0test results are not Windows race claims. Body-enabled long-memory, additional
 formats/limits/error conditions and every native combination remain separate.
+
+## Unsupported Preview explanation
+
+Native gzip JSON is retained and readable in Raw, but its unsupported graphical
+Preview incorrectly said the payload was not retained. The fallback now explains
+HTML/raster support and points to Raw/JSON whenever retained text is present.
+Absent text keeps the existing unavailable message. EN/KO labels compile;
+frontend state/build pass and native KO before FAIL/after PASS uses the same file.
