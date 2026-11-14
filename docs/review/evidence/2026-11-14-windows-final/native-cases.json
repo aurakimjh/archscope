@@ -188,5 +188,45 @@
     "id": "diff-weight-386-fixed",
     "result": "PASS",
     "observed": "Windows 386 renders nonempty reverse diff with selected worker.4 tooltip 4,600 weight and20.35%, identical to x64. Canonical metadata survives bounded legacy scaled projection."
+  },
+  {
+    "id": "gc-no-clock-order-axis",
+    "result": "PASS",
+    "observed": "Two no-clock GC events retain 25/190.12ms and50/100MB. Native timeline uses # ordinal axis, table #1/#2; unavailable metrics disclosure remains. No fabricated seconds or rate claim."
+  },
+  {
+    "id": "gc-60-summary-trend",
+    "result": "PASS",
+    "observed": "Native1280x800 actualOS100/WebView100 shows 60GCs, 930ms total,15.5ms mean,1..60second sawtooth10..21ms and more than10complete rows alongside plot. No scroll before capture."
+  },
+  {
+    "id": "gc-heap-sixty",
+    "result": "PASS",
+    "observed": "60point heap chart retains200MB committed/100MB before/50MB after, seconds axis and explicit unavailable generation series. Graph and legend fit default window."
+  },
+  {
+    "id": "gc-events-keyboard-before",
+    "result": "PARTIAL",
+    "observed": "Left from JVM tab activates Events. Values and absent wall clock remain explicit, but default window has fewer than10complete event rows due wrapped long cells and an empty alert card; layout follow-up required."
+  },
+  {
+    "id": "gc-small-options",
+    "result": "PASS",
+    "observed": "1024x768 OS100 native Events tab survives resize; settled options drawer exposes both fields, strict-mode checkbox, Close and bottom Analyze inside viewport."
+  },
+  {
+    "id": "gc-options-keyboard-return",
+    "result": "PASS",
+    "observed": "Escape closes options and returns focus to trigger; Return reopens at1024x768 without losing60-event Events tab."
+  },
+  {
+    "id": "gc-events-nowrap-fixed",
+    "result": "PASS",
+    "observed": "Same60-event input now shows16complete event rows at1280x800 before scrolling; all text preserved on one line in existing internal horizontal scroller. Prior native screen had7complete rows."
+  },
+  {
+    "id": "gc-events-small-fixed",
+    "result": "PASS",
+    "observed": "1024x768 actualOS100/WebView100 retains Events tab and at least14complete event rows. Long cause remains fully readable and overflow stays inside the table; no OS125claim."
   }
 ]

@@ -195,3 +195,19 @@ suites pass(0.953s/1.013s). Frontend state/build pass. Native x64and386show
 UI receipts precede the final six-decimal formatting-only rebuild; normalized
 and final-build smoke are separate observations. Original input parity and all
 Diff cancellation/locale/DPI combinations remain open.
+
+## GC native conditions and dense event rows
+
+Two no-clock events show ordinal #1/#2 and an ordinal chart axis. Missing rate/
+throughput evidence stays unavailable; this sparse fixture is not area-qualified.
+The60-event fixture shows1..60seconds,10..21ms repeating pauses,930ms total,
+15.5ms average, and200/100/50MB heap series. Summary shows plot plus more than10
+complete rows. JVM tab explicitly reports missing source information. Keyboard
+Left moves from JVM to Events.1024x768options fit, Escape returns focus and
+Return reopens without dropping the selected tab.
+
+Events initially wraps its long cause/type cells and shows only7complete rows.
+The row now keeps text on one line inside its existing horizontal scroller.
+Same native input shows16complete rows at1280x800and at least14at1024x768.
+Frontend build passes; this is a CSS-only change, verified in real native views.
+No blanket70percent/actualOS125percent/original-reference verdict is claimed.

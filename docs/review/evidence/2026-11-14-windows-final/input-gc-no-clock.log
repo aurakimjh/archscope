@@ -1,0 +1,2 @@
+[info][gc] GC(0) Pause Young (G1 Evacuation Pause) 100M->50M(200M) 25.000ms
+[info][gc] GC(1) Pause Full (System.gc()) 150M->100M(200M) 190.120ms

@@ -1,0 +1,809 @@
+GC 로그
+gc-60.log
+도움말 보기
+gc-60.log
+찾아보기
+Clear file
+분석
+분석 옵션
+최근 파일 (1)
+요약
+Pause
+힙
+분류
+이벤트
+JVM 정보
+파서 리포트
+GC 알림
+도움말 보기
+심각도
+코드
+위치
+PAUSE (MS)
+메시지
+원문 미리보기
+증거
+—
+GC 이벤트
+도움말 보기
+50 / 60 · 총 이벤트
+심각도
+￼
+시각
+￼
+UPTIME (S)
+￼
+GC 종류
+￼
+원인
+￼
+PAUSE (MS)
+￼
+HEAP BEFORE (MB)
+￼
+HEAP AFTER (MB)
+￼
+HEAP COMMITTED (MB)
+￼
+YOUNG BEFORE (MB)
+￼
+YOUNG AFTER (MB)
+￼
+OLD BEFORE (MB)
+￼
+OLD AFTER (MB)
+￼
+METASPACE BEFORE (MB)
+￼
+METASPACE AFTER (MB)
+￼
+-
+-
+1.000
+Pause Young
+G1 Evacuation Pause
+10.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+2.000
+Pause Young
+G1 Evacuation Pause
+11.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+3.000
+Pause Young
+G1 Evacuation Pause
+12.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+4.000
+Pause Young
+G1 Evacuation Pause
+13.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+5.000
+Pause Young
+G1 Evacuation Pause
+14.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+6.000
+Pause Young
+G1 Evacuation Pause
+15.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+7.000
+Pause Young
+G1 Evacuation Pause
+16.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+8.000
+Pause Young
+G1 Evacuation Pause
+17.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+9.000
+Pause Young
+G1 Evacuation Pause
+18.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+10.000
+Pause Young
+G1 Evacuation Pause
+19.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+11.000
+Pause Young
+G1 Evacuation Pause
+20.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+12.000
+Pause Young
+G1 Evacuation Pause
+21.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+13.000
+Pause Young
+G1 Evacuation Pause
+10.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+14.000
+Pause Young
+G1 Evacuation Pause
+11.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+15.000
+Pause Young
+G1 Evacuation Pause
+12.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+16.000
+Pause Young
+G1 Evacuation Pause
+13.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+17.000
+Pause Young
+G1 Evacuation Pause
+14.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+18.000
+Pause Young
+G1 Evacuation Pause
+15.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+19.000
+Pause Young
+G1 Evacuation Pause
+16.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+20.000
+Pause Young
+G1 Evacuation Pause
+17.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+21.000
+Pause Young
+G1 Evacuation Pause
+18.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+22.000
+Pause Young
+G1 Evacuation Pause
+19.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+23.000
+Pause Young
+G1 Evacuation Pause
+20.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+24.000
+Pause Young
+G1 Evacuation Pause
+21.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+25.000
+Pause Young
+G1 Evacuation Pause
+10.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+26.000
+Pause Young
+G1 Evacuation Pause
+11.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+27.000
+Pause Young
+G1 Evacuation Pause
+12.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+28.000
+Pause Young
+G1 Evacuation Pause
+13.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+29.000
+Pause Young
+G1 Evacuation Pause
+14.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+30.000
+Pause Young
+G1 Evacuation Pause
+15.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+31.000
+Pause Young
+G1 Evacuation Pause
+16.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+32.000
+Pause Young
+G1 Evacuation Pause
+17.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+33.000
+Pause Young
+G1 Evacuation Pause
+18.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+34.000
+Pause Young
+G1 Evacuation Pause
+19.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+35.000
+Pause Young
+G1 Evacuation Pause
+20.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+36.000
+Pause Young
+G1 Evacuation Pause
+21.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+37.000
+Pause Young
+G1 Evacuation Pause
+10.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+38.000
+Pause Young
+G1 Evacuation Pause
+11.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+39.000
+Pause Young
+G1 Evacuation Pause
+12.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+40.000
+Pause Young
+G1 Evacuation Pause
+13.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+41.000
+Pause Young
+G1 Evacuation Pause
+14.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+42.000
+Pause Young
+G1 Evacuation Pause
+15.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+43.000
+Pause Young
+G1 Evacuation Pause
+16.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+44.000
+Pause Young
+G1 Evacuation Pause
+17.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+45.000
+Pause Young
+G1 Evacuation Pause
+18.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+46.000
+Pause Young
+G1 Evacuation Pause
+19.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+47.000
+Pause Young
+G1 Evacuation Pause
+20.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+48.000
+Pause Young
+G1 Evacuation Pause
+21.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+49.000
+Pause Young
+G1 Evacuation Pause
+10.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-
+-
+-
+50.000
+Pause Young
+G1 Evacuation Pause
+11.00
+100.0
+50.0
+200.0
+-
+-
+-
+-
+-
+-

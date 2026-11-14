@@ -1,0 +1,40 @@
+GC 로그
+gc-60.log
+도움말 보기
+gc-60.log
+찾아보기
+Clear file
+분석
+분석 옵션
+최근 파일 (2)
+요약
+Pause
+힙
+분류
+이벤트
+JVM 정보
+파서 리포트
+표시할 힙 시리즈
+￼
+일시정지 오버레이 (ms)
+￼
+Heap committed (MB)
+￼
+Heap before (MB)
+￼
+Heap after (MB)
+￼
+Young before (MB)
+￼
+Young after (MB)
+￼
+Old before (MB)
+￼
+Old after (MB)
+￼
+Metaspace before (MB)
+￼
+Metaspace after (MB)
+힙 사용량
+도움말 보기
+￼

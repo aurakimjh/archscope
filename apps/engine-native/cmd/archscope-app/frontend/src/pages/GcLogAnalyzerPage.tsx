@@ -898,7 +898,7 @@ function eventRowClass(row: GcEventRow): string {
 function EventRowItem({ row }: { row: GcEventRow }): React.JSX.Element {
   return (
     <tr
-      className={`border-b border-border last:border-0 ${eventRowClass(row)}`}
+      className={`whitespace-nowrap border-b border-border last:border-0 ${eventRowClass(row)}`}
     >
       <td className="px-3 py-1.5">
         {row.severity ? (

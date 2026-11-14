@@ -1,0 +1,49 @@
+GC 로그
+gc-no-clock.log
+도움말 보기
+gc-no-clock.log
+찾아보기
+Clear file
+분석
+분석 옵션
+최근 파일 (1)
+요약
+Pause
+힙
+분류
+이벤트
+JVM 정보
+파서 리포트
+Pause 타임라인
+도움말 보기
+￼
+심각도
+￼
+시각
+￼
+GC 종류
+￼
+Pause (ms)
+￼
+Heap after (MB)
+￼
+—
+#1
+Pause Young
+25.00
+50.0
+WARNING
+#2
+Pause Full
+190.12
+100.0
+요약 · 2 총 이벤트
+시간·힙·일시 정지 증거가 부족한 지표는 계산 불가(—)로 표시합니다.
+분석 결과
+도움말 보기
+WARNING
+One or more GC pauses exceeded 100 ms.
+추가
+WARNING
+Full GC activity was detected.
+추가

@@ -5546,3 +5546,12 @@ its scale/cap. New failing-before386regression and both Windows profiler suites
 pass after correction; frontend state/build and selected raw native x64/386
 frame checks pass. T-627 remains REVIEW; full locale/reference/DPI/cancel scope
 is separate. Evidence: docs/review/evidence/2026-11-14-windows-final/README.md.
+
+### 2026-11-14 Windows follow-up: GC conditional views
+
+Verified no-clock ordinal axis/unavailable metrics,60-event seconds/heap arithmetic,
+missing JVM information, tab keyboard movement and small-window options focus.
+Fixed wrapped long GC event cells: native complete rows increase7to16at1280x800,
+with at least14at1024x768. Existing table internal scrolling preserves full text.
+Frontend build passes; actualOS125/reference/full locale matrix remains separate.
+Evidence: docs/review/evidence/2026-11-14-windows-final/README.md. T-627 REVIEW.
