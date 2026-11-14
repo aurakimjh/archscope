@@ -8,7 +8,7 @@ historical note로 취급합니다.
 
 | 독자 | 추천 시작 문서 |
 |------|----------------|
-| 처음 사용하는 분 | [네이티브 앱 가이드](./NATIVE_APP.md) |
+| 처음 사용하는 분 | [사용자 매뉴얼](./USER_GUIDE.md) → [네이티브 앱 설치·빌드](./NATIVE_APP.md) |
 | 아키텍처 이해가 필요한 개발자 | [아키텍처](./ARCHITECTURE.md) → [데이터 모델](./DATA_MODEL.md) |
 | Parser/Analyzer 확장 개발자 | [파서 설계](./PARSER_DESIGN.md) → [런타임 분류](./RUNTIME_CLASSIFICATION.md) |
 | UI/차트 개발자 | [차트 설계](./CHART_DESIGN.md) → [Chart Studio 설계](./CHART_STUDIO_DESIGN.md) |
@@ -20,7 +20,7 @@ historical note로 취급합니다.
 
 - [**네이티브 앱 가이드**](./NATIVE_APP.md) — 현재 Go/Wails 빌드, 실행, 패키징, CLI
 - [기본 창과 기능별 화면 배치 설계](./DESKTOP_CONTENT_LAYOUT.md)
-- [사용자 가이드](./USER_GUIDE.md) — 현재 Go/Wails CLI와 데스크톱 workflow 예시
+- [사용자 매뉴얼](./USER_GUIDE.md) — 21개 화면의 목적·입력·조작·결과 해석, 분석 작업 공간의 저장·검색·baseline 비교, 상황별 조사 실습
 - [멀티 언어 Thread Dump 프레임워크](./MULTI_LANGUAGE_THREADS.md) — 6개 포맷 + 언어별 enrichment 매트릭스
 
 ## 설계 문서

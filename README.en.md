@@ -42,6 +42,7 @@ npm run build
 
 ## Docs
 
+- [User manual](docs/en/USER_GUIDE.md) — screen-by-screen analysis and workspace workflows
 - [Architecture](docs/en/ARCHITECTURE.md)
 - [Local diagnostics evolution design](docs/en/LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md)
 - [Native app guide](docs/en/NATIVE_APP.md)
