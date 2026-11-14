@@ -239,3 +239,21 @@ internal horizontal scrolling; same binary shows11complete rows at1280x800.
 Frontend state/build pass. No global area/actualOS125/locale/reference/cancel claim.
 Initial build overlapped the final frontend build; that candidate was discarded
 and rebuilt after frontend completion before any launch or verdict.
+
+## Access log partial parsing, filters and result provenance
+
+The six-line repository sample repeated20times plus one malformed line produces
+120parsed/1skipped(line121NO_FORMAT_MATCH). Native status80x2xx/20x4xx/20x5xx,
+40/120=33.33percent errors, sole-minute request120and P95=1500ms match fixture
+arithmetic. Parser→Left activates Status with keyboard focus. Static-only URL
+filter produces0rows and Home restores all5URI aggregates. A direct helper
+click on the HTML dropdown was refused for popup ownership; keyboard End/Return
+works. This is not a product dropdown defect.
+
+URI aggregates intentionally span methods; /api/orders/1001combines GET+DELETE
+into40requests/20errors/811.5ms mean. The column mislabeled its representative
+GET as Method; it now says Sample method in EN/KO without changing backend
+aggregation/schema. Clear file also left old aggregates visible with no input;
+select/clear/new-run now invalidate inflight identity and prior result/error.
+Native before FAIL/after PASS and frontend state/build pass. Sparse5URI/one-minute
+views do not establish the full70percent/dense/OS-DPI/reference/output matrix.

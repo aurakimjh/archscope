@@ -5565,3 +5565,12 @@ prior results/findings and invalidated late inflight callbacks. Fixed timestamp
 wrapping/event spacing to show11complete notable rows at1280x800. Frontend state/
 build and native before/after checks pass. Raw JFR stays private; aggregate oracle
 and generator are archived in2026-11-14-windows-final. T-627 remains REVIEW.
+
+### 2026-11-15 Windows follow-up: access log conditional views
+
+Native120parsed/1skipped fixture verifies status/error/P95arithmetic, keyboard tab
+movement and static-only0row/filter recovery. Fixed stale results after file
+clear/select/new-run; native before/after checks pass. Clarified URL aggregate
+representative method as Sample method in EN/KO. Frontend state/build pass.
+T-627 REVIEW; dense/all-format/reference/actualOS-DPI matrix stays separate.
+Evidence: docs/review/evidence/2026-11-14-windows-final/README.md.

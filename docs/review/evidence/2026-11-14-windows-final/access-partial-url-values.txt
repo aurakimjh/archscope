@@ -1,0 +1,82 @@
+액세스 로그
+access-120-partial.log
+도움말 보기
+access-120-partial.log
+찾아보기
+Clear file
+분석
+분석 옵션
+요약
+차트
+URL
+상태 코드 / 오류
+파서 리포트
+URL
+도움말 보기
+￼
+정렬 기준
+도움말 보기
+￼
+메서드
+￼
+URI
+￼
+분류
+￼
+건수
+￼
+평균
+￼
+P95
+￼
+바이트
+￼
+오류
+￼
+2·3·4·5XX
+￼
+GET
+/api/orders/1001
+api
+40
+811.5 ms
+1,500 ms
+28.7 KB
+20
+20·0·0·20
+GET
+/api/orders/1002
+api
+20
+45 ms
+45 ms
+24.1 KB
+0
+20·0·0·0
+POST
+/api/orders
+api
+20
+210 ms
+210 ms
+10.0 KB
+0
+20·0·0·0
+GET
+/api/orders/9999
+api
+20
+12 ms
+12 ms
+1.7 KB
+20
+0·0·20·0
+GET
+/api/health
+api
+20
+3 ms
+3 ms
+840 B
+0
+20·0·0·0

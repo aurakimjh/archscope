@@ -127,16 +127,22 @@ export function AccessLogAnalyzerPage(): React.JSX.Element {
   );
 
   const handleFileSelected = useCallback((file: FileDockSelection) => {
+    inflightRef.current = null;
     setSelectedFile(file);
+    setResult(null);
     setState("ready");
     setError(null);
     setEngineMessages([]);
   }, []);
 
   const handleClearFile = useCallback(() => {
+    inflightRef.current = null;
     setSelectedFile(null);
-    if (state !== "running") setState("idle");
-  }, [state]);
+    setResult(null);
+    setError(null);
+    setEngineMessages([]);
+    setState("idle");
+  }, []);
 
   const analyze = useCallback(async () => {
     if (!canAnalyze) return;
@@ -151,6 +157,7 @@ export function AccessLogAnalyzerPage(): React.JSX.Element {
     }
 
     setState("running");
+    setResult(null);
     setError(null);
     setEngineMessages([]);
     const token = Symbol("access-log-analysis");
@@ -649,7 +656,7 @@ function UrlStatsPanel({
             <thead>
               <tr className="border-b border-border bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
                 <th className="px-3 py-2 text-left font-medium">
-                  {t("accessLogColMethod")}
+                  {t("accessLogColSampleMethod")}
                 </th>
                 <th className="px-3 py-2 text-left font-medium">{t("uri")}</th>
                 <th className="w-[60px] px-3 py-2 text-left font-medium">

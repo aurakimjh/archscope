@@ -268,5 +268,40 @@
     "id": "jfr-notable-dense-fixed",
     "result": "PASS",
     "observed": "Same binary SHA and native3010/153/29counts. Default1280x800 OS100/WebView100 now shows11complete notable-event rows; full timestamp stays one line,24px evidence targets and internal horizontal scroller. No blanket70percent verdict."
+  },
+  {
+    "id": "access-partial-url-values",
+    "result": "PARTIAL",
+    "observed": "120valid requests+malformed line. URI aggregate /api/orders/1001 shows40requests/20errors/811.5ms mean/1500ms P95, matching GET+DELETE input; method cell shows GET despite mixed methods and requires provenance review. Sparse5URI rows not area-qualified."
+  },
+  {
+    "id": "access-status-partial",
+    "result": "PASS",
+    "observed": "Independent repeated6line fixture yields120parsed/1skipped(NO_FORMAT_MATCH,line121); status80x2xx/20x4xx/20x5xx and40/120=33.33percent. Left from Parser Report activates Status with visible keyboard focus."
+  },
+  {
+    "id": "access-chart-latency",
+    "result": "PASS",
+    "observed": "Same120valid/1skipped file: request trend120and P95trend1500ms in the sole minute bucket, matching repeated fixture arithmetic. Sparse one-bucket chart is not area-qualified."
+  },
+  {
+    "id": "access-zero-filter",
+    "result": "PASS",
+    "observed": "Static-only filter on all-API fixture gives explicit empty URL table; native keyboard End/Return works after HTML popup ownership prevented a direct helper click. No product dropdown defect claimed."
+  },
+  {
+    "id": "access-clear-stale-before",
+    "result": "FAIL",
+    "observed": "Clear file leaves120-request URL aggregates visible while input is empty and Analyze disabled; native baseline for source invalidation fix."
+  },
+  {
+    "id": "access-sample-method-fixed",
+    "result": "PASS",
+    "observed": "Native URL header explicitly says Sample method(KO예시 메서드); mixed GET/DELETE URI keeps authoritative40requests/20errors/811.5ms/1500ms values. No backend grouping or schema change."
+  },
+  {
+    "id": "access-clear-result-fixed",
+    "result": "PASS",
+    "observed": "Native Clear file now removes prior120-request aggregates, findings and errors while Analyze becomes disabled; URL empty-state remains reachable."
   }
 ]
