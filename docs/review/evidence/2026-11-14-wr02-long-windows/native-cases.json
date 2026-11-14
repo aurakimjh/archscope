@@ -1,0 +1,81 @@
+[
+  {
+    "id": "386-initial-running-observed-first",
+    "result": "PASS",
+    "observed": "Native x86 screen (visible proxy3008, matched to private x86 session) shows running,40captured=40persisted and successful loopback rows. Requested-window metadata alone was insufficient because owned windows overlap.",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-initial-running-observed-first.jpg",
+    "visibleProxy": "127.0.0.1:3008",
+    "correction": "Architecture attributed by the visible proxy, not requested-window metadata; screenshot bytes unchanged.",
+    "recordedAt": "2026-11-14T05:48:05.139Z"
+  },
+  {
+    "id": "amd64-initial-running-observed-second",
+    "result": "PASS",
+    "observed": "Native x64 screen (visible proxy3011, matched to private x64 session) shows running,668captured=668persisted,retained128/evicted540. A last request is in flight; earlier unrelated-window overlay was excluded. Requested-window metadata alone was insufficient because owned windows overlap.",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "amd64-initial-running-observed-second.jpg",
+    "visibleProxy": "127.0.0.1:3011",
+    "correction": "Architecture attributed by the visible proxy, not requested-window metadata; screenshot bytes unchanged.",
+    "recordedAt": "2026-11-14T05:48:23.088Z"
+  },
+  {
+    "id": "386-after-first-clear-observed-first",
+    "result": "PASS",
+    "observed": "Native x86 screen (visible proxy3008) after first Clear shows counters restarted below2088:297captured/296persisted in a live in-flight frame,retained128/evicted169, new request URLs sequence2375 onward. This is not a quiescent equality assertion.",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-after-first-clear-observed-first.jpg",
+    "visibleProxy": "127.0.0.1:3008",
+    "correction": "Architecture attributed by the visible proxy, not requested-window metadata; screenshot bytes unchanged.",
+    "recordedAt": "2026-11-14T05:56:39.194Z"
+  },
+  {
+    "id": "386-after-first-clear",
+    "result": "PASS",
+    "observed": "After first timed Clear, unobstructed native x86 shows running, captured340=persisted340, retained128/evicted212; visible new request URLs sequence2416 onward. Counters have restarted below pre-clear2088 and traffic continues.",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-after-first-clear.jpg",
+    "visibleProxy": "127.0.0.1:3008",
+    "recordedAt": "2026-11-14T05:56:46.988Z"
+  },
+  {
+    "id": "amd64-one-hour-running",
+    "result": "PASS",
+    "observed": "Fresh unobstructed x64 screen after sixth Clear, matched by visible proxy127.0.0.1:3011, shows running424captured=424persisted,retained128/evicted296 and new loopback URLs sequence12923 onward.",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "amd64-one-hour-running.jpg",
+    "recordedAt": "2026-11-14T06:47:20.434Z"
+  },
+  {
+    "id": "386-one-hour-running",
+    "result": "PASS",
+    "observed": "Fresh unobstructed x86 screen matched by visible proxy127.0.0.1:3008 after sixth Clear shows running512captured=512persisted,retained128/evicted384, and new loopback URLs sequence13000 onward.",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-one-hour-running.jpg",
+    "recordedAt": "2026-11-14T06:47:39.451Z"
+  },
+  {
+    "id": "amd64-final-roundtrip",
+    "result": "PASS",
+    "observed": "Fresh unobstructed native x64 frame, correlated by proxy127.0.0.1:3011, shows ended/finalized capture2080=persisted2080,retained128/evicted1952. Reopened selected sequence24857 is GET http://127.0.0.1:11511/soak?sequence=24856, with matching complete Raw target and HTTP/1.1 200 OK response. Matches independent long-run readback.",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "amd64-final-roundtrip.jpg",
+    "recordedAt": "2026-11-14T07:46:04.326Z"
+  },
+  {
+    "id": "386-final-roundtrip",
+    "result": "PASS",
+    "observed": "Fresh unobstructed native x86 frame, correlated by proxy127.0.0.1:3008, shows ended/finalized capture2076=persisted2076,retained128/evicted1948. Reopened selected sequence24845 is GET http://127.0.0.1:11511/soak?sequence=24844, with matching complete Raw target and HTTP/1.1 200 OK response. Matches independent long-run readback.",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-final-roundtrip.jpg",
+    "recordedAt": "2026-11-14T07:46:28.294Z"
+  }
+]

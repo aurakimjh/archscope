@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "finding": "WR-02",
+  "runs": {
+    "amd64": {
+      "seconds": 7201.012536499999,
+      "requests": 24984,
+      "clears": 11,
+      "pauses": 119,
+      "checkpoints": 241,
+      "finalState": "finalized",
+      "finalGenerationCaptured": 2080,
+      "finalGenerationPersisted": 2080,
+      "retainedRows": 128,
+      "selectedSequence": 24857
+    },
+    "386": {
+      "seconds": 7200.575645999999,
+      "requests": 24972,
+      "clears": 11,
+      "pauses": 119,
+      "checkpoints": 241,
+      "finalState": "finalized",
+      "finalGenerationCaptured": 2076,
+      "finalGenerationPersisted": 2076,
+      "retainedRows": 128,
+      "selectedSequence": 24845
+    }
+  },
+  "nativeObservations": 8,
+  "predicateTests": {
+    "passed": 41,
+    "failed": 0,
+    "skipped": 0,
+    "scope": "controlled predicates on Windows; no native disk-fault injection"
+  },
+  "annotationComparisonRegressions": {
+    "passed": 23,
+    "failed": 0,
+    "platform": "Windows"
+  },
+  "annotationScope": "Sidecar/default values compared; no nonempty live annotation editing in this long-run fixture",
+  "appCodeChangedThisFollowup": false,
+  "runnerClearVerificationAdded": true,
+  "isolation": "Concurrent production x64/x86 apps, independent profiles, descriptors, capture roots, ports and own producer PID/start identities; one Docker loopback-only origin",
+  "memoryScope": "Root 1GiB guard plus root/current-descendant samples every30seconds; not leak-free acceptance",
+  "originalVerdict": "CONDITIONAL unchanged; T-613 PENDING / T-627 REVIEW and other gates remain separate"
+}

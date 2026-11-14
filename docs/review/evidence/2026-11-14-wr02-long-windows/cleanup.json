@@ -1,0 +1,15 @@
+{
+  "observedAt": "2026-11-14T07:46:51.7663726Z",
+  "passed": true,
+  "ownedDesktopProcesses": 0,
+  "ownedProducerProcesses": 0,
+  "nativeOwnedWindows": 0,
+  "ownedDockerFixtureRunning": false,
+  "desktopOwnershipCheck": "private descriptor PID and exact executable path",
+  "fixtureOwnershipCheck": "archscope.acceptance=wr02-long-20261114",
+  "preExistingDockerContainersPreserved": 7,
+  "runnerExitCodes": {
+    "amd64": 0,
+    "386": 0
+  }
+}

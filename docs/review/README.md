@@ -4,11 +4,13 @@
 
 ## 미처리
 
-- [Windows 테스트 변경 검토](2026-11-14_codex_windows-pull-review.ko.md) — `f25ab80a..ab42eeb8`, 원 판정 CONDITIONAL(P2 2건) 보존. WR-01/02 로컬 수정·회귀 및 Mac 네이티브·Docker 검증([근거](evidence/2026-11-14-p2-remediation/README.md))에 이어, 사용자 지시로 `324a8d97` Windows x64/x86 실제 live query와 schema4 각130초 종료·저장·재열기 검증 완료([Windows 근거](evidence/2026-11-14-p2-windows/README.md)). 새2시간·전체 수용·독립 PASS 주장은 없으며, 독립 재검토·처리는 다른 AI 대기이고 원문은 미처리 위치에 유지.
+- [Windows 테스트 변경 검토](2026-11-14_codex_windows-pull-review.ko.md) — `f25ab80a..ab42eeb8`, 원 판정 CONDITIONAL(P2 2건) 보존. WR-01/02 로컬 수정·회귀 및 Mac 네이티브·Docker 검증([근거](evidence/2026-11-14-p2-remediation/README.md))에 이어, 사용자 지시로 `324a8d97` Windows x64/x86 실제 live query와 schema4 각130초 종료·저장·재열기 검증 완료([Windows 근거](evidence/2026-11-14-p2-windows/README.md)). 해당130초 결과는2시간 검증을 포함하지 않으며 장시간 후속은 아래 별도 기록. 전체 수용·독립 PASS 판정은 별도이고, 독립 재검토·처리는 다른 AI 대기이며 원문은 미처리 위치에 유지.
 
 2026-11-14 수신 증거 검토: `e113eadc`까지 pull 후 해시·소스·카운터·대표 화면을 대조하고 작업표에 반영했다([검토 근거](evidence/2026-11-14-p2-windows-review/README.md)). 추가 제품 P1/P2는 확인되지 않았으며, 비교기가 star/comment를 제외하는데 전체 필드 비교로 표현한 WREV-01(P3)을 등록했다. 동일 작성자의 수신 증거 검토이므로 위 원 리뷰의 독립 재검토·처리 대기는 유지한다.
 
 WREV-01 후속: 사용자 지시에 따라 유지보수용 검증기에 명시적 schema2 비교 정책과 star/comment 검사를 추가했다. Mac·Docker 각23회귀 및 기존 Go 주석 저장·내보내기 테스트 통과, LOCALLY_VERIFIED로 작업표 반영([결과](evidence/2026-11-14-p2-windows-review/regression-results.json)). 원 Windows 증거를 수정하거나 새 네이티브 주석 검증으로 소급하지 않으며, 독립 재검토 대기는 유지한다.
+
+WR-02 장시간 후속: 실제 Windows x64/x86 각2시간,241체크포인트·10분 Clear11회·일시정지/재개119회를 통과했다. 최종 finalized·드롭0·각128행 저장/재열기와 네이티브 화면을 확인했고, 새 장시간 파일은 maintained 정책으로 주석 sidecar/기본값까지 비교했다([근거](evidence/2026-11-14-wr02-long-windows/README.md)). 이전130초·리뷰 증거는 그대로 보존한다. 전체 수용·메모리 누수 없음·독립 PASS 판정은 별도다.
 
 ## 처리 기록
 

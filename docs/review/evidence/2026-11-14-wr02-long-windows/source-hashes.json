@@ -1,0 +1,42 @@
+{
+  "runnerCommit": "1b30244b",
+  "appBuildCommit": "324a8d97432a8f9a144cb48b545cc7cb8f21da08",
+  "sources": {
+    "scripts/verify-windows-desktop-soak.mjs": {
+      "receipt": "soak-runner-used.mjs",
+      "sourceCommit": "1b30244b",
+      "executedWorktreeSha256": "bfb20152fb12adeb21dca81375667a2ce989b3cf84fd89400b26fb437257c881",
+      "gitBlobSha256": "bfb20152fb12adeb21dca81375667a2ce989b3cf84fd89400b26fb437257c881"
+    },
+    "scripts/lib/desktop-soak-checks.mjs": {
+      "receipt": "soak-checks-used.mjs",
+      "sourceCommit": "1b30244b",
+      "executedWorktreeSha256": "b0e65dae7357040027605dc505d08738efaddb307735924f9bcad0ea6257bbdc",
+      "gitBlobSha256": "b0e65dae7357040027605dc505d08738efaddb307735924f9bcad0ea6257bbdc"
+    },
+    "scripts/test-desktop-soak-checks.mjs": {
+      "receipt": "soak-tests-used.mjs",
+      "sourceCommit": "1b30244b",
+      "executedWorktreeSha256": "676feb91de549f8244451b9bb585a8b9105963e4d2af0ec6b4f8e59a76376c6b",
+      "gitBlobSha256": "676feb91de549f8244451b9bb585a8b9105963e4d2af0ec6b4f8e59a76376c6b"
+    },
+    "scripts/acceptance/layout/soak-origin.py": {
+      "receipt": "soak-origin-used.py",
+      "sourceCommit": "1b30244b",
+      "executedWorktreeSha256": "435ddcff66e17fad0a9da18c7e96ffbb8803f049cfedc1990518472301dafacd",
+      "gitBlobSha256": "435ddcff66e17fad0a9da18c7e96ffbb8803f049cfedc1990518472301dafacd"
+    },
+    "scripts/acceptance/layout/verify_p2_windows_readback.py": {
+      "receipt": "store-export-comparator-used.py",
+      "sourceCommit": "817ed244",
+      "executedWorktreeSha256": "825d37ff5356b4676259328ff54db14fdcd208a6ae7a1be00c6d39b6a9324a2a",
+      "gitBlobSha256": "825d37ff5356b4676259328ff54db14fdcd208a6ae7a1be00c6d39b6a9324a2a"
+    },
+    "scripts/acceptance/layout/test_p2_windows_readback.py": {
+      "receipt": "store-export-comparator-tests-used.py",
+      "sourceCommit": "817ed244",
+      "executedWorktreeSha256": "e4769be58e31214227f4998e9ebaae9019eb06a772d06c6d8d9ad9e8114eda70",
+      "gitBlobSha256": "e4769be58e31214227f4998e9ebaae9019eb06a772d06c6d8d9ad9e8114eda70"
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 2,
+  "scope": "long-soak",
+  "arch": "amd64",
+  "passed": true,
+  "seconds": 7201.012536499999,
+  "requests": 24984,
+  "pauses": 119,
+  "clears": 11,
+  "checkpoints": 241,
+  "allClearBoundariesAndGenerationsVerified": true,
+  "allCheckpointCountersAndPaginationVerified": true,
+  "finalState": "finalized",
+  "finalGenerationCaptured": 2080,
+  "finalGenerationPersisted": 2080,
+  "lastClearThroughRequests": 22904,
+  "retainedRows": 128,
+  "selectedSequence": 24857,
+  "selectedURL": "http://127.0.0.1:11511/soak?sequence=24856",
+  "comparisonPolicyVersion": "1.0.0",
+  "allTransactionFieldsMatchDeclaredPolicy": true,
+  "annotationsMatch": true,
+  "rows": 128,
+  "comparisonPolicy": {
+    "excludedFields": [],
+    "expectedURLFields": "host/query derived from source retained URL; exported fields are checked",
+    "annotationSource": "store annotations.json replaces inline live-row starred/comment by transaction ID",
+    "missingAnnotationDefaults": {
+      "starred": false,
+      "comment": ""
+    },
+    "annotationTypes": {
+      "starred": "boolean",
+      "comment": "string"
+    },
+    "requestAnnotationOverrides": "not supported by this verification scope"
+  },
+  "noPreClearURLsInFinalExport": true,
+  "savedSessionSha256": "8934aef4c9b16435ff01edfe14fce750c10ba3bedfbd46f6c2f3332a5a73e3dc",
+  "savedSessionBytes": 442828,
+  "idSetSha256": "fe21608dc861ddb9870bda3ca87389336e03f244c4b9415f1ad78c9bbe4a3904",
+  "memoryObservations": {
+    "PrivateMemorySize64": {
+      "first": 103391232,
+      "last": 81629184,
+      "min": 77578240,
+      "max": 103391232
+    },
+    "WorkingSet64": {
+      "first": 101236736,
+      "last": 80109568,
+      "min": 75100160,
+      "max": 101236736
+    },
+    "TreePrivateMemorySize64": {
+      "first": 366546944,
+      "last": 496467968,
+      "min": 366546944,
+      "max": 520425472
+    },
+    "TreeWorkingSet64": {
+      "first": 559271936,
+      "last": 713895936,
+      "min": 559271936,
+      "max": 737239040
+    },
+    "HandleCount": {
+      "first": 576,
+      "last": 672,
+      "min": 576,
+      "max": 674
+    },
+    "TreeProcessCount": {
+      "first": 7,
+      "last": 7,
+      "min": 7,
+      "max": 7
+    }
+  },
+  "memoryScope": "root process plus currently alive descendants from one Windows process snapshot; not a leak proof",
+  "limitations": "Root 1GiB guard and observed samples passed; no leak-free or universal memory acceptance claim. Concurrent isolated x64/x86 instances share the host and Docker origin."
+}

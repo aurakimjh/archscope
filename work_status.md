@@ -1150,7 +1150,7 @@ validation receipts; the independent/native acceptance gates remain separate.
 | Order | Finding | Priority | Status | Action / acceptance |
 |---:|---|---|---|---|
 | 1 | WR-01 | P2 | WINDOWS_VERIFIED_SCOPED | First-delimiter query slicing preserves nested `?`, encoding and fragment boundaries. Mac HAR proof is supplemented by actual Windows x64/x86 live retained-URL fallback: four confirmed200requests per app, empty separate query, exact Path filter/ascending-descending sort/Query/Raw.386 additionally checks repeated `?` and encoded duplicate keys.15selected native PASS and both4row export ID/selection/URL readbacks; frontend/build, full app and24capture packages on each arch pass. Full reference/locale/DPI acceptance remains separate. |
-| 2 | WR-02 | P2 | WINDOWS_VERIFIED_SCOPED | Shared schema4 predicates now also pass28success/failure tests on Windows. Fresh production x64/x86 runs last130.382/130.566seconds with468/464captured=persisted, zero drops,6checkpoints and2pauses each. Both stop finalized, save/open128rows, match received comparison of transaction fields other than starred/comment plus selection after host/query normalization, with native final screens. Star/comment equality is not established by that comparator (WREV-01). Owned apps/origin cleanup is recorded. This is short revised-runner integration, not a new2hour/leak or native disk-fault verdict;10minute Clear not exercised. Historical receipts and independent re-review remain separate. |
+| 2 | WR-02 | P2 | WINDOWS_VERIFIED_SCOPED | Revised production Windows x64/x86 long runs pass7201.013/7200.576seconds,24984/24972total requests,241checkpoints each,11timed Clear resets/refills and119pauses each. All quiescent captures=persisted/zero drops; finalized final-generation2080/2076,128saved/opened rows each and native selected Raw200 screens match. Long-run wrapper invokes maintained comparison policy1.0.0 including authoritative annotation sidecar/defaults;41predicate and23comparison tests pass on Windows. Owned apps/origin cleaned up. Earlier130second receipts retain their WREV-01 annotation exclusion; no retrospective upgrade. No leak-free/native disk-fault/full-product verdict. |
 
 Received Windows evidence was reviewed locally at `e113eadc`: both artifact
 inventories match (24query/42combined entries), seven source paths match the
@@ -1163,12 +1163,17 @@ document remains pending for a different AI.
 
 | Order | Evidence follow-up under T-613 | Priority | Status | Action / acceptance |
 |---:|---|---|---|---|
-| 1 | WREV-01 | P3 | LOCALLY_VERIFIED | Maintained verify_p2_windows_readback.py now compares every transaction field under an explicit schema2 policy: expected host/query normalization, authoritative annotations.json by ID and false/empty missing defaults. Changed/missing star/comment, invalid types and borrowed notes fail. New precise flags replace the broad legacy claim.23Python regressions pass on Mac/Docker and two existing Go annotation/export tests pass; CI wired. Original received bytes/old flags stay unchanged. Native private-file schema2 rerun and independent review remain separate; no product annotation-loss defect is claimed. |
+| 1 | WREV-01 | P3 | LOCALLY_VERIFIED | Maintained verify_p2_windows_readback.py compares every transaction field under an explicit schema2 policy: expected host/query, authoritative annotations.json by ID and false/empty defaults. Changed/missing notes, invalid types and borrowed notes fail.23Python regressions pass on Mac/Docker/Windows and existing Go annotation/export tests pass; CI wired. New Windows long-run files pass its comparison core with sidecar/default annotations. Original received bytes/old flags stay unchanged; their short-run private-file schema2 rerun and independent review remain separate. No product annotation-loss defect is claimed. |
 
-Remaining Windows acceptance includes revised-runner long duration with the
-10-minute Clear path, native failure/retry scenarios and existing reference/
-locale/DPI/vendor/driver/service gates. The130-second evidence does not close
-those scopes; T-613 PENDING/T-627 REVIEW and numbered-task counts stay unchanged.
+Revised-runner long duration and the10-minute Clear path are now verified on
+Windows x64/x86 with an isolated shared Docker origin. Source324a8d97 app binaries
+are unchanged; runner1b30244b adds explicit empty-generation/reset/refill checks.
+New long-run private-file comparison includes WREV-01's maintained policy and
+actual sidecar/default annotations; no nonempty annotation editing occurs in this
+fixture and the older short-run schema2 recheck remains separate. Native
+failure/retry and existing reference/locale/DPI/vendor/driver/service and memory
+acceptance remain; T-613 PENDING/T-627 REVIEW and task counts stay unchanged.
+Long-run receipt: `docs/review/evidence/2026-11-14-wr02-long-windows/README.md`.
 Review receipt: `docs/review/evidence/2026-11-14-p2-windows-review/local.json`.
 
 Host targeted Go tests/vet, frontend state/build and deterministic resource checks
@@ -1181,9 +1186,9 @@ common-engine race soak, Docker offline observer and Linux capture package tests
 are recorded in the remediation receipt. Windows x64/x86 GUI cross-builds pass.
 An initial256MiB Docker tmpfs correctly tripped the512MiB reserve; the same tests
 pass with1GiB without policy changes. Those Mac/Linux receipts make no Windows
-runtime claim; later scoped Windows live WR-01 and short schema4 WR-02 results
-are recorded in the rows above and in
-`docs/review/evidence/2026-11-14-p2-windows/README.md`.
+runtime claim; the earlier scoped Windows live WR-01 and short schema4 WR-02
+results are in `docs/review/evidence/2026-11-14-p2-windows/README.md`. The new
+two-hour WR-02 follow-up is recorded above with its separate long-run receipt.
 Full acceptance and independent re-review remain separate. Review:
 [`2026-11-14_codex_windows-pull-review.ko.md`](docs/review/2026-11-14_codex_windows-pull-review.ko.md).
 Receipt: `docs/review/evidence/2026-11-14-windows-pull-review/local.json`.

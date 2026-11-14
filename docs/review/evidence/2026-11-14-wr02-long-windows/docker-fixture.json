@@ -1,0 +1,24 @@
+{
+  "fixtureImageID": "sha256:6f277eab1780718568b81482da41897a9444d912c69d82371166083c17f68e39",
+  "ownershipLabel": "archscope.acceptance=wr02-long-20261114",
+  "portBindings": {
+    "8000/tcp": [
+      {
+        "HostIp": "127.0.0.1",
+        "HostPort": "11511"
+      }
+    ]
+  },
+  "autoRemove": true,
+  "origin": "http://127.0.0.1:11511/",
+  "fixtureSource": "scripts/acceptance/layout/soak-origin.py",
+  "entrypoint": [
+    "python"
+  ],
+  "command": [
+    "/fixture.py"
+  ],
+  "sharedOnlySyntheticOrigin": true,
+  "concurrentIsolatedDesktopInstances": 2,
+  "preExistingDockerContainerCount": 7
+}

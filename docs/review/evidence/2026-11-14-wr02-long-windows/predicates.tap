@@ -1,0 +1,256 @@
+TAP version 13
+# Subtest: Clear proves reset and four exact new URLs while stripping private session ID
+ok 1 - Clear proves reset and four exact new URLs while stripping private session ID
+  ---
+  duration_ms: 2.3271
+  type: 'test'
+  ...
+# Subtest: Clear rejects lost writes or incomplete reset before refilling: {"before":{"dropped":1}}
+ok 2 - Clear rejects lost writes or incomplete reset before refilling: {"before":{"dropped":1}}
+  ---
+  duration_ms: 0.3293
+  type: 'test'
+  ...
+# Subtest: Clear rejects lost writes or incomplete reset before refilling: {"before":{"generation":-1}}
+ok 3 - Clear rejects lost writes or incomplete reset before refilling: {"before":{"generation":-1}}
+  ---
+  duration_ms: 0.13
+  type: 'test'
+  ...
+# Subtest: Clear rejects lost writes or incomplete reset before refilling: {"failCommand":"clear"}
+ok 4 - Clear rejects lost writes or incomplete reset before refilling: {"failCommand":"clear"}
+  ---
+  duration_ms: 0.2426
+  type: 'test'
+  ...
+# Subtest: Clear rejects lost writes or incomplete reset before refilling: {"empty":{"generation":3}}
+ok 5 - Clear rejects lost writes or incomplete reset before refilling: {"empty":{"generation":3}}
+  ---
+  duration_ms: 0.1646
+  type: 'test'
+  ...
+# Subtest: Clear rejects lost writes or incomplete reset before refilling: {"empty":{"captured":2,"persisted":2}}
+ok 6 - Clear rejects lost writes or incomplete reset before refilling: {"empty":{"captured":2,"persisted":2}}
+  ---
+  duration_ms: 0.1522
+  type: 'test'
+  ...
+# Subtest: Clear rejects lost writes or incomplete reset before refilling: {"empty":{"retained":1}}
+ok 7 - Clear rejects lost writes or incomplete reset before refilling: {"empty":{"retained":1}}
+  ---
+  duration_ms: 0.1953
+  type: 'test'
+  ...
+# Subtest: Clear rejects lost writes or incomplete reset before refilling: {"emptyPage":{"total":1,"items":[{}]}}
+ok 8 - Clear rejects lost writes or incomplete reset before refilling: {"emptyPage":{"total":1,"items":[{}]}}
+  ---
+  duration_ms: 0.1313
+  type: 'test'
+  ...
+# Subtest: Clear rejects failed or stale refill: {"refilled":{"state":"recoverable"}}
+ok 9 - Clear rejects failed or stale refill: {"refilled":{"state":"recoverable"}}
+  ---
+  duration_ms: 0.4858
+  type: 'test'
+  ...
+# Subtest: Clear rejects failed or stale refill: {"refilled":{"generation":3}}
+ok 10 - Clear rejects failed or stale refill: {"refilled":{"generation":3}}
+  ---
+  duration_ms: 0.4454
+  type: 'test'
+  ...
+# Subtest: Clear rejects failed or stale refill: {"refilled":{"captured":3,"persisted":3}}
+ok 11 - Clear rejects failed or stale refill: {"refilled":{"captured":3,"persisted":3}}
+  ---
+  duration_ms: 0.2235
+  type: 'test'
+  ...
+# Subtest: Clear rejects failed or stale refill: {"resumedPage":{"total":3}}
+ok 12 - Clear rejects failed or stale refill: {"resumedPage":{"total":3}}
+  ---
+  duration_ms: 0.1384
+  type: 'test'
+  ...
+# Subtest: Clear rejects failed or stale refill: {"resumedPage":{"items":[{"transaction":{"url":"http://127.0.0.1/stale"}},{},{},{}]}}
+ok 13 - Clear rejects failed or stale refill: {"resumedPage":{"items":[{"transaction":{"url":"http://127.0.0.1/stale"}},{},{},{}]}}
+  ---
+  duration_ms: 0.121
+  type: 'test'
+  ...
+# Subtest: a running quiescent capture passes without exposing or changing counters
+ok 14 - a running quiescent capture passes without exposing or changing counters
+  ---
+  duration_ms: 0.1197
+  type: 'test'
+  ...
+# Subtest: in-flight persistence may drain within the bounded polling window
+ok 15 - in-flight persistence may drain within the bounded polling window
+  ---
+  duration_ms: 0.1892
+  type: 'test'
+  ...
+# Subtest: a persistent mismatch fails at the deadline without an unbounded loop
+ok 16 - a persistent mismatch fails at the deadline without an unbounded loop
+  ---
+  duration_ms: 0.6134
+  type: 'test'
+  ...
+# Subtest: checkpoint refuses recoverable even with equal counters and zero drops
+ok 17 - checkpoint refuses recoverable even with equal counters and zero drops
+  ---
+  duration_ms: 0.1524
+  type: 'test'
+  ...
+# Subtest: checkpoint refuses failed even with equal counters and zero drops
+ok 18 - checkpoint refuses failed even with equal counters and zero drops
+  ---
+  duration_ms: 0.09
+  type: 'test'
+  ...
+# Subtest: checkpoint refuses paused even with equal counters and zero drops
+ok 19 - checkpoint refuses paused even with equal counters and zero drops
+  ---
+  duration_ms: 0.0753
+  type: 'test'
+  ...
+# Subtest: checkpoint refuses finalized even with equal counters and zero drops
+ok 20 - checkpoint refuses finalized even with equal counters and zero drops
+  ---
+  duration_ms: 0.0749
+  type: 'test'
+  ...
+# Subtest: checkpoint refuses undefined even with equal counters and zero drops
+ok 21 - checkpoint refuses undefined even with equal counters and zero drops
+  ---
+  duration_ms: 0.0946
+  type: 'test'
+  ...
+# Subtest: checkpoint refuses invalid/lost counters {"dropped":1}
+ok 22 - checkpoint refuses invalid/lost counters {"dropped":1}
+  ---
+  duration_ms: 0.1455
+  type: 'test'
+  ...
+# Subtest: checkpoint refuses invalid/lost counters {"persisted":3}
+ok 23 - checkpoint refuses invalid/lost counters {"persisted":3}
+  ---
+  duration_ms: 0.0774
+  type: 'test'
+  ...
+# Subtest: checkpoint refuses invalid/lost counters {"captured":null}
+ok 24 - checkpoint refuses invalid/lost counters {"captured":null}
+  ---
+  duration_ms: 0.0848
+  type: 'test'
+  ...
+# Subtest: checkpoint refuses invalid/lost counters {"persisted":-1}
+ok 25 - checkpoint refuses invalid/lost counters {"persisted":-1}
+  ---
+  duration_ms: 0.0786
+  type: 'test'
+  ...
+# Subtest: checkpoint refuses invalid/lost counters {"captured":"2"}
+ok 26 - checkpoint refuses invalid/lost counters {"captured":"2"}
+  ---
+  duration_ms: 0.0821
+  type: 'test'
+  ...
+# Subtest: finalization uses explicit session, post-stop counters and exact saved bytes
+ok 27 - finalization uses explicit session, post-stop counters and exact saved bytes
+  ---
+  duration_ms: 1.5587
+  type: 'test'
+  ...
+# Subtest: finalization refuses recoverable stop before any export
+ok 28 - finalization refuses recoverable stop before any export
+  ---
+  duration_ms: 0.2007
+  type: 'test'
+  ...
+# Subtest: finalization refuses failed stop before any export
+ok 29 - finalization refuses failed stop before any export
+  ---
+  duration_ms: 0.3906
+  type: 'test'
+  ...
+# Subtest: finalization refuses undefined stop before any export
+ok 30 - finalization refuses undefined stop before any export
+  ---
+  duration_ms: 0.2121
+  type: 'test'
+  ...
+# Subtest: finalization refuses bad authoritative counters {"captured":2,"persisted":1}
+ok 31 - finalization refuses bad authoritative counters {"captured":2,"persisted":1}
+  ---
+  duration_ms: 0.2169
+  type: 'test'
+  ...
+# Subtest: finalization refuses bad authoritative counters {"state":"recoverable"}
+ok 32 - finalization refuses bad authoritative counters {"state":"recoverable"}
+  ---
+  duration_ms: 0.1289
+  type: 'test'
+  ...
+# Subtest: finalization refuses bad authoritative counters {"state":"failed"}
+ok 33 - finalization refuses bad authoritative counters {"state":"failed"}
+  ---
+  duration_ms: 0.1852
+  type: 'test'
+  ...
+# Subtest: finalization refuses bad authoritative counters {"dropped":1}
+ok 34 - finalization refuses bad authoritative counters {"dropped":1}
+  ---
+  duration_ms: 0.1209
+  type: 'test'
+  ...
+# Subtest: stop failure cannot yield a successful final result
+ok 35 - stop failure cannot yield a successful final result
+  ---
+  duration_ms: 0.352
+  type: 'test'
+  ...
+# Subtest: stats failure cannot yield a successful final result
+ok 36 - stats failure cannot yield a successful final result
+  ---
+  duration_ms: 0.1487
+  type: 'test'
+  ...
+# Subtest: save failure cannot yield a successful final result
+ok 37 - save failure cannot yield a successful final result
+  ---
+  duration_ms: 0.1403
+  type: 'test'
+  ...
+# Subtest: open failure cannot yield a successful final result
+ok 38 - open failure cannot yield a successful final result
+  ---
+  duration_ms: 0.1472
+  type: 'test'
+  ...
+# Subtest: incomplete saved snapshot/selection is refused {"savedRows":[]}
+ok 39 - incomplete saved snapshot/selection is refused {"savedRows":[]}
+  ---
+  duration_ms: 0.1704
+  type: 'test'
+  ...
+# Subtest: incomplete saved snapshot/selection is refused {"savedRows":[{"id":"wrong"}]}
+ok 40 - incomplete saved snapshot/selection is refused {"savedRows":[{"id":"wrong"}]}
+  ---
+  duration_ms: 0.1227
+  type: 'test'
+  ...
+# Subtest: incomplete saved snapshot/selection is refused {"selectedId":"wrong"}
+ok 41 - incomplete saved snapshot/selection is refused {"selectedId":"wrong"}
+  ---
+  duration_ms: 0.1209
+  type: 'test'
+  ...
+1..41
+# tests 41
+# suites 0
+# pass 41
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 195.8991

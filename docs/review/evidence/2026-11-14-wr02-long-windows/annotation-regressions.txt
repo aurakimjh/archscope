@@ -1,0 +1,28 @@
+test_annotation_types_do_not_coerce_bool_int_null_or_strings (test_p2_windows_readback.ComparisonTests) ... ok
+test_changed_note_is_rejected (test_p2_windows_readback.ComparisonTests) ... ok
+test_changed_star_is_rejected (test_p2_windows_readback.ComparisonTests) ... ok
+test_exact_star_and_unicode_note_match_sidecar (test_p2_windows_readback.ComparisonTests) ... ok
+test_explicit_clear_overrides_inline_annotation (test_p2_windows_readback.ComparisonTests) ... ok
+test_host_and_query_are_checked_in_export_not_overwritten (test_p2_windows_readback.ComparisonTests) ... ok
+test_identity_set_duplicates_and_missing_selection_are_rejected (test_p2_windows_readback.ComparisonTests) ... ok
+test_input_objects_are_unchanged (test_p2_windows_readback.ComparisonTests) ... ok
+test_live_inline_annotations_are_replaced_by_absent_sidecar_defaults (test_p2_windows_readback.ComparisonTests) ... ok
+test_missing_and_explicit_zero_values_are_equivalent (test_p2_windows_readback.ComparisonTests) ... ok
+test_missing_nondefault_annotation_is_rejected (test_p2_windows_readback.ComparisonTests) ... ok
+test_nested_query_encoding_and_duplicate_keys_remain_exact (test_p2_windows_readback.ComparisonTests) ... ok
+test_policy_states_defaults_and_no_excluded_fields_without_legacy_flag (test_p2_windows_readback.ComparisonTests) ... ok
+test_reordering_never_transfers_annotation_to_another_id (test_p2_windows_readback.ComparisonTests) ... ok
+test_unrelated_and_future_transaction_fields_are_not_excluded (test_p2_windows_readback.ComparisonTests) ... ok
+test_valid_orphan_annotation_does_not_attach_to_retained_rows (test_p2_windows_readback.ComparisonTests) ... ok
+test_cli_annotation_corruption_fails_without_publishing_even_under_optimization (test_p2_windows_readback.FileAndCLITests) ... ok
+test_existing_evidence_report_is_never_overwritten (test_p2_windows_readback.FileAndCLITests) ... ok
+test_invalid_sidecar_cannot_fall_back_to_no_annotations (test_p2_windows_readback.FileAndCLITests) ... ok
+test_private_store_must_belong_to_isolated_run (test_p2_windows_readback.FileAndCLITests) ... ok
+test_query_cli_reads_sidecar_and_publishes_precise_public_report (test_p2_windows_readback.FileAndCLITests) ... ok
+test_soak_file_integration_preserves_exact_annotation (test_p2_windows_readback.FileAndCLITests) ... ok
+test_unannotated_missing_sidecar_and_omitempty_fields_pass (test_p2_windows_readback.FileAndCLITests) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 3.510s
+
+OK
