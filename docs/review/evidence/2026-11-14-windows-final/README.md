@@ -559,3 +559,33 @@ now name interval, TopN and profile kind; final native EN/KO trees verify them.
 State/build pass; guarded native amd64/386 builds pass at
 6b3cf283-plus-settings-labels. No separate save-cancel UI, storage-failure,
 pack-install/rollback or full theme/locale/DPI matrix closure is inferred.
+
+## T-613 body-enabled production memory screening (Windows x86)
+
+Predeclared body-memory-protocol.json before launch. Maintained harness now accepts
+explicit --capture-bodies true|false (default false unchanged). True requires
+actual sec10_verified and262144B capability, sends the owned Docker /large
+300020B response, validates the first/last retained body each cycle, and never
+bypasses preflight. Production binary5ecff72f…/build40188233; later frontend-only
+changes are not retroactively included in this run's pin.
+
+2470.27s run:120s baseline,2warmup+8measuredcycles×512requests=5120,each cycle
+Clear→4exactrefill→508requests→180sidle; final Stop/save/open→300sidle. Retention
+128/eviction384 each cycle. No forced GC, cache trimming or post-hoc budget change.
+Independent Python recomputes all8settled samples'3-point median deltas and
+Theil-Sen slopes: process tree +16478208B/3013632B percycle; root -499712B/
+153600B percycle; handles0/0; threads-1/0. All fixed budgets pass:
+BOUNDED_IN_THIS_RUN. Shared host with other native checks; finite workload, not
+zero growth, universal leak freedom, exclusive-resource or amd64 body evidence.
+
+Independent saved-file readback checks all128rows/generation10/HTTP200,selectedID
+membership and exact262144B prefixes of300020B responses. Sequence IDs are
+zero-based4992..5119; initial verifier's one-based expectation was a harness
+assertion correction, not missing traffic. Saved artifact34,001,747B remains
+private. It is controller raw-session output, not the separate UI-redacted export
+policy test. Final native app shows512captured/persisted,128/384,correct selected
+Raw200,256KiBretained/293KiBwire and explicit truncation notice. Desktop alive at
+end. Per-cycle first/last body checks plus final all128 checks pass. Public result
+contains ordinal process samples only; tokens/controller/raw stores stay private.
+Evidence: body-memory-386-result.json,body-memory-independent.json and native
+body-memory-final-* receipts. T-613 remains PENDING for full outstanding scope.

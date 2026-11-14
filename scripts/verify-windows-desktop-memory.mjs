@@ -10,15 +10,17 @@ import { waitForCapturePersistence,clearDesktopCapture,finalizeDesktopCapture } 
 import { assessMemoryPlateau,memoryPlateauPolicy } from './lib/desktop-memory-checks.mjs';
 
 const args={};
-for(let i=2;i<process.argv.length;i+=2){if(!['--exe','--out','--origin'].includes(process.argv[i])||!process.argv[i+1])throw Error('invalid memory run option');args[process.argv[i].slice(2)]=process.argv[i+1];}
+for(let i=2;i<process.argv.length;i+=2){if(!['--exe','--out','--origin','--capture-bodies'].includes(process.argv[i])||!process.argv[i+1])throw Error('invalid memory run option');args[process.argv[i].slice(2)]=process.argv[i+1];}
+if(args['capture-bodies']!==undefined&&!['true','false'].includes(args['capture-bodies']))throw Error('capture-bodies must be true or false');
+const captureBodies=args['capture-bodies']==='true',workloadPath=captureBodies?'large':'soak';
 if(process.platform!=='win32')throw Error('native Windows required');
 const exe=path.resolve(args.exe),out=path.resolve(args.out),origin=new URL(args.origin);
 if(origin.protocol!=='http:'||origin.hostname!=='127.0.0.1'||origin.pathname!=='/'||origin.search||origin.hash||origin.username||origin.password)throw Error('loopback-only synthetic origin required');
 await mkdir(out,{recursive:false});
 const descriptorPath=path.join(out,'.private-controller.json'),begin=performance.now();
-const report={schemaVersion:1,scope:'Windows production explicit-proxy HTTP, bodies disabled; fixed repeated load and matched idle; not universal leak-free acceptance',
+const report={schemaVersion:1,scope:`Windows production explicit-proxy HTTP, bodies ${captureBodies?'enabled with actual SEC10 gate':'disabled'}; fixed repeated load and matched idle; not universal leak-free acceptance`,
   binarySha256:createHash('sha256').update(await readFile(exe)).digest('hex'),passed:false,functionalPassed:false,
-  protocol:{baselineIdleSeconds:120,warmupCycles:2,measuredCycles:8,requestsPerCycle:512,idleSeconds:180,finalizedIdleSeconds:300,sampleIntervalSeconds:15},
+  protocol:{baselineIdleSeconds:120,warmupCycles:2,measuredCycles:8,requestsPerCycle:512,idleSeconds:180,finalizedIdleSeconds:300,sampleIntervalSeconds:15,captureBodies,workloadPath,...(captureBodies?{wireBodyBytes:300020,retainedBodyBytes:262144}:{})},
   screeningPolicy:memoryPlateauPolicy,requests:0,cycles:[],samples:[],nativeUIObservations:'record separately; no UI correctness inferred from counters'};
 let child,descriptor,session,command=0,rootStartTime='',phase='launch',logBytes=0;
 const identities=new Map(),delay=ms=>new Promise(r=>setTimeout(r,ms));
@@ -27,11 +29,11 @@ const controller=async(name,params={})=>{
   const result=await response.json();if(response.status!==200||!result.ok)throw Error(`controller ${name} failed`);return result.result;
 };
 const send=index=>new Promise((resolve,reject)=>{
-  const req=http.get({host:'127.0.0.1',port:Number(session.listenAddress.split(':').at(-1)),path:`${origin}soak?sequence=${index}`,headers:{Host:origin.host},agent:false,timeout:10000},res=>{
-    const chunks=[];res.on('data',c=>chunks.push(c));res.on('error',reject);res.on('end',()=>{try{if(res.statusCode!==200||JSON.parse(Buffer.concat(chunks)).marker!=='desktop-soak-origin')throw Error('origin mismatch');resolve();}catch(e){reject(e);}});
+  const req=http.get({host:'127.0.0.1',port:Number(session.listenAddress.split(':').at(-1)),path:`${origin}${workloadPath}?sequence=${index}`,headers:{Host:origin.host},agent:false,timeout:10000},res=>{
+    const chunks=[];res.on('data',c=>chunks.push(c));res.on('error',reject);res.on('end',()=>{try{const body=Buffer.concat(chunks);if(res.statusCode!==200||(captureBodies?body.length!==300020||!body.subarray(0,20).equals(Buffer.from('capture-body-prefix:')):JSON.parse(body).marker!=='desktop-soak-origin'))throw Error('origin mismatch');resolve();}catch(e){reject(e);}});
   });req.on('error',reject);req.on('timeout',()=>req.destroy(Error('origin timeout')));
 });
-async function traffic(count){const urls=[];for(let i=0;i<count;i++){urls.push(`${origin}soak?sequence=${report.requests}`);await send(report.requests);report.requests++;if(i%4===3)await delay(25);}return urls;}
+async function traffic(count){const urls=[];for(let i=0;i<count;i++){urls.push(`${origin}${workloadPath}?sequence=${report.requests}`);await send(report.requests);report.requests++;if(i%4===3)await delay(25);}return urls;}
 async function publish(){report.elapsedSeconds=(performance.now()-begin)/1000;report.phase=phase;await writeFile(path.join(out,'progress.json'),JSON.stringify(report,null,2));}
 async function sample(label){
   if(child.exitCode!==null||child.signalCode!==null)throw Error('owned desktop exited');
@@ -54,6 +56,12 @@ async function retained(){
   const rows=[];let cursor;
   do{const page=await controller('list',{sessionId:session.sessionId,limit:100,...(cursor?{cursor}:{})});rows.push(...page.items);cursor=page.nextCursor;}while(cursor&&rows.length<=128);
   if(rows.length!==128||rows.some(x=>new URL(x.transaction.url).origin!==origin.origin||x.transaction.process?.key.pid!==process.pid||x.transaction.process?.attribution!=='confirmed'||x.transaction.statusCode!==200||x.transaction.state!=='complete'))throw Error('retained identity/status bound mismatch');
+  if(captureBodies){
+    for(const item of [rows[0],rows.at(-1)]){
+      const detail=await controller('detail',{sessionId:session.sessionId,id:item.transaction.id}),tx=detail.transaction??detail;
+      if(tx.response?.bodyStorage!=='truncated'||tx.response.bodySize!==300020||Buffer.byteLength(tx.response.bodyPreview??'')!==262144||!tx.response.bodyPreview.startsWith('capture-body-prefix:'))throw Error('retained body prefix/storage bound mismatch');
+    }
+  }
   return rows;
 }
 try{
@@ -63,10 +71,15 @@ try{
   for(let i=0;i<120;i++){if(launchError)throw launchError;if(child.exitCode!==null)throw Error('desktop exited before readiness');try{descriptor=JSON.parse(await readFile(descriptorPath));break;}catch{}await delay(250);}
   if(descriptor?.pid!==child.pid||descriptor?.schemaVersion!==1||!/^[a-f0-9]{64}$/.test(descriptor.token))throw Error('invalid owned descriptor');
   const endpoint=new URL(descriptor.url);if(endpoint.protocol!=='http:'||endpoint.hostname!=='127.0.0.1'||endpoint.pathname!=='/v1/control'||endpoint.username||endpoint.password||endpoint.search||endpoint.hash)throw Error('invalid controller endpoint');
-  await delay(15000);report.buildCommit=(await controller('capabilities')).buildCommit;
+  await delay(15000);const capabilities=await controller('capabilities');report.buildCommit=capabilities.buildCommit;
+  if(captureBodies){
+    report.bodyGate={available:capabilities.contract?.bodyCaptureAvailable,gate:capabilities.contract?.bodyCaptureGate,maxBodyBytes:capabilities.contract?.maxBodyBytes};
+    if(!report.bodyGate.available||report.bodyGate.gate!=='sec10_verified'||report.bodyGate.maxBodyBytes!==262144)throw Error('actual body capture preflight unavailable; no bypass');
+  }
   const own=(await controller('processes')).find(p=>p.key.pid===process.pid&&p.key.startTime);if(!own)throw Error('producer identity unavailable');
   await controller('attach',{processes:[own.key]});
-  session=await controller('start',{listenAddress:'127.0.0.1:0',captureBodies:false,retentionRows:128,liveWindow:128});
+  session=await controller('start',{listenAddress:'127.0.0.1:0',captureBodies,retentionRows:128,liveWindow:128});
+  if(captureBodies&&session.bodyCaptureGate!=='sec10_verified')throw Error('session body gate mismatch');
   await writeFile(path.join(out,'.private-session.json'),JSON.stringify(session));
   await idle(120,'baseline-running-idle');
   for(let cycle=1;cycle<=10;cycle++){

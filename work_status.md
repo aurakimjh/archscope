@@ -5736,3 +5736,14 @@ accessible input labels fixed and native EN/KO verified. State/build and guarded
 amd64/386 native builds pass. Existing pack/trust registry preserved; full pack
 lifecycle/locale/DPI matrix separate. T-627 REVIEW.
 Evidence: 2026-11-14-windows-final/settings-*.jpg/.txt.
+
+### 2026-11-15 - T-613 body-enabled x86 finite memory screening
+
+Actual SEC10verified production app;10×512largebodyrequests,Clear/refill every
+cycle,2warmups/8matched180sidles,finalsave/open300sidle.2470.27s passes fixed
+budgets: tree delta15.7148MiB/slope2.8740MiBcycle;rootdelta-0.4766MiB;handles0.
+Independent Python rechecks counters,medians/slopes and all128saved262144Bprefixes
+of300020Bresponses. Native final Raw/Body/truncation/liveness pass. Add explicit
+body mode to maintained harness; default false unchanged. Not universal leak
+freedom or amd64body/fullT613closure; T-613PENDING. Pin40188233/5ecff72f….
+Evidence:2026-11-14-windows-final/body-memory-independent.json.

@@ -1,0 +1,21 @@
+{
+  "binarySHA256": "5ecff72fb9ce72bc9b07c97addc79de77563e5bd4d122a2c4969ad1001b37289",
+  "policy": "scripts/lib/desktop-memory-checks.mjs unchanged: tree64MiB/4MiBcycle;root16MiB/1MiBcycle;handles24/2cycle;threads4/0.5cycle",
+  "resetBudgets": false,
+  "retainedBodyBytes": 262144,
+  "qualification": "No universal leak-free verdict; fails retained body mismatch, lost writes, process identity mismatch or unchanged memory budget",
+  "harnessSHA256": "0a068b3ae615e8cb59769604eb391e3b006ab72688881cf8efb2d787045daf22",
+  "retentionRows": 128,
+  "baselineIdleSeconds": 120,
+  "sampleIntervalSeconds": 15,
+  "requestsPerCycle": 512,
+  "declaredAt": "2026-11-14T16:45:20.2585086Z",
+  "schemaVersion": 1,
+  "wireBodyBytes": 300020,
+  "warmupCycles": 2,
+  "forceGC": false,
+  "scope": "Windows386 production explicit proxy, owned Docker /large responses; actual sec10_verified required, no bypass; finite matched-load screen",
+  "measuredCycles": 8,
+  "finalizedIdleSeconds": 300,
+  "idleSeconds": 180
+}

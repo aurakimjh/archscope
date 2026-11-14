@@ -1,0 +1,74 @@
+{
+  "passed": true,
+  "classification": "BOUNDED_IN_THIS_RUN",
+  "elapsedSeconds": 2470.2734113999995,
+  "binarySha256": "5ecff72fb9ce72bc9b07c97addc79de77563e5bd4d122a2c4969ad1001b37289",
+  "buildCommit": "401882332bd3bab37bd69947694862f12e163a09",
+  "independentMetrics": {
+    "treePrivateBytes": {
+      "values": [
+        392957952,
+        397238272,
+        398606336,
+        402567168,
+        403668992,
+        413716480,
+        404082688,
+        418627584
+      ],
+      "delta": 16478208,
+      "slopePerCycle": 3013632.0
+    },
+    "rootPrivateBytes": {
+      "values": [
+        69885952,
+        72912896,
+        71585792,
+        70623232,
+        70873088,
+        71086080,
+        70991872,
+        71536640
+      ],
+      "delta": -499712,
+      "slopePerCycle": 153600.0
+    },
+    "rootHandles": {
+      "values": [
+        705,
+        709,
+        705,
+        705,
+        705,
+        705,
+        705,
+        705
+      ],
+      "delta": 0,
+      "slopePerCycle": 0.0
+    },
+    "rootThreads": {
+      "values": [
+        37,
+        38,
+        36,
+        36,
+        37,
+        36,
+        36,
+        37
+      ],
+      "delta": -1,
+      "slopePerCycle": 0.0
+    }
+  },
+  "savedRows": 128,
+  "allBodyPrefixesExact": true,
+  "retainedBodyBytesEach": 262144,
+  "wireBodyBytesEach": 300020,
+  "savedScope": "all",
+  "selectedIdBelongsToSavedRows": true,
+  "bodyPrefixSha256": "3e6573e28e5425c1a3606dc03a01720065caf24bd5860503ddc0396212fbd094",
+  "savedSessionSha256": "9830a37c48fe1b602dd8da760610144180d0638be2c875ca1245455119ff6031",
+  "note": "Controller raw session artifact is not relabeled as the UI redacted-export/policy test. Finite scoped memory screening; other tests share the host; not universal leak freedom."
+}
