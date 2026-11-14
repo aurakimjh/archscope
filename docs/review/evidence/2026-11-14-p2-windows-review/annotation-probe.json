@@ -1,0 +1,8 @@
+{
+  "scope": "Received comparison function only; no product failure injected",
+  "differentAnnotationValuesCompareEqual": true,
+  "excludedFields": [
+    "comment",
+    "starred"
+  ]
+}

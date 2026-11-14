@@ -93,3 +93,39 @@ The archived2026-11-13 two-hour runner predates the4-request final seed and
 referenced-child change. Its actual source is preserved with the evidence. Empty
 boundary saves, if any, must be disclosed and supplemented by a separate
 nonempty round-trip; never present empty readback as populated coverage.
+
+## P2 private store/export readback
+
+Use the maintained verifier for the four-request nested-query run or the
+130-second schema4 smoke. Run on the host owning the isolated private store:
+
+```powershell
+python scripts/acceptance/layout/verify_p2_windows_readback.py --run-dir .tmp/p2-windows-20261114/query-amd64 --kind query --arch amd64 --report .tmp/query-amd64-readback-v2.json
+python scripts/acceptance/layout/verify_p2_windows_readback.py --run-dir .tmp/p2-windows-20261114/soak-386 --kind soak --arch 386 --report .tmp/soak-386-readback-v2.json
+```
+
+This reads existing private files without running the app or altering its store.
+The schema2 report uses `allTransactionFieldsMatchDeclaredPolicy` and
+`annotationsMatch`, with a versioned comparison policy and no excluded fields.
+Expected host/query derive from the source retained URL; the exported values
+must match, rather than being silently overwritten during comparison.
+Live-session `annotations.json` is authoritative by transaction ID, replacing
+inline starred/comment even when the sidecar entry is absent. Missing annotation
+fields mean false/empty, matching Go zero values/omitempty. Invalid types, changed
+star/comment and notes transferred to another ID fail. Unknown transaction fields
+are compared too. Export-request annotation overrides and arbitrary additional
+sanitization transformations are outside this fixture's declared scope.
+
+The report contains counts, hashes and policy, without private IDs or comment
+values. Failures publish no success report; an existing report is never
+overwritten. Archive this maintained script's exact bytes with new native
+receipts. Older `readback-verifier-used.py` files are immutable historical
+snapshots with their original exclusions; their booleans do not gain annotation
+coverage from this fix. Re-running the new checker against those private stores
+is separate evidence, not a retrospective change to the old receipt.
+
+Portable synthetic regressions (no Windows UI execution):
+
+```sh
+python3 -B -m unittest discover -s scripts/acceptance/layout -p test_p2_windows_readback.py -v
+```
