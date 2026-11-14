@@ -8,7 +8,7 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-// Windows readers can briefly deny delete sharing while a manifest is read.
+// Windows readers can briefly deny delete sharing while capture files are read.
 // Retain atomic replacement and its old destination; never delete it first.
 func renameCaptureFile(source, destination string) error {
 	deadline := time.Now().Add(time.Second)

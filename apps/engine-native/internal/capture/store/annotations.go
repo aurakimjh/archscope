@@ -60,5 +60,5 @@ func WriteAnnotations(dir string, values map[string]models.HTTPAnnotation) error
 	if err = file.Close(); err != nil {
 		return err
 	}
-	return os.Rename(file.Name(), filepath.Join(dir, annotationFile))
+	return renameCaptureFile(file.Name(), filepath.Join(dir, annotationFile))
 }
