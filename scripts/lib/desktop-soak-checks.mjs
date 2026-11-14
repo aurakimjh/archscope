@@ -23,6 +23,33 @@ export async function waitForCapturePersistence(readStats, {
   }
 }
 
+// The producer is quiescent across Clear; a successful command alone does not
+// establish that old rows/counters disappeared or that capture can resume.
+export async function clearDesktopCapture(control, sessionId, refill) {
+  const stats = () => control('stats', { sessionId });
+  const before = await waitForCapturePersistence(stats);
+  if (!Number.isSafeInteger(before.generation) || before.generation < 0) throw Error('invalid pre-clear generation');
+  await control('clear', { sessionId });
+  const empty = await waitForCapturePersistence(stats);
+  const page = await control('list', { sessionId, limit: 100 });
+  if (empty.generation !== before.generation + 1 || empty.captured !== 0 || empty.persisted !== 0 ||
+      (empty.retained ?? 0) !== 0 || page.total !== 0 || !Array.isArray(page.items) || page.items.length !== 0) {
+    throw Error('clear did not reset generation, counters and retained rows');
+  }
+  const expectedURLs = await refill();
+  const refilled = await waitForCapturePersistence(stats);
+  const resumed = await control('list', { sessionId, limit: 100 });
+  if (refilled.generation !== empty.generation || refilled.captured !== 4 || refilled.persisted !== 4 ||
+      refilled.retained !== 4 || resumed.total !== 4 || resumed.items?.length !== 4 ||
+      !Array.isArray(expectedURLs) || expectedURLs.length !== 4 || new Set(expectedURLs).size !== 4 ||
+      resumed.items.some(row => !expectedURLs.includes(row.transaction?.url)) ||
+      new Set(resumed.items.map(row => row.transaction?.url)).size !== 4) {
+    throw Error('capture did not resume with four new-generation rows after clear');
+  }
+  const publicStats = value => { const { sessionId: _privateID, ...counters } = value; return counters; };
+  return { before: publicStats(before), empty: publicStats(empty), refilled: publicStats(refilled) };
+}
+
 export async function finalizeDesktopCapture(control, sessionId, destination, {
   readSaved = readFile,
 } = {}) {

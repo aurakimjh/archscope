@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import http from 'node:http';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
-import { waitForCapturePersistence, finalizeDesktopCapture } from './lib/desktop-soak-checks.mjs';
+import { waitForCapturePersistence, clearDesktopCapture, finalizeDesktopCapture } from './lib/desktop-soak-checks.mjs';
 
 const options = {};
 for (let i = 2; i < process.argv.length; i += 2) {
@@ -25,7 +25,8 @@ await mkdir(out, { recursive: false });
 const descriptorPath = path.join(out, '.private-controller.json');
 const binarySha256 = createHash('sha256').update(await readFile(exe)).digest('hex');
 const report = { schema: 4, platform: 'windows', scope: 'production Wails desktop/controller, synthetic Docker-loopback HTTP, bodies disabled', memoryScope: 'root process plus currently alive descendants from one Windows process snapshot; not a leak proof', requestedSeconds: seconds, binarySha256, passed: false, requests: 0, pauses: 0, clears: 0, checkpoints: [], nativeUIObservations: 'record separately; controller/liveness is not a renderer correctness claim' };
-let child, descriptor, session, sequence = 0, started, phase = 'launch', desktopLogBytes = 0;
+report.clearChecks = [];
+let child, descriptor, session, sequence = 0, started, phase = 'launch', desktopLogBytes = 0, clearedThroughRequests = 0;
 const desktopLogPath = path.join(out, '.private-desktop.log');
 writeFileSync(desktopLogPath, '', { mode: 0o600 });
 function desktopLog(chunk) {
@@ -65,6 +66,7 @@ async function checkpoint(elapsed) {
   } while (checkedRows <= 128);
   if (checkedRows !== page.total) throw Error('retained snapshot pagination mismatch');
   const stats = await waitForCapturePersistence(() => control('stats', { sessionId: session.sessionId }));
+  if (stats.captured !== report.requests - clearedThroughRequests || stats.generation !== report.clears) throw Error('generation/request count mismatch');
   const script = `
 $rootProcess=Get-Process -Id ${child.pid} -ErrorAction Stop
 $snapshot=@(Get-CimInstance Win32_Process)
@@ -126,7 +128,21 @@ try {
     for (let n = 0; n < 4; n++) { await request(session.listenAddress, report.requests); report.requests++; }
     const elapsed = (performance.now() - started) / 1000;
     if (elapsed >= nextPause) { await control('pause'); await delay(100); await control('resume'); report.pauses++; nextPause += 60; }
-    if (elapsed >= nextClear) { await control('clear'); report.clears++; nextClear += 600; }
+    if (elapsed >= nextClear) {
+      const boundary = report.requests;
+      const checked = await clearDesktopCapture(control, session.sessionId, async () => {
+        const urls = [];
+        for (let n = 0; n < 4; n++) {
+          urls.push(`${origin}soak?sequence=${report.requests}`);
+          await request(session.listenAddress, report.requests); report.requests++;
+        }
+        return urls;
+      });
+      clearedThroughRequests = boundary;
+      report.clears++;
+      report.clearChecks.push({ elapsedSeconds: elapsed, clearedThroughRequests: boundary, ...checked });
+      nextClear += 600;
+    }
     if (elapsed >= nextCheck) { await checkpoint(elapsed); nextCheck += 30; }
     await delay(1000);
   }

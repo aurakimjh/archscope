@@ -1,9 +1,46 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createHash } from 'node:crypto';
-import { waitForCapturePersistence, finalizeDesktopCapture } from './lib/desktop-soak-checks.mjs';
+import { waitForCapturePersistence, clearDesktopCapture, finalizeDesktopCapture } from './lib/desktop-soak-checks.mjs';
 
 const healthy = (state = 'running') => ({ state, captured: 2, persisted: 2, dropped: 0, sessionId: 'private-fixture' });
+
+function clearFixture({ before = {}, empty = {}, refilled = {}, emptyPage = {}, resumedPage = {}, failCommand } = {}) {
+  let reads = 0, lists = 0, refills = 0;
+  const urls = [0, 1, 2, 3].map(n => `http://127.0.0.1/soak?sequence=${100 + n}`);
+  const snapshots = [{ ...healthy(), generation: 3, retained: 2, ...before },
+    { ...healthy(), generation: 4, captured: 0, persisted: 0, ...empty },
+    { ...healthy(), generation: 4, captured: 4, persisted: 4, retained: 4, ...refilled }];
+  const control = async command => {
+    if (command === failCommand) throw Error('injected clear failure');
+    if (command === 'stats') return snapshots[reads++];
+    if (command === 'list') return ++lists === 1 ? { total: 0, items: [], ...emptyPage } :
+      { total: 4, items: urls.map(url => ({ transaction: { url } })), ...resumedPage };
+  };
+  return { run: () => clearDesktopCapture(control, 'private-fixture', async () => { refills++; return urls; }), refills: () => refills };
+}
+
+test('Clear proves reset and four exact new URLs while stripping private session ID', async () => {
+  const f = clearFixture(); const result = await f.run();
+  assert.equal(f.refills(), 1); assert.equal(result.empty.generation, 4);
+  assert.equal(result.refilled.captured, 4); assert.equal('sessionId' in result.before, false);
+});
+
+for (const change of [{ before: { dropped: 1 } }, { before: { generation: -1 } }, { failCommand: 'clear' },
+  { empty: { generation: 3 } }, { empty: { captured: 2, persisted: 2 } }, { empty: { retained: 1 } },
+  { emptyPage: { total: 1, items: [{}] } }]) {
+  test(`Clear rejects lost writes or incomplete reset before refilling: ${JSON.stringify(change)}`, async () => {
+    const f = clearFixture(change); await assert.rejects(f.run()); assert.equal(f.refills(), 0);
+  });
+}
+
+for (const change of [{ refilled: { state: 'recoverable' } }, { refilled: { generation: 3 } },
+  { refilled: { captured: 3, persisted: 3 } }, { resumedPage: { total: 3 } },
+  { resumedPage: { items: [{ transaction: { url: 'http://127.0.0.1/stale' } }, {}, {}, {}] } }]) {
+  test(`Clear rejects failed or stale refill: ${JSON.stringify(change)}`, async () => {
+    await assert.rejects(clearFixture(change).run());
+  });
+}
 
 test('a running quiescent capture passes without exposing or changing counters', async () => {
   const stats = healthy();
