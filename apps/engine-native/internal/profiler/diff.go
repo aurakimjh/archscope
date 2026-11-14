@@ -251,8 +251,16 @@ func freezeDiff(node *diffNode, flat *[]diffRow, path []string) (FlameNode, floa
 	}
 
 	samplesInt := 0
+	samplesClamped := false
 	if samples > 0 {
-		samplesInt = int(math.Round(samples * 1_000_000))
+		scaled := math.Round(samples * 1_000_000)
+		maxInt := int(^uint(0) >> 1)
+		if scaled >= float64(maxInt) {
+			samplesInt = maxInt
+			samplesClamped = true
+		} else {
+			samplesInt = int(scaled)
+		}
 	}
 
 	flameNode := FlameNode{
@@ -264,9 +272,11 @@ func freezeDiff(node *diffNode, flat *[]diffRow, path []string) (FlameNode, floa
 		Path:     append([]string(nil), path...),
 		Children: childNodes,
 		Metadata: map[string]any{
-			"a":     round(node.Value.A, 6),
-			"b":     round(node.Value.B, 6),
-			"delta": round(delta, 6),
+			"a":               round(node.Value.A, 6),
+			"b":               round(node.Value.B, 6),
+			"delta":           round(delta, 6),
+			"samples_scale":   1000000,
+			"samples_clamped": samplesClamped,
 		},
 	}
 	return flameNode, math.Max(node.Value.A, node.Value.B)

@@ -178,3 +178,20 @@ when either path or normalization changes. Native before FAIL/after PASS verifie
 immediate invalidation, actual missing-target error and successful valid retry.
 The initial forward screen is1024x768; the fixed reverse/retry is1280x800. This
 does not close every mismatch/cancellation/locale/DPI/reference condition.
+
+## Diff weights and Windows integer bounds
+
+A selected native raw Diff frame incorrectly displayed4,600,000,000samples for
+4,600canonical weight. The million-scaled legacy projection also overflowed to
+-2147483648on Windows386. The UI now uses canonical metadata.a/b for geometry,
+search and tooltips; normalized results label fractional shares explicitly.
+Legacy fallback removes the scale, and fractional search/tooltips retain up to
+six decimals. Go caps only the legacy integer projection at native max-int,
+with explicit samples_scale/samples_clamped metadata; exact a/b/delta survives.
+
+The new386regression fails before the fix, then both complete Windows profiler
+suites pass(0.953s/1.013s). Frontend state/build pass. Native x64and386show
+4,600weight/20.35percent for worker.4 with the same raw reverse fixture. These
+UI receipts precede the final six-decimal formatting-only rebuild; normalized
+and final-build smoke are separate observations. Original input parity and all
+Diff cancellation/locale/DPI combinations remain open.

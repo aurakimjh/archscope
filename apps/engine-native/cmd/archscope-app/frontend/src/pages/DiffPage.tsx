@@ -25,10 +25,10 @@ import {
 import type { ProfilerAnalysisResult as AnalysisResult } from "../bridge/profilerTypes";
 import type { ProfilerDiffRow } from "../bridge/types";
 import { checkedProfilerResult } from "../bridge/profilerContract";
-import type { FlameNode } from "../../bindings/github.com/aurakimjh/archscope/apps/engine-native/internal/profiler/models";
+import { adaptProfilerDiffFlame } from "../state/profilerDiffView";
 
 import { useI18n } from "../i18n/I18nProvider";
-import { CanvasFlameGraph, type FlameGraphNode } from "../components/CanvasFlameGraph";
+import { CanvasFlameGraph } from "../components/CanvasFlameGraph";
 import { HelpTip, HelpedLabel, HelpedTitle } from "../components/HelpTip";
 import { getGenericMetricHelpText, getHelpText } from "@/help/helpCatalog";
 
@@ -42,32 +42,6 @@ function detectFormat(path: string): DiffFormat {
   if (lower.endsWith(".cpuprofile")) return "v8-cpuprofile";
   if (lower.endsWith(".json") || lower.endsWith(".json.gz")) return "chrome-trace-json";
   return "collapsed";
-}
-
-function adaptDiffNode(node: FlameNode | null | undefined): FlameGraphNode | null {
-  if (!node) return null;
-  const meta = (node as any).metadata as { delta?: number } | undefined;
-  const delta = meta && typeof meta.delta === "number" ? meta.delta : 0;
-  // Color the diff with a divergent palette: red (regression), green
-  // (improvement), gray (unchanged).
-  let color: string | null = null;
-  if (delta > 0.001) {
-    color = "#ef4444";
-  } else if (delta < -0.001) {
-    color = "#22c55e";
-  } else {
-    color = "#94a3b8";
-  }
-  const children = (node.children ?? [])
-    .map(adaptDiffNode)
-    .filter((child): child is FlameGraphNode => child !== null);
-  return {
-    name: node.name ?? "",
-    value: node.samples ?? 0,
-    color,
-    category: null,
-    children,
-  };
 }
 
 export function DiffPage() {
@@ -85,7 +59,7 @@ export function DiffPage() {
     setError("");
   }, [baseline, target, normalize]);
 
-  const flame = useMemo(() => adaptDiffNode(result?.charts?.flamegraph), [result]);
+  const flame = useMemo(() => adaptProfilerDiffFlame(result?.charts?.flamegraph), [result]);
 
   const pickFile = async (setter: (path: string) => void) => {
     try {
@@ -203,7 +177,7 @@ export function DiffPage() {
               {t("flamegraphTitle")}
             </HelpedTitle>
           </h2>
-          <CanvasFlameGraph data={flame} exportName="diff-flamegraph" />
+          <CanvasFlameGraph data={flame} exportName="diff-flamegraph" weightLabel={summary?.normalized ? t("diffNormalizedWeight") : t("profileWeight")} />
         </section>
       )}
 

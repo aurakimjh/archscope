@@ -68,5 +68,125 @@
     "id": "import-error-auto-visible-after",
     "result": "PASS",
     "observed": "Fixed native CtrlO failure automatically opens file tools, shows redacted comment exceeds4096bytes and HTTP_SESSION_OPEN_FAILED without any manual reveal; Open controls remain reachable."
+  },
+  {
+    "id": "body-386-inert-html",
+    "result": "PASS",
+    "observed": "Verified actual SEC10-approved x86 capture retains four synthetic exchanges and opens selected/html response. Native Body→Preview shows formatting-only disclosure; accessible document remains ArchScope and does not adopt the fixture script title. Scope is this retained102-byte HTML fixture, not arbitrary HTML."
+  },
+  {
+    "id": "body-386-truncated",
+    "result": "PASS",
+    "observed": "Native selected/large reports BODY_TRUNCATED; backend independent detail shows262144retained bytes of300020transferred. Body pane separately shows256KiB decoded versus293KiB transfer."
+  },
+  {
+    "id": "body-386-duplicate-cookies",
+    "result": "PASS",
+    "observed": "Native Cookies view preserves two same-name request cookies and two same-name response cookies, all masked; response attributes Path/SameSite/HttpOnly remain distinct."
+  },
+  {
+    "id": "import-amd64-history-cap",
+    "result": "INCONCLUSIVE",
+    "observed": "After156imports, accessibility document_text exposes35titles and is truncated; this does not establish the full80-card count. The80-entry cap is code-level evidence only. No native full-count PASS is claimed."
+  },
+  {
+    "id": "body-redaction-provenance-after",
+    "result": "PASS",
+    "observed": "Fixed40188233 x86 reexports the same retained store. Full-field policy1.0.0 comparison now passes all4transactions, including both request.redacted=true flags. Native reopened/echo shows REDACTED disclosure without other sensitive headers."
+  },
+  {
+    "id": "body-386-raster",
+    "result": "PASS",
+    "observed": "Native captured/image Body→Preview exposes decoded raster with the explicit reencoding/pixel-not-masked disclosure. Independent readback verifies1x1PNGsignature/dimensions and exact exported imagePreview; pixel readability is not a typography/layout claim."
+  },
+  {
+    "id": "body-386-gzip",
+    "result": "PASS",
+    "observed": "Native/gzip Raw body is exactly compressed-body-proof JSON with34decoded bytes versus54wire bytes and gzip badge. Separate body readback confirms all6source transactions including raster and redaction provenance."
+  },
+  {
+    "id": "preview-unsupported-before",
+    "result": "FAIL",
+    "observed": "Captured gzip JSON has34retained decoded bytes and readable Raw text, but generic Preview says the payload was not retained. This is an unsupported-view explanation defect, not missing captured data."
+  },
+  {
+    "id": "preview-unsupported-after",
+    "result": "PASS",
+    "observed": "The same retained gzip JSON now explains that Preview supports HTML/raster and directs users to Raw/JSON. Missing-payload wording remains reserved for absent retained preview content. EN/KO messages compile; native KO is observed here."
+  },
+  {
+    "id": "profiler-invalid-diagnostics",
+    "result": "PASS",
+    "observed": "Malformed synthetic input yields0records,1skipped line,INVALID_SAMPLE_COUNT and NO_VALID_RECORDS in the native Parser Report; it is not claimed to be a thrown analysis error."
+  },
+  {
+    "id": "profiler-deep-retry",
+    "result": "PASS",
+    "observed": "After malformed-input diagnostics, native200path/20level fixture successfully renders. Passive clipped data-area ratio is0.598 for this depth, below the70percent target; no70percent PASS is inferred."
+  },
+  {
+    "id": "profiler-file-cancel",
+    "result": "PASS",
+    "observed": "Native file-picker Escape leaves profiler-before.collapsed and its rendered200path result unchanged; this is picker cancellation, not in-flight analysis cancellation."
+  },
+  {
+    "id": "profiler-default-area",
+    "result": "PASS",
+    "observed": "Native200path/32level fixture at default1280x800/OS100percent/WebView100percent, no scroll and help closed, shows real data filling clipped plot union0.727 of1264x741CSSviewport. This is this fixture/tab only, not all profiler states/reference parity."
+  },
+  {
+    "id": "profiler-small-selection",
+    "result": "PASS",
+    "observed": "Native1024x768/actualOS100percent preserves the selected worker.4 flame path and zoom-reset control; top-level commands remain reachable and no horizontal outer overflow is observed. This is not an OS125percent case."
+  },
+  {
+    "id": "profiler-help-keyboard",
+    "result": "PASS",
+    "observed": "At1024x768, native help opens within viewport, Escape dismisses it and Return reopens it from retained help-button focus. The selected worker.4 path remains visible."
+  },
+  {
+    "id": "profiler-options-keyboard",
+    "result": "PASS",
+    "observed": "At1024x768 after transition settles, options Close and footer Analyze stay within viewport with internal form scrolling. Escape restores trigger focus and Return reopens; selected worker.4 remains behind the drawer."
+  },
+  {
+    "id": "diff-regression-nonzero",
+    "result": "PASS",
+    "observed": "Native1024x768 raw-weight comparison has baseline20100,target22600,0new/removed paths and app.main regression12.4percent, matching2500/20100. This establishes a nonzero fixture, not the full diff matrix."
+  },
+  {
+    "id": "diff-input-stale-before",
+    "result": "FAIL",
+    "observed": "After target changes from profiler-after.collapsed to invalid.json without rerunning, the old22600target/12.4percent result remains under the new path. This is a provenance mismatch."
+  },
+  {
+    "id": "diff-improvement-nonzero",
+    "result": "PASS",
+    "observed": "Fixed native reverse comparison22600→20100 shows app.main improvement-11.1percent, matching-2500/22600; green data and0added/removed paths."
+  },
+  {
+    "id": "diff-input-cleared-after",
+    "result": "PASS",
+    "observed": "Fixed target-path change removes the old summary/flamegraph before rerun; the new missing.collapsed path has only the empty-state instruction."
+  },
+  {
+    "id": "diff-missing-file",
+    "result": "PASS",
+    "observed": "Native missing target reports the actual file-not-found error, keeps retry inputs reachable and shows no stale comparison result."
+  },
+  {
+    "id": "diff-scaled-tooltip-before",
+    "result": "FAIL",
+    "observed": "Native worker.4 tooltip shows4600000000samples although the raw input side weight is4600. The backend field is a1e6integer geometry projection, not a sample count."
+  },
+  {
+    "id": "diff-weight-amd64-fixed",
+    "result": "PASS",
+    "observed": "Raw reverse diff worker.4 tooltip is 4,600 weight, 20.35%; previous native display was 4,600,000,000. Exact metadata drives plot and search."
+  },
+  {
+    "id": "diff-weight-386-fixed",
+    "result": "PASS",
+    "observed": "Windows 386 renders nonempty reverse diff with selected worker.4 tooltip 4,600 weight and20.35%, identical to x64. Canonical metadata survives bounded legacy scaled projection."
   }
 ]

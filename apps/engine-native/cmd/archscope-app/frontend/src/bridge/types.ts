@@ -2063,6 +2063,7 @@ export type BridgeError = {
 // checked facade independent of the generator's Metadata=any alias.
 export type ProfilerDiffRow = { stack: string; delta: number; delta_ratio: number };
 export type ProfilerDiffSummary = {
+  normalized?: boolean;
   baseline_total: number; target_total: number; common_paths: number;
   added_paths: number; removed_paths: number;
   max_increase?: ProfilerDiffRow | null; max_decrease?: ProfilerDiffRow | null;

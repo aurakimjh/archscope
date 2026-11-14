@@ -387,7 +387,7 @@ export function CanvasFlameGraph({
             <div className="flamegraph-search-result">
               {searchStats.frameCount === 0
                 ? t("flamegraphSearchNoMatches")
-                : `${Math.round(searchStats.matchedSamples).toLocaleString()} ${unitLabel} · ${(searchStats.ratio * 100).toFixed(2)}% · ${searchStats.frameCount.toLocaleString()} ${t(
+                : `${searchStats.matchedSamples.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${unitLabel} · ${(searchStats.ratio * 100).toFixed(2)}% · ${searchStats.frameCount.toLocaleString()} ${t(
                     "flamegraphSearchFrames",
                   )}`}
             </div>
@@ -430,7 +430,7 @@ export function CanvasFlameGraph({
             <div className="flamegraph-tooltip-name">{tooltip.name}</div>
             {tooltip.hiddenSamples > 0 && <div>{t("flamegraphHiddenSamples")}: {tooltip.hiddenSamples.toLocaleString()}</div>}
             <div className="flamegraph-tooltip-meta">
-              {tooltip.value.toLocaleString()} {unitLabel} · {(tooltip.ratio * 100).toFixed(2)}%
+              {tooltip.value.toLocaleString(undefined, { maximumFractionDigits: 6 })} {unitLabel} · {(tooltip.ratio * 100).toFixed(2)}%
               {tooltip.category ? ` · ${tooltip.category}` : ""}
             </div>
           </div>

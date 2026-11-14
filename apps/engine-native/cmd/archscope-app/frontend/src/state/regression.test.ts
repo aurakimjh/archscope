@@ -17,6 +17,7 @@ import { HttpCommandRouter, httpCommandForKey, isHttpCommand } from "./httpComma
 import { formatProfileSeconds, profileWeightUnit } from "./profileDuration.js";
 import { partition } from "d3-hierarchy";
 import { buildFlameHierarchy, flameSearchCoverage, hiddenFlameSamples, type FlameGraphNode } from "./flamegraphLayout.js";
+import { adaptProfilerDiffFlame } from "./profilerDiffView.js";
 import { gcAxis, gcCoordinate, gcUnavailableReasons, gcReasonKey } from "./gcClock.js";
 import { messages } from "../i18n/messages.js";
 import type { AnalysisWorkspaceEntry, WorkspaceAnalysisResult } from "./analysisWorkspace.js";
@@ -3550,6 +3551,20 @@ for (const [id, renderer] of Object.entries(RESULT_PANEL_RENDERERS)) {
 }
 assert(resultPanelID(panelBase) === null, "payload name/version alone grants no actions");
 assert(resultPanelID({ ...panelBase, panel: { id: "__proto__", version: "1.0.0", actions: ["details"] } }) === null, "unknown/foreign panel");
+
+// Diff wire samples are legacy million-scaled integers, not display weights.
+// A 32bit projection can be capped independently of the exact a/b metadata.
+for (const projection of [4600000000, 2147483647, -2147483648]) {
+  const adapted = adaptProfilerDiffFlame({name: "All", samples: projection, metadata: {a: 4100, b: 4600, delta: 500},
+    children: [{name: "worker", samples: projection, metadata: {a: 4100, b: 4600, delta: 500}}]})!;
+  assert(adapted.value === 4600 && adapted.children![0]!.value === 4600, "diff displays canonical raw weights on both architectures");
+  const graph = partition<FlameGraphNode>().size([1000, 100])(buildFlameHierarchy(adapted));
+  assert(flameSearchCoverage(graph, "worker").matchedSamples === 4600, "diff search and tooltip use the same unscaled denominator");
+}
+const normalizedDiff = adaptProfilerDiffFlame({name: "worker", samples: 250000, metadata: {a: 0.2, b: 0.25, delta: -0.05}})!;
+assert(normalizedDiff.value === 0.25 && normalizedDiff.color === "#22c55e", "normalized diff keeps fractional share and improvement color");
+assert(adaptProfilerDiffFlame({samples: 4600000000})!.value === 4600, "legacy diff without metadata removes geometry scaling");
+assert(adaptProfilerDiffFlame({samples: -2147483648})!.value === 0, "invalid legacy projection cannot create negative geometry");
 
 void (async () => {
 // Only the native user-cancel sentinel is an empty file selection.

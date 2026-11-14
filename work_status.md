@@ -5536,3 +5536,13 @@ USER_GUIDE is not currently included in those generated asset lists, so no
 bundle regeneration is needed. Documentation validation does not constitute
 new native UI/Windows acceptance. Application behavior, task counts and
 existing environment-dependent acceptance statuses are unchanged.
+
+### 2026-11-14 Windows follow-up: Diff weight correctness
+
+Native Diff showed million-scaled geometry as samples and386overflowed the same
+projection. Canonical a/b weights now drive display/search/layout, normalized
+shares have explicit EN/KO units, and the bounded integer projection discloses
+its scale/cap. New failing-before386regression and both Windows profiler suites
+pass after correction; frontend state/build and selected raw native x64/386
+frame checks pass. T-627 remains REVIEW; full locale/reference/DPI/cancel scope
+is separate. Evidence: docs/review/evidence/2026-11-14-windows-final/README.md.
