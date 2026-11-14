@@ -379,7 +379,7 @@ fixture를 사용해 추가할 수 있지만, 완전한 원본 비교에는 같�
 | thread_dump | 단일/복수·deadlock/lock contention·입력순서·부분/오류와 선택 보존; JVM4subtabs PASS 외 조합 |
 | msa_profile | coherent 평균/SQL/methods/차트 PASS 외 CSV mapping·부분/불완전/경고·취소, 모든 locale/DPI·원본 비교 |
 | trace_import | 다중 trace/span 선택·누락/오류·지원하지 않는 형식, 긴 경로·필터0행·단위/내보내기 |
-| http_capture | 열·그룹·정렬·full-store 검색·키보드·주석 저장/재열기·Builder 불변성, legacy/inert viewer 조건부 상태; T-613 표와 연결 |
+| http_capture | 선택된12행 주석·정렬·키보드·Builder 및 수동legacy PASS 외 표시열·그룹·full-store 검색, live주석·Builder drag/취소/오류·본문과 inert viewer 전체 조건; T-613 표와 연결 |
 | browser_cpu | 충분한 stack 선택/검색/zoom·부분/실패·취소·resize와 실제 DPI/locale |
 | browser_audit | score42 JSON/HTML PASS 외 누락/실패한 audits·필터0행·긴 provenance/단위/지원 형식 조합 |
 | analysis_workspace | 결과 등록→선택→차트/증거/내보내기의 모든 데이터종류,0선택·누락/오래된 참조·오류·키보드 |
@@ -408,3 +408,10 @@ fixture를 사용해 추가할 수 있지만, 완전한 원본 비교에는 같�
 
 T-627은 REVIEW를 유지합니다. 추가 검증/발견 오류는
 `docs/review/evidence/2026-11-14-acceptance-remaining`에 별도 기록합니다.
+
+
+### 2026-11-14 HTTP notes, Builder and legacy native follow-up
+
+실제 saved-file12행에서 별표·한국어주석 저장, 요청순서 정렬, CtrlS 새파일/ CtrlO 재열기, Down/Up 요청 선택을 확인했습니다. 전체 ID/선택과 주석 외 transaction 필드가 같고 원본파일 해시도 유지됐습니다. Builder 복사 시 닫힌 상위 파일도구가 숨는 오류를 수정해 x64/x86에서 초안을 바로 표시합니다. x64에서 별도 URL로 소유 Docker fixture에 GET200 전송 후 원본12행/주석/파일 바이트는 불변입니다. 네이티브 drag는 변화를 확인하지 못해 미확정입니다. AMF0 tree/text/잘린입력, ViewState 미지원/2B미검증꼬리, AMF3한도 상태도 수동 editor에서 확인했습니다. 이는 live body 또는 전체 원본/DPI/locale 조합 PASS가 아닙니다.
+
+Evidence: docs/review/evidence/2026-11-14-acceptance-remaining/README.md.

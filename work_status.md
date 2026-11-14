@@ -5257,3 +5257,8 @@ Reconciled selected2026-11-12/13/14 receipts against the21-route desktop accepta
 ### 2026-11-14 - T-613 exact recovery summary
 
 Reproduced actual Windows recovery dropping27Bstaging+35Borphanblob but showing0B. d91376ea preserves openingRecoveryReport and actualretainedrowcount; tests cover NDJSONtail,rollingretention2of3,orphan cleanup andno repeatedbytes. Fullcapture/app suites passamd64/386 (app42.123s/44.388s),state/build pass; bothproduction native recovery62B/12records and exact committedbytes/IDs/save-open selection pass. HistoricalUIFAIL and architecture-ambiguousINCONCLUSIVE images retained; singled-outamd64rerun recorded. Prior2h capturescope unchanged; fullparity PENDING. Receipt: docs/review/evidence/2026-11-14-acceptance-remaining/recovery-summary.json.
+
+
+### 2026-11-14 - T-627/613 native HTTP notes, Builder and legacy states
+
+Selected12row saved-file star/Unicodecomment→descendingrequestorder→CtrlSnewfile→CtrlOreopen andDown/Up preserveID/selection/notes; allothertransactionfields andsourcefilehashes equal. e7a4debe revealsclosedouterfiletools onBuildercopy,verifiednativeamd64/386. Nativeamd64 editedDockerloopbackGET200 isseparatefromoriginal12rows;dragremainsINCONCLUSIVE. ManualAMF0tree/text/truncation,ViewStateunsupported/2Bunverifiedtail,AMF3limited pass. Latestfrontendstate/build andbothproductionbuildspass; fullGoapp/capturesuites scopeisearlierrecoveryfix.21route/16contractinventoriesupdatedwithremaininglocalandgatedwork;T-627REVIEW/T-613PENDING. Ownedapps/fixturestopped. Receipt: docs/review/evidence/2026-11-14-acceptance-remaining/README.md.

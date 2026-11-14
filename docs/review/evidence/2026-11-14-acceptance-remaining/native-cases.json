@@ -1,0 +1,236 @@
+[
+  {
+    "id": "recovery-amd64-before",
+    "observed": "Forcedrestart preserves12records but native recovery summary shows0B discarded after harness injected62 orphan bytes; actual orphan files were removed.",
+    "result": "INCONCLUSIVE",
+    "observedAt": "2026-11-14T00:29:49.333Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "recovery-amd64-before.jpg",
+    "expectedDiscardedBytes": 62,
+    "historicalResult": "FAIL",
+    "qualification": "Concurrent same-title windows: screenshot foreground is not sufficient to attribute this image to amd64. Retained as history; use single-window amd64 followup or separately matched386 screenshot."
+  },
+  {
+    "id": "recovery-386-before",
+    "observed": "Native recovery summary shows1session/12records/0B despite62bytes of uncommitted staging and orphanblob being removed; reproduced on386.",
+    "result": "FAIL",
+    "observedAt": "2026-11-14T00:30:23.057Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "recovery-386-before.jpg",
+    "expectedDiscardedBytes": 62
+  },
+  {
+    "id": "recovery-amd64-after",
+    "observed": "Fixed production native summary:1session,12records,62Bdiscarded data, exactly27Buncommittedstaging+35Borphanblob; existing12committedrows retained.",
+    "result": "INCONCLUSIVE",
+    "observedAt": "2026-11-14T00:39:05.648Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "recovery-amd64-after.jpg",
+    "expectedDiscardedBytes": 62,
+    "historicalResult": "PASS",
+    "qualification": "Concurrent same-title windows: screenshot foreground is not sufficient to attribute this image to amd64. Retained as history; use single-window amd64 followup or separately matched386 screenshot."
+  },
+  {
+    "id": "recovery-386-after",
+    "observed": "Fixed386production native summary:1session/12records/62Bdiscarded data, matches27Bstaging+35Borphanblob; no committedrow corruption injected.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:39:20.559Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "recovery-386-after.jpg",
+    "expectedDiscardedBytes": 62
+  },
+  {
+    "id": "recovery-amd64-reopen",
+    "observed": "After actual recovery observation, controller saves/opens12rows; selected sequence1/query0 native Raw includes query and Host11508port;200GET/JSON45B/bodiesdisabled.",
+    "result": "INCONCLUSIVE",
+    "observedAt": "2026-11-14T00:39:33.025Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "recovery-amd64-reopen.jpg",
+    "historicalResult": "PASS",
+    "qualification": "Concurrent same-title windows: screenshot foreground is not sufficient to attribute this image to amd64. Retained as history; use single-window amd64 followup or separately matched386 screenshot."
+  },
+  {
+    "id": "recovery-386-reopen",
+    "observed": "Actual rendered timestamps00:37:14.680..959 match386 savedfile;12rows,selectedquery0/sequence1,Raw200GET/Host11508/bodydisabled.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:40:43.379Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "recovery-386-reopen.jpg"
+  },
+  {
+    "id": "recovery-amd64-reopen-single",
+    "observed": "Onlyamd64testwindow remains; rendered00:37:14.644..919 matchesamd64 savedfile;12rows/sequence1/query0/Host11508/200GET. Concurrentearlier screenshot attribution is separately qualified.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:41:05.638Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "recovery-amd64-reopen-single.jpg"
+  },
+  {
+    "id": "recovery-amd64-after-single",
+    "observed": "Singleownedwindow,verifiedamd64executable;recovery summary1session/12records/62Bdiscardeddata, exactinjected27+35B. Replaces architecture-ambiguous concurrent screenshot.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:42:45.739Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "recovery-amd64-after-single.jpg",
+    "expectedDiscardedBytes": 62
+  },
+  {
+    "id": "http-notes-edited",
+    "observed": "Onsavedquery0/sequence1,starchecked andUnicodecomment saved;Savecomment disabled aftercompletion;innerdetail scrolling exposesrequiredSave.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:44:24.512Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-notes-edited.jpg"
+  },
+  {
+    "id": "http-notes-sort",
+    "observed": "Actual nested #button yields12..1 request order, selectedquery0 retained withcheckedstar andsavedUnicodecomment; outerUIAcolumnheader Sortby was not a reliable product-button action.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:47:23.292Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-notes-sort.jpg"
+  },
+  {
+    "id": "http-notes-reopen",
+    "observed": "NativeCtrlS creatednewfile aftersort;CtrlO reopened12rows/selectedquery0;starchecked andexactUnicodecomment restored. Rawtab/sortresetonopen; sourcefileSHAunchanged independentlychecked.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:49:18.273Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-notes-reopen.jpg"
+  },
+  {
+    "id": "http-grid-keyboard-down",
+    "observed": "OneDownfromquery0 selectsquery1/sequence2 andNotes staysselected;newrow hasnostar/commentratherthanborrowingpriorannotation.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:49:58.416Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-grid-keyboard-down.jpg"
+  },
+  {
+    "id": "http-grid-keyboard-up",
+    "observed": "OneUprestoresquery0/sequence1withsavedUnicodecomment/star;Notes tab remainsselected. Synthetic12rowfixture only.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:50:07.783Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-grid-keyboard-up.jpg"
+  },
+  {
+    "id": "http-builder-copy-hidden-before",
+    "observed": "ClickedCopytoRequestBuilderonselectedquery0;outerFile/requesttoolsdisclosure remainsclosed, noBuilderdraftvisible. Nestedbuilder loadopensonlyitsown details.",
+    "result": "FAIL",
+    "observedAt": "2026-11-14T00:51:07.626Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-builder-copy-hidden-before.jpg"
+  },
+  {
+    "id": "http-builder-copy-revealed-after",
+    "observed": "OneCopytoBuilderfromclosedoutertools now opensbothdisclosures andexposesGET/URLquery0 draft. Original12rowgrid/selectedquery0 retained; nosend occurs.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:54:00.602Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-builder-copy-revealed-after.jpg"
+  },
+  {
+    "id": "http-builder-explicit-send",
+    "observed": "EditedcopiedURLtomarkerbuilder-proof-20261114 andclickedSendonceagainstownedDockerloopback. Builder1/1response200GET is separatefrom original12rowgrid/selectedquery0. Rawsemantic, no originaledit.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:55:25.232Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-builder-explicit-send.jpg"
+  },
+  {
+    "id": "http-builder-drag-unconfirmed",
+    "observed": "Twocoordinate drags fromoriginalrequestrowintoBuilder region didnotreplaceediteddraft; drag event/delivery notestablished. Copy/edit/explicitSend independentlypasses; native drag gate remainsopen.",
+    "result": "INCONCLUSIVE",
+    "observedAt": "2026-11-14T00:56:28.172Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-builder-drag-unconfirmed.jpg"
+  },
+  {
+    "id": "http-legacy-amf0-tree",
+    "observed": "Manualbase64AMF0fixture12Bdecodes asavailable;rootsequencewith1child,consumed12B/unverifiedtail0B;inert/limitsguidance visible, originalcapturebody remainsdisabled.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T00:59:38.960Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement"
+  },
+  {
+    "id": "http-legacy-amf0-text",
+    "observed": "Decodedtextdisclosure showsboundedJSON forrootsequence/objectwithx:stringhi;12Bconsumed,0unverifiedtail;treeandtextareinert.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T01:00:03.707Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement"
+  },
+  {
+    "id": "http-legacy-amf0-invalid",
+    "observed": "ManualtruncatedAMF0 (02000861) showsinvalid/truncateddataatoffset3,consumed3B/unverifiedtail1B. Original12requests andbody-disabled response preserved.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T01:00:50.406Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-legacy-amf0-invalid.jpg"
+  },
+  {
+    "id": "http-legacy-viewstate-unsupported",
+    "observed": "ManualViewStateff0132showsunsupportedserialization,consumed3B/tail0B;typeconverters andbinaryserializedobjects intentionallynotinstantiated. Noauthentication/decryptionclaim.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T01:01:38.493Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-legacy-viewstate-unsupported.jpg"
+  },
+  {
+    "id": "http-legacy-amf3-limited",
+    "observed": "AMF3 0cffefffff islimitedafter5B withbytearrayexceeds64KiB;tail0B, nohugeallocation/instantiation. Original12requestselection retained.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T01:02:51.239Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-legacy-amf3-limited.jpg"
+  },
+  {
+    "id": "http-legacy-viewstate-tail",
+    "observed": "ViewStatefixture10Bdecodespairwith2children,consumed8B,explicitunverifiedtail2B. MAC/signaturevalidation ordecryptionnotclaimed;bodydisabledcaptureunchanged.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T01:04:07.732Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-legacy-viewstate-tail.jpg"
+  },
+  {
+    "id": "http-splitter-home",
+    "observed": "Aftertemporaryexpandedlegacyinspector,focuseddivider+Home restoresdefaultheight andall12requestrows are visible;selectedquery0 andViewState8B/2Bresult remain. NoexactCSSareaorfullDPImatrixclaim.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T01:05:00.132Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-splitter-home.jpg"
+  },
+  {
+    "id": "http-builder-copy-386-after",
+    "observed": "Singleowned386productionwindow:Copyfromclosedoutertools revealsBuilderGET/draftquery0 andoriginal12rows/selection remain. Samee7a4debe frontendfix; noSendonthisarchtest.",
+    "result": "PASS",
+    "observedAt": "2026-11-14T01:07:01.190Z",
+    "locale": "ko",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
+    "screenshot": "http-builder-copy-386-after.jpg"
+  }
+]

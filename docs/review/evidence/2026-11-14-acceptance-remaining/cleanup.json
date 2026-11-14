@@ -1,0 +1,14 @@
+{
+  "scope": "Only descriptor-owned acceptance executables and labeled Docker loopback fixture; no global proxy/trust/dump policy/driver/COM-registration changes",
+  "completedAt": "2026-11-14T01:07:45.9184192Z",
+  "verifiedOwnedExecutablesStopped": true,
+  "fixture": {
+    "runningBeforeStop": true,
+    "name": "archscope-acceptance-origin-20261114",
+    "oomKilled": false,
+    "stopped": true,
+    "ownershipLabel": "archscope.acceptance=remaining-20261114",
+    "restartCount": 0
+  },
+  "remainingOwnedTestWindows": 0
+}

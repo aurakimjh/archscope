@@ -380,3 +380,10 @@ Current Windows can extend fixture/UI/keyboard/export cases. Complete original
 comparison requires its matching reference evidence; selected Office16.0.10417
 results cannot establish other versions/fonts/placement. T-627 stays REVIEW.
 Additional receipts are in docs/review/evidence/2026-11-14-acceptance-remaining.
+
+
+### 2026-11-14 HTTP notes, Builder and legacy native follow-up
+
+Native selected12-row saved-file tests cover star/Unicode notes, descending request order, CtrlS/CtrlO roundtrip and Down/Up identity. All IDs/selection and transaction fields except annotations match; source file hashes survive later operations. The Builder reveal fix exposes copied drafts on x64/386. A separate edited URL returns Docker-loopback GET200 on x64 while original12rows/notes/files remain unchanged. Drag is INCONCLUSIVE. Manual legacy editor observations cover AMF0 tree/text/truncation, unsupported ViewState and2B unverified tail, and AMF3 limits. These are not full live-body/reference/locale/DPI acceptance.
+
+Evidence: docs/review/evidence/2026-11-14-acceptance-remaining/README.md.

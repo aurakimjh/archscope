@@ -5,7 +5,7 @@
     "result": "INCONCLUSIVE",
     "observedAt": "2026-11-14T00:29:49.333Z",
     "locale": "ko",
-    "scale": "OS100%,WebView100%",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
     "screenshot": "recovery-amd64-before.jpg",
     "expectedDiscardedBytes": 62,
     "historicalResult": "FAIL",
@@ -17,7 +17,7 @@
     "result": "FAIL",
     "observedAt": "2026-11-14T00:30:23.057Z",
     "locale": "ko",
-    "scale": "OS100%,WebView100%",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
     "screenshot": "recovery-386-before.jpg",
     "expectedDiscardedBytes": 62
   },
@@ -27,7 +27,7 @@
     "result": "INCONCLUSIVE",
     "observedAt": "2026-11-14T00:39:05.648Z",
     "locale": "ko",
-    "scale": "OS100%,WebView100%",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
     "screenshot": "recovery-amd64-after.jpg",
     "expectedDiscardedBytes": 62,
     "historicalResult": "PASS",
@@ -39,7 +39,7 @@
     "result": "PASS",
     "observedAt": "2026-11-14T00:39:20.559Z",
     "locale": "ko",
-    "scale": "OS100%,WebView100%",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
     "screenshot": "recovery-386-after.jpg",
     "expectedDiscardedBytes": 62
   },
@@ -49,7 +49,7 @@
     "result": "INCONCLUSIVE",
     "observedAt": "2026-11-14T00:39:33.025Z",
     "locale": "ko",
-    "scale": "OS100%,WebView100%",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
     "screenshot": "recovery-amd64-reopen.jpg",
     "historicalResult": "PASS",
     "qualification": "Concurrent same-title windows: screenshot foreground is not sufficient to attribute this image to amd64. Retained as history; use single-window amd64 followup or separately matched386 screenshot."
@@ -60,7 +60,7 @@
     "result": "PASS",
     "observedAt": "2026-11-14T00:40:43.379Z",
     "locale": "ko",
-    "scale": "OS100%,WebView100%",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
     "screenshot": "recovery-386-reopen.jpg"
   },
   {
@@ -69,7 +69,7 @@
     "result": "PASS",
     "observedAt": "2026-11-14T00:41:05.638Z",
     "locale": "ko",
-    "scale": "OS100%,WebView100%",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
     "screenshot": "recovery-amd64-reopen-single.jpg"
   },
   {
@@ -78,7 +78,7 @@
     "result": "PASS",
     "observedAt": "2026-11-14T00:42:45.739Z",
     "locale": "ko",
-    "scale": "OS100%,WebView100%",
+    "scale": "Default WebView zoom; OS scaling unchanged by this run, no new DPI geometry measurement",
     "screenshot": "recovery-amd64-after-single.jpg",
     "expectedDiscardedBytes": 62
   }

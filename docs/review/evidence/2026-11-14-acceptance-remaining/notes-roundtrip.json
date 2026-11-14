@@ -1,0 +1,16 @@
+{
+  "result": "PASS selected12rowfixture",
+  "rows": 12,
+  "selectedIDEqual": true,
+  "allIDsEqual": true,
+  "selectedSequence": 1,
+  "selectedURL": "http://127.0.0.1:11508/soak?sequence=0",
+  "starred": true,
+  "comment": "인수 검증: 원본 요청 유지 / acceptance-note-20261114",
+  "allTransactionFieldsExceptAnnotationsEqual": true,
+  "sourceSessionSha256": "a209789756dd70dbb49d42fd0b2856d9aee25c500b90633bf7698dca57f9a5d9",
+  "annotatedSessionSha256": "cf83eb4b407692045b3cd1235a6f2a63582228dc7a71f496135221e558a448b8",
+  "nativeFlow": "Star/comment,actualnested#buttondescending,CtrlSnewpath,CtrlOnewfile,Notes;Down/Upselection andnote identity",
+  "limits": "Saved-fileedits,notfull liveannotation/column/group/filter/source matrix;sort/detailtab resetonopen",
+  "unchangedAfterBuilderSendAndLegacyManualInspection": true
+}

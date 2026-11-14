@@ -53,6 +53,7 @@
     "Baselinebackend recovery passeswhileUIreport fails; historicfailure notconvertedtooverallPASS",
     "Concurrent same-title desktop screenshots foramd64 were ambiguous; nativecases retainINCONCLUSIVE history and single-window amd64 rerecord",
     "Oldtwo-hourcapture runs predate recovery-report/UI-only fixes; theirsource/hashscope remains separate",
-    "No full vendor/COM/transparent/service/body-policy/race/leak-free acceptance"
+    "No full vendor/COM/transparent/service/body-policy/race/leak-free acceptance",
+    "Archived recovery-runner-used.mjs is the fixed-run source; baseline had an additional unused --duration parser/guard and its exact initial runner bytes were not pinned"
   ]
 }

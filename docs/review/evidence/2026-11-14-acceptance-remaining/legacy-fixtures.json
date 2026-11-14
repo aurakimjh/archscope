@@ -1,0 +1,69 @@
+{
+  "source": "Existing decode_test.go byte fixtures, manually entered via native base64 editor; not captured network bodies",
+  "cases": [
+    {
+      "format": "amf0",
+      "hex": "030001780200026869000009",
+      "base64": "AwABeAIAAmhpAAAJ",
+      "sha256": "7d7ba109a8100b2ebaaa829fc27fab4d3a7e04fff21db492a7f4406e3518397a",
+      "observedState": "available",
+      "observedConsumedBytes": 12,
+      "observedUnverifiedTailBytes": 0
+    },
+    {
+      "format": "amf0",
+      "hex": "02000861",
+      "base64": "AgAIYQ==",
+      "sha256": "995e524f085452e62e0446a6c08014d926114c0e0ce3a59283da372bf267801e",
+      "observedState": "invalid",
+      "observedConsumedBytes": 3,
+      "observedUnverifiedTailBytes": 1
+    },
+    {
+      "format": "viewstate",
+      "hex": "ff0132",
+      "base64": "/wEy",
+      "sha256": "6e27884dfbef50bd83f715f10a6d593583343583bfcb64af115513ab1905e008",
+      "observedState": "unsupported",
+      "observedConsumedBytes": 3,
+      "observedUnverifiedTailBytes": 0
+    },
+    {
+      "format": "amf3",
+      "hex": "0cffefffff",
+      "base64": "DP/v//8=",
+      "sha256": "ef6c29e5cfde909c9f67025eef7706ba1637773407979cf342e1b3b6c1a8477b",
+      "observedState": "limited",
+      "observedConsumedBytes": 5,
+      "observedUnverifiedTailBytes": 0
+    },
+    {
+      "format": "viewstate",
+      "hex": "ff010f0502686967aabb",
+      "base64": "/wEPBQJoaWequw==",
+      "sha256": "575ca295e84c1fee8bd91e7b5664bdeeb622b46297fff678ade517dcb50172a7",
+      "observedState": "available",
+      "observedConsumedBytes": 8,
+      "observedUnverifiedTailBytes": 2
+    }
+  ],
+  "amf0RenderedText": {
+    "kind": "sequence",
+    "offset": 0,
+    "children": [
+      {
+        "kind": "object",
+        "offset": 0,
+        "children": [
+          {
+            "name": "x",
+            "kind": "string",
+            "value": "hi",
+            "offset": 4
+          }
+        ]
+      }
+    ]
+  },
+  "scope": "Native editor tree/text/invalid/unsupported/limited observations; does not validate a ViewState MAC or execute/decrypt classes"
+}

@@ -1,0 +1,49 @@
+{
+  "sourceCommit": "e7a4debec1394f4c3b70154729058630097d61b0",
+  "scope": "Latest production builds include d91376ea recovery reporting and e7a4debe Builder reveal; full app/capture suites were run for d91376ea and later change is renderer-only",
+  "frontend": {
+    "state": {
+      "result": "PASS",
+      "logSha256": "3e6dc9263931725271709552759a92e933f7959e2b1b9c69475a3e30a57ee0ec",
+      "output": [
+        "> archscope-frontend@0.3.5 test:state"
+      ]
+    },
+    "build": {
+      "result": "PASS",
+      "logSha256": "0eb499b466382c55a04022abeb02cb1f4f4c1932fc180c0edfce78a57a052bf9",
+      "output": [
+        "> archscope-frontend@0.3.5 build",
+        "\u2713 built in 1.23s"
+      ]
+    }
+  },
+  "builds": {
+    "amd64": {
+      "result": "PASS",
+      "sha256": "8bc6cd2b84728b06d0869019fca1f6ff1d4c9b25beaa10fc6be2c917f4833248",
+      "bytes": 56240128,
+      "embeddedMetadata": [
+        "build\t-ldflags=\"-H windowsgui -X main.desktopBuildCommit=e7a4debec1394f4c3b70154729058630097d61b0\"",
+        "build\tCGO_ENABLED=0",
+        "build\tGOARCH=amd64",
+        "build\tvcs.revision=e7a4debec1394f4c3b70154729058630097d61b0",
+        "build\tvcs.time=2026-11-14T00:52:03Z",
+        "build\tvcs.modified=true"
+      ]
+    },
+    "386": {
+      "result": "PASS",
+      "sha256": "d9c9fda08b076d56420613583979b148784ccf716be5bf28f9f8843047791e72",
+      "bytes": 54292480,
+      "embeddedMetadata": [
+        "build\t-ldflags=\"-H windowsgui -X main.desktopBuildCommit=e7a4debec1394f4c3b70154729058630097d61b0\"",
+        "build\tCGO_ENABLED=0",
+        "build\tGOARCH=386",
+        "build\tvcs.revision=e7a4debec1394f4c3b70154729058630097d61b0",
+        "build\tvcs.time=2026-11-14T00:52:03Z",
+        "build\tvcs.modified=true"
+      ]
+    }
+  }
+}

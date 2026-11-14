@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "T-627": {
+    "status": "REVIEW",
+    "routes": [
+      {
+        "route": "profiler",
+        "state": "PARTIAL",
+        "remaining": "충분한 깊이/행의 기본 창 면적·선택 경로, 동일 fixture 원본 비교, 취소/오류 후 재시도 및 옵션/help 키보드 복귀",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "diff",
+        "state": "PARTIAL",
+        "remaining": "동일 입력의0차이 외 실제 회귀·개선/불일치 조건, 두 입력 교체·실패·취소·좁은 창 선택 보존",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "gc_log",
+        "state": "PARTIAL",
+        "remaining": "clock 없는 로그의 사유, 충분한60events에서 추세+10행, 선택/Heap/JVM·resize·키보드와 실제 DPI 조합",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "jfr",
+        "state": "PARTIAL",
+        "remaining": "기록/스택/네이티브 메모리 선택된 PASS 외 입력형식/부분·실패·취소, 모든 조건부 탭의 키보드·면적 조합",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "access_log",
+        "state": "PARTIAL",
+        "remaining": "충분한 데이터의 latency/status/URL 탭·필터0행·파서 부분/실패, 원본동일입력과 출력 형식 전체",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "exception",
+        "state": "PARTIAL",
+        "remaining": "signature/group·선택 스택 drawer·부분/오류·닫기 후 초점, 긴 스택·좁은 창/실제 DPI",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "thread_dump",
+        "state": "PARTIAL",
+        "remaining": "단일/복수·deadlock/lock contention·입력순서·부분/오류와 선택 보존; JVM4subtabs PASS 외 조합",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "msa_profile",
+        "state": "PARTIAL",
+        "remaining": "coherent 평균/SQL/methods/차트 PASS 외 CSV mapping·부분/불완전/경고·취소, 모든 locale/DPI·원본 비교",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "trace_import",
+        "state": "PARTIAL",
+        "remaining": "다중 trace/span 선택·누락/오류·지원하지 않는 형식, 긴 경로·필터0행·단위/내보내기",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "http_capture",
+        "state": "PARTIAL",
+        "remaining": "선택된12행 주석·정렬·키보드·Builder 및 수동legacy PASS 외 표시열·그룹·full-store 검색, live주석·Builder drag/취소/오류·본문과 inert viewer 전체 조건; T-613 표와 연결",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "browser_cpu",
+        "state": "PARTIAL",
+        "remaining": "충분한 stack 선택/검색/zoom·부분/실패·취소·resize와 실제 DPI/locale",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "browser_audit",
+        "state": "PARTIAL",
+        "remaining": "score42 JSON/HTML PASS 외 누락/실패한 audits·필터0행·긴 provenance/단위/지원 형식 조합",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "analysis_workspace",
+        "state": "PARTIAL",
+        "remaining": "결과 등록→선택→차트/증거/내보내기의 모든 데이터종류,0선택·누락/오래된 참조·오류·키보드",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "export_center",
+        "state": "PARTIAL",
+        "remaining": "각 지원 형식/단일·다중선택/파일·폴더/취소·실패; unknown saved JSON의 정확한 보존과 refusal 외 조합",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "report_diff",
+        "state": "PARTIAL",
+        "remaining": "비0차이·누락/불일치 보고서·선택/필터/긴 값·내보내기·좁은 창",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "chart_studio",
+        "state": "PARTIAL",
+        "remaining": "8templates의 selected render PASS 외 데이터종류×PNG/SVG/CSV 전체, renderer 변경/resize·실패·단위·출처",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "incident_timeline",
+        "state": "PARTIAL",
+        "remaining": "충분한 이벤트·선택·시간/group/filter·omitted/partial·0행·오류·내보내기",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "slo_golden_signals",
+        "state": "PARTIAL",
+        "remaining": "측정/위반/미평가/부분 데이터 구분, target편집·저장·취소·실패·키보드/단위",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "service_flow",
+        "state": "PARTIAL",
+        "remaining": "서비스/edge 선택·aliases·필터·부분/누락·시간단위·좁은 창/실제 DPI",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "evidence_board",
+        "state": "PARTIAL",
+        "remaining": "2카드/ReportPack/시각자료 lifecycle PASS 외 나머지 카드/형식·누락/불일치/오류·키보드·출처 조합",
+        "localWindowsFixtureWorkPossible": true
+      },
+      {
+        "route": "settings",
+        "state": "PARTIAL",
+        "remaining": "editable groups 저장/취소/재시작 보존, 긴 값·실패·키보드 초점·폼의 필수 동작이 기본 창 안에 있는지",
+        "localWindowsFixtureWorkPossible": true
+      }
+    ],
+    "commonGates": "See dated Desktop layout checklist: actual CSS area/rows/plot, identical original fixture, condition/keyboard/help,1280x800/100%,1024x768 actualOS125%,KO/EN"
+  },
+  "T-613": {
+    "status": "PENDING",
+    "contractCases": [
+      {
+        "id": "CONTROL-01",
+        "state": "PARTIAL",
+        "completedSlice": "visible-app 인증 제어·event·pause/resume/stop",
+        "remainingAndEnvironment": "지원 명령/실패/취소 전체와 최신 통합 빌드의 네이티브 동작 대조; 로컬 가능"
+      },
+      {
+        "id": "PROCESS-01",
+        "state": "PARTIAL",
+        "completedSlice": "실제 Node PID+start, 두 프로세스 귀속·launch fixture",
+        "remainingAndEnvironment": "서비스·타세션·proxy무시 앱은 별도 backend/reach 증거 필요; 선택 프록시 범위는 로컬 가능"
+      },
+      {
+        "id": "EXCHANGE-01",
+        "state": "PARTIAL",
+        "completedSlice": "합성103/302/final 자동화",
+        "remainingAndEnvironment": "지원 조합의 원본동일 exchange·native 표시·내보내기 비교; 합성 추가는 로컬 가능"
+      },
+      {
+        "id": "BODY-01",
+        "state": "PARTIAL",
+        "completedSlice": "body-disabled 동작·HAR/codec의 payload",
+        "remainingAndEnvironment": "실제 request/response body 및 중복cookie 전체. 현재 dump-policy gate로 live bodies 금지; 보안정책 변경으로 통과시키지 않음"
+      },
+      {
+        "id": "SESSION-01",
+        "state": "PARTIAL",
+        "completedSlice": "native save/open ID·선택, 양쪽128행",
+        "remainingAndEnvironment": "선택된12행 별·한국어주석/정렬→새저장→재열기 PASS 추가. live주석/필터/오류·부분 파일 전체는 로컬 추가 가능"
+      },
+      {
+        "id": "WINDOW-01",
+        "state": "PARTIAL",
+        "completedSlice": "컨트롤·process grid·상세 한 창, selected geometry",
+        "remainingAndEnvironment": "충분한 결과의70%/10요청+4상세와 모든 locale/DPI/조건 조합; 로컬 추가 가능"
+      },
+      {
+        "id": "GRID-01",
+        "state": "PARTIAL",
+        "completedSlice": "기본 그룹/행선택·retention·backend pagination",
+        "remainingAndEnvironment": "12행 정렬/Down·Up/선택·주석 유지 PASS 추가. 표시열/그룹/전체 저장소 검색과 전체 조합은 로컬 추가 가능"
+      },
+      {
+        "id": "TIMING-01",
+        "state": "PARTIAL",
+        "completedSlice": "timing/summary 구현·일부 fixture",
+        "remainingAndEnvironment": "summary filter와 process-relative waterfall의 실제 값/선택·지연/오류·원본 비교; 합성 UI 가능"
+      },
+      {
+        "id": "CONTENT-01",
+        "state": "PARTIAL",
+        "completedSlice": "Raw/Headers/disabledBody selected PASS",
+        "remainingAndEnvironment": "cookies/streams, inert text/HTML/raster 및 오류/미지원/제한 native 상태; import fixture는 로컬 가능"
+      },
+      {
+        "id": "NOTES-01",
+        "state": "PARTIAL",
+        "completedSlice": "단위/저장 회귀",
+        "remainingAndEnvironment": "선택된saved-file12행의 별/한국어주석 sort→save→reload ID불변성 PASS. live/다중선택·경계/오류 조합은 남음"
+      },
+      {
+        "id": "BUILDER-01",
+        "state": "PARTIAL",
+        "completedSlice": "구현·자동화 회귀",
+        "remainingAndEnvironment": "copy/edit/explicit Docker GET200·원본파일불변 PASS. drag 미확정, 취소/오류/body·multipart·redirect 조합은 남음"
+      },
+      {
+        "id": "LEGACY-VIEW-01",
+        "state": "PARTIAL",
+        "completedSlice": "AMF/ViewState inert decoder·한도/roundtrip",
+        "remainingAndEnvironment": "수동 editor의 AMF0 tree/text·잘림오류, ViewState 미지원/2B미검증꼬리, AMF3한도 PASS. 첨부본문/import·redaction·전체 reference/형식 조합은 남음"
+      },
+      {
+        "id": "COVERAGE-01",
+        "state": "PARTIAL",
+        "completedSlice": "Windows x86/x64 explicit proxy",
+        "remainingAndEnvironment": "windows_transparent는 구현되지 않음. driver/WFP·proxy무시·서비스/다른 세션 reach가 필요; Linux Docker로 대체 불가"
+      },
+      {
+        "id": "HALOG-01",
+        "state": "PARTIAL",
+        "completedSlice": "T-608 genuine675건/35463916B codec byte-exact roundtrip 완료",
+        "remainingAndEnvironment": "전체 계약의 원본 도구에서 신규 writer출력/변경필드 재검증은 별도. codec 완료를 취소하거나 자체 JSON fixture로 대체하지 않음"
+      },
+      {
+        "id": "COM-01",
+        "state": "PARTIAL",
+        "completedSlice": "28interfaces/227vendor slots, native ArchScope late-bound/RPC/events",
+        "remainingAndEnvironment": "원본 client 실제 전체 메서드/상태/foreign session-cookie. 충돌 없는 clean Windows 사용자/VM의 등록·교체·해제; 현재 등록 보존, Docker대체 불가"
+      },
+      {
+        "id": "LONG-01",
+        "state": "PARTIAL",
+        "completedSlice": "고정 capture빌드 양쪽2h/24780·24804건,482checks,0drop,128행/선택/reentry",
+        "remainingAndEnvironment": "최신 양쪽 복구12행/정확한62B폐기·바이트/ID보존 PASS 추가. 커밋된행 손상/디스크부족/서비스 복구, 실제 전원손실/장기 메모리·모든 고장조합은 미검증"
+      }
+    ],
+    "memoryGate": "Previous2h tree private bytes androot handles increased; not leak-free/plateau proof"
+  },
+  "scope": "Inventory of remaining conditions; not a parity-assessReport verdict or new DPI/reference claim"
+}
