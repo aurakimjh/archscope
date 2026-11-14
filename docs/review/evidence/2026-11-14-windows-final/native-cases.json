@@ -743,5 +743,25 @@
     "id": "timeline-add-selected-event",
     "result": "PASS",
     "observed": "First filtered INFO Trace cross-service event added; native success notice. Evidence Board payload verification follows separately."
+  },
+  {
+    "id": "slo-populated-four-violations",
+    "result": "PASS",
+    "observed": "Native84 signals/84 metrics,4 violations (1critical/3warning),6 targets lack evidence; error33.33percent versus5/10percent; endpoint/global P951500ms versus1000ms. No editable target/save/cancel controls."
+  },
+  {
+    "id": "slo-filter-no-match",
+    "result": "PASS",
+    "observed": "Nonmatching query empties violation and metric tables with explicit messages; global scope inventory remains. No evidence is not relabeled healthy."
+  },
+  {
+    "id": "slo-evidence-name-before",
+    "result": "FAIL",
+    "observed": "Native violation evidence icon buttons expose no accessible action name. Add action+target+metric labels in correction."
+  },
+  {
+    "id": "slo-add-critical-evidence",
+    "result": "PASS",
+    "observed": "Native critical Access error-rate violation evidence add success notice; Board payload checked separately."
   }
 ]

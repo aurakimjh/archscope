@@ -5701,3 +5701,11 @@ lack accessible names; add localized action/event labels. State/build pass;
 final integrated label observation follows. Full narrative precedes timeline,
 so no density or absent export/time-range control acceptance is claimed.
 T-627 REVIEW. Evidence: 2026-11-14-windows-final/timeline-*.jpg/.txt.
+
+### 2026-11-15 - T-627 SLO native measured and unevaluated states
+
+84 signals/metrics, four violations, six no-evidence targets; exact error-rate
+and P95 units/thresholds observed. No-match and evidence add pass. Add missing
+accessible names to evidence icons; state/build pass, integrated label follow-up
+pending. Fixed-default targets have no editor/save/cancel UI. T-627 REVIEW.
+Evidence: 2026-11-14-windows-final/slo-*.jpg/.txt.

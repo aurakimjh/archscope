@@ -502,3 +502,16 @@ localized action plus event label as aria-label/title and hides the decorative
 icon. State tests/build pass; final integrated native label verification follows.
 No export/time-range controls are present here; absent controls and capped-event
 partial-result boundaries remain unclosed by these eight-event checks.
+
+## SLO / Golden Signals scoped native checks
+
+Native workspace shows 84 signals/84 metrics, four violations (one critical,
+three warning), and six targets without applicable evidence. Access error rate
+33.33 percent violates 5/10 percent targets; endpoint/global P95 1500 ms violate
+1000 ms. Nonmatching search explicitly empties violations and metrics while
+global scope context remains. Critical error-rate evidence add succeeds.
+Native evidence icons lacked accessible names; correction adds localized action,
+target and metric as aria-label/title. State/build pass; final integrated native
+label check follows. Targets are fixed defaults: the page exposes no target
+editor/save/cancel control. No such absent control, full target boundary,
+independent reference or locale/DPI matrix is marked complete.
