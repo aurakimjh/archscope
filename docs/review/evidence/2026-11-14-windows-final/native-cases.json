@@ -783,5 +783,20 @@
     "id": "service-flow-no-match",
     "result": "PASS",
     "observed": "Nonmatching search empties edge table explicitly; whole-analysis summary remains1edge/12calls, not a filtered counter."
+  },
+  {
+    "id": "board-three-owned-cards",
+    "result": "PASS",
+    "observed": "Native Board has3owned cards from Timeline/SLO/ServiceFlow; full payload/source evidence observed. Seven preexisting visual artifacts preserved. Cards are below artifact library; no card-edit/reorder controls."
+  },
+  {
+    "id": "board-remove-name-before",
+    "result": "FAIL",
+    "observed": "Three visible owned-card trash buttons expose no accessible name. Correction labels Remove plus card title."
+  },
+  {
+    "id": "board-remove-one-owned-card",
+    "result": "PASS",
+    "observed": "Remove owned ServiceFlow card only; SLO and Timeline cards remain, all7preexisting visual artifacts preserved. Restart persistence checked in final integrated app."
   }
 ]

@@ -529,3 +529,18 @@ Native edge icon lacks an accessible name; the same source pattern affects
 finding icons. Correction adds action plus endpoint/finding identity; state/build
 pass, integrated native edge label observation follows. Evidence and output pins
 remain e50b0f48-plus-chart-csv until that observation.
+
+## Evidence Board owned-card roundtrip and exports
+
+The three cards added during these tests retain exact Timeline/SLO/ServiceFlow
+payloads and source references. Native evidence JSON/HTML and Report Pack HTML/
+ZIP downloads all complete; independent readback compares all three cards and
+12-call/90-ms edge,33.33-percent/10-percent target and12cross-service-trace values.
+ZIP CRC and exact evidence-cards.json pass. Raw report ZIP stays private because
+it also bundles workspace source appendices; receipt hashes and owned-card JSON
+are public. Seven preexisting visual artifacts are preserved. Removing only the
+owned ServiceFlow card leaves the other two cards; no global clear is used.
+Cards appear below the visual library and require scrolling; no density pass.
+No card text editor or reorder UI exists. Native trash buttons have no accessible
+name; add localized Remove evidence plus card title. State/build pass; native
+label and restart-persistence follow-up uses the final integrated build.

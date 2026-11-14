@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "buildCommit": "e50b0f48-plus-chart-csv",
+  "scope": "3 own cards;7 preexisting visual artifacts preserved; raw report ZIP private",
+  "files": [
+    {
+      "file": "archscope-evidence-pack-2026-11-14T17-18-59-605Z.json",
+      "bytes": 4954,
+      "sha256": "0c2e486cb13e86c487b178b34dc2f3ee5effe98a04b0dc084d45e08c74dcba6e"
+    },
+    {
+      "file": "archscope-evidence-report-2026-11-14T17-19-18-186Z.html",
+      "bytes": 6849,
+      "sha256": "3e737ef2ed1a3df915f6a46cb63d0c8a452098282ad3657d32260d397c1c5b14"
+    },
+    {
+      "file": "archscope-report-pack-2026-11-14T17-19-34-945Z.html",
+      "bytes": 17121,
+      "sha256": "bc3923b2f442e538cc33bbd2e2ab2479ee8b0e28062cd8af604b936b60c7edb0"
+    },
+    {
+      "file": "archscope-report-pack-2026-11-14T17-19-50-457Z.zip",
+      "bytes": 619547,
+      "sha256": "636c46d5692ed11697afacc98868a0ded556a966634ac232e2187f67bd461556",
+      "entries": [
+        "index.html",
+        "report-pack.json",
+        "customer-summary.json",
+        "ai-interpretation.json",
+        "evidence-cards.json",
+        "incident-timeline.json",
+        "slo-analysis.json",
+        "service-flow.json"
+      ]
+    }
+  ]
+}

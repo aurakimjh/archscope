@@ -1,0 +1,149 @@
+{
+  "type": "archscope_evidence_pack",
+  "schema_version": "0.1.0",
+  "created_at": "2026-11-14T17:18:59.605Z",
+  "card_count": 3,
+  "cards": [
+    {
+      "analyzer": "service_flow",
+      "source_kind": "service_edge",
+      "title": "checkout-service -> inventory-service",
+      "summary": "12 calls, 0 errors",
+      "source_ref": "tables.service_dependencies",
+      "payload": {
+        "id": "svc-edge-f8fa906f",
+        "caller": "checkout-service",
+        "callee": "inventory-service",
+        "call_count": 12,
+        "latency_sample_count": 12,
+        "total_latency_ms": 1080,
+        "avg_latency_ms": 90,
+        "max_latency_ms": 90,
+        "error_count": 0,
+        "error_rate": 0,
+        "network_gap_sample_count": 0,
+        "matched_call_count": 0,
+        "unmatched_call_count": 0,
+        "source_types": [
+          "trace_import_dependency"
+        ],
+        "source_analyzers": [
+          "trace_import"
+        ],
+        "source_result_ids": [
+          "ar-1794674875224-6a48499162963"
+        ],
+        "source_files": [
+          "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json"
+        ],
+        "evidence_refs": [
+          "tables.service_dependencies"
+        ],
+        "input_edge_ids": [
+          "sfi-49a1723d"
+        ]
+      },
+      "id": "ev-1794676609155-6ba26fe5f64a8",
+      "created_at": "2026-11-14T17:16:49.155Z"
+    },
+    {
+      "analyzer": "slo_golden_signals",
+      "source_kind": "slo_violation",
+      "title": "Error rate under 10%",
+      "summary": "Access error rate: 33.33 percent <= 10 percent",
+      "severity": "critical",
+      "source_ref": "summary.error_rate",
+      "payload": {
+        "id": "slo-9016e8cf",
+        "target_id": "error-rate-10pct-critical",
+        "target_name": "Error rate under 10%",
+        "severity": "critical",
+        "metric_id": "sli-951b1397",
+        "metric_key": "errors:access_error_rate::percent:rate:global:global",
+        "metric_name": "Access error rate",
+        "kind": "errors",
+        "actual": 33.33,
+        "threshold": 10,
+        "comparator": "lte",
+        "unit": "percent",
+        "window_label": "session",
+        "delta": 23.33,
+        "ratio_to_threshold": 3.333,
+        "burn_rate": 3.333,
+        "error_budget_consumed_percent": 333.3,
+        "error_budget_remaining_percent": 0,
+        "affected_scope_type": "global",
+        "affected_scope": "global",
+        "source_analyzers": [
+          "access_log"
+        ],
+        "source_result_ids": [
+          "ar-1794674775926-ad6138cf939398"
+        ],
+        "evidence_refs": [
+          "summary.error_rate"
+        ],
+        "tags": {
+          "metric_family": "access_error_rate",
+          "rate_unit": "percent"
+        },
+        "target": {
+          "id": "error-rate-10pct-critical",
+          "name": "Error rate under 10%",
+          "severity": "critical",
+          "comparator": "lte",
+          "threshold": 10,
+          "unit": "percent",
+          "objective_percent": 90,
+          "window_label": "session",
+          "match": {
+            "kind": "errors",
+            "units": [
+              "percent"
+            ],
+            "nameIncludes": [
+              "error",
+              "rate"
+            ]
+          }
+        }
+      },
+      "id": "ev-1794676437085-c91382ee823b7",
+      "created_at": "2026-11-14T17:13:57.085Z"
+    },
+    {
+      "analyzer": "incident_timeline",
+      "source_kind": "timeline_event",
+      "title": "TRACE_IMPORT_CROSS_SERVICE_TRACE",
+      "summary": "At least one imported trace spans multiple services.",
+      "severity": "info",
+      "source_file": "C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json",
+      "source_ref": "TRACE_IMPORT_CROSS_SERVICE_TRACE",
+      "payload": {
+        "timestamp": "2026-11-14T16:47:55.210Z",
+        "start_time": "2026-11-14T16:47:55.210Z",
+        "range_label": "2026-11-14T16:47:55.210Z",
+        "time_label": "2026-11-14T16:47:55.210Z",
+        "source_analyzer": "trace_import",
+        "source_result_id": "ar-1794674875224-6a48499162963",
+        "source_title": "trace_import: trace-twelve.json",
+        "category": "trace",
+        "group_key": "category:trace:TRACE_IMPORT_CROSS_SERVICE_TRACE:C:\\workspace\\archscope\\.tmp\\windows-final-20261114\\ui-fixtures\\trace-twelve.json",
+        "group_label": "trace / TRACE_IMPORT_CROSS_SERVICE_TRACE",
+        "group_category": "trace",
+        "correlation_ids": {},
+        "evidence_ref": "TRACE_IMPORT_CROSS_SERVICE_TRACE",
+        "payload": {
+          "code": "TRACE_IMPORT_CROSS_SERVICE_TRACE",
+          "evidence": {
+            "cross_service_traces": 12
+          },
+          "message": "At least one imported trace spans multiple services.",
+          "severity": "info"
+        }
+      },
+      "id": "ev-1794676313876-d1e0fe46dfe6b8",
+      "created_at": "2026-11-14T17:11:53.876Z"
+    }
+  ]
+}

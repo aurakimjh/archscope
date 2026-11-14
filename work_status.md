@@ -5718,3 +5718,12 @@ Add missing accessible names to edge/finding actions; state/build pass, final
 native label follow-up pending. No alias editing control or cross-source/full
 reference acceptance claimed. T-627 REVIEW.
 Evidence: 2026-11-14-windows-final/service-flow-readback.json.
+
+### 2026-11-15 - T-627 Evidence Board owned cards and exports
+
+Three source-specific cards preserve values/provenance; native evidence HTML/
+JSON and Report Pack HTML/ZIP pass independent payload/CRC readback. Remove one
+owned card, preserve two others and7existingvisualartifacts. Add missing trash
+button accessible names; state/build pass; integrated label/persistence check
+follows. No absent edit/reorder or dense layout acceptance. T-627 REVIEW.
+Evidence: 2026-11-14-windows-final/board-export-readback.json.

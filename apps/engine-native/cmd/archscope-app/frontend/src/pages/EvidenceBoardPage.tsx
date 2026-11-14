@@ -125,7 +125,7 @@ function EvidenceCardItem({
   card: EvidenceCard;
   onRemove: () => void;
 }): React.JSX.Element {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -143,8 +143,9 @@ function EvidenceCardItem({
               )}
             </div>
           </div>
-          <Button type="button" variant="ghost" size="sm" onClick={onRemove}>
-            <Trash2 className="h-4 w-4" />
+          <Button type="button" variant="ghost" size="sm" onClick={onRemove}
+            aria-label={`${t("evidenceRemove")}: ${card.title}`} title={`${t("evidenceRemove")}: ${card.title}`}>
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       </CardHeader>
