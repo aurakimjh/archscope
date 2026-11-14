@@ -1,4 +1,5 @@
 import { fileDialogResult } from "./fileDialog.js";
+import { loadLiveCaptureBootstrap } from "./liveCaptureBootstrap.js";
 import { exportWorkspaceResult, backendWorkspaceExportSupported, type WorkspaceExportMode } from "./workspaceExport.js";
 import { resultPanelID, RESULT_PANEL_RENDERERS } from "./resultPanels.js";
 import { checkedProfilerResult, checkedProfilerStages } from "../bridge/profilerContract.js";
@@ -3589,5 +3590,17 @@ const refusedExport = new Error("unknown_result_type"); let exportFailurePropaga
 try { await exportWorkspaceResult(displayOnlyEntry, "html", "must-not-succeed", {...exportPorts, backend: async () => { throw refusedExport; }}); }
 catch (error) { exportFailurePropagated = error === refusedExport; }
 assert(exportFailurePropagated, "backend format and stale-result refusal cannot become export success");
+
+const bootstrapCore = { platform: "windows", modes: ["proxy_h1_mitm"], backends: ["explicit_proxy"], bodyPolicy: "disabled" };
+const brokenRecovery = await loadLiveCaptureBootstrap(Promise.resolve(bootstrapCore), Promise.reject(new Error("corrupt committed rolling record")));
+assert(brokenRecovery.core === bootstrapCore && brokenRecovery.core.bodyPolicy === "disabled", "historical recovery errors preserve independently loaded Windows capability and body policy");
+assert(brokenRecovery.reports.length === 0 && brokenRecovery.recoveryError === "corrupt committed rolling record", "corrupt-store refusal remains visible without inventing a successful recovery");
+const successfulReports = [{ recovered: true, records: 6, discardedBytes: 0 }];
+const recoveredBootstrap = await loadLiveCaptureBootstrap(Promise.resolve(bootstrapCore), Promise.resolve(successfulReports));
+assert(recoveredBootstrap.reports === successfulReports && recoveredBootstrap.recoveryError === null, "successful recovery reports retain exact identity and counts");
+const coreFailure = new Error("capability unavailable"); let coreFailurePropagated = false;
+try { await loadLiveCaptureBootstrap(Promise.reject(coreFailure), Promise.resolve(successfulReports)); }
+catch (error) { coreFailurePropagated = error === coreFailure; }
+assert(coreFailurePropagated, "core/capability failure remains fail-closed and is never substituted with successful defaults");
 
 })();

@@ -1,4 +1,5 @@
 import { useHttpCommands } from "@/hooks/useHttpCommands";
+import { loadLiveCaptureBootstrap } from "@/state/liveCaptureBootstrap";
 import { LiveHttpAnalyzer } from "./LiveHttpAnalyzer";
 import { Events } from "@wailsio/runtime";
 import { Dialogs } from "@/bridge/dialogs";
@@ -182,15 +183,14 @@ export function LiveHttpCapturePanel({
     let disposed = false;
     const initialize = async () => {
       try {
-        const [contract, nextModes, nextCA, current, reports,nextBackends] =
-          await Promise.all([
+        const { core: [contract, nextModes, nextCA, current, nextBackends], reports, recoveryError } =
+          await loadLiveCaptureBootstrap(Promise.all([
             CaptureService.GetLiveCaptureContract(),
             CaptureService.ListCaptureModes(),
             CaptureService.GetCaptureCAStatus(),
             CaptureService.GetCurrentCaptureSession(),
-            CaptureService.RecoverCaptureSessions(),
             CaptureService.ListCaptureBackends(),
-          ]);
+          ]), CaptureService.RecoverCaptureSessions());
         if (disposed) return;
         // The contract governs the row cap, the resync path, and the two
         // handoffs below, so it is adopted before any of them runs (H-RG4 R8).
@@ -218,6 +218,11 @@ export function LiveHttpCapturePanel({
         const session = current as unknown as LiveCaptureSession;
         if (renderer.restoreCurrentSessionOnPageReentry && session.sessionId) {
           await hydrate(session, () => !disposed);
+        }
+        // Preserve the recovery warning after hydration while retaining the
+        // actual platform capability and body-policy information.
+        if (!disposed && recoveryError) {
+          dispatch({ type: "error", message: recoveryError });
         }
       } catch (caught) {
         if (!disposed) {
