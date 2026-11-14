@@ -5656,3 +5656,11 @@ refusal/validretry preservesresult. Browsecancel erasedtypedpath; fixedhandler
 preservesdraft and reportsrealerrors,emptyWorkspace disablesExport. State/build
 pass. PPTXstableboundedselection correction followsseparately;T-627REVIEW.
 Evidence:2026-11-14-windows-final.
+
+### 2026-11-15 - T-627 stable bounded PowerPoint summaries
+
+Replace random Go map10fieldselection with sortedkeys and exactomissionnotice.
+32key/20projection regression failsbefore andfullPPTXsuite passesWindowsamd64/
+386after(0.698s/0.625s). Priornativeoutput keeps separatebeforefixpin; final
+integratednativebuild follows. No sourcevalue or Pythonorderingparity claim.
+Evidence:2026-11-14-windows-final. T-627 REVIEW.

@@ -1,0 +1,7 @@
+{
+  "scope": "Windows exporter package regression, separate from prior native PPTX output",
+  "before": "TestSummarySelectionIsStableAndDisclosesOmission FAIL: 10 lines instead of 10 metrics plus omission notice",
+  "after": {"amd64": "PASS 0.698s", "386": "PASS 0.625s"},
+  "protocol": "32 reverse-inserted keys; 20 repeated projections must retain sorted metric_00..09 and exact22-field omission notice; existing full exporter suite also runs",
+  "nativeAfter": "Pending final integrated build; prior native7200B export is pre-fix and separately hashed"
+}

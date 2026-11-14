@@ -17,6 +17,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/xml"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -340,5 +341,26 @@ func TestFindingsCappedAtSix(t *testing.T) {
 	got := strings.Count(parts["ppt/slides/slide3.xml"], "info: msg")
 	if got != 6 {
 		t.Errorf("expected 6 finding lines, got %d", got)
+	}
+}
+
+func TestSummarySelectionIsStableAndDisclosesOmission(t *testing.T) {
+	summary := make(map[string]any)
+	for i := 31; i >= 0; i-- {
+		summary[fmt.Sprintf("metric_%02d", i)] = i
+	}
+	for run := 0; run < 20; run++ {
+		lines := slidesForPayload(map[string]any{"summary": summary}, "")[1].Lines
+		if len(lines) != 11 {
+			t.Fatalf("summary lines = %d, want 10 metrics plus omission notice", len(lines))
+		}
+		for i := 0; i < 10; i++ {
+			if want := fmt.Sprintf("metric_%02d: %d", i, i); lines[i] != want {
+				t.Fatalf("run %d line %d = %q, want %q", run, i, lines[i], want)
+			}
+		}
+		if !strings.Contains(lines[10], "22 additional metrics omitted") {
+			t.Fatalf("missing exact omission notice: %q", lines[10])
+		}
 	}
 }

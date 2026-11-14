@@ -432,3 +432,15 @@ PPTX source also revealed Go map iteration selecting random10summary fields with
 no omissionnotice; stable boundedselection correction is a separate follow-up,
 not alreadycovered by the oldoutput receipt. No multiselection control exists in
 ExportCenter; full kinds/format/reference/locale/DPI/cancelmatrix remains separate.
+
+## Stable bounded PowerPoint summaries
+
+Native priorPPTX contained correctvalues for a random10fieldsubset; the initial
+readback assumption that315.5must appear was wrong for the documented10fieldcap.
+Source review separately establishes Go map iteration makes subset/order unstable;
+callers cannot pre-sort a Go map as the oldcomment suggested. Export now sorts
+keys, retains10metrics and explicitly states exactomittedcount/JSON-CSValternative.
+Meaningful32key/20projection regression failsbefore(noomissionnotice) and passes
+after,fullPPTXexporter suiteWindowsamd640.698s/3860.625s. Sourceoriginalmeasurement
+semantics unchanged. Nativeafter is pending finalintegratedbuild; oldnativePPTX
+receipt is not relabeled. This does not assert independentPythonorderingparity.

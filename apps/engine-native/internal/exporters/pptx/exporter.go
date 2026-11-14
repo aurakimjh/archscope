@@ -65,6 +65,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -186,17 +187,22 @@ func slidesForPayload(payload map[string]any, title string) []slide {
 	metadata := dictField(payload, "metadata")
 	findings, _ := metadata["findings"].([]any)
 
-	// Up to 10 summary metric lines, deterministic-ish: encoding/json
-	// sorts map keys, so to mirror Python's insertion-ordered dict we
-	// just project k:v pairs in whatever order the input map yields.
-	// The Python source iterates `summary.items()` with no sort, so
-	// neither does this — callers that care can pre-sort.
+	// Go maps have no insertion order. Choose a stable bounded subset and
+	// disclose omitted fields rather than presenting a random subset as complete.
+	keys := make([]string, 0, len(summary))
+	for key := range summary {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
 	metricLines := make([]string, 0, len(summary))
-	for k, v := range summary {
-		metricLines = append(metricLines, fmt.Sprintf("%s: %s", k, formatValue(v)))
-		if len(metricLines) == 10 {
+	for _, key := range keys {
+		if len(metricLines) >= 10 {
 			break
 		}
+		metricLines = append(metricLines, fmt.Sprintf("%s: %s", key, formatValue(summary[key])))
+	}
+	if len(keys) > 10 {
+		metricLines = append(metricLines, fmt.Sprintf("%d additional metrics omitted; use JSON or CSV for all metrics.", len(keys)-10))
 	}
 
 	findingLines := make([]string, 0, 6)
