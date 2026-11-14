@@ -415,3 +415,22 @@ T-627은 REVIEW를 유지합니다. 추가 검증/발견 오류는
 실제 saved-file12행에서 별표·한국어주석 저장, 요청순서 정렬, CtrlS 새파일/ CtrlO 재열기, Down/Up 요청 선택을 확인했습니다. 전체 ID/선택과 주석 외 transaction 필드가 같고 원본파일 해시도 유지됐습니다. Builder 복사 시 닫힌 상위 파일도구가 숨는 오류를 수정해 x64/x86에서 초안을 바로 표시합니다. x64에서 별도 URL로 소유 Docker fixture에 GET200 전송 후 원본12행/주석/파일 바이트는 불변입니다. 네이티브 drag는 변화를 확인하지 못해 미확정입니다. AMF0 tree/text/잘린입력, ViewState 미지원/2B미검증꼬리, AMF3한도 상태도 수동 editor에서 확인했습니다. 이는 live body 또는 전체 원본/DPI/locale 조합 PASS가 아닙니다.
 
 Evidence: docs/review/evidence/2026-11-14-acceptance-remaining/README.md.
+
+### 2026-11-15 Windows 네이티브 화면 순서별 후속 검증
+
+21개 화면을 준비한 입력으로 범위별 점검하고 날짜별 증거를 남겼습니다. 입력
+교체 시 오래된 결과/선택 초기화, GC/JFR/Exception 행 밀도, 없는 시간/CPU 가중치/
+Trace ms/예시 메서드 표기, Diff x86 정수 상한과 소수 표시, Workspace 입력 도움
+접기, Export Browse 취소 보존, PPTX 요약 정렬/생략 수, 차트 CSV 단위/전체 원본
+경로, 증거 동작/Settings 입력의 접근성 이름을 수정했습니다. Chart Studio의
+8개 템플릿×PNG/SVG/CSV 24개 파일을 독립 대조했습니다. Report Diff 비0차이,
+선택 카드/ReportPack 및 같은 프로필 Settings/Board 재시작 보존을 검증했습니다.
+최종 guarded amd64/386 빌드와 선택한 네이티브 이름/소수 Diff 검증을 통과했습니다.
+
+각 증거는 실제 데이터·빌드·언어·창/OS/WebView 배율·한계를 구분합니다. 적거나
+없는 데이터로 밀도 조건을 통과시키지 않았으며 일부 화면은 전체 내러티브/
+시각자료 보관함이 주요 표보다 먼저 나옵니다. SLO 목표 편집, ServiceFlow 별칭
+편집, 카드 편집/정렬 및 일부 필터/출력처럼 노출되지 않은 컨트롤은 부재로
+기록했습니다. 원본 동등성·전체 조건부 상태·실제 OS DPI/KO/EN 조합은 남아 있고
+T-627 REVIEW 및 독립 CONDITIONAL 판정은 유지합니다. 최신 목록과 UI/출력 증거:
+docs/review/evidence/2026-11-14-windows-final/.

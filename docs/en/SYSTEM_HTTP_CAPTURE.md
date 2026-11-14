@@ -2030,3 +2030,28 @@ body-tier, driver/service and full reference acceptance remain separate. T-613
 PENDING/T-627 REVIEW and existing independent verdicts are preserved.
 
 Evidence: docs/review/evidence/2026-11-14-t613-memory/README.md.
+
+### 2026-11-15 Windows follow-up: notes, bodies and bounded memory
+
+The ordered Windows follow-up verifies Unicode note/editing guards, post-mask
+annotation limits, import error/retry, Builder redirect/cancel/header/body cases,
+export boundaries and body-redaction provenance. Actual SEC10-verified x86 body
+capture covers JSON/form masking, duplicate cookies, bounded large bodies, inert
+HTML/raster and gzip wire/decoded sizes. The x64 body path remains preflight-gated;
+no security or dump-policy bypass is used. Native observations and independent
+saved-file/format comparisons are separately pinned.
+
+A predeclared production x86 body-enabled run completes2470.27s/5120requests,
+10Clearcycles and8measured matched180sidles, followed by save/open300sidle.
+Process-tree private-byte median delta16478208B/slope3013632Bcycle, root delta
+-499712B, handles0: unchanged budgets pass BOUNDED_IN_THIS_RUN. Independent
+readback verifies all128retained262144Bprefixes of300020Bresponses and native
+Raw/Body/truncation/liveness. Import-memory initial growth failures and later
+predeclared warmup/continuation runs remain separate. Other native work shares
+the host; this is finite scoped screening, not universal leak freedom.
+
+Original/client parity, actual IME/drag, remaining condition/locale/OS-DPI
+combinations, transparent/driver/service reach, clean-host COM lifecycle and
+isolated Windows disk/power-loss remain open. T-613PENDING/T-627REVIEW and the
+independent CONDITIONAL verdict are unchanged. Current per-case boundaries:
+`docs/review/evidence/2026-11-14-windows-final/remaining-acceptance.json`.

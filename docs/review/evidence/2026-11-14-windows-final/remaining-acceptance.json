@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 2,
+  "asOf": "2026-11-15",
+  "scope": "Completed ordered scoped Windows follow-up across21routes and body-enabled finite memory workload. This is not full acceptance closure or a claim that every Cartesian combination was executed.",
+  "T-627": {
+    "status": "REVIEW",
+    "routes": [
+      {
+        "route": "profiler",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "200 deep paths, selected frame/search/zoom, keyboard/options/help, populated default/compact layout.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": []
+      },
+      {
+        "route": "diff",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "Nonzero before/after and reverse; input invalidation/error/retry; canonical x64/x86 weights, final386 normalized fractional tooltip and independent oracle.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": []
+      },
+      {
+        "route": "gc_log",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "No-clock ordinal reason,60events/heap/pause/missing generations,JVM absent data,compact rows and keyboard.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": []
+      },
+      {
+        "route": "jfr",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "Actual JDK25binary versus independent JFR JSON,153filtered events/29stacks,invalid retry,input reset,missing duration evidence remains unavailable.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": []
+      },
+      {
+        "route": "access_log",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "120parsed/1skipped,5URIgroups,exact latency/status/parser values,no-match,keyboard,Clear invalidation,sampled-method label.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": []
+      },
+      {
+        "route": "exception",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "35signatures/51frame long stack,drawer scroll/close/focus/reopen,no-match,10compact rows,complete reset.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": []
+      },
+      {
+        "route": "thread_dump",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "Single/multiple selected-order snapshots,deadlock cycle,lock contentions,current correlation context,invalid refusal/retry,2vs3 threshold,Clear.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": []
+      },
+      {
+        "route": "msa_profile",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "Count mismatch/incomplete/Capacitylimited/mixed profiles,eligible average excludes capacity samples,input identity reset.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": []
+      },
+      {
+        "route": "trace_import",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "12traces/36spans,orphan parent warning,invalid retry,input reset,EN/KOmsunits,trace/span tables.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": [
+          "Per-trace selection/filter controls not exposed by this page"
+        ]
+      },
+      {
+        "route": "http_capture",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "Unicode star/note full-field roundtrip,editing shortcut guard,import error/retry,bounded import memory,body-enabled native views and export boundaries.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": []
+      },
+      {
+        "route": "browser_cpu",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "12V8records/11msweighted runs,selected search/zoom,no-match,Clear; sample count distinguished from time weight.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": []
+      },
+      {
+        "route": "browser_audit",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "Partial/failed audit with unavailable values/runtime warning,invalid retry,input Clear; no invented0.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": [
+          "Audit filter control not exposed"
+        ]
+      },
+      {
+        "route": "analysis_workspace",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "Result/import disclosure prioritization,Space keyboard collapse,active Access/Trace selection,own result removal.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": []
+      },
+      {
+        "route": "export_center",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "5native formats,exact independent readback,invalid directory target/retry,BrowseEscape draft preservation,empty disabled,stable PPTX sorted10keys/exact22omitted.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": [
+          "Multiselection control not exposed"
+        ]
+      },
+      {
+        "route": "report_diff",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "100→125and250→200 exact nonzero deltas,invalid retry,input reset,pickerEscape,1024x768.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": [
+          "Filter/per-row selection control not exposed"
+        ]
+      },
+      {
+        "route": "chart_studio",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "8templates×3nativeformats=24files;units/full source provenance,numeric readback,Canvas/SVG output,SaveEscape.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": []
+      },
+      {
+        "route": "incident_timeline",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "8events,2sources,search0andquery+severity2rows,source/evidence selected-card add; accessible names fixed/native verified.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": [
+          "Time-range editor/export control not exposed"
+        ]
+      },
+      {
+        "route": "slo_golden_signals",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "84signals/metrics,4violations,6no-evidence targets,exact percent/ms,no-match,evidence add; names fixed/native verified.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": [
+          "Target editor/save/cancel controls not exposed; fixed defaults"
+        ]
+      },
+      {
+        "route": "service_flow",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "1edge/12calls/90msavg-max,no-match,evidence add,actual JSON/Mermaid readback; edge name fixed/native verified.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": [
+          "Alias editor not exposed"
+        ]
+      },
+      {
+        "route": "evidence_board",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "3owned source-specific payloads,4exports with exact ZIP cards,remove1only,2survive restart,7preexisting artifacts preserved; named removal.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": [
+          "Card text editor/reorder control not exposed"
+        ]
+      },
+      {
+        "route": "settings",
+        "state": "SCOPED_VERIFICATION_COMPLETE_ACCEPTANCE_PARTIAL",
+        "verifiedThisFollowup": "0msrefusal/42.5msretry,EN/Dark same-profile restart persistence,KO/System/100/20/wall restored; named inputs native EN/KO.",
+        "fullAcceptanceRemaining": "Identical original/reference fixture parity; all conditional states, actual OS-DPI/locale and density/keyboard combinations beyond the individually pinned receipts. Sparse/no-data branches do not qualify dense layout.",
+        "absentControlsNotPassed": [
+          "Separate cancel control not exposed"
+        ]
+      }
+    ],
+    "nativeEnvironment": "Mostly1280x800 OS100/Web100 KO; selected1024x768/EN/actualOS125 receipts remain individually scoped, not a full matrix."
+  },
+  "T-613": {
+    "status": "PENDING",
+    "newlyVerified": [
+      "33UTF8byte Hangul/emoji/combining annotation persisted under full-field policy; CtrlS editing guards",
+      "Post-mask4096annotation limit; body masked provenance retained",
+      "Builder302nofollow/slowcancel/invalid-header/editedPATCH; source unchanged",
+      "Per-architecture23controller export boundary cases with native subset",
+      "ActualSEC10verified386 six-body content matrix: JSON/form/cookies/large/inertHTML/raster/gzip",
+      "Finite production import-memory history workloads; initial growth failures retained and matched warmup/continuation windows separately assessed",
+      "Body-enabled3862470.27s/5120requests/10Clearcycles/8measuredidlepoints/finalsave-open passes unchanged budgets and independent128bodyprefix readback"
+    ],
+    "remaining": [
+      "Original V7.6.4/client full16case exchange/native display/export equivalence",
+      "ActualHangul IME composition and drag-specific column/Builder paths remain unverified; helper rejected composition key and drag did not establish outcome",
+      "Other body/unsupported/multipart/stream/format/annotation/error/locale/DPI combinations beyond recorded fixtures",
+      "amd64 body-enabled matrix remains actual-preflight gated; no dump/security policy bypass",
+      "Transparent/driver/service/other-session/proxy-ignoring reach requires corresponding native backend and isolated qualification",
+      "Full foreign-client/early-bound COM/session-cookie and clean-host registration lifecycle",
+      "Actual Windows disk exhaustion/power-loss/pressure recovery requires an isolated host/VM; Docker tmpfs is scoped only",
+      "Memory result is BOUNDED_IN_THIS_RUN; other workloads/durations and universal leak freedom remain unqualified"
+    ]
+  },
+  "otherOpenTasks": {
+    "T-601": "Actual WinDivert/native reach and driver-policy evidence remains separate; no driver installation in this shared host.",
+    "T-611": "Original foreign-client/vendor compatibility/session-cookie and clean-host lifecycle remain separate.",
+    "T-654": "Permitted actual CUDA/NCCL distributed inference inputs, selected versions and hardware required.",
+    "T-662": "Actual naturally elevated pressure/nonzero-swap evidence on target host remains required."
+  },
+  "unchangedIndependentVerdict": "CONDITIONAL; no new independent review or PASS"
+}

@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-11-15",
+  "latestProductCommit": "d7fe9a48",
+  "finalNativeBuildStamp": "6b3cf283-plus-settings-labels",
+  "nativeCases": 173,
+  "nativeCaseResultsIncludingPreservedBeforeFixFailures": {
+    "PASS": 140,
+    "OBSERVED": 1,
+    "INCONCLUSIVE": 3,
+    "FAIL": 22,
+    "PARTIAL": 7
+  },
+  "builds": [
+    {
+      "file": "archscope-qa-chart-amd64.exe",
+      "bytes": 56265728,
+      "sha256": "37793e270f863aa8a363c884bc78e3dc21e2579841b4cf599c78dfa3b3ecbe8e"
+    },
+    {
+      "file": "archscope-final-386.exe",
+      "bytes": 54318080,
+      "sha256": "48f0176825ade87231884d46c24f937e982f65284e42e99744f23b43d7756e31"
+    }
+  ],
+  "checks": {
+    "guardedWindowsFullAppTests": {
+      "amd64": "PASS37.231s",
+      "386": "PASS43.895s",
+      "scope": "After final GoPPTXchange; later changes are frontend labels/CSV and memory harness."
+    },
+    "frontend": "Final state regression + tsc/Vite PASS after settings labels",
+    "guardedWindowsNativeBuilds": "amd64/386 production,layoutaudit PASS;386 uses POINTABI guard",
+    "dockerRace": "24capture packages/session files previously pass; profiler afterDiffGochange PASS1.757s; initial noexec setup failure preserved privately",
+    "helperRegressionTests": {
+      "memory": 8,
+      "soak": 41,
+      "failed": 0
+    },
+    "independentArtifactReadback": "Chart24;Workspace5modes;stablePPTXtwice;ServiceFlowJSON/Mermaid;Board4outputs;bodymemoryall128prefixes;Diffroundedunionoracle"
+  },
+  "privateLogHashes": [
+    {
+      "file": "final-after-pptx-app-amd64-test.log",
+      "bytes": 82,
+      "sha256": "59083d872d8c3090f448908e5946a78e462ce6e0ccff0d7ef0eae5c24649a457"
+    },
+    {
+      "file": "final-after-pptx-app-386-test.log",
+      "bytes": 82,
+      "sha256": "a3649c3db689d7372ab9513219a00f029b752caf435f84374af80a1d5b964d36"
+    },
+    {
+      "file": "settings-state.log",
+      "bytes": 170,
+      "sha256": "3e6dc9263931725271709552759a92e933f7959e2b1b9c69475a3e30a57ee0ec"
+    },
+    {
+      "file": "settings-build.log",
+      "bytes": 6255,
+      "sha256": "d37d6413920324e5e6b472a4c74d389cae08a884751a16529d358c6e08a1aae8"
+    },
+    {
+      "file": "final-native-amd64-build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "final-native-386-build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "docker-profiler-race-retry.log",
+      "bytes": 241,
+      "sha256": "a7eb09298ed1d785104f833cf74ad4c4e0dab844b0cb7cfe72a7e190ace2d534"
+    },
+    {
+      "file": "docker-capture-race.log",
+      "bytes": 2227,
+      "sha256": "7babb71cfda5e3ac4a41bc46bbdc4cd67710f3f7e225e75757710b7a300a451a"
+    },
+    {
+      "file": "docker-session-race.log",
+      "bytes": 176,
+      "sha256": "997465d65df0873d4efe5f5c1ba84c70fba05d6d1719934b938af6aafb6b2a89"
+    },
+    {
+      "file": "final-memory-helper-tests.log",
+      "bytes": 1692,
+      "sha256": "811aec57bcc59e232853cd90a0c5dabaf2403b6a785111b93e700f8b5f30dd00"
+    },
+    {
+      "file": "final-soak-helper-tests.log",
+      "bytes": 8993,
+      "sha256": "5f19e6498c1275fa2e2e49181cc29897675f2c94db6ef2d55a06d73a5364267f"
+    }
+  ],
+  "changedProductSource": [
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/bridge/types.ts",
+      "gitIndexSha256": "2c6e4919d4f946c99d6d0b53b4ef6402d886edbf2c82fb3e75cbc97bf55c0345"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/components/CanvasFlameGraph.tsx",
+      "gitIndexSha256": "5ee71e85f9d1f86f1217290283f62480ce2ec0afb9732fbeeba6b7729c367ae2"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/components/EvidenceResultPanel.tsx",
+      "gitIndexSha256": "a68eeb5b2c230541f425faf2fd199f6d0b760ec6f731e4110b0dedef19dee1ea"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/components/HttpContentView.tsx",
+      "gitIndexSha256": "4d48f6c72dda113dbee69997c3372223cad7c3e07e914b1bb8c1f30eddfdc0f9"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/i18n/messages.ts",
+      "gitIndexSha256": "809cd9f73e63d554eb8825a72ad3e3b50f34c0bac6d5fe4f55feb6f46834ad26"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/AccessLogAnalyzerPage.tsx",
+      "gitIndexSha256": "0025dba9f65b5465e0c24cc94f4ae089610fa933a14ecfdd36d71a4bd098d66b"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/BrowserCpuProfilePage.tsx",
+      "gitIndexSha256": "0d7e1add1d2272533e8d227826227abecd0b39b3f3436c1eea7493c1dafe5524"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/ChartStudioPage.tsx",
+      "gitIndexSha256": "6fa71fd6fbd8a7f3a417d41620a1801e0a72bad6e3c5c4dee9da51bf4c40742b"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/DiffPage.tsx",
+      "gitIndexSha256": "4bff9f9d36ba08e17ba72f5670a1d6014bab708839a77503e4b10ae3748b207d"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/EvidenceBoardPage.tsx",
+      "gitIndexSha256": "29e289a4619d18764a90a1407e604b1c8889453471115a973fbc373a281a2fc2"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/ExceptionAnalyzerPage.tsx",
+      "gitIndexSha256": "cdc1b3eaf44fc2a1f16847df8d8040ca62be49d1c730718e9c61be025f53232b"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/ExportCenterPage.tsx",
+      "gitIndexSha256": "808e649e7e57125d79a1761e0ba92e809316b5c644852d7cb59747812952cb21"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/GcLogAnalyzerPage.tsx",
+      "gitIndexSha256": "75c758b70aca9938e074fbe90a45418c687b7fcfa9945f8cf8d1f5bea6c0d44e"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/HttpCapturePage.tsx",
+      "gitIndexSha256": "dcd7bf09d6723856edfc60c4a871f912c3303bb47c7a2a301104cf5acb9074b2"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/IncidentTimelinePage.tsx",
+      "gitIndexSha256": "c5ac6082a16198951db7b9cd6f014ecd5ea44faa33dd3abc7c4413c92c3ffdc0"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/JenniferProfilePage.tsx",
+      "gitIndexSha256": "edfaddeed91a8f4550609ecec5d503733091109e342e6b9fba57e782532c0ab8"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/JfrAnalyzerPage.tsx",
+      "gitIndexSha256": "4affd3f61a1046ac2f67565b0e383e0c3597733f8323e64767fc5149614ef178"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/LighthouseAuditPage.tsx",
+      "gitIndexSha256": "bfcd2e24ca4328fa61a6fdd13ae4d75f2b408c8f90bccd99b62e0be9bf4efbca"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/ReportDiffPage.tsx",
+      "gitIndexSha256": "c29c890b1dfc8e827e4f82cc9fae0646df56025596fff1e7cde005b9b884e4c9"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/ServiceFlowPage.tsx",
+      "gitIndexSha256": "ef50869f8a87544c7eef9cc89283a3bdef88c830ba586a35b67525caefd4794e"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/SettingsPage.tsx",
+      "gitIndexSha256": "a6289abc4389401ab68e2bc814e192c03cce5c7b74ad267141c042cbabdf0587"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/SloGoldenSignalsPage.tsx",
+      "gitIndexSha256": "78dec4c85083f5caa20b9ee42933758e6d347038722085c3145f1e6b403d4ea5"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/ThreadDumpAnalyzerPage.tsx",
+      "gitIndexSha256": "c1ec962eacc1e489ee6e9df746f09d452cdd7c2ccb227035bbe72c9bae9950f4"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/TraceImportPage.tsx",
+      "gitIndexSha256": "11876f5389557388c1c83483bfe370eab9f9e9d57aaa3334f8b589436fcaae71"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/state/chartStudioExport.ts",
+      "gitIndexSha256": "2c9cd675e01a8cb7e646e0695fb51abd98e3dde6b615aa5c40b227bf0f411756"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/state/profilerDiffView.ts",
+      "gitIndexSha256": "180106f91b37863b55475e38202573b0c17609b5c2f91b0988060426b200b3a3"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts",
+      "gitIndexSha256": "cb4579a1c91d4d145a9445cc59968dc6c4606b464e9de7aac84d6924688f17f3"
+    },
+    {
+      "path": "apps/engine-native/internal/capture/sessionfile/annotation_limit_test.go",
+      "gitIndexSha256": "576e8d151ce54c85a6049c33c110ab8e8116f74150d6cc59eaf05ffb361d6bc5"
+    },
+    {
+      "path": "apps/engine-native/internal/capture/sessionfile/body_redaction_test.go",
+      "gitIndexSha256": "671732c540f1646f7398e305eacee4dc93f2b9b312b27128224b01faf75c59b1"
+    },
+    {
+      "path": "apps/engine-native/internal/capture/sessionfile/sessionfile.go",
+      "gitIndexSha256": "ab15cd160b074e5983fd1b8827cdea017184a1311bad7c50b0ca6766aecb0ca4"
+    },
+    {
+      "path": "apps/engine-native/internal/exporters/pptx/exporter.go",
+      "gitIndexSha256": "d393d0818210e62348ff97341fd70c9022955c3b672c997ae026398a64951eda"
+    },
+    {
+      "path": "apps/engine-native/internal/exporters/pptx/exporter_test.go",
+      "gitIndexSha256": "667eb6eef236670eb0523a750a46e1c6943e8fbddc6aff347d05136cc5d147bc"
+    },
+    {
+      "path": "apps/engine-native/internal/profiler/diff.go",
+      "gitIndexSha256": "e44f9fc1c0acdbe58b5ec0e60be5e9ce8f77ca40b0c76144cbec8b479759d360"
+    },
+    {
+      "path": "apps/engine-native/internal/profiler/diff_projection_test.go",
+      "gitIndexSha256": "10c84ac9beffd2ebcc9288039ca3887fcf96852065b8f7aaec2387e2d0d1ccca"
+    }
+  ],
+  "scopeLimitations": "See remaining-acceptance.json; no new full acceptance or independent PASS; private controllers/raw capture stores not published."
+}

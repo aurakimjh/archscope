@@ -1,0 +1,20 @@
+{
+  "ownedDesktopAppsStopped": [
+    "body-memory386",
+    "finalnativeamd64",
+    "finalnative386"
+  ],
+  "ownedDockerFixtureRemoved": "archscope-windows-final-20261114",
+  "preservedRunningContainers": [
+    "kind-cloud-provider",
+    "kind-registry-mirror",
+    "desktop-worker2",
+    "desktop-control-plane",
+    "desktop-worker4",
+    "desktop-worker",
+    "desktop-worker3"
+  ],
+  "privateEvidencePreserved": true,
+  "settingsRestored": "Original isolated profile KO/System,100ms/20/wall",
+  "userAppsAndStores": "Preserved; own profiles/controller/capture stores stay private"
+}

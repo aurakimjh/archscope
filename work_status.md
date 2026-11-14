@@ -5757,3 +5757,15 @@ independent rounded-union-envelope oracle. Earlier label/formatting pending
 observations are closed within these selected fixtures. Full reference and
 locale/DPI acceptance remains separate; T-613PENDING/T-627REVIEW unchanged.
 Evidence:2026-11-14-windows-final/diff-final-normalized-oracle.json.
+
+### 2026-11-15 - ordered Windows follow-up final inventory
+
+21routes/173native cases include preserved failures and inconclusive boundaries.
+All work items have separate commits; current inventory keeps T-613PENDING,
+T-627REVIEW and original CONDITIONAL unchanged. Final guarded app tests pass
+amd6437.231s/38643.895s; frontendstate/build, guarded native builds and helper8+41
+pass. Owned apps/fixture cleaned;7preexistingcontainers preserved. Raw controllers/
+stores remain private. Paired EN/KO HTTP/layout notes and exact artifact hashes
+updated. Current original/reference/IME/driver/clean-host/isolated-fault and full
+condition/DPI/locale boundaries are explicit; no universal acceptance PASS.
+Evidence:2026-11-14-windows-final/remaining-acceptance.json,final-validation.json.

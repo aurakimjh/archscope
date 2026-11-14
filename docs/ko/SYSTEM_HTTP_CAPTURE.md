@@ -5267,3 +5267,28 @@ source324 메모리 실행과8985736f 복구 초기화 수정의 native 검증�
 T-613 PENDING/T-627 REVIEW 및 기존 독립 판정은 유지합니다.
 
 Evidence: docs/review/evidence/2026-11-14-t613-memory/README.md.
+
+### 2026-11-15 Windows 후속 검증: 주석·본문·유한 메모리 측정
+
+순서별 Windows 후속 검증에서 Unicode 주석/편집 단축키 보호, 마스킹 후 주석
+한도, import 오류/재시도, Builder redirect/취소/헤더/본문, 출력 경계와 본문
+마스킹 이력 보존을 확인했습니다. 실제 SEC10 검증된 x86 본문 수집으로 JSON/
+form 마스킹, 중복 쿠키, 큰 본문 상한, inert HTML/raster 및 gzip 전송/디코딩
+크기를 검증했습니다. x64 본문 경로는 실제 사전검증 gate가 남아 있으며 보안·
+dump 정책을 우회하지 않았습니다. 네이티브 관찰과 독립 파일 대조는 빌드별로
+구분해 기록했습니다.
+
+사전 선언한 production x86 본문 활성화 실행은 2470.27초/5120건, Clear 10회,
+측정 대상 8회의 동일 부하 후 180초 유휴, 저장/재열기 후 300초 유휴를 마쳤습니다.
+프로세스 트리 private bytes 중앙값 차이 16478208B/회당 기울기 3013632B,
+앱 루트 차이 -499712B, 핸들 차이 0으로 기존 기준 안의 BOUNDED_IN_THIS_RUN입니다.
+독립 검증은 보관 128건 모두에서 300020B 본문의 정확한 262144B 앞부분과 네이티브
+Raw/Body/잘림 안내/생존을 확인했습니다. import 메모리의 초기 증가 실패와 이후
+사전 선언한 준비/연속 측정은 구분합니다. 다른 네이티브 작업과 호스트를 공유한
+유한 측정이며 모든 입력·시간에 대한 누수 없음 판정은 아닙니다.
+
+원본/client 전체 동등성, 실제 IME/drag, 남은 조건/언어/실제 OS DPI 조합,
+transparent/driver/service 범위, clean-host COM과 격리된 Windows 디스크/전원
+손실 조건은 남습니다. T-613 PENDING/T-627 REVIEW 및 독립 CONDITIONAL 판정을
+유지합니다. 최신 조건별 상태: docs/review/evidence/2026-11-14-windows-final/
+remaining-acceptance.json.

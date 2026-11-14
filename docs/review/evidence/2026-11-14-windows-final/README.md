@@ -606,3 +606,20 @@ canonical a/b and inclusive max-envelope geometry. This percentage is a share
 of the union tree, not either input's individual share. It closes the final
 formatting-only smoke pending in the earlier Diff receipt. Remaining original
 reference and full condition/locale/DPI scope is unchanged.
+
+## Final inventory, validation and cleanup
+
+The ordered scoped follow-up covers21routes and173native cases (including
+preserved before-fix failures and explicit inconclusive observations). It does
+not convert partial acceptance into DONE. remaining-acceptance.json replaces
+stale body-gated/untested descriptions with current verified slices and actual
+remaining reference, environment, unexposed-control and matrix boundaries.
+final-validation.json records final binaries/source and private test-log hashes.
+Both full guarded Windows app suites passed after the final Go exporter change;
+final frontend state/build and guarded amd64/386 builds passed. Memory helper8
+and soak helper41regressions pass. Final secret scan checks actual owned tokens;
+artifact-sha256.json hashes committed Git-index bytes, excluding itself.
+Cleanup removes only owned apps and the labeled Docker fixture; all7preexisting
+containers stay running, private raw evidence remains local. Settings restore to
+their original isolated-profile values. Earlier evidence directories are history
+and are not retroactively relabeled by these scoped results.

@@ -387,3 +387,24 @@ Additional receipts are in docs/review/evidence/2026-11-14-acceptance-remaining.
 Native selected12-row saved-file tests cover star/Unicode notes, descending request order, CtrlS/CtrlO roundtrip and Down/Up identity. All IDs/selection and transaction fields except annotations match; source file hashes survive later operations. The Builder reveal fix exposes copied drafts on x64/386. A separate edited URL returns Docker-loopback GET200 on x64 while original12rows/notes/files remain unchanged. Drag is INCONCLUSIVE. Manual legacy editor observations cover AMF0 tree/text/truncation, unsupported ViewState and2B unverified tail, and AMF3 limits. These are not full live-body/reference/locale/DPI acceptance.
 
 Evidence: docs/review/evidence/2026-11-14-acceptance-remaining/README.md.
+
+### 2026-11-15 ordered Windows native route follow-up
+
+All21routes receive scoped prepared-data checks recorded in the dated receipt.
+Corrections include stale-input result/selection reset, GC/JFR/Exception compact
+rows, missing-duration/CPU-weight/Trace-ms/sample-method labels, Diff x86 integer
+bounds/fractional geometry, Workspace import disclosure, Export Browse-cancel,
+stable bounded PPTX summaries, Chart CSV units/full provenance and named evidence/
+Settings actions. Chart Studio8templates×PNG/SVG/CSV produce24independently checked
+files. Report Diff nonzero values, selected-card/ReportPack roundtrip and same-
+profile Settings/Board restart persistence are verified. Final guarded amd64/386
+builds and selected final native label/fractional-Diff checks pass.
+
+Each receipt states actual data, build, language, window/OS/WebView scale and
+limits. Sparse/empty data does not qualify density; full narrative/visual-library
+sections still precede some primary tables. Missing controls (SLO target editor,
+ServiceFlow alias editor, card edit/reorder and selected filters/export controls)
+are listed as absent, never as successful interactions. The full original-
+reference, conditional-state and actualOS-DPI/KO/EN matrix remains open;
+T-627REVIEW and independent CONDITIONAL stay unchanged. Current inventory and
+native/output evidence: docs/review/evidence/2026-11-14-windows-final/.
