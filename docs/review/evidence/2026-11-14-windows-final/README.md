@@ -75,3 +75,28 @@ arrives. The same native CtrlO flow automatically shows the error and Open retry
 controls with no reveal click. Frontend state tests and production build pass;
 both guarded desktop builds succeed. A valid32-row retry succeeds. This changes
 error visibility, not file contents or the validation refusal.
+
+## 3. Builder and file combinations
+
+Native amd64 Builder uses the owned loopback Docker origin: GET302does not follow
+Location, cancellation stops a15second delayed request at8400ms, malformed headers
+are refused before any request, and edited PATCH with18UTF8bytes succeeds200after
+correction. The original32-row file/selection/note are separate and unchanged.
+Native Builder/source panes and origin request hashes are observed independently.
+
+Both fixed architectures pass23controller cases each: truncated/duplicate-ID/
+post-masking-overflow input refusal with unchanged bytes;10export formats × all/
+filtered scopes; stale filtered-ID refusal and valid retry. Session/HAR preserve
+all values and selection; XML additionally declares empty cookie slices→null
+(64fields for32rows,6for3rows). Compact XML explicitly omits bodies. Native HALOG
+refuses the emoji comment under codepage949without output, then a separately
+declared compatible-comment input exports/reopens successfully. No silent
+transcoding or exact native-format field parity is claimed. Text/URL/HTML/XLS and
+response folders are output checks, not universal native dialog/Office acceptance.
+
+Initial harness assumptions that native949could encode emoji and that XML empty
+cookie arrays remain[]were corrected before the successful v3runs; original setup
+failures stay private. They are not new product defects. Native Go Builder/proxy/
+sessionfile tests pass on both arches (functional-validation.json), covering raw/
+form/multipart, timeout/cancel, TLS refusal and response limits. GUI form/multipart
+and Builder drag remain separate from those backend tests.

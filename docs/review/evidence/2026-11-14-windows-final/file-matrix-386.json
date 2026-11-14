@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "scope": "Actual owned Windows desktop controller; not every export dialog/native viewer",
+  "passed": true,
+  "binarySource": "adfc9544 plus two-line imported-comment post-redaction limit fix",
+  "cases": [
+    {
+      "case": "truncated",
+      "rejected": true,
+      "sourceBytesUnchanged": true,
+      "reason": "unexpected end of JSON input"
+    },
+    {
+      "case": "duplicate-id",
+      "rejected": true,
+      "sourceBytesUnchanged": true,
+      "reason": "empty or duplicate exchange ID"
+    },
+    {
+      "case": "redaction-growth",
+      "rejected": true,
+      "sourceBytesUnchanged": true,
+      "reason": "redacted comment exceeds 4096 bytes"
+    },
+    {
+      "format": "session",
+      "scope": "all",
+      "rows": 32,
+      "bytes": 107848,
+      "sha256": "07ebe2d457b8b71bc96cf5f45b8317fe7de4a7b6bb54cc7885084cfa7b35e717",
+      "reopenedRows": 32,
+      "selectionPreserved": true,
+      "allTransactionFieldsAndAnnotationsMatchDeclaredPolicy": true
+    },
+    {
+      "format": "har",
+      "scope": "all",
+      "rows": 32,
+      "bytes": 185640,
+      "sha256": "f636bc1dde2b6aae55e34ec3fab390f3aee3bb849b973281d6793980cfd8fdb7",
+      "reopenedRows": 32,
+      "selectionPreserved": true,
+      "allTransactionFieldsAndAnnotationsMatchDeclaredPolicy": true
+    },
+    {
+      "format": "native",
+      "scope": "all",
+      "rows": 32,
+      "unrepresentableUnicodeRefusedWithoutOutput": true,
+      "nativeRetryUsesDeclaredCP949CompatibleComment": true,
+      "bytes": 70388,
+      "sha256": "80ce7a0dc9d3e65ffda2cea51c563d2fe59b6833a20e897f21ce3a4fceeb26b6",
+      "reopenedRows": 32
+    },
+    {
+      "format": "xml",
+      "scope": "all",
+      "rows": 32,
+      "bytes": 151079,
+      "sha256": "382e01915f0a1bcd0b79d26e4d771b44655e8dbb2bc8b306221bccb607ac0ed0",
+      "reopenedRows": 32,
+      "selectionPreserved": true,
+      "xmlEmptyCookieSlicePolicy": {
+        "version": "1.0.0",
+        "nullVersusEmptyArrayFields": 64
+      },
+      "allTransactionFieldsAndAnnotationsMatchDeclaredPolicy": true
+    },
+    {
+      "format": "xml_compact",
+      "scope": "all",
+      "rows": 32,
+      "bytes": 151527,
+      "sha256": "80f80d20261c0adb37d5d9c109b62f9b0571825a98d61f8ffd6a08166790ef1e",
+      "reopenedRows": 32,
+      "selectionPreserved": true,
+      "compactOmissionExplicit": true
+    },
+    {
+      "format": "urls",
+      "scope": "all",
+      "rows": 32,
+      "bytes": 1430,
+      "sha256": "be46eaf9fc8956771730dc3de17967b17c6e405d08da82bddfb8efd1424d7de0"
+    },
+    {
+      "format": "text",
+      "scope": "all",
+      "rows": 32,
+      "bytes": 12320,
+      "sha256": "364531f444c2e94fa724a6876c68962a2e48bdfc12ca17dd88b2c8ace9ad5285"
+    },
+    {
+      "format": "html",
+      "scope": "all",
+      "rows": 32,
+      "bytes": 22176,
+      "sha256": "f932c22ae593747d0a4ae96e5795623edd0bcae64c21f64b1353da2ac2b28a1c"
+    },
+    {
+      "format": "xls",
+      "scope": "all",
+      "rows": 32,
+      "bytes": 30208,
+      "sha256": "cca915c33f0677d493e08ce1e55a941f827382fc4b3469a4d44a87ee0e068043"
+    },
+    {
+      "format": "responses",
+      "scope": "all",
+      "rows": 32,
+      "outputDirectoryCount": 1
+    },
+    {
+      "format": "session",
+      "scope": "filtered",
+      "rows": 3,
+      "bytes": 10312,
+      "sha256": "b310a9f8bb099278a1403a4941b4ee42d28fc31fff36690366e38e3c0f1215ee",
+      "reopenedRows": 3,
+      "selectionPreserved": true,
+      "allTransactionFieldsAndAnnotationsMatchDeclaredPolicy": true
+    },
+    {
+      "format": "har",
+      "scope": "filtered",
+      "rows": 3,
+      "bytes": 17777,
+      "sha256": "e0ba87af44ecf7be819a832451851aef6bd672a0d31a7f70b36df352580c70cf",
+      "reopenedRows": 3,
+      "selectionPreserved": true,
+      "allTransactionFieldsAndAnnotationsMatchDeclaredPolicy": true
+    },
+    {
+      "format": "native",
+      "scope": "filtered",
+      "rows": 3,
+      "unrepresentableUnicodeRefusedWithoutOutput": true,
+      "nativeRetryUsesDeclaredCP949CompatibleComment": true,
+      "bytes": 6769,
+      "sha256": "ed86aadba4fd4c56f4eeea40c446f0340fdfb50e6828c87c90f0ac44d0de0fef",
+      "reopenedRows": 3
+    },
+    {
+      "format": "xml",
+      "scope": "filtered",
+      "rows": 3,
+      "bytes": 14422,
+      "sha256": "d73254bb69f508267b27cdd2507553bb8bb470b35c180176130d11d37b762f04",
+      "reopenedRows": 3,
+      "selectionPreserved": true,
+      "xmlEmptyCookieSlicePolicy": {
+        "version": "1.0.0",
+        "nullVersusEmptyArrayFields": 6
+      },
+      "allTransactionFieldsAndAnnotationsMatchDeclaredPolicy": true
+    },
+    {
+      "format": "xml_compact",
+      "scope": "filtered",
+      "rows": 3,
+      "bytes": 14464,
+      "sha256": "51439a7ab97f2f5786d85db09de3ab5894019f9b0fc8695f1286838e434e1870",
+      "reopenedRows": 3,
+      "selectionPreserved": true,
+      "compactOmissionExplicit": true
+    },
+    {
+      "format": "urls",
+      "scope": "filtered",
+      "rows": 3,
+      "bytes": 134,
+      "sha256": "74429ce541ec39d434f92e9f9554032ac427e5c0593e87b8f647cc23d07996c7"
+    },
+    {
+      "format": "text",
+      "scope": "filtered",
+      "rows": 3,
+      "bytes": 1356,
+      "sha256": "537783bd03dbf1c2eea267ad9c3df550a73daefa8e266ed63a2aa06faeb824a5"
+    },
+    {
+      "format": "html",
+      "scope": "filtered",
+      "rows": 3,
+      "bytes": 2628,
+      "sha256": "7c13fe9137ecab11249fbe24a88c9d58583583ea1e8ab85e77f9620b9456e61c"
+    },
+    {
+      "format": "xls",
+      "scope": "filtered",
+      "rows": 3,
+      "bytes": 5632,
+      "sha256": "1d14a4a986075557f8cdea0339204f3f0a83980c8961e159063d748534f4885c"
+    },
+    {
+      "format": "responses",
+      "scope": "filtered",
+      "rows": 3,
+      "outputDirectoryCount": 1
+    }
+  ],
+  "staleFilteredIDRefusedWithoutOutput": true,
+  "originalSourceUnchanged": true,
+  "validRetryOpened32": true
+}

@@ -1214,6 +1214,14 @@ prevents a full-card-count verdict. Five receipts have independent arithmetic an
 same-seven-process measured-window checks. Full Windows app suites pass43.890s/
 46.409s after the two fixes; existing capture/long-run evidence remains unchanged.
 
+Windows Builder/file combinations: native amd64 Docker302/no-follow, delayed
+cancel, malformed-header refusal and UTF8PATCH retry pass with original session
+unchanged. Both fixed desktop controllers pass23cases each across10formats ×
+all/filtered scopes plus malformed input/stale-ID handling. XML empty-cookie
+slice and native949emoji refusal/compatible retry are explicit; no full native
+dialog/Office/format parity is implied. Backend Builder/proxy/sessionfile suites
+pass both architectures, including form/multipart/timeout/TLS/limit cases.
+
 Revised-runner long duration and the10-minute Clear path are now verified on
 Windows x64/x86 with an isolated shared Docker origin. Source324a8d97 app binaries
 are unchanged; runner1b30244b adds explicit empty-generation/reset/refill checks.
