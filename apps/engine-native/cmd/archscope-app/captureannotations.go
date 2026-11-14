@@ -13,6 +13,9 @@ func cleanAnnotation(value models.HTTPAnnotation) (models.HTTPAnnotation, error)
 		return value, fmt.Errorf("comment exceeds 4096 UTF-8 bytes")
 	}
 	value.Comment, _ = redact.NewPolicy(redact.Options{}).RedactBody("text/plain", value.Comment)
+	if len(value.Comment) > 4096 {
+		return value, fmt.Errorf("redacted comment exceeds 4096 UTF-8 bytes")
+	}
 	return value, nil
 }
 func (s *CaptureService) GetCaptureAnnotations(sessionID string) (map[string]models.HTTPAnnotation, error) {

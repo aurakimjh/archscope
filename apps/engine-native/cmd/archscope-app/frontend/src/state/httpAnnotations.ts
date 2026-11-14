@@ -1,6 +1,8 @@
 import type {HttpCaptureTransactionRow,HttpCaptureFinding} from "../bridge/types";
 import type {MessageKey} from "../i18n/messages";
 export type HttpAnnotation={starred:boolean;comment:string};
+export const MAX_ANNOTATION_COMMENT_BYTES=4096;
+export function annotationCommentBytes(comment:string):number{return new TextEncoder().encode(comment).length;}
 export function rowHints(row:HttpCaptureTransactionRow):{code:string;key:MessageKey}[]{
  const out:{code:string;key:MessageKey}[]=[];const add=(condition:boolean,code:string,key:MessageKey)=>{if(condition)out.push({code,key})};
  add(row.status>=400,"HTTP_ERROR","httpHintHttpError");add(["failed","aborted"].includes(row.state),"INCOMPLETE","httpHintIncomplete");add(["request_sent","receiving"].includes(row.state),"PENDING","httpHintPending");add([row.request,row.response].some(m=>m.bodyStorage==="omitted"||m.bodyStorage==="export_omitted"),"BODY_OMITTED","httpHintOmitted");add([row.request,row.response].some(m=>m.bodyStorage==="truncated"),"BODY_TRUNCATED","httpHintTruncated");add([row.request,row.response].some(m=>m.redacted||(m.headers??[]).some(h=>h.redacted)),"REDACTED","httpHintRedacted");add(!row.process||row.process.attribution!=="confirmed","PROCESS_UNKNOWN","httpHintProcess");add(Boolean(row.informational_truncated),"INTERIM_TRUNCATED","httpCaptureInterimTruncated");return out;

@@ -3104,6 +3104,9 @@ assert(inspectJson({...formMessage,bodyStorage:"truncated",bodyPreview:'{"a":'})
 assert(inspectJson({...formMessage,bodyPreview:"null"}).value === null, "JSON null is a valid document");
 
 import { HTTP_COLUMNS, restoreHttpColumns, httpColumnMatches, httpColumnValue } from "./httpColumns.js";
+import {annotationCommentBytes,MAX_ANNOTATION_COMMENT_BYTES} from "./httpAnnotations.js";
+for(const comment of ["a".repeat(4096),"가".repeat(1365)+"a","😀".repeat(1024)])assert(annotationCommentBytes(comment)===MAX_ANNOTATION_COMMENT_BYTES,"annotation limit must count UTF-8 bytes rather than UTF-16 characters");
+assert(annotationCommentBytes("가".repeat(1366))>MAX_ANNOTATION_COMMENT_BYTES&&annotationCommentBytes("😀".repeat(1025))>MAX_ANNOTATION_COMMENT_BYTES,"Unicode overflow must not pass the byte boundary");
 const restoredColumns = restoreHttpColumns([{key:"path",width:2,visible:false},{key:"path",width:400},{key:"removed",visible:true}]);
 assert(restoredColumns.length===HTTP_COLUMNS.length && restoredColumns[0]?.width===48, "column preferences must migrate and bound malformed widths");
 assert(restoredColumns.filter(c=>c.key==="path").length===1 && restoredColumns.some(c=>c.visible), "column preferences must keep unique keys and a visible column");
@@ -3112,6 +3115,7 @@ assert(httpColumnMatches(selectedLiveRow,"status","gte","200") && !httpColumnMat
 const queryColumnRow={...selectedLiveRow,path:"/fixture",query:"",url:"http://example.test/fixture?slot=004&token=%5BREDACTED%5D",response:{...selectedLiveRow.response,contentType:"application/json",bodySize:-1}};
 assert(httpColumnValue(queryColumnRow,"kind")==="json" && httpColumnMatches(queryColumnRow,"kind","equals","json"),"Type field filtering must use the displayed resource classification");
 assert(httpColumnValue(queryColumnRow,"path")==="/fixture?slot=004&token=%5BREDACTED%5D" && httpColumnMatches(queryColumnRow,"path","contains","slot=004"),"live Path filtering must include the retained redacted URL query when the separate query is empty");
+assert(sortTransactions([{...queryColumnRow,id:"query-b",sequence:1,url:"http://example.test/fixture?b"},{...queryColumnRow,id:"query-a",sequence:2,url:"http://example.test/fixture?a"}],{column:"path",direction:"asc"})[0].id==="query-a","Path sorting must use the same query-bearing value as the column/filter");
 assert(!httpColumnMatches(queryColumnRow,"bodySize","lte","100"),"unknown body size must not match a numeric bound as negative one");
 assert(httpGroupedEntries([selectedLiveRow,reusedPid],new Set(),"host").length===3, "host grouping must join requests from separate process instances");
 

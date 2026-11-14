@@ -11,6 +11,20 @@ import (
 	"testing"
 )
 
+func TestAnnotationUTF8BoundariesAndRedactionExpansion(t *testing.T) {
+	for _, comment := range []string{"", strings.Repeat("a", 4096), strings.Repeat("가", 1365) + "a", strings.Repeat("😀", 1024)} {
+		saved, err := cleanAnnotation(models.HTTPAnnotation{Comment: comment})
+		if err != nil || saved.Comment != comment {
+			t.Fatalf("valid %d-byte annotation rejected: %v", len(comment), err)
+		}
+	}
+	for _, comment := range []string{strings.Repeat("a", 4097), strings.Repeat("가", 1366), strings.Repeat("😀", 1025), strings.Repeat("password=x ", 300)} {
+		if _, err := cleanAnnotation(models.HTTPAnnotation{Comment: comment}); err == nil {
+			t.Fatalf("invalid/expanded annotation accepted: input %d bytes", len(comment))
+		}
+	}
+}
+
 func TestAnnotationsKeepIdentityAcrossSaveReopen(t *testing.T) {
 	root := t.TempDir()
 	persisted, err := store.New(store.Config{Root: root, SessionID: "cap-notes-fixture", ReserveBytes: 0})
@@ -29,6 +43,15 @@ func TestAnnotationsKeepIdentityAcrossSaveReopen(t *testing.T) {
 	saved, err := service.SetCaptureAnnotation("cap-notes-fixture", "b", models.HTTPAnnotation{Starred: true, Comment: "password=private"})
 	if err != nil || strings.Contains(saved.Comment, "private") {
 		t.Fatalf("%+v %v", saved, err)
+	}
+	for _, rejected := range []string{strings.Repeat("a", 4097), strings.Repeat("password=x ", 300)} {
+		if _, e := service.SetCaptureAnnotation("cap-notes-fixture", "b", models.HTTPAnnotation{Comment: rejected}); e == nil {
+			t.Fatal("invalid update accepted")
+		}
+		preserved, e := service.GetCaptureAnnotations("cap-notes-fixture")
+		if e != nil || preserved["b"] != saved {
+			t.Fatal("rejected update changed committed annotation", e)
+		}
 	}
 	reopened, err := service.GetCaptureAnnotations("cap-notes-fixture")
 	if err != nil || !reopened["b"].Starred || reopened["a"].Starred {
