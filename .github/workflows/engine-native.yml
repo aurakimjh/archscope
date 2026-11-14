@@ -7,6 +7,9 @@ on:
       - "apps/engine-native/**"
       - "examples/**"
       - "scripts/verify-desktop-only.mjs"
+      - "scripts/verify-windows-desktop-soak.mjs"
+      - "scripts/lib/desktop-soak-checks.mjs"
+      - "scripts/test-desktop-soak-checks.mjs"
       - "scripts/verify-offline-syscalls.py"
       - "scripts/offline-observer.Dockerfile"
       - ".github/workflows/engine-native.yml"
@@ -18,6 +21,9 @@ on:
       - "apps/engine-native/**"
       - "examples/**"
       - "scripts/verify-desktop-only.mjs"
+      - "scripts/verify-windows-desktop-soak.mjs"
+      - "scripts/lib/desktop-soak-checks.mjs"
+      - "scripts/test-desktop-soak-checks.mjs"
       - "scripts/verify-offline-syscalls.py"
       - "scripts/offline-observer.Dockerfile"
       - ".github/workflows/engine-native.yml"
@@ -246,6 +252,10 @@ jobs:
 
       - name: State tests
         run: npm run test:state
+
+      - name: Desktop soak failure predicates
+        working-directory: .
+        run: node --test scripts/test-desktop-soak-checks.mjs
 
       - name: Build
         run: npm run build

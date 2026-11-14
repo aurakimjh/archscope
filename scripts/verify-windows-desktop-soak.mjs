@@ -7,6 +7,7 @@ import { createHash } from 'node:crypto';
 import http from 'node:http';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
+import { waitForCapturePersistence, finalizeDesktopCapture } from './lib/desktop-soak-checks.mjs';
 
 const options = {};
 for (let i = 2; i < process.argv.length; i += 2) {
@@ -23,7 +24,7 @@ const exe = path.resolve(options.exe), out = path.resolve(options.out);
 await mkdir(out, { recursive: false });
 const descriptorPath = path.join(out, '.private-controller.json');
 const binarySha256 = createHash('sha256').update(await readFile(exe)).digest('hex');
-const report = { schema: 3, platform: 'windows', scope: 'production Wails desktop/controller, synthetic Docker-loopback HTTP, bodies disabled', memoryScope: 'root process plus currently alive descendants from one Windows process snapshot; not a leak proof', requestedSeconds: seconds, binarySha256, passed: false, requests: 0, pauses: 0, clears: 0, checkpoints: [], nativeUIObservations: 'record separately; controller/liveness is not a renderer correctness claim' };
+const report = { schema: 4, platform: 'windows', scope: 'production Wails desktop/controller, synthetic Docker-loopback HTTP, bodies disabled', memoryScope: 'root process plus currently alive descendants from one Windows process snapshot; not a leak proof', requestedSeconds: seconds, binarySha256, passed: false, requests: 0, pauses: 0, clears: 0, checkpoints: [], nativeUIObservations: 'record separately; controller/liveness is not a renderer correctness claim' };
 let child, descriptor, session, sequence = 0, started, phase = 'launch', desktopLogBytes = 0;
 const desktopLogPath = path.join(out, '.private-desktop.log');
 writeFileSync(desktopLogPath, '', { mode: 0o600 });
@@ -63,8 +64,7 @@ async function checkpoint(elapsed) {
     current = await control('list', { sessionId: session.sessionId, limit: 100, cursor: current.nextCursor });
   } while (checkedRows <= 128);
   if (checkedRows !== page.total) throw Error('retained snapshot pagination mismatch');
-  const stats = await control('stats', { sessionId: session.sessionId });
-  if (stats.dropped !== 0) throw Error('unexpected captured-request drops');
+  const stats = await waitForCapturePersistence(() => control('stats', { sessionId: session.sessionId }));
   const script = `
 $rootProcess=Get-Process -Id ${child.pid} -ErrorAction Stop
 $snapshot=@(Get-CimInstance Win32_Process)
@@ -135,15 +135,8 @@ try {
   for (let n = 0; n < 4; n++) { await request(session.listenAddress, report.requests); report.requests++; }
   await checkpoint((performance.now() - started) / 1000);
   phase = 'finalize';
-  await control('stop');
-  const page = await control('list', { sessionId: session.sessionId, limit: 100 });
   const destination = path.join(out, 'final.httpsession');
-  await control('save', { source: { sessionId: session.sessionId }, destination, format: 'session', scope: 'all', ids: [], selectedId: page.items[0]?.transaction.id ?? '' });
-  const saved = JSON.parse(await readFile(destination, 'utf8'));
-  const opened = await control('open', { path: destination });
-  if (!Array.isArray(saved.transactions) || saved.transactions.length === 0 || saved.transactions.length !== page.total || opened.selectedId !== (page.items[0]?.transaction.id ?? '')) throw Error('saved-session readback mismatch');
-  report.savedRows = saved.transactions.length;
-  report.savedSessionSha256 = createHash('sha256').update(await readFile(destination)).digest('hex');
+  Object.assign(report, await finalizeDesktopCapture(control, session.sessionId, destination));
   report.passed = true;
 } catch (error) {
   report.failure = String(error);

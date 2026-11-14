@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-14",
+  "baseCommit": "ab42eeb8336049f0ead9e596b6b7cc2569b821cb",
+  "worktreeState": "uncommitted remediation, no push",
+  "findings": {
+    "WR-01": "LOCALLY_VERIFIED",
+    "WR-02": "LOCALLY_VERIFIED"
+  },
+  "originalReview": {
+    "path": "docs/review/2026-11-14_codex_windows-pull-review.ko.md",
+    "sha256": "1b9851f40fa2f7172fa7a006dbbc00b1fa81c0889f38b8cfb8fec5f7152fae2c",
+    "verdict": "CONDITIONAL",
+    "independentHandling": "pending; same author performed user-requested local remediation"
+  },
+  "frontend": {
+    "redBeforeFix": true,
+    "redFailure": "Error: URL query extraction must preserve nested delimiters/encoding and exclude fragments: http://example.test/lookup?next=/detail?id=7&keep=2#ignored?lost=1",
+    "stateAfterFix": "PASS",
+    "productionBuild": "PASS",
+    "coverage": [
+      "nested/duplicate question marks and preserved encoding",
+      "fragment/no-query/explicit-query precedence",
+      "Path display, filter and ascending/descending sort",
+      "Query inspector values and Raw agreement"
+    ]
+  },
+  "soakPredicates": {
+    "host": "PASS",
+    "dockerNode22": "PASS",
+    "testCount": 28,
+    "finalRunnerSchema": 4,
+    "testCommand": "node --test scripts/test-desktop-soak-checks.mjs",
+    "nativeWindowsExecution": false
+  },
+  "goRace": {
+    "passingPackages": 131,
+    "noTestPackages": 4,
+    "passingTestEvents": 1898,
+    "skippedTestEvents": 7,
+    "failures": 0
+  },
+  "hostGoVet": {
+    "command": "go vet ./...",
+    "exitCode": 0
+  },
+  "macNative": {
+    "productionBuild": "PASS",
+    "standardPackageSignature": "PASS",
+    "isolatedPackageSignature": "PASS",
+    "isolatedBundleId": "com.archscope.p2qa.20261114",
+    "isolatedBundleName": "ArchScope P2 QA",
+    "unsignedExecutableMatchesStandardPackage": true,
+    "unsignedExecutableSha256": "76dc2e4263d13b67dcd98d9d96e33be8f57229fbe6d89b269e7489788094bc8c",
+    "embeddedHTTPAsset": "HttpCapturePage-Bz-PSoF1.js",
+    "embeddedHTTPAssetSha256": "b9b3861b583ac801020ffcfe4db149c7ca7f9c0bff754982b352d66c87e0fcc2",
+    "observations": [
+      "native menu HTTP route and HAR file dialog",
+      "two populated nested-query rows",
+      "Path contains id=7&keep=2 yields exactly one of two rows",
+      "Query next=/detail?id=7 and keep=2",
+      "Raw complete request target matches Path"
+    ],
+    "scope": "offline HAR integration; retained-URL fallback directly tested in state suite; Mac live capture unavailable",
+    "initialUnattributedObservations": "Excluded from public acceptance, retained only privately",
+    "ownedProcessesStopped": true
+  },
+  "macCLI": {
+    "accessLogSampleRows": 6,
+    "lighthouseAuditRows": 4
+  },
+  "macEngineSoak": {
+    "schema": 1,
+    "os": "darwin",
+    "arch": "arm64",
+    "commit": "ab42eeb8336049f0ead9e596b6b7cc2569b821cb",
+    "scope": "synthetic loopback common engine; no native GUI/driver/body-tier acceptance",
+    "passed": true,
+    "cycles": 56,
+    "requests": 14560,
+    "elapsedSeconds": 121.264435333,
+    "sampledPeakHeapBytes": 16774472,
+    "sampledPeakGoroutines": 3,
+    "peakStoreBytes": 113676,
+    "maxRetained": 64,
+    "retentionRows": 64,
+    "admission": true
+  },
+  "docker": {
+    "context": "desktop-linux",
+    "platform": "linux/arm64",
+    "nodeImage": "node:22-alpine",
+    "observerImage": "archscope-t632-observer",
+    "offlineOperations": 70,
+    "inetSyscalls": 0,
+    "failedConnectPositiveControlCalls": 2,
+    "linuxCapturePackages": [
+      "store",
+      "session",
+      "proxy",
+      "stream"
+    ],
+    "linuxCapturePackagePasses": 4,
+    "linuxCapturePassingTestEvents": 75,
+    "initialCaptureTest": {
+      "exitCode": 1,
+      "tmpfsBytes": 268435456,
+      "reason": "Existing 512 MiB disk-reserve guard refused writes on smaller tmpfs"
+    },
+    "finalCaptureTest": {
+      "exitCode": 0,
+      "tmpfsBytes": 1073741824,
+      "readOnlyRoot": true,
+      "network": "none",
+      "productionReserveUnchanged": true
+    },
+    "existingRunningContainersPreserved": true,
+    "taskContainersRemaining": 0
+  },
+  "windowsCrossBuilds": {
+    "amd64": {
+      "type": "PE32+ GUI x86-64",
+      "sha256": "d9267fef27a5fa901b564f612ec5dbab14c1631f086d2a3808f15c926b22be12"
+    },
+    "386": {
+      "type": "PE32 GUI Intel 80386",
+      "sha256": "61ea4e584cebb111c5aa90d9a5036f2236034e2c2205278bfa1ad9823fb38975"
+    }
+  },
+  "additionalChecks": [
+    "offline resource deterministic check",
+    "input-assistance deterministic check",
+    "desktop-only guard",
+    "HTTP parity report contract",
+    "reference synthetic fixtures",
+    "workflow YAML syntax",
+    "git diff --check"
+  ],
+  "limitations": [
+    "No fresh Windows UI/COM/driver/native soak execution",
+    "Mac/Linux regressions are not independent PASS or full reference/locale/DPI/Office acceptance",
+    "Existing Mac SDK deployment-target linker warnings remain; native build/package/tests pass",
+    "T-613 PENDING and T-627 REVIEW unchanged"
+  ],
+  "sourceSHA256": {
+    ".gitattributes": "931db40c9b15fdaf0a1206e20aeb762232f9d82591df3c871dcba7984e4f5bf2",
+    ".github/workflows/engine-native.yml": "96ad873ecb54dc95bb3ce10bd6494423736bdfd79811b20f7d039aa2f79722bc",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/httpPayload.ts": "cdfad62c947d21d76fb3423978212f1297da9ab7fa48d9641d46ed834151e115",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts": "93f287cfa8c45d2edde6e5cb672b72db18ea5ea5b2bbfb0781e35d1d63e6ca6f",
+    "scripts/verify-windows-desktop-soak.mjs": "31d704c35c6251fa5e07069c3795402cc244245cecc60686ea00abbaf73b5eb1",
+    "scripts/lib/desktop-soak-checks.mjs": "0aa05a1308a1b77f9cc473517696a95e6bbc7673c399e0e3c1305cf452f193d7",
+    "scripts/test-desktop-soak-checks.mjs": "a92bb0c20e94a62c9922e7b9daec4132902c808048d4719328afb8a72744129c"
+  },
+  "binarySHA256": {
+    "archscope-mac": "b86f682af2074d94feb41900e422a8f9d87841cbd34668a55dfcad5d9a4f381b",
+    "archscope-engine-mac": "366985df2e0723e6424288b46d2482c5bbe8370cd464d9d0bb4246b6c0801965",
+    "archscope-engine-linux": "7e22adabfc84bec420bfe9741c2e4904ae3b4cba0fed53382582b5e184e8c1a5",
+    "archscope.app/Contents/MacOS/archscope": "a8448e1005b4c62659c391893c147d0ac6fefc0f9bdafb06629765695d00d92d",
+    "ArchScopeP2QA.app/Contents/MacOS/archscope": "bdd74752116d9740a369ef5d4f31e41e71c72030b6c55e9169a2f8f0abeff796"
+  },
+  "privateLogSHA256": {
+    "go-race.jsonl": "aa3098e6bb9d8d4ef003d2f13709c4f6e476800d1f36d18faa898f470f470f7a",
+    "go-race.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "go-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "soak-guards.log": "2d71e78a6bc93d0f7dec5d7820527a810780e3ad24f4c35a27ab830892ad383d",
+    "docker-node.log": "0c921ccaebc10b6d3fdd0520f654272f7de72ed87b3030d9dc701ea732d42d07",
+    "docker-capture-tests.log": "f821dfcaf3e3c3073513aa40918809b2ee4245a471cbdd4953219851ba62be36",
+    "docker-capture-tests-1g.log": "b55e0ca8f3951b293901b41501f922d977d0f54283d820f3a27a318d70b3d4dd",
+    "mac-build.log": "a2b3999173553f140438b6f17d17222ca24f10609a9ce6b55b8977d3eec57232"
+  }
+}

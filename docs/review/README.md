@@ -4,7 +4,7 @@
 
 ## 미처리
 
-미처리 리뷰 문서 없음.
+- [Windows 테스트 변경 검토](2026-11-14_codex_windows-pull-review.ko.md) — `f25ab80a..ab42eeb8`, 원 판정 CONDITIONAL(P2 2건) 보존. 사용자 지시에 따라 WR-01/02 로컬 수정·회귀 검증 완료([근거](evidence/2026-11-14-p2-remediation/README.md)); Mac 네이티브·Docker 검증 기록. 독립 재검토·처리는 다른 AI 대기이며 원문은 미처리 위치에 유지. 독립 PASS·새 Windows 런타임 수용 주장 없음.
 
 ## 처리 기록
 

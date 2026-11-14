@@ -3096,6 +3096,14 @@ const pairs = httpParameters("a[]=1&a[]=2&space=a+b&bad=%GG&encoded=%252F&empty=
 assert(pairs.length === 6 && pairs[0]?.name === "a[]" && pairs[1]?.value === "2", "query order and repeated names must survive");
 assert(pairs[2]?.value === "a b" && pairs[3]?.decodeError && pairs[4]?.value === "%2F", "decoding must preserve invalid and double encoded evidence");
 assert(requestQuery("", "http://example.test/?a=1&a=2#end") === "a=1&a=2", "redacted URL query fallback must retain duplicates");
+for (const [url, expected] of [
+  ["http://example.test/lookup?next=/detail?id=7&keep=2#ignored?lost=1", "next=/detail?id=7&keep=2"],
+  ["/lookup?next=??&encoded=%3F%252F&bad=%GG", "next=??&encoded=%3F%252F&bad=%GG"],
+  ["http://example.test/lookup#fragment?not=query", ""],
+  ["http://example.test/lookup?", ""],
+  ["http://example.test/lookup", ""],
+]) assert(requestQuery("", url) === expected, "URL query extraction must preserve nested delimiters/encoding and exclude fragments: " + url);
+assert(requestQuery("explicit=??&keep=%3F", "http://example.test/?other=1") === "explicit=??&keep=%3F", "explicit query evidence takes precedence without decoding");
 const formMessage = { ...selectedLiveRow.request, bodyStorage:"inline", contentType:"application/x-www-form-urlencoded", bodyPreview:"a=1&a=2" };
 assert(inspectForm(formMessage).fields.length === 2, "form inspection must keep duplicate fields");
 assert(inspectForm({...formMessage,bodyStorage:"omitted"}).state === "unavailable", "omitted form must not be parsed from stale preview");
@@ -3113,6 +3121,13 @@ assert(restoredColumns.filter(c=>c.key==="path").length===1 && restoredColumns.s
 assert(httpColumnValue({...selectedLiveRow,connection_id:"connection-7"},"connection")==="connection-7", "connection evidence must be available as a column");
 assert(httpColumnMatches(selectedLiveRow,"status","gte","200") && !httpColumnMatches(selectedLiveRow,"status","gte","bad"), "numeric field filtering must reject invalid thresholds");
 const queryColumnRow={...selectedLiveRow,path:"/fixture",query:"",url:"http://example.test/fixture?slot=004&token=%5BREDACTED%5D",response:{...selectedLiveRow.response,contentType:"application/json",bodySize:-1}};
+const nestedQueryRow = {...queryColumnRow, path:"/lookup", url:"http://example.test/lookup?next=/detail?id=7&keep=2#ignored"};
+const nestedPath = "/lookup?next=/detail?id=7&keep=2";
+assert(httpColumnValue(nestedQueryRow,"path") === nestedPath && httpColumnMatches(nestedQueryRow,"path","contains","id=7&keep=2"), "Path display and filtering must retain nested query delimiters");
+assert(httpParameters(requestQuery(nestedQueryRow.query,nestedQueryRow.url))[0]?.value === "/detail?id=7", "Query inspector must retain the full nested URL value");
+assert(buildRawRequest(nestedQueryRow).startLine.includes(` ${nestedPath} `), "Raw and Path must agree on the retained nested query");
+const nestedSortRows = [{...nestedQueryRow,id:"nested-b",sequence:1,url:"http://example.test/lookup?next=/detail?id=8"},{...nestedQueryRow,id:"nested-a",sequence:2,url:"http://example.test/lookup?next=/detail?id=7"}];
+assert(sortTransactions(nestedSortRows,{column:"path",direction:"asc"})[0].id === "nested-a" && sortTransactions(nestedSortRows,{column:"path",direction:"desc"})[0].id === "nested-b", "Path sorting must distinguish values after a second question mark");
 assert(httpColumnValue(queryColumnRow,"kind")==="json" && httpColumnMatches(queryColumnRow,"kind","equals","json"),"Type field filtering must use the displayed resource classification");
 assert(httpColumnValue(queryColumnRow,"path")==="/fixture?slot=004&token=%5BREDACTED%5D" && httpColumnMatches(queryColumnRow,"path","contains","slot=004"),"live Path filtering must include the retained redacted URL query when the separate query is empty");
 assert(sortTransactions([{...queryColumnRow,id:"query-b",sequence:1,url:"http://example.test/fixture?b"},{...queryColumnRow,id:"query-a",sequence:2,url:"http://example.test/fixture?a"}],{column:"path",direction:"asc"})[0].id==="query-a","Path sorting must use the same query-bearing value as the column/filter");

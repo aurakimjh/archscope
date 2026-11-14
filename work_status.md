@@ -1135,6 +1135,38 @@ filtered before analysis.
 
 ## Next Execution Queue
 
+### Windows pull review local remediation (2026-11-14)
+
+Codex reviewed `f25ab80a..ab42eeb8` after the requested fast-forward pull.
+Verdict: CONDITIONAL, two P2 findings and no confirmed P1. These follow-ups
+belong to the existing T-613/T-627 acceptance scope; numbered-task counts and
+their PENDING/REVIEW states remain unchanged. Both P2 fixes are locally verified
+under the user's remediation instruction. The authored review remains in
+`docs/review/` for independent handling by a different AI under the review-index
+rule; local fixes do not rename its verdict PASS.
+The user subsequently authorized committing and pushing both fixes and their
+validation receipts; the independent/native acceptance gates remain separate.
+
+| Order | Finding | Priority | Status | Action / acceptance |
+|---:|---|---|---|---|
+| 1 | WR-01 | P2 | LOCALLY_VERIFIED | First-delimiter query slicing preserves nested `?`, encoding and fragment boundaries. Red-before/fixed-green frontend regressions cover Path filter/sort, Query and Raw; isolated production Mac HAR UI confirms exact nested values and1/2filtered rows. Retained-URL fallback is covered by state tests, not native Mac live capture. |
+| 2 | WR-02 | P2 | LOCALLY_VERIFIED | Shared schema4 soak predicates require running/zero-drop/bounded drain checkpoints, finalized stop and matching final authoritative counters before save/open success.28failure/success tests pass on host and Docker Node22; CI wiring added. Historical receipts unchanged. Revised native Windows execution and independent re-review remain separate. |
+
+Host targeted Go tests/vet, frontend state/build and deterministic resource checks
+pass. All 404 artifact digests across seven new manifests match. Independent
+recalculation confirms all 482 fixed two-hour checkpoints satisfy the recorded
+counter/retention conditions; WR-02 does not invalidate those observations.
+Full host race (131passing packages/1,898test events,4without tests,0failures)/vet,
+frontend state/build, signed production Mac UI/CLI,120-second
+common-engine race soak, Docker offline observer and Linux capture package tests
+are recorded in the remediation receipt. Windows x64/x86 GUI cross-builds pass.
+An initial256MiB Docker tmpfs correctly tripped the512MiB reserve; the same tests
+pass with1GiB without policy changes. No new Windows runtime or full acceptance
+is claimed. Review:
+[`2026-11-14_codex_windows-pull-review.ko.md`](docs/review/2026-11-14_codex_windows-pull-review.ko.md).
+Receipt: `docs/review/evidence/2026-11-14-windows-pull-review/local.json`.
+Remediation: `docs/review/evidence/2026-11-14-p2-remediation/local.json`.
+
 ### Local diagnostics implementation (2026-11-11)
 
 T-628 is DONE under R3's independent closure permission. R3's nonblocking P3

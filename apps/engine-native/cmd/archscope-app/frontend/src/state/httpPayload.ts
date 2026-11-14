@@ -30,7 +30,13 @@ export function httpParameters(raw: string): HttpParameter[] {
 }
 
 export function requestQuery(query: string | undefined, url: string): string {
-  return query || url.split("?")[1]?.split("#")[0] || "";
+  if (query) return query;
+  // Only the first '?' opens the query; later ones belong to its value.
+  // Slice the retained spelling without decoding/re-encoding diagnostic data.
+  const fragment = url.indexOf("#");
+  const end = fragment < 0 ? url.length : fragment;
+  const start = url.indexOf("?");
+  return start >= 0 && start < end ? url.slice(start + 1, end) : "";
 }
 
 export type FormInspection = { fields: HttpParameter[]; state: "available" | "unavailable" | "unsupported" | "limited" };

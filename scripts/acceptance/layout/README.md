@@ -80,6 +80,15 @@ the terminal command exits after that app is stopped. Verify its executable path
 and private descriptor PID, then stop only that owned process and the owned
 fixture container. Never clean up unrelated desktop apps or Docker containers.
 
+Schema4 validates running state and zero drops at each checkpoint, allowing
+captured/persisted counters up to5seconds to converge between bounded controller
+calls. Stop must return finalized; the subsequent authoritative stats must also
+be finalized with equal counters and zero drops before any save/open can pass.
+The runner imports `scripts/lib/desktop-soak-checks.mjs`; preserve that module's
+exact source/hash with future archived runner receipts. Host-side failure
+regressions run with `node --test scripts/test-desktop-soak-checks.mjs`.
+Earlier archived runners and their native evidence remain unchanged.
+
 The archived2026-11-13 two-hour runner predates the4-request final seed and
 referenced-child change. Its actual source is preserved with the evidence. Empty
 boundary saves, if any, must be disclosed and supplemented by a separate

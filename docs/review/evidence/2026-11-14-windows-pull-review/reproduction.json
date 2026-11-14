@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "reviewedHead": "ab42eeb8",
+  "platformScope": "macOS source review and controlled JavaScript probes; no new Windows run",
+  "WR01": {
+    "url": "http://example.test/lookup?next=/detail?id=7&keep=2",
+    "expectedPath": "/lookup?next=/detail?id=7&keep=2",
+    "actualPath": "/lookup?next=/detail",
+    "containsNestedID": false,
+    "rawStartLine": "GET /lookup?next=/detail?id=7&keep=2 HTTP/1.1"
+  },
+  "WR02": {
+    "inputStats": {
+      "state": "recoverable",
+      "captured": 2,
+      "persisted": 1,
+      "dropped": 0
+    },
+    "checkpointRejected": false,
+    "stopState": "recoverable",
+    "finalRunnerPassed": true,
+    "savedSubsetRows": 1
+  }
+}

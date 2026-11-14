@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-14",
+  "reviewer": "Codex",
+  "base": "f25ab80a8ee49625090016ce928725713bd600d6",
+  "head": "ab42eeb8336049f0ead9e596b6b7cc2569b821cb",
+  "pulledCommits": 49,
+  "verdict": "CONDITIONAL",
+  "findings": [
+    {
+      "id": "WR-01",
+      "priority": "P2",
+      "status": "TODO",
+      "summary": "Path URL query fallback truncates at second question mark"
+    },
+    {
+      "id": "WR-02",
+      "priority": "P2",
+      "status": "TODO",
+      "summary": "Soak runner accepts persistence mismatch and recoverable stop"
+    }
+  ],
+  "checks": [
+    {
+      "command": "go test ./internal/capture/... ./internal/analyzers/multithread ./internal/visuals ./cmd/archscope-app",
+      "cwd": "apps/engine-native",
+      "exitCode": 0
+    },
+    {
+      "command": "go vet ./internal/capture/... ./internal/analyzers/multithread ./internal/visuals ./cmd/archscope-app",
+      "cwd": "apps/engine-native",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run test:state && npm run build",
+      "cwd": "apps/engine-native/cmd/archscope-app/frontend",
+      "exitCode": 0
+    },
+    {
+      "command": "python3 scripts/build-offline-assets.py --check",
+      "cwd": ".",
+      "exitCode": 0
+    },
+    {
+      "command": "python3 scripts/build-input-assistance-assets.py --check",
+      "cwd": ".",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "cwd": ".",
+      "exitCode": 0
+    },
+    {
+      "command": "node docs/review/evidence/2026-11-14-windows-pull-review/reproduce.mjs",
+      "cwd": ".",
+      "exitCode": 0
+    }
+  ],
+  "artifactManifests": [
+    {
+      "path": "docs/review/evidence/2026-11-13-desktop-soak/artifact-hashes.json",
+      "verifiedFiles": 24
+    },
+    {
+      "path": "docs/review/evidence/2026-11-13-native-matrix/artifact-hashes.json",
+      "verifiedFiles": 63
+    },
+    {
+      "path": "docs/review/evidence/2026-11-14-acceptance-remaining/artifact-sha256.json",
+      "verifiedFiles": 39
+    },
+    {
+      "path": "docs/review/evidence/2026-11-14-desktop-soak/artifact-sha256.json",
+      "verifiedFiles": 44
+    },
+    {
+      "path": "docs/review/evidence/2026-11-14-grid-boundaries/artifact-hashes.json",
+      "verifiedFiles": 48
+    },
+    {
+      "path": "docs/review/evidence/2026-11-14-live-grid/artifact-hashes.json",
+      "verifiedFiles": 57
+    },
+    {
+      "path": "docs/review/evidence/2026-11-14-native-followup/artifact-sha256.json",
+      "verifiedFiles": 129
+    }
+  ],
+  "verifiedArtifactFiles": 404,
+  "fixedSoakRecalculation": [
+    {
+      "path": "docs/review/evidence/2026-11-14-desktop-soak/amd64-fixed-2h.json",
+      "verifiedCheckpoints": 241,
+      "reportedElapsedSeconds": 7200.5069645,
+      "reportedRequests": 24780
+    },
+    {
+      "path": "docs/review/evidence/2026-11-14-desktop-soak/386-fixed-2h.json",
+      "verifiedCheckpoints": 241,
+      "reportedElapsedSeconds": 7200.6813202,
+      "reportedRequests": 24804
+    }
+  ],
+  "verifiedFixedSoakCheckpoints": 482,
+  "sourceSHA256": {
+    "scripts/verify-windows-desktop-soak.mjs": "72c16a2565ec5f0fd0bb683743e1f5103525a5b3486edbb20eb5860496c2eaf6",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/httpColumns.ts": "47ff924d66347f011066ef4ea5213f9f884ad43b708abbc044f96613e0776dd5",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/httpPayload.ts": "570c4f848d2bfbd645cd5e6360fa0a6b8800c5f0caeb9ae928107204d45ab3ba",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/httpAnalyzer.ts": "16bc979fd9d0ec0bdd1b9a93bfce1858a58dd6c79a15ae7bf3cef974213d7290",
+    "docs/review/evidence/2026-11-14-windows-pull-review/reproduce.mjs": "4eb15cac457d00ecc795ec732eca4baba7953da7fe1fdbc4171eb4e8aef89ad7",
+    "docs/review/evidence/2026-11-14-windows-pull-review/reproduction.json": "d6275b4abe19360df2a9b3b2c7095d8035df9a11f3473fba5d8987e57ad1d1ec"
+  },
+  "limitations": [
+    "Review and fresh tests ran on macOS; no new Windows UI, COM, driver, Office or two-hour run",
+    "Reproduction executes compiled state functions and extracted runner bodies with controlled ports; it is not a native failure run",
+    "Existing recorded Windows success/failure/inconclusive evidence is unchanged",
+    "App link emitted pre-existing newer macOS SDK versus deployment-target warnings; tests passed"
+  ],
+  "workspace": {
+    "originalLocalChangesRestored": true,
+    "reviewProductFixes": false,
+    "committed": false,
+    "pushed": false,
+    "taskStates": {
+      "T-613": "PENDING",
+      "T-627": "REVIEW"
+    }
+  }
+}

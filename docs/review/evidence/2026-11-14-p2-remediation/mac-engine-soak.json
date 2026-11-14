@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "os": "darwin",
+  "arch": "arm64",
+  "commit": "ab42eeb8336049f0ead9e596b6b7cc2569b821cb",
+  "scope": "synthetic loopback common engine; no native GUI/driver/body-tier acceptance",
+  "passed": true,
+  "cycles": 56,
+  "requests": 14560,
+  "elapsedSeconds": 121.264435333,
+  "sampledPeakHeapBytes": 16774472,
+  "sampledPeakGoroutines": 3,
+  "peakStoreBytes": 113676,
+  "maxRetained": 64,
+  "retentionRows": 64,
+  "admission": true
+}

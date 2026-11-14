@@ -1,0 +1,107 @@
+Window: "ArchScope", App: ArchScope P2 QA.
+0 standard window ArchScope, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: ArchScope, URL: wails://localhost/
+			3 text HTTP 캡처
+			4 container
+				5 summary 파일·요청 작성, Value: off
+					6 text 파일·요청 작성
+				7 summary 캡처 설정, Value: off
+					8 text 캡처 설정
+				9 button (disabled) 캡처 시작
+				10 button (disabled) 캡처 중지
+				11 button 자동 추적 중
+				12 button (disabled) 일시정지
+				13 button (disabled) 비우기
+				14 container 트랜잭션
+					15 summary 메서드, URL, 호스트, 상태로 필터 · 1 / 2, Value: off
+						16 text 메서드, URL, 호스트, 상태로 필터 · 1 / 2
+					17 summary 세션 도구, Value: off
+						18 text 세션 도구
+					19 container (expanded) Secondary Actions: Collapse
+						20 summary 열 필터 ●, Value: on
+							21 text 열 필터 ●
+						22 container
+							23 text 열 필터 
+							24 pop up button (collapsed) 열 필터, Value: 경로, Secondary Actions: Expand
+						25 pop up button (collapsed) 비교 연산, Value: 포함, Secondary Actions: Expand
+						26 text field (settable) 필터 값, Value: id=7&keep=2
+						27 button 필터 초기화
+						28 container
+							29 checkbox 별표 요청만, Value: 0
+							30 text 별표 요청만
+					31 pop up button (collapsed) 그룹 기준, Value: 프로세스, Secondary Actions: Expand
+					32 summary 표시 열, Value: off
+						33 text 표시 열
+					34 container 트랜잭션
+						35 table 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+							36 text 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+							37 row (selectable) #
+시작
+메서드
+결과
+호스트
+경로
+종류
+크기
+시간
+타임라인
+프로세스
+							38 row (selectable)
+								39 cell (selectable) ▾ example.test 1 · ↑ 0 B · ↓ 0 B, Columns: 0-10
+							40 row (selected)
+								41 cell (selectable) 2
+								42 cell (selectable) 04:00:00.000
+								43 cell (selectable) GET
+								44 cell (selectable) 200
+								45 cell (selectable) example.test
+								46 cell (selectable) /lookup?next=/detail?id=7&keep=2
+								47 cell (selectable) Description: json, Value: JSON
+								48 cell (selectable) 0 B
+								49 cell (selectable) 10 ms
+								50 cell (selectable) —
+								51 cell (selectable) —
+					52 text 방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+					53 splitter 트랜잭션 목록 크기 조절, Help: 드래그·방향키로 크기를 조절하고, 더블클릭·Home으로 기본 높이를 복원합니다., Value: 160
+					54 button Request Builder로 복사
+					55 text 200 GET http://example.test/lookup?next=/detail?id=7&keep=2 신규 연결 semantic
+					56 tab group (selectable) 트랜잭션
+						57 tab (selectable) 힌트 / 상태 / 주석
+						58 tab (selected) Raw
+						59 tab (selectable) 스트림
+						60 tab (selectable) 헤더
+						61 tab (selectable) 쿼리 문자열
+						62 tab (selectable) POST 데이터
+						63 tab (selectable) 본문
+						64 tab (selectable) 타이밍
+						65 tab (selectable) 쿠키
+						66 tab (selectable) 프로세스
+					67 container Raw
+						68 text 정규화된 모델에서 재구성한 텍스트입니다. 헤더 이름·값·중복은 보존되지만 원본 필드 순서·대소문자·프레이밍은 보존되지 않습니다 — 이 캡처 tier는 raw wire가 아니라 semantic 등급입니다.
+						69 heading 요청, Value: 4
+							70 text 요청
+						71 button 복사
+						72 text GET /lookup?next=/detail?id=7&keep=2 HTTP/1.1
+Host: example.test
+
+						73 text 본문이 기록되지 않았습니다. 이 세션은 본문 캡처가 꺼져 있습니다.
+						74 heading 응답, Value: 4
+							75 text 응답
+						76 button 복사
+						77 text HTTP/1.1 200 OK
+Content-Type: application/json
+
+						78 text 본문이 기록되지 않았습니다. 이 세션은 본문 캡처가 꺼져 있습니다.
+				79 button (collapsed) 세션 요약 및 근거, Secondary Actions: Expand
+	80 menu button Window sharing
+81 menu bar
+	82 ArchScope P2 QA, ID: handleClick
+	83 파일, ID: handleClick
+	84 편집, ID: handleClick
+	85 분석, ID: handleClick
+	86 워크스페이스, ID: handleClick
+	87 캡처, ID: handleClick
+	88 보기, ID: handleClick
+	89 도움말, ID: handleClick
+
+The focused UI element is 2 HTML content Description: ArchScope, URL: wails://localhost/
