@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "task": "T-662",
+  "date": "2026-11-14",
+  "status": "TODO",
+  "qualification": "EVIDENCE_PARTIAL; actual natural zero-swap/raw-pressure1 window, not nonzero-swap/elevated-pressure qualification",
+  "sourceCommit": "324a8d97432a8f9a144cb48b545cc7cb8f21da08",
+  "authorization": "User explicitly requested passive natural observation without forced memory load and work-status update",
+  "window": {
+    "timezone": "Asia/Seoul",
+    "collectorStart": "2026-11-14T14:10:35.896802+09:00",
+    "collectorEnd": "2026-11-14T14:15:36.281871+09:00",
+    "elapsedSeconds": 300.385069,
+    "requestedIntervalSeconds": 30,
+    "collectorSamples": 11,
+    "independentSamples": 13,
+    "independentDuringSamples": 11,
+    "maxPairedStartSkewMilliseconds": 416.123,
+    "semantics": "Sequential read windows; paired readers share kernel sources, use different decoding paths, and are not atomic simultaneous snapshots"
+  },
+  "platform": {
+    "macos_version": "27.2.1",
+    "macos_build": "26B131",
+    "hardware_model": "Mac17,6",
+    "chip": "Apple M5 Max",
+    "ollama_version": "0.40.16",
+    "collector_version": "1.1.0"
+  },
+  "observed": {
+    "memoryCapacityBytes": "137438953472",
+    "swapTotalBytes": [
+      "0"
+    ],
+    "swapUsedBytes": [
+      "0"
+    ],
+    "pressureRawCodes": [
+      "1"
+    ],
+    "memoryPressureQReportedPercentRange": [
+      95,
+      95
+    ],
+    "memoryPressureQMeaning": "Literal query output, not converted into vm_stat free-RAM fraction or a stable pressure enum",
+    "vmStatValues": {
+      "Pages occupied by compressor": [
+        0
+      ],
+      "Swapins": [
+        0
+      ],
+      "Swapouts": [
+        0
+      ],
+      "Pageouts": [
+        0
+      ]
+    },
+    "collectorVMFreeBytesRange": [
+      "47150546944",
+      "47295610880"
+    ],
+    "selectedModelCounts": [
+      "0"
+    ],
+    "excludedModelCounts": [
+      "0"
+    ],
+    "thermalGPUAndPower": "Unavailable reasons preserved; no measured zero substituted"
+  },
+  "independentValidation": {
+    "reader": "/usr/sbin/sysctl -b vm.swapusage plus independent struct.unpack =QQQII, versus collector ctypes sysctlbyname",
+    "pressureReader": "/usr/sbin/sysctl -n kern.memorystatus_vm_pressure_level",
+    "additionalReadOnlyCommands": [
+      "/usr/bin/memory_pressure -Q",
+      "/usr/bin/vm_stat"
+    ],
+    "all11PairsSwapAndPressureEqual": true,
+    "all13IndependentReadingsSwapZeroPressure1": true
+  },
+  "readback": {
+    "commands": [
+      "metrics history-inspect",
+      "metrics history-normalize",
+      "metrics history-import",
+      "metrics history-query"
+    ],
+    "allExitCodes": 0,
+    "normalizedSeries": 14,
+    "normalizedPoints": 154,
+    "resultType": "metrics_timeseries",
+    "selectedSwapPressurePoints": 33,
+    "exactSourceValuesPreserved": true,
+    "sourceSHA256": "57a7a040acc382321e76d074a6c60f4db5e63186e8c400f4dda06d8abcad78fd"
+  },
+  "scopeControls": {
+    "forcedMemoryLoad": false,
+    "modelLoadUnloadOrGeneration": false,
+    "stressTestsOrBenchmarksStarted": false,
+    "swapOrPressurePolicyChanged": false,
+    "sudoOrPowermetrics": false,
+    "processInventoryOrUserContentCollected": false,
+    "localOllamaRequests": "GET /api/version and /api/ps only",
+    "observerTerminatedAfterWindow": true
+  },
+  "stillMissing": [
+    "Naturally occurring nonzero swap/elevated-pressure evidence with independent values",
+    "Independent review/qualification of any future qualifying samples"
+  ],
+  "sourceSHA256": {
+    "scripts/capture-apple-ollama.py": "c9af8ba2be45980139ec76960da5b316b5fc16a10be133263f4a0a820c37cacc"
+  },
+  "engine": {
+    "pathAtValidation": ".tmp/p2-remediation-20261114/archscope-engine-mac",
+    "sha256": "366985df2e0723e6424288b46d2482c5bbe8370cd464d9d0bb4246b6c0801965",
+    "provenance": "Existing CLI built during P2 validation from ab42eeb8-based worktree; relevant CLI/parser Go sources unchanged through324a8d97"
+  },
+  "publication": "Evidence snapshot preceded publication; user subsequently authorized commit/push of this observation and tracker update while retaining T-662 TODO"
+}

@@ -1,0 +1,14 @@
+{
+  "read_start_ns": "1794633336311604000",
+  "read_end_ns": "1794633336324941000",
+  "reader": "sysctl -b plus Python struct.unpack =QQQII; no collector code reused",
+  "swap_total_bytes": "0",
+  "swap_available_bytes": "0",
+  "swap_used_bytes": "0",
+  "page_size": 16384,
+  "encrypted": true,
+  "pressure_raw": "1",
+  "sysctl_swap_display": "vm.swapusage: total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)",
+  "memory_pressure_query": "The system has 137438953472 (8388608 pages with a page size of 16384).\nSystem-wide memory free percentage: 95%",
+  "vm_stat": "Mach Virtual Memory Statistics: (page size of 16384 bytes)\nPages free:                                  2888248.\nPages active:                                2524307.\nPages inactive:                              2416846.\nPages speculative:                            135236.\nPages throttled:                                   0.\nPages wired down:                             363239.\nPages purgeable:                              107439.\n\"Translation faults\":                     1520531066.\nPages copy-on-write:                        73239460.\nPages zero filled:                        1098389950.\nPages reactivated:                           1142696.\nPages purged:                                2286589.\nFile-backed pages:                           1961180.\nAnonymous pages:                             3115209.\nPages stored in compressor:                        0.\nPages occupied by compressor:                      0.\nDecompressions:                                    0.\nCompressions:                                      0.\nPageins:                                    23873453.\nPageouts:                                          0.\nSwapins:                                           0.\nSwapouts:                                          0.\nPages tagged:                                 202374.\nPages tagged resident:                        202374.\nPages tagged compressed:                           0.\nPages tag-storage:                            262144.\nPages tag-storage holding tags:                 8905.\nPages tag-storage free:                        24101.\nPages tag-storage non-tag pageable:           198762.\nPages tag-storage non-tag wired:                  10.\nBytes of compressed tags:                          0.\nTagged compressions:                               0.\nTagged decompressions:                             0."
+}

@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "python3",
+    "scripts/capture-apple-ollama.py",
+    "--out",
+    "actual-natural-capture.json",
+    "--host-id",
+    "sanitized-local-host",
+    "--boot-id",
+    "sanitized-boot-f70c69b335b270db",
+    "--model",
+    "t662-passive-no-load",
+    "--samples",
+    "11",
+    "--interval",
+    "30"
+  ],
+  "modelSelection": "Intentional observation-only selector; no request to load/unload a model",
+  "utc_start": "2026-11-14T05:10:35.831657+00:00"
+}

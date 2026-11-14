@@ -1,0 +1,551 @@
+{
+  "source_sha256": "57a7a040acc382321e76d074a6c60f4db5e63186e8c400f4dda06d8abcad78fd",
+  "sources": [
+    {
+      "id": "source-0",
+      "sha256": "57a7a040acc382321e76d074a6c60f4db5e63186e8c400f4dda06d8abcad78fd",
+      "name": "actual-natural-capture.json",
+      "format": "apple-ollama-capture-json",
+      "producer": "ollama",
+      "producer_version": "0.40.16",
+      "query": {
+        "collector_version": "1.1.0",
+        "contract": "apple-ollama-capture.v1",
+        "engine_source": "GET /api/ps",
+        "system_sources": "hw.memsize,vm_stat,vm.swapusage,kern.memorystatus_vm_pressure_level,pmset -g therm"
+      }
+    }
+  ],
+  "series": [
+    {
+      "id": "metric-2a291b2833e3a04720acd245a10f4e60586eda3814ad4e312fc08d40590de304",
+      "name": "apple.system.swap_total",
+      "description": "System-wide bytes; overlapping VM categories are not a partition or a GPU allocation.",
+      "unit": "By",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "apple-ollama-capture.v1:collector:1.1.0:ollama:0.40.16",
+      "resource": {
+        "boot_id": "sanitized-boot-f70c69b335b270db",
+        "chip": "Apple M5 Max",
+        "collector_version": "1.1.0",
+        "device_local_id": "apple-integrated-0",
+        "engine": "ollama",
+        "engine_version": "0.40.16",
+        "hardware_model": "Mac17,6",
+        "host_id": "sanitized-local-host",
+        "macos_build": "26B131",
+        "macos_version": "27.2.1",
+        "memory_model": "unified_shared",
+        "model_selection_sha256": "1f72f37a7b3863f2a2d9ce1fd1c7285923b7a8c23a133e2c7b8cb2329b23ea34",
+        "vendor": "apple"
+      },
+      "resource_schema_url": "",
+      "scope": {
+        "name": "apple-ollama-capture.v1",
+        "version": "1.1.0",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "capture_semantics": "sequential_read_window",
+        "scope": "system"
+      }
+    },
+    {
+      "id": "metric-2f3dcbf4726f5f74c89823e53d226d9a19b495399e6baf5441099f70903329b7",
+      "name": "apple.system.vm_compressor",
+      "description": "System-wide bytes; overlapping VM categories are not a partition or a GPU allocation.",
+      "unit": "By",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "apple-ollama-capture.v1:collector:1.1.0:ollama:0.40.16",
+      "resource": {
+        "boot_id": "sanitized-boot-f70c69b335b270db",
+        "chip": "Apple M5 Max",
+        "collector_version": "1.1.0",
+        "device_local_id": "apple-integrated-0",
+        "engine": "ollama",
+        "engine_version": "0.40.16",
+        "hardware_model": "Mac17,6",
+        "host_id": "sanitized-local-host",
+        "macos_build": "26B131",
+        "macos_version": "27.2.1",
+        "memory_model": "unified_shared",
+        "model_selection_sha256": "1f72f37a7b3863f2a2d9ce1fd1c7285923b7a8c23a133e2c7b8cb2329b23ea34",
+        "vendor": "apple"
+      },
+      "resource_schema_url": "",
+      "scope": {
+        "name": "apple-ollama-capture.v1",
+        "version": "1.1.0",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "capture_semantics": "sequential_read_window",
+        "scope": "system"
+      }
+    },
+    {
+      "id": "metric-323ef6cd07a6db753cb7056aa0869b41c65fb32bcac9d705fbf70c44b3a49883",
+      "name": "apple.system.pressure_level",
+      "description": "Raw private sysctl code; categorical, no percent, ratio or stable enum mapping.",
+      "unit": "{code}",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "apple-ollama-capture.v1:collector:1.1.0:ollama:0.40.16",
+      "resource": {
+        "boot_id": "sanitized-boot-f70c69b335b270db",
+        "chip": "Apple M5 Max",
+        "collector_version": "1.1.0",
+        "device_local_id": "apple-integrated-0",
+        "engine": "ollama",
+        "engine_version": "0.40.16",
+        "hardware_model": "Mac17,6",
+        "host_id": "sanitized-local-host",
+        "macos_build": "26B131",
+        "macos_version": "27.2.1",
+        "memory_model": "unified_shared",
+        "model_selection_sha256": "1f72f37a7b3863f2a2d9ce1fd1c7285923b7a8c23a133e2c7b8cb2329b23ea34",
+        "vendor": "apple"
+      },
+      "resource_schema_url": "",
+      "scope": {
+        "name": "apple-ollama-capture.v1",
+        "version": "1.1.0",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "capture_semantics": "sequential_read_window",
+        "scope": "system"
+      }
+    },
+    {
+      "id": "metric-4187551219f6405bb44ca127352f45ce9bdf244f72bbdadf338ddced61e1ee70",
+      "name": "apple.system.vm_active",
+      "description": "System-wide bytes; overlapping VM categories are not a partition or a GPU allocation.",
+      "unit": "By",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "apple-ollama-capture.v1:collector:1.1.0:ollama:0.40.16",
+      "resource": {
+        "boot_id": "sanitized-boot-f70c69b335b270db",
+        "chip": "Apple M5 Max",
+        "collector_version": "1.1.0",
+        "device_local_id": "apple-integrated-0",
+        "engine": "ollama",
+        "engine_version": "0.40.16",
+        "hardware_model": "Mac17,6",
+        "host_id": "sanitized-local-host",
+        "macos_build": "26B131",
+        "macos_version": "27.2.1",
+        "memory_model": "unified_shared",
+        "model_selection_sha256": "1f72f37a7b3863f2a2d9ce1fd1c7285923b7a8c23a133e2c7b8cb2329b23ea34",
+        "vendor": "apple"
+      },
+      "resource_schema_url": "",
+      "scope": {
+        "name": "apple-ollama-capture.v1",
+        "version": "1.1.0",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "capture_semantics": "sequential_read_window",
+        "scope": "system"
+      }
+    },
+    {
+      "id": "metric-66c0622702fdaba10485f7a760994cc43caec845341cfd7e7cc66c028c3225d9",
+      "name": "apple.system.vm_wired",
+      "description": "System-wide bytes; overlapping VM categories are not a partition or a GPU allocation.",
+      "unit": "By",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "apple-ollama-capture.v1:collector:1.1.0:ollama:0.40.16",
+      "resource": {
+        "boot_id": "sanitized-boot-f70c69b335b270db",
+        "chip": "Apple M5 Max",
+        "collector_version": "1.1.0",
+        "device_local_id": "apple-integrated-0",
+        "engine": "ollama",
+        "engine_version": "0.40.16",
+        "hardware_model": "Mac17,6",
+        "host_id": "sanitized-local-host",
+        "macos_build": "26B131",
+        "macos_version": "27.2.1",
+        "memory_model": "unified_shared",
+        "model_selection_sha256": "1f72f37a7b3863f2a2d9ce1fd1c7285923b7a8c23a133e2c7b8cb2329b23ea34",
+        "vendor": "apple"
+      },
+      "resource_schema_url": "",
+      "scope": {
+        "name": "apple-ollama-capture.v1",
+        "version": "1.1.0",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "capture_semantics": "sequential_read_window",
+        "scope": "system"
+      }
+    },
+    {
+      "id": "metric-6cc63af0cc2a0699236e16cc47ffd339cb609619a636327755da3b0fe94f84f2",
+      "name": "apple.system.memory_capacity",
+      "description": "System-wide bytes; overlapping VM categories are not a partition or a GPU allocation.",
+      "unit": "By",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "apple-ollama-capture.v1:collector:1.1.0:ollama:0.40.16",
+      "resource": {
+        "boot_id": "sanitized-boot-f70c69b335b270db",
+        "chip": "Apple M5 Max",
+        "collector_version": "1.1.0",
+        "device_local_id": "apple-integrated-0",
+        "engine": "ollama",
+        "engine_version": "0.40.16",
+        "hardware_model": "Mac17,6",
+        "host_id": "sanitized-local-host",
+        "macos_build": "26B131",
+        "macos_version": "27.2.1",
+        "memory_model": "unified_shared",
+        "model_selection_sha256": "1f72f37a7b3863f2a2d9ce1fd1c7285923b7a8c23a133e2c7b8cb2329b23ea34",
+        "vendor": "apple"
+      },
+      "resource_schema_url": "",
+      "scope": {
+        "name": "apple-ollama-capture.v1",
+        "version": "1.1.0",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "capture_semantics": "sequential_read_window",
+        "scope": "system"
+      }
+    },
+    {
+      "id": "metric-70a1f46c58a9768fcf0f620fabc198eb2d4d97924aafa35d4960d66fd5c16f34",
+      "name": "apple.device.gpu_utilization",
+      "description": "Unavailable: residency estimates do not measure GPU activity.",
+      "unit": "1",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "apple-ollama-capture.v1:collector:1.1.0:ollama:0.40.16",
+      "resource": {
+        "boot_id": "sanitized-boot-f70c69b335b270db",
+        "chip": "Apple M5 Max",
+        "collector_version": "1.1.0",
+        "device_local_id": "apple-integrated-0",
+        "engine": "ollama",
+        "engine_version": "0.40.16",
+        "hardware_model": "Mac17,6",
+        "host_id": "sanitized-local-host",
+        "macos_build": "26B131",
+        "macos_version": "27.2.1",
+        "memory_model": "unified_shared",
+        "model_selection_sha256": "1f72f37a7b3863f2a2d9ce1fd1c7285923b7a8c23a133e2c7b8cb2329b23ea34",
+        "vendor": "apple"
+      },
+      "resource_schema_url": "",
+      "scope": {
+        "name": "apple-ollama-capture.v1",
+        "version": "1.1.0",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "capture_semantics": "sequential_read_window",
+        "scope": "device",
+        "unavailable_reason": "not_collected"
+      }
+    },
+    {
+      "id": "metric-769e39171a1ebbd2233596c78a2688b063369971f80d58d10c01d6ddf6e4139a",
+      "name": "apple.system.vm_inactive",
+      "description": "System-wide bytes; overlapping VM categories are not a partition or a GPU allocation.",
+      "unit": "By",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "apple-ollama-capture.v1:collector:1.1.0:ollama:0.40.16",
+      "resource": {
+        "boot_id": "sanitized-boot-f70c69b335b270db",
+        "chip": "Apple M5 Max",
+        "collector_version": "1.1.0",
+        "device_local_id": "apple-integrated-0",
+        "engine": "ollama",
+        "engine_version": "0.40.16",
+        "hardware_model": "Mac17,6",
+        "host_id": "sanitized-local-host",
+        "macos_build": "26B131",
+        "macos_version": "27.2.1",
+        "memory_model": "unified_shared",
+        "model_selection_sha256": "1f72f37a7b3863f2a2d9ce1fd1c7285923b7a8c23a133e2c7b8cb2329b23ea34",
+        "vendor": "apple"
+      },
+      "resource_schema_url": "",
+      "scope": {
+        "name": "apple-ollama-capture.v1",
+        "version": "1.1.0",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "capture_semantics": "sequential_read_window",
+        "scope": "system"
+      }
+    },
+    {
+      "id": "metric-aca76964bd910ba0c95ca133d226c29299d6f28d74253cb5763ca0662a7c563d",
+      "name": "apple.system.vm_free",
+      "description": "System-wide bytes; overlapping VM categories are not a partition or a GPU allocation.",
+      "unit": "By",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "apple-ollama-capture.v1:collector:1.1.0:ollama:0.40.16",
+      "resource": {
+        "boot_id": "sanitized-boot-f70c69b335b270db",
+        "chip": "Apple M5 Max",
+        "collector_version": "1.1.0",
+        "device_local_id": "apple-integrated-0",
+        "engine": "ollama",
+        "engine_version": "0.40.16",
+        "hardware_model": "Mac17,6",
+        "host_id": "sanitized-local-host",
+        "macos_build": "26B131",
+        "macos_version": "27.2.1",
+        "memory_model": "unified_shared",
+        "model_selection_sha256": "1f72f37a7b3863f2a2d9ce1fd1c7285923b7a8c23a133e2c7b8cb2329b23ea34",
+        "vendor": "apple"
+      },
+      "resource_schema_url": "",
+      "scope": {
+        "name": "apple-ollama-capture.v1",
+        "version": "1.1.0",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "capture_semantics": "sequential_read_window",
+        "scope": "system"
+      }
+    },
+    {
+      "id": "metric-bbd91aae0832c4df7c73bfc4495150ee00121705c096b331f545afcf33e8dd88",
+      "name": "ollama.selection.selected_model_match_count",
+      "description": "Exact selected-model load state (0 or 1); zero is not an empty host inventory.",
+      "unit": "{model}",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "apple-ollama-capture.v1:collector:1.1.0:ollama:0.40.16",
+      "resource": {
+        "boot_id": "sanitized-boot-f70c69b335b270db",
+        "chip": "Apple M5 Max",
+        "collector_version": "1.1.0",
+        "device_local_id": "apple-integrated-0",
+        "engine": "ollama",
+        "engine_version": "0.40.16",
+        "hardware_model": "Mac17,6",
+        "host_id": "sanitized-local-host",
+        "macos_build": "26B131",
+        "macos_version": "27.2.1",
+        "memory_model": "unified_shared",
+        "model_selection_sha256": "1f72f37a7b3863f2a2d9ce1fd1c7285923b7a8c23a133e2c7b8cb2329b23ea34",
+        "vendor": "apple"
+      },
+      "resource_schema_url": "",
+      "scope": {
+        "name": "apple-ollama-capture.v1",
+        "version": "1.1.0",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "capture_semantics": "sequential_read_window",
+        "scope": "model_selection"
+      }
+    },
+    {
+      "id": "metric-dbadcd22637234d8620c406a2ab7a9c3912b9644e0c1b2503667ab2c68e56086",
+      "name": "apple.system.swap_used",
+      "description": "System-wide bytes; overlapping VM categories are not a partition or a GPU allocation.",
+      "unit": "By",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "apple-ollama-capture.v1:collector:1.1.0:ollama:0.40.16",
+      "resource": {
+        "boot_id": "sanitized-boot-f70c69b335b270db",
+        "chip": "Apple M5 Max",
+        "collector_version": "1.1.0",
+        "device_local_id": "apple-integrated-0",
+        "engine": "ollama",
+        "engine_version": "0.40.16",
+        "hardware_model": "Mac17,6",
+        "host_id": "sanitized-local-host",
+        "macos_build": "26B131",
+        "macos_version": "27.2.1",
+        "memory_model": "unified_shared",
+        "model_selection_sha256": "1f72f37a7b3863f2a2d9ce1fd1c7285923b7a8c23a133e2c7b8cb2329b23ea34",
+        "vendor": "apple"
+      },
+      "resource_schema_url": "",
+      "scope": {
+        "name": "apple-ollama-capture.v1",
+        "version": "1.1.0",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "capture_semantics": "sequential_read_window",
+        "scope": "system"
+      }
+    },
+    {
+      "id": "metric-ef0eac8f100aa164a4446a77ef23b3595941da5b07d13c0bbdab270df178f29e",
+      "name": "apple.device.power",
+      "description": "Unavailable: no privileged power collection.",
+      "unit": "W",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "apple-ollama-capture.v1:collector:1.1.0:ollama:0.40.16",
+      "resource": {
+        "boot_id": "sanitized-boot-f70c69b335b270db",
+        "chip": "Apple M5 Max",
+        "collector_version": "1.1.0",
+        "device_local_id": "apple-integrated-0",
+        "engine": "ollama",
+        "engine_version": "0.40.16",
+        "hardware_model": "Mac17,6",
+        "host_id": "sanitized-local-host",
+        "macos_build": "26B131",
+        "macos_version": "27.2.1",
+        "memory_model": "unified_shared",
+        "model_selection_sha256": "1f72f37a7b3863f2a2d9ce1fd1c7285923b7a8c23a133e2c7b8cb2329b23ea34",
+        "vendor": "apple"
+      },
+      "resource_schema_url": "",
+      "scope": {
+        "name": "apple-ollama-capture.v1",
+        "version": "1.1.0",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "capture_semantics": "sequential_read_window",
+        "scope": "device",
+        "unavailable_reason": "permission_required"
+      }
+    },
+    {
+      "id": "metric-f07de41c9dbdf14e3196fbfd84789c0aa1ce4b79ea351987b63decf4c674a12d",
+      "name": "apple.system.thermal_warning_level",
+      "description": "pmset warning level; not a temperature or measured normal when no level was recorded.",
+      "unit": "{code}",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "apple-ollama-capture.v1:collector:1.1.0:ollama:0.40.16",
+      "resource": {
+        "boot_id": "sanitized-boot-f70c69b335b270db",
+        "chip": "Apple M5 Max",
+        "collector_version": "1.1.0",
+        "device_local_id": "apple-integrated-0",
+        "engine": "ollama",
+        "engine_version": "0.40.16",
+        "hardware_model": "Mac17,6",
+        "host_id": "sanitized-local-host",
+        "macos_build": "26B131",
+        "macos_version": "27.2.1",
+        "memory_model": "unified_shared",
+        "model_selection_sha256": "1f72f37a7b3863f2a2d9ce1fd1c7285923b7a8c23a133e2c7b8cb2329b23ea34",
+        "vendor": "apple"
+      },
+      "resource_schema_url": "",
+      "scope": {
+        "name": "apple-ollama-capture.v1",
+        "version": "1.1.0",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "capture_semantics": "sequential_read_window",
+        "scope": "system",
+        "unavailable_reason": "not_recorded"
+      }
+    },
+    {
+      "id": "metric-ffd228283d6ed75de79967d5024acffe7f4d6972f16102f23fbe7c76a9028a2f",
+      "name": "ollama.selection.excluded_model_count",
+      "description": "Other loaded model count; identities intentionally excluded. Not selected-model memory.",
+      "unit": "{model}",
+      "kind": "gauge",
+      "temporality": "unspecified",
+      "monotonic": false,
+      "origin": "apple-ollama-capture.v1:collector:1.1.0:ollama:0.40.16",
+      "resource": {
+        "boot_id": "sanitized-boot-f70c69b335b270db",
+        "chip": "Apple M5 Max",
+        "collector_version": "1.1.0",
+        "device_local_id": "apple-integrated-0",
+        "engine": "ollama",
+        "engine_version": "0.40.16",
+        "hardware_model": "Mac17,6",
+        "host_id": "sanitized-local-host",
+        "macos_build": "26B131",
+        "macos_version": "27.2.1",
+        "memory_model": "unified_shared",
+        "model_selection_sha256": "1f72f37a7b3863f2a2d9ce1fd1c7285923b7a8c23a133e2c7b8cb2329b23ea34",
+        "vendor": "apple"
+      },
+      "resource_schema_url": "",
+      "scope": {
+        "name": "apple-ollama-capture.v1",
+        "version": "1.1.0",
+        "schema_url": "",
+        "attributes": {},
+        "dropped_attributes": "0"
+      },
+      "attributes": {
+        "capture_semantics": "sequential_read_window",
+        "scope": "model_selection"
+      }
+    }
+  ],
+  "point_count": 154,
+  "deduplicated_points": 0,
+  "warnings": [
+    "Source producer/export/query identity is declared; no original-publisher authentication or GenAI alias qualification.",
+    "Shared system memory categories overlap; never sum them or subtract model estimates to calculate free GPU memory. Model size_vram is a producer-reported residency estimate, not dedicated VRAM or GPU utilization.",
+    "Capture start/end bounds describe sequential read skew, not simultaneous samples or a metric aggregation interval. No workload causation, GPU efficiency, OOM threshold, temperature or energy inference.",
+    "Private macOS pressure code is preserved without enum interpretation. Missing telemetry is no_recorded_value with an explicit reason; no automatic privileged collection.",
+    "Capture selects one exact model-name hash. excluded_model_count reports other loaded models without names/digests; selected_model_match_count=0 means the selector is not loaded, not that the host has no loaded models. Never treat the retained model list as the complete loaded inventory."
+  ]
+}

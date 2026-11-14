@@ -129,3 +129,7 @@ docs/review/evidence/2026-11-14-p2-remediation/* -text whitespace=cr-at-eol
 docs/review/evidence/2026-11-14-p2-remediation/*.txt -text whitespace=-blank-at-eol,cr-at-eol
 scripts/lib/desktop-soak-checks.mjs text eol=lf
 scripts/test-desktop-soak-checks.mjs text eol=lf
+
+# Passive T-662 observations are generated as UTF-8/LF and hash those bytes.
+docs/review/evidence/2026-11-14-t662-natural/*.json text eol=lf
+docs/review/evidence/2026-11-14-t662-natural/*.md text eol=lf
