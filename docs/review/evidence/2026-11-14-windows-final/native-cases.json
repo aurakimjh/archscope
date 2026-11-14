@@ -393,5 +393,50 @@
     "id": "thread-clear-all",
     "result": "PASS",
     "observed": "Clear All removes both input paths and prior persistent result; multi Analyze disabled. Declared context remains a draft option, not an active result."
+  },
+  {
+    "id": "msa-declared-count-warning",
+    "result": "PASS",
+    "observed": "MSA Summary retains1parsed profile/84ms and explicit file error TRANSACTION_COUNT_MISMATCH: declared4/found1TXID. Missing profiles are not synthesized; no external-call match is invented. This count mismatch is distinct from incomplete body."
+  },
+  {
+    "id": "msa-input-set-stale-before",
+    "result": "FAIL",
+    "observed": "Adding second native input changes Analyze(2) and file vector, but prior one-file summary/selected exports remain visible. Result must be bound to analyzed input set."
+  },
+  {
+    "id": "msa-missing-end-observation",
+    "result": "INCONCLUSIVE",
+    "observed": "Synthetic input omitted body END/TOTAL but native incomplete count remains0. No PASS for incomplete/average exclusion until parser completeness semantics are checked; count mismatch warning from separate file remains correct."
+  },
+  {
+    "id": "msa-missing-end-validation",
+    "result": "PASS",
+    "observed": "Parser diagnostics classify missing body END/TOTAL as2errors onTXID1002; complete profiles1of2. Summary incomplete_profile_count specifically counts producer-capacity flags, not all parser errors; prior INCONCLUSIVE remains historical, no size-pressure claim."
+  },
+  {
+    "id": "msa-average-no-eligible-before",
+    "result": "PARTIAL",
+    "observed": "Capacity-only fixture yields empty average signature selector and disabled exports, but no explanation on MSA tab. Summary/Parser must be consulted; add explicit eligibility guidance."
+  },
+  {
+    "id": "msa-capacity-summary",
+    "result": "PASS",
+    "observed": "Synthetic producer-capacity marker yields exactly1capacity-limited profile/1excluded group/0signatures, explicit5MB notice and84ms single-view header value. Not actual5MB pressure, no missing-END-only exclusion claim."
+  },
+  {
+    "id": "msa-input-set-clear-fixed",
+    "result": "PASS",
+    "observed": "Adding a second native file immediately clears prior summary/selection/export controls; both paths and Analyze(2) remain, with analyze-to-show-results message. No old one-file result under new vector."
+  },
+  {
+    "id": "msa-capacity-average-exclusion",
+    "result": "PASS",
+    "observed": "Mixed capacity-limited+complete profiles produce average Go drilldown1/1at84ms: capacity group excluded, complete group retained. Average mode preference survives input replacement; old exports were removed before rerun."
+  },
+  {
+    "id": "msa-average-no-eligible-fixed",
+    "result": "PASS",
+    "observed": "Capacity-only average now explicitly states no eligible signature and points to Summary/Parser issues and capacity exclusions; export/Workspace actions stay disabled. Same synthetic marker fixture."
   }
 ]

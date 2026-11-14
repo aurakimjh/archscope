@@ -1,0 +1,18 @@
+MSA 타임라인
+msa-capacity.txt · sample_count_mismatch.txt
+도움말 보기
+msa-capacity.txt +1
+찾아보기
+Clear file
+분석 (2)
+분석 옵션
+최근 파일 (1)
+msa-capacity.txt
+제거
+sample_count_mismatch.txt
+제거
+요약
+MSA
+부가/검증
+파서 진단
+분석을 실행하면 결과가 표시됩니다.

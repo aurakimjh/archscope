@@ -1888,8 +1888,21 @@ export function JenniferProfilePage(): React.JSX.Element {
   // selection vector (paths array + analyzer options).
   const recent = useRecentFiles({ category: "jennifer" });
 
-  const addSelections = useCallback((files: FileDockSelection[]) => {
+  const inflightAnalysisRef = useRef<symbol | null>(null);
+  useEffect(() => () => { inflightAnalysisRef.current = null; }, []);
+  const invalidateInputResult = useCallback(() => {
+    inflightAnalysisRef.current = null;
+    setResult(null);
+    setAnalyzing(false);
     setError("");
+    setSelectedGuid("");
+    setSelectedSignatureHash("");
+    setSelectedMsaDrilldown("__whole__");
+    setSelectedAverageMsaDrilldown("__whole__");
+  }, []);
+
+  const addSelections = useCallback((files: FileDockSelection[]) => {
+    invalidateInputResult();
     const additions: Selection[] = files.map((file) => ({
       filePath: file.filePath,
       originalName: file.originalName || basenameOf(file.filePath),
@@ -1898,7 +1911,7 @@ export function JenniferProfilePage(): React.JSX.Element {
       const seen = new Set(prev.map((s) => s.filePath));
       return [...prev, ...additions.filter((a) => !seen.has(a.filePath))];
     });
-  }, []);
+  }, [invalidateInputResult]);
 
   const handleFileSelected = useCallback(
     (file: FileDockSelection) => addSelections([file]),
@@ -1911,10 +1924,12 @@ export function JenniferProfilePage(): React.JSX.Element {
   );
 
   const handleClear = (path: string) => {
+    invalidateInputResult();
     setSelected((prev) => prev.filter((s) => s.filePath !== path));
   };
 
   const handleClearAll = () => {
+    invalidateInputResult();
     setSelected([]);
     setResult(null);
     setError("");
@@ -2000,7 +2015,10 @@ export function JenniferProfilePage(): React.JSX.Element {
   );
 
   const handleAnalyze = async () => {
-    if (selected.length === 0) return;
+    if (analyzing || selected.length === 0) return;
+    const token = Symbol("jennifer-analysis");
+    inflightAnalysisRef.current = token;
+    setResult(null);
     setError("");
     setAnalyzing(true);
     try {
@@ -2042,6 +2060,7 @@ export function JenniferProfilePage(): React.JSX.Element {
         customAnalysisRules:
           activeCustomRules.length > 0 ? activeCustomRules : undefined,
       });
+      if (inflightAnalysisRef.current !== token) return;
       const compactedResult = compactJenniferResult(res);
       setResult(compactedResult);
       addWorkspaceResult({
@@ -2078,10 +2097,14 @@ export function JenniferProfilePage(): React.JSX.Element {
         });
       }
     } catch (err: any) {
+      if (inflightAnalysisRef.current !== token) return;
       setError(String(err?.message ?? err));
       setResult(null);
     } finally {
-      setAnalyzing(false);
+      if (inflightAnalysisRef.current === token) {
+        inflightAnalysisRef.current = null;
+        setAnalyzing(false);
+      }
     }
   };
 
@@ -2432,6 +2455,7 @@ export function JenniferProfilePage(): React.JSX.Element {
     const names = Array.isArray(meta.originalNames)
       ? (meta.originalNames as string[])
       : paths.map((p) => p.split(/[\\/]/).pop() ?? p);
+    invalidateInputResult();
     setSelected(
       paths.map((p, idx) => ({
         filePath: p,
@@ -2766,7 +2790,7 @@ export function JenniferProfilePage(): React.JSX.Element {
                       <th className="px-4 py-2 text-right font-medium">{t("msaUiDeclared")}</th>
                       <th className="px-4 py-2 text-right font-medium">{t("msaUiDetected")}</th>
                       <th className="px-4 py-2 text-right font-medium">{t("msaUiProfiles")}</th>
-                      <th className="px-4 py-2 text-right font-medium">{t("msaUiIncomplete")}</th>
+                      <th className="px-4 py-2 text-right font-medium">{t("msaUiIncompleteProfiles")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -3228,6 +3252,11 @@ export function JenniferProfilePage(): React.JSX.Element {
               </CardContent>
             </Card>
 
+            {msaTimelineMode === "average" && signatureStats.length === 0 && (
+              <p role="status" className="rounded-md border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+                {t("msaCopyNoEligibleAverage")}
+              </p>
+            )}
             <div className="flex flex-wrap items-center gap-2 text-xs" aria-live="polite">
               {!currentDrilldown && drilldownSelection && <span>{locale === "ko" ? "선택 범위 계산 중…" : "Calculating selected scope…"}</span>}
               {currentDrilldown?.error && <span role="alert" className="text-destructive">{currentDrilldown.error}</span>}

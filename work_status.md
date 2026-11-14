@@ -5594,3 +5594,13 @@ Fixed native invalid-context refusal→JSON-only valid retry joins4snapshots int
 threads; threshold2finds exactly2persistent BLOCKED observations. Frontend state/
 build pass. T-627 REVIEW; dense/full-format/inflight-cancel/actualOS-DPI/reference
 scope separate. Evidence: docs/review/evidence/2026-11-14-windows-final/README.md.
+
+### 2026-11-15 Windows follow-up: MSA partial-input semantics
+
+Verified declared4/found1warning and missing-END/TOTAL parser errors. Clarified
+capacity-only counter labels; synthetic producer-capacity marker yields1excluded
+group/0signatures, mixed complete input averages only1eligible group at84ms.
+Fixed file-set changes retaining old results/exports and guarded late replies.
+Added native-verified no-eligible-average guidance. Frontend state/build pass.
+No actual5MBpressure/CSVmapping/full reference-DPI claim. T-627 REVIEW. Evidence:
+docs/review/evidence/2026-11-14-windows-final/README.md.

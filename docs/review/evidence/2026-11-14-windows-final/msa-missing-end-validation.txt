@@ -1,0 +1,67 @@
+MSA 타임라인
+sample_count_mismatch.txt · msa-incomplete.txt
+도움말 보기
+sample_count_mismatch.txt +1
+찾아보기
+Clear file
+분석 (2)
+분석 옵션
+최근 파일 (1)
+sample_count_mismatch.txt
+제거
+msa-incomplete.txt
+제거
+요약
+MSA
+부가/검증
+파서 진단
+파서 보고서
+도움말 보기
+파일
+도움말 보기
+2
+파싱된 프로파일
+도움말 보기
+2
+완전한 프로파일
+도움말 보기
+1
+전체 오류
+도움말 보기
+2
+전체 경고
+도움말 보기
+0
+고유 시그니처
+도움말 보기
+1
+파일 오류
+도움말 보기
+소스 파일
+코드
+메시지
+sample_count_mismatch.txt
+TRANSACTION_COUNT_MISMATCH
+Total Transaction declared 4 but found 1 TXID blocks
+프로파일별 이슈 (errors / warnings)
+도움말 보기
+TXID
+￼
+애플리케이션
+￼
+심각도
+￼
+코드
+￼
+메시지
+￼
+1002
+/prod/common/rule/testrule
+error
+MISSING_PROFILE_END
+Body END event not found
+1002
+/prod/common/rule/testrule
+error
+MISSING_TOTAL
+Body TOTAL line not found

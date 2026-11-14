@@ -301,3 +301,32 @@ Native file-picker Escape preserves two paths/result/selected tab. Clear All
 removes inputs/results and disables Analyze. Frontend state/build pass. Sparse
 fixtures and file-picker cancellation do not close dense/full-format/actualOS-DPI/
 locale/reference/inflight-cancellation combinations.
+
+## MSA partial inputs, capacity exclusions and file-set provenance
+
+Native repository sample_count_mismatch.txt retains1profile/84ms with explicit
+TRANSACTION_COUNT_MISMATCH(declared4/found1TXID). A separately generated missing
+END/TOTAL profile reports MISSING_PROFILE_END/MISSING_TOTAL and complete1of2in
+Parser diagnostics. Its initial incomplete-count observation is INCONCLUSIVE,
+not a defect/PASS: that summary counter specifically counts producer capacity
+markers. Labels now explicitly say Capacity-limited profiles in EN/KO, including
+the file table, so parser errors and capacity flags are distinguishable. No new
+backend rule about averaging every kind of failed profile is claimed.
+
+Synthetic Profile capacity exceeded marker yields1capacity-limited profile,
+1excluded group and0signatures with the existing explicit5MB notice. This is
+parser/UI marker qualification, not actual5MB producer pressure. Adding a complete
+profile and rerunning yields average Go drilldown1/1and84ms; excluded capacity
+group is not counted. With only excluded groups, MSA average initially showed an
+empty selector/disabled exports without guidance. It now explains that no eligible
+signature exists and points to Summary/Parser diagnostics.
+
+Adding/removing/restoring input selections previously left prior result/exports
+under a different file vector. Changes now invalidate the result and inflight
+identity, reset drilldown keys, and ignore late replies. New-run starts empty;
+unmount retires the request. Native second-file addition immediately removes old
+result/export controls, and a valid rerun restores the mixed-input result.
+Frontend state/build pass; native before/after cases are separate build pins.
+Current native MSA accepts Jennifer text exports(.txt/.log/.profile); no CSV column
+mapping control is exposed. CSV mapping/reference equivalence, every locale/DPI/
+partial combination and in-flight cancellation are not declared complete.

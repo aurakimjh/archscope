@@ -1,0 +1,126 @@
+MSA 타임라인
+sample_count_mismatch.txt · msa-incomplete.txt
+도움말 보기
+sample_count_mismatch.txt +1
+찾아보기
+Clear file
+분석 (2)
+분석 옵션
+최근 파일 (1)
+sample_count_mismatch.txt
+제거
+msa-incomplete.txt
+제거
+요약
+MSA
+부가/검증
+파서 진단
+전체 파일
+도움말 보기
+1
+전체 프로파일
+도움말 보기
+1
+GUID 그룹
+도움말 보기
+1
+시그니처
+도움말 보기
+1
+불완전 프로파일
+도움말 보기
+0
+평균 집계 제외 그룹
+도움말 보기
+0
+매칭된 호출 관계
+도움말 보기
+0
+미매칭 호출 관계
+도움말 보기
+0
+네트워크 차이 누적 (MS)
+도움말 보기
+0
+SQL 실행 누적 (MS)
+도움말 보기
+0
+네트워크 준비시간 (CUM MS)
+도움말 보기
+0
+미수집 외부호출 (CUM MS)
+도움말 보기
+0
+네트워크 WRAPPER 합계 (CUM MS)
+도움말 보기
+0
+페치 행 수
+도움말 보기
+0
+단일 트랜잭션 기준값
+도움말 보기
+선택한 GUID 하나의 실제 호출 순서와 elapsed 값을 그대로 표시합니다.
+루트 응답시간 (MS)
+도움말 보기
+84
+프로파일
+도움말 보기
+1
+매칭
+도움말 보기
+0
+외부 호출 누적 (MS)
+도움말 보기
+0
+네트워크 차이 (MS)
+도움말 보기
+0
+실행 모드
+도움말 보기
+NONE
+MSA 캡처 상태 (체크쿼리 / 2PC / 외부호출 / 네트워크 준비)
+도움말 보기
+2PC 누적 (MS)
+도움말 보기
+0
+체크 쿼리 누적 (MS)
+도움말 보기
+0
+외부 호출 누적 (MS)
+도움말 보기
+0
+외부 호출 수
+도움말 보기
+0
+네트워크 준비 래퍼 (MS)
+도움말 보기
+0
+네트워크 준비 래퍼 수
+도움말 보기
+0
+네트워크 준비 누적 (MS)
+도움말 보기
+0
+연결 획득 (MS)
+도움말 보기
+0
+파일 오류
+도움말 보기
+소스 파일
+코드
+메시지
+sample_count_mismatch.txt
+TRANSACTION_COUNT_MISMATCH
+Total Transaction declared 4 but found 1 TXID blocks
+파일 요약
+도움말 보기
+소스 파일
+선언된 트랜잭션
+감지된 트랜잭션
+프로파일
+불완전
+sample_count_mismatch.txt
+4
+1
+1
+0
