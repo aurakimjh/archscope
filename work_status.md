@@ -5584,3 +5584,13 @@ result and selected event/signature; intermediate stale-signature failure remain
 archived and final native clear passes. Frontend state/build pass. T-627 REVIEW;
 full narrow/actualOS-DPI/locale/reference matrix stays open. Evidence:
 docs/review/evidence/2026-11-14-windows-final/README.md.
+
+### 2026-11-15 Windows follow-up: thread modes and context edits
+
+Verified native single2BLOCKED, reverse multi-input order, missing-lifetime-context
+isolation, exact two-lock deadlock cycle, picker cancellation and clear. Fixed
+analysis callback ignoring context-only edits and clear prior result at new run.
+Fixed native invalid-context refusal→JSON-only valid retry joins4snapshots into2
+threads; threshold2finds exactly2persistent BLOCKED observations. Frontend state/
+build pass. T-627 REVIEW; dense/full-format/inflight-cancel/actualOS-DPI/reference
+scope separate. Evidence: docs/review/evidence/2026-11-14-windows-final/README.md.

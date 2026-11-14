@@ -1,0 +1,1 @@
+{"schema_version":"1.0.0","source_format":"java_jstack","host_id":"native-fixture-host","boot_id":"native-fixture-boot","pid_namespace":"synthetic","pid":"500","process_start_ns":"0","threads":[{"runtime_id":"0x00000001","thread_start_ns":"0"},{"runtime_id":"0x00000002","thread_start_ns":"0"}]}

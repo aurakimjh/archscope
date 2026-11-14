@@ -1,0 +1,62 @@
+쓰레드 덤프
+분석 모드
+도움말 보기
+Java jstack/jcmd JSON, Go, Python, Node.js, .NET 덤프를 연속 시점으로 상관 분석해 장시간 실행 / 지속 BLOCKED 쓰레드를 탐지합니다.
+단일 덤프
+멀티 덤프 상관 분석
+락 경합
+선택된 파일 (2)
+도움말 보기
+여러 쓰레드 덤프 파일을 드래그하거나 클릭해 선택하세요
+파일 추가
+모두 비우기
+멀티 덤프 분석
+0
+02-dump.txt
+삭제
+1
+01-dump.txt
+삭제
+분석 옵션
+상관 맥락/분석 제한: 4 snapshots in 2 dumps isolated without complete process/thread lifetime context; across-dump persistence/long-running detection is disabled for these observations. Supply explicit correlation context; names alone never join.
+요약
+Findings (2)
+장시간 실행 (0)
+지속 BLOCKED (0)
+덤프별
+쓰레드 (4)
+덤프 목록 (2)
+JVM signals
+총 덤프
+도움말 보기
+2
+고유 쓰레드
+도움말 보기
+4
+장시간 실행
+도움말 보기
+0
+지속 BLOCKED
+도움말 보기
+0
+VIRTUAL CARRIER PINNING
+도움말 보기
+0
+SMR 미해결
+도움말 보기
+0
+NATIVE 메서드
+도움말 보기
+0
+히스토그램 클래스
+도움말 보기
+0
+연속 임계치
+도움말 보기
+3
+언어
+도움말 보기
+java
+원본 포맷
+도움말 보기
+java_jstack

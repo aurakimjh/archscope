@@ -348,5 +348,50 @@
     "id": "exception-clear-final-fixed",
     "result": "PASS",
     "observed": "Final native build clears35-event result AND selected Case1 signature detail on Clear file. Input empty, Analyze disabled, no old count/signature/stack remains."
+  },
+  {
+    "id": "thread-single-blocked",
+    "result": "PASS",
+    "observed": "Owned Java jstack fixture yields2threads,2BLOCKED,0RUNNABLE/WAITING and2lock holders in native single mode. Sparse fixture is not area-qualified."
+  },
+  {
+    "id": "thread-multi-order-isolation",
+    "result": "PASS",
+    "observed": "Native multi-file picker preserves explicit reverse order02then01, analyzed as2dumps/4isolated snapshots. Incomplete process/thread lifetime context explicitly disables cross-dump joins/persistence; long-running/BLOCKED0are unavailable correlation, not healthy proof."
+  },
+  {
+    "id": "thread-context-only-edit-before",
+    "result": "FAIL",
+    "observed": "Only correlationContextJSON changed, then footer Analyze rerun. Valid caller-declared two-thread context remains in textarea but native result still says4snapshots isolated without context. Analyze callback omitted context from dependencies."
+  },
+  {
+    "id": "thread-deadlock-cycle",
+    "result": "PASS",
+    "observed": "Native lock mode detects2contended/2unique locks and1canonical cycle worker1→worker2→worker1, with exact0x00000002/01edges. Hold/wait counts4refer to observations across2dumps. No real process was deadlocked."
+  },
+  {
+    "id": "thread-invalid-context-fixed",
+    "result": "PASS",
+    "observed": "Only context textarea changed. Native engine now rejects incomplete context with THREAD_CORRELATION_PROCESS_CONTEXT_REQUIRED/ENGINE_FAILED and no result. No ignored-option success."
+  },
+  {
+    "id": "thread-context-only-retry-fixed",
+    "result": "PASS",
+    "observed": "After incomplete-context refusal, editing only context JSON and rerunning clears error/warning and joins4snapshots into2unique threads. Threshold remains3, so two snapshots do not yet qualify as persistent."
+  },
+  {
+    "id": "thread-persistent-blocked-positive",
+    "result": "PASS",
+    "observed": "With explicit declared process/thread lifetimes and threshold2, native finds exactly2persistent BLOCKED threads,2dumps each, first index0, matching acquire/run signatures; no context warning. Caller declaration is not producer authentication."
+  },
+  {
+    "id": "thread-picker-cancel-preserves",
+    "result": "PASS",
+    "observed": "Native multi-file picker Escape preserves2input paths, selected persistent-BLOCKED tab,2rows and declared-context result. This is file-picker cancellation, not inflight engine cancellation."
+  },
+  {
+    "id": "thread-clear-all",
+    "result": "PASS",
+    "observed": "Clear All removes both input paths and prior persistent result; multi Analyze disabled. Declared context remains a draft option, not an active result."
   }
 ]

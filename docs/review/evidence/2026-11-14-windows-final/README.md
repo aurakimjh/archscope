@@ -276,3 +276,28 @@ candidate cleared result but retained the selected signature card; that FAIL is
 preserved. Final native Case1select→Clear removes both result and selected card.
 Frontend state/build pass. Small-window/actualOS125/locale/reference/partial-file
 matrix remains separate; no universal70percent verdict.
+
+## Thread single/multiple/lock modes and live option identity
+
+Owned text fixtures contain2BLOCKED threads holding/waiting for opposite locks
+at two declared timestamps. Native single reports2threads/2BLOCKED/2holders and
+correct acquire frames/lock IDs. Multi-picker preserves explicit reverse02→01
+order in result source rows. Without process/thread lifetime context,4snapshots
+stay isolated and a warning disables cross-dump persistence;0is not healthy proof.
+Lock mode detects2contended/2unique locks and1canonical worker1→worker2→worker1
+cycle with exact0x00000002/01edges. Hold/wait4counts are across2dump observations.
+No real process was deadlocked.
+
+The analysis callback omitted correlationContextJSON from dependencies: editing
+only that field reran with the prior empty context. Added the dependency and clear
+old result at new-run start. Native fixed incomplete context now refuses with
+THREAD_CORRELATION_PROCESS_CONTEXT_REQUIRED; changing only JSON then retries
+successfully, joins4snapshots into2unique threads and removes isolation warning.
+Threshold3does not qualify2snapshots; changing it to2correctly yields exactly2
+persistent BLOCKED threads with first index0and matching full signatures. Context
+is an explicit synthetic caller declaration, not producer authentication.
+
+Native file-picker Escape preserves two paths/result/selected tab. Clear All
+removes inputs/results and disables Analyze. Frontend state/build pass. Sparse
+fixtures and file-picker cancellation do not close dense/full-format/actualOS-DPI/
+locale/reference/inflight-cancellation combinations.

@@ -1,0 +1,16 @@
+2026-11-15 00:30:00
+Full thread dump Java HotSpot(TM):
+"acceptance-worker-1" #1 prio=5 os_prio=0 tid=0x00000001 nid=0x1 waiting for monitor entry
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at app.LockFixture.acquire(LockFixture.java:11)
+        - waiting to lock <0x00000002> (a app.FixtureLock)
+        - locked <0x00000001> (a app.FixtureLock)
+        at app.LockFixture.run(LockFixture.java:30)
+
+"acceptance-worker-2" #2 prio=5 os_prio=0 tid=0x00000002 nid=0x2 waiting for monitor entry
+   java.lang.Thread.State: BLOCKED (on object monitor)
+        at app.LockFixture.acquire(LockFixture.java:12)
+        - waiting to lock <0x00000001> (a app.FixtureLock)
+        - locked <0x00000002> (a app.FixtureLock)
+        at app.LockFixture.run(LockFixture.java:30)
+

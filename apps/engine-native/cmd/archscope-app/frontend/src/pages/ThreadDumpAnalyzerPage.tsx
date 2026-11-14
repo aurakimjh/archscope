@@ -310,6 +310,7 @@ export function ThreadDumpAnalyzerPage(): React.JSX.Element {
 
   const analyze = useCallback(async () => {
     if (!canAnalyze) return;
+    setResult(null);
     setError(null);
     setEngineMessages([]);
     setState("running");
@@ -374,7 +375,7 @@ export function ThreadDumpAnalyzerPage(): React.JSX.Element {
       setError({code:"ENGINE_FAILED",message:caught instanceof Error ? caught.message : String(caught)});
       setState("error");
     }
-  }, [canAnalyze, files, formatOverride, mode, singleFile, threshold, topN]);
+  }, [canAnalyze, correlationContextJSON, files, formatOverride, mode, singleFile, threshold, topN]);
 
   const cancelAnalysis = useCallback(() => {
     if (mode === "single") {
