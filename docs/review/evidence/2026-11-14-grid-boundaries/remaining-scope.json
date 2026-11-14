@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "T-613": "PENDING",
+  "T-627": "REVIEW",
+  "supersedesSelectedSlicesIn": "../2026-11-14-live-grid/remaining-scope.json",
+  "GRID-01": {
+    "completed": "Type,Path query and unknown numeric size fixes;native field/process zero/one combinations,PageUp/PageDown/arrows after filter/sort,starred-only,48..800width/defaults;386collapse/expandandfocusedtypingguard;144statecombinations.",
+    "remaining": "Complete optional-column values, native operator/process/field/group/keyboard cross-product, conclusive column drag/header resize,386fullnativegroup/Offset matrix,IME/locale/actualDPIandoriginal-reference cases."
+  },
+  "NOTES-01": {
+    "completed": "BothnativeHangul/emoji4096bytepersistandmasked-expansionrefusal;amd64ASCII4096/4097,retryafter1600msreadlock,live sort/arrows/IDrestore,targetitselfeviction;386Hangul4098andemptyclear;durablereadback.",
+    "remaining": "Everyinput-method/normalpasteandfailure/concurrencycombination,existingoversizedannotationfilerepairpolicy,orphancompaction/fullmemoryacceptance,multipleselectionsemanticsandoriginalreferencecomparison."
+  },
+  "SESSION-01": {
+    "completed": "120rowbeforeand128rowaftertargeteviction+386redacted120row snapshots;uniqueIDs,selection,notesandallotherfieldsafterdeclaredportableURLnormalization.",
+    "remaining": "Filtered/nativeexportandallformat/error/partial-file combinations;memory/power-loss/committed-corruption andfulloriginalinteroperability."
+  },
+  "unchangedGates": [
+    "Positive live-body/POST search remains behind disabled body gate.",
+    "Transparent/proxy-ignoring/service/other-session Windows reach and vendorCOM foreigncookies/cleanregistration remain separate.",
+    "No new longsoak/leak-free/race/actualDPI verdict;earlier2h evidence unchanged."
+  ]
+}

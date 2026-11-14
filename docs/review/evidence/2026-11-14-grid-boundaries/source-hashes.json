@@ -1,0 +1,12 @@
+{
+  "scope": "Working source bytes; product code at49c31b3b,144combination regression added after native builds",
+  "files": {
+    "apps/engine-native/cmd/archscope-app/captureannotations.go": "fe3f08b537664d1927192c7ea0cd8311ada1c4fee096c1a3f614519b96caf107",
+    "apps/engine-native/cmd/archscope-app/captureannotations_test.go": "a9c7b369d21df60e319f8c76e03f61cd9b75024c55048206906bec1e902a17e5",
+    "apps/engine-native/cmd/archscope-app/frontend/src/components/HttpRowNotes.tsx": "a6b544ab5c71ddb59c39acccc7b9e8b62f042cad7c45261cba73ab6d3d3e1033",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/httpColumns.ts": "8b377370c30467577e5b66e0cf526e4046babc630d5f3a0be9ead03d56b58e92",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/httpAnalyzer.ts": "363f3698ab91ec8e39ceb307069f684a8c7ac3357852d083b8ec1ad46c80aec9",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/httpAnnotations.ts": "fba3cde6e2396e20b41bd6e5b3a4a7f72a3fb043e7af5ee7f0180e432e0dd571",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts": "19e1692ec474d3ad2dc5f66e4f96c66d24e093c93d523c4c725f37bca3983851"
+  }
+}

@@ -1,0 +1,359 @@
+[
+  {
+    "id": "baseline-note-4096-truncated",
+    "result": "INCONCLUSIVE",
+    "observed": "UI Automation set_value supplies4096ASCIIbytes despite maxlength1024; this does not demonstrate ordinary typing/paste truncation. Keyboard replacement tested separately.",
+    "observedAt": "2026-11-14T02:20:34.632Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "baseline-note-4096-truncated.jpg",
+    "requestedBytes": 4096,
+    "actualBytes": 4096
+  },
+  {
+    "id": "baseline-note-keyboard-limit",
+    "result": "FAIL",
+    "observed": "AfterCtrlA+native type_text4096ASCIIbytes,actualreadback length=1024.",
+    "observedAt": "2026-11-14T02:21:09.444Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "baseline-note-keyboard-limit.jpg",
+    "requestedBytes": 4096,
+    "actualBytes": 1024
+  },
+  {
+    "id": "amd64-kind-filter",
+    "result": "PASS",
+    "observed": "Type contains json yields40of120rows;mounted producerB header20observed,complementary20fixture-derived.Pathdisplaysretainedquerytext.",
+    "observedAt": "2026-11-14T02:25:08.533Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-kind-filter.jpg"
+  },
+  {
+    "id": "amd64-filter-keyboard-pageup",
+    "result": "PASS",
+    "observed": "Type=json/process grouping:clickseq112thenPageUpselectsseq52(index51);10visible filtered requests,not10capture-sequence units.",
+    "observedAt": "2026-11-14T02:25:37.525Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-filter-keyboard-pageup.jpg"
+  },
+  {
+    "id": "amd64-filter-keyboard-pagedown",
+    "result": "PASS",
+    "observed": "PageDown returns fromseq52toseq112 withinType=json filtered rows.",
+    "observedAt": "2026-11-14T02:25:53.624Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim"
+  },
+  {
+    "id": "amd64-filter-keyboard-last-boundary",
+    "result": "PASS",
+    "observed": "Down moves112to118;anotherDownstays118.DetailURLslot117matcheslastfilteredrequest.",
+    "observedAt": "2026-11-14T02:26:08.440Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-filter-keyboard-last-boundary.jpg"
+  },
+  {
+    "id": "amd64-filter-zero",
+    "result": "PASS",
+    "observed": "UnmatchedTypefiltergives0/120andemptygrid;previousdetailselection118isretainedseparately.",
+    "observedAt": "2026-11-14T02:26:28.081Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-filter-zero.jpg"
+  },
+  {
+    "id": "amd64-path-query-filter",
+    "result": "PASS",
+    "observed": "Path contains slot=004 returns exactlyseq5fromlive120rows;retainedredactedURLqueryisvisibleinthePathcolumn.",
+    "observedAt": "2026-11-14T02:27:05.731Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-path-query-filter.jpg"
+  },
+  {
+    "id": "amd64-overlong-input-8192",
+    "result": "PASS",
+    "observed": "Native type_text delivered8192bytes rather than requested4096;overflowcounter8192/4096andSavecorrectlydisabled. Exact4096acceptanceusesUIAutomationreplacementnext;ordinarytypingdeliveryinconclusive.",
+    "observedAt": "2026-11-14T02:29:17.837Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-overlong-input-8192.jpg"
+  },
+  {
+    "id": "amd64-4096-ascii-save",
+    "result": "PASS",
+    "observed": "Exact4096ASCIIbytes replacement saves;buttondisabledaftercompletion;independentdiskreadbackequal4096a.",
+    "observedAt": "2026-11-14T02:29:44.984Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-4096-ascii-save.jpg"
+  },
+  {
+    "id": "amd64-hangul-4096-save",
+    "result": "PASS",
+    "observed": "1365Hangulcharacters+ASCIIa=4096UTF8bytes/1366characters;nativeSaveandindependentdiskreadbackexact.",
+    "observedAt": "2026-11-14T02:30:11.069Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim"
+  },
+  {
+    "id": "amd64-emoji-4096-save",
+    "result": "PASS",
+    "observed": "1024emoji=4096UTF8bytes/2048UTF16units;nativeSaveanddiskreadbackexact.",
+    "observedAt": "2026-11-14T02:30:28.064Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim"
+  },
+  {
+    "id": "amd64-note-4097-refused",
+    "result": "PASS",
+    "observed": "4097byte draftstaysintact,countershows4097/4096withKoreanwarning,Saveisdisabled;prior4096emojiannotationunchangedondisk.",
+    "observedAt": "2026-11-14T02:30:37.776Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-note-4097-refused.jpg"
+  },
+  {
+    "id": "amd64-redaction-expansion-refused",
+    "result": "PASS",
+    "observed": "3300inputbytesexpandbeyond4096afterredaction;nativeSaveerrors,draftretained,previous4096emojiannotationunchangedandreadable.",
+    "observedAt": "2026-11-14T02:30:54.653Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-redaction-expansion-refused.jpg"
+  },
+  {
+    "id": "amd64-short-secret-redacted",
+    "result": "PASS",
+    "observed": "Retrywithshortsyntheticpasswordsucceeds;editoranddiskreadbackpassword=[REDACTED],earliererrorcleared.",
+    "observedAt": "2026-11-14T02:31:15.824Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-short-secret-redacted.jpg"
+  },
+  {
+    "id": "amd64-permanent-reader-error",
+    "result": "PASS",
+    "observed": "Ownedreaderholdsdelete-sharingdenial1600ms>1sretrybudget;Saveerrors,draftretry-boundaryremains,previousredactedannotationunchanged.",
+    "observedAt": "2026-11-14T02:31:41.777Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "receiptNote": "Sanitized native observation only; full Windows error screenshot with private capture-directory ID excluded."
+  },
+  {
+    "id": "amd64-reader-release-retry",
+    "result": "PASS",
+    "observed": "Samepreserveddraftretry-boundarysavesafterreaderrelease,errorcleared,diskexactmatch;noresetsorretargeting.",
+    "observedAt": "2026-11-14T02:32:48.774Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-reader-release-retry.jpg"
+  },
+  {
+    "id": "amd64-starred-filter",
+    "result": "PASS",
+    "observed": "AfterclearingPathfilter,Starredonlyfindsexactlyseq5of120withretry-boundarycomment;selectionretained.",
+    "observedAt": "2026-11-14T02:33:15.860Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-starred-filter.jpg"
+  },
+  {
+    "id": "amd64-live-sort-note",
+    "result": "PASS",
+    "observed": "Descendingsequenceorderwithprocessgroupsretainsselectedseq5anditsstar/commentID.",
+    "observedAt": "2026-11-14T02:33:35.445Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-live-sort-note.jpg"
+  },
+  {
+    "id": "amd64-live-sort-keyboard-note",
+    "result": "PASS",
+    "observed": "DescendingprocessgroupDownmoves5to3;Upreturns5andrestoresretry-boundary/star.IndependentstoredannotationsandexportsbindtheonlynotetoID5.",
+    "observedAt": "2026-11-14T02:33:50.714Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim"
+  },
+  {
+    "id": "amd64-keyboard-cross-group",
+    "result": "INCONCLUSIVE",
+    "observed": "Immediate screenshot stillshowedseq5afterPageDown;cross-group106wasexpectedbutnotestablished. Separateobservationsfollow.",
+    "observedAt": "2026-11-14T02:33:58.179Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-keyboard-cross-group.jpg"
+  },
+  {
+    "id": "amd64-page-boundary-noop",
+    "result": "PASS",
+    "observed": "Corrected expectation:descendingfirstprocessgroupisproducerB,seq5isneartheendofsecondgroup.PageDownbeyondrangeisano-op;PageUpfrom5selects25.",
+    "observedAt": "2026-11-14T02:35:35.414Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-page-boundary-noop.jpg"
+  },
+  {
+    "id": "amd64-column-drag",
+    "result": "INCONCLUSIVE",
+    "observed": "Onegesturefromsequenceeditorrowtostartedrowdidnotestablishreorder;arrowbuttonreorderingwaspreviouslyverified.Noheaderdrag-resizeimplementationclaim.",
+    "observedAt": "2026-11-14T02:36:13.529Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim"
+  },
+  {
+    "id": "amd64-width-minimum",
+    "result": "PASS",
+    "observed": "Sequencewidthinput1normalizesto48.",
+    "observedAt": "2026-11-14T02:36:26.903Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim"
+  },
+  {
+    "id": "amd64-width-maximum",
+    "result": "PASS",
+    "observed": "Sequencewidthinput900normalizesto800;gridscrollshorizontallywithinthepane.",
+    "observedAt": "2026-11-14T02:36:36.304Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-width-maximum.jpg"
+  },
+  {
+    "id": "amd64-columns-defaults",
+    "result": "PASS",
+    "observed": "Restoredefaultsreturnscompactdefaultvisiblecolumnlayoutaftersequencewidth800;sortandselectedseq25remain.",
+    "observedAt": "2026-11-14T02:37:36.026Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-columns-defaults.jpg"
+  },
+  {
+    "id": "amd64-annotated-target-eviction",
+    "result": "PASS",
+    "observed": "After20newrequests140persisted/128retained/12evicted,selectedseq5detailisclearedwhenauthoritativestorefetchreportsunavailable.Oldlive-tailrowmayremainvisiblebutcannoteditanothertarget.",
+    "observedAt": "2026-11-14T02:38:19.642Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-annotated-target-eviction.jpg"
+  },
+  {
+    "id": "amd64-process-path-negative",
+    "result": "PASS",
+    "observed": "ProcessB70of140ANDPathslot004(producerA)gives0gridrows;processfilterclearsselection.",
+    "observedAt": "2026-11-14T02:39:06.777Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-process-path-negative.jpg"
+  },
+  {
+    "id": "amd64-process-path-positive",
+    "result": "PASS",
+    "observed": "ProcessBANDPathslot129givesexactseq130of140livecapturedrows,whileprocessdenominator70/140isexplicit.",
+    "observedAt": "2026-11-14T02:39:16.436Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-process-path-positive.jpg"
+  },
+  {
+    "id": "amd64-export-after-target-eviction",
+    "result": "PASS",
+    "observed": "Independent128-rowwhole-storeexporthassequences13..140,noevictedselectedIDandnostar/commentonanyretainedrow.Oldannotation5remainsasanorphanentryondiskbutisnotreassignedorexported.",
+    "observedAt": "2026-11-14T02:39:51.123Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "amd64-export-after-target-eviction.jpg"
+  },
+  {
+    "id": "386-collapse-process-keyboard",
+    "result": "PASS",
+    "observed": "CtrlShiftLeftcollapsesbothprocessgroupson25/60searchpage:13and12requests;headersremainandrequestrowsarehidden.",
+    "observedAt": "2026-11-14T02:42:32.661Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "386-collapse-process-keyboard.jpg"
+  },
+  {
+    "id": "386-expand-process-keyboard",
+    "result": "PASS",
+    "observed": "CtrlShiftRightrestoresrequestrowsaftercollapse,25/60searchsnapshotunchanged.",
+    "observedAt": "2026-11-14T02:43:21.453Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "386-expand-process-keyboard.jpg"
+  },
+  {
+    "id": "386-hangul-4096-save",
+    "result": "PASS",
+    "observed": "1365Hangul+a=4096UTF8bytesacceptedandnativeSaved;independentdiskexactmatch.",
+    "observedAt": "2026-11-14T02:45:15.689Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "386-hangul-4096-save.jpg"
+  },
+  {
+    "id": "386-emoji-4096-save",
+    "result": "PASS",
+    "observed": "1024emoji=4096UTF8bytesnativeSavedanddiskexactmatch.",
+    "observedAt": "2026-11-14T02:45:34.133Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "386-emoji-4096-save.jpg"
+  },
+  {
+    "id": "386-hangul-4098-refused",
+    "result": "PASS",
+    "observed": "1366Hangul=4098UTF8bytes;Koreanwarning,Save-disabled,draftnottruncatedandprevious4096emojiannotationpreserved.",
+    "observedAt": "2026-11-14T02:45:47.099Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "386-hangul-4098-refused.jpg"
+  },
+  {
+    "id": "386-redaction-expansion-refused",
+    "result": "PASS",
+    "observed": "3300bytedraftwouldexpandafterredaction;nativeerrorandprevious4096emojicommentpreserved;draftremains.",
+    "observedAt": "2026-11-14T02:46:05.020Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "386-redaction-expansion-refused.jpg"
+  },
+  {
+    "id": "386-short-secret-redacted",
+    "result": "PASS",
+    "observed": "Shortsecretretryclearsservererror;nativeeditoranddiskreadbackpassword=[REDACTED].",
+    "observedAt": "2026-11-14T02:46:33.992Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "386-short-secret-redacted.jpg"
+  },
+  {
+    "id": "386-typing-shortcut-ownership",
+    "result": "INCONCLUSIVE",
+    "observed": "FirstCtrlShiftLeftgestureleftgroupanddraftunchanged,butwordselectionwasnotobserved;explicitfocusrerunfollows.",
+    "observedAt": "2026-11-14T02:46:51.501Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "386-typing-shortcut-ownership.jpg"
+  },
+  {
+    "id": "386-empty-comment-clear",
+    "result": "PASS",
+    "observed": "Empty0bytecommentisvalidandclearspriorsavedredactedcomment;diskreadbackemptyandSavecompletes.",
+    "observedAt": "2026-11-14T02:47:26.222Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim"
+  },
+  {
+    "id": "386-typing-shortcut-focused",
+    "result": "PASS",
+    "observed": "Withvisiblyfocusedcommenttextarea,CtrlShiftLeftselectsworddraft;processgroupstays expandedandrequest5remainsvisible.",
+    "observedAt": "2026-11-14T02:47:51.054Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI claim",
+    "screenshot": "386-typing-shortcut-focused.jpg"
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "retentionRows": 128,
+  "retained": 128,
+  "evicted": 12,
+  "generation": 0,
+  "state": "running",
+  "observed": 140,
+  "captured": 140,
+  "persisted": 140,
+  "bodyOmitted": 0,
+  "eventSkipped": 0,
+  "kernelDropped": 0,
+  "parseFailed": 0,
+  "unsupported": 0,
+  "passthrough": 0,
+  "unattributed": 0,
+  "dropped": 0,
+  "backpressured": false,
+  "snapshotVersion": 140,
+  "sequence": 140,
+  "storeBytes": 252852
+}

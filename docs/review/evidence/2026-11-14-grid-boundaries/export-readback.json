@@ -1,0 +1,72 @@
+{
+  "scope": "Independent data readback, not native UI verdict; host/query portable normalization explicitly applied",
+  "exports": [
+    {
+      "run": "amd64-fixed",
+      "filename": "before-target-eviction.httpsession",
+      "sha256": "f8636175b6f12286f74c3334054e5c0bcf85dac17170341e6f8f8b1dcec724b5",
+      "bytes": 447111,
+      "rows": 120,
+      "sequences": [
+        1,
+        120
+      ],
+      "allIdsUniqueAndEqual": true,
+      "allOtherFieldsEqualAfterPortableURLNormalization": true,
+      "selectedSequence": 5,
+      "annotatedRows": 1,
+      "retention": {
+        "limitRows": 128,
+        "persisted": 120,
+        "retained": 120,
+        "evicted": 0
+      },
+      "passed": true
+    },
+    {
+      "run": "amd64-fixed",
+      "filename": "after-target-eviction.httpsession",
+      "sha256": "ebfa4c3bb8d9727343af43f8e42443c4d0473b5d0fd802464decd557e9eff6c8",
+      "bytes": 466866,
+      "rows": 128,
+      "sequences": [
+        13,
+        140
+      ],
+      "allIdsUniqueAndEqual": true,
+      "allOtherFieldsEqualAfterPortableURLNormalization": true,
+      "selectedSequence": null,
+      "annotatedRows": 0,
+      "retention": {
+        "limitRows": 128,
+        "persisted": 140,
+        "retained": 128,
+        "evicted": 12
+      },
+      "passed": true
+    },
+    {
+      "run": "386-fixed",
+      "filename": "boundary-notes.httpsession",
+      "sha256": "cb5a7f6e9a7aed8c8a11b35579f3cf14439fbaa3468b2ca3e5e71f5aa4764c94",
+      "bytes": 447012,
+      "rows": 120,
+      "sequences": [
+        1,
+        120
+      ],
+      "allIdsUniqueAndEqual": true,
+      "allOtherFieldsEqualAfterPortableURLNormalization": true,
+      "selectedSequence": 5,
+      "annotatedRows": 1,
+      "retention": {
+        "limitRows": 128,
+        "persisted": 120,
+        "retained": 120,
+        "evicted": 0
+      },
+      "passed": true
+    }
+  ],
+  "stagingFilesAfterRuns": 0
+}

@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "productCommit": "49c31b3b",
+  "baselineProductCommit": "eab03d07",
+  "fixes": {
+    "4db0294c": "Type filter uses resource kind; live Path filter/sort includes retained URL query; unknown negative sizes excluded from numeric bounds",
+    "49c31b3b": "UTF8 annotation UI4096byte count/overflow guard; service checks both input and redacted output before writing"
+  },
+  "binaries": {
+    "baseline-amd64.exe": "208eeac3210160937b7101b38f89b2966fd9a18c5bd7a047434ba769d4dc6e83",
+    "fixed-amd64.exe": "a2bdddca41d8f9ac87e83a0b79ff40f4bd372cd9547a55fc8dbc9bdfe4999ed6",
+    "fixed-386.exe": "e0fca2479183639b9f845b63664bbaa99794b89771fd8b18f48bf4fedd75ba52"
+  },
+  "checks": [
+    {
+      "command": "npm run test:state",
+      "before": "FAIL: Type field filter did not use resource classification",
+      "after": "PASS; includes144method/field/group/sort combinations and visible-row keyboard/annotation checks"
+    },
+    {
+      "command": "npm run build",
+      "result": "PASS; production frontend assets used by both native binaries"
+    },
+    {
+      "command": "node build/windows/test.mjs -tags production -run TestAnnotationUTF8BoundariesAndRedactionExpansion -count=1 .",
+      "before": "FAIL:3300inputbytes accepted despite >4096after redaction",
+      "after": "PASS"
+    },
+    {
+      "command": "node build/windows/test.mjs -tags production -run TestAnnotation -count=1 .",
+      "arch": "amd64",
+      "seconds": 0.38,
+      "result": "PASS"
+    },
+    {
+      "command": "GOARCH=386 node build/windows/test.mjs -tags production -run TestAnnotation -count=1 .",
+      "arch": "386",
+      "seconds": 0.418,
+      "result": "PASS"
+    },
+    {
+      "command": "node build/windows/test.mjs -tags production -count=1 .",
+      "arch": "amd64",
+      "seconds": 38.418,
+      "result": "PASS"
+    },
+    {
+      "command": "GOARCH=386 node build/windows/test.mjs -tags production -count=1 .",
+      "arch": "386",
+      "seconds": 44.482,
+      "result": "PASS"
+    },
+    {
+      "command": "node build/windows/build.mjs -tags production -trimpath -buildvcs=false -ldflags=...",
+      "architectures": [
+        "amd64",
+        "386"
+      ],
+      "result": "PASS; main.desktopBuildCommit stamped"
+    },
+    {
+      "command": "python verify-exports.py",
+      "result": "PASS:3export ID sets/selection/notes/allotherfields after declared portable URL normalization"
+    }
+  ],
+  "nativeCases": {
+    "PASS": 35,
+    "FAIL": 1,
+    "INCONCLUSIVE": 4
+  },
+  "unitMatrix": {
+    "rows": 48,
+    "methodScopes": 3,
+    "columnFilters": 4,
+    "groupings": 6,
+    "sortDirections": 2,
+    "combinations": 144,
+    "keyboardDeltas": [
+      -10,
+      -1,
+      1,
+      10
+    ],
+    "includesCollapsedAndNoGroup": true,
+    "noteIdentityById": true,
+    "nativeVerdict": false
+  },
+  "scope": {
+    "os": "Windows",
+    "architectures": [
+      "amd64",
+      "386"
+    ],
+    "cgo": 0,
+    "liveBodies": false,
+    "producerProcessesPerRun": 2,
+    "initialRequests": 120,
+    "retentionRows": 128,
+    "backendLiveWindow": 64,
+    "locale": "ko",
+    "DPI": "unchanged, no fresh measurement"
+  },
+  "limitations": [
+    "Initial harness list limit200 returned default25 and asserted; owned child tree stopped. Corrected runner explicitly paginates limit100. Baseline2/fixed runs have valid120row seed receipts. Archived runner is the corrected used source.",
+    "UIAutomation set_value bypassed baseline maxlength1024. Ordinary CtrlA/type_text then yielded1024, which establishes the baseline defect. On fixed app one native type_text request4096 delivered8192; overflow guard worked. Exact ASCII/Hangul/emoji boundaries use set_value and independent durable readback; no ordinary-paste fidelity claim for that fixed gesture.",
+    "One PageDown expectation ignored descending group order. Near the end, out-of-range PageDown is a no-op by design; PageUp selected25. Initial cross-group claim is corrected to INCONCLUSIVE, with separate observed boundary receipt.",
+    "First typing-shortcut gesture lacked proven focus; explicit focused rerun selects draft while group stays expanded. Both observations retained.",
+    "One column-editor drag did not establish reorder; arrow-button ordering was verified previously. Header drag resizing is not implemented by this change. Width bounds and defaults are directly observed.",
+    "Eviction proof is amd64: old live-tail row may remain until renderer cap despite authoritative store eviction; details clear. Orphan annotation5 stays in annotations.json but is not reassigned/exported. Automatic orphan compaction and memory acceptance are not established.",
+    "Native oversized/redaction errors remain generic backend text; byte-overflow guidance is KO/EN. Existing invalid oversized annotation files are still reported as errors, not silently truncated or migrated.",
+    "No full optional-column/native cross-product, IME matrix, original vendor/reference parity, actual DPI, positive live-body or Windows race/long-memory claim. Earlier2h artifacts unchanged."
+  ],
+  "cleanup": {
+    "ownedDesktopWindows": 0,
+    "ownedNodeProducers": 0,
+    "ownedFixtureRemoved": true,
+    "preexistingContainersPreserved": 7,
+    "securityPrivacyTrustCOMBodyPolicyChanges": false
+  },
+  "overall": "SCOPED_PASS; T-613 PENDING, T-627 REVIEW"
+}

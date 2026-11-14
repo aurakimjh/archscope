@@ -1,0 +1,13 @@
+{
+  "arch": "386",
+  "stage": "fixed",
+  "buildCommit": "49c31b3ba2ec551b182025061f9c2b4fb5384cee",
+  "binarySha256": "e0fca2479183639b9f845b63664bbaa99794b89771fd8b18f48bf4fedd75ba52",
+  "rows": 120,
+  "producers": 2,
+  "confirmed": true,
+  "captureBodies": false,
+  "retentionRows": 128,
+  "liveWindow": 64,
+  "dropped": 0
+}

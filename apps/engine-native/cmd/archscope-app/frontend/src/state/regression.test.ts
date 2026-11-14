@@ -3118,6 +3118,22 @@ assert(httpColumnValue(queryColumnRow,"path")==="/fixture?slot=004&token=%5BREDA
 assert(sortTransactions([{...queryColumnRow,id:"query-b",sequence:1,url:"http://example.test/fixture?b"},{...queryColumnRow,id:"query-a",sequence:2,url:"http://example.test/fixture?a"}],{column:"path",direction:"asc"})[0].id==="query-a","Path sorting must use the same query-bearing value as the column/filter");
 assert(!httpColumnMatches(queryColumnRow,"bodySize","lte","100"),"unknown body size must not match a numeric bound as negative one");
 assert(httpGroupedEntries([selectedLiveRow,reusedPid],new Set(),"host").length===3, "host grouping must join requests from separate process instances");
+const combinationRows=Array.from({length:48},(_,i)=>({...selectedLiveRow,id:`combination-${i}`,sequence:i+1,host:i%4<2?"a.test":"b.test",method:i%2?"POST":"GET",status:[200,404,503][i%3],url:`http://a.test/p?slot=${i}`,query:"",path:"/p",starred:i===6,comment:i===6?"id-bound-note":"",process:{...selectedLiveRow.process!,pid:70+i%2},response:{...selectedLiveRow.response,contentType:["application/json","text/plain","text/html"][i%3]}}));
+for(const method of ["","GET","POST"])for(const field of ["kind","status","path","comment"]){
+ const needle=({kind:"json",status:"404",path:"slot=6",comment:"id-bound-note"})[field]!;
+ const expected=combinationRows.filter((row,i)=>(!method||row.method===method)&&(field==="kind"?i%3===0:field==="status"?i%3===1:field==="path"?i===6:i===6)).map(row=>row.id).sort();
+ const filtered=filterTransactions(combinationRows,{...emptyFilter,method}).filter(row=>httpColumnMatches(row,field,field==="path"?"contains":"equals",needle));
+ assert(JSON.stringify(filtered.map(row=>row.id).sort())===JSON.stringify(expected),"combined method/column filter must match independent fixture predicate");
+ for(const grouping of ["process","host","method","status","mime","none"])for(const direction of ["asc","desc"] as const){
+  const sorted=sortTransactions(filtered,{column:"sequence",direction}),entries=httpGroupedEntries(sorted,new Set(),grouping);
+  const visible=entries.flatMap(entry=>entry.kind==="request"?[entry.row]:[]);
+  assert(JSON.stringify(visible.map(row=>row.id).sort())===JSON.stringify(expected),"group/sort must preserve filtered IDs");
+  for(let index=0;index<visible.length;index++)for(const delta of [-10,-1,1,10])assert(nextSelection(visible,visible[index].id,delta)===(visible[index+delta]?.id??null),"keyboard movement must follow visible request order and preserve boundaries");
+  const collapsed=httpGroupedEntries(sorted,new Set(entries.flatMap(entry=>entry.kind==="process"?[entry.key]:[])),grouping);
+  assert(collapsed.filter(entry=>entry.kind==="request").length===(grouping==="none"?filtered.length:0),"collapse must exclude hidden requests from keyboard traversal");
+  assert(visible.every(row=>row.comment===(row.sequence===7?"id-bound-note":"")),"filter/group/sort must never borrow an annotation");
+ }
+}
 
 import { builderHeaders, parseBuilderHeaders } from "./httpRequestBuilder.js";
 const builderOriginal = JSON.stringify(selectedLiveRow);

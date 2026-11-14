@@ -5131,7 +5131,7 @@ T-611은 현재 원본 클라이언트 호환성, 미확인 원본 필터·캐�
 | GRID-01 | 열 순서/너비/숨김/재시작 보존, x64 6그룹·Offset, 전체 저장소 검색·페이지·퇴거 커서 | 모든 열 값·drag resize·필터/프로세스/키보드 조합 및 원본/locale/DPI 전체는 남음; 아래 live-grid 범위 참조 |
 | TIMING-01 | timing/summary 구현·일부 fixture | summary filter와 process-relative waterfall의 실제 값/선택·지연/오류·원본 비교; 합성 UI 가능 |
 | CONTENT-01 | Raw/Headers/disabledBody selected PASS | cookies/streams, inert text/HTML/raster 및 오류/미지원/제한 native 상태; import fixture는 로컬 가능 |
-| NOTES-01 | saved-file12행 정렬·save/reload, 양쪽 live 별/한국어주석·유입/퇴거·640행 저장/재시작 복원 | Windows 일시 읽기 잠금 수정/네이티브 재검증 완료. 다중선택·4096B/마스킹·영구 오류 UI·주석 대상 자체 퇴거 경계는 남음 |
+| NOTES-01 | saved-file/live ID 보존, 양쪽 UTF-8 경계·마스킹 팽창 거절, x64 잠금 오류/재시도·주석 대상 자체 퇴거 검증 | 전체 입력기·실패/동시성 조합, 기존 초과 파일 복구·orphan 정리와 원본 비교는 남음; 아래 grid-boundaries 범위 참조 |
 | BUILDER-01 | 구현·자동화 회귀 | copy/edit/explicit Docker GET200·원본파일불변 PASS. drag 미확정, 취소/오류/body·multipart·redirect 조합은 남음 |
 | LEGACY-VIEW-01 | AMF/ViewState inert decoder·한도/roundtrip | 수동 editor의 AMF0 tree/text·잘림오류, ViewState 미지원/2B미검증꼬리, AMF3한도 PASS. 첨부본문/import·redaction·전체 reference/형식 조합은 남음 |
 | COVERAGE-01 | Windows x86/x64 explicit proxy | windows_transparent는 구현되지 않음. driver/WFP·proxy무시·서비스/다른 세션 reach가 필요; Linux Docker로 대체 불가 |
@@ -5186,3 +5186,37 @@ native 조합은 x64 범위이며, x86은 process 그룹·페이지·열·주석
 장기 메모리 인수는 유지하며 T-613은 PENDING입니다. 기존2h 증거는 변경하지 않습니다.
 
 Evidence: docs/review/evidence/2026-11-14-live-grid/README.md.
+
+### 2026-11-14 열·필터·키보드 조합과 주석 경계
+
+`4db0294c`는 종류 필터가 실제 resource kind를 읽도록 하고, live 경로의
+표시/필터/정렬에 보존된 마스킹 URL의 query를 포함합니다. 미확인 크기−1도
+숫자 범위 조건에서 제외합니다. `49c31b3b`는 주석의1024 UTF-16자 제한을
+4096 UTF-8바이트 카운터·초과 안내로 바꾸고, 마스킹 전후 크기를 모두 검사합니다.
+3300바이트 입력이 마스킹 후 한도를 넘겨 저장되던 오류를 단위 검사로 재현했으며,
+이제 거절된 저장은 기존 주석을 바꾸지 않습니다.
+
+x64에서 종류40/120, 경로 query1/120, 프로세스+경로의0/1결과, 필터된 행의
+PageUp/PageDown/방향키와 정렬 후 주석 왕복, 너비48~800·기본 열 복원을 확인했습니다.
+x86은25행 검색 페이지에서 CtrlShiftLeft/Right 그룹 접기/펼치기와, 주석 입력에
+초점을 둔 단어 선택이 그룹을 접지 않는 동작을 확인했습니다. 별도의144개 상태
+조합은3메서드 범위×4열 필터×6그룹×2정렬에서 ID/키보드/접힘/주석을 비교합니다.
+144건을 native UI PASS로 주장하지 않습니다.
+
+양쪽에서 한국어·이모지4096바이트 저장과 마스킹 팽창 거절/정상 재시도를,
+x64에서 ASCII4096/초과4097 및1600ms 읽기 잠금 오류 후 같은 초안 재시도를,
+x86에서 한국어4098 거절과 빈 주석 지우기를 검증했습니다. 정확한 경계값은
+접근성 값 교체와 native Save·독립 디스크 대조 범위입니다. baseline 일반 입력은
+1024자로 잘렸고, fixed 일반 type_text의 한 번은8192바이트가 전달되어 초과 차단만
+입증했습니다. 입력 도구의 전달 동등성이나 전체 IME를 검증한 것은 아닙니다.
+
+추가20건 후140저장/128보존/12퇴거/0drop에서 주석 요청5 자체가 퇴거되면
+상세 선택이 해제되고, 내보내기13..140의128행에 이전 주석/선택이 전이되지 않습니다.
+이전 주석 항목은 디스크에 orphan으로 남으며 자동 정리·메모리 인수는 별도입니다.
+양쪽 production 앱38.418s/44.482s와 state/build가 통과했습니다.40개 native 관찰은
+35개 선택 PASS/1개 baseline FAIL/4개 미확정입니다. 열 드래그는 미확정이며,
+header drag resize 구현이나 모든 열 값/필터/키보드·실패/IME/DPI/원본 조합,
+기존 초과 주석 파일의 자동 복구, body/vendor/driver/장기 메모리 인수는 남습니다.
+T-613은 PENDING이며 기존2h 증거는 변경하지 않습니다.
+
+Evidence: docs/review/evidence/2026-11-14-grid-boundaries/README.md.

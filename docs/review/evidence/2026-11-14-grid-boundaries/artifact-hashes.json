@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "SHA-256",
+  "scope": "Exact public bytes, excluding this manifest",
+  "files": {
+    "386-collapse-process-keyboard.jpg": {
+      "bytes": 81373,
+      "sha256": "a1d46f1211af0ffa4679c9f854490410354fd80265fd8dd94726c74b09be8450"
+    },
+    "386-emoji-4096-save.jpg": {
+      "bytes": 121157,
+      "sha256": "3ef3b432204405359aaaccdda08d279fd47b22ecbc4cf5fcb979e61b4cde8ef1"
+    },
+    "386-expand-process-keyboard.jpg": {
+      "bytes": 124663,
+      "sha256": "219c937bf379ad7fb79e0f69493431ee7fa57877df73b8ce3a12d4cb70fab47c"
+    },
+    "386-hangul-4096-save.jpg": {
+      "bytes": 118210,
+      "sha256": "95c4bde51c3b7a39ca08469d804cbfdfd5b51c354383b608330850b05f22fd59"
+    },
+    "386-hangul-4098-refused.jpg": {
+      "bytes": 118796,
+      "sha256": "634f4513e81736cc64d11d697d6843225cf52c9881e29d1d9dd4490fe004d522"
+    },
+    "386-redaction-expansion-refused.jpg": {
+      "bytes": 118237,
+      "sha256": "1f91792632338878333775b97a02d7384903027f64cb3f0f06a4881046d6c832"
+    },
+    "386-short-secret-redacted.jpg": {
+      "bytes": 92379,
+      "sha256": "c0342e016285d3b98a9c644ccedfba96c3fbb86258c0ad4e89edcc4ac363d0df"
+    },
+    "386-typing-shortcut-focused.jpg": {
+      "bytes": 93248,
+      "sha256": "071154330a746cfbe0b66a293108296ada1366ab21d3e36bb3f5678cb0cb09c1"
+    },
+    "386-typing-shortcut-ownership.jpg": {
+      "bytes": 92063,
+      "sha256": "1ddc697e3cc407beff0f82a36ccb847c05281b7265d344cda2324c673751921f"
+    },
+    "amd64-4096-ascii-save.jpg": {
+      "bytes": 115135,
+      "sha256": "f356923650242cda5a6de0cc4d9216ca2a22c4ef3ded79a34ac7ad09af191433"
+    },
+    "amd64-annotated-target-eviction.jpg": {
+      "bytes": 82996,
+      "sha256": "3a0bbfad663fff3f03b114e618f95a92c59181b73db950cd468f514635012328"
+    },
+    "amd64-columns-defaults.jpg": {
+      "bytes": 117933,
+      "sha256": "fffde2b990c8b2eb9bdb75501fc596a53acc2b7399329dd16ec5d64e6feaf42a"
+    },
+    "amd64-export-after-target-eviction.jpg": {
+      "bytes": 83409,
+      "sha256": "a4f6d157894f93b72cc6a821941876ed548e42717843e1daae29b1ffb9b9d4ad"
+    },
+    "amd64-filter-keyboard-last-boundary.jpg": {
+      "bytes": 147037,
+      "sha256": "9e368ce6a9e2e1be98dadace05584e829f55577a73d9260fa6e17101470e4fc5"
+    },
+    "amd64-filter-keyboard-pageup.jpg": {
+      "bytes": 141408,
+      "sha256": "e5208a6de41bfcd354ac8c1766b7031548efaf1216ad6ea8630eaedfc1725953"
+    },
+    "amd64-filter-zero.jpg": {
+      "bytes": 96842,
+      "sha256": "4736ba8c81eaea5f1985d1c896ae634d4a73ff54694da2916b2d902c1360f80c"
+    },
+    "amd64-keyboard-cross-group.jpg": {
+      "bytes": 139260,
+      "sha256": "e6f107a32d2762c8d890224c30afd816f043b1f4c02c3d3d85c1a76087572962"
+    },
+    "amd64-kind-filter.jpg": {
+      "bytes": 116624,
+      "sha256": "e323ac49ffd892765b8de748d5fbbdde6a9fe6fba9632eb1d075b769a2f5f7ca"
+    },
+    "amd64-live-sort-note.jpg": {
+      "bytes": 137426,
+      "sha256": "c1548e96df4006ad53138bb795ea69af375cc0ca7baa82d0c2cf1097cd78bfae"
+    },
+    "amd64-note-4097-refused.jpg": {
+      "bytes": 116823,
+      "sha256": "acb8c73a67faddac2b44046d01a91ec5cf4a013f60cce4b314dd45283789dd93"
+    },
+    "amd64-overlong-input-8192.jpg": {
+      "bytes": 118814,
+      "sha256": "b0af5f1a00e1ee731d820396e6ca4dbeb543d3e4ea2589cd5697e26a022e56e3"
+    },
+    "amd64-page-boundary-noop.jpg": {
+      "bytes": 134320,
+      "sha256": "ec40765fca80ec3c4c65dd5909ab8b4bc6fc520b6415e13d902aa34b50ba32bb"
+    },
+    "amd64-path-query-filter.jpg": {
+      "bytes": 104288,
+      "sha256": "f95d2552defac071050d093feba3eec7931677c4b0fee31a9c0fc609c5bb00fb"
+    },
+    "amd64-process-path-negative.jpg": {
+      "bytes": 76953,
+      "sha256": "e2e987604870f11f9a7a43766ea7b6a3e28ecf939a6f8df97a5656902e416d3b"
+    },
+    "amd64-process-path-positive.jpg": {
+      "bytes": 83409,
+      "sha256": "a4f6d157894f93b72cc6a821941876ed548e42717843e1daae29b1ffb9b9d4ad"
+    },
+    "amd64-reader-release-retry.jpg": {
+      "bytes": 93788,
+      "sha256": "a27683689cef139d7da8450f41b98780e962f8966941ec8b200a7cb631b941da"
+    },
+    "amd64-redaction-expansion-refused.jpg": {
+      "bytes": 115769,
+      "sha256": "6ae4e1ff3ee3d5b0411a4d3a9973a6d1987a9d4a9f88e67e85954fdc860ced84"
+    },
+    "amd64-short-secret-redacted.jpg": {
+      "bytes": 94212,
+      "sha256": "cb7ecfa403f85df976474a23716ba5b902ca0feff1ba03ae139ffce0ef8dc607"
+    },
+    "amd64-starred-filter.jpg": {
+      "bytes": 98856,
+      "sha256": "45d2d6ea9f3fe07b6c885a91d6deab7db5f1d6c7bb2773f487f00ec598e16d71"
+    },
+    "amd64-width-maximum.jpg": {
+      "bytes": 103347,
+      "sha256": "0adadcb312568983355d223cc5046a9f1b23607f1397824d05794127ce4684d1"
+    },
+    "baseline-note-4096-truncated.jpg": {
+      "bytes": 116581,
+      "sha256": "b5d3502f54246f1236f2b349a68bec0f9bf42fa06e97a2358895ab5ad700e279"
+    },
+    "baseline-note-keyboard-limit.jpg": {
+      "bytes": 119849,
+      "sha256": "2067524cdce26b82f89f5c3bf18c8beb609026409779dff10d4963e0c8249f17"
+    },
+    "export-readback.json": {
+      "bytes": 1975,
+      "sha256": "6c5cf0f30fae0c2643c0c31c6e7c973f5e20c0b8ed5cdc0e12dab56e8def016d"
+    },
+    "export-verifier-used.py": {
+      "bytes": 2630,
+      "sha256": "fa503e93f43cee08b62377b0a5e3275398a6d484e7ef01d403e0763904cf41a1"
+    },
+    "native-cases.json": {
+      "bytes": 14531,
+      "sha256": "7e8af35320e5f2e134354c56baf4994613fbbeb9b8aa75f52b9eb3081ca56d85"
+    },
+    "note-readback-used.py": {
+      "bytes": 1194,
+      "sha256": "3e4aec55642df2e3558e06bb21d752b05a17febd2481d47ecff5e33542851f64"
+    },
+    "note-readback.json": {
+      "bytes": 4486,
+      "sha256": "b0c213b4bfde8705d9e41b865346383aba711f325ae97cb937624f39cb3046ae"
+    },
+    "producer-used.mjs": {
+      "bytes": 1162,
+      "sha256": "7ca72986bdf702c1293ce899c48d8249b1f484d17200b2857c3437b2c59dc6e0"
+    },
+    "reader-used.ps1": {
+      "bytes": 1132,
+      "sha256": "a9e639c87cae1a5b4de9804b2db1cf53957169a0179fa15c71fc2e422bb4595b"
+    },
+    "README.md": {
+      "bytes": 7893,
+      "sha256": "fe3f488e44a645bacc22eb713265f7af53a75f4b848d7e2c15c55315f9462e47"
+    },
+    "remaining-scope.json": {
+      "bytes": 1803,
+      "sha256": "659cf9711eefab18f7f062b4b5e0c014402b008acc5383e5560c321b0eacf9f2"
+    },
+    "retention-amd64.json": {
+      "bytes": 430,
+      "sha256": "d0466d10fcc58dc7e7e1f9d53019d77ab0b8850bbe6dfa3cba844987593af752"
+    },
+    "runner-used.mjs": {
+      "bytes": 4354,
+      "sha256": "c96e3faef5bd7eb431b61d5359e95364921cca74b4207c3e9172912fc4b1c3c2"
+    },
+    "seed-386-fixed.json": {
+      "bytes": 326,
+      "sha256": "e0eca62a8911c0c80523da6db4a859f438f3804e9a2eb1ffe43b6d5f5fc5b5a4"
+    },
+    "seed-amd64-baseline2.json": {
+      "bytes": 332,
+      "sha256": "b3333c1cf97d3ad071c7c94304d3be9f3691e615f0ba96a576374cc552a608ce"
+    },
+    "seed-amd64-fixed.json": {
+      "bytes": 328,
+      "sha256": "229f1a7272bb7dc5fdbde88c2a2f44aa4088904fe4e322a814eda017d93d3b17"
+    },
+    "source-hashes.json": {
+      "bytes": 1163,
+      "sha256": "6354ac02c6e0e57d0057b9f6dd6d07cf488ad1f2f786365ce55788634fcace50"
+    },
+    "validation.json": {
+      "bytes": 5453,
+      "sha256": "6f5860c1be23fced5280b11716d00926fe604d74df7eadccef067ca8b4b8bb7e"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "arch": "amd64",
+  "stage": "baseline2",
+  "buildCommit": "eab03d0777632eb72ac408b7d62961ba73c72d67",
+  "binarySha256": "208eeac3210160937b7101b38f89b2966fd9a18c5bd7a047434ba769d4dc6e83",
+  "rows": 120,
+  "producers": 2,
+  "confirmed": true,
+  "captureBodies": false,
+  "retentionRows": 128,
+  "liveWindow": 64,
+  "dropped": 0
+}

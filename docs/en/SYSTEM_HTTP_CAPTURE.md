@@ -1943,3 +1943,39 @@ separate. Vendor COM/foreign cookies, transparent/service reach, body policy and
 longer memory gates remain; earlier2h receipts are unchanged. T-613 stays PENDING.
 
 Evidence: docs/review/evidence/2026-11-14-live-grid/README.md.
+
+### 2026-11-14 column/filter/keyboard and annotation boundaries
+
+`4db0294c` fixes Type field filtering, live Path query display/filter/sort and
+unknown negative-size numeric bounds. `49c31b3b` replaces the1024 UTF-16-character
+editor limit with4096 UTF-8-byte counting/guidance and checks annotation size both
+before and after masking. The service regression first reproduced3300 input bytes
+accepted despite oversized redacted output; rejected updates now preserve old notes.
+
+amd64 native observations cover Type40/120, query-bearing Path1/120, process/Path
+zero/one intersections, filtered PageUp/PageDown/arrows, sorted note identity,
+width48..800/defaults and reader-lock error/retry.386 covers group collapse/expand
+shortcuts and focused textarea word selection without collapsing groups. A separate
+144-case state matrix crosses3method scopes/4column filters/6groups/2sorts, checking
+IDs, visible-row keyboard movement, collapsed rows and annotation identity; it is
+not144 native UI verdicts.
+
+Both native builds save exact4096-byte Hangul/emoji comments, refuse masking
+expansion and recover with a short redacted note. amd64 additionally covers ASCII
+4096/overflow4097 and1600ms reader denial with same-draft retry;386 covers Hangul4098
+and empty-comment clear. Exact boundaries use accessibility replacement/native Save
+plus disk readback. Baseline ordinary input truncates to1024; one fixed type_text
+delivery produced8192 and demonstrates overflow handling only, not paste fidelity.
+No complete IME claim is made.
+
+At140 persisted/128 retained/12 evicted with zero drops, annotated request5 itself
+leaves the store: details clear and the128-row13..140 export has no transferred note
+or invalid selected ID. The old annotation remains an orphan on disk; automatic
+compaction/memory acceptance is separate. Both production app suites38.418s/44.482s
+and state/build pass.40native observations retain35selected PASS,1baseline FAIL and
+4INCONCLUSIVE. Column drag remains inconclusive; header drag resize, every optional
+column/filter/keyboard/failure/IME/locale/DPI/reference combination, existing oversized
+file migration and body/vendor/driver/long-memory gates remain separate. T-613 stays
+PENDING; earlier2h receipts are unchanged.
+
+Evidence: docs/review/evidence/2026-11-14-grid-boundaries/README.md.

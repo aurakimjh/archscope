@@ -1,0 +1,152 @@
+[
+  {
+    "run": "amd64-fixed",
+    "checkpoint": "hangul4096-saved",
+    "expectedCase": "hangul",
+    "utf8Bytes": 4096,
+    "commentSha256": "1e5cb93dab8bdb48dd4cad3577baa22e96a8acd98933fcb36e28f2fec50c8a7b",
+    "starred": false,
+    "annotationCount": 1,
+    "exactMatch": true
+  },
+  {
+    "run": "amd64-fixed",
+    "checkpoint": "emoji4096-saved",
+    "expectedCase": "emoji",
+    "utf8Bytes": 4096,
+    "commentSha256": "cab5f314010847f1ffbd390d27debbb0e41d9c6000568afb78c48e8b1f5c44c7",
+    "starred": false,
+    "annotationCount": 1,
+    "exactMatch": true
+  },
+  {
+    "run": "amd64-fixed",
+    "checkpoint": "oversize4097-preserved",
+    "expectedCase": "emoji",
+    "utf8Bytes": 4096,
+    "commentSha256": "cab5f314010847f1ffbd390d27debbb0e41d9c6000568afb78c48e8b1f5c44c7",
+    "starred": false,
+    "annotationCount": 1,
+    "exactMatch": true
+  },
+  {
+    "run": "amd64-fixed",
+    "checkpoint": "redaction-expansion-preserved",
+    "expectedCase": "emoji",
+    "utf8Bytes": 4096,
+    "commentSha256": "cab5f314010847f1ffbd390d27debbb0e41d9c6000568afb78c48e8b1f5c44c7",
+    "starred": false,
+    "annotationCount": 1,
+    "exactMatch": true
+  },
+  {
+    "run": "amd64-fixed",
+    "checkpoint": "short-secret-redacted",
+    "expectedCase": "redacted",
+    "utf8Bytes": 19,
+    "commentSha256": "30688345ac750027b3b7ec622e3102df7c83996873701618f21e158690250095",
+    "starred": false,
+    "annotationCount": 1,
+    "exactMatch": true
+  },
+  {
+    "run": "amd64-fixed",
+    "checkpoint": "permanent-reader-preserved",
+    "expectedCase": "redacted",
+    "utf8Bytes": 19,
+    "commentSha256": "30688345ac750027b3b7ec622e3102df7c83996873701618f21e158690250095",
+    "starred": false,
+    "annotationCount": 1,
+    "exactMatch": true
+  },
+  {
+    "run": "amd64-fixed",
+    "checkpoint": "reader-release-retry-saved",
+    "expectedCase": "retry",
+    "utf8Bytes": 14,
+    "commentSha256": "a398d8ab52b4f66602c61b48e1aa14754fd80f54aa48873e9a947446272f583f",
+    "starred": false,
+    "annotationCount": 1,
+    "exactMatch": true
+  },
+  {
+    "run": "amd64-fixed",
+    "checkpoint": "starred-note-saved",
+    "expectedCase": "retry",
+    "utf8Bytes": 14,
+    "commentSha256": "a398d8ab52b4f66602c61b48e1aa14754fd80f54aa48873e9a947446272f583f",
+    "starred": true,
+    "annotationCount": 1,
+    "exactMatch": true
+  },
+  {
+    "run": "amd64-fixed",
+    "checkpoint": "evicted-orphan-not-reassigned",
+    "expectedCase": "retry",
+    "utf8Bytes": 14,
+    "commentSha256": "a398d8ab52b4f66602c61b48e1aa14754fd80f54aa48873e9a947446272f583f",
+    "starred": true,
+    "annotationCount": 1,
+    "exactMatch": true
+  },
+  {
+    "run": "386-fixed",
+    "checkpoint": "hangul4096-saved",
+    "expectedCase": "hangul",
+    "utf8Bytes": 4096,
+    "commentSha256": "1e5cb93dab8bdb48dd4cad3577baa22e96a8acd98933fcb36e28f2fec50c8a7b",
+    "starred": false,
+    "annotationCount": 1,
+    "exactMatch": true
+  },
+  {
+    "run": "386-fixed",
+    "checkpoint": "emoji4096-saved",
+    "expectedCase": "emoji",
+    "utf8Bytes": 4096,
+    "commentSha256": "cab5f314010847f1ffbd390d27debbb0e41d9c6000568afb78c48e8b1f5c44c7",
+    "starred": false,
+    "annotationCount": 1,
+    "exactMatch": true
+  },
+  {
+    "run": "386-fixed",
+    "checkpoint": "hangul4098-preserved",
+    "expectedCase": "emoji",
+    "utf8Bytes": 4096,
+    "commentSha256": "cab5f314010847f1ffbd390d27debbb0e41d9c6000568afb78c48e8b1f5c44c7",
+    "starred": false,
+    "annotationCount": 1,
+    "exactMatch": true
+  },
+  {
+    "run": "386-fixed",
+    "checkpoint": "expansion-preserved",
+    "expectedCase": "emoji",
+    "utf8Bytes": 4096,
+    "commentSha256": "cab5f314010847f1ffbd390d27debbb0e41d9c6000568afb78c48e8b1f5c44c7",
+    "starred": false,
+    "annotationCount": 1,
+    "exactMatch": true
+  },
+  {
+    "run": "386-fixed",
+    "checkpoint": "short-secret-redacted",
+    "expectedCase": "redacted",
+    "utf8Bytes": 19,
+    "commentSha256": "30688345ac750027b3b7ec622e3102df7c83996873701618f21e158690250095",
+    "starred": false,
+    "annotationCount": 1,
+    "exactMatch": true
+  },
+  {
+    "run": "386-fixed",
+    "checkpoint": "empty-comment-cleared",
+    "expectedCase": "empty",
+    "utf8Bytes": 0,
+    "commentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "starred": false,
+    "annotationCount": 1,
+    "exactMatch": true
+  }
+]

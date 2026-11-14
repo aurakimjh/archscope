@@ -5279,3 +5279,22 @@ FAIL. Owned apps/producers/fixture stopped, existing7containers preserved. Full
 column/filter/keyboard/annotation-boundary and reference/locale/DPI combinations,
 positive body search and vendor/driver/service/memory gates remain separate;
 T-613 PENDING/T-627 REVIEW. Receipt: docs/review/evidence/2026-11-14-live-grid/README.md.
+
+### 2026-11-14 - T-613 filter/keyboard and annotation boundaries
+
+4db0294c fixes Type/live Path query/unknown-size numeric column filtering and Path
+sorting.49c31b3b fixes UTF8 comment limits before/after redaction and adds a byte
+counter/overflow guidance. Baseline native input truncation and service redaction
+expansion regression were reproduced. Both production native builds save exact
+Hangul/emoji4096bytes, reject overflow/redaction expansion and retry safely;amd64
+also verifies reader-lock error/same-draft retry, widths/defaults, filtered keyboard/
+sorted note identity and eviction of the annotated target.386 verifies collapse/
+expand shortcuts, focused input ownership and empty-comment clear.144state filter/
+group/sort combinations check visible-row keyboard and note IDs. Both full app
+suites38.418s/44.482s and frontend state/build pass.40native observations retain
+35selected PASS/1baseline FAIL/4INCONCLUSIVE; drag remains inconclusive. Independent
+3export readbacks verify IDs/selection/notes and declared portable URL normalization.
+Owned apps/producers/fixture stopped;7existing containers preserved. Full optional
+column/native cross-product, existing invalid-file migration/orphan cleanup and
+reference/IME/DPI/body/vendor/driver/long-memory gates remain. T-613 PENDING;
+T-627 REVIEW. Receipt: docs/review/evidence/2026-11-14-grid-boundaries/README.md.
