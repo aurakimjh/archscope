@@ -1163,14 +1163,15 @@ document remains pending for a different AI.
 
 | Order | Evidence follow-up under T-613 | Priority | Status | Action / acceptance |
 |---:|---|---|---|---|
-| 1 | WREV-01 | P3 | LOCALLY_VERIFIED | Maintained verify_p2_windows_readback.py compares every transaction field under an explicit schema2 policy: expected host/query, authoritative annotations.json by ID and false/empty defaults. Changed/missing notes, invalid types and borrowed notes fail.23Python regressions pass on Mac/Docker/Windows and existing Go annotation/export tests pass; CI wired. New Windows long-run files pass its comparison core with sidecar/default annotations. Original received bytes/old flags stay unchanged; their short-run private-file schema2 rerun and independent review remain separate. No product annotation-loss defect is claimed. |
+| 1 | WREV-01 | P3 | WINDOWS_VERIFIED_SCOPED | Maintained schema2 comparison checks all transaction fields, expected host/query and authoritative annotations by ID.23regressions pass on Mac/Docker/Windows. Windows private-file rechecks now pass both architectures' query4row, short-soak128row and live640row exports, including the selected live star/nonempty Unicode comment. All6export hashes/lengths match original receipts. New long-run files also pass its core. Historical bytes/flags stay unchanged; independent review and full UI acceptance remain separate. Receipt: docs/review/evidence/2026-11-14-t613-readback-v2/README.md. |
 
 Revised-runner long duration and the10-minute Clear path are now verified on
 Windows x64/x86 with an isolated shared Docker origin. Source324a8d97 app binaries
 are unchanged; runner1b30244b adds explicit empty-generation/reset/refill checks.
 New long-run private-file comparison includes WREV-01's maintained policy and
 actual sidecar/default annotations; no nonempty annotation editing occurs in this
-fixture and the older short-run schema2 recheck remains separate. Native
+fixture; the older short-run and nonempty live640row files now also pass the
+separate Windows schema2-policy recheck. Native
 failure/retry and existing reference/locale/DPI/vendor/driver/service and memory
 acceptance remain; T-613 PENDING/T-627 REVIEW and task counts stay unchanged.
 Long-run receipt: `docs/review/evidence/2026-11-14-wr02-long-windows/README.md`.

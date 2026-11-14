@@ -1,0 +1,40 @@
+{
+  "comparisonPolicyVersion": "1.0.0",
+  "allTransactionFieldsMatchDeclaredPolicy": true,
+  "annotationsMatch": true,
+  "rows": 128,
+  "comparisonPolicy": {
+    "excludedFields": [],
+    "expectedURLFields": "host/query derived from source retained URL; exported fields are checked",
+    "annotationSource": "store annotations.json replaces inline live-row starred/comment by transaction ID",
+    "missingAnnotationDefaults": {
+      "starred": false,
+      "comment": ""
+    },
+    "annotationTypes": {
+      "starred": "boolean",
+      "comment": "string"
+    },
+    "requestAnnotationOverrides": "not supported by this verification scope"
+  },
+  "schemaVersion": 2,
+  "arch": "amd64",
+  "scope": "soak",
+  "selectedSequence": 341,
+  "fileSha256": "3dfb35442bc033238ebc069dce01ed2ac42ebd604057e0f423a275ab0804cece",
+  "fileBytes": 438244,
+  "retention": {
+    "limitRows": 128,
+    "persisted": 468,
+    "retained": 128,
+    "evicted": 340
+  },
+  "elapsedSeconds": 130.3817031,
+  "requests": 468,
+  "pauses": 2,
+  "clears": 0,
+  "checkpoints": 6,
+  "finalState": "finalized",
+  "finalCountersEqual": true,
+  "passed": true
+}

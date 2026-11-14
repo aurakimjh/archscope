@@ -1,0 +1,44 @@
+{
+  "files": {
+    "comparator-used.py": {
+      "bytes": 8438,
+      "sha256": "825d37ff5356b4676259328ff54db14fdcd208a6ae7a1be00c6d39b6a9324a2a"
+    },
+    "live640-386.json": {
+      "bytes": 1069,
+      "sha256": "7e3787126284a803fbfce0254df9d49faf62f249e7c621d8ec154e260991f303"
+    },
+    "live640-amd64.json": {
+      "bytes": 1071,
+      "sha256": "40d6b2a1fec5ac5bf5efb4c3d177918e29ebc5a00334923fc704625f76fa4cd8"
+    },
+    "query-386.json": {
+      "bytes": 1025,
+      "sha256": "180c1f7e01415c1a5e613be09d522af71179446f96c295d5ca7c5f424c01e141"
+    },
+    "query-amd64.json": {
+      "bytes": 1027,
+      "sha256": "2d42c885723ed9c01c43df95b4a080279465b02e30a16e477e09f39af134d2e2"
+    },
+    "README.md": {
+      "bytes": 2176,
+      "sha256": "f0efbdb7261c987adf1af80c65075a958917cfc91952316d137c8d1e9d4bd8c7"
+    },
+    "soak-386.json": {
+      "bytes": 1126,
+      "sha256": "19ace30719e138311bdb9b75e3162cb3adc27e2b43b77d24a2a63f7cdf9f37c3"
+    },
+    "soak-amd64.json": {
+      "bytes": 1128,
+      "sha256": "f4b45893caaf73d018eb95c285d82eea650e3b809cec00b9e933fc0c7e2b8cba"
+    },
+    "source-hashes.json": {
+      "bytes": 243,
+      "sha256": "0df23e690dd51b0529c748bb11d1007a0799d824c89726c1bbfe624057bc666b"
+    },
+    "verify-live-used.py": {
+      "bytes": 2115,
+      "sha256": "5c5a5520ecc696114590ad40dd7049eff2951f1a92ac7e7104c04c898f80090a"
+    }
+  }
+}

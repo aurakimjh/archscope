@@ -145,3 +145,4 @@ scripts/acceptance/layout/test_p2_windows_readback.py text eol=lf
 
 # Preserve exact native Windows long-soak receipt bytes.
 docs/review/evidence/2026-11-14-wr02-long-windows/* -text whitespace=cr-at-eol
+docs/review/evidence/2026-11-14-t613-readback-v2/* -text whitespace=cr-at-eol
