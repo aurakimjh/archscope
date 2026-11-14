@@ -5630,3 +5630,11 @@ File Clear previously retained result/export controls; select/clear/new-run and
 unmount now retire request/result identity, native fixed Clear passes. Frontend
 state/build pass. Per-audit error detail/full reference-DPI matrix separate;
 T-627 REVIEW. Evidence:2026-11-14-windows-final.
+
+### 2026-11-15 - T-627 JFR evidence missing-duration fidelity
+
+Replace evidence callback null→0ms fallback with shared unavailable formatter.
+Native owned SafepointBegin table and Evidence Board card preserve unavailable
+value and payload null with exact source reference. Frontend state/build pass;
+7preexisting visual artifacts preserved. T-627 REVIEW; full Board/DPI/reference
+matrix separate. Evidence:2026-11-14-windows-final.

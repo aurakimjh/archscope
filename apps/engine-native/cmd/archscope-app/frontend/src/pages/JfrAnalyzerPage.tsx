@@ -66,6 +66,7 @@ import { getHelpText } from "@/help/helpCatalog";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import { addWorkspaceResult } from "@/state/analysisWorkspace";
 import { addEvidenceCard } from "@/state/evidenceBoard";
+import { formatMilliseconds } from "@/utils/formatters";
 
 // Wails port of apps/frontend/src/pages/JfrAnalyzerPage.tsx.
 //
@@ -660,7 +661,7 @@ export function JfrAnalyzerPage(): React.JSX.Element {
                 onEvidence={(row) =>
                   addJfrRowEvidence(
                     row.event_type ?? "JFR event",
-                    row.message || `${row.duration_ms ?? 0} ms`,
+                    row.message || formatMilliseconds(row.duration_ms),
                     row.evidence_ref ?? "notable_events",
                     row as unknown as Record<string, unknown>,
                   )

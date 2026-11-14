@@ -1,0 +1,84 @@
+Evidence Board
+Evidence Board
+도움말 보기
+1 카드
+보고서 내보내기
+JSON 내보내기
+Report pack HTML
+Report pack ZIP
+보드 비우기
+시각 자료 보관함
+저장 이미지는 과거 스냅샷입니다. 원버전 재생성에는 고정된 결과와 동일한 template·renderer·글꼴이 필요합니다. 명시적 업그레이드는 새 리비전을 만듭니다. 보관함은 케이스와 별도로 관리합니다.
+보관함 새로 고침
+시각 자료 ZIP 열기
+선택한 시각 자료 Report Pack
+￼
+￼
+visual-f9260afbeeb2807da88b54842b4f5b24cfd78f2587e5026d01b687b45afde805 · 1 · 2026-11-13T22:07:54.0471667Z
+과거 이미지 열기
+원버전 재생성
+새 버전으로 리비전 생성
+묶음 저장
+시각 자료 삭제
+￼
+visual-9a26f3288165954cea26c4ae194c5e941815d42d04f122b1cdd338963029c37f · 1 · 2026-11-13T21:59:24.9044625Z
+과거 이미지 열기
+원버전 재생성
+새 버전으로 리비전 생성
+묶음 저장
+시각 자료 삭제
+￼
+visual-68548dab8dc92349e06740f6291aeab891dca26d3835fb19bde386ccbd7793eb · 1 · 2026-11-13T21:05:14.3168079Z
+과거 이미지 열기
+원버전 재생성
+새 버전으로 리비전 생성
+묶음 저장
+시각 자료 삭제
+￼
+visual-ff19afa0701bfed1061d51a0c15f74d75a7990c6ffc85324eeee53522241d3a8 · 1 · 2026-11-13T20:57:54.8570864Z
+과거 이미지 열기
+원버전 재생성
+새 버전으로 리비전 생성
+묶음 저장
+시각 자료 삭제
+￼
+visual-9b69cb2bb8b966d4b93f7032d01a15fa7bc712fb90d8a79830a6d27e04ff55a9 · 2 · 2026-11-13T20:05:29.1390371Z
+과거 이미지 열기
+원버전 재생성
+새 버전으로 리비전 생성
+묶음 저장
+시각 자료 삭제
+￼
+visual-9a90d89380a89de3582bc682e5d7b4d468072377fc6f3ac9b0baa3e36b57f043 · 2 · 2026-11-13T20:04:10.7375037Z
+과거 이미지 열기
+원버전 재생성
+새 버전으로 리비전 생성
+묶음 저장
+시각 자료 삭제
+￼
+visual-446470ee57d9bdb978083a91d57d887a749269c8dd502394af53fafc2034ee47 · 2 · 2026-11-13T20:01:29.3780714Z
+과거 이미지 열기
+원버전 재생성
+새 버전으로 리비전 생성
+묶음 저장
+시각 자료 삭제
+jdk.SafepointBegin
+도움말 보기
+JFR_RECORDING
+TABLE_ROW
+INFO
+￼
+-
+C:\workspace\archscope\.tmp\windows-final-20261114\ui-fixtures\jfr-no-duration.json
+jfr:event:1
+{
+  "duration_ms": null,
+  "event_type": "jdk.SafepointBegin",
+  "evidence_ref": "jfr:event:1",
+  "frames": [],
+  "message": "",
+  "raw_preview": "{\"type\":\"jdk.SafepointBegin\",\"values\":{\"startTime\":\"2026-04-30T01:00:00Z\"}}",
+  "sampling_type": "exact",
+  "thread": null,
+  "time": "2026-04-30T01:00:00Z"
+}

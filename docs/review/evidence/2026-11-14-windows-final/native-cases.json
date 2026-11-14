@@ -523,5 +523,15 @@
     "id": "audit-clear-fixed",
     "result": "PASS",
     "observed": "Fixed Clear removes provenance/scores/audits/findings/network/export controls together and disables Analyze. No old result under empty input."
+  },
+  {
+    "id": "jfr-missing-duration-source",
+    "result": "PASS",
+    "observed": "Single SafepointBegin without duration/message displays—rather than0in native event table,with explicit no-stack warning."
+  },
+  {
+    "id": "jfr-missing-duration-evidence-fixed",
+    "result": "PASS",
+    "observed": "Evidence Board card keeps missing duration summary as- and payload duration_ms:null,with exactsource path/jfr:event:1. No invented0ms. Card is below7preexisting visual artifacts and requires scroll,not immediateviewport pass."
   }
 ]

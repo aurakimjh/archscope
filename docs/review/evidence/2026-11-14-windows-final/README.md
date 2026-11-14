@@ -381,3 +381,15 @@ fixed Clear removes all prior content/actions. Frontend state/build pass. Per-au
 failure detail, every format/locale/DPI/reference/export combination remain
 separate from the tested null-score/global runtime warning and prior42score
 JSON/HTML export evidence.
+
+## JFR evidence must preserve missing durations
+
+Source review found the evidence callback substituted0ms for a null duration
+when message was empty. It now uses the shared unavailable-aware milliseconds
+formatter. Owned1event SafepointBegin JSON has no duration/message. Native source
+table shows—; generated Evidence Board card shows- and exact duration_ms:null
+payload/source/jfr:event:1. No backend mutation or0ms assertion. Card is below
+7preexisting visual artifacts and requires scroll; those artifacts were preserved.
+Frontend state/build pass. Native5f28e08d-plus-audit-jfr-evidence includes this
+change plus the prior CPU caption and Lighthouse fixes. Source review is the
+before evidence; no native before screenshot is claimed for the callback bug.
