@@ -1,0 +1,20 @@
+[
+  {
+    "id": "amd64-schema4-final-roundtrip",
+    "result": "PASS",
+    "observed": "Nativeafter130.382srunshowsfinalizedcapture468saved/128retained/340evicted;portable128rowanalyzerselectedseq341URLsequence340,RawGETand200responsematchindependentfile/IDreadback.",
+    "observedAt": "2026-11-14T05:17:45.293Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "amd64-schema4-final-roundtrip.jpg"
+  },
+  {
+    "id": "386-schema4-final-roundtrip",
+    "result": "PASS",
+    "observed": "Native Korean Windows x86 screen shows finalized capture 464, persisted 464, retained 128, evicted 336; selected sequence 337 is GET http://127.0.0.1:11510/soak?sequence=336, with complete Raw target and HTTP/1.1 200 OK response. Bodies remain disabled.",
+    "observedAt": "2026-11-14T05:29:15.183Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-schema4-final-roundtrip.jpg"
+  }
+]

@@ -1,0 +1,155 @@
+[
+  {
+    "id": "amd64-live-query-grid",
+    "result": "PASS",
+    "observed": "Fourrealconfirmedproducerrequests200;separatequeryemptywhilePathpreservesnestedquestionmarksandencodedduplicaterawvalues.",
+    "observedAt": "2026-11-14T05:10:42.859Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "amd64-live-query-grid.jpg"
+  },
+  {
+    "id": "amd64-live-path-filter",
+    "result": "PASS",
+    "observed": "Path contains id=7&keep=2 yields exactly1/4request2;live separatequeryempty verified independently.",
+    "observedAt": "2026-11-14T05:12:36.676Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "amd64-live-path-filter.jpg"
+  },
+  {
+    "id": "amd64-live-raw-nested",
+    "result": "PASS",
+    "observed": "Raw reconstructs complete GET /lookup?next=/detail?id=7&keep=2 HTTP/1.1 for selectedrequest2,matchingPathandretainedURL.",
+    "observedAt": "2026-11-14T05:12:52.004Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "amd64-live-raw-nested.jpg"
+  },
+  {
+    "id": "amd64-live-query-inspector",
+    "result": "PASS",
+    "observed": "Querytabshowsnext=/detail?id=7andkeep=2independentrows,matchingcompletePath/Rawtarget.",
+    "observedAt": "2026-11-14T05:13:08.659Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "amd64-live-query-inspector.jpg"
+  },
+  {
+    "id": "amd64-path-sort-asc",
+    "result": "PASS",
+    "observed": "Pathfilter/lookupkeeps2/4rows;ascendingPathorderisrequest1(id3)then2(id7),selectedrequest2Querydetailretained.",
+    "observedAt": "2026-11-14T05:13:48.540Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "amd64-path-sort-asc.jpg"
+  },
+  {
+    "id": "amd64-path-sort-desc",
+    "result": "PASS",
+    "observed": "DescendingPathorderrequest2(id7)then1(id3);selectedrequest2andnestedQueryvaluesunchanged.",
+    "observedAt": "2026-11-14T05:14:09.163Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "amd64-path-sort-desc.jpg"
+  },
+  {
+    "id": "amd64-schema4-final-roundtrip",
+    "result": "PASS",
+    "observed": "Nativeafter130.382srunshowsfinalizedcapture468saved/128retained/340evicted;portable128rowanalyzerselectedseq341URLsequence340,RawGETand200responsematchindependentfile/IDreadback.",
+    "observedAt": "2026-11-14T05:17:45.293Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "amd64-schema4-final-roundtrip.jpg"
+  },
+  {
+    "id": "386-live-query-grid",
+    "result": "PASS",
+    "observed": "Fourconfirmedownproducer200requests;livequeryfieldemptyandretainedURLPathshowscompleteinnerquestionmarks/encodedduplicates.",
+    "observedAt": "2026-11-14T05:18:27.720Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-live-query-grid.jpg"
+  },
+  {
+    "id": "386-live-path-filter",
+    "result": "PASS",
+    "observed": "Path contains id=7&keep=2 yields1/4request2onproduction386withseparatequeryempty.",
+    "observedAt": "2026-11-14T05:20:05.552Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-live-path-filter.jpg"
+  },
+  {
+    "id": "386-live-raw-nested",
+    "result": "PASS",
+    "observed": "RawcompleteGETtargetcontainsinner?id=7andkeep=2matchingPath.",
+    "observedAt": "2026-11-14T05:20:23.699Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-live-raw-nested.jpg"
+  },
+  {
+    "id": "386-live-query-inspector",
+    "result": "PASS",
+    "observed": "Queryshowsnext=/detail?id=7andkeep=2withencodedsource;matchesPathandRaw.",
+    "observedAt": "2026-11-14T05:20:38.901Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-live-query-inspector.jpg"
+  },
+  {
+    "id": "386-path-sort-asc",
+    "result": "PASS",
+    "observed": "Two/lookuprowsascendingPathorder1(id3),2(id7);request2Queryselectionretained.",
+    "observedAt": "2026-11-14T05:21:18.368Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "receiptNote": "Native accessibility order verified; screenshot excluded because unrelated user window occluded it."
+  },
+  {
+    "id": "386-path-sort-desc",
+    "result": "PASS",
+    "observed": "DescendingPathorder2(id7),1(id3)andselectedrequest2Queryvaluesretained.",
+    "observedAt": "2026-11-14T05:22:02.851Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-path-sort-desc.jpg"
+  },
+  {
+    "id": "386-encoded-query-filter",
+    "result": "PASS",
+    "observed": "Pathliteral%3F%26findsexactly1/4request3;completePathkeepsvalue=??tail?andbothrawkeyswithoriginalpercentcase.",
+    "observedAt": "2026-11-14T05:22:12.428Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-encoded-query-filter.jpg"
+  },
+  {
+    "id": "386-repeated-query-inspector",
+    "result": "PASS",
+    "observed": "Queryrequest3preservesvalue=??tail?,tworawrowsdecoded?&and?,andencodedspellings%3F%26/%3f.",
+    "observedAt": "2026-11-14T05:22:37.804Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-repeated-query-inspector.jpg"
+  },
+  {
+    "id": "386-repeated-query-raw",
+    "result": "PASS",
+    "observed": "RawGETtargetretainsallquestionmarks,duplicaterawkeysandoriginalpercentcase,matchingPathandQuerysource.",
+    "observedAt": "2026-11-14T05:22:57.455Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-repeated-query-raw.jpg"
+  },
+  {
+    "id": "386-schema4-final-roundtrip",
+    "result": "PASS",
+    "observed": "Native Korean Windows x86 screen shows finalized capture 464, persisted 464, retained 128, evicted 336; selected sequence 337 is GET http://127.0.0.1:11510/soak?sequence=336, with complete Raw target and HTTP/1.1 200 OK response. Bodies remain disabled.",
+    "observedAt": "2026-11-14T05:29:15.183Z",
+    "locale": "ko",
+    "scale": "unchanged; no new DPI measurement",
+    "screenshot": "386-schema4-final-roundtrip.jpg"
+  }
+]

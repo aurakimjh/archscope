@@ -1,0 +1,26 @@
+{
+  "arch": "amd64",
+  "scope": "soak",
+  "rows": 128,
+  "allIdsUniqueAndEqual": true,
+  "allOtherFieldsEqualAfterPortableURLNormalization": true,
+  "selectedSequence": 341,
+  "selectedURL": "http://127.0.0.1:11510/soak?sequence=340",
+  "fileSha256": "3dfb35442bc033238ebc069dce01ed2ac42ebd604057e0f423a275ab0804cece",
+  "fileBytes": 438244,
+  "idSetSha256": "be9bb4e7ee7fe91717a388219075bc09beb8f0e0109976b5c47fe69b0927ea42",
+  "retention": {
+    "limitRows": 128,
+    "persisted": 468,
+    "retained": 128,
+    "evicted": 340
+  },
+  "passed": true,
+  "elapsedSeconds": 130.3817031,
+  "requests": 468,
+  "pauses": 2,
+  "clears": 0,
+  "checkpoints": 6,
+  "finalState": "finalized",
+  "finalCountersEqual": true
+}

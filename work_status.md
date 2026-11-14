@@ -1150,7 +1150,7 @@ validation receipts; the independent/native acceptance gates remain separate.
 | Order | Finding | Priority | Status | Action / acceptance |
 |---:|---|---|---|---|
 | 1 | WR-01 | P2 | WINDOWS_VERIFIED_SCOPED | First-delimiter query slicing preserves nested `?`, encoding and fragment boundaries. Mac HAR proof is supplemented by actual Windows x64/x86 live retained-URL fallback: four confirmed200requests per app, empty separate query, exact Path filter/ascending-descending sort/Query/Raw.386 additionally checks repeated `?` and encoded duplicate keys.15selected native PASS and both4row export ID/selection/URL readbacks; frontend/build, full app and24capture packages on each arch pass. Full reference/locale/DPI acceptance remains separate. |
-| 2 | WR-02 | P2 | LOCALLY_VERIFIED | Shared schema4 soak predicates require running/zero-drop/bounded drain checkpoints, finalized stop and matching final authoritative counters before save/open success.28failure/success tests pass on host and Docker Node22; CI wiring added. Historical receipts unchanged. Revised native Windows execution and independent re-review remain separate. |
+| 2 | WR-02 | P2 | WINDOWS_VERIFIED_SCOPED | Shared schema4 predicates now also pass28success/failure tests on Windows. Fresh production x64/x86 runs last130.382/130.566seconds with468/464captured=persisted, zero drops,6checkpoints and2pauses each. Both stop finalized, save/open128rows, match independent all-field/selection readback and native final screens. Owned apps/origin cleaned up. This is short revised-runner integration, not a new2hour/leak or native disk-fault verdict;10minute Clear not exercised. Historical receipts and independent re-review remain separate. |
 
 Host targeted Go tests/vet, frontend state/build and deterministic resource checks
 pass. All 404 artifact digests across seven new manifests match. Independent
@@ -1162,8 +1162,9 @@ common-engine race soak, Docker offline observer and Linux capture package tests
 are recorded in the remediation receipt. Windows x64/x86 GUI cross-builds pass.
 An initial256MiB Docker tmpfs correctly tripped the512MiB reserve; the same tests
 pass with1GiB without policy changes. Those Mac/Linux receipts make no Windows
-runtime claim; WR-01's later scoped Windows live results are recorded in the row
-above and in `docs/review/evidence/2026-11-14-p2-windows/README-query.md`.
+runtime claim; later scoped Windows live WR-01 and short schema4 WR-02 results
+are recorded in the rows above and in
+`docs/review/evidence/2026-11-14-p2-windows/README.md`.
 Full acceptance and independent re-review remain separate. Review:
 [`2026-11-14_codex_windows-pull-review.ko.md`](docs/review/2026-11-14_codex_windows-pull-review.ko.md).
 Receipt: `docs/review/evidence/2026-11-14-windows-pull-review/local.json`.

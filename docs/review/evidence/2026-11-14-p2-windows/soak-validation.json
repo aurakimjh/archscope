@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "finding": "WR-02",
+  "productCommit": "324a8d97432a8f9a144cb48b545cc7cb8f21da08",
+  "environment": {
+    "os": "Windows",
+    "go": "go1.26.10",
+    "node": "v22.15.1",
+    "CGO_ENABLED": "0"
+  },
+  "predicateTests": {
+    "passed": 28,
+    "failed": 0,
+    "skipped": 0,
+    "milliseconds": 191.0001,
+    "scope": "Controlled success/failure predicates executed on Windows; not native disk-fault injection"
+  },
+  "runs": {
+    "amd64": {
+      "seconds": 130.3817031,
+      "requests": 468,
+      "checkpoints": 6,
+      "pauses": 2,
+      "clears": 0,
+      "finalState": "finalized",
+      "captured": 468,
+      "persisted": 468,
+      "dropped": 0,
+      "retained": 128,
+      "evicted": 340,
+      "selectedSequence": 341,
+      "nativeFinalScreen": "PASS",
+      "independentAllFieldReadback": "PASS",
+      "binarySha256": "3396e69d0afd2d9d324dcb828033ecf84935149d906c5c338a55b61b3b72130b"
+    },
+    "386": {
+      "seconds": 130.5664087,
+      "requests": 464,
+      "checkpoints": 6,
+      "pauses": 2,
+      "clears": 0,
+      "finalState": "finalized",
+      "captured": 464,
+      "persisted": 464,
+      "dropped": 0,
+      "retained": 128,
+      "evicted": 336,
+      "selectedSequence": 337,
+      "nativeFinalScreen": "PASS",
+      "independentAllFieldReadback": "PASS",
+      "binarySha256": "49f13c089c27f6a21ff929c862130a957c675e1a81a54d77bc0b3f9112782f8c"
+    }
+  },
+  "cleanup": "PASS; see cleanup.json",
+  "newProductDefectsFound": 0,
+  "scope": "Fresh short production Windows x64/x86 schema4 native integration with Docker loopback HTTP, bodies disabled",
+  "limitations": [
+    "130-second runs are not new two-hour or leak-free acceptance; earlier long-run receipts are unchanged.",
+    "Two pauses per run; 10-minute Clear branch was not reached.",
+    "No native disk-fault injection or CGO race result is claimed.",
+    "Original independent CONDITIONAL verdict unchanged; T-613 PENDING / T-627 REVIEW and remaining acceptance gates stay open."
+  ]
+}

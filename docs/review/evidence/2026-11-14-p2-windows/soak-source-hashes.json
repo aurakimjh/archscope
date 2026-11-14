@@ -1,0 +1,25 @@
+{
+  "productCommit": "324a8d97432a8f9a144cb48b545cc7cb8f21da08",
+  "sources": {
+    "scripts/verify-windows-desktop-soak.mjs": {
+      "receipt": "soak-runner-used.mjs",
+      "executedWorktreeSha256": "31d704c35c6251fa5e07069c3795402cc244245cecc60686ea00abbaf73b5eb1",
+      "gitBlobSha256": "31d704c35c6251fa5e07069c3795402cc244245cecc60686ea00abbaf73b5eb1"
+    },
+    "scripts/lib/desktop-soak-checks.mjs": {
+      "receipt": "soak-checks-used.mjs",
+      "executedWorktreeSha256": "0aa05a1308a1b77f9cc473517696a95e6bbc7673c399e0e3c1305cf452f193d7",
+      "gitBlobSha256": "0aa05a1308a1b77f9cc473517696a95e6bbc7673c399e0e3c1305cf452f193d7"
+    },
+    "scripts/test-desktop-soak-checks.mjs": {
+      "receipt": "soak-tests-used.mjs",
+      "executedWorktreeSha256": "a92bb0c20e94a62c9922e7b9daec4132902c808048d4719328afb8a72744129c",
+      "gitBlobSha256": "a92bb0c20e94a62c9922e7b9daec4132902c808048d4719328afb8a72744129c"
+    },
+    "scripts/acceptance/layout/soak-origin.py": {
+      "receipt": "soak-origin-used.py",
+      "executedWorktreeSha256": "435ddcff66e17fad0a9da18c7e96ffbb8803f049cfedc1990518472301dafacd",
+      "gitBlobSha256": "435ddcff66e17fad0a9da18c7e96ffbb8803f049cfedc1990518472301dafacd"
+    }
+  }
+}

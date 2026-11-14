@@ -4,7 +4,7 @@
 
 ## 미처리
 
-- [Windows 테스트 변경 검토](2026-11-14_codex_windows-pull-review.ko.md) — `f25ab80a..ab42eeb8`, 원 판정 CONDITIONAL(P2 2건) 보존. 사용자 지시에 따라 WR-01/02 로컬 수정·회귀 검증 완료([근거](evidence/2026-11-14-p2-remediation/README.md)); Mac 네이티브·Docker 검증 기록. 독립 재검토·처리는 다른 AI 대기이며 원문은 미처리 위치에 유지. 독립 PASS·새 Windows 런타임 수용 주장 없음.
+- [Windows 테스트 변경 검토](2026-11-14_codex_windows-pull-review.ko.md) — `f25ab80a..ab42eeb8`, 원 판정 CONDITIONAL(P2 2건) 보존. WR-01/02 로컬 수정·회귀 및 Mac 네이티브·Docker 검증([근거](evidence/2026-11-14-p2-remediation/README.md))에 이어, 사용자 지시로 `324a8d97` Windows x64/x86 실제 live query와 schema4 각130초 종료·저장·재열기 검증 완료([Windows 근거](evidence/2026-11-14-p2-windows/README.md)). 새2시간·전체 수용·독립 PASS 주장은 없으며, 독립 재검토·처리는 다른 AI 대기이고 원문은 미처리 위치에 유지.
 
 ## 처리 기록
 

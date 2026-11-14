@@ -1,0 +1,12 @@
+{
+  "observedAt": "2026-11-14T05:30:39.0013859Z",
+  "passed": true,
+  "ownedDesktopProcesses": 0,
+  "ownedProducerProcesses": 0,
+  "ownedDockerFixtureRunning": false,
+  "stoppedDesktopIdentity": "private descriptor PID and exact executable path checked before stopping",
+  "stoppedDockerIdentity": "archscope.acceptance=p2-windows-20261114 label checked before stopping",
+  "preExistingDockerContainersPreserved": 7,
+  "nativeOwnedWindowsAfterCleanup": 0,
+  "originalPrivateDescriptorsRemainUnpublished": true
+}
