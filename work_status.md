@@ -1187,6 +1187,14 @@ apps/producers/WebViews/containers stopped; existing7Docker containers preserved
 Receipt and updated16-case remaining inventory:
 `docs/review/evidence/2026-11-14-t613-memory/README.md`.
 
+Windows remaining-test follow-up: native amd64 synthetic32-row file preserves an
+exact33UTF8-byte Hangul/emoji/combining-accent annotation and selected star through
+Save/CtrlS/reopen; full-field policy1.0.0 readback passes. Editing-focus CtrlS is
+guarded, grid-focus CtrlS opens one dialog. Column drag remains inconclusive and
+the helper rejects the Hangul composition key; no actual IME PASS is claimed.
+Separate import-memory history-saturation measurement is continuing. Receipt:
+`docs/review/evidence/2026-11-14-windows-final/README.md`.
+
 Revised-runner long duration and the10-minute Clear path are now verified on
 Windows x64/x86 with an isolated shared Docker origin. Source324a8d97 app binaries
 are unchanged; runner1b30244b adds explicit empty-generation/reset/refill checks.

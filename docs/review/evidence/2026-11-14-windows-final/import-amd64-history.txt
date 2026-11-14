@@ -1,0 +1,679 @@
+분석 작업 공간
+분석 작업 공간
+도움말 보기
+저장된 케이스
+작업 공간 비우기
+케이스 검색과 재사용 baseline
+근거 가져오기 및 조회
+로컬 근거 경로
+파일 선택
+가져오기 형식
+분석
+저장 결과 열기
+취소
+CPU/GPU 실행: PyTorch / Nsight / rank 문맥
+부하 / LLM 벤치마크 / JVM 크래시 원본
+런타임 / 스레드 / TA / 실행계획 근거
+LLM / gateway trace 근거
+GPU / 추론 서빙 근거
+perf / 제한된 BPF 근거
+메트릭 이력: OTLP / snapshots / Prometheus / Apple / DB / Linux
+원본 py-spy / Speedscope / pprof 프로파일
+입력 안내와 수동 수집
+가져오기 옵션
+￼
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+도움말 보기
+활성
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:36:38
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:36:35
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:36:32
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:36:12
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:36:09
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:36:07
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:35:47
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:35:44
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:35:41
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:35:21
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:35:18
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:35:16
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:34:56
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:34:53
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:34:50
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:34:30
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:34:27
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:34:25
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:34:05
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:34:02
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:33:59
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:33:39
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:33:36
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:33:34
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:33:13
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:33:11
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:33:08
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:32:48
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-32.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:32:45
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-512.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:32:42
+C:\workspace\archscope\.tmp\windows-final-20261114\import-amd64\synthetic-4096.httpsession
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+HTTP 세션 비교
+두 http_capture 세션을 각 결과에 내장된 경계 있는 버전 프로젝션만으로 비교합니다 — HAR 파일이나 라이브 세션 저장소를 다시 읽지 않습니다. 엔드포인트는 URL 템플릿으로 매칭되므로 순서만 다른 동등한 세션은 동일하게 비교됩니다.
+기준 (A)
+￼
+기준/대상 교체
+대상 (B)
+￼
+비교
+비교할 기준 세션과 대상 세션을 선택하세요.
+HTTP 증거 교차 분석
+http_capture 세션 하나를 CPU 프로파일 run, Jennifer network-gap 추정, access log 기록과 교차 분석합니다 — 이미 분석된 결과만 사용하며 원본 파일이나 캡처 저장소를 다시 열지 않습니다. 모든 매치는 시간 상관이며 인과 증거가 아닙니다.
+HTTP 캡처 *
+HTTP 캡처
+CPU 프로파일
+CPU 프로파일
+JENNIFER 프로파일
+Jennifer 프로파일
+액세스 로그
+액세스 로그
+시간 허용 오차 (MS)
+시간 허용 오차 (ms)
+상위 N행
+상위 N행
+교차 분석
+HTTP 캡처와 함께 CPU 프로파일, Jennifer 프로파일, 액세스 로그 중 최소 하나를 선택하세요.

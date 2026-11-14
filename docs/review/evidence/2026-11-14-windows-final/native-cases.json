@@ -1,0 +1,32 @@
+[
+  {
+    "id": "import-amd64-running",
+    "result": "PASS",
+    "observed": "Observed native32/32 rows and selected Raw GET/import?size=32&row=0 HTTP200 during repeated file-open screening; controller validates each size separately."
+  },
+  {
+    "id": "import-amd64-history",
+    "result": "OBSERVED",
+    "observed": "Native accessibility exposes30workspace result cards after30imports; viewport shows the workspace controls and only the mounted visible portion. Each import adds a retained analysis result."
+  },
+  {
+    "id": "import-amd64-reentry",
+    "result": "PASS",
+    "observed": "After Workspace→Capture native navigation,32rows,selected first request and Raw200restore. This route transition is separate from the automated matched samples."
+  },
+  {
+    "id": "columns-drag-attempt",
+    "result": "INCONCLUSIVE",
+    "observed": "Two native drag attempts from the column-editor row did not establish a reorder. No product defect or drag PASS inferred; arrow controls remain the verified alternative."
+  },
+  {
+    "id": "notes-unicode-edit-guard",
+    "result": "PASS",
+    "observed": "Exact set_value retained33UTF8bytes containing Hangul,emoji and combining accent. Native Save updates note; CtrlS while editing stays in the textarea and opens no dialog. type_text duplicated delivery is excluded; Hangul composition key is unsupported by the helper, so actual IME composition remains unverified."
+  },
+  {
+    "id": "notes-unicode-reopen",
+    "result": "PASS",
+    "observed": "Native saved/reopened32row session retains selected star and exact33UTF8byte Hangul/emoji/combining-accent comment. Independent full-field policy1.0.0 readback accounts only for omitted false/empty annotation defaults."
+  }
+]

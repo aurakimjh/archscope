@@ -1,0 +1,360 @@
+HTTP 캡처
+파일·요청 작성
+캡처 설정
+캡처 시작
+캡처 중지
+자동 추적 중
+일시정지
+비우기
+메서드, URL, 호스트, 상태로 필터 · 32 / 32
+세션 도구
+열 필터
+그룹 기준
+표시 열
+캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+#
+￼
+시작
+￼
+메서드
+￼
+결과
+￼
+호스트
+￼
+경로
+￼
+종류
+￼
+크기
+￼
+시간
+￼
+타임라인
+￼
+프로세스
+￼
+▾
+synthetic-fixture [4242] · 2026-11-14T00:00:00Z
+32 · ↑ 0 B · ↓ 1.4 KiB
+1
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=0
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+2
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=1
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+3
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=2
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+4
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=3
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+5
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=4
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+6
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=5
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+7
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=6
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+8
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=7
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+9
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=8
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+10
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=9
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+11
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=10
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+12
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=11
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+13
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=12
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+14
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=13
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+15
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=14
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+16
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=15
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+17
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=16
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+18
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=17
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+19
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=18
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+20
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=19
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+21
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=20
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+22
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=21
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+23
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=22
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+24
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=23
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+25
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=24
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+26
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=32&row=25
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+트랜잭션 목록 크기 조절
+Request Builder로 복사
+200
+GET
+http://127.0.0.1:11514/import?size=32&row=0
+신규 연결
+와이어 복호화
+힌트 / 상태 / 주석
+Raw
+스트림
+헤더
+쿼리 문자열
+POST 데이터
+본문
+타이밍
+쿠키
+프로세스
+정규화된 모델에서 재구성한 텍스트입니다. 헤더 이름·값·중복은 보존되지만 원본 필드 순서·대소문자·프레이밍은 보존되지 않습니다 — 이 캡처 tier는 raw wire가 아니라 semantic 등급입니다.
+요청
+복사
+GET /import?size=32&row=0 HTTP/1.1
+Host: 127.0.0.1:11514
+Connection: close
+본문이 기록되지 않았습니다. 이 세션은 본문 캡처가 꺼져 있습니다.
+응답
+복사
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-store
+Content-Length: 45
+Server: BaseHTTP/0.6 Python/3.12.16
+Date: Sat, 14 Nov 2026 00:41:39 GMT
+본문이 기록되지 않았습니다. 이 세션은 본문 캡처가 꺼져 있습니다.
+세션 요약 및 근거
