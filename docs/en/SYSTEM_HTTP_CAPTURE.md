@@ -1906,3 +1906,40 @@ folder under docs/review/evidence.
 Forced termination plus27B uncommitted rolling staging and35B orphan blob exposed recovery reporting0B. OpenWithRecovery now forwards the actual discarded bytes and retained row count. Both capture suites, app42.123s/44.388s and frontend state/build pass. Current production crash/restart preserves12record bytes/IDs/selection and native62B on both arches; ambiguous concurrentamd64 images remain INCONCLUSIVE and a single-window rerun is separate. This is not power-loss, committed-row corruption or leak-free acceptance; earlier2h capture binaries predate this reporting fix.
 
 Evidence: docs/review/evidence/2026-11-14-acceptance-remaining/recovery-summary.json.
+
+### 2026-11-14 live columns, grouping, stored search and annotations
+
+`d542b85a` fixes immediate annotation-save failure when a Windows reader briefly
+denies delete sharing. The same250ms native reader lock fails on baseline and
+passes on both fixed architectures; permanent-lock tests preserve committed
+bytes and remove staging. `eab03d07` keeps Offset relative to each PID/start
+process regardless of display grouping. Baseline changed the same row from0s
+to0.015s; the six-group amd64 native matrix and state regression verify the fix.
+
+Both production desktops capture600 real requests from two confirmed Node
+producers to a Docker loopback origin. Stored search finds60 old requests outside
+the500-row native tail. Ten isolated field searches per run, native25/25/10
+pagination, six-group amd64 counts/bytes and both architectures' column order,
+width and restart persistence are covered. Omitted body/empty POST searches are
+negative checks, not positive retained-body search. Cookie-name search preserves
+value redaction. The complete six-group native matrix is amd64;386 covers process
+groups, pagination, columns and the annotation lifecycle.
+
+Another80 requests produce680 persisted/640 retained/40 evicted with zero drops;
+fresh search finds20 remaining archive rows. The old cursor refuses Next, and
+manual Search recovers. Its message remains generic English; no automatic
+refresh/localized guidance claim is made. Live star/Korean note on sequence50
+survives arrivals, retention, selection, stopping, whole-store saving, CtrlO and
+a fresh process. Independent readback verifies all640 IDs, selection and note.
+Portable normalization intentionally derives host-with-port/query from retained
+redacted URL; all other fields except the one star/comment match the live store.
+This is not a raw-byte identity claim across representations.
+
+Both24-package capture suites, production app36.431s/47.402s and state/build pass.
+The40 native observations retain37 selected PASS and3 historical baseline FAIL.
+Every optional column value, drag resize, filter/keyboard combination, annotation
+length/redaction/permanent-error UI and full reference/locale/DPI matrix remain
+separate. Vendor COM/foreign cookies, transparent/service reach, body policy and
+longer memory gates remain; earlier2h receipts are unchanged. T-613 stays PENDING.
+
+Evidence: docs/review/evidence/2026-11-14-live-grid/README.md.

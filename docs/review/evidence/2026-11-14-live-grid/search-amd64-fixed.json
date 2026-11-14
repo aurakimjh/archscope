@@ -1,0 +1,433 @@
+{
+  "scope": "Authenticated production controller, independently isolated search fields; native UI cases separate",
+  "cases": [
+    {
+      "filter": {
+        "query": "archive-needle",
+        "searchFields": [
+          "url"
+        ]
+      },
+      "expected": 60,
+      "actual": {
+        "total": 60,
+        "sequences": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60
+        ]
+      },
+      "passed": true
+    },
+    {
+      "filter": {
+        "query": "header-needle",
+        "searchFields": [
+          "headers"
+        ]
+      },
+      "expected": 40,
+      "actual": {
+        "total": 40,
+        "sequences": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40
+        ]
+      },
+      "passed": true
+    },
+    {
+      "filter": {
+        "query": "request-needle",
+        "searchFields": [
+          "headers"
+        ]
+      },
+      "expected": 20,
+      "actual": {
+        "total": 20,
+        "sequences": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20
+        ]
+      },
+      "passed": true
+    },
+    {
+      "filter": {
+        "query": "alpha-needle",
+        "searchFields": [
+          "query"
+        ]
+      },
+      "expected": 10,
+      "actual": {
+        "total": 10,
+        "sequences": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      },
+      "passed": true
+    },
+    {
+      "filter": {
+        "query": "proof",
+        "searchFields": [
+          "cookies"
+        ]
+      },
+      "expected": 30,
+      "actual": {
+        "total": 30,
+        "sequences": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30
+        ]
+      },
+      "passed": true
+    },
+    {
+      "filter": {
+        "query": "live-grid-origin",
+        "searchFields": [
+          "body"
+        ]
+      },
+      "expected": 0,
+      "actual": {
+        "total": 0,
+        "sequences": []
+      },
+      "passed": true
+    },
+    {
+      "filter": {
+        "query": "alpha-needle",
+        "searchFields": [
+          "post"
+        ]
+      },
+      "expected": 0,
+      "actual": {
+        "total": 0,
+        "sequences": []
+      },
+      "passed": true
+    },
+    {
+      "filter": {
+        "query": "archive-needle",
+        "searchFields": [
+          "stream"
+        ]
+      },
+      "expected": 60,
+      "actual": {
+        "total": 60,
+        "sequences": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60
+        ]
+      },
+      "passed": true
+    },
+    {
+      "filter": {
+        "query": "ARCHIVE-NEEDLE",
+        "searchFields": [
+          "url"
+        ]
+      },
+      "expected": 60,
+      "actual": {
+        "total": 60,
+        "sequences": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60
+        ]
+      },
+      "passed": true
+    },
+    {
+      "filter": {
+        "query": "no-such-fixture",
+        "searchFields": [
+          "url"
+        ]
+      },
+      "expected": 0,
+      "actual": {
+        "total": 0,
+        "sequences": []
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

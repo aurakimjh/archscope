@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-11-13
+Last updated: 2026-11-14
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -5262,3 +5262,20 @@ Reproduced actual Windows recovery dropping27Bstaging+35Borphanblob but showing0
 ### 2026-11-14 - T-627/613 native HTTP notes, Builder and legacy states
 
 Selected12row saved-file star/Unicodecomment→descendingrequestorder→CtrlSnewfile→CtrlOreopen andDown/Up preserveID/selection/notes; allothertransactionfields andsourcefilehashes equal. e7a4debe revealsclosedouterfiletools onBuildercopy,verifiednativeamd64/386. Nativeamd64 editedDockerloopbackGET200 isseparatefromoriginal12rows;dragremainsINCONCLUSIVE. ManualAMF0tree/text/truncation,ViewStateunsupported/2Bunverifiedtail,AMF3limited pass. Latestfrontendstate/build andbothproductionbuildspass; fullGoapp/capturesuites scopeisearlierrecoveryfix.21route/16contractinventoriesupdatedwithremaininglocalandgatedwork;T-627REVIEW/T-613PENDING. Ownedapps/fixturestopped. Receipt: docs/review/evidence/2026-11-14-acceptance-remaining/README.md.
+
+### 2026-11-14 - T-613 live grid/search/annotation verification
+
+Two separately committed fixes: d542b85a tolerates transient Windows annotation
+readers without deleting old bytes; eab03d07 makes Offset independent of display
+grouping. Baseline native failures are preserved. Both current production builds
+capture600 requests from two confirmed producers; isolated search10cases/run,
+native full-store pagination, amd64 six-group counts/bytes/Offset, column settings
+and live star/Korean note through80arrivals/40evictions/save/open/restart pass.
+Independent640row export/readback preserves ID set/selection/annotation and all
+other fields, explicitly accounting for host/query URL normalization. Native386
+CtrlS saves whole640store despite1row search. Both24capture packages, production
+app36.431s/47.402s, state/build pass.40native observations:37selected PASS and3historic
+FAIL. Owned apps/producers/fixture stopped, existing7containers preserved. Full
+column/filter/keyboard/annotation-boundary and reference/locale/DPI combinations,
+positive body search and vendor/driver/service/memory gates remain separate;
+T-613 PENDING/T-627 REVIEW. Receipt: docs/review/evidence/2026-11-14-live-grid/README.md.

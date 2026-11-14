@@ -1,0 +1,8 @@
+{
+  "scripts/acceptance/layout/live-grid-origin.py": "6fedf03315c2c8a65449deaaf38a74d45780bd7c6725b700b844ba23329a5b7e",
+  "scripts/acceptance/layout/verify-live-grid-export.py": "b1ba0c61b56fa852cacc8a5dff0d454f1ef639dfded96b3628b27a809952195b",
+  "apps/engine-native/internal/capture/store/annotations.go": "ab32415ae1a1bec68833dd33e8125528efd2390f5925e3c1f387962d2026eef9",
+  "apps/engine-native/internal/capture/store/annotations_windows_test.go": "cc68fa7f207fff36d11cce659638cdef5c86904557193e5101ca46a02f4edb1a",
+  "apps/engine-native/cmd/archscope-app/frontend/src/components/HttpAnalyzerView.tsx": "4e178a4c5a8c22f78805eeea7ff552c16fee4af7a7200187a9be5e5e6a4d8240",
+  "apps/engine-native/cmd/archscope-app/frontend/src/state/httpSummary.ts": "562aec29eb2127a55321e82bceef6d109a97879ee73487684ccd987d60b91e9c"
+}

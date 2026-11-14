@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "scope": "Real production desktop/controller,2own Node producers,600 synthetic Docker loopback requests,bodiesdisabled,640retention/64backendLiveWindow;nativeUI separate",
+  "buildCommit": "eab03d0777632eb72ac408b7d62961ba73c72d67",
+  "binarySha256": "208eeac3210160937b7101b38f89b2966fd9a18c5bd7a047434ba769d4dc6e83",
+  "requests": 600,
+  "confirmedProducerCounts": [
+    300,
+    300
+  ],
+  "archiveURLMatches": 60,
+  "headerMatches": 40,
+  "requestHeaderMatches": 20,
+  "queryMatches": 10,
+  "hostCounts": {
+    "127.0.0.1": 300,
+    "localhost": 300
+  },
+  "methodCounts": {
+    "GET": 300,
+    "POST": 300
+  },
+  "statusCounts": {
+    "200": 200,
+    "404": 200,
+    "503": 200
+  },
+  "mimeCounts": {
+    "application/json": 200,
+    "text/plain": 200,
+    "text/html": 200
+  },
+  "stats": {
+    "retentionRows": 640,
+    "retained": 600,
+    "generation": 0,
+    "state": "running",
+    "observed": 600,
+    "captured": 600,
+    "persisted": 600,
+    "bodyOmitted": 0,
+    "eventSkipped": 0,
+    "kernelDropped": 0,
+    "parseFailed": 0,
+    "unsupported": 0,
+    "passthrough": 0,
+    "unattributed": 0,
+    "dropped": 0,
+    "backpressured": false,
+    "snapshotVersion": 600,
+    "sequence": 600,
+    "storeBytes": 1168979
+  },
+  "passed": true
+}

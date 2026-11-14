@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "T-613": "PENDING",
+  "T-627": "REVIEW",
+  "supersedesOnlySelectedSlicesIn": "../2026-11-14-acceptance-remaining/remaining-acceptance.json",
+  "cases": [
+    {
+      "id": "GRID-01",
+      "completed": "Native column ordering/width/visibility and restart persistence; amd64 six groups with exact counts/bytes and grouping-independent process Offset; old rows outside live tail found via whole store;25/25/10pages and retention cursor refusal/requery.",
+      "remainingLocal": "All optional column values and width limits/drag resize/default reset; full filter+process+field+group+keyboard combinations, more concurrent retention/search interleavings; entire386group matrix and locale/DPI/reference combinations."
+    },
+    {
+      "id": "NOTES-01",
+      "completed": "Both architectures: live star/Korean annotation on retained seq50, transient reader lock, new arrivals/retention, refind, whole-store save/native reopen/fresh process; permanent reader old-byte/staging unit tests.",
+      "remainingLocal": "Native4096-byte/Unicode/redaction boundaries, permanent-write-error UI/retry, multiple selection semantics, eviction of annotated target itself, complete live sort/filter+keyboard combinations."
+    },
+    {
+      "id": "SESSION-01",
+      "completed": "Both640row exports match unique durable IDs/selectedID and notes; all other fields match after declared portable host/query normalization. Native386CtrlS exports whole store despite1row display; nativeopen/restartboth.",
+      "remainingLocal": "Filtered export and every partial/error file combination, full reference comparison and all format+selection combinations."
+    },
+    {
+      "id": "TIMING-01",
+      "completed": "Offset process origin now independent of grouping; numeric six-group10row native fixture onamd64 and state regression.",
+      "remainingLocal": "Complete summary filters, waterfall phase/value/error/selection and original-tool comparisons."
+    }
+  ],
+  "environmentGates": [
+    "Positive retained request/response body and POST-body search remain behind existing disabled live-body gate; cookie-value redaction is preserved.",
+    "Transparent/proxy-ignoring/service/other-session reach requires Windows backend/driver evidence, not Linux Docker.",
+    "Original vendor COM/foreign-client session-cookie semantics and clean-host registration remain separate.",
+    "Full reference/locale/actual-DPI acceptance, longer memory/handle diagnosis, committed corruption/low disk/power loss and Windows race withCGO0 are not closed. Earlier2h receipts are immutable."
+  ]
+}

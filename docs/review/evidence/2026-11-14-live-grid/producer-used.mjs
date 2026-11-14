@@ -1,0 +1,5 @@
+import http from 'node:http';
+process.on('message',async msg=>{if(msg.command==='exit'){process.exit(0);}if(msg.command!=='request')return;
+const i=msg.index,host=Math.floor(i/2)%2?'localhost':'127.0.0.1',archived=i<60?'archive-needle':'live',query=i<10?'alpha-needle':'ordinary';
+try{const value=await new Promise((resolve,reject)=>{const req=http.request({host:'127.0.0.1',port:msg.proxyPort,path:`http://${host}:11510/${archived}/${i}?q=${query}&slot=${String(i).padStart(3,'0')}`,method:i%2?'POST':'GET',headers:{Host:`${host}:11510`,'Content-Length':'0',...(i<20?{'X-Request-Proof':'request-needle'}:{})},agent:false,timeout:10000},res=>{const chunks=[];res.on('data',c=>chunks.push(c));res.on('error',reject);res.on('end',()=>{try{const body=JSON.parse(Buffer.concat(chunks));if(res.statusCode!==[200,404,503][i%3]||body.marker!=='live-grid-origin'||body.index!==i)throw Error('fixture mismatch');resolve(true);}catch(e){reject(e);}});});req.on('error',reject);req.on('timeout',()=>req.destroy(Error('timeout')));req.end();});process.send({index:i,ok:value});}catch(e){process.send({index:i,ok:false,error:e.message});}});
+process.send({ready:true});

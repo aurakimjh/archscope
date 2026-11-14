@@ -5126,12 +5126,12 @@ T-611은 현재 원본 클라이언트 호환성, 미확인 원본 필터·캐�
 | PROCESS-01 | 실제 Node PID+start, 두 프로세스 귀속·launch fixture | 서비스·타세션·proxy무시 앱은 별도 backend/reach 증거 필요; 선택 프록시 범위는 로컬 가능 |
 | EXCHANGE-01 | 합성103/302/final 자동화 | 지원 조합의 원본동일 exchange·native 표시·내보내기 비교; 합성 추가는 로컬 가능 |
 | BODY-01 | body-disabled 동작·HAR/codec의 payload | 실제 request/response body 및 중복cookie 전체. 현재 dump-policy gate로 live bodies 금지; 보안정책 변경으로 통과시키지 않음 |
-| SESSION-01 | native save/open ID·선택, 양쪽128행 | 선택된12행 별·한국어주석/정렬→새저장→재열기 PASS 추가. live주석/필터/오류·부분 파일 전체는 로컬 추가 가능 |
+| SESSION-01 | native save/open ID·선택, 양쪽128행 및 live640행 주석/ID 집합·재시작 복원 | 필터 내보내기·부분/오류 파일 전체와 원본 비교는 남음; 로컬 fixture 추가 가능 |
 | WINDOW-01 | 컨트롤·process grid·상세 한 창, selected geometry | 충분한 결과의70%/10요청+4상세와 모든 locale/DPI/조건 조합; 로컬 추가 가능 |
-| GRID-01 | 기본 그룹/행선택·retention·backend pagination | 12행 정렬/Down·Up/선택·주석 유지 PASS 추가. 표시열/그룹/전체 저장소 검색과 전체 조합은 로컬 추가 가능 |
+| GRID-01 | 열 순서/너비/숨김/재시작 보존, x64 6그룹·Offset, 전체 저장소 검색·페이지·퇴거 커서 | 모든 열 값·drag resize·필터/프로세스/키보드 조합 및 원본/locale/DPI 전체는 남음; 아래 live-grid 범위 참조 |
 | TIMING-01 | timing/summary 구현·일부 fixture | summary filter와 process-relative waterfall의 실제 값/선택·지연/오류·원본 비교; 합성 UI 가능 |
 | CONTENT-01 | Raw/Headers/disabledBody selected PASS | cookies/streams, inert text/HTML/raster 및 오류/미지원/제한 native 상태; import fixture는 로컬 가능 |
-| NOTES-01 | 단위/저장 회귀 | 선택된saved-file12행의 별/한국어주석 sort→save→reload ID불변성 PASS. live/다중선택·경계/오류 조합은 남음 |
+| NOTES-01 | saved-file12행 정렬·save/reload, 양쪽 live 별/한국어주석·유입/퇴거·640행 저장/재시작 복원 | Windows 일시 읽기 잠금 수정/네이티브 재검증 완료. 다중선택·4096B/마스킹·영구 오류 UI·주석 대상 자체 퇴거 경계는 남음 |
 | BUILDER-01 | 구현·자동화 회귀 | copy/edit/explicit Docker GET200·원본파일불변 PASS. drag 미확정, 취소/오류/body·multipart·redirect 조합은 남음 |
 | LEGACY-VIEW-01 | AMF/ViewState inert decoder·한도/roundtrip | 수동 editor의 AMF0 tree/text·잘림오류, ViewState 미지원/2B미검증꼬리, AMF3한도 PASS. 첨부본문/import·redaction·전체 reference/형식 조합은 남음 |
 | COVERAGE-01 | Windows x86/x64 explicit proxy | windows_transparent는 구현되지 않음. driver/WFP·proxy무시·서비스/다른 세션 reach가 필요; Linux Docker로 대체 불가 |
@@ -5154,3 +5154,35 @@ fixture로 한정하고 원본 실패 기록을 보존합니다. T-613은 PENDIN
 강제 종료 후 rolling 임시 파일27B와 미참조 blob35B를 정리한 실제 결과가 UI에서0B로 사라지는 오류를 수정했습니다. 누적 저장 수 대신 복구된 보존 행 수도 전달합니다. x64/x86 전체 capture 패키지와 앱42.123s/44.388s, state/build를 통과했습니다. 최신 production 양쪽에서12행/정확한62B 복구 및 바이트·ID·선택 동일성을 검증했습니다. 동시 창의 일부 x64 이미지는 미확정으로 보존하고 단일 창으로 재검증했습니다. 전원 손실·커밋된 행 손상·전체 장기 메모리 인수는 별도이며, 기존2시간 결과는 이 보고 수정 이전 빌드입니다.
 
 Evidence: docs/review/evidence/2026-11-14-acceptance-remaining/recovery-summary.json.
+
+### 2026-11-14 live 열·그룹·전체 저장소 검색·주석 후속
+
+`d542b85a`는 Windows 읽기 핸들이 잠시 delete sharing을 막을 때 주석 저장이
+즉시 실패하던 오류를 제한 시간 재시도로 수정합니다. 네이티브 baseline FAIL과
+수정된 x64/x86의 동일250ms 경합 PASS, 영구 잠금에서 기존 바이트 보존·임시 파일
+정리 단위 검증을 기록했습니다. `eab03d07`은 Offset 영점을 표시 그룹 대신
+PID/start 프로세스별로 계산합니다. 같은 행이 그룹에 따라0초/0.015초로 바뀌던
+오류를 재현했고 x64의6그룹과 회귀 검사에서 수정했습니다.
+
+양쪽 production에서 실제 두 Node 프로세스가 Docker loopback에600건을 보내고,
+500행 live tail 밖의 오래된60건을 전체 저장소에서 검색합니다. 검색 필드별
+독립 제어 검증10건씩과 native 검색·25/25/10페이지, x64의6그룹 집계,
+양쪽 열 순서/너비와 재시작 보존을 확인했습니다. 본문은 비활성이므로 body/POST
+검색의 양성 결과를 주장하지 않습니다. 쿠키는 값 마스킹을 유지한 이름 검색입니다.
+
+추가80건 후680저장/640보존/40퇴거/0drop이며, 재검색은 남은20건입니다.
+x64에서 이전 커서는 거부되고 재검색으로 복구합니다. 오류는 아직 일반 영어
+문구이며 자동 갱신/지역화된 안내 검증이 아닙니다. 요청50의 live 별/한국어
+주석은 유입·퇴거·선택·중지·전체 저장·native 재열기·새 프로세스에서 복원됩니다.
+독립 읽기로640개 ID 집합·선택·주석을 비교했습니다. portable 저장은 보존된
+마스킹 URL에서 host(port 포함)/query를 정규화하므로 이 두 필드 변화는 명시하고,
+별/주석 외 나머지 필드는 같습니다. 원시 저장소와의 바이트 동일 주장은 아닙니다.
+
+양쪽24개 capture 패키지, production 앱36.431s/47.402s, state/build가 통과했습니다.
+40개 native 관찰은37개 선택 PASS와 보존한3개 baseline FAIL입니다. 전체6그룹
+native 조합은 x64 범위이며, x86은 process 그룹·페이지·열·주석 수명주기를 확인합니다.
+모든 열 값/drag resize/필터·키보드/주석 길이·마스킹·오류 경계는 별도입니다.
+원본 도구/COM foreign cookie·driver/service reach·body gate·전체 DPI/locale와
+장기 메모리 인수는 유지하며 T-613은 PENDING입니다. 기존2h 증거는 변경하지 않습니다.
+
+Evidence: docs/review/evidence/2026-11-14-live-grid/README.md.

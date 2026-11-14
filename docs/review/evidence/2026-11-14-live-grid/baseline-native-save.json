@@ -1,0 +1,8 @@
+{
+  "scope": "Readback of baseline nativeCtrlS600row export; no680row baseline export claim",
+  "rows": 600,
+  "selectedSequence": 50,
+  "exactStarAndUnicodeComment": true,
+  "sha256": "fdb629580daff43e3abc11236b429956a1d071eea021ad52e3b8df2f193cba92",
+  "passed": true
+}

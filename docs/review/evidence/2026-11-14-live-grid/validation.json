@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "productCommit": "eab03d0777632eb72ac408b7d62961ba73c72d67",
+  "fixes": {
+    "d542b85a": "Windows annotation replacement uses existing bounded retry; old bytes preserved on permanent lock",
+    "eab03d07": "Grid Offset uses PID/start process origin regardless of display grouping"
+  },
+  "environment": {
+    "os": "Windows",
+    "architectures": [
+      "amd64",
+      "386"
+    ],
+    "go": "go1.26.10",
+    "cgo": 0,
+    "dockerImageId": "sha256:6f277eab1780718568b81482da41897a9444d912c69d82371166083c17f68e39",
+    "bodyCapture": false,
+    "locale": "ko",
+    "scaling": "unchanged; no fresh DPI/geometry claim"
+  },
+  "checks": [
+    {
+      "command": "go test ./internal/capture/store -run TestWindowsAnnotations -count=1",
+      "arch": "amd64",
+      "baseline": "FAIL: transient reader caused immediate Access is denied; permanent-lock bytes preserved"
+    },
+    {
+      "command": "go test ./internal/capture/store -count=1",
+      "arch": "amd64",
+      "result": "PASS",
+      "seconds": 3.322
+    },
+    {
+      "command": "GOARCH=386 go test ./internal/capture/store -count=1",
+      "arch": "386",
+      "result": "PASS",
+      "seconds": 3.24
+    },
+    {
+      "command": "go test ./internal/capture/... -count=1",
+      "arch": "amd64",
+      "result": "PASS",
+      "packages": 24
+    },
+    {
+      "command": "GOARCH=386 go test ./internal/capture/... -count=1",
+      "arch": "386",
+      "result": "PASS",
+      "packages": 24
+    },
+    {
+      "command": "node build/windows/test.mjs -tags production -count=1 .",
+      "arch": "amd64",
+      "result": "PASS",
+      "seconds": 36.431
+    },
+    {
+      "command": "GOARCH=386 node build/windows/test.mjs -tags production -count=1 .",
+      "arch": "386",
+      "result": "PASS",
+      "seconds": 47.402
+    },
+    {
+      "command": "npm run test:state",
+      "result": "PASS"
+    },
+    {
+      "command": "npm run build",
+      "result": "PASS"
+    },
+    {
+      "command": "node build/windows/build.mjs -tags production -trimpath -buildvcs=false -ldflags=...",
+      "architectures": [
+        "amd64",
+        "386"
+      ],
+      "result": "PASS",
+      "buildCommitStamped": true
+    },
+    {
+      "command": "python scripts/acceptance/layout/verify-live-grid-export.py --run-dir PRIVATE_RUN --report PUBLIC_REPORT",
+      "architectures": [
+        "amd64",
+        "386"
+      ],
+      "result": "PASS"
+    }
+  ],
+  "binaries": {
+    "amd64": "208eeac3210160937b7101b38f89b2966fd9a18c5bd7a047434ba769d4dc6e83",
+    "386": "64afc09cfb55a665159c411366b949da4fca60920be257142e2221a725788a7b"
+  },
+  "nativeCases": {
+    "total": 40,
+    "pass": 37,
+    "historicFail": 3
+  },
+  "harnessLimitations": [
+    "Baseline save command accidentally passed null sessionId and the fixture runner terminated; this is not a product defect. No baseline680row export claim. Baseline600row native save is separately verified. Correct source.sessionId is used for fixedamd64 export; fixed386 uses native CtrlS.",
+    "Source snapshots are exact used harnesses, with this workstation private paths. Baseline runner failed fast; cleanup of child process tree occurred with harness termination. Final runs stop owned apps explicitly. Snapshots are receipts, not a general reusable runner.",
+    "Raw private controller credentials, process keys, capture IDs and sessions are not published. Public sequences are synthetic fixture indexes. Native screenshots may show synthetic owned producer PID/start labels.",
+    "Only mounted virtual rows are claimed visible. Positive retained-body/post-body search is not established with captureBodies=false. Cookie value redaction remains; cookie-name search is covered.",
+    "The old retention cursor is rejected with a generic English error; user must run Search again. No automatic page refresh or localized guidance claim.",
+    "Full six-group/Offset native matrix is amd64;386 native covers process groups,25/25/10pagination,columns and notes. Shared state tests cover all groups; no claim of everyx86column/group combination."
+  ],
+  "cleanup": {
+    "ownedDesktopWindows": 0,
+    "ownedFixtureProducerProcesses": 0,
+    "ownedDockerFixtureStoppedAndRemoved": true,
+    "otherContainersPreserved": 7,
+    "securityAndPrivacySettingsChanged": false
+  },
+  "overallVerdict": "SCOPED_PASS; T-613 remains PENDING, T-627 remains REVIEW"
+}

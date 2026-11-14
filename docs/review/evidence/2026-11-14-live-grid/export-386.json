@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "scope": "Independent stored/export data check; no UI verdict",
+  "rows": 640,
+  "sequenceRange": [
+    41,
+    680
+  ],
+  "allIdsUniqueAndEqual": true,
+  "idSetSha256": "c206806cf77e3bfdf3993c0a80fda8f505c101a07344d113a5d13f9202ab25e0",
+  "exportSha256": "8c3c2bf985de6f27f92050f5f0bf92527d6fc2944152e7bbd5afcb8c416fc405",
+  "exportBytes": 2270275,
+  "sourceRollingSetSha256": "2887ebb8a79d8867ca33bbb6bd36dc1c12e9ca96945405237e31448040fb1da3",
+  "annotationFileSha256": "9139e24332e708d506bcf699293850baeadc2e992456366bce90db0c140fb310",
+  "selectedSequence": 50,
+  "exactStarAndUnicodeComment": true,
+  "changedFields": {
+    "query": 640,
+    "host": 640,
+    "starred": 1,
+    "comment": 1
+  },
+  "normalization": "host includes port and query derives from retained redacted URL; only star/comment additionally change",
+  "allOtherFieldsEqual": true,
+  "sourceUnchangedDuringReadback": true,
+  "stagingFiles": 0,
+  "retention": {
+    "limitRows": 640,
+    "persisted": 680,
+    "retained": 640,
+    "evicted": 40
+  },
+  "passed": true
+}
