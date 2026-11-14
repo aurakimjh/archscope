@@ -486,3 +486,19 @@ own units and unlike-unit bar lengths are not comparable. State tests and the
 frontend build pass. Original pre-fix CSV and native observation remain separate.
 See chart-export-readback.json, chart-exports/ and verify-chart-exports-used.py.
 No independent reference parity or full acceptance closure is inferred.
+
+## Incident Timeline scoped native checks
+
+The five-result workspace yields 8/8 events, 8 groups, 2 critical/4 warning,
+2 contributing analyzers and no ranged events. A nonmatching query gives an
+explicit empty timeline. Query trace_import plus severity info yields exactly
+two rows; evidence references and source titles remain visible. Completeness,
+groups and narrative are global context and remain unchanged by the event
+filter. The first filtered cross-service event adds an Evidence Board card.
+The timeline is below the full narrative and requires vertical scrolling;
+the evidence column needs horizontal scrolling at 1280x800. No density pass.
+Native icon-only evidence buttons had no accessible names. The correction adds
+localized action plus event label as aria-label/title and hides the decorative
+icon. State tests/build pass; final integrated native label verification follows.
+No export/time-range controls are present here; absent controls and capped-event
+partial-result boundaries remain unclosed by these eight-event checks.

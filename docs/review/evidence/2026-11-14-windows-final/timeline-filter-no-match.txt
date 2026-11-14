@@ -1,0 +1,101 @@
+장애 타임라인
+장애 타임라인
+도움말 보기
+표시 / 전체 이벤트
+도움말 보기
+8 / 8
+그룹
+도움말 보기
+8
+치명
+도움말 보기
+2
+경고
+도움말 보기
+4
+범위 이벤트
+도움말 보기
+0
+소스
+도움말 보기
+2
+필터
+도움말 보기
+검색
+도움말 보기
+no-such-incident-20261115
+분석기
+도움말 보기
+￼
+심각도
+도움말 보기
+￼
+그룹
+도움말 보기
+￼
+그룹
+도움말 보기
+error_burst / ACCESS_ERROR_BURST
+1 표시 / 전체 이벤트 · access_log
+2026-04-27T01:00:00.000Z - 2026-04-27T01:00:00.000Z
+latency / ACCESS_P95_LATENCY
+1 표시 / 전체 이벤트 · access_log
+2026-04-27T01:00:00.000Z - 2026-04-27T01:00:00.000Z
+error / HIGH_ERROR_RATE
+1 표시 / 전체 이벤트 · access_log
+2026-11-14T16:46:15.918Z - 2026-11-14T16:46:15.918Z
+error / SERVER_ERRORS_PRESENT
+1 표시 / 전체 이벤트 · access_log
+2026-11-14T16:46:15.918Z - 2026-11-14T16:46:15.918Z
+latency / SLOW_URL_P95
+1 표시 / 전체 이벤트 · access_log
+2026-11-14T16:46:15.918Z - 2026-11-14T16:46:15.918Z
+latency / TRACE_IMPORT_SLOW_SPAN_DOMINATES_TRACE
+1 표시 / 전체 이벤트 · trace_import
+2026-11-14T16:47:55.210Z - 2026-11-14T16:47:55.210Z
+장애 내러티브
+도움말 보기
+#1
+CRITICAL
+error_burst / ACCESS_ERROR_BURST
+ACCESS_ERROR_BURST occurred in access_log: 40/120 requests failed (33.33%).
+series.error_rate_per_minute
+#2
+WARNING
+latency / ACCESS_P95_LATENCY
+ACCESS_P95_LATENCY occurred in access_log: Access-log p95 latency reached 1,500 ms.
+series.p95_response_time_per_minute
+#3
+CRITICAL
+error / HIGH_ERROR_RATE
+HIGH_ERROR_RATE occurred in access_log: Error rate is at or above 10%.
+HIGH_ERROR_RATE
+#4
+WARNING
+error / SERVER_ERRORS_PRESENT
+SERVER_ERRORS_PRESENT occurred in access_log: One or more server-side errors were observed.
+SERVER_ERRORS_PRESENT
+#5
+WARNING
+latency / SLOW_URL_P95
+SLOW_URL_P95 occurred in access_log: An endpoint's p95 response time is at or above 1 second.
+SLOW_URL_P95
+#6
+INFO
+latency / TRACE_IMPORT_SLOW_SPAN_DOMINATES_TRACE
+TRACE_IMPORT_SLOW_SPAN_DOMINATES_TRACE occurred in trace_import: At least one trace is dominated by a single span.
+TRACE_IMPORT_SLOW_SPAN_DOMINATES_TRACE
+#7
+WARNING
+latency / UNBALANCED_SERVICE_LATENCY
+UNBALANCED_SERVICE_LATENCY occurred in trace_import: One service accounts for most imported span latency.
+UNBALANCED_SERVICE_LATENCY
+#8
+INFO
+trace / TRACE_IMPORT_CROSS_SERVICE_TRACE
+TRACE_IMPORT_CROSS_SERVICE_TRACE occurred in trace_import: At least one imported trace spans multiple services.
+TRACE_IMPORT_CROSS_SERVICE_TRACE
+타임라인
+도움말 보기
+2026-04-27T01:00:00.000Z - 2026-11-14T16:47:55.210Z
+현재 필터에 맞는 이벤트가 없습니다.

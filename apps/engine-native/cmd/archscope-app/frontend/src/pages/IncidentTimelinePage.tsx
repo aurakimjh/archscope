@@ -340,6 +340,7 @@ function TimelineRow({
   event: IncidentTimelineEvent;
   onAddEvidence: () => void;
 }): React.JSX.Element {
+  const { t } = useI18n();
   return (
     <tr className="border-b border-border align-top last:border-0">
       <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px]">
@@ -378,8 +379,9 @@ function TimelineRow({
       </td>
       <td className="px-3 py-2 font-mono text-[11px]">{event.evidence_ref}</td>
       <td className="px-3 py-2 text-right">
-        <Button type="button" size="sm" variant="outline" onClick={onAddEvidence}>
-          <ClipboardPlus className="h-3.5 w-3.5" />
+        <Button type="button" size="sm" variant="outline" onClick={onAddEvidence}
+          aria-label={`${t("evidenceAdd")}: ${event.label}`} title={`${t("evidenceAdd")}: ${event.label}`}>
+          <ClipboardPlus className="h-3.5 w-3.5" aria-hidden="true" />
         </Button>
       </td>
     </tr>

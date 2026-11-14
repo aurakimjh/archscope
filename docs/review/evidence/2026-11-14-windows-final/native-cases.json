@@ -718,5 +718,30 @@
     "id": "chart-save-cancel",
     "result": "PASS",
     "observed": "Escape closes native Save without writing/overwriting; same Access P95 source/template/SVG chart retained; no false completion."
+  },
+  {
+    "id": "timeline-populated-eight",
+    "result": "PASS",
+    "observed": "Native 8/8 events, 8 groups, critical2/warning4, 2 contributing analyzers, ranged0. Group timestamps include source bucket timestamps and analysis-created finding timestamps; not asserted as all original incident times."
+  },
+  {
+    "id": "timeline-filter-no-match",
+    "result": "PASS",
+    "observed": "Nonmatching query empties timeline with explicit message; 8-event completeness, groups and full narrative remain global context, not filtered counters."
+  },
+  {
+    "id": "timeline-search-severity-combination",
+    "result": "PASS",
+    "observed": "Query trace_import plus severity info yields exactly two INFO rows, source title/file context preserved; 8-event global narrative unchanged. Horizontal table scrolling required for evidence action."
+  },
+  {
+    "id": "timeline-evidence-name-before",
+    "result": "FAIL",
+    "observed": "Two icon-only evidence buttons expose no accessible name in native accessibility tree. Product labels corrected in source separately."
+  },
+  {
+    "id": "timeline-add-selected-event",
+    "result": "PASS",
+    "observed": "First filtered INFO Trace cross-service event added; native success notice. Evidence Board payload verification follows separately."
   }
 ]

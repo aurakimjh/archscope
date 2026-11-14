@@ -5692,3 +5692,12 @@ warning. Native Save cancel preserves source/template/chart. State/build pass.
 Scope: KO, OS100/Web100, Canvas comparison and SVG other templates; full locale/
 DPI/renderer/reference matrix remains separate. T-627 REVIEW.
 Evidence: 2026-11-14-windows-final/chart-export-readback.json.
+
+### 2026-11-15 - T-627 Incident Timeline scoped native checks
+
+Eight events/two contributing analyzers; search no-match and search+severity
+(two INFO Trace rows) pass. Selected event adds evidence. Native icon buttons
+lack accessible names; add localized action/event labels. State/build pass;
+final integrated label observation follows. Full narrative precedes timeline,
+so no density or absent export/time-range control acceptance is claimed.
+T-627 REVIEW. Evidence: 2026-11-14-windows-final/timeline-*.jpg/.txt.
