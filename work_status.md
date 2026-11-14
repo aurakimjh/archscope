@@ -5647,3 +5647,12 @@ is retained and status/error/providers stay visible. NativeAccess+Trace cards fi
 active selection andSpacecollapse focus pass; own-result removal gives empty.
 Frontend state/build pass. T-627 REVIEW; full kinds/reference/DPI matrix separate.
 Evidence:2026-11-14-windows-final.
+
+### 2026-11-15 - T-627 Export Center output matrix and canceled draft
+
+Native selectedAccess120request result exports5modes; independentJSON/HTML/CSV/
+18CSVfiles/3PPTXslides readbackpasses(withPPTX10metriclimit). Directory-as-file
+refusal/validretry preservesresult. Browsecancel erasedtypedpath; fixedhandler
+preservesdraft and reportsrealerrors,emptyWorkspace disablesExport. State/build
+pass. PPTXstableboundedselection correction followsseparately;T-627REVIEW.
+Evidence:2026-11-14-windows-final.

@@ -409,3 +409,26 @@ Use onAccess switches active selection without altering values. Import assistanc
 reopens all controls; Spacecollapses it with visible focus and preserves selection.
 Frontend state/build pass. Scoped improvement, not every result kind/70percent/
 locale/DPI/reference/provider-combination acceptance.
+
+## Export Center formats, failure retry and canceled output draft
+
+Native Workspace-selectedAccess result is correctly selected in ExportCenter.
+HTML writing to an existingdirectory refuses visibly; a distinctfile retry
+succeeds. Native5mode exports(HTML/JSON/singleCSV/CSVdirectory/PPTX) succeed.
+Independent readback confirms120requests/315.5msmean/P951500,18CSVfiles and3PPTX
+slides,validZIP/XML,and every displayed PPTX metric matchesJSON. PPTX intentionally
+contains only10summary fields; initial verifier wrongly expected average in that
+subset and was corrected to verify actualdisplayedkeys. FullOffice rendering is
+not asserted. No source was changed. Output hashes:workspace-export-readback.json.
+
+Native Browse→Escape erased a previouslytypedpath. browseOutput now only updates
+on nonemptyselection and surfaces realdialog errors. Fixed0b4fcd83-plus-export-cancel
+preserves exactdraft; emptyWorkspace disablesExport. Frontendstate/buildpass.
+The5outputmodes use4677d721-plus-workspace-fold; cancellationfixedbuild is separate.
+HTMLselect popup refresh twice returned helper no-monitor errors after successful
+selection; relist/activate/reobserve recovered. No product dropdown failure claim.
+
+PPTX source also revealed Go map iteration selecting random10summary fields with
+no omissionnotice; stable boundedselection correction is a separate follow-up,
+not alreadycovered by the oldoutput receipt. No multiselection control exists in
+ExportCenter; full kinds/format/reference/locale/DPI/cancelmatrix remains separate.

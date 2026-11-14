@@ -1,0 +1,135 @@
+{
+  "scope": "One owned nativeAccess result; all5ExportCenter modes. Package/readback, not allOffice rendering.",
+  "summary": {
+    "requests": 120,
+    "avg_ms": 315.5,
+    "p95_ms": 1500
+  },
+  "csvFiles": 18,
+  "pptxSlides": 3,
+  "pptxSummaryLimit": 10,
+  "pptxDisplayedMetrics": [
+    "p99_response_ms: 1500",
+    "total_bytes: 66900",
+    "upstream_service_count: 0",
+    "api_bytes: 66900",
+    "api_count: 120",
+    "api_p95_response_ms: 1500",
+    "latest_timestamp: 2026-04-27T10:00:06+09:00",
+    "p50_response_ms: 84",
+    "gateway_p95_latency_ms: None",
+    "static_bytes: 0"
+  ],
+  "files": [
+    {
+      "name": "access-native.csv",
+      "bytes": 2337,
+      "sha256": "e8183ad8214499a50f7e48c5d644911d1ee1caa17aa0f73198a0eb73c663d8b8"
+    },
+    {
+      "name": "access-native.html",
+      "bytes": 24366,
+      "sha256": "d9a3ef70ae812f709b4e2db45237838e2b221b869dc30a491f8dc8bead2afa35"
+    },
+    {
+      "name": "access-native.json",
+      "bytes": 31576,
+      "sha256": "46c67c86e4efd8d1151098f96155b96587e9f5967a4b3f7a22e7ac2c98c1f0d1"
+    },
+    {
+      "name": "access-native.pptx",
+      "bytes": 7200,
+      "sha256": "24f21667d50207434020cccb5d2291ef38d2c9a73b162af429a0e8b7bc03c100"
+    },
+    {
+      "name": "access-tables/series_avg_response_time_per_minute.csv",
+      "bytes": 75,
+      "sha256": "3f67d4dc0096cb2cc9a4f25af5cf1775a55f46f44c5ea7043b7fc596cd6e31b5"
+    },
+    {
+      "name": "access-tables/series_bytes_per_minute.csv",
+      "bytes": 42,
+      "sha256": "ecab8d879aadc05a4b839f9f93fa110cd9907273d18ec0a4683ac0bb1079b38d"
+    },
+    {
+      "name": "access-tables/series_error_rate_per_minute.csv",
+      "bytes": 62,
+      "sha256": "eea4d25d132ea0d57354b8ce007d36770e1e3de6f047653328ed075db7b2e5de"
+    },
+    {
+      "name": "access-tables/series_method_distribution.csv",
+      "bytes": 38,
+      "sha256": "d6824e37633d8ea38565cf32551058e84dad90df993a04a46e131fd7f375f25d"
+    },
+    {
+      "name": "access-tables/series_p50_response_time_per_minute.csv",
+      "bytes": 72,
+      "sha256": "858fa18609a3a1b2c3d2d77108986921230b97ab54868821445c5aabb7a2ecfa"
+    },
+    {
+      "name": "access-tables/series_p90_response_time_per_minute.csv",
+      "bytes": 74,
+      "sha256": "c16c0539eda18156980062a9e380f5a186622897e3b6e25c0d25353f809a73ce"
+    },
+    {
+      "name": "access-tables/series_p95_response_time_per_minute.csv",
+      "bytes": 74,
+      "sha256": "c16c0539eda18156980062a9e380f5a186622897e3b6e25c0d25353f809a73ce"
+    },
+    {
+      "name": "access-tables/series_p99_response_time_per_minute.csv",
+      "bytes": 74,
+      "sha256": "c16c0539eda18156980062a9e380f5a186622897e3b6e25c0d25353f809a73ce"
+    },
+    {
+      "name": "access-tables/series_request_classification.csv",
+      "bytes": 29,
+      "sha256": "3a53c5e104550acf3871809d9fbda9ac144f38f33e7c6b7eb5b9c7dc8ba4bd5d"
+    },
+    {
+      "name": "access-tables/series_requests_per_minute.csv",
+      "bytes": 40,
+      "sha256": "1e2993639df223c9644d85b4123c4399ffb1df78488abc322b285a2be52ac695"
+    },
+    {
+      "name": "access-tables/series_source_format_distribution.csv",
+      "bytes": 30,
+      "sha256": "cf2d1b10008685cc1ce702d18f7e76358becacbbe227e807b3290d114f52345c"
+    },
+    {
+      "name": "access-tables/series_status_class_per_minute.csv",
+      "bytes": 65,
+      "sha256": "1c6d9f0a6a4ec62f50a1581bf879288e413a3712f0b6193bcd941235d0bb397a"
+    },
+    {
+      "name": "access-tables/series_status_code_distribution.csv",
+      "bytes": 34,
+      "sha256": "a13cfd73bb9f348eed1c82ea9a7bdcfaac8b85f4fd9e63c5807c3f0db7feb10b"
+    },
+    {
+      "name": "access-tables/series_throughput_per_minute.csv",
+      "bytes": 68,
+      "sha256": "e0964c1f5e08d315d8d44f1bb4764aa5b62e964b63bbd318aecd52add0c06481"
+    },
+    {
+      "name": "access-tables/series_top_urls_by_avg_response_time.csv",
+      "bytes": 134,
+      "sha256": "4bbedb947af50499f790ba866f8be347efc0d50089988345bb032acb1a830e04"
+    },
+    {
+      "name": "access-tables/series_top_urls_by_count.csv",
+      "bytes": 100,
+      "sha256": "ec2fcfdbea41ee6cd623bd4c95fe9ad52d71479dbcc201518a3ec6d67c3e68fd"
+    },
+    {
+      "name": "access-tables/series_upstream_service_distribution.csv",
+      "bytes": 6,
+      "sha256": "1e1f2c881ae0608ec77ebf88a75c66d3099113a7343238f2f7a0ebb91a4ed335"
+    },
+    {
+      "name": "access-tables/summary.csv",
+      "bytes": 717,
+      "sha256": "2e6023f656febbc226000f85aa9243aced984cc12867142dc69de697ecbbb867"
+    }
+  ]
+}

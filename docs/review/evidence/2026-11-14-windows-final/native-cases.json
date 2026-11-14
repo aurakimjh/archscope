@@ -558,5 +558,55 @@
     "id": "workspace-import-toggle-keyboard",
     "result": "PASS",
     "observed": "Import assistance can be reopened with all original controls, thenSpacecollapses with visible summary focus and both resultcards restored; activeAccess preserved."
+  },
+  {
+    "id": "export-active-result-link",
+    "result": "PASS",
+    "observed": "Export Center defaults to Access selected inWorkspace,with exact120request summary/source,HTML format and reachable controls within defaultviewport."
+  },
+  {
+    "id": "export-browse-cancel-before",
+    "result": "FAIL",
+    "observed": "Typed output path is erased by native Browse→Escape; selected result/format remain and nofilewritten. Cancel must preserve draftpath."
+  },
+  {
+    "id": "export-write-failure",
+    "result": "PASS",
+    "observed": "HTML export to existing directory refusesis-a-directory visibly; exactAccess entry/120requests remain and retrycontrols reachable. Existingdirectorynotmodified."
+  },
+  {
+    "id": "export-html-retry",
+    "result": "PASS",
+    "observed": "Retry distinctvalidHTMLpath succeeds and removes priorerror,24366Boutput. NativeAccess source/summary unchanged; report content checkedseparately."
+  },
+  {
+    "id": "export-json-access",
+    "result": "PASS",
+    "observed": "NativeJSON export succeeds; independent readback has120total/api requests and315.5ms average matching source. Output fields/hash validated separately."
+  },
+  {
+    "id": "export-csv-directory",
+    "result": "PASS",
+    "observed": "NativeCSV directory exports18files inclsummary and17series; requests/minute120 andP951500 readback verifiedseparately. Existing sourceunchanged. Popup observation helper monitor failure recovered by relist/activate,not productfailure."
+  },
+  {
+    "id": "export-csv-single",
+    "result": "PASS",
+    "observed": "Native singleCSV export succeeds,summary120requests/315.5mean/1500P95 matchesJSON; readback consistency checkedseparately."
+  },
+  {
+    "id": "export-pptx-package",
+    "result": "PASS",
+    "observed": "NativePowerPoint export succeeds with7200Bzip; independent slideXML/count checks follow. This case does not assert Office render/layout equivalence."
+  },
+  {
+    "id": "export-empty-selection",
+    "result": "PASS",
+    "observed": "Fixed build with noWorkspace entry explicitly shows empty selection and disablesExport; Browse/pathdraft remains available."
+  },
+  {
+    "id": "export-browse-cancel-fixed",
+    "result": "PASS",
+    "observed": "0b4fcd83-plus-export-cancel: sameBrowse→Escape preserves exactdraftpath; noresult Export disabled and nofilewritten. Native cancellation fix independently pinned from old5mode outputchecks."
   }
 ]

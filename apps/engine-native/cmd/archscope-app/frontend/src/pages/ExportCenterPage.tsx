@@ -89,6 +89,16 @@ export function ExportCenterPage(): React.JSX.Element {
     }
   };
 
+  const browseOutput = async (): Promise<void> => {
+    try {
+      const destination = await chooseOutput();
+      if (destination) setOutputPath(destination);
+    } catch (caught) {
+      setNotice(null);
+      setError(caught instanceof Error ? caught.message : String(caught));
+    }
+  };
+
   return (
     <main className="content workspace-tool exportcenter">
       <section className="card">
@@ -153,7 +163,7 @@ export function ExportCenterPage(): React.JSX.Element {
                 onChange={(event) => setOutputPath(event.target.value)}
                 placeholder={t("exportOutputPlaceholder")}
               />
-              <Button type="button" variant="outline" onClick={() => void chooseOutput().then(setOutputPath)}>
+              <Button type="button" variant="outline" onClick={() => void browseOutput()}>
                 {t("browseFile")}
               </Button>
             </div>
