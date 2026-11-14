@@ -1,0 +1,3 @@
+go: downloading go1.26.10 (linux/amd64)
+go: downloading golang.org/x/text v0.42.0
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile	1.206s

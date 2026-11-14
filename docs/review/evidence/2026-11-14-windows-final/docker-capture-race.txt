@@ -1,0 +1,26 @@
+go: downloading go1.26.10 (linux/amd64)
+go: downloading golang.org/x/text v0.42.0
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture	1.024s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/acceptance	1.051s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/admission	1.043s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/aggregate	2.024s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/automation	1.290s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/backend	1.023s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/browsercache	1.026s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/certstore	1.021s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/comautomation	1.054s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/content	1.039s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/dumppolicy	1.020s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/halog	1.058s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/legacy	1.028s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/processlaunch	1.024s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/procmap	1.021s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/proxy	1.278s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/redact	1.302s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/requestbuilder	11.188s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/session	1.088s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/sessionfile	1.200s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/store	1.337s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/stream	1.585s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/summary	1.020s
+ok  	github.com/aurakimjh/archscope/apps/engine-native/internal/capture/transparent	1.024s

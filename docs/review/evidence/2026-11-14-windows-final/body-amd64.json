@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "scope": "Owned synthetic HTTP explicit proxy; actual SEC10 gate; no trust/security UI changes",
+  "passed": true,
+  "buildCommit": "99d09d43-plus-visible-import-error",
+  "contract": {
+    "schemaVersion": 3,
+    "transactionRowCap": 500,
+    "resyncOnEventSkip": true,
+    "restoreCurrentSessionOnPageReentry": true,
+    "finalizedSessionUsesAnalysisResult": true,
+    "bodyCaptureAvailable": false,
+    "bodyCaptureGate": "sec10_unavailable",
+    "bodyCaptureGateReason": "local_dumps_collecting",
+    "maxBodyBytes": 262144,
+    "upstreamTimingsAvailable": true
+  },
+  "gatedRefusal": true,
+  "refusal": "body capture is unavailable until the SEC-10 crash-dump exclusion preflight passes: a LocalDumps policy collects a crash dump for this application and cannot be overridden without administrator rights",
+  "positiveBodyVerified": false
+}

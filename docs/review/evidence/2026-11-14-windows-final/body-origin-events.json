@@ -1,0 +1,58 @@
+[
+  {
+    "path": "/body",
+    "method": "POST",
+    "contentType": "application/json",
+    "bodyBytes": 72,
+    "bodySha256": "bc7e2db4aa09af557cb198f8a1d5ef616a9998899b2f3e88e1b23d0b76de3676"
+  },
+  {
+    "path": "/echo",
+    "method": "POST",
+    "contentType": "application/x-www-form-urlencoded",
+    "bodyBytes": 62,
+    "bodySha256": "4227fd960725f6ae889b986803547e6fb4dbb5246c41b1a57c46404d0efa051b"
+  },
+  {
+    "path": "/large",
+    "method": "GET",
+    "contentType": "",
+    "bodyBytes": 0,
+    "bodySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/html",
+    "method": "GET",
+    "contentType": "",
+    "bodyBytes": 0,
+    "bodySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/body",
+    "method": "POST",
+    "contentType": "application/json",
+    "bodyBytes": 72,
+    "bodySha256": "bc7e2db4aa09af557cb198f8a1d5ef616a9998899b2f3e88e1b23d0b76de3676"
+  },
+  {
+    "path": "/echo",
+    "method": "POST",
+    "contentType": "application/x-www-form-urlencoded",
+    "bodyBytes": 62,
+    "bodySha256": "4227fd960725f6ae889b986803547e6fb4dbb5246c41b1a57c46404d0efa051b"
+  },
+  {
+    "path": "/large",
+    "method": "GET",
+    "contentType": "",
+    "bodyBytes": 0,
+    "bodySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/html",
+    "method": "GET",
+    "contentType": "",
+    "bodyBytes": 0,
+    "bodySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

@@ -1228,6 +1228,14 @@ change on another pass. Preserve prior provenance with OR; a failing-before
 three-cycle export/reopen regression now passes in full Windows sessionfile
 suites (amd641.252s/3861.255s). Native retained-store reexport is recorded separately.
 
+Actual approved x86 body tier now has synthetic JSON/form masking, duplicate
+request/response cookies,262144/300020B truncation, positive body/POST/cookie stored
+search and native inertHTML/raster/gzip observations. Fixed40188233 same-store
+4row reexport and new6row capture pass full-field policy1.0.0 including redaction
+flags and1x1PNG; gzip34decoded/54wire bytes. Fresh x64 is genuinely gated by
+LocalDumps and captureBodies=true is refused. No security/trust UI bypass or body
+long-memory/full-matrix PASS. Docker24capture race and final sessionfile race pass.
+
 Revised-runner long duration and the10-minute Clear path are now verified on
 Windows x64/x86 with an isolated shared Docker origin. Source324a8d97 app binaries
 are unchanged; runner1b30244b adds explicit empty-generation/reset/refill checks.

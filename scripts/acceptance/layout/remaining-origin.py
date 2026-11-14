@@ -1,7 +1,7 @@
 """Loopback-bound Docker synthetic Builder/timing fixture; no external traffic."""
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlsplit, parse_qs
-import hashlib, json, threading, time
+import gzip, hashlib, json, struct, threading, time, zlib
 
 events = []
 lock = threading.Lock()
@@ -24,8 +24,13 @@ class Handler(BaseHTTPRequestHandler):
             payload = json.dumps({'marker': 'remaining-origin', **item}).encode()
             if target.path == '/large': payload = b'capture-body-prefix:' + b'x' * 300000
             if target.path == '/html': payload = b'<html><body><h1>Inert fixture</h1><script>document.title="BODY_SCRIPT_EXECUTED"</script></body></html>'
+            if target.path == '/gzip': payload = gzip.compress(b'{"marker":"compressed-body-proof"}', mtime=0)
+            if target.path == '/image':
+                def chunk(kind, value): return struct.pack('>I', len(value)) + kind + value + struct.pack('>I', zlib.crc32(kind + value))
+                payload = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', 1, 1, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(b'\x00\xff\x00\x00')) + chunk(b'IEND', b'')
         self.send_response(200)
-        self.send_header('Content-Type', 'text/html' if target.path == '/html' else 'text/plain' if target.path == '/large' else 'application/json')
+        self.send_header('Content-Type', 'image/png' if target.path == '/image' else 'text/html' if target.path == '/html' else 'text/plain' if target.path == '/large' else 'application/json')
+        if target.path == '/gzip': self.send_header('Content-Encoding', 'gzip')
         if target.path == '/body':
             self.send_header('Set-Cookie', 'same=first; Path=/; SameSite=Lax')
             self.send_header('Set-Cookie', 'same=second; Path=/; HttpOnly')

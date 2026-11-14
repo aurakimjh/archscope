@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "scope": "Owned synthetic HTTP explicit proxy; actual SEC10 gate; no trust/security UI changes",
+  "passed": true,
+  "buildCommit": "401882332bd3bab37bd69947694862f12e163a09",
+  "contract": {
+    "schemaVersion": 3,
+    "transactionRowCap": 500,
+    "resyncOnEventSkip": true,
+    "restoreCurrentSessionOnPageReentry": true,
+    "finalizedSessionUsesAnalysisResult": true,
+    "bodyCaptureAvailable": true,
+    "bodyCaptureGate": "sec10_verified",
+    "maxBodyBytes": 262144,
+    "upstreamTimingsAvailable": true
+  },
+  "positiveBodyVerified": true,
+  "requests": 6,
+  "zeroDrops": true,
+  "requestResponseBodiesRetainedAndSecretsMasked": true,
+  "duplicateRequestResponseCookieCounts": [
+    2,
+    2
+  ],
+  "duplicateSetCookieHeaders": 2,
+  "largeBody": {
+    "storage": "truncated",
+    "retainedBytes": 262144,
+    "transferredBytes": 300020
+  },
+  "searches": [
+    {
+      "field": "post",
+      "query": "post-body-proof",
+      "total": 1
+    },
+    {
+      "field": "body",
+      "query": "retained-body-proof",
+      "total": 1
+    },
+    {
+      "field": "body",
+      "query": "Inert fixture",
+      "total": 1
+    },
+    {
+      "field": "cookies",
+      "query": "same",
+      "total": 1
+    }
+  ],
+  "savedSelectedHTML": true,
+  "raster": {
+    "width": 1,
+    "height": 1,
+    "mime": "image/png"
+  },
+  "gzipDecodedExactly": true
+}

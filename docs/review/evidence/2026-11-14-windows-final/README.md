@@ -110,3 +110,35 @@ export/open regression fails before the fix and passes afterward in both full
 Windows sessionfile suites (1.252s/1.255s). The existing disclosure must survive
 idempotent masking; this is not a plaintext-body leak. Native store reexport is
 verified separately below when complete.
+
+## 4. Actual body gate and retained-content verification
+
+Fresh fixed x86 reports actual sec10_verified and captures only the attached
+owned Node producer's synthetic loopback traffic with bodies enabled for that
+session. The first four exchanges verify JSON/form masking, duplicate request/
+response cookie names and two Set-Cookie headers,262144retained of300020response
+bytes, positive stored-body/POST/cookie search, selected export and native reopen.
+The first harness attempt assumed completion order equaled request sequence;
+the large body completed after HTML. The corrected probe binds checks by URL.
+No product ordering defect or initial harness PASS is claimed.
+
+Full-field comparison then finds the redacted-flag defect above. Fixed40188233
+reexports that same retained store and passes policy1.0.0 with all4transactions,
+selection and flags. The original pre-fix export remains unchanged. Native/echo
+Hints now shows REDACTED after reopen. A new6-exchange capture additionally
+verifies a sanitized1x1PNG, exact gzip-decoded JSON (34decoded/54wire bytes), no
+drops and full-field policy1.0.0 readback of all6transactions. Native Body/Preview,
+Cookies and truncation hints match the dedicated receipts. HTML's script text
+stays literal in formatting-only preview; accessible document remains ArchScope.
+Raster metadata removal/pixel-not-masked disclosure stays visible.
+
+Fresh x64 actual preflight reports sec10_unavailable/local_dumps_collecting.
+The real start request with captureBodies=true is refused; no bypass or positive
+x64body claim is made. Normal per-executable startup preflight runs; no manual
+security/privacy/trust or body-policy UI changes are made. Enabling the synthetic
+x86 session through the product controller does not change the default-off policy.
+
+Docker24capture packages pass race before the redacted-flag correction; a final
+Docker sessionfile race run including both new regressions passes1.206s. Windows
+CGO0test results are not Windows race claims. Body-enabled long-memory, additional
+formats/limits/error conditions and every native combination remain separate.
