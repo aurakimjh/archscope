@@ -1192,7 +1192,7 @@ exact33UTF8-byte Hangul/emoji/combining-accent annotation and selected star thro
 Save/CtrlS/reopen; full-field policy1.0.0 readback passes. Editing-focus CtrlS is
 guarded, grid-focus CtrlS opens one dialog. Column drag remains inconclusive and
 the helper rejects the Hangul composition key; no actual IME PASS is claimed.
-Separate import-memory history-saturation measurement is continuing. Receipt:
+Separate import-memory history-saturation measurement is recorded below. Receipt:
 `docs/review/evidence/2026-11-14-windows-final/README.md`.
 
 Imported-session annotation masking now rejects output above4096bytes: native
@@ -1204,6 +1204,15 @@ retry works. The separate collapsed-file-tools hidden-error UI is under correcti
 Collapsed-file-tools import errors now automatically reveal the error and retry
 controls. Native CtrlO before FAIL/after PASS is recorded with the same rejected
 input; valid32-row retry works. Frontend state/build and both desktop builds pass.
+
+Import/reopen memory follow-up preserves both initial10-cycle tree-growth FAILs.
+After36cycles x86 passes; x64 still fails slope5.943MiB/cycle, then a separately
+declared16-cycle continuation passes its final8points (delta7.090MiB/slope2.296).
+Budgets are unchanged; no forcedGC/trim and no universal leak-free claim. A101-import
+state regression proves the80-entry registry bound/eviction; native text truncation
+prevents a full-card-count verdict. Five receipts have independent arithmetic and
+same-seven-process measured-window checks. Full Windows app suites pass43.890s/
+46.409s after the two fixes; existing capture/long-run evidence remains unchanged.
 
 Revised-runner long duration and the10-minute Clear path are now verified on
 Windows x64/x86 with an isolated shared Docker origin. Source324a8d97 app binaries

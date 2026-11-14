@@ -1,0 +1,126 @@
+{
+  "passed": true,
+  "scope": "Arithmetic/identity checks; original failed budgets are preserved",
+  "runs": [
+    {
+      "file": "import-initial-amd64.json",
+      "reportedPassed": false,
+      "independentArithmeticMatches": true,
+      "sameSevenProcessIdentitiesWithinMeasuredWindow": true,
+      "metrics": {
+        "treePrivateBytes": {
+          "delta": 154558464,
+          "slopePerCycle": 31289344.0
+        },
+        "rootPrivateBytes": {
+          "delta": -6369280,
+          "slopePerCycle": -929792.0
+        },
+        "rootHandles": {
+          "delta": 4,
+          "slopePerCycle": 0.5833333333333333
+        },
+        "rootThreads": {
+          "delta": -3,
+          "slopePerCycle": 0.0
+        }
+      }
+    },
+    {
+      "file": "import-initial-386.json",
+      "reportedPassed": false,
+      "independentArithmeticMatches": true,
+      "sameSevenProcessIdentitiesWithinMeasuredWindow": true,
+      "metrics": {
+        "treePrivateBytes": {
+          "delta": 164786176,
+          "slopePerCycle": 29413376.0
+        },
+        "rootPrivateBytes": {
+          "delta": -290816,
+          "slopePerCycle": -1818624.0
+        },
+        "rootHandles": {
+          "delta": 4,
+          "slopePerCycle": 1.1
+        },
+        "rootThreads": {
+          "delta": -3,
+          "slopePerCycle": 0.0
+        }
+      }
+    },
+    {
+      "file": "import-history36-amd64.json",
+      "reportedPassed": false,
+      "independentArithmeticMatches": true,
+      "sameSevenProcessIdentitiesWithinMeasuredWindow": true,
+      "metrics": {
+        "treePrivateBytes": {
+          "delta": 33562624,
+          "slopePerCycle": 6231381.333333334
+        },
+        "rootPrivateBytes": {
+          "delta": -954368,
+          "slopePerCycle": 14848.0
+        },
+        "rootHandles": {
+          "delta": 0,
+          "slopePerCycle": 0.0
+        },
+        "rootThreads": {
+          "delta": 1,
+          "slopePerCycle": 0.0
+        }
+      }
+    },
+    {
+      "file": "import-history36-386.json",
+      "reportedPassed": true,
+      "independentArithmeticMatches": true,
+      "sameSevenProcessIdentitiesWithinMeasuredWindow": true,
+      "metrics": {
+        "treePrivateBytes": {
+          "delta": 6504448,
+          "slopePerCycle": 684544.0
+        },
+        "rootPrivateBytes": {
+          "delta": -1695744,
+          "slopePerCycle": -274314.97142857144
+        },
+        "rootHandles": {
+          "delta": 0,
+          "slopePerCycle": 0.0
+        },
+        "rootThreads": {
+          "delta": 1,
+          "slopePerCycle": 0.0
+        }
+      }
+    },
+    {
+      "file": "import-history52-amd64.json",
+      "reportedPassed": true,
+      "independentArithmeticMatches": true,
+      "sameSevenProcessIdentitiesWithinMeasuredWindow": true,
+      "metrics": {
+        "treePrivateBytes": {
+          "delta": 7434240,
+          "slopePerCycle": 2407765.333333333
+        },
+        "rootPrivateBytes": {
+          "delta": -2011136,
+          "slopePerCycle": -432537.6
+        },
+        "rootHandles": {
+          "delta": 0,
+          "slopePerCycle": 0.0
+        },
+        "rootThreads": {
+          "delta": -1,
+          "slopePerCycle": 0.0
+        }
+      }
+    }
+  ]
+}

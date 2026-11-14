@@ -1,0 +1,5537 @@
+{
+  "schemaVersion": 1,
+  "scope": "Windows production file-open/import; synthetic body-omitted32/512/4096rows; no universal leak-free claim",
+  "binarySha256": "53fb6b1087d00f80c14f796cdb76c123a14acfe7c112b095f31960a2a37f7c55",
+  "sourceFixtureSha256": "cf83eb4b407692045b3cd1235a6f2a63582228dc7a71f496135221e558a448b8",
+  "passed": false,
+  "protocol": {
+    "cycles": 36,
+    "warmupCycles": 28,
+    "workspaceCapacity": 80,
+    "openSizes": [
+      4096,
+      512,
+      32
+    ],
+    "settleAfterOpenSeconds": 3,
+    "matchedSmallFileIdleSeconds": 15
+  },
+  "screeningPolicy": {
+    "measuredCycles": 8,
+    "window": 3,
+    "treePrivateBytes": {
+      "delta": 67108864,
+      "perCycle": 4194304
+    },
+    "rootPrivateBytes": {
+      "delta": 16777216,
+      "perCycle": 1048576
+    },
+    "rootHandles": {
+      "delta": 24,
+      "perCycle": 2
+    },
+    "rootThreads": {
+      "delta": 4,
+      "perCycle": 0.5
+    }
+  },
+  "files": [
+    {
+      "rows": 4096,
+      "selectedId": "import-memory-4096-0",
+      "sha256": "51129da74b9196b68f6788afc5256be85e1a2f94155c61217d6fdc41a3ff558a"
+    },
+    {
+      "rows": 512,
+      "selectedId": "import-memory-512-0",
+      "sha256": "216e121d9014f0f09b13523cf37ba89dca2e2a3a55a0f7e01f48f02feee1b50c"
+    },
+    {
+      "rows": 32,
+      "selectedId": "import-memory-32-0",
+      "sha256": "5adb3f87ada2644caadd1c23b5b753376e1c31575088888eeec29a9ddd28bcc9"
+    }
+  ],
+  "cycles": [
+    {
+      "cycle": 1,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-1-small-file-idle",
+        "elapsedSeconds": 36.1948445,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 76193792,
+            "workingSetBytes": 72200192,
+            "handles": 613,
+            "threads": 40
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 44490752,
+            "workingSetBytes": 139055104,
+            "handles": 1338,
+            "threads": 52
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4980736,
+            "workingSetBytes": 27017216,
+            "handles": 253,
+            "threads": 14
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 99086336,
+            "workingSetBytes": 95109120,
+            "handles": 760,
+            "threads": 66
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 14725120,
+            "workingSetBytes": 52264960,
+            "handles": 388,
+            "threads": 27
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10588160,
+            "workingSetBytes": 29503488,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 150528000,
+            "workingSetBytes": 200867840,
+            "handles": 435,
+            "threads": 36
+          }
+        ],
+        "treePrivateBytes": 400592896,
+        "rootPrivateBytes": 76193792,
+        "rootHandles": 613,
+        "rootThreads": 40
+      }
+    },
+    {
+      "cycle": 2,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-2-small-file-idle",
+        "elapsedSeconds": 62.1079428,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 92901376,
+            "workingSetBytes": 88993792,
+            "handles": 623,
+            "threads": 37
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45096960,
+            "workingSetBytes": 144318464,
+            "handles": 1345,
+            "threads": 51
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4718592,
+            "workingSetBytes": 21676032,
+            "handles": 232,
+            "threads": 11
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 98312192,
+            "workingSetBytes": 95064064,
+            "handles": 759,
+            "threads": 66
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 14106624,
+            "workingSetBytes": 52031488,
+            "handles": 390,
+            "threads": 25
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10522624,
+            "workingSetBytes": 29831168,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 194269184,
+            "workingSetBytes": 244711424,
+            "handles": 435,
+            "threads": 36
+          }
+        ],
+        "treePrivateBytes": 459927552,
+        "rootPrivateBytes": 92901376,
+        "rootHandles": 623,
+        "rootThreads": 37
+      }
+    },
+    {
+      "cycle": 3,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-3-small-file-idle",
+        "elapsedSeconds": 87.7933609,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 82366464,
+            "workingSetBytes": 78585856,
+            "handles": 645,
+            "threads": 37
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 44228608,
+            "workingSetBytes": 144084992,
+            "handles": 1347,
+            "threads": 51
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4718592,
+            "workingSetBytes": 21680128,
+            "handles": 232,
+            "threads": 11
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 98439168,
+            "workingSetBytes": 95023104,
+            "handles": 757,
+            "threads": 65
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 14106624,
+            "workingSetBytes": 52084736,
+            "handles": 390,
+            "threads": 25
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10522624,
+            "workingSetBytes": 29831168,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 213987328,
+            "workingSetBytes": 266174464,
+            "handles": 441,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 468369408,
+        "rootPrivateBytes": 82366464,
+        "rootHandles": 645,
+        "rootThreads": 37
+      }
+    },
+    {
+      "cycle": 4,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-4-small-file-idle",
+        "elapsedSeconds": 113.3026378,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 79990784,
+            "workingSetBytes": 76247040,
+            "handles": 652,
+            "threads": 37
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 44326912,
+            "workingSetBytes": 144302080,
+            "handles": 1340,
+            "threads": 50
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4718592,
+            "workingSetBytes": 21680128,
+            "handles": 232,
+            "threads": 11
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 98594816,
+            "workingSetBytes": 95232000,
+            "handles": 757,
+            "threads": 65
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13938688,
+            "workingSetBytes": 52011008,
+            "handles": 384,
+            "threads": 25
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10522624,
+            "workingSetBytes": 29831168,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 242802688,
+            "workingSetBytes": 294760448,
+            "handles": 441,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 494895104,
+        "rootPrivateBytes": 79990784,
+        "rootHandles": 652,
+        "rootThreads": 37
+      }
+    },
+    {
+      "cycle": 5,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-5-small-file-idle",
+        "elapsedSeconds": 138.8994834,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 72548352,
+            "workingSetBytes": 68890624,
+            "handles": 650,
+            "threads": 34
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 44572672,
+            "workingSetBytes": 145936384,
+            "handles": 1343,
+            "threads": 50
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4669440,
+            "workingSetBytes": 21647360,
+            "handles": 230,
+            "threads": 10
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 98168832,
+            "workingSetBytes": 95109120,
+            "handles": 745,
+            "threads": 62
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13930496,
+            "workingSetBytes": 52117504,
+            "handles": 384,
+            "threads": 23
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10522624,
+            "workingSetBytes": 29831168,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 278999040,
+            "workingSetBytes": 330326016,
+            "handles": 441,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 523411456,
+        "rootPrivateBytes": 72548352,
+        "rootHandles": 650,
+        "rootThreads": 34
+      }
+    },
+    {
+      "cycle": 6,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-6-small-file-idle",
+        "elapsedSeconds": 164.4398264,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 75784192,
+            "workingSetBytes": 72142848,
+            "handles": 650,
+            "threads": 34
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 44478464,
+            "workingSetBytes": 145883136,
+            "handles": 1338,
+            "threads": 49
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4620288,
+            "workingSetBytes": 21618688,
+            "handles": 226,
+            "threads": 9
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 98590720,
+            "workingSetBytes": 95551488,
+            "handles": 749,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13930496,
+            "workingSetBytes": 52117504,
+            "handles": 384,
+            "threads": 23
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10522624,
+            "workingSetBytes": 29831168,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 310771712,
+            "workingSetBytes": 362455040,
+            "handles": 441,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 558698496,
+        "rootPrivateBytes": 75784192,
+        "rootHandles": 650,
+        "rootThreads": 34
+      }
+    },
+    {
+      "cycle": 7,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-7-small-file-idle",
+        "elapsedSeconds": 189.97681039999998,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 78041088,
+            "workingSetBytes": 74186752,
+            "handles": 650,
+            "threads": 34
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 44466176,
+            "workingSetBytes": 145924096,
+            "handles": 1338,
+            "threads": 49
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4620288,
+            "workingSetBytes": 21618688,
+            "handles": 226,
+            "threads": 9
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 99373056,
+            "workingSetBytes": 96403456,
+            "handles": 749,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 14106624,
+            "workingSetBytes": 52207616,
+            "handles": 384,
+            "threads": 23
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10522624,
+            "workingSetBytes": 29831168,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 341995520,
+            "workingSetBytes": 393625600,
+            "handles": 441,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 593125376,
+        "rootPrivateBytes": 78041088,
+        "rootHandles": 650,
+        "rootThreads": 34
+      }
+    },
+    {
+      "cycle": 8,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-8-small-file-idle",
+        "elapsedSeconds": 215.5140088,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 75001856,
+            "workingSetBytes": 71163904,
+            "handles": 652,
+            "threads": 34
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 46690304,
+            "workingSetBytes": 148484096,
+            "handles": 1333,
+            "threads": 49
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4612096,
+            "workingSetBytes": 21614592,
+            "handles": 226,
+            "threads": 9
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 98803712,
+            "workingSetBytes": 96014336,
+            "handles": 749,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 14094336,
+            "workingSetBytes": 52228096,
+            "handles": 382,
+            "threads": 22
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10522624,
+            "workingSetBytes": 29831168,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 374718464,
+            "workingSetBytes": 426020864,
+            "handles": 442,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 624443392,
+        "rootPrivateBytes": 75001856,
+        "rootHandles": 652,
+        "rootThreads": 34
+      }
+    },
+    {
+      "cycle": 9,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-9-small-file-idle",
+        "elapsedSeconds": 241.03510319999998,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 72867840,
+            "workingSetBytes": 69054464,
+            "handles": 662,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 44687360,
+            "workingSetBytes": 146432000,
+            "handles": 1334,
+            "threads": 49
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4612096,
+            "workingSetBytes": 21614592,
+            "handles": 226,
+            "threads": 9
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 99790848,
+            "workingSetBytes": 96829440,
+            "handles": 749,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13959168,
+            "workingSetBytes": 52174848,
+            "handles": 382,
+            "threads": 22
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10522624,
+            "workingSetBytes": 29831168,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 407252992,
+            "workingSetBytes": 458493952,
+            "handles": 442,
+            "threads": 36
+          }
+        ],
+        "treePrivateBytes": 653692928,
+        "rootPrivateBytes": 72867840,
+        "rootHandles": 662,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 10,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-10-small-file-idle",
+        "elapsedSeconds": 266.54708800000003,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 77611008,
+            "workingSetBytes": 73801728,
+            "handles": 663,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 44597248,
+            "workingSetBytes": 146423808,
+            "handles": 1334,
+            "threads": 49
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4612096,
+            "workingSetBytes": 21614592,
+            "handles": 226,
+            "threads": 9
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 99196928,
+            "workingSetBytes": 96387072,
+            "handles": 749,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 14168064,
+            "workingSetBytes": 52260864,
+            "handles": 382,
+            "threads": 24
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10522624,
+            "workingSetBytes": 29831168,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 407166976,
+            "workingSetBytes": 459284480,
+            "handles": 442,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 657874944,
+        "rootPrivateBytes": 77611008,
+        "rootHandles": 663,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 11,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-11-small-file-idle",
+        "elapsedSeconds": 292.05830820000006,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 82440192,
+            "workingSetBytes": 78639104,
+            "handles": 664,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 44564480,
+            "workingSetBytes": 146370560,
+            "handles": 1334,
+            "threads": 49
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4612096,
+            "workingSetBytes": 21614592,
+            "handles": 226,
+            "threads": 9
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 99086336,
+            "workingSetBytes": 96325632,
+            "handles": 749,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 14008320,
+            "workingSetBytes": 52191232,
+            "handles": 382,
+            "threads": 24
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10522624,
+            "workingSetBytes": 29831168,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 418971648,
+            "workingSetBytes": 470900736,
+            "handles": 442,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 674205696,
+        "rootPrivateBytes": 82440192,
+        "rootHandles": 664,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 12,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-12-small-file-idle",
+        "elapsedSeconds": 317.5305594,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 73232384,
+            "workingSetBytes": 69611520,
+            "handles": 664,
+            "threads": 38
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 44609536,
+            "workingSetBytes": 146980864,
+            "handles": 1337,
+            "threads": 49
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4648960,
+            "workingSetBytes": 21790720,
+            "handles": 226,
+            "threads": 10
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 99237888,
+            "workingSetBytes": 96792576,
+            "handles": 751,
+            "threads": 64
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13950976,
+            "workingSetBytes": 52256768,
+            "handles": 382,
+            "threads": 24
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10645504,
+            "workingSetBytes": 30015488,
+            "handles": 252,
+            "threads": 14
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 430837760,
+            "workingSetBytes": 483213312,
+            "handles": 442,
+            "threads": 38
+          }
+        ],
+        "treePrivateBytes": 677163008,
+        "rootPrivateBytes": 73232384,
+        "rootHandles": 664,
+        "rootThreads": 38
+      }
+    },
+    {
+      "cycle": 13,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-13-small-file-idle",
+        "elapsedSeconds": 343.0342844,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 78426112,
+            "workingSetBytes": 73764864,
+            "handles": 664,
+            "threads": 38
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 44609536,
+            "workingSetBytes": 146980864,
+            "handles": 1336,
+            "threads": 49
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4648960,
+            "workingSetBytes": 21794816,
+            "handles": 226,
+            "threads": 10
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 99311616,
+            "workingSetBytes": 96923648,
+            "handles": 751,
+            "threads": 64
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13979648,
+            "workingSetBytes": 52281344,
+            "handles": 382,
+            "threads": 24
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10645504,
+            "workingSetBytes": 30015488,
+            "handles": 252,
+            "threads": 14
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 442793984,
+            "workingSetBytes": 495288320,
+            "handles": 442,
+            "threads": 38
+          }
+        ],
+        "treePrivateBytes": 694415360,
+        "rootPrivateBytes": 78426112,
+        "rootHandles": 664,
+        "rootThreads": 38
+      }
+    },
+    {
+      "cycle": 14,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-14-small-file-idle",
+        "elapsedSeconds": 368.61277160000003,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 73838592,
+            "workingSetBytes": 69390336,
+            "handles": 672,
+            "threads": 39
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45395968,
+            "workingSetBytes": 147918848,
+            "handles": 1338,
+            "threads": 50
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4648960,
+            "workingSetBytes": 21794816,
+            "handles": 226,
+            "threads": 10
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 99401728,
+            "workingSetBytes": 97419264,
+            "handles": 753,
+            "threads": 64
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 14012416,
+            "workingSetBytes": 52359168,
+            "handles": 384,
+            "threads": 24
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10645504,
+            "workingSetBytes": 30015488,
+            "handles": 252,
+            "threads": 14
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 460103680,
+            "workingSetBytes": 512532480,
+            "handles": 442,
+            "threads": 38
+          }
+        ],
+        "treePrivateBytes": 708046848,
+        "rootPrivateBytes": 73838592,
+        "rootHandles": 672,
+        "rootThreads": 39
+      }
+    },
+    {
+      "cycle": 15,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-15-small-file-idle",
+        "elapsedSeconds": 394.16266260000003,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 81887232,
+            "workingSetBytes": 77459456,
+            "handles": 672,
+            "threads": 39
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45481984,
+            "workingSetBytes": 147992576,
+            "handles": 1338,
+            "threads": 50
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4648960,
+            "workingSetBytes": 21794816,
+            "handles": 226,
+            "threads": 10
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100470784,
+            "workingSetBytes": 98041856,
+            "handles": 753,
+            "threads": 64
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 14036992,
+            "workingSetBytes": 52379648,
+            "handles": 380,
+            "threads": 24
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10645504,
+            "workingSetBytes": 30015488,
+            "handles": 252,
+            "threads": 14
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 469594112,
+            "workingSetBytes": 521867264,
+            "handles": 442,
+            "threads": 38
+          }
+        ],
+        "treePrivateBytes": 726765568,
+        "rootPrivateBytes": 81887232,
+        "rootHandles": 672,
+        "rootThreads": 39
+      }
+    },
+    {
+      "cycle": 16,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-16-small-file-idle",
+        "elapsedSeconds": 419.6275514000001,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 76435456,
+            "workingSetBytes": 72015872,
+            "handles": 672,
+            "threads": 39
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45355008,
+            "workingSetBytes": 147894272,
+            "handles": 1337,
+            "threads": 50
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4567040,
+            "workingSetBytes": 21749760,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 98660352,
+            "workingSetBytes": 96448512,
+            "handles": 751,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 14004224,
+            "workingSetBytes": 52363264,
+            "handles": 380,
+            "threads": 23
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 481083392,
+            "workingSetBytes": 533516288,
+            "handles": 442,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 730644480,
+        "rootPrivateBytes": 76435456,
+        "rootHandles": 672,
+        "rootThreads": 39
+      }
+    },
+    {
+      "cycle": 17,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-17-small-file-idle",
+        "elapsedSeconds": 445.12970930000006,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 80793600,
+            "workingSetBytes": 76390400,
+            "handles": 672,
+            "threads": 39
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45363200,
+            "workingSetBytes": 147902464,
+            "handles": 1337,
+            "threads": 50
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4567040,
+            "workingSetBytes": 21749760,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 99610624,
+            "workingSetBytes": 97251328,
+            "handles": 751,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13901824,
+            "workingSetBytes": 52285440,
+            "handles": 379,
+            "threads": 22
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 494628864,
+            "workingSetBytes": 546983936,
+            "handles": 442,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 749404160,
+        "rootPrivateBytes": 80793600,
+        "rootHandles": 672,
+        "rootThreads": 39
+      }
+    },
+    {
+      "cycle": 18,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-18-small-file-idle",
+        "elapsedSeconds": 470.6496245,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 73850880,
+            "workingSetBytes": 69537792,
+            "handles": 664,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45322240,
+            "workingSetBytes": 147886080,
+            "handles": 1333,
+            "threads": 48
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4567040,
+            "workingSetBytes": 21749760,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 98824192,
+            "workingSetBytes": 96706560,
+            "handles": 751,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13893632,
+            "workingSetBytes": 52297728,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 507506688,
+            "workingSetBytes": 559833088,
+            "handles": 447,
+            "threads": 38
+          }
+        ],
+        "treePrivateBytes": 754503680,
+        "rootPrivateBytes": 73850880,
+        "rootHandles": 664,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 19,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-19-small-file-idle",
+        "elapsedSeconds": 496.15493840000005,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 81051648,
+            "workingSetBytes": 76713984,
+            "handles": 664,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45322240,
+            "workingSetBytes": 147873792,
+            "handles": 1333,
+            "threads": 48
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4567040,
+            "workingSetBytes": 21749760,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 98885632,
+            "workingSetBytes": 96804864,
+            "handles": 751,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13881344,
+            "workingSetBytes": 52289536,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 519737344,
+            "workingSetBytes": 572162048,
+            "handles": 447,
+            "threads": 38
+          }
+        ],
+        "treePrivateBytes": 773984256,
+        "rootPrivateBytes": 81051648,
+        "rootHandles": 664,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 20,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-20-small-file-idle",
+        "elapsedSeconds": 521.6069413,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 82276352,
+            "workingSetBytes": 77959168,
+            "handles": 664,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45289472,
+            "workingSetBytes": 147841024,
+            "handles": 1333,
+            "threads": 48
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21745664,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 99004416,
+            "workingSetBytes": 96960512,
+            "handles": 751,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13905920,
+            "workingSetBytes": 52310016,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 533159936,
+            "workingSetBytes": 580239360,
+            "handles": 447,
+            "threads": 38
+          }
+        ],
+        "treePrivateBytes": 788738048,
+        "rootPrivateBytes": 82276352,
+        "rootHandles": 664,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 21,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-21-small-file-idle",
+        "elapsedSeconds": 547.1081825,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 83656704,
+            "workingSetBytes": 79331328,
+            "handles": 664,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45219840,
+            "workingSetBytes": 147771392,
+            "handles": 1327,
+            "threads": 48
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21745664,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100200448,
+            "workingSetBytes": 98140160,
+            "handles": 751,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13905920,
+            "workingSetBytes": 52310016,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 544288768,
+            "workingSetBytes": 591712256,
+            "handles": 447,
+            "threads": 38
+          }
+        ],
+        "treePrivateBytes": 802373632,
+        "rootPrivateBytes": 83656704,
+        "rootHandles": 664,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 22,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-22-small-file-idle",
+        "elapsedSeconds": 572.6287169999999,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 84762624,
+            "workingSetBytes": 80437248,
+            "handles": 664,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45268992,
+            "workingSetBytes": 147820544,
+            "handles": 1327,
+            "threads": 48
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21745664,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100179968,
+            "workingSetBytes": 98168832,
+            "handles": 751,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13901824,
+            "workingSetBytes": 52305920,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 556806144,
+            "workingSetBytes": 604307456,
+            "handles": 447,
+            "threads": 38
+          }
+        ],
+        "treePrivateBytes": 816021504,
+        "rootPrivateBytes": 84762624,
+        "rootHandles": 664,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 23,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-23-small-file-idle",
+        "elapsedSeconds": 598.1811039,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 77684736,
+            "workingSetBytes": 73367552,
+            "handles": 664,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45268992,
+            "workingSetBytes": 147820544,
+            "handles": 1327,
+            "threads": 48
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21745664,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100118528,
+            "workingSetBytes": 98189312,
+            "handles": 751,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13905920,
+            "workingSetBytes": 52310016,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 568578048,
+            "workingSetBytes": 616288256,
+            "handles": 447,
+            "threads": 38
+          }
+        ],
+        "treePrivateBytes": 820658176,
+        "rootPrivateBytes": 77684736,
+        "rootHandles": 664,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 24,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-24-small-file-idle",
+        "elapsedSeconds": 623.8345946,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 78028800,
+            "workingSetBytes": 73682944,
+            "handles": 664,
+            "threads": 38
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45379584,
+            "workingSetBytes": 147972096,
+            "handles": 1327,
+            "threads": 50
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4632576,
+            "workingSetBytes": 21794816,
+            "handles": 220,
+            "threads": 10
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100888576,
+            "workingSetBytes": 98832384,
+            "handles": 753,
+            "threads": 64
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13955072,
+            "workingSetBytes": 52346880,
+            "handles": 375,
+            "threads": 23
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10641408,
+            "workingSetBytes": 30064640,
+            "handles": 252,
+            "threads": 14
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 582393856,
+            "workingSetBytes": 630112256,
+            "handles": 447,
+            "threads": 40
+          }
+        ],
+        "treePrivateBytes": 835919872,
+        "rootPrivateBytes": 78028800,
+        "rootHandles": 664,
+        "rootThreads": 38
+      }
+    },
+    {
+      "cycle": 25,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-25-small-file-idle",
+        "elapsedSeconds": 649.5326204,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 83820544,
+            "workingSetBytes": 79466496,
+            "handles": 664,
+            "threads": 38
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45289472,
+            "workingSetBytes": 147877888,
+            "handles": 1327,
+            "threads": 50
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4632576,
+            "workingSetBytes": 21794816,
+            "handles": 220,
+            "threads": 10
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100241408,
+            "workingSetBytes": 98308096,
+            "handles": 753,
+            "threads": 64
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13983744,
+            "workingSetBytes": 52379648,
+            "handles": 375,
+            "threads": 23
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10641408,
+            "workingSetBytes": 30064640,
+            "handles": 252,
+            "threads": 14
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 625438720,
+            "workingSetBytes": 672006144,
+            "handles": 447,
+            "threads": 40
+          }
+        ],
+        "treePrivateBytes": 884047872,
+        "rootPrivateBytes": 83820544,
+        "rootHandles": 664,
+        "rootThreads": 38
+      }
+    },
+    {
+      "cycle": 26,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-26-small-file-idle",
+        "elapsedSeconds": 675.1095832,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 73977856,
+            "workingSetBytes": 69672960,
+            "handles": 664,
+            "threads": 36
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45166592,
+            "workingSetBytes": 147791872,
+            "handles": 1327,
+            "threads": 47
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21757952,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100950016,
+            "workingSetBytes": 99004416,
+            "handles": 747,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13819904,
+            "workingSetBytes": 52260864,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 612216832,
+            "workingSetBytes": 658120704,
+            "handles": 447,
+            "threads": 38
+          }
+        ],
+        "treePrivateBytes": 861233152,
+        "rootPrivateBytes": 73977856,
+        "rootHandles": 664,
+        "rootThreads": 36
+      }
+    },
+    {
+      "cycle": 27,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-27-small-file-idle",
+        "elapsedSeconds": 700.6450149,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 85626880,
+            "workingSetBytes": 81321984,
+            "handles": 664,
+            "threads": 36
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45133824,
+            "workingSetBytes": 147759104,
+            "handles": 1327,
+            "threads": 47
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21757952,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100126720,
+            "workingSetBytes": 98361344,
+            "handles": 747,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13848576,
+            "workingSetBytes": 52285440,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 651902976,
+            "workingSetBytes": 697745408,
+            "handles": 447,
+            "threads": 38
+          }
+        ],
+        "treePrivateBytes": 911740928,
+        "rootPrivateBytes": 85626880,
+        "rootHandles": 664,
+        "rootThreads": 36
+      }
+    },
+    {
+      "cycle": 28,
+      "warmup": true,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-28-small-file-idle",
+        "elapsedSeconds": 726.1367750000001,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 80793600,
+            "workingSetBytes": 76500992,
+            "handles": 664,
+            "threads": 36
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45096960,
+            "workingSetBytes": 147750912,
+            "handles": 1327,
+            "threads": 47
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21757952,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 101040128,
+            "workingSetBytes": 99094528,
+            "handles": 747,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13864960,
+            "workingSetBytes": 52301824,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 617754624,
+            "workingSetBytes": 664637440,
+            "handles": 442,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 873652224,
+        "rootPrivateBytes": 80793600,
+        "rootHandles": 664,
+        "rootThreads": 36
+      }
+    },
+    {
+      "cycle": 29,
+      "warmup": false,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-29-small-file-idle",
+        "elapsedSeconds": 751.685043,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 95440896,
+            "workingSetBytes": 91152384,
+            "handles": 664,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45113344,
+            "workingSetBytes": 147767296,
+            "handles": 1327,
+            "threads": 47
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21757952,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100880384,
+            "workingSetBytes": 98951168,
+            "handles": 747,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13824000,
+            "workingSetBytes": 52264960,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 656211968,
+            "workingSetBytes": 702382080,
+            "handles": 442,
+            "threads": 36
+          }
+        ],
+        "treePrivateBytes": 926572544,
+        "rootPrivateBytes": 95440896,
+        "rootHandles": 664,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 30,
+      "warmup": false,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-30-small-file-idle",
+        "elapsedSeconds": 777.1560294,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 83021824,
+            "workingSetBytes": 78704640,
+            "handles": 664,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45125632,
+            "workingSetBytes": 147775488,
+            "handles": 1327,
+            "threads": 47
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21757952,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 101072896,
+            "workingSetBytes": 99143680,
+            "handles": 747,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13852672,
+            "workingSetBytes": 52289536,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 680886272,
+            "workingSetBytes": 726937600,
+            "handles": 442,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 939061248,
+        "rootPrivateBytes": 83021824,
+        "rootHandles": 664,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 31,
+      "warmup": false,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-31-small-file-idle",
+        "elapsedSeconds": 802.6047685,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 76607488,
+            "workingSetBytes": 72364032,
+            "handles": 664,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45170688,
+            "workingSetBytes": 147804160,
+            "handles": 1327,
+            "threads": 47
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21757952,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100171776,
+            "workingSetBytes": 98476032,
+            "handles": 747,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13844480,
+            "workingSetBytes": 52285440,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 673054720,
+            "workingSetBytes": 720302080,
+            "handles": 442,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 923951104,
+        "rootPrivateBytes": 76607488,
+        "rootHandles": 664,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 32,
+      "warmup": false,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-32-small-file-idle",
+        "elapsedSeconds": 828.0842897,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 74231808,
+            "workingSetBytes": 69984256,
+            "handles": 664,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45174784,
+            "workingSetBytes": 147808256,
+            "handles": 1327,
+            "threads": 47
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21757952,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100118528,
+            "workingSetBytes": 98496512,
+            "handles": 747,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13873152,
+            "workingSetBytes": 52310016,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 686596096,
+            "workingSetBytes": 732930048,
+            "handles": 442,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 935096320,
+        "rootPrivateBytes": 74231808,
+        "rootHandles": 664,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 33,
+      "warmup": false,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-33-small-file-idle",
+        "elapsedSeconds": 853.5779911,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 77144064,
+            "workingSetBytes": 72892416,
+            "handles": 664,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45191168,
+            "workingSetBytes": 147828736,
+            "handles": 1327,
+            "threads": 47
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21757952,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100175872,
+            "workingSetBytes": 98545664,
+            "handles": 747,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13844480,
+            "workingSetBytes": 52285440,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 698798080,
+            "workingSetBytes": 745238528,
+            "handles": 442,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 950255616,
+        "rootPrivateBytes": 77144064,
+        "rootHandles": 664,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 34,
+      "warmup": false,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-34-small-file-idle",
+        "elapsedSeconds": 879.1024815999999,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 82067456,
+            "workingSetBytes": 77819904,
+            "handles": 664,
+            "threads": 35
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45137920,
+            "workingSetBytes": 147775488,
+            "handles": 1327,
+            "threads": 47
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21757952,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100814848,
+            "workingSetBytes": 99094528,
+            "handles": 747,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13873152,
+            "workingSetBytes": 52310016,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 703139840,
+            "workingSetBytes": 749543424,
+            "handles": 442,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 960135168,
+        "rootPrivateBytes": 82067456,
+        "rootHandles": 664,
+        "rootThreads": 35
+      }
+    },
+    {
+      "cycle": 35,
+      "warmup": false,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-35-small-file-idle",
+        "elapsedSeconds": 904.5528734,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 78237696,
+            "workingSetBytes": 73973760,
+            "handles": 664,
+            "threads": 36
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45490176,
+            "workingSetBytes": 147611648,
+            "handles": 1328,
+            "threads": 49
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21757952,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100220928,
+            "workingSetBytes": 97570816,
+            "handles": 747,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13873152,
+            "workingSetBytes": 52310016,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 705720320,
+            "workingSetBytes": 751022080,
+            "handles": 442,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 958644224,
+        "rootPrivateBytes": 78237696,
+        "rootHandles": 664,
+        "rootThreads": 36
+      }
+    },
+    {
+      "cycle": 36,
+      "warmup": false,
+      "opens": [
+        {
+          "rows": 4096,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 512,
+          "selectedIdMatches": true
+        },
+        {
+          "rows": 32,
+          "selectedIdMatches": true
+        }
+      ],
+      "settled": {
+        "label": "cycle-36-small-file-idle",
+        "elapsedSeconds": 930.1207548,
+        "members": [
+          {
+            "ordinal": 1,
+            "role": "app",
+            "privateBytes": 85704704,
+            "workingSetBytes": 81420288,
+            "handles": 664,
+            "threads": 36
+          },
+          {
+            "ordinal": 2,
+            "role": "browser",
+            "privateBytes": 45195264,
+            "workingSetBytes": 147324928,
+            "handles": 1328,
+            "threads": 49
+          },
+          {
+            "ordinal": 3,
+            "role": "crashpad",
+            "privateBytes": 4562944,
+            "workingSetBytes": 21757952,
+            "handles": 220,
+            "threads": 8
+          },
+          {
+            "ordinal": 4,
+            "role": "gpu",
+            "privateBytes": 100990976,
+            "workingSetBytes": 98283520,
+            "handles": 747,
+            "threads": 63
+          },
+          {
+            "ordinal": 5,
+            "role": "utility",
+            "privateBytes": 13844480,
+            "workingSetBytes": 52285440,
+            "handles": 375,
+            "threads": 21
+          },
+          {
+            "ordinal": 6,
+            "role": "utility",
+            "privateBytes": 10539008,
+            "workingSetBytes": 29995008,
+            "handles": 252,
+            "threads": 12
+          },
+          {
+            "ordinal": 7,
+            "role": "renderer",
+            "privateBytes": 708485120,
+            "workingSetBytes": 753627136,
+            "handles": 442,
+            "threads": 37
+          }
+        ],
+        "treePrivateBytes": 969322496,
+        "rootPrivateBytes": 85704704,
+        "rootHandles": 664,
+        "rootThreads": 36
+      }
+    }
+  ],
+  "samples": [
+    {
+      "label": "cycle-1-small-file-idle",
+      "elapsedSeconds": 36.1948445,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 76193792,
+          "workingSetBytes": 72200192,
+          "handles": 613,
+          "threads": 40
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 44490752,
+          "workingSetBytes": 139055104,
+          "handles": 1338,
+          "threads": 52
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4980736,
+          "workingSetBytes": 27017216,
+          "handles": 253,
+          "threads": 14
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 99086336,
+          "workingSetBytes": 95109120,
+          "handles": 760,
+          "threads": 66
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 14725120,
+          "workingSetBytes": 52264960,
+          "handles": 388,
+          "threads": 27
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10588160,
+          "workingSetBytes": 29503488,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 150528000,
+          "workingSetBytes": 200867840,
+          "handles": 435,
+          "threads": 36
+        }
+      ],
+      "treePrivateBytes": 400592896,
+      "rootPrivateBytes": 76193792,
+      "rootHandles": 613,
+      "rootThreads": 40
+    },
+    {
+      "label": "cycle-2-small-file-idle",
+      "elapsedSeconds": 62.1079428,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 92901376,
+          "workingSetBytes": 88993792,
+          "handles": 623,
+          "threads": 37
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45096960,
+          "workingSetBytes": 144318464,
+          "handles": 1345,
+          "threads": 51
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4718592,
+          "workingSetBytes": 21676032,
+          "handles": 232,
+          "threads": 11
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 98312192,
+          "workingSetBytes": 95064064,
+          "handles": 759,
+          "threads": 66
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 14106624,
+          "workingSetBytes": 52031488,
+          "handles": 390,
+          "threads": 25
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10522624,
+          "workingSetBytes": 29831168,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 194269184,
+          "workingSetBytes": 244711424,
+          "handles": 435,
+          "threads": 36
+        }
+      ],
+      "treePrivateBytes": 459927552,
+      "rootPrivateBytes": 92901376,
+      "rootHandles": 623,
+      "rootThreads": 37
+    },
+    {
+      "label": "cycle-3-small-file-idle",
+      "elapsedSeconds": 87.7933609,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 82366464,
+          "workingSetBytes": 78585856,
+          "handles": 645,
+          "threads": 37
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 44228608,
+          "workingSetBytes": 144084992,
+          "handles": 1347,
+          "threads": 51
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4718592,
+          "workingSetBytes": 21680128,
+          "handles": 232,
+          "threads": 11
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 98439168,
+          "workingSetBytes": 95023104,
+          "handles": 757,
+          "threads": 65
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 14106624,
+          "workingSetBytes": 52084736,
+          "handles": 390,
+          "threads": 25
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10522624,
+          "workingSetBytes": 29831168,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 213987328,
+          "workingSetBytes": 266174464,
+          "handles": 441,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 468369408,
+      "rootPrivateBytes": 82366464,
+      "rootHandles": 645,
+      "rootThreads": 37
+    },
+    {
+      "label": "cycle-4-small-file-idle",
+      "elapsedSeconds": 113.3026378,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 79990784,
+          "workingSetBytes": 76247040,
+          "handles": 652,
+          "threads": 37
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 44326912,
+          "workingSetBytes": 144302080,
+          "handles": 1340,
+          "threads": 50
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4718592,
+          "workingSetBytes": 21680128,
+          "handles": 232,
+          "threads": 11
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 98594816,
+          "workingSetBytes": 95232000,
+          "handles": 757,
+          "threads": 65
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13938688,
+          "workingSetBytes": 52011008,
+          "handles": 384,
+          "threads": 25
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10522624,
+          "workingSetBytes": 29831168,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 242802688,
+          "workingSetBytes": 294760448,
+          "handles": 441,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 494895104,
+      "rootPrivateBytes": 79990784,
+      "rootHandles": 652,
+      "rootThreads": 37
+    },
+    {
+      "label": "cycle-5-small-file-idle",
+      "elapsedSeconds": 138.8994834,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 72548352,
+          "workingSetBytes": 68890624,
+          "handles": 650,
+          "threads": 34
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 44572672,
+          "workingSetBytes": 145936384,
+          "handles": 1343,
+          "threads": 50
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4669440,
+          "workingSetBytes": 21647360,
+          "handles": 230,
+          "threads": 10
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 98168832,
+          "workingSetBytes": 95109120,
+          "handles": 745,
+          "threads": 62
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13930496,
+          "workingSetBytes": 52117504,
+          "handles": 384,
+          "threads": 23
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10522624,
+          "workingSetBytes": 29831168,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 278999040,
+          "workingSetBytes": 330326016,
+          "handles": 441,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 523411456,
+      "rootPrivateBytes": 72548352,
+      "rootHandles": 650,
+      "rootThreads": 34
+    },
+    {
+      "label": "cycle-6-small-file-idle",
+      "elapsedSeconds": 164.4398264,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 75784192,
+          "workingSetBytes": 72142848,
+          "handles": 650,
+          "threads": 34
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 44478464,
+          "workingSetBytes": 145883136,
+          "handles": 1338,
+          "threads": 49
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4620288,
+          "workingSetBytes": 21618688,
+          "handles": 226,
+          "threads": 9
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 98590720,
+          "workingSetBytes": 95551488,
+          "handles": 749,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13930496,
+          "workingSetBytes": 52117504,
+          "handles": 384,
+          "threads": 23
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10522624,
+          "workingSetBytes": 29831168,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 310771712,
+          "workingSetBytes": 362455040,
+          "handles": 441,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 558698496,
+      "rootPrivateBytes": 75784192,
+      "rootHandles": 650,
+      "rootThreads": 34
+    },
+    {
+      "label": "cycle-7-small-file-idle",
+      "elapsedSeconds": 189.97681039999998,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 78041088,
+          "workingSetBytes": 74186752,
+          "handles": 650,
+          "threads": 34
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 44466176,
+          "workingSetBytes": 145924096,
+          "handles": 1338,
+          "threads": 49
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4620288,
+          "workingSetBytes": 21618688,
+          "handles": 226,
+          "threads": 9
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 99373056,
+          "workingSetBytes": 96403456,
+          "handles": 749,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 14106624,
+          "workingSetBytes": 52207616,
+          "handles": 384,
+          "threads": 23
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10522624,
+          "workingSetBytes": 29831168,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 341995520,
+          "workingSetBytes": 393625600,
+          "handles": 441,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 593125376,
+      "rootPrivateBytes": 78041088,
+      "rootHandles": 650,
+      "rootThreads": 34
+    },
+    {
+      "label": "cycle-8-small-file-idle",
+      "elapsedSeconds": 215.5140088,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 75001856,
+          "workingSetBytes": 71163904,
+          "handles": 652,
+          "threads": 34
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 46690304,
+          "workingSetBytes": 148484096,
+          "handles": 1333,
+          "threads": 49
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4612096,
+          "workingSetBytes": 21614592,
+          "handles": 226,
+          "threads": 9
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 98803712,
+          "workingSetBytes": 96014336,
+          "handles": 749,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 14094336,
+          "workingSetBytes": 52228096,
+          "handles": 382,
+          "threads": 22
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10522624,
+          "workingSetBytes": 29831168,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 374718464,
+          "workingSetBytes": 426020864,
+          "handles": 442,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 624443392,
+      "rootPrivateBytes": 75001856,
+      "rootHandles": 652,
+      "rootThreads": 34
+    },
+    {
+      "label": "cycle-9-small-file-idle",
+      "elapsedSeconds": 241.03510319999998,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 72867840,
+          "workingSetBytes": 69054464,
+          "handles": 662,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 44687360,
+          "workingSetBytes": 146432000,
+          "handles": 1334,
+          "threads": 49
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4612096,
+          "workingSetBytes": 21614592,
+          "handles": 226,
+          "threads": 9
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 99790848,
+          "workingSetBytes": 96829440,
+          "handles": 749,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13959168,
+          "workingSetBytes": 52174848,
+          "handles": 382,
+          "threads": 22
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10522624,
+          "workingSetBytes": 29831168,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 407252992,
+          "workingSetBytes": 458493952,
+          "handles": 442,
+          "threads": 36
+        }
+      ],
+      "treePrivateBytes": 653692928,
+      "rootPrivateBytes": 72867840,
+      "rootHandles": 662,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-10-small-file-idle",
+      "elapsedSeconds": 266.54708800000003,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 77611008,
+          "workingSetBytes": 73801728,
+          "handles": 663,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 44597248,
+          "workingSetBytes": 146423808,
+          "handles": 1334,
+          "threads": 49
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4612096,
+          "workingSetBytes": 21614592,
+          "handles": 226,
+          "threads": 9
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 99196928,
+          "workingSetBytes": 96387072,
+          "handles": 749,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 14168064,
+          "workingSetBytes": 52260864,
+          "handles": 382,
+          "threads": 24
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10522624,
+          "workingSetBytes": 29831168,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 407166976,
+          "workingSetBytes": 459284480,
+          "handles": 442,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 657874944,
+      "rootPrivateBytes": 77611008,
+      "rootHandles": 663,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-11-small-file-idle",
+      "elapsedSeconds": 292.05830820000006,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 82440192,
+          "workingSetBytes": 78639104,
+          "handles": 664,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 44564480,
+          "workingSetBytes": 146370560,
+          "handles": 1334,
+          "threads": 49
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4612096,
+          "workingSetBytes": 21614592,
+          "handles": 226,
+          "threads": 9
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 99086336,
+          "workingSetBytes": 96325632,
+          "handles": 749,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 14008320,
+          "workingSetBytes": 52191232,
+          "handles": 382,
+          "threads": 24
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10522624,
+          "workingSetBytes": 29831168,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 418971648,
+          "workingSetBytes": 470900736,
+          "handles": 442,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 674205696,
+      "rootPrivateBytes": 82440192,
+      "rootHandles": 664,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-12-small-file-idle",
+      "elapsedSeconds": 317.5305594,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 73232384,
+          "workingSetBytes": 69611520,
+          "handles": 664,
+          "threads": 38
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 44609536,
+          "workingSetBytes": 146980864,
+          "handles": 1337,
+          "threads": 49
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4648960,
+          "workingSetBytes": 21790720,
+          "handles": 226,
+          "threads": 10
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 99237888,
+          "workingSetBytes": 96792576,
+          "handles": 751,
+          "threads": 64
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13950976,
+          "workingSetBytes": 52256768,
+          "handles": 382,
+          "threads": 24
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10645504,
+          "workingSetBytes": 30015488,
+          "handles": 252,
+          "threads": 14
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 430837760,
+          "workingSetBytes": 483213312,
+          "handles": 442,
+          "threads": 38
+        }
+      ],
+      "treePrivateBytes": 677163008,
+      "rootPrivateBytes": 73232384,
+      "rootHandles": 664,
+      "rootThreads": 38
+    },
+    {
+      "label": "cycle-13-small-file-idle",
+      "elapsedSeconds": 343.0342844,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 78426112,
+          "workingSetBytes": 73764864,
+          "handles": 664,
+          "threads": 38
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 44609536,
+          "workingSetBytes": 146980864,
+          "handles": 1336,
+          "threads": 49
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4648960,
+          "workingSetBytes": 21794816,
+          "handles": 226,
+          "threads": 10
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 99311616,
+          "workingSetBytes": 96923648,
+          "handles": 751,
+          "threads": 64
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13979648,
+          "workingSetBytes": 52281344,
+          "handles": 382,
+          "threads": 24
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10645504,
+          "workingSetBytes": 30015488,
+          "handles": 252,
+          "threads": 14
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 442793984,
+          "workingSetBytes": 495288320,
+          "handles": 442,
+          "threads": 38
+        }
+      ],
+      "treePrivateBytes": 694415360,
+      "rootPrivateBytes": 78426112,
+      "rootHandles": 664,
+      "rootThreads": 38
+    },
+    {
+      "label": "cycle-14-small-file-idle",
+      "elapsedSeconds": 368.61277160000003,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 73838592,
+          "workingSetBytes": 69390336,
+          "handles": 672,
+          "threads": 39
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45395968,
+          "workingSetBytes": 147918848,
+          "handles": 1338,
+          "threads": 50
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4648960,
+          "workingSetBytes": 21794816,
+          "handles": 226,
+          "threads": 10
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 99401728,
+          "workingSetBytes": 97419264,
+          "handles": 753,
+          "threads": 64
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 14012416,
+          "workingSetBytes": 52359168,
+          "handles": 384,
+          "threads": 24
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10645504,
+          "workingSetBytes": 30015488,
+          "handles": 252,
+          "threads": 14
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 460103680,
+          "workingSetBytes": 512532480,
+          "handles": 442,
+          "threads": 38
+        }
+      ],
+      "treePrivateBytes": 708046848,
+      "rootPrivateBytes": 73838592,
+      "rootHandles": 672,
+      "rootThreads": 39
+    },
+    {
+      "label": "cycle-15-small-file-idle",
+      "elapsedSeconds": 394.16266260000003,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 81887232,
+          "workingSetBytes": 77459456,
+          "handles": 672,
+          "threads": 39
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45481984,
+          "workingSetBytes": 147992576,
+          "handles": 1338,
+          "threads": 50
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4648960,
+          "workingSetBytes": 21794816,
+          "handles": 226,
+          "threads": 10
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100470784,
+          "workingSetBytes": 98041856,
+          "handles": 753,
+          "threads": 64
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 14036992,
+          "workingSetBytes": 52379648,
+          "handles": 380,
+          "threads": 24
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10645504,
+          "workingSetBytes": 30015488,
+          "handles": 252,
+          "threads": 14
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 469594112,
+          "workingSetBytes": 521867264,
+          "handles": 442,
+          "threads": 38
+        }
+      ],
+      "treePrivateBytes": 726765568,
+      "rootPrivateBytes": 81887232,
+      "rootHandles": 672,
+      "rootThreads": 39
+    },
+    {
+      "label": "cycle-16-small-file-idle",
+      "elapsedSeconds": 419.6275514000001,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 76435456,
+          "workingSetBytes": 72015872,
+          "handles": 672,
+          "threads": 39
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45355008,
+          "workingSetBytes": 147894272,
+          "handles": 1337,
+          "threads": 50
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4567040,
+          "workingSetBytes": 21749760,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 98660352,
+          "workingSetBytes": 96448512,
+          "handles": 751,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 14004224,
+          "workingSetBytes": 52363264,
+          "handles": 380,
+          "threads": 23
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 481083392,
+          "workingSetBytes": 533516288,
+          "handles": 442,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 730644480,
+      "rootPrivateBytes": 76435456,
+      "rootHandles": 672,
+      "rootThreads": 39
+    },
+    {
+      "label": "cycle-17-small-file-idle",
+      "elapsedSeconds": 445.12970930000006,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 80793600,
+          "workingSetBytes": 76390400,
+          "handles": 672,
+          "threads": 39
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45363200,
+          "workingSetBytes": 147902464,
+          "handles": 1337,
+          "threads": 50
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4567040,
+          "workingSetBytes": 21749760,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 99610624,
+          "workingSetBytes": 97251328,
+          "handles": 751,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13901824,
+          "workingSetBytes": 52285440,
+          "handles": 379,
+          "threads": 22
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 494628864,
+          "workingSetBytes": 546983936,
+          "handles": 442,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 749404160,
+      "rootPrivateBytes": 80793600,
+      "rootHandles": 672,
+      "rootThreads": 39
+    },
+    {
+      "label": "cycle-18-small-file-idle",
+      "elapsedSeconds": 470.6496245,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 73850880,
+          "workingSetBytes": 69537792,
+          "handles": 664,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45322240,
+          "workingSetBytes": 147886080,
+          "handles": 1333,
+          "threads": 48
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4567040,
+          "workingSetBytes": 21749760,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 98824192,
+          "workingSetBytes": 96706560,
+          "handles": 751,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13893632,
+          "workingSetBytes": 52297728,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 507506688,
+          "workingSetBytes": 559833088,
+          "handles": 447,
+          "threads": 38
+        }
+      ],
+      "treePrivateBytes": 754503680,
+      "rootPrivateBytes": 73850880,
+      "rootHandles": 664,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-19-small-file-idle",
+      "elapsedSeconds": 496.15493840000005,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 81051648,
+          "workingSetBytes": 76713984,
+          "handles": 664,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45322240,
+          "workingSetBytes": 147873792,
+          "handles": 1333,
+          "threads": 48
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4567040,
+          "workingSetBytes": 21749760,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 98885632,
+          "workingSetBytes": 96804864,
+          "handles": 751,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13881344,
+          "workingSetBytes": 52289536,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 519737344,
+          "workingSetBytes": 572162048,
+          "handles": 447,
+          "threads": 38
+        }
+      ],
+      "treePrivateBytes": 773984256,
+      "rootPrivateBytes": 81051648,
+      "rootHandles": 664,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-20-small-file-idle",
+      "elapsedSeconds": 521.6069413,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 82276352,
+          "workingSetBytes": 77959168,
+          "handles": 664,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45289472,
+          "workingSetBytes": 147841024,
+          "handles": 1333,
+          "threads": 48
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21745664,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 99004416,
+          "workingSetBytes": 96960512,
+          "handles": 751,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13905920,
+          "workingSetBytes": 52310016,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 533159936,
+          "workingSetBytes": 580239360,
+          "handles": 447,
+          "threads": 38
+        }
+      ],
+      "treePrivateBytes": 788738048,
+      "rootPrivateBytes": 82276352,
+      "rootHandles": 664,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-21-small-file-idle",
+      "elapsedSeconds": 547.1081825,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 83656704,
+          "workingSetBytes": 79331328,
+          "handles": 664,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45219840,
+          "workingSetBytes": 147771392,
+          "handles": 1327,
+          "threads": 48
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21745664,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100200448,
+          "workingSetBytes": 98140160,
+          "handles": 751,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13905920,
+          "workingSetBytes": 52310016,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 544288768,
+          "workingSetBytes": 591712256,
+          "handles": 447,
+          "threads": 38
+        }
+      ],
+      "treePrivateBytes": 802373632,
+      "rootPrivateBytes": 83656704,
+      "rootHandles": 664,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-22-small-file-idle",
+      "elapsedSeconds": 572.6287169999999,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 84762624,
+          "workingSetBytes": 80437248,
+          "handles": 664,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45268992,
+          "workingSetBytes": 147820544,
+          "handles": 1327,
+          "threads": 48
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21745664,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100179968,
+          "workingSetBytes": 98168832,
+          "handles": 751,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13901824,
+          "workingSetBytes": 52305920,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 556806144,
+          "workingSetBytes": 604307456,
+          "handles": 447,
+          "threads": 38
+        }
+      ],
+      "treePrivateBytes": 816021504,
+      "rootPrivateBytes": 84762624,
+      "rootHandles": 664,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-23-small-file-idle",
+      "elapsedSeconds": 598.1811039,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 77684736,
+          "workingSetBytes": 73367552,
+          "handles": 664,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45268992,
+          "workingSetBytes": 147820544,
+          "handles": 1327,
+          "threads": 48
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21745664,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100118528,
+          "workingSetBytes": 98189312,
+          "handles": 751,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13905920,
+          "workingSetBytes": 52310016,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 568578048,
+          "workingSetBytes": 616288256,
+          "handles": 447,
+          "threads": 38
+        }
+      ],
+      "treePrivateBytes": 820658176,
+      "rootPrivateBytes": 77684736,
+      "rootHandles": 664,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-24-small-file-idle",
+      "elapsedSeconds": 623.8345946,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 78028800,
+          "workingSetBytes": 73682944,
+          "handles": 664,
+          "threads": 38
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45379584,
+          "workingSetBytes": 147972096,
+          "handles": 1327,
+          "threads": 50
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4632576,
+          "workingSetBytes": 21794816,
+          "handles": 220,
+          "threads": 10
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100888576,
+          "workingSetBytes": 98832384,
+          "handles": 753,
+          "threads": 64
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13955072,
+          "workingSetBytes": 52346880,
+          "handles": 375,
+          "threads": 23
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10641408,
+          "workingSetBytes": 30064640,
+          "handles": 252,
+          "threads": 14
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 582393856,
+          "workingSetBytes": 630112256,
+          "handles": 447,
+          "threads": 40
+        }
+      ],
+      "treePrivateBytes": 835919872,
+      "rootPrivateBytes": 78028800,
+      "rootHandles": 664,
+      "rootThreads": 38
+    },
+    {
+      "label": "cycle-25-small-file-idle",
+      "elapsedSeconds": 649.5326204,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 83820544,
+          "workingSetBytes": 79466496,
+          "handles": 664,
+          "threads": 38
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45289472,
+          "workingSetBytes": 147877888,
+          "handles": 1327,
+          "threads": 50
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4632576,
+          "workingSetBytes": 21794816,
+          "handles": 220,
+          "threads": 10
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100241408,
+          "workingSetBytes": 98308096,
+          "handles": 753,
+          "threads": 64
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13983744,
+          "workingSetBytes": 52379648,
+          "handles": 375,
+          "threads": 23
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10641408,
+          "workingSetBytes": 30064640,
+          "handles": 252,
+          "threads": 14
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 625438720,
+          "workingSetBytes": 672006144,
+          "handles": 447,
+          "threads": 40
+        }
+      ],
+      "treePrivateBytes": 884047872,
+      "rootPrivateBytes": 83820544,
+      "rootHandles": 664,
+      "rootThreads": 38
+    },
+    {
+      "label": "cycle-26-small-file-idle",
+      "elapsedSeconds": 675.1095832,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 73977856,
+          "workingSetBytes": 69672960,
+          "handles": 664,
+          "threads": 36
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45166592,
+          "workingSetBytes": 147791872,
+          "handles": 1327,
+          "threads": 47
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21757952,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100950016,
+          "workingSetBytes": 99004416,
+          "handles": 747,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13819904,
+          "workingSetBytes": 52260864,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 612216832,
+          "workingSetBytes": 658120704,
+          "handles": 447,
+          "threads": 38
+        }
+      ],
+      "treePrivateBytes": 861233152,
+      "rootPrivateBytes": 73977856,
+      "rootHandles": 664,
+      "rootThreads": 36
+    },
+    {
+      "label": "cycle-27-small-file-idle",
+      "elapsedSeconds": 700.6450149,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 85626880,
+          "workingSetBytes": 81321984,
+          "handles": 664,
+          "threads": 36
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45133824,
+          "workingSetBytes": 147759104,
+          "handles": 1327,
+          "threads": 47
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21757952,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100126720,
+          "workingSetBytes": 98361344,
+          "handles": 747,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13848576,
+          "workingSetBytes": 52285440,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 651902976,
+          "workingSetBytes": 697745408,
+          "handles": 447,
+          "threads": 38
+        }
+      ],
+      "treePrivateBytes": 911740928,
+      "rootPrivateBytes": 85626880,
+      "rootHandles": 664,
+      "rootThreads": 36
+    },
+    {
+      "label": "cycle-28-small-file-idle",
+      "elapsedSeconds": 726.1367750000001,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 80793600,
+          "workingSetBytes": 76500992,
+          "handles": 664,
+          "threads": 36
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45096960,
+          "workingSetBytes": 147750912,
+          "handles": 1327,
+          "threads": 47
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21757952,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 101040128,
+          "workingSetBytes": 99094528,
+          "handles": 747,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13864960,
+          "workingSetBytes": 52301824,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 617754624,
+          "workingSetBytes": 664637440,
+          "handles": 442,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 873652224,
+      "rootPrivateBytes": 80793600,
+      "rootHandles": 664,
+      "rootThreads": 36
+    },
+    {
+      "label": "cycle-29-small-file-idle",
+      "elapsedSeconds": 751.685043,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 95440896,
+          "workingSetBytes": 91152384,
+          "handles": 664,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45113344,
+          "workingSetBytes": 147767296,
+          "handles": 1327,
+          "threads": 47
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21757952,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100880384,
+          "workingSetBytes": 98951168,
+          "handles": 747,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13824000,
+          "workingSetBytes": 52264960,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 656211968,
+          "workingSetBytes": 702382080,
+          "handles": 442,
+          "threads": 36
+        }
+      ],
+      "treePrivateBytes": 926572544,
+      "rootPrivateBytes": 95440896,
+      "rootHandles": 664,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-30-small-file-idle",
+      "elapsedSeconds": 777.1560294,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 83021824,
+          "workingSetBytes": 78704640,
+          "handles": 664,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45125632,
+          "workingSetBytes": 147775488,
+          "handles": 1327,
+          "threads": 47
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21757952,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 101072896,
+          "workingSetBytes": 99143680,
+          "handles": 747,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13852672,
+          "workingSetBytes": 52289536,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 680886272,
+          "workingSetBytes": 726937600,
+          "handles": 442,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 939061248,
+      "rootPrivateBytes": 83021824,
+      "rootHandles": 664,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-31-small-file-idle",
+      "elapsedSeconds": 802.6047685,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 76607488,
+          "workingSetBytes": 72364032,
+          "handles": 664,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45170688,
+          "workingSetBytes": 147804160,
+          "handles": 1327,
+          "threads": 47
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21757952,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100171776,
+          "workingSetBytes": 98476032,
+          "handles": 747,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13844480,
+          "workingSetBytes": 52285440,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 673054720,
+          "workingSetBytes": 720302080,
+          "handles": 442,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 923951104,
+      "rootPrivateBytes": 76607488,
+      "rootHandles": 664,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-32-small-file-idle",
+      "elapsedSeconds": 828.0842897,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 74231808,
+          "workingSetBytes": 69984256,
+          "handles": 664,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45174784,
+          "workingSetBytes": 147808256,
+          "handles": 1327,
+          "threads": 47
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21757952,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100118528,
+          "workingSetBytes": 98496512,
+          "handles": 747,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13873152,
+          "workingSetBytes": 52310016,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 686596096,
+          "workingSetBytes": 732930048,
+          "handles": 442,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 935096320,
+      "rootPrivateBytes": 74231808,
+      "rootHandles": 664,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-33-small-file-idle",
+      "elapsedSeconds": 853.5779911,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 77144064,
+          "workingSetBytes": 72892416,
+          "handles": 664,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45191168,
+          "workingSetBytes": 147828736,
+          "handles": 1327,
+          "threads": 47
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21757952,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100175872,
+          "workingSetBytes": 98545664,
+          "handles": 747,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13844480,
+          "workingSetBytes": 52285440,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 698798080,
+          "workingSetBytes": 745238528,
+          "handles": 442,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 950255616,
+      "rootPrivateBytes": 77144064,
+      "rootHandles": 664,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-34-small-file-idle",
+      "elapsedSeconds": 879.1024815999999,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 82067456,
+          "workingSetBytes": 77819904,
+          "handles": 664,
+          "threads": 35
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45137920,
+          "workingSetBytes": 147775488,
+          "handles": 1327,
+          "threads": 47
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21757952,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100814848,
+          "workingSetBytes": 99094528,
+          "handles": 747,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13873152,
+          "workingSetBytes": 52310016,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 703139840,
+          "workingSetBytes": 749543424,
+          "handles": 442,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 960135168,
+      "rootPrivateBytes": 82067456,
+      "rootHandles": 664,
+      "rootThreads": 35
+    },
+    {
+      "label": "cycle-35-small-file-idle",
+      "elapsedSeconds": 904.5528734,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 78237696,
+          "workingSetBytes": 73973760,
+          "handles": 664,
+          "threads": 36
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45490176,
+          "workingSetBytes": 147611648,
+          "handles": 1328,
+          "threads": 49
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21757952,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100220928,
+          "workingSetBytes": 97570816,
+          "handles": 747,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13873152,
+          "workingSetBytes": 52310016,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 705720320,
+          "workingSetBytes": 751022080,
+          "handles": 442,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 958644224,
+      "rootPrivateBytes": 78237696,
+      "rootHandles": 664,
+      "rootThreads": 36
+    },
+    {
+      "label": "cycle-36-small-file-idle",
+      "elapsedSeconds": 930.1207548,
+      "members": [
+        {
+          "ordinal": 1,
+          "role": "app",
+          "privateBytes": 85704704,
+          "workingSetBytes": 81420288,
+          "handles": 664,
+          "threads": 36
+        },
+        {
+          "ordinal": 2,
+          "role": "browser",
+          "privateBytes": 45195264,
+          "workingSetBytes": 147324928,
+          "handles": 1328,
+          "threads": 49
+        },
+        {
+          "ordinal": 3,
+          "role": "crashpad",
+          "privateBytes": 4562944,
+          "workingSetBytes": 21757952,
+          "handles": 220,
+          "threads": 8
+        },
+        {
+          "ordinal": 4,
+          "role": "gpu",
+          "privateBytes": 100990976,
+          "workingSetBytes": 98283520,
+          "handles": 747,
+          "threads": 63
+        },
+        {
+          "ordinal": 5,
+          "role": "utility",
+          "privateBytes": 13844480,
+          "workingSetBytes": 52285440,
+          "handles": 375,
+          "threads": 21
+        },
+        {
+          "ordinal": 6,
+          "role": "utility",
+          "privateBytes": 10539008,
+          "workingSetBytes": 29995008,
+          "handles": 252,
+          "threads": 12
+        },
+        {
+          "ordinal": 7,
+          "role": "renderer",
+          "privateBytes": 708485120,
+          "workingSetBytes": 753627136,
+          "handles": 442,
+          "threads": 37
+        }
+      ],
+      "treePrivateBytes": 969322496,
+      "rootPrivateBytes": 85704704,
+      "rootHandles": 664,
+      "rootThreads": 36
+    }
+  ],
+  "buildCommit": "8985736f793fa02511f3d4d371d66fafc50733f7",
+  "memoryAssessment": {
+    "policy": {
+      "measuredCycles": 8,
+      "window": 3,
+      "treePrivateBytes": {
+        "delta": 67108864,
+        "perCycle": 4194304
+      },
+      "rootPrivateBytes": {
+        "delta": 16777216,
+        "perCycle": 1048576
+      },
+      "rootHandles": {
+        "delta": 24,
+        "perCycle": 2
+      },
+      "rootThreads": {
+        "delta": 4,
+        "perCycle": 0.5
+      }
+    },
+    "metrics": {
+      "treePrivateBytes": {
+        "firstMedian": 926572544,
+        "lastMedian": 960135168,
+        "delta": 33562624,
+        "slopePerCycle": 6231381.333333334,
+        "budget": {
+          "delta": 67108864,
+          "perCycle": 4194304
+        },
+        "withinBudget": false
+      },
+      "rootPrivateBytes": {
+        "firstMedian": 83021824,
+        "lastMedian": 82067456,
+        "delta": -954368,
+        "slopePerCycle": 14848,
+        "budget": {
+          "delta": 16777216,
+          "perCycle": 1048576
+        },
+        "withinBudget": true
+      },
+      "rootHandles": {
+        "firstMedian": 664,
+        "lastMedian": 664,
+        "delta": 0,
+        "slopePerCycle": 0,
+        "budget": {
+          "delta": 24,
+          "perCycle": 2
+        },
+        "withinBudget": true
+      },
+      "rootThreads": {
+        "firstMedian": 35,
+        "lastMedian": 36,
+        "delta": 1,
+        "slopePerCycle": 0,
+        "budget": {
+          "delta": 4,
+          "perCycle": 0.5
+        },
+        "withinBudget": true
+      }
+    },
+    "withinBudget": false,
+    "classification": "GROWTH_REQUIRES_DIAGNOSIS"
+  },
+  "stableMeasuredProcessIdentities": true,
+  "sourceFilesUnchanged": true,
+  "functionalPassed": true,
+  "elapsedSeconds": 930.1387603999999,
+  "desktopAliveAtEnd": true,
+  "cleanupRequired": "Stop only the descriptor-owned app after native UI observation and executable/start ownership verification."
+}

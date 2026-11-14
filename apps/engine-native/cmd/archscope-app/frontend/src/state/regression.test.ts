@@ -1074,6 +1074,17 @@ assert(reloaded?.source_files.includes("chrome.har"), "Workspace preserves the s
 assert((reloaded?.result as any)?.summary?.total_transactions === 42, "Workspace retains the populated summary");
 clearWorkspaceResults();
 
+// Import/reentry memory qualification must distinguish retained history from
+// unbounded growth: old results leave the registry after the80-entry capacity.
+const repeatedImports = Array.from({length: 101}, (_, i) => addWorkspaceResult({
+  result: {...workspaceResult, source_files: [`import-${i}.httpsession`]},
+}));
+assert(repeatedImports.filter(entry => getWorkspaceEntry(entry.id) !== null).length === 80, "repeated imports must keep a bounded workspace history");
+assert(repeatedImports.slice(0, 21).every(entry => getWorkspaceEntry(entry.id) === null), "old import payloads must leave the registry when history evicts them");
+assert(repeatedImports.slice(21).every(entry => getWorkspaceEntry(entry.id)?.result === entry.result), "retained history must preserve its own exact result identity");
+clearWorkspaceResults();
+assert(repeatedImports.every(entry => getWorkspaceEntry(entry.id) === null), "clearing history must release every registry reference");
+
 // ── T-581: live-capture renderer state and recovery contract ─────────
 const liveSession = {
   sessionId: "cap-t581",

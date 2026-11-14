@@ -1,0 +1,757 @@
+분석 작업 공간
+분석 작업 공간
+도움말 보기
+저장된 케이스
+작업 공간 비우기
+케이스 검색과 재사용 baseline
+근거 가져오기 및 조회
+로컬 근거 경로
+파일 선택
+가져오기 형식
+분석
+저장 결과 열기
+취소
+CPU/GPU 실행: PyTorch / Nsight / rank 문맥
+부하 / LLM 벤치마크 / JVM 크래시 원본
+런타임 / 스레드 / TA / 실행계획 근거
+LLM / gateway trace 근거
+GPU / 추론 서빙 근거
+perf / 제한된 BPF 근거
+메트릭 이력: OTLP / snapshots / Prometheus / Apple / DB / Linux
+원본 py-spy / Speedscope / pprof 프로파일
+입력 안내와 수동 수집
+가져오기 옵션
+￼
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsession
+도움말 보기
+활성
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 11:00:12
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.ht…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 11:00:09
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.h…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 11:00:06
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:59:46
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.ht…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:59:43
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.h…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:59:41
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:59:20
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.ht…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:59:17
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.h…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:59:15
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:58:54
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.ht…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:58:52
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.h…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:58:49
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:58:29
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.ht…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:58:26
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.h…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:58:24
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:58:04
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.ht…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:58:01
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.h…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:57:58
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:57:38
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.ht…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:57:35
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.h…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:57:33
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:57:12
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.ht…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:57:10
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.h…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:57:07
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:56:47
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.ht…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:56:44
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.h…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:56:41
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:56:21
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.ht…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:56:18
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.h…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:56:16
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:55:56
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.ht…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:55:53
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.h…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:55:50
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-4096.…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:55:30
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-32.ht…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 14. 오후 10:55:27
+C:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.httpsessionC:/workspace/archscope/.tmp/windows-final-20261114/import-saturated-amd64/synthetic-512.h…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI

@@ -29,14 +29,29 @@ redaction-growth and persistence-failure receipts remain unchanged.
 Files: notes-unicode-*.jpg/txt, columns-drag-attempt.*, unicode-readback.json,
 native-cases.json. Private controllers, tokens and session files stay ignored.
 
-## 1. Import memory and reentry (measurement continuing)
+## 1. Import memory and reentry
 
 The initial10-cycle32/512/4096-row import screen exceeded tree growth budgets on
 both production architectures. It is retained as GROWTH_REQUIRES_DIAGNOSIS, not
 retrospectively relabeled PASS. Native Workspace shows30result cards after30
 imports. The workspace intentionally retains up to80results; a separately
 declared36-cycle run warms up28cycles before8measured endpoints to cross that
-limit. Its result will be recorded after completion. No GC/cache trim is forced.
+limit. No GC/cache trim is forced.
+
+The36-cycle x86 run passes with tree delta+6.203MiB and median pair slope
++0.653MiB/cycle. The36-cycle x64 run still fails the unchanged slope budget
+(delta+32.008MiB, slope+5.943MiB/cycle). A separately declared16-cycle continuation
+in that same owned x64 app adds8warmup and8measured cycles; its last window passes
+(+7.090MiB,+2.296MiB/cycle, root handles664→664). Original early FAIL receipts are
+preserved. This is a finite late-window result, not universal leak freedom or a
+claim that all initial growth was established to be a cache.
+
+Five result receipts are independently recalculated. Every measured window has
+the same7process identities. The80-result registry bound and eviction of old
+payload references are covered by a101-import state regression; native accessible
+text truncates at19999characters and exposes only35titles, so it does not prove
+the full native card count. The initial30-card observation was below that limit.
+Full app tests after the two fixes pass43.890s/46.409s on Windows amd64/386.
 
 Native amd64 Workspace→Capture reentry restores32rows, selected first request and
 Raw200. The route transition is separate from the automatic matched samples.
