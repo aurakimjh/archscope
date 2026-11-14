@@ -438,5 +438,35 @@
     "id": "msa-average-no-eligible-fixed",
     "result": "PASS",
     "observed": "Capacity-only average now explicitly states no eligible signature and points to Summary/Parser issues and capacity exclusions; export/Workspace actions stay disabled. Same synthetic marker fixture."
+  },
+  {
+    "id": "trace-invalid-json",
+    "result": "PASS",
+    "observed": "Malformed Trace JSON reports actual ENGINE_FAILED parse error while both result tables stay empty; Browse/Analyze remain reachable."
+  },
+  {
+    "id": "trace-twelve-values",
+    "result": "PARTIAL",
+    "observed": "Valid retry shows12traces/3spans each,240.00duration,0errors; all12trace rows fit before scroll. Unit is currently omitted from Trace/observed-path column headers despite ms formatting; explicit-unit correction follows."
+  },
+  {
+    "id": "trace-input-change-clears",
+    "result": "PASS",
+    "observed": "Selecting orphan input removes all36 previous span rows before rerun; new input remains selected."
+  },
+  {
+    "id": "trace-orphan-parent",
+    "result": "PASS",
+    "observed": "Owned Jaeger orphan fixture:3spans/1trace/2services/1dependency,missingParent1,errors0,P95/max240ms and explicit absent-parent warning; no fabricated parent span."
+  },
+  {
+    "id": "trace-units-fixed",
+    "result": "PASS",
+    "observed": "Final ef9c9dd8-plus-trace-units build shows explicit ms in duration/observed elapsed headers;12traces each3spans/240ms/0errors fit. Estimated observed path remains explicitly an estimate."
+  },
+  {
+    "id": "trace-span-units-fixed",
+    "result": "PASS",
+    "observed": "Final native Span table explicitly labels ms and retains240/90/70values with20complete rows before scroll atOS100/Web100."
   }
 ]

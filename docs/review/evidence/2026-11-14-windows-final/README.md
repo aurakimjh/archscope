@@ -330,3 +330,19 @@ Frontend state/build pass; native before/after cases are separate build pins.
 Current native MSA accepts Jennifer text exports(.txt/.log/.profile); no CSV column
 mapping control is exposed. CSV mapping/reference equivalence, every locale/DPI/
 partial combination and in-flight cancellation are not declared complete.
+
+## Trace input identity, units and missing parents
+
+Owned Jaeger fixtures produce12traces/36spans, each240ms with90/70ms children.
+Invalid JSON refuses with ENGINE_FAILED and valid retry restores correct values.
+Changing input immediately clears old rows; select/clear/new-run retire inflight
+identity and result/error. An orphan fixture keeps3spans, reports missingParent1,
+1dependency and explicit warning without inventing a missing parent.
+
+Trace/Span/average/estimated-path duration headers now explicitly state ms in
+EN/KO. Native ef9c9dd8-plus-trace-units verifies final headers and values. Prior
+unit-omission PARTIAL is preserved. Pre-fix span layout had20complete rows and
+0.714clipped union at1280x800(OS100/Web100); Trace had12complete/0.618. This does
+not establish every tab/locale/DPI/reference combination. Trace route exposes
+tabs/options/evidence; it has no per-trace selection/filter control, so those
+checklist interactions are not asserted complete. Frontend state/build pass.

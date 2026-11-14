@@ -100,16 +100,22 @@ export function TraceImportPage(): React.JSX.Element {
   );
 
   const handleFileSelected = useCallback((file: FileDockSelection) => {
+    inflightRef.current = null;
     setSelectedFile(file);
+    setResult(null);
     setState("ready");
     setError(null);
     setEngineMessages([]);
   }, []);
 
   const handleClearFile = useCallback(() => {
+    inflightRef.current = null;
     setSelectedFile(null);
-    if (state !== "running") setState("idle");
-  }, [state]);
+    setResult(null);
+    setError(null);
+    setEngineMessages([]);
+    setState("idle");
+  }, []);
 
   const analyze = useCallback(async () => {
     if (!canAnalyze) return;
@@ -120,6 +126,7 @@ export function TraceImportPage(): React.JSX.Element {
       return;
     }
     setState("running");
+    setResult(null);
     setError(null);
     setEngineMessages([]);
     const token = Symbol("trace-import-analysis");

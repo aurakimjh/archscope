@@ -1,0 +1,57 @@
+Trace Import
+trace-orphan.json
+도움말 보기
+trace-orphan.json
+찾아보기
+Clear file
+분석
+분석 옵션
+요약
+서비스
+Trace
+Span
+파서 리포트
+총 SPAN
+도움말 보기
+3
+TRACE
+도움말 보기
+1
+서비스
+도움말 보기
+2
+의존성
+도움말 보기
+1
+오류 SPAN
+도움말 보기
+0
+누락 PARENT
+도움말 보기
+1
+P95 TRACE
+도움말 보기
+240 ms
+최대 TRACE
+도움말 보기
+240 ms
+CLOCK SKEW
+도움말 보기
+0
+오류 EDGE
+도움말 보기
+0
+분석 결과
+도움말 보기
+WARNING
+Some spans reference parent spans that were not present in the export.
+추가
+WARNING
+One service accounts for most imported span latency.
+추가
+INFO
+At least one imported trace spans multiple services.
+추가
+INFO
+At least one trace is dominated by a single span.
+추가

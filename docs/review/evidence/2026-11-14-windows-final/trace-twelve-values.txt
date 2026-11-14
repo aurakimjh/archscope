@@ -1,0 +1,171 @@
+Trace Import
+trace-twelve.json
+도움말 보기
+trace-twelve.json
+찾아보기
+Clear file
+분석
+분석 옵션
+요약
+서비스
+Trace
+Span
+파서 리포트
+Trace 테이블
+도움말 보기
+TRACE ID
+￼
+SPAN
+￼
+시간
+￼
+오류
+￼
+최장 SPAN
+￼
+증거
+￼
+native-trace-00
+3
+240.00
+0
+GET /checkout
+￼
+native-trace-01
+3
+240.00
+0
+GET /checkout
+￼
+native-trace-02
+3
+240.00
+0
+GET /checkout
+￼
+native-trace-03
+3
+240.00
+0
+GET /checkout
+￼
+native-trace-04
+3
+240.00
+0
+GET /checkout
+￼
+native-trace-05
+3
+240.00
+0
+GET /checkout
+￼
+native-trace-06
+3
+240.00
+0
+GET /checkout
+￼
+native-trace-07
+3
+240.00
+0
+GET /checkout
+￼
+native-trace-08
+3
+240.00
+0
+GET /checkout
+￼
+native-trace-09
+3
+240.00
+0
+GET /checkout
+￼
+native-trace-10
+3
+240.00
+0
+GET /checkout
+￼
+native-trace-11
+3
+240.00
+0
+GET /checkout
+￼
+관측 호출 경로 경과시간 (추정)
+도움말 보기
+TRACE ID
+￼
+관측 경과시간 (추정)
+￼
+SPAN
+￼
+서비스
+￼
+SPAN CHAIN
+￼
+native-trace-00
+240.00
+3
+checkout-service, inventory-service
+GET /checkout > GET /inventory > GET /inventory
+native-trace-01
+240.00
+3
+checkout-service, inventory-service
+GET /checkout > GET /inventory > GET /inventory
+native-trace-02
+240.00
+3
+checkout-service, inventory-service
+GET /checkout > GET /inventory > GET /inventory
+native-trace-03
+240.00
+3
+checkout-service, inventory-service
+GET /checkout > GET /inventory > GET /inventory
+native-trace-04
+240.00
+3
+checkout-service, inventory-service
+GET /checkout > GET /inventory > GET /inventory
+native-trace-05
+240.00
+3
+checkout-service, inventory-service
+GET /checkout > GET /inventory > GET /inventory
+native-trace-06
+240.00
+3
+checkout-service, inventory-service
+GET /checkout > GET /inventory > GET /inventory
+native-trace-07
+240.00
+3
+checkout-service, inventory-service
+GET /checkout > GET /inventory > GET /inventory
+native-trace-08
+240.00
+3
+checkout-service, inventory-service
+GET /checkout > GET /inventory > GET /inventory
+native-trace-09
+240.00
+3
+checkout-service, inventory-service
+GET /checkout > GET /inventory > GET /inventory
+native-trace-10
+240.00
+3
+checkout-service, inventory-service
+GET /checkout > GET /inventory > GET /inventory
+native-trace-11
+240.00
+3
+checkout-service, inventory-service
+GET /checkout > GET /inventory > GET /inventory

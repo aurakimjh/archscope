@@ -5604,3 +5604,11 @@ Fixed file-set changes retaining old results/exports and guarded late replies.
 Added native-verified no-eligible-average guidance. Frontend state/build pass.
 No actual5MBpressure/CSVmapping/full reference-DPI claim. T-627 REVIEW. Evidence:
 docs/review/evidence/2026-11-14-windows-final/README.md.
+
+### 2026-11-15 - T-627 Trace provenance and explicit time units
+
+Trace file change/clear/new-run invalidates prior result and request identity;
+EN/KO duration headers explicitly state ms. Native12trace/36span values and
+missing-parent1warning pass; malformed-input retry and prior-unit PARTIAL remain
+archived. Frontend state/build pass. No absent per-trace filter/selection UI or
+full reference/DPI acceptance claim. Evidence:2026-11-14-windows-final. T-627 REVIEW.

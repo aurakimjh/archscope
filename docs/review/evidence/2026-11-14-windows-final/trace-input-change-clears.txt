@@ -1,0 +1,29 @@
+Trace Import
+trace-orphan.json
+도움말 보기
+trace-orphan.json
+찾아보기
+Clear file
+분석
+분석 옵션
+요약
+서비스
+Trace
+Span
+파서 리포트
+Span 테이블
+도움말 보기
+TRACE ID
+￼
+SPAN ID
+￼
+서비스
+￼
+SPAN
+￼
+종류
+￼
+시간
+￼
+오류
+￼
