@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "finding": "WREV-01",
+  "status": "LOCALLY_VERIFIED",
+  "sourceBase": "e113eadc42946a50b2b09e1a74c8b934a02f00f0",
+  "host": {
+    "python": "3.14.4",
+    "command": "python3 -B -m unittest discover -s scripts/acceptance/layout -p test_p2_windows_readback.py -v",
+    "exitCode": 0,
+    "testCount": 23,
+    "testsPassed": [
+      "test_annotation_types_do_not_coerce_bool_int_null_or_strings",
+      "test_changed_note_is_rejected",
+      "test_changed_star_is_rejected",
+      "test_exact_star_and_unicode_note_match_sidecar",
+      "test_explicit_clear_overrides_inline_annotation",
+      "test_host_and_query_are_checked_in_export_not_overwritten",
+      "test_identity_set_duplicates_and_missing_selection_are_rejected",
+      "test_input_objects_are_unchanged",
+      "test_live_inline_annotations_are_replaced_by_absent_sidecar_defaults",
+      "test_missing_and_explicit_zero_values_are_equivalent",
+      "test_missing_nondefault_annotation_is_rejected",
+      "test_nested_query_encoding_and_duplicate_keys_remain_exact",
+      "test_policy_states_defaults_and_no_excluded_fields_without_legacy_flag",
+      "test_reordering_never_transfers_annotation_to_another_id",
+      "test_unrelated_and_future_transaction_fields_are_not_excluded",
+      "test_valid_orphan_annotation_does_not_attach_to_retained_rows",
+      "test_cli_annotation_corruption_fails_without_publishing_even_under_optimization",
+      "test_existing_evidence_report_is_never_overwritten",
+      "test_invalid_sidecar_cannot_fall_back_to_no_annotations",
+      "test_private_store_must_belong_to_isolated_run",
+      "test_query_cli_reads_sidecar_and_publishes_precise_public_report",
+      "test_soak_file_integration_preserves_exact_annotation",
+      "test_unannotated_missing_sidecar_and_omitempty_fields_pass"
+    ],
+    "elapsedSeconds": 0.39,
+    "rawLogSHA256": "a9aeaff277219cb98702cf2512fc50cb319e56624b5238956de5a0bc5688a3ca"
+  },
+  "docker": {
+    "image": "python:3.12-alpine",
+    "network": "none",
+    "readOnlyRoot": true,
+    "temporaryFilesystemBytes": 67108864,
+    "exitCode": 0,
+    "testCount": 23,
+    "testsPassed": [
+      "test_annotation_types_do_not_coerce_bool_int_null_or_strings",
+      "test_changed_note_is_rejected",
+      "test_changed_star_is_rejected",
+      "test_exact_star_and_unicode_note_match_sidecar",
+      "test_explicit_clear_overrides_inline_annotation",
+      "test_host_and_query_are_checked_in_export_not_overwritten",
+      "test_identity_set_duplicates_and_missing_selection_are_rejected",
+      "test_input_objects_are_unchanged",
+      "test_live_inline_annotations_are_replaced_by_absent_sidecar_defaults",
+      "test_missing_and_explicit_zero_values_are_equivalent",
+      "test_missing_nondefault_annotation_is_rejected",
+      "test_nested_query_encoding_and_duplicate_keys_remain_exact",
+      "test_policy_states_defaults_and_no_excluded_fields_without_legacy_flag",
+      "test_reordering_never_transfers_annotation_to_another_id",
+      "test_unrelated_and_future_transaction_fields_are_not_excluded",
+      "test_valid_orphan_annotation_does_not_attach_to_retained_rows",
+      "test_cli_annotation_corruption_fails_without_publishing_even_under_optimization",
+      "test_existing_evidence_report_is_never_overwritten",
+      "test_invalid_sidecar_cannot_fall_back_to_no_annotations",
+      "test_private_store_must_belong_to_isolated_run",
+      "test_query_cli_reads_sidecar_and_publishes_precise_public_report",
+      "test_soak_file_integration_preserves_exact_annotation",
+      "test_unannotated_missing_sidecar_and_omitempty_fields_pass"
+    ],
+    "elapsedSeconds": 0.61,
+    "rawLogSHA256": "a08c40f5efc9cc3c305147db57be6d6ccc4b976f5173d1b23c1fa0ff7f1aa45a",
+    "initialInvocation": "Did not start because log directory creation raced with output redirection; rerun after explicit directory creation passed",
+    "taskContainersRemaining": 0
+  },
+  "targetedGo": {
+    "command": "go test ./cmd/archscope-app -run '^(TestAnnotationsKeepIdentityAcrossSaveReopen|TestAnnotationUTF8BoundariesAndRedactionExpansion)$' -count=1",
+    "exitCode": 0,
+    "targets": [
+      "TestAnnotationsKeepIdentityAcrossSaveReopen",
+      "TestAnnotationUTF8BoundariesAndRedactionExpansion"
+    ],
+    "rawLogSHA256": "62cb80e7727ca716f857cb4c7b2954bd21314095c5d90f023a385eafb48be322",
+    "warning": "Existing newer macOS SDK objects versus deployment target; tests passed"
+  },
+  "beforeAfterProbe": {
+    "scope": "Synthetic comparator regression, no new Windows execution",
+    "legacyChangedAnnotationsCompareEqual": true,
+    "validAuthoritativeAnnotationAccepted": true,
+    "comparisonPolicy": {
+      "excludedFields": [],
+      "expectedURLFields": "host/query derived from source retained URL; exported fields are checked",
+      "annotationSource": "store annotations.json replaces inline live-row starred/comment by transaction ID",
+      "missingAnnotationDefaults": {
+        "starred": false,
+        "comment": ""
+      },
+      "annotationTypes": {
+        "starred": "boolean",
+        "comment": "string"
+      },
+      "requestAnnotationOverrides": "not supported by this verification scope"
+    },
+    "legacyBroadFlagAbsent": true,
+    "changedStarredRejected": true,
+    "changedCommentRejected": true
+  },
+  "ci": {
+    "workflow": ".github/workflows/engine-native.yml",
+    "job": "wails-frontend",
+    "scriptChangesTriggerWorkflow": true,
+    "regressionStepAdded": true
+  },
+  "sourceSHA256": {
+    "scripts/acceptance/layout/verify_p2_windows_readback.py": "825d37ff5356b4676259328ff54db14fdcd208a6ae7a1be00c6d39b6a9324a2a",
+    "scripts/acceptance/layout/test_p2_windows_readback.py": "e4769be58e31214227f4998e9ebaae9019eb06a772d06c6d8d9ad9e8114eda70",
+    ".github/workflows/engine-native.yml": "f89ee07251ba2cfb1a7cb227c8d47cc30008823736bb530c04b492d112485367"
+  },
+  "limitations": [
+    "Synthetic Mac/Linux CLI regressions; no new Windows execution",
+    "Original private Windows stores/exports remain unpublished and were not rechecked with schema2 here",
+    "Old received comparator/results remain immutable historical bytes, without retrospective annotation coverage",
+    "Independent review, T-613 PENDING/T-627 REVIEW/T-662 TODO remain separate"
+  ]
+}

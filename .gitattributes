@@ -135,3 +135,10 @@ scripts/test-desktop-soak-checks.mjs text eol=lf
 # Passive T-662 observations are generated as UTF-8/LF and hash those bytes.
 docs/review/evidence/2026-11-14-t662-natural/*.json text eol=lf
 docs/review/evidence/2026-11-14-t662-natural/*.md text eol=lf
+
+# Received Windows evidence review summaries use canonical LF bytes.
+docs/review/evidence/2026-11-14-p2-windows-review/*.json text eol=lf
+docs/review/evidence/2026-11-14-p2-windows-review/*.md text eol=lf
+docs/review/evidence/2026-11-14-p2-windows-review/*.py text eol=lf
+scripts/acceptance/layout/verify_p2_windows_readback.py text eol=lf
+scripts/acceptance/layout/test_p2_windows_readback.py text eol=lf

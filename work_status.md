@@ -1150,7 +1150,26 @@ validation receipts; the independent/native acceptance gates remain separate.
 | Order | Finding | Priority | Status | Action / acceptance |
 |---:|---|---|---|---|
 | 1 | WR-01 | P2 | WINDOWS_VERIFIED_SCOPED | First-delimiter query slicing preserves nested `?`, encoding and fragment boundaries. Mac HAR proof is supplemented by actual Windows x64/x86 live retained-URL fallback: four confirmed200requests per app, empty separate query, exact Path filter/ascending-descending sort/Query/Raw.386 additionally checks repeated `?` and encoded duplicate keys.15selected native PASS and both4row export ID/selection/URL readbacks; frontend/build, full app and24capture packages on each arch pass. Full reference/locale/DPI acceptance remains separate. |
-| 2 | WR-02 | P2 | WINDOWS_VERIFIED_SCOPED | Shared schema4 predicates now also pass28success/failure tests on Windows. Fresh production x64/x86 runs last130.382/130.566seconds with468/464captured=persisted, zero drops,6checkpoints and2pauses each. Both stop finalized, save/open128rows, match independent all-field/selection readback and native final screens. Owned apps/origin cleaned up. This is short revised-runner integration, not a new2hour/leak or native disk-fault verdict;10minute Clear not exercised. Historical receipts and independent re-review remain separate. |
+| 2 | WR-02 | P2 | WINDOWS_VERIFIED_SCOPED | Shared schema4 predicates now also pass28success/failure tests on Windows. Fresh production x64/x86 runs last130.382/130.566seconds with468/464captured=persisted, zero drops,6checkpoints and2pauses each. Both stop finalized, save/open128rows, match received comparison of transaction fields other than starred/comment plus selection after host/query normalization, with native final screens. Star/comment equality is not established by that comparator (WREV-01). Owned apps/origin cleanup is recorded. This is short revised-runner integration, not a new2hour/leak or native disk-fault verdict;10minute Clear not exercised. Historical receipts and independent re-review remain separate. |
+
+Received Windows evidence was reviewed locally at `e113eadc`: both artifact
+inventories match (24query/42combined entries), seven source paths match the
+product LF/CRLF bytes and all12soak checkpoints/final counters are consistent.
+Six representative screenshots agree with the reported limited scope. Host
+28predicate tests and frontend state/build pass. Windows raw store/export/binary
+files are private, so their comparisons remain producer receipts. This is not an
+independent re-review of the same author's P2 fixes; the original CONDITIONAL
+document remains pending for a different AI.
+
+| Order | Evidence follow-up under T-613 | Priority | Status | Action / acceptance |
+|---:|---|---|---|---|
+| 1 | WREV-01 | P3 | LOCALLY_VERIFIED | Maintained verify_p2_windows_readback.py now compares every transaction field under an explicit schema2 policy: expected host/query normalization, authoritative annotations.json by ID and false/empty missing defaults. Changed/missing star/comment, invalid types and borrowed notes fail. New precise flags replace the broad legacy claim.23Python regressions pass on Mac/Docker and two existing Go annotation/export tests pass; CI wired. Original received bytes/old flags stay unchanged. Native private-file schema2 rerun and independent review remain separate; no product annotation-loss defect is claimed. |
+
+Remaining Windows acceptance includes revised-runner long duration with the
+10-minute Clear path, native failure/retry scenarios and existing reference/
+locale/DPI/vendor/driver/service gates. The130-second evidence does not close
+those scopes; T-613 PENDING/T-627 REVIEW and numbered-task counts stay unchanged.
+Review receipt: `docs/review/evidence/2026-11-14-p2-windows-review/local.json`.
 
 Host targeted Go tests/vet, frontend state/build and deterministic resource checks
 pass. All 404 artifact digests across seven new manifests match. Independent
@@ -5359,3 +5378,46 @@ nonzero-swap/elevated-pressure sample is still missing. Original2026-11-13 evide
 and independent review verdicts are preserved. The user subsequently authorized
 commit/push of this observation and tracker update while retaining T-662 as TODO.
 Receipt: `docs/review/evidence/2026-11-14-t662-natural/local.json`.
+
+### 2026-11-14 - Received Windows P2 evidence review at e113eadc
+
+Requested fast-forward pull imported6a3f0485/e113eadc while restoring all four
+preexisting local HTTP changes. Checked24query and42combined hash/length entries,
+seven source LF/CRLF byte relationships and all12schema4 checkpoints/final stats.
+The two130-second runs show468/464captured=persisted, zero drops, finalized
+stop and128saved rows. Query receipts cover live empty-query fallback on both
+architectures, four rows each and selected sequence2. Combined17native records
+match split inventories; six representative JPEGs agree with their recorded
+limited scope. Host28predicate regressions, frontend state/build pass.
+
+WREV-01 initially recorded a P3 TODO evidence precision issue: the readback
+normalizer omits starred/comment although flags/prose claim all-field equality
+after URL normalization. Synthetic changed star/comment values still compare
+equal; tracker wording is narrowed. This is not an observed product loss or new
+P1/P2. Preserve received bytes and qualify future flags/text or add annotation
+comparisons. Raw Windows store/export/binary and full logs are private, so their
+checks remain received receipts. No new Windows run or independent re-review of
+the same author's fix is claimed. Revised-runner long duration/Clear, native
+faults and existing full acceptance remain open. T-613 PENDING/T-627 REVIEW and
+T-662 TODO unchanged. The subsequent user instruction authorizes the review and
+WREV-01 remediation to be committed and pushed; local remediation is recorded below.
+Receipt: `docs/review/evidence/2026-11-14-p2-windows-review/local.json`.
+
+### 2026-11-14 - WREV-01 readback comparison remediation
+
+Added maintained P2 readback verification with schema2 policy/flags and no excluded
+transaction fields. Store annotations.json replaces inline starred/comment by ID,
+including false/empty defaults as in Go ExportCaptureFile; expected host/query
+derive from retained URL and exported fields must match. Changed/missing notes,
+wrong types and cross-ID annotation transfer fail. Private values are omitted
+from output; failures never publish success and existing reports are preserved.
+Mac and network-none/read-only Docker Python3.12 each pass23regression cases,
+including CLI query/128-row soak fixtures and failure under Python -O. Targeted
+Go annotation boundary and real export/save/reopen tests pass; CI triggers and
+test step added. The initial Docker invocation did not start before its log
+directory existed; a rerun after explicit creation passed. No product change or
+new native Windows run; original Windows receipts/flags remain historical.
+WREV-01 LOCALLY_VERIFIED, independent review/native acceptance separate. User
+authorizes committing/pushing this fix, review evidence and tracker changes;
+T-613 PENDING/T-627 REVIEW/T-662 TODO and task counts remain unchanged.
+Receipt: `docs/review/evidence/2026-11-14-p2-windows-review/regression-results.json`.

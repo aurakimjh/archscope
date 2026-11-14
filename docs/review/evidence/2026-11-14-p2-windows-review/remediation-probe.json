@@ -1,0 +1,22 @@
+{
+  "scope": "Synthetic comparator regression, no new Windows execution",
+  "legacyChangedAnnotationsCompareEqual": true,
+  "validAuthoritativeAnnotationAccepted": true,
+  "comparisonPolicy": {
+    "excludedFields": [],
+    "expectedURLFields": "host/query derived from source retained URL; exported fields are checked",
+    "annotationSource": "store annotations.json replaces inline live-row starred/comment by transaction ID",
+    "missingAnnotationDefaults": {
+      "starred": false,
+      "comment": ""
+    },
+    "annotationTypes": {
+      "starred": "boolean",
+      "comment": "string"
+    },
+    "requestAnnotationOverrides": "not supported by this verification scope"
+  },
+  "legacyBroadFlagAbsent": true,
+  "changedStarredRejected": true,
+  "changedCommentRejected": true
+}

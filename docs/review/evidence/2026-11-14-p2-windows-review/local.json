@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-14",
+  "reviewKind": "Received Windows execution-evidence audit by original reviewer/fix author; not independent fix re-review",
+  "beforePull": "db8dc59b3645e33f648c6c953b1eba4c45358a83",
+  "afterPull": "e113eadc42946a50b2b09e1a74c8b934a02f00f0",
+  "receivedCommits": [
+    "6a3f04852d12cf974cbdfac6505526d2e2ef0eb0",
+    "e113eadc42946a50b2b09e1a74c8b934a02f00f0"
+  ],
+  "testedProductCommit": "324a8d97432a8f9a144cb48b545cc7cb8f21da08",
+  "conclusion": "Scoped query/short-finalization receipts remain consistent; WREV-01 comparison claim remediated locally by maintained schema2 verifier and regression coverage",
+  "additionalProductP1P2Established": 0,
+  "artifactManifests": [
+    {
+      "path": "docs/review/evidence/2026-11-14-p2-windows/artifact-query-sha256.json",
+      "entries": 24,
+      "manifestSHA256": "b2a29e573ec5c0d448a21f3c4d3696a6b9a64ac2dca4c527e03d234a1f4642e0",
+      "allDigestsAndByteLengthsMatch": true
+    },
+    {
+      "path": "docs/review/evidence/2026-11-14-p2-windows/artifact-sha256.json",
+      "entries": 42,
+      "manifestSHA256": "08c793de9f2c233bc1ef394e65ea88490a5feead86381fd342eccfad88e4b50d",
+      "allDigestsAndByteLengthsMatch": true
+    }
+  ],
+  "combinedManifestCoversEveryPublicFile": true,
+  "sourceByteRelationships": {
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/httpPayload.ts": {
+      "gitBlobSHA256": "cdfad62c947d21d76fb3423978212f1297da9ab7fa48d9641d46ed834151e115",
+      "declaredExecutedSHA256": "69c391cd9e9fa3cf579b777046c54a4366e0cf613952700cc26ec8909b6c1602",
+      "byteRelationship": "exact CRLF variant of LF blob",
+      "receiptSnapshot": null
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/httpColumns.ts": {
+      "gitBlobSHA256": "47ff924d66347f011066ef4ea5213f9f884ad43b708abbc044f96613e0776dd5",
+      "declaredExecutedSHA256": "8b377370c30467577e5b66e0cf526e4046babc630d5f3a0be9ead03d56b58e92",
+      "byteRelationship": "exact CRLF variant of LF blob",
+      "receiptSnapshot": null
+    },
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts": {
+      "gitBlobSHA256": "93f287cfa8c45d2edde6e5cb672b72db18ea5ea5b2bbfb0781e35d1d63e6ca6f",
+      "declaredExecutedSHA256": "465ea697789001a23ad7e2168ab05392d123d9f8b1d39ad9e3018dc54e13fd3d",
+      "byteRelationship": "exact CRLF variant of LF blob",
+      "receiptSnapshot": null
+    },
+    "scripts/acceptance/layout/soak-origin.py": {
+      "gitBlobSHA256": "435ddcff66e17fad0a9da18c7e96ffbb8803f049cfedc1990518472301dafacd",
+      "declaredExecutedSHA256": "435ddcff66e17fad0a9da18c7e96ffbb8803f049cfedc1990518472301dafacd",
+      "byteRelationship": "exact LF",
+      "receiptSnapshot": "soak-origin-used.py"
+    },
+    "scripts/verify-windows-desktop-soak.mjs": {
+      "gitBlobSHA256": "31d704c35c6251fa5e07069c3795402cc244245cecc60686ea00abbaf73b5eb1",
+      "declaredExecutedSHA256": "31d704c35c6251fa5e07069c3795402cc244245cecc60686ea00abbaf73b5eb1",
+      "byteRelationship": "exact LF",
+      "receiptSnapshot": "soak-runner-used.mjs"
+    },
+    "scripts/lib/desktop-soak-checks.mjs": {
+      "gitBlobSHA256": "0aa05a1308a1b77f9cc473517696a95e6bbc7673c399e0e3c1305cf452f193d7",
+      "declaredExecutedSHA256": "0aa05a1308a1b77f9cc473517696a95e6bbc7673c399e0e3c1305cf452f193d7",
+      "byteRelationship": "exact LF",
+      "receiptSnapshot": "soak-checks-used.mjs"
+    },
+    "scripts/test-desktop-soak-checks.mjs": {
+      "gitBlobSHA256": "a92bb0c20e94a62c9922e7b9daec4132902c808048d4719328afb8a72744129c",
+      "declaredExecutedSHA256": "a92bb0c20e94a62c9922e7b9daec4132902c808048d4719328afb8a72744129c",
+      "byteRelationship": "exact LF",
+      "receiptSnapshot": "soak-tests-used.mjs"
+    }
+  },
+  "soakRecalculation": [
+    {
+      "arch": "amd64",
+      "elapsedSeconds": 130.3817031,
+      "requests": 468,
+      "verifiedCheckpoints": 6,
+      "pauses": 2,
+      "clears": 0,
+      "finalStats": {
+        "retentionRows": 128,
+        "retained": 128,
+        "evicted": 340,
+        "generation": 0,
+        "state": "finalized",
+        "observed": 468,
+        "captured": 468,
+        "persisted": 468,
+        "bodyOmitted": 0,
+        "eventSkipped": 0,
+        "kernelDropped": 0,
+        "parseFailed": 0,
+        "unsupported": 0,
+        "passthrough": 0,
+        "unattributed": 0,
+        "dropped": 0,
+        "backpressured": false,
+        "snapshotVersion": 468,
+        "sequence": 468,
+        "storeBytes": 239340
+      },
+      "savedRows": 128,
+      "reportedSavedSHA256": "3dfb35442bc033238ebc069dce01ed2ac42ebd604057e0f423a275ab0804cece",
+      "reportedSelectedSequence": 341,
+      "queryRows": 4,
+      "binarySHA256Consistency": true,
+      "resources": {
+        "TreePrivateMemorySize64": {
+          "first": 370458624,
+          "last": 430067712
+        },
+        "HandleCount": {
+          "first": 564,
+          "last": 640
+        },
+        "TreeProcessCount": {
+          "first": 7,
+          "last": 7
+        }
+      }
+    },
+    {
+      "arch": "386",
+      "elapsedSeconds": 130.5664087,
+      "requests": 464,
+      "verifiedCheckpoints": 6,
+      "pauses": 2,
+      "clears": 0,
+      "finalStats": {
+        "retentionRows": 128,
+        "retained": 128,
+        "evicted": 336,
+        "generation": 0,
+        "state": "finalized",
+        "observed": 464,
+        "captured": 464,
+        "persisted": 464,
+        "bodyOmitted": 0,
+        "eventSkipped": 0,
+        "kernelDropped": 0,
+        "parseFailed": 0,
+        "unsupported": 0,
+        "passthrough": 0,
+        "unattributed": 0,
+        "dropped": 0,
+        "backpressured": false,
+        "snapshotVersion": 464,
+        "sequence": 464,
+        "storeBytes": 239640
+      },
+      "savedRows": 128,
+      "reportedSavedSHA256": "0eefef9c34a8b78bc4ca992e1bbdbb1547a818de2ce94c911e2eec6961dfe4c0",
+      "reportedSelectedSequence": 337,
+      "queryRows": 4,
+      "binarySHA256Consistency": true,
+      "resources": {
+        "TreePrivateMemorySize64": {
+          "first": 365105152,
+          "last": 392679424
+        },
+        "HandleCount": {
+          "first": 581,
+          "last": 673
+        },
+        "TreeProcessCount": {
+          "first": 7,
+          "last": 7
+        }
+      }
+    }
+  ],
+  "verifiedCheckpoints": 12,
+  "nativeCases": {
+    "received": 17,
+    "queryCases": 15,
+    "soakCases": 2,
+    "screenshotBacked": 16,
+    "accessibilityOnly": 1,
+    "splitAndCombinedRecordsMatchIgnoringOrder": true,
+    "representativeScreenshotsViewed": [
+      "amd64-live-raw-nested.jpg",
+      "386-repeated-query-inspector.jpg",
+      "amd64-schema4-final-roundtrip.jpg",
+      "amd64-path-sort-asc.jpg",
+      "amd64-path-sort-desc.jpg",
+      "386-schema4-final-roundtrip.jpg"
+    ]
+  },
+  "checks": [
+    {
+      "command": "node --test scripts/test-desktop-soak-checks.mjs",
+      "platform": "macOS",
+      "exitCode": 0,
+      "testsPassed": 28
+    },
+    {
+      "command": "npm run test:state",
+      "platform": "macOS",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run build",
+      "platform": "macOS",
+      "exitCode": 0
+    },
+    {
+      "command": "python3 docs/review/evidence/2026-11-14-p2-windows-review/annotation-probe.py",
+      "platform": "macOS",
+      "exitCode": 0,
+      "result": "Different star/comment values still compare equal under received comparator"
+    }
+  ],
+  "receivedWindowsPredicateTests": {
+    "pass": 28,
+    "fail": 0,
+    "skip": 0
+  },
+  "finding": {
+    "id": "WREV-01",
+    "priority": "P3",
+    "status": "LOCALLY_VERIFIED",
+    "location": "docs/review/evidence/2026-11-14-p2-windows/readback-verifier-used.py:9",
+    "actualComparedFields": "All transaction keys except starred/comment, with host/query normalized from URL",
+    "claimToQualify": "allOtherFieldsEqualAfterPortableURLNormalization and all-field prose",
+    "requiredFollowup": "Disclose both exclusions in flag/prose or compare annotation values with explicit missing/default policy and changed-value refusal",
+    "observedProductAnnotationLoss": false,
+    "probe": {
+      "scope": "Received comparison function only; no product failure injected",
+      "differentAnnotationValuesCompareEqual": true,
+      "excludedFields": [
+        "comment",
+        "starred"
+      ]
+    },
+    "statusAtEvidenceReview": "TODO",
+    "remediation": "scripts/acceptance/layout/verify_p2_windows_readback.py; compare authoritative annotations and use explicit schema2 policy/flags"
+  },
+  "limitations": [
+    "No new Windows runtime execution in this review",
+    "Executables/private raw stores/exports and full Windows test logs are not published, so those comparisons/counts remain producer receipts",
+    "Only six representative JPEGs inspected here; one386ascending case has no public screenshot/raw AX dump",
+    "130seconds does not reach10minute Clear or supply new2hour/native disk-fault/leak evidence",
+    "Original CONDITIONAL and independent handling pending for different AI; T-613 PENDING/T-627 REVIEW/T-662 TODO unchanged",
+    "Native private-file rerun with maintained schema2 checker remains separate; old annotation flags are not upgraded"
+  ],
+  "workspace": {
+    "originalFourHTTPChangesRestored": true,
+    "originalReceivedEvidenceUnmodified": true,
+    "committed": false,
+    "pushed": false,
+    "publicationAuthorized": true
+  },
+  "remediation": {
+    "report": "regression-results.json",
+    "hostPythonTests": 23,
+    "dockerPythonTests": 23,
+    "targetedGoAnnotationExportTests": "PASS",
+    "receivedWindowsEvidenceUnchanged": true,
+    "nativeWindowsSchema2Rerun": false
+  }
+}
