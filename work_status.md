@@ -5664,3 +5664,12 @@ Replace random Go map10fieldselection with sortedkeys and exactomissionnotice.
 386after(0.698s/0.625s). Priornativeoutput keeps separatebeforefixpin; final
 integratednativebuild follows. No sourcevalue or Pythonorderingparity claim.
 Evidence:2026-11-14-windows-final. T-627 REVIEW.
+
+### 2026-11-15 - T-627 Report Diff input identity and nonzero retry
+
+Native100→125/250→200 reports give exact+25percent/-20percent. ChangedAfterpath
+keptoldresult; input/labelchanges/unmount now retireidentity and oldresult/error.
+Fixednativeclear,invalidJSONrefusal,validretry,pickerEscape and1024x768values/
+controls pass. State/build andreportdiff suitesWindowsamd64/386 pass. Missing-only
+fields followcommon-numerickeycontract; no absentfilter/selection/fullmatrixclaim.
+T-627REVIEW. Evidence:2026-11-14-windows-final.

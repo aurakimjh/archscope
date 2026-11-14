@@ -608,5 +608,40 @@
     "id": "export-browse-cancel-fixed",
     "result": "PASS",
     "observed": "0b4fcd83-plus-export-cancel: sameBrowse→Escape preserves exactdraftpath; noresult Export disabled and nofilewritten. Native cancellation fix independently pinned from old5mode outputchecks."
+  },
+  {
+    "id": "report-diff-nonzero",
+    "result": "PASS",
+    "observed": "Syntheticlegacyreport100→125requests gives+25/+25percent;mean250→200ms gives-50/-20percent,changedmetrics2,findingdelta0. Addednew_metric excluded by commonnumeric-key contract,not reported as0."
+  },
+  {
+    "id": "report-diff-input-change-before",
+    "result": "FAIL",
+    "observed": "Afterpath changed toinvalidJSON but old+25/-50result remains underdifferentfilepair before rerun."
+  },
+  {
+    "id": "report-diff-input-change-fixed",
+    "result": "PASS",
+    "observed": "519051ef-plus-report-diff: changingAfterpath immediately removes prior summary/deltas; sourcepairidentity retires and late replies are ignored. Nativeinflight timingnotclaimed."
+  },
+  {
+    "id": "report-diff-invalid-json-fixed",
+    "result": "PASS",
+    "observed": "MalformedAfterJSON rejectedwith exactpath/decodeerror,oldresultabsent,retrycontrolsvisible."
+  },
+  {
+    "id": "report-diff-valid-retry-fixed",
+    "result": "PASS",
+    "observed": "ValidAfterJSONretryrestores exact+25/+25percent and-50/-20percent,changed2,noerror. Input/labelchangesalso retireidentity;no exposedfilter/per-rowselectioncontrol."
+  },
+  {
+    "id": "report-diff-picker-cancel",
+    "result": "PASS",
+    "observed": "BeforefilepickerEscape preserves bothpaths and exactnonzeroresult; this is pickercancel,not inflightanalysiscancel."
+  },
+  {
+    "id": "report-diff-small-window",
+    "result": "PASS",
+    "observed": "1024x768 OS100/Web100 preserves exactpair/+25/-50deltas and allformactions; passiveobserverCSS1008x709dpr1 nohorizontal/outeroverflow,2completerows. Sparsefixture,no70percent/denseclaim."
   }
 ]

@@ -1,6 +1,6 @@
 import { Dialogs } from "@/bridge/dialogs";
 import { GitCompareArrows, Loader2, Play } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { engine } from "@/bridge/engine";
 import type { AnalysisResult } from "@/bridge/types";
@@ -29,6 +29,14 @@ export function ReportDiffPage(): React.JSX.Element {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const inflightRef = useRef<symbol | null>(null);
+  useEffect(() => {
+    inflightRef.current = null;
+    setResult(null);
+    setError(null);
+    setBusy(false);
+  }, [beforePath, afterPath, label]);
+  useEffect(() => () => { inflightRef.current = null; }, []);
 
   const pickJson = async (setter: (path: string) => void): Promise<void> => {
     const picked = await Dialogs.OpenFile({
@@ -43,16 +51,19 @@ export function ReportDiffPage(): React.JSX.Element {
   };
 
   const runDiff = async (): Promise<void> => {
-    if (!beforePath || !afterPath) return;
+    if (!beforePath || !afterPath || busy) return;
     setBusy(true);
     setError(null);
     setResult(null);
+    const token = Symbol("report-diff");
+    inflightRef.current = token;
     try {
       const response = (await engine.diffReports({
         beforePath,
         afterPath,
         label: label.trim() || undefined,
       })) as unknown as AnalysisResult;
+      if (inflightRef.current !== token) return;
       setResult(response);
       addWorkspaceResult({
         result: response,
@@ -60,9 +71,13 @@ export function ReportDiffPage(): React.JSX.Element {
         sourceLabel: "comparison",
       });
     } catch (caught) {
+      if (inflightRef.current !== token) return;
       setError(caught instanceof Error ? caught.message : String(caught));
     } finally {
-      setBusy(false);
+      if (inflightRef.current === token) {
+        inflightRef.current = null;
+        setBusy(false);
+      }
     }
   };
 

@@ -444,3 +444,17 @@ Meaningful32key/20projection regression failsbefore(noomissionnotice) and passes
 after,fullPPTXexporter suiteWindowsamd640.698s/3860.625s. Sourceoriginalmeasurement
 semantics unchanged. Nativeafter is pending finalintegratedbuild; oldnativePPTX
 receipt is not relabeled. This does not assert independentPythonorderingparity.
+
+## Report Diff nonzero changes, input identity and retry
+
+Owned legacyJSON reports100→125requests give+25/+25percent,250→200ms mean gives
+-50/-20percent; changedmetrics2/findingdelta0. Added-onlynew_metric is excluded by
+the existing common-numeric-key contract, not synthesized as0. No UI filter or
+per-row selection control exists. ChangingAfterpath initially kept oldcomparison;
+input/labelchanges now retire request identity, clear result/error/busy, ignore
+late replies and retire on unmount. Native519051ef-plus-report-diff verifies
+immediateclear,invalidJSONdecode refusal and validnonzero retry. BeforepickerEscape
+preservesbothpaths/result. 1024x768 OS100/Web100 retainsallcontrols/twoexactrows;
+passive1008x709dpr1 reports nohorizontal/outeroverflow. No70percent/denseclaim.
+Frontendstate/build and fullreportdiff suitesWindowsamd640.636s/3860.647s pass.
+Full type/precision/refusal/export/reference/locale/DPI matrix remains separate.
