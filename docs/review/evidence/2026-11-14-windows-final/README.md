@@ -100,3 +100,13 @@ failures stay private. They are not new product defects. Native Go Builder/proxy
 sessionfile tests pass on both arches (functional-validation.json), covering raw/
 form/multipart, timeout/cancel, TLS refusal and response limits. GUI form/multipart
 and Builder drag remain separate from those backend tests.
+
+## Retained body redaction provenance defect
+
+Full-field comparison of the actual body-qualified x86 session exposes two request
+redacted=true flags disappearing in export while the payloads remain masked.
+Sanitize now ORs prior provenance with newly applied masking. A three-cycle
+export/open regression fails before the fix and passes afterward in both full
+Windows sessionfile suites (1.252s/1.255s). The existing disclosure must survive
+idempotent masking; this is not a plaintext-body leak. Native store reexport is
+verified separately below when complete.

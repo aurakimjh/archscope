@@ -1222,6 +1222,12 @@ slice and native949emoji refusal/compatible retry are explicit; no full native
 dialog/Office/format parity is implied. Backend Builder/proxy/sessionfile suites
 pass both architectures, including form/multipart/timeout/TLS/limit cases.
 
+Body-qualified x86 export comparison exposed a second session-file sanitizer
+defect: request.redacted=true was reset when an already-masked preview did not
+change on another pass. Preserve prior provenance with OR; a failing-before
+three-cycle export/reopen regression now passes in full Windows sessionfile
+suites (amd641.252s/3861.255s). Native retained-store reexport is recorded separately.
+
 Revised-runner long duration and the10-minute Clear path are now verified on
 Windows x64/x86 with an isolated shared Docker origin. Source324a8d97 app binaries
 are unchanged; runner1b30244b adds explicit empty-generation/reset/refill checks.

@@ -102,7 +102,9 @@ func Sanitize(doc *Document) (redact.Summary, error) {
 				}
 			}
 			before := m.BodyPreview
-			m.BodyPreview, m.Redacted = p.RedactBody(m.ContentType, before)
+			preview, newlyRedacted := p.RedactBody(m.ContentType, before)
+			m.BodyPreview = preview
+			m.Redacted = m.Redacted || newlyRedacted
 			if before != "" && m.BodyPreview == "" {
 				m.BodyStorage = "redacted"
 			}
