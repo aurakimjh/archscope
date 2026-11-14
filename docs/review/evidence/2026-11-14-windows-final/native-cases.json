@@ -643,5 +643,15 @@
     "id": "report-diff-small-window",
     "result": "PASS",
     "observed": "1024x768 OS100/Web100 preserves exactpair/+25/-50deltas and allformactions; passiveobserverCSS1008x709dpr1 nohorizontal/outeroverflow,2completerows. Sparsefixture,no70percent/denseclaim."
+  },
+  {
+    "id": "pptx-stable-native-first",
+    "result": "PASS",
+    "observed": "Integrated519051ef-plus-report-diff NativeExportCenter produces sorted10summarymetrics and exact22additionalmetric omissionnotice,verifiedfromslide2XML. NativeUIexportsuccess; Office renderingnotasserted."
+  },
+  {
+    "id": "pptx-stable-native-repeat",
+    "result": "PASS",
+    "observed": "Two NativeExportCenter outputs fromsameimmutableAccess result are byte-identical7245B,hash0045e3cd7737ab4042508c296c9e7b494cdc0bc59605a498e9a11b592e0469b2;exactsorted10keys and22omitted independentlyverified."
   }
 ]

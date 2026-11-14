@@ -5673,3 +5673,11 @@ Fixednativeclear,invalidJSONrefusal,validretry,pickerEscape and1024x768values/
 controls pass. State/build andreportdiff suitesWindowsamd64/386 pass. Missing-only
 fields followcommon-numerickeycontract; no absentfilter/selection/fullmatrixclaim.
 T-627REVIEW. Evidence:2026-11-14-windows-final.
+
+### 2026-11-15 - T-627 native PowerPoint stable output follow-up
+
+IntegratednativeExportCenter repeats sameAccess result to twofiles: byte-identical
+7245B,sorted10summarykeys and exact22omittednotice. IndependentXML/hash verification
+passes; oldrandomsubsetartifact preserved. Fullguardedapp testsafterPPTXchange
+Windowsamd6437.231s/38643.895s pass. Office rendering/fullmatrix separate.
+Evidence:2026-11-14-windows-final/pptx-stable-native.json.

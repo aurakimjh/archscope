@@ -1,0 +1,21 @@
+{
+  "build": "519051ef-plus-report-diff",
+  "result": "PASS",
+  "identicalRepeatedBytes": true,
+  "bytes": 7245,
+  "sha256": "0045e3cd7737ab4042508c296c9e7b494cdc0bc59605a498e9a11b592e0469b2",
+  "summaryKeys": [
+    "api_avg_response_ms",
+    "api_bytes",
+    "api_count",
+    "api_p95_response_ms",
+    "avg_bytes_per_sec",
+    "avg_requests_per_sec",
+    "avg_response_ms",
+    "detected_format_count",
+    "earliest_timestamp",
+    "error_count"
+  ],
+  "notice": "22 additional metrics omitted; use JSON or CSV for all metrics.",
+  "scope": "NativeExportCenter two outputs; sorted subset and omission, not Office rendering"
+}

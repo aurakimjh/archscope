@@ -458,3 +458,10 @@ preservesbothpaths/result. 1024x768 OS100/Web100 retainsallcontrols/twoexactrows
 passive1008x709dpr1 reports nohorizontal/outeroverflow. No70percent/denseclaim.
 Frontendstate/build and fullreportdiff suitesWindowsamd640.636s/3860.647s pass.
 Full type/precision/refusal/export/reference/locale/DPI matrix remains separate.
+
+Native PowerPoint follow-up:519051ef-plus-report-diff reanalyzes the same owned
+Access fixture and exports twice through ExportCenter. Both outputs are identical
+7245B/SHA0045e3cd7737ab4042508c296c9e7b494cdc0bc59605a498e9a11b592e0469b2.
+Slide2has sortedfirst10keys and exact22omittednotice; all selectedvalues match
+priorJSONsummary. This closes native-after pending above; Office rendering remains
+separate. FullguardedWindowsapp suites afterPPTX change passamd6437.231s/38643.895s.
