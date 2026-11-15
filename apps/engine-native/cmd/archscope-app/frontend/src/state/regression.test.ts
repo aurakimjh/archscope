@@ -1116,6 +1116,25 @@ assert(repeatedImports.slice(21).every(entry => getWorkspaceEntry(entry.id)?.res
 clearWorkspaceResults();
 assert(repeatedImports.every(entry => getWorkspaceEntry(entry.id) === null), "clearing history must release every registry reference");
 
+// Exact repeated HTTP imports retain all history metadata without80 payload copies.
+const sharingInput: any = {type:"http_capture",source_files:["first.httpsession"],created_at:"first",metadata:{marker:"first"},tables:{transactions:[{id:"one",response:{bodyPreview:"preserved"}}]}};
+const sharingKey="v1:"+"a".repeat(64);
+const sharedFirst=addWorkspaceResult({result:sharingInput,httpTransactionRowsFingerprint:sharingKey} as any);
+const sharingSecondInput=structuredClone(sharingInput);sharingSecondInput.created_at="second";sharingSecondInput.source_files=["second.httpsession"];
+const sharedSecond=addWorkspaceResult({result:sharingSecondInput,httpTransactionRowsFingerprint:sharingKey} as any);
+assert(sharedFirst.result.tables!.transactions===sharedSecond.result.tables!.transactions,"equal backend-certified HTTP projections must share immutable transaction storage");
+assert(sharedFirst.id!==sharedSecond.id&&sharedSecond.created_at==="second"&&sharedSecond.source_files[0]==="second.httpsession","shared transaction rows must preserve separate cards, creation metadata and provenance");
+assert(Object.isFrozen(sharedFirst.result.tables!.transactions)&&Object.isFrozen((sharedFirst.result.tables!.transactions as any[])[0].response),"shared history rows must be deeply immutable");
+assert(sharingInput.tables.transactions!==sharedFirst.result.tables!.transactions,"workspace immutable storage must not freeze or replace the caller's source rows");
+sharingSecondInput.tables.transactions[0].response.bodyPreview="caller edit";
+assert((sharedFirst.result.tables!.transactions as any[])[0].response.bodyPreview==="preserved","caller edits must not mutate shared historical rows");
+const sharedEdited=addWorkspaceResult({result:sharingSecondInput,httpTransactionRowsFingerprint:"v1:"+"b".repeat(64)} as any);
+assert(sharedEdited.result.tables!.transactions!==sharedFirst.result.tables!.transactions,"changed payload fingerprints must never alias prior historical rows");
+const unsignedInput=structuredClone(sharingInput);
+const sharedUnsigned=addWorkspaceResult({result:unsignedInput});
+assert(sharedUnsigned.result===unsignedInput&&sharedUnsigned.result.tables!.transactions!==sharedFirst.result.tables!.transactions,"unversioned legacy results retain independent storage");
+clearWorkspaceResults();
+
 // ── T-581: live-capture renderer state and recovery contract ─────────
 const liveSession = {
   sessionId: "cap-t581",

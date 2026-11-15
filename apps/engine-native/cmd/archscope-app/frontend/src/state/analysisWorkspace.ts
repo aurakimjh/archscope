@@ -33,6 +33,8 @@ export type AnalysisWorkspaceSnapshot = {
 };
 
 type AddWorkspaceResultInput = {
+  // Opt-in only for the exact table fingerprint issued by OpenCaptureFile.
+  httpTransactionRowsFingerprint?: string;
   displaySummary?: Array<{ key: string; value: string }>;
   backendResultHandle?: string;
   backendLeaseID?: string;
@@ -42,6 +44,8 @@ type AddWorkspaceResultInput = {
 };
 
 const listeners = new Set<() => void>();
+// No independent strong cache: rows live exactly as long as retained entries.
+const httpRowFingerprints = new WeakMap<AnalysisWorkspaceEntry, string>();
 let entries: AnalysisWorkspaceEntry[] = [];
 let activeID: string | null = null;
 let snapshot: AnalysisWorkspaceSnapshot = {
@@ -82,9 +86,10 @@ export function addWorkspaceResult(input: AddWorkspaceResultInput): AnalysisWork
     created_at: input.result.created_at || new Date().toISOString(),
     recorded_at: new Date().toISOString(),
     summary_preview: input.displaySummary?.slice(0, 8).map(item => ({ ...item })) ?? summaryPreview(input.result.summary),
-    result: input.result,
+    result: sharedHttpImportRows(input),
     ...(input.backendResultHandle ? { backend_result_handle: input.backendResultHandle } : {}),
   };
+  if (input.httpTransactionRowsFingerprint) httpRowFingerprints.set(entry, input.httpTransactionRowsFingerprint);
   const previous = entries;
   entries = [entry, ...entries.filter((candidate) => candidate.id !== entry.id)].slice(0, MAX_ENTRIES);
   for (const removed of previous) if (!entries.some(e => e.id === removed.id)) releaseWorkspaceEntry(removed.id);
@@ -92,6 +97,32 @@ export function addWorkspaceResult(input: AddWorkspaceResultInput): AnalysisWork
   activeID = entry.id;
   emit();
   return entry;
+}
+
+function sharedHttpImportRows(input: AddWorkspaceResultInput): WorkspaceAnalysisResult {
+  const fingerprint = input.httpTransactionRowsFingerprint;
+  const rows = input.result.tables?.transactions;
+  if (input.result.type !== "http_capture" || !fingerprint || !/^v1:[a-f0-9]{64}$/.test(fingerprint) || !Array.isArray(rows)) return input.result;
+  let canonical: unknown[] | undefined;
+  for (const entry of entries) {
+    if (entry.result_type !== "http_capture" || httpRowFingerprints.get(entry) !== fingerprint) continue;
+    const previous = entry.result.tables?.transactions;
+    if (Array.isArray(previous) && previous.length === rows.length) { canonical = previous; break; }
+  }
+  if (!canonical) {
+    // Never freeze the caller's current view. History owns an immutable copy.
+    canonical = structuredClone(rows);
+    const pending: object[] = [canonical];
+    const seen = new WeakSet<object>();
+    while (pending.length) {
+      const value = pending.pop()!;
+      if (seen.has(value)) continue;
+      seen.add(value);
+      for (const child of Object.values(value)) if (child !== null && typeof child === "object") pending.push(child);
+      Object.freeze(value);
+    }
+  }
+  return {...input.result, tables: {...input.result.tables, transactions: canonical}};
 }
 
 export function selectWorkspaceResult(id: string | null): void {

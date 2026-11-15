@@ -6011,3 +6011,14 @@ Explicit Docker/Node GC is causal diagnostics only. Ordinary production baseline
 and2fixed36-cycle x64 screens predeclared with original budgets/no forced GC;
 historical late fluctuations and failures are not retroactively qualified.
 Evidence:2026-11-15-t613-memory-diagnosis/retention-comparison.json.
+
+### 2026-11-15 - T-613 immutable exact-projection sharing
+
+Same repeated imports retain80separate transaction copies. Stamp exact sanitized
+projected rows with versionedSHA256 and opt in only from OpenCaptureFile. Workspace
+keeps80cards/per-result metadata but shares immutable cloned rows via retained
+entries; no extra strong cache and no alias to caller data. Different annotation,
+row count/order and legacy inputs remain independent. Meaningful before failures
+then state/build and full guarded Windowsx64/x86 app40.224s/43.409s pass. Native
+fixed-protocol repeats are separately pending; prior failed verdicts unchanged.
+Evidence:2026-11-15-t613-memory-diagnosis/README.md.

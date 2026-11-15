@@ -138,6 +138,7 @@ function HttpCaptureWorkspace(): React.JSX.Element {
         dispatch({ type: "select", id: opened.selectedId });
       const entry = addWorkspaceResult({
         result: next,
+        httpTransactionRowsFingerprint: typeof next.metadata?.workspace_transaction_rows_fingerprint === "string" ? next.metadata.workspace_transaction_rows_fingerprint : undefined,
         title: `http_capture: ${path}`,
         sourceLabel: path,
       });
@@ -199,6 +200,7 @@ function HttpCaptureWorkspace(): React.JSX.Element {
       dispatch({ type: "analyzeSuccess", result: next, source: file.filePath });
       const entry = addWorkspaceResult({
         result: next,
+        httpTransactionRowsFingerprint: typeof next.metadata?.workspace_transaction_rows_fingerprint === "string" ? next.metadata.workspace_transaction_rows_fingerprint : undefined,
         title: `http_capture: ${file.originalName}`,
         sourceLabel: file.originalName,
       });

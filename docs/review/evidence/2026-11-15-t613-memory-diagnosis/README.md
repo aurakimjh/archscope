@@ -19,3 +19,18 @@ The primary protocol was declared before baseline launch: ordinary production,
 budgets and no forced GC/cache trim. Baseline and two fixed x64 runs are planned
 sequentially. Windows process metrics, source hashes and native functional checks
 are recorded after completion. Controller/profile/raw fixtures stay private.
+
+## Exact shared transaction snapshots
+
+OpenCaptureFile stamps SHA256 over the exact sanitized transaction projection
+(count then each canonical JSON row), not filename/mtime or a second source read.
+Only this explicit opt-in proof permits workspace sharing. History uses an
+immutable clone; caller rows remain independent. Matching retained entries own
+shared rows; WeakMap metadata has no separate strong result cache. Other results
+and legacy unversioned calls retain their previous ownership. All80history cards,
+per-analysis metadata/provenance and differing comments/order/payload stay distinct.
+Go regression fails without fingerprints; state regression fails without sharing.
+Same-size/same-mtime annotation changes and row count/order invalidate identity.
+Full guarded app tests pass Windowsamd6440.224s/38643.409s; frontend state/build pass.
+Original lifecycle memory tests are preserved; new import tests live separately.
+Native repeat qualification remains a separate receipt, not implied by unit tests.

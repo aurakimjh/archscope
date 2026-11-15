@@ -292,6 +292,7 @@ export type HttpCaptureTables = {
 };
 
 export type HttpCaptureMetadata = {
+  workspace_transaction_rows_fingerprint?: string;
   parser?: string;
   schema_version?: string;
   diagnostics?: ParserDiagnostics;

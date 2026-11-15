@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 
 	engineapi "github.com/aurakimjh/archscope/apps/engine-native/api"
@@ -34,6 +36,9 @@ type CaptureOpenResult struct {
 func (s *CaptureService) OpenCaptureFile(path string) (CaptureOpenResult, error) {
 	if halog.IsPath(path) {
 		result, err := httpanalyzer.Analyze(path, httpanalyzer.Options{TransactionRows: 100000})
+		if err == nil {
+			stampWorkspaceTransactionRows(&result)
+		}
 		return CaptureOpenResult{Result: result}, err
 	}
 	doc, summary, err := sessionfile.Read(path)
@@ -44,7 +49,32 @@ func (s *CaptureService) OpenCaptureFile(path string) (CaptureOpenResult, error)
 	if doc.Retention != nil {
 		result.Metadata.Extra["retention"] = doc.Retention
 	}
+	stampWorkspaceTransactionRows(&result)
 	return CaptureOpenResult{Result: result, SelectedID: doc.SelectedID}, nil
+}
+
+// Identify the exact sanitized projection already returned to the renderer, not
+// a filename/mtime or a second file read. Repeated imports can share only this
+// immutable table while preserving each analysis envelope and history card.
+func stampWorkspaceTransactionRows(result *engineapi.AnalysisResult) {
+	rows, ok := result.Tables["transactions"].([]map[string]any)
+	if !ok {
+		return
+	}
+	hash := sha256.New()
+	encoder := json.NewEncoder(hash)
+	if encoder.Encode(len(rows)) != nil {
+		return
+	}
+	for _, row := range rows {
+		if encoder.Encode(row) != nil {
+			return
+		}
+	}
+	if result.Metadata.Extra == nil {
+		result.Metadata.Extra = map[string]any{}
+	}
+	result.Metadata.Extra["workspace_transaction_rows_fingerprint"] = fmt.Sprintf("v1:%x", hash.Sum(nil))
 }
 func (s *CaptureService) ExportCaptureFile(request CaptureExportRequest) (int, error) {
 	if request.Destination == "" {
