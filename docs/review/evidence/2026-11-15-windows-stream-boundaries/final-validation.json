@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "asOf": "2026-11-15",
-  "latestProductCommit": "3b36b2c5",
+  "latestProductCommit": "4436f753",
   "latestIntegrationCommit": "ff872ba6",
   "finalNativeBuildStamp": "2bc1d138-plus-keyboard-visibility",
   "taskCommits": [
@@ -11,7 +11,8 @@
     "18f31498",
     "2bc1d138",
     "3b36b2c5",
-    "ff872ba6"
+    "ff872ba6",
+    "0396c247"
   ],
   "nativeCases": 9,
   "caseResultsIncludingPreservedBeforeFixFailures": {
@@ -48,7 +49,9 @@
     "COM": "Initial concurrent cleanupFAIL preserved; named mutex added. Targeted3863PASS/amd643protectedSKIP; clean-host remains open",
     "native": "7PASS/2preserved before-fixFAILs; notice and same-condition keyboard after checks pinned",
     "memory": "Prior long-run receipts retain original build/workload bounded verdict; no new long-run memory claim",
-    "postNativeImmutableFiles": "PASS both architecture13-row source files and both actual5-row capture files match independent readback SHA; HEAD preserves declared999 while body0"
+    "postNativeImmutableFiles": "PASS both architecture13-row source files and both actual5-row capture files match independent readback SHA; HEAD preserves declared999 while body0",
+    "postMerge": "PASS combined frontend state+tsc/Vite and guarded386/amd64 builds including remoteChart unit fixes; no new native Chart unit/renderer run",
+    "portableInventory": "PASS8 normal/optimized Python cases after legacy Windows path mismatch; original generator/received artifacts unchanged"
   },
   "privateLogHashes": [
     {
@@ -192,6 +195,31 @@
       "sha256": "3e6dc9263931725271709552759a92e933f7959e2b1b9c69475a3e30a57ee0ec"
     },
     {
+      "file": "merged-frontend-build.log",
+      "bytes": 6334,
+      "sha256": "b3757f1f592815a69fc960ca98dfdbbedb1cf7fc08796ea497745a9913081723"
+    },
+    {
+      "file": "merged-frontend-state.log",
+      "bytes": 170,
+      "sha256": "3e6dc9263931725271709552759a92e933f7959e2b1b9c69475a3e30a57ee0ec"
+    },
+    {
+      "file": "merged-inventory.log",
+      "bytes": 331,
+      "sha256": "b7bb08f436e1f0758cfada2ebe83040285e80892a977f0c8c18fe2469a85609a"
+    },
+    {
+      "file": "merged-native-386.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "merged-native-amd64.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
       "file": "native-386.log",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -210,6 +238,16 @@
       "file": "notice-native-amd64.log",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "portable-inventory-optimized.log",
+      "bytes": 355,
+      "sha256": "70c1a85ec7767a35eb2f1d2283bd6970951ae80fc6bc4ff121c65727d80eaf26"
+    },
+    {
+      "file": "portable-inventory.log",
+      "bytes": 355,
+      "sha256": "a8b01001411bf6f68b42eb4f166a34632816ac5e0fd6990d0ec28f61c77d70c5"
     },
     {
       "file": "proxy-encoding-386.log",
@@ -312,7 +350,48 @@
       "bytes": 211669,
       "sha256": "c573eb3852a8e5f3085a277f7e6708fbe137a0bd63e52ea2236cf75950a6f994",
       "path": "apps/engine-native/cmd/archscope-app/frontend/src/i18n/messages.ts"
+    },
+    {
+      "file": "ChartStudioPage.tsx",
+      "bytes": 14501,
+      "sha256": "6d724d8b92e8d1f35c2d376658f1347493d54e2adda469e27e3eeb5acb40b221",
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/pages/ChartStudioPage.tsx"
+    },
+    {
+      "file": "chartStudioExport.ts",
+      "bytes": 1577,
+      "sha256": "ec83b13e8e73d2900d665861ac9d1eb8c7b99f2f6255f75dc016a53d8e45b63c",
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/state/chartStudioExport.ts"
+    },
+    {
+      "file": "regression.test.ts",
+      "bytes": 196323,
+      "sha256": "1e0f46927cb084496168b31a5898ab6322827697d204ae707672aa5935bbfbd3",
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts"
+    },
+    {
+      "file": "verify-current-inventory.py",
+      "bytes": 2828,
+      "sha256": "2eda048448de15341cf0cb368e5a5de0283aae2f9078ffd1d034e8b51f00fb97",
+      "path": "scripts/acceptance/verify-current-inventory.py"
     }
   ],
-  "cleanup": "PASS owned apps/fixture/race containers removed; seven preexisting containers preserved (cleanup.json)"
+  "cleanup": "PASS owned apps/fixture/race containers removed; seven preexisting containers preserved (cleanup.json)",
+  "latestVerificationCommit": "0396c247",
+  "nativeObservationBuildStamp": "2bc1d138-plus-keyboard-visibility",
+  "mergedBuildStamp": "4436f753",
+  "mergedBuilds": [
+    {
+      "file": "archscope-merged-386.exe",
+      "bytes": 54321664,
+      "sha256": "579bd9bcfec19ab86a275862046bc705d4733d0d17babee9e1be27aa66df3bd9",
+      "PEMachine": "0x14c"
+    },
+    {
+      "file": "archscope-merged-amd64.exe",
+      "bytes": 56270848,
+      "sha256": "753517b44b499915f8e44bd1812bd6dceb81e8ce6bd2bdd62c032fb1868f14f3",
+      "PEMachine": "0x8664"
+    }
+  ]
 }

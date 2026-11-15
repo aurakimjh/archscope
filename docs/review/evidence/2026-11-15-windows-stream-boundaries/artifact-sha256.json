@@ -7,9 +7,9 @@
   "files": [
     {
       "file": "README.md",
-      "bytes": 7518,
-      "gitBlob": "a7dcfff7749b0b778d354f2fff735e9cef123654",
-      "sha256": "bfecc0616a6fb8dbac6c3508c40225671fb3b28465f33c723949ebe47caafdb5"
+      "bytes": 8382,
+      "gitBlob": "d86e129d2a6a2ee89f33601bf03e9edf2b47201b",
+      "sha256": "2c10b691357462cf1e055e9297af20a7e4494537c0189c37190e8972600b0b2b"
     },
     {
       "file": "amd64-body-gate.json",
@@ -97,9 +97,9 @@
     },
     {
       "file": "final-validation.json",
-      "bytes": 11223,
-      "gitBlob": "3734e20e1d35dd094ec9f36a8aa7eb555e653be2",
-      "sha256": "05efea8ec59102eb4418ddb8f6abbc3df111a7ba9ec1bdf5ab666849ffb3e0fc"
+      "bytes": 14252,
+      "gitBlob": "da165c14fd3513e61af04f4955e5eafdb82bfbbe",
+      "sha256": "56d3ac19bc4129b2accf9e87c8313bb25df60ca1b59f6c036a167e5ce648c640"
     },
     {
       "file": "live-binary-no-text-notice-before.jpg",
@@ -162,10 +162,16 @@
       "sha256": "90375d63b90c33320becc29a3b92ef9459fd9129a81911ec325664bac2e37ac0"
     },
     {
+      "file": "portable-inventory.json",
+      "bytes": 1190,
+      "gitBlob": "4b15f56efdbbe479a98c493bfd2149214a40b1b3",
+      "sha256": "69d77bc5991e528602bad5e4312823d9289f0354b64f29d138f6915392f18dde"
+    },
+    {
       "file": "remaining-acceptance.json",
-      "bytes": 4815,
-      "gitBlob": "d62b38ae70654c7f6a2a7491fb48074ce21e1147",
-      "sha256": "4987e48135fc4cbdde886fb7a6694440d848e46887f0f513e06c5670b08eebe1"
+      "bytes": 5134,
+      "gitBlob": "f1f5d986f99c3e8a2cdaca3368159d2faa8c984f",
+      "sha256": "d80288f7952bd8c8766c2c4e807a8ef0cc1d31cd46e5693f8ebe829e08ae5936"
     },
     {
       "file": "verify-stream-used.py",

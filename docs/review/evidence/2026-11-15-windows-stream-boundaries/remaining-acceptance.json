@@ -30,7 +30,7 @@
     "status": "REVIEW",
     "additionalNativeCondition": "KO1280x800 OS100/WebView100;13-row list with11complete rows observed and same-header selected-row11→12→13 scrolling. No70percent or full density/locale/DPI closure.",
     "actualOS125": "Not changed/retested this increment; prior unavailability receipt preserved. OS remained100%.",
-    "remaining": "Original/reference parity and full condition/language/actual OS-DPI/density matrix; previous21-route inventory remains authoritative outside these selected cases. Six rows do not qualify ten-row dense layout."
+    "remaining": "Original/reference parity and full condition/language/actual OS-DPI/density matrix; previous21-route inventory remains authoritative outside these selected cases. Six rows do not qualify ten-row dense layout. New Windows native physical-unit Chart CSV/renderer combinations from remote17d22161 were not executed; only merged frontend regressions/builds are newly verified."
   },
   "COMTestBoundary": {
     "initial": "Concurrent architecture suites exposed shared temporary metadata cleanup race; initialamd64FAIL preserved",
@@ -46,9 +46,11 @@
   },
   "unchangedIndependentVerdict": "CONDITIONAL; no new independent review or universal PASS",
   "correctedRouteInventory": "../2026-11-15-windows-remediation/remaining-acceptance.current.json",
-  "incomingRemoteCorrection": {
+  "integratedRemoteCorrection": {
     "commit": "17d22161",
     "JFR": "3010 total/filtered events,153 sample events/stack samples,29 unique stacks; original receipts unchanged",
-    "Chart": "Profiler CSV retains original samples/ns/us/ms/s/bytes/unknown measurement unit"
+    "Chart": "Profiler CSV retains original samples/ns/us/ms/s/bytes/unknown measurement unit",
+    "mergeCommit": "4436f753",
+    "validation": "Merged frontend state/build and both guarded native builds PASS; portable JFR inventory check8PASS"
   }
 }
