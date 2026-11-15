@@ -5989,3 +5989,15 @@ remaining inventory and exact cleanup receipts retain all explicit acceptance
 boundaries. Owned apps/containers removed,7preexistingcontainers preserved.
 T-613PENDING/T-627REVIEW/originalCONDITIONAL unchanged; actualx64body still gated.
 Evidence:2026-11-15-windows-stream-boundaries/remaining-acceptance.json.
+
+### 2026-11-15 - remote Chart/JFR integration and portable inventory checks
+
+Merged17d22161 while retaining both tracker histories; combined frontend and both
+guarded Windows native builds pass. Received source-derived JFR checker rejects
+valid Windows input due host path separators. Add portable UTF8-process checker
+around unchanged generator; normalize derived repository path fields only.
+Normal/optimized8cases validate correct3010/153/29 populations and refuse changed
+description/count/state. Raw received sources/manifests remain unchanged.
+No new Windows native Chart unit/renderer claim. Import growth failures/repeats
+and cause diagnosis remain open alongside other explicit acceptance gates.
+Evidence:2026-11-15-windows-stream-boundaries/portable-inventory.json.

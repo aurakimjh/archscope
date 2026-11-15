@@ -1,0 +1,53 @@
+{
+  "passed": true,
+  "scope": "Windows portable checker around unchanged received source generator; UTF8 process only and canonical repository paths",
+  "receivedSourceCommit": "17d22161",
+  "receivedSourceUnchanged": true,
+  "beforeFailure": "Legacy Windows checker rejected valid JSON due host path separators; private merged-inventory.log preserved",
+  "normal": {
+    "passed": true,
+    "optimized": 0,
+    "utf8": true,
+    "cases": [
+      {
+        "case": "valid",
+        "passed": true
+      },
+      {
+        "case": "wrong-description",
+        "passed": true
+      },
+      {
+        "case": "wrong-count",
+        "passed": true
+      },
+      {
+        "case": "promoted-acceptance",
+        "passed": true
+      }
+    ]
+  },
+  "optimized": {
+    "passed": true,
+    "optimized": 1,
+    "utf8": true,
+    "cases": [
+      {
+        "case": "valid",
+        "passed": true
+      },
+      {
+        "case": "wrong-description",
+        "passed": true
+      },
+      {
+        "case": "wrong-count",
+        "passed": true
+      },
+      {
+        "case": "promoted-acceptance",
+        "passed": true
+      }
+    ]
+  }
+}

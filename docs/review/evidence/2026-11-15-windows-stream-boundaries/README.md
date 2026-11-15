@@ -115,3 +115,16 @@ Concurrent remote17d22161 Chart unit/JFR counter correction is integrated separa
 Current route inventory is2026-11-15-windows-remediation/remaining-acceptance.current.json
 (JFR3010total/filtered,153sample/stack samples,29unique stacks). Prior import growth
 failures remain unresolved; fixed-protocol repeats and cause diagnosis remain open.
+
+## Remote merge and portable inventory checker
+
+Remote17d22161 Chart unit/JFR counter correction is merged in4436f753; both tracker
+histories are retained. Combined frontend state/build and guarded386/amd64 builds
+pass. No new native Chart unit/renderer execution is inferred from these builds.
+The received source-derived inventory checker rejects valid JSON on Windows due
+to backslash paths. New scripts/acceptance/verify-current-inventory.py selects
+UTF8 for its process and normalizes only repository path fields in the derived
+expectation; all source hashes/populations/status equality stay strict. Normal
+and optimized-Python valid/wrong-description/wrong-count/promoted-status8cases
+pass. Received generator/raw receipts/manifests remain unchanged. The original
+Windows checker failure remains private with its hash in final-validation.json.
