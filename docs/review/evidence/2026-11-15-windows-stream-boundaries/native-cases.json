@@ -14,5 +14,61 @@
     "build": "18f31498-plus-binary-notice",
     "arch": "386",
     "environment": "KO1280x800 OS100/WebView100"
+  },
+  {
+    "id": "live-stacked-encoding-unknown",
+    "result": "PASS",
+    "observed": "Actual SEC10-verified capture5 saved/reopened. Repeated gzip+br retains both coding headers; Body47B transfer47B decoded unknown, gzip, br label and explicit unsupported notice; no fabricated decoded preview.",
+    "build": "18f31498-plus-binary-notice",
+    "arch": "386",
+    "environment": "KO1280x800 OS100/WebView100"
+  },
+  {
+    "id": "builder-thirteen-row-list",
+    "result": "PASS",
+    "observed": "Windows386 saved-file inspection of13 actual Builder backend sends against Docker. Default1280x800 KO OS/Web100 shows11 complete request rows with remaining rows scrollable; transport failures remain red despite HTTP200. This is scoped row visibility, not a70percent layout or full DPI/locale acceptance claim.",
+    "build": "18f31498-plus-binary-notice",
+    "arch": "386",
+    "environment": "KO1280x800 OS100/WebView100"
+  },
+  {
+    "id": "builder-finite-chunked-body",
+    "result": "PASS",
+    "observed": "Windows386 actual backend streamed three chunks from owned Docker; saved-file native Body shows19B/decoded19B and exact first,second,third lines. Transfer-size unknown is retained. No raw-framing fidelity claim.",
+    "build": "18f31498-plus-binary-notice",
+    "arch": "386",
+    "environment": "KO1280x800 OS100/WebView100"
+  },
+  {
+    "id": "builder-canceled-gzip-body",
+    "result": "PASS",
+    "observed": "Actual Builder response body canceled after Docker prefix; saved-file native keeps red failed row withHTTP200, gzip/decoded unknown/transfer unknown and unavailable preview. No verified decoded prefix is fabricated.",
+    "build": "18f31498-plus-binary-notice",
+    "arch": "386",
+    "environment": "KO1280x800 OS100/WebView100"
+  },
+  {
+    "id": "builder-keyboard-row-visibility-before",
+    "result": "FAIL",
+    "observed": "After native ArrowDown fromrow11 to12, selection/detail changes to timeout17B but chosen row remains clipped beneath horizontal scrollbar and focus stays onrow11. Stable screenshot confirms selected-row scrolling is missing at this13-row boundary.",
+    "build": "18f31498-plus-binary-notice",
+    "arch": "386",
+    "environment": "KO1280x800 OS100/WebView100"
+  },
+  {
+    "id": "builder-keyboard-row-visibility-fixed",
+    "result": "PASS",
+    "observed": "Same1280x800 KO OS/Web100, same13-row immutable file and finalized5-row live-status header as before: ArrowDown11→12 scrolls selected timeout row fully above horizontal scrollbar; Body17B prefix/heartbeat and selected detail remain correct.",
+    "build": "2bc1d138-plus-keyboard-visibility",
+    "arch": "386",
+    "environment": "KO1280x800 OS100/WebView100"
+  },
+  {
+    "id": "builder-keyboard-last-head-row",
+    "result": "PASS",
+    "observed": "Native ArrowDown12→13 scrolls the last HEAD row fully into view above scrollbar under the same finalized-live status header. Selected detail matchesHEAD/head and Body0B/decoded0B/no body; declared999 remains independently verified in canonical file.",
+    "build": "2bc1d138-plus-keyboard-visibility",
+    "arch": "386",
+    "environment": "KO1280x800 OS100/WebView100"
   }
 ]

@@ -656,7 +656,7 @@ function TransactionGrid({
   useEffect(() => {
     const element=scrollRef.current;
     if(!element) return;
-    const maximum=Math.max(0,entries.length*ROW_HEIGHT-element.clientHeight);
+    const maximum=Math.max(0,element.scrollHeight-element.clientHeight);
     if(element.scrollTop>maximum) { element.scrollTop=maximum;setScrollTop(maximum); }
   },[entries.length]);
 
@@ -672,13 +672,16 @@ function TransactionGrid({
     if (!element || !selectedId) return;
     const index = entries.findIndex((entry) => entry.kind === "request" && entry.row.id === selectedId);
     if (index < 0) return;
-    const top = index * ROW_HEIGHT;
+    // The sticky header occupies scroll content and covers the viewport's top.
+    // Include it at the bottom edge too, or the last selected row stays clipped.
+    const headerHeight = element.querySelector("thead")?.getBoundingClientRect().height ?? 0;
+    const top = headerHeight + index * ROW_HEIGHT;
     const bottom = top + ROW_HEIGHT;
-    if (top < element.scrollTop) element.scrollTop = top;
+    if (top < element.scrollTop + headerHeight) element.scrollTop = top - headerHeight;
     else if (bottom > element.scrollTop + element.clientHeight) {
       element.scrollTop = bottom - element.clientHeight;
     }
-  }, [entries, selectedId]);
+  }, [entries, selectedId, viewport, columns]);
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {

@@ -5865,3 +5865,12 @@ prefix shown below. Dedicated EN/KO no-readable-preview notice corrects this;
 text prefixes keep their ordinary truncation notice. State/build and native
 actual SEC10 capture/save-open recheck pass. Before/after native receipts pinned.
 Evidence:2026-11-15-windows-stream-boundaries/live-binary-no-text-notice-fixed.jpg.
+
+### 2026-11-15 - T-613 native keyboard selected-row scroll boundary
+
+13-row native Down updates details but clips row12 under scrollbar. Include sticky
+header height in selected-row geometry, clamp actual scrollHeight and recheck on
+viewport/column change. Same finalized-live header and immutable13-row fixture
+native Down11→12→13 now keeps selected timeout/HEAD rows fully visible. State,
+frontend and guarded x64/x86 builds pass. Full layout/OS-DPI matrix remains open.
+Evidence:2026-11-15-windows-stream-boundaries/builder-keyboard-row-visibility-fixed.jpg.

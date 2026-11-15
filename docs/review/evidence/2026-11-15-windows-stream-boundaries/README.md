@@ -62,3 +62,16 @@ EN/KO unavailable-text notice now distinguishes this case; text prefixes retain
 their existing cap notice. State regression and frontend build pass. Native
 18f31498-plus-binary-notice KO1280x800 OS100/Web100 recheck passes after actual
 SEC10 capture/save/open. The original response/cap metadata is preserved.
+
+## Keyboard selected-row visibility
+
+Native13-row fixture under finalized live-session header exposes ArrowDown11→12:
+detail updates but selected row stays clipped below horizontal scrollbar. Existing
+virtual offset arithmetic omitted sticky table header height. Account for header
+at both visible edges and clamp with actual scrollHeight; re-evaluate selection
+when viewport/column layout changes. Frontend state/build and guarded x64/x86
+builds pass. Same immutable13-row file and same finalized5-row status header in
+2bc1d138-plus-keyboard-visibility: native Down11→12→13 makes both selected rows
+fully visible, retaining timeout17B and HEAD0B details. Before failure and fixed
+screenshots stay separate. This is selected-row visibility, not a full70percent
+layout/DPI/locale or screen-reader qualification.

@@ -1,0 +1,567 @@
+Window: "ArchScope Layout QA", App: archscope-keyboard-386.exe.
+	0 window (창) ArchScope Layout QA Secondary Actions: Raise
+		1 pane (창) ArchScope
+			2 pane (창) (disabled)
+			3 pane (영역) ArchScope - 웹 콘텐츠
+				4 pane (영역)
+					5 pane (영역)
+					6 pane (영역)
+						7 pane (영역)
+							8 pane (영역)
+							9 pane (영역)
+								10 pane (영역)
+									11 pane (영역)
+										12 pane (영역)
+											13 pane (영역)
+											14 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												15 group (그룹) ID: root
+													16 group (머리글)
+														17 text (텍스트) HTTP 캡처
+													18 group (기본)
+														19 group (세부정보)
+															20 button (펼치기/접기 삼각형) 파일·요청 작성
+																21 text (텍스트) 파일·요청 작성
+														22 group (세부정보)
+															23 button (펼치기/접기 삼각형) 캡처 설정
+																24 text (텍스트) 캡처 설정
+														25 button (단추) (disabled) 캡처 시작
+														26 button (단추) (disabled) 캡처 중지
+														27 button (단추) 자동 추적 중
+														28 button (단추) (disabled) 일시정지
+														29 button (단추) 비우기
+														303 button (단추) 종료 세션 분석 불러오기
+														287 text (텍스트) proxy://
+														288 text (텍스트) 127.0.0.1:1158
+														289 status bar (상태)
+															290 text (텍스트) 종료됨
+															291 text (텍스트) 캡처
+															292 text (텍스트) :
+															293 text (텍스트) 5
+															294 text (텍스트) 저장
+															295 text (텍스트) :
+															296 text (텍스트) 5
+															304 text (텍스트) 현재 보관
+															305 text (텍스트) :
+															306 text (텍스트) 5
+															307 text (텍스트) ·
+															308 text (텍스트) 순환 제외
+															309 text (텍스트) :
+															310 text (텍스트) 0
+															297 text (텍스트) 선택한 프로세스
+															298 text (텍스트) :
+															299 text (텍스트) 1
+															300 group (세부정보)
+																301 button (펼치기/접기 삼각형) 세션 요약 및 근거
+																	302 text (텍스트) 세션 요약 및 근거
+														311 group (지역) 트랜잭션
+															312 group (세부정보)
+																313 button (펼치기/접기 삼각형) 메서드, URL, 호스트, 상태로 필터 · 13 / 13
+																	314 text (텍스트) 메서드, URL, 호스트, 상태로 필터
+																	315 text (텍스트) ·
+																	316 text (텍스트) 13
+																	317 text (텍스트) /
+																	318 text (텍스트) 13
+															319 group (세부정보)
+																320 button (펼치기/접기 삼각형) 세션 도구
+																	321 text (텍스트) 세션 도구
+															322 group (세부정보)
+																323 button (펼치기/접기 삼각형) 열 필터
+																	324 text (텍스트) 열 필터
+															325 combo box (콤보 상자) (settable, string) 그룹 기준 Value: 프로세스
+															326 group (세부정보)
+																327 button (펼치기/접기 삼각형) 표시 열
+																	328 text (텍스트) 표시 열
+															329 group (그룹) 트랜잭션
+																330 table (TABLE) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																	331 text (텍스트) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																	332 data item (행)
+																		333 button (단추) # Description: Sort by this column
+																			334 button (단추) #
+																		335 button (단추) 시작 Description: Sort by this column
+																			336 button (단추) 시작
+																		337 button (단추) 메서드 Description: Sort by this column
+																			338 button (단추) 메서드
+																		339 button (단추) 결과 Description: Sort by this column
+																			340 button (단추) 결과
+																		341 button (단추) 호스트 Description: Sort by this column
+																			342 button (단추) 호스트
+																		343 button (단추) 경로 Description: Sort by this column
+																			344 button (단추) 경로
+																		345 button (단추) 종류 Description: Sort by this column
+																			346 button (단추) 종류
+																		347 button (단추) 크기 Description: Sort by this column
+																			348 button (단추) 크기
+																		349 button (단추) 시간 Description: Sort by this column
+																			350 button (단추) 시간
+																		351 button (단추) 타임라인 Description: Sort by this column
+																		352 button (단추) 프로세스 Description: Sort by this column
+																			353 button (단추) 프로세스
+																	354 data item (행)
+																		355 data item (항목) ▾ 127.0.0.1:11516 13 · ↑ 0 B · ↓ 2.0 MiB
+																			356 button (단추) ▾ 127.0.0.1:11516 13 · ↑ 0 B · ↓ 2.0 MiB
+																	357 data item (행)
+																		358 data item (항목) 1 Description: 1
+																		359 data item (항목) 04:07:26.691 Description: 04:07:26.691
+																		360 data item (항목) GET Description: GET
+																		361 data item (항목) 200 Description: 200
+																		362 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		363 data item (항목) /identity Description: /identity
+																		364 data item (항목) JSON Description: json
+																		365 data item (항목) 27 B Description: 27 B
+																		366 data item (항목) 21 ms Description: 21 ms
+																		367 data item (항목) — Description: —
+																		368 data item (항목) — Description: —
+																	369 data item (행)
+																		370 data item (항목) 2 Description: 2
+																		371 data item (항목) 04:07:26.719 Description: 04:07:26.719
+																		372 data item (항목) GET Description: GET
+																		373 data item (항목) 200 Description: 200
+																		374 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		375 data item (항목) /identity-short Description: /identity-short
+																		376 data item (항목) JSON Description: json
+																		377 data item (항목) 5 B Description: 5 B
+																		378 data item (항목) 17 ms Description: 17 ms
+																		379 data item (항목) — Description: —
+																		380 data item (항목) — Description: —
+																	381 data item (행)
+																		382 data item (항목) 3 Description: 3
+																		383 data item (항목) 04:07:26.740 Description: 04:07:26.740
+																		384 data item (항목) GET Description: GET
+																		385 data item (항목) 200 Description: 200
+																		386 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		387 data item (항목) /x-gzip Description: /x-gzip
+																		388 data item (항목) JSON Description: json
+																		389 data item (항목) 47 B Description: 47 B
+																		390 data item (항목) 16 ms Description: 16 ms
+																		391 data item (항목) — Description: —
+																		392 data item (항목) — Description: —
+																	393 data item (행)
+																		394 data item (항목) 4 Description: 4
+																		395 data item (항목) 04:07:26.757 Description: 04:07:26.757
+																		396 data item (항목) GET Description: GET
+																		397 data item (항목) 200 Description: 200
+																		398 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		399 data item (항목) /stacked Description: /stacked
+																		400 data item (항목) JSON Description: json
+																		401 data item (항목) 47 B Description: 47 B
+																		402 data item (항목) 9 ms Description: 9 ms
+																		403 data item (항목) — Description: —
+																		404 data item (항목) — Description: —
+																	405 data item (행)
+																		406 data item (항목) 5 Description: 5
+																		407 data item (항목) 04:07:26.768 Description: 04:07:26.768
+																		408 data item (항목) GET Description: GET
+																		409 data item (항목) 200 Description: 200
+																		410 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		411 data item (항목) /binary Description: /binary
+																		412 data item (항목) 바이너리 Description: binary
+																		413 data item (항목) 1.0 MiB Description: 1.0 MiB
+																		414 data item (항목) 70 ms Description: 70 ms
+																		415 data item (항목) — Description: —
+																		416 data item (항목) — Description: —
+																	417 data item (행)
+																		418 data item (항목) 6 Description: 6
+																		419 data item (항목) 04:07:26.838 Description: 04:07:26.838
+																		420 data item (항목) GET Description: GET
+																		421 data item (항목) 200 Description: 200
+																		422 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		423 data item (항목) /binary-gzip Description: /binary-gzip
+																		424 data item (항목) 바이너리 Description: binary
+																		425 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		426 data item (항목) 18 ms Description: 18 ms
+																		427 data item (항목) — Description: —
+																		428 data item (항목) — Description: —
+																	429 data item (행)
+																		430 data item (항목) 7 Description: 7
+																		431 data item (항목) 04:07:26.858 Description: 04:07:26.858
+																		432 data item (항목) GET Description: GET
+																		433 data item (항목) 200 Description: 200
+																		434 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		435 data item (항목) /binary-exact Description: /binary-exact
+																		436 data item (항목) 바이너리 Description: binary
+																		437 data item (항목) 1.0 MiB Description: 1.0 MiB
+																		438 data item (항목) 27 ms Description: 27 ms
+																		439 data item (항목) — Description: —
+																		440 data item (항목) — Description: —
+																	441 data item (행)
+																		442 data item (항목) 8 Description: 8
+																		443 data item (항목) 04:07:26.887 Description: 04:07:26.887
+																		444 data item (항목) GET Description: GET
+																		445 data item (항목) 200 Description: 200
+																		446 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		447 data item (항목) /stream Description: /stream
+																		448 data item (항목) 텍스트 Description: text
+																		449 data item (항목) 19 B Description: 19 B
+																		450 data item (항목) 156 ms Description: 156 ms
+																		451 data item (항목) — Description: —
+																		452 data item (항목) — Description: —
+																	453 data item (행)
+																		454 data item (항목) 9 Description: 9
+																		455 data item (항목) 04:07:27.044 Description: 04:07:27.044
+																		456 data item (항목) GET Description: GET
+																		457 data item (항목) 200 Description: 200
+																		458 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		459 data item (항목) /hold?id=cancel-18e81c5f31dd9c14-hold Description: /hold?id=cancel-18e81c5f31dd9c14-hold
+																		460 data item (항목) 텍스트 Description: text
+																		461 data item (항목) 7 B Description: 7 B
+																		462 data item (항목) 286 ms Description: 286 ms
+																		463 data item (항목) — Description: —
+																		464 data item (항목) — Description: —
+																	465 data item (행)
+																		466 data item (항목) 10 Description: 10
+																		467 data item (항목) 04:07:27.331 Description: 04:07:27.331
+																		468 data item (항목) GET Description: GET
+																		469 data item (항목) 200 Description: 200
+																		470 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		471 data item (항목) /identity?after-cancel=1 Description: /identity?after-cancel=1
+																		472 data item (항목) JSON Description: json
+																		473 data item (항목) 27 B Description: 27 B
+																		474 data item (항목) 10 ms Description: 10 ms
+																		475 data item (항목) — Description: —
+																		476 data item (항목) — Description: —
+																	477 data item (행)
+																		478 data item (항목) 11 Description: 11
+																		479 data item (항목) 04:07:27.344 Description: 04:07:27.344
+																		480 data item (항목) GET Description: GET
+																		481 data item (항목) 200 Description: 200
+																		482 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		483 data item (항목) /hold-gzip?id=cancel-18e81c5f31dd9c14-hold-gzip Description: /hold-gzip?id=cancel-18e81c5f31dd9c14-hold-gzip
+																		484 data item (항목) 텍스트 Description: text
+																		485 data item (항목) — Description: —
+																		486 data item (항목) 283 ms Description: 283 ms
+																		487 data item (항목) — Description: —
+																		488 data item (항목) — Description: —
+																	489 data item (행)
+																		490 data item (항목) 12 Description: 12
+																		491 data item (항목) 04:07:27.627 Description: 04:07:27.627
+																		492 data item (항목) GET Description: GET
+																		493 data item (항목) 200 Description: 200
+																		494 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		495 data item (항목) /timeout?id=deadline Description: /timeout?id=deadline
+																		496 data item (항목) 텍스트 Description: text
+																		497 data item (항목) 17 B Description: 17 B
+																		498 data item (항목) 1001 ms Description: 1001 ms
+																		499 data item (항목) — Description: —
+																		500 data item (항목) — Description: —
+																	501 data item (행)
+																		502 data item (항목) 13 Description: 13
+																		503 data item (항목) 04:07:28.628 Description: 04:07:28.628
+																		504 data item (항목) HEAD Description: HEAD
+																		505 data item (항목) 200 Description: 200
+																		506 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		507 data item (항목) /head Description: /head
+																		508 data item (항목) JSON Description: json
+																		509 data item (항목) 0 B Description: 0 B
+																		510 data item (항목) 3 ms Description: 3 ms
+																		511 data item (항목) — Description: —
+																		512 data item (항목) — Description: —
+															513 text (텍스트) 방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+															514 thumb (위치 조정) 트랜잭션 목록 크기 조절 Description: 드래그·방향키로 크기를 조절하고, 더블클릭·Home으로 기본 높이를 복원합니다. Value: 100
+															515 button (단추) Request Builder로 복사
+															516 text (텍스트) 200
+															517 text (텍스트) GET
+															518 text (텍스트) http://127.0.0.1:11516/timeout?id=deadline
+															519 text (텍스트) 신규 연결
+															520 text (텍스트) semantic
+															521 tab (Tab) 트랜잭션
+																522 tab item (탭 항목) (selectable) 힌트 / 상태 / 주석
+																523 tab item (탭 항목) (selectable) Raw
+																524 tab item (탭 항목) (selectable) 스트림
+																525 tab item (탭 항목) (selectable) 헤더
+																526 tab item (탭 항목) (selectable) 쿼리 문자열
+																527 tab item (탭 항목) (selectable) POST 데이터
+																528 tab item (탭 항목) (selectable) 본문
+																529 tab item (탭 항목) (selectable) 타이밍
+																530 tab item (탭 항목) (selectable) 쿠키
+																531 tab item (탭 항목) (selectable) 프로세스
+															532 pane (탭 패널) 본문
+																542 text (제목) 요청
+																543 text (텍스트) —
+																544 text (텍스트) 0 B
+																545 text (텍스트) 디코딩 본문
+																546 text (텍스트) :
+																547 text (텍스트) 0 B
+																548 text (텍스트) ·
+																549 text (텍스트) 전송 크기
+																550 text (텍스트) :
+																551 text (텍스트) -
+																552 button (전환 버튼) Raw
+																553 button (전환 버튼) 강조 / XML / SOAP
+																554 button (전환 버튼) Hex + 오프셋
+																555 button (전환 버튼) 미리보기
+																556 button (전환 버튼) AMF / ViewState
+																557 button (전환 버튼) JSON
+																558 status bar (상태)
+																	559 text (텍스트) 본문이 없는 메시지입니다.
+																560 text (제목) 응답
+																561 text (텍스트) text/plain
+																562 text (텍스트) 17 B
+																563 text (텍스트) 디코딩 본문
+																564 text (텍스트) :
+																565 text (텍스트) 17 B
+																566 text (텍스트) ·
+																567 text (텍스트) 전송 크기
+																568 text (텍스트) :
+																569 text (텍스트) -
+																581 button (단추) 복사
+																572 button (전환 버튼) Raw
+																573 button (전환 버튼) 강조 / XML / SOAP
+																574 button (전환 버튼) Hex + 오프셋
+																575 button (전환 버튼) 미리보기
+																576 button (전환 버튼) AMF / ViewState
+																577 button (전환 버튼) JSON
+																582 text (텍스트) prefix heartbeat
+														541 button (단추) 세션 요약 및 근거
+							261 pane (영역)
+					262 pane (영역)
+		263 title bar (제목 표시줄) (settable, string) Value: ArchScope Layout QA
+			264 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				278 menu item (메뉴 항목) 시스템
+			266 button (단추) 최소화
+			267 button (단추) 최대화
+			268 button (단추) 닫기
+		269 menu bar (메뉴 모음) 응용 프로그램 ID: MenuBar
+			279 menu item (메뉴 항목) 파일
+			280 menu item (메뉴 항목) 편집
+			281 menu item (메뉴 항목) 분석
+			282 menu item (메뉴 항목) 워크스페이스
+			283 menu item (메뉴 항목) 캡처
+			284 menu item (메뉴 항목) 보기
+			285 menu item (메뉴 항목) 도움말
+			286 menu item (메뉴 항목) Layout QA
+
+Document text: ```
+HTTP 캡처
+파일·요청 작성
+캡처 설정
+캡처 시작
+캡처 중지
+자동 추적 중
+일시정지
+비우기
+종료 세션 분석 불러오기
+proxy://127.0.0.1:1158
+종료됨
+캡처: 5
+저장: 5
+현재 보관: 5 · 순환 제외: 0
+선택한 프로세스: 1
+세션 요약 및 근거
+메서드, URL, 호스트, 상태로 필터 · 13 / 13
+세션 도구
+열 필터
+그룹 기준
+표시 열
+캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+#
+￼
+시작
+￼
+메서드
+￼
+결과
+￼
+호스트
+￼
+경로
+￼
+종류
+￼
+크기
+￼
+시간
+￼
+타임라인
+￼
+프로세스
+￼
+▾
+127.0.0.1:11516
+13 · ↑ 0 B · ↓ 2.0 MiB
+1
+04:07:26.691
+GET
+200
+127.0.0.1:11516
+/identity
+JSON
+27 B
+21 ms
+￼
+—
+2
+04:07:26.719
+GET
+200
+127.0.0.1:11516
+/identity-short
+JSON
+5 B
+17 ms
+￼
+—
+3
+04:07:26.740
+GET
+200
+127.0.0.1:11516
+/x-gzip
+JSON
+47 B
+16 ms
+￼
+—
+4
+04:07:26.757
+GET
+200
+127.0.0.1:11516
+/stacked
+JSON
+47 B
+9 ms
+￼
+—
+5
+04:07:26.768
+GET
+200
+127.0.0.1:11516
+/binary
+바이너리
+1.0 MiB
+70 ms
+￼
+—
+6
+04:07:26.838
+GET
+200
+127.0.0.1:11516
+/binary-gzip
+바이너리
+1.0 KiB
+18 ms
+￼
+—
+7
+04:07:26.858
+GET
+200
+127.0.0.1:11516
+/binary-exact
+바이너리
+1.0 MiB
+27 ms
+￼
+—
+8
+04:07:26.887
+GET
+200
+127.0.0.1:11516
+/stream
+텍스트
+19 B
+156 ms
+￼
+—
+9
+04:07:27.044
+GET
+200
+127.0.0.1:11516
+/hold?id=cancel-18e81c5f31dd9c14-hold/hold?id=cancel-18e81c5f31dd9c14-…
+텍스트
+7 B
+286 ms
+￼
+—
+10
+04:07:27.331
+GET
+200
+127.0.0.1:11516
+/identity?after-cancel=1
+JSON
+27 B
+10 ms
+￼
+—
+11
+04:07:27.344
+GET
+200
+127.0.0.1:11516
+/hold-gzip?id=cancel-18e81c5f31dd9c14-hold-gzip/hold-gzip?id=cancel-18e81c5f31dd…
+텍스트
+—
+283 ms
+￼
+—
+12
+04:07:27.627
+GET
+200
+127.0.0.1:11516
+/timeout?id=deadline
+텍스트
+17 B
+1001 ms
+￼
+—
+13
+04:07:28.628
+HEAD
+200
+127.0.0.1:11516
+/head
+JSON
+0 B
+3 ms
+￼
+—
+방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+트랜잭션 목록 크기 조절
+Request Builder로 복사
+200
+GET
+http://127.0.0.1:11516/timeout?id=deadline
+신규 연결
+semantic
+힌트 / 상태 / 주석
+Raw
+스트림
+헤더
+쿼리 문자열
+POST 데이터
+본문
+타이밍
+쿠키
+프로세스
+요청
+—
+0 B
+디코딩 본문: 0 B · 전송 크기: -
+Raw
+강조 / XML / SOAP
+Hex + 오프셋
+미리보기
+AMF / ViewState
+JSON
+본문이 없는 메시지입니다.
+응답
+text/plain
+17 B
+디코딩 본문: 17 B · 전송 크기: -
+복사
+Raw
+강조 / XML / SOAP
+Hex + 오프셋
+미리보기
+AMF / ViewState
+JSON
+prefix
+heartbeat
+세션 요약 및 근거
+```
