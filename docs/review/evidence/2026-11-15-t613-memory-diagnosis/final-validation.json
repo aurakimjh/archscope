@@ -1,0 +1,150 @@
+{
+  "asOf": "2026-11-15",
+  "baseline": "30e5e078",
+  "fixCommit": "d25581d4",
+  "diagnosticCommit": "79fa117c",
+  "scope": "Exact repeated body-omitted imports; finite shared-host x64 screen. No universal memory-leak closure.",
+  "nativeRuns": "baseline and two fresh fixed profiles, each36cycles/108opens; independent original-budget recomputation PASS",
+  "nativeMemoryReceipt": "native-memory-validation.json",
+  "nativeCases": 5,
+  "fullGuardedWindowsAppTests": {
+    "amd64": "PASS40.224s",
+    "386": "PASS43.409s",
+    "originalLifecycleTestsPreserved": true
+  },
+  "frontend": "State regression and production build PASS; diagnostic getter excluded from ordinary bundle and final PE binaries",
+  "finalBuilds": [
+    {
+      "file": "archscope-final-amd64.exe",
+      "bytes": 56258048,
+      "sha256": "576e1afee51e458608316c67162e77c449a3149093292e5ec05f4fc5daed0648",
+      "PEMachine": "0x8664",
+      "sourceCommit": "79fa117c",
+      "tags": "production",
+      "diagnosticGetterAbsent": true
+    },
+    {
+      "file": "archscope-final-386.exe",
+      "bytes": 54308352,
+      "sha256": "ac16924f6d4f6cda8245766af82135cd402a4c508fdae935d69e1b8c40cac664",
+      "PEMachine": "0x14c",
+      "sourceCommit": "79fa117c",
+      "tags": "production",
+      "diagnosticGetterAbsent": true
+    }
+  ],
+  "docker": {
+    "image": "node:22-alpine",
+    "digest": "sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a",
+    "scope": "Actual compiled workspace modules with real backend projections; explicit GC only in isolated diagnostic probe, never native acceptance",
+    "semanticReceipt": "semantic-equivalence.json",
+    "retentionReceipt": "retention-comparison.json"
+  },
+  "nativeDiagnostic": "108actual WebView opens,80cards/121184logical rows/3immutable arrays/4640unique rows; passive counters, no forced GC, not primary-budget qualification",
+  "unresolved": "Current baseline also passes. Historical failures are preserved; their entire late growth and remaining OS private versus JS heap difference are not fully attributed. Unique inputs, body-rich inputs, longer duration and x86 native memory remain unqualified.",
+  "privateLogHashes": [
+    {
+      "file": "app-amd64.log",
+      "bytes": 82,
+      "sha256": "61086c7122873f0b09a8614a977c51171f716613f823e4676e8e98e62289844f"
+    },
+    {
+      "file": "app-386.log",
+      "bytes": 82,
+      "sha256": "65501611c0b54388a1d8fdeecbc5527a38b7ec67f3569f0553afdbc0c0f6333c"
+    },
+    {
+      "file": "fingerprint-amd64.log",
+      "bytes": 81,
+      "sha256": "1d4e72e1698cb0ef5be861237c0fd429737ca2ba77f9c45d58dd406228c2235d"
+    },
+    {
+      "file": "fingerprint-386.log",
+      "bytes": 81,
+      "sha256": "403f8e077d8a3279f390c8d22153410c9975729f790a7e692142aa9aaec73ecd"
+    },
+    {
+      "file": "sharing-state.log",
+      "bytes": 170,
+      "sha256": "3e6dc9263931725271709552759a92e933f7959e2b1b9c69475a3e30a57ee0ec"
+    },
+    {
+      "file": "audit-state.log",
+      "bytes": 170,
+      "sha256": "3e6dc9263931725271709552759a92e933f7959e2b1b9c69475a3e30a57ee0ec"
+    },
+    {
+      "file": "sharing-frontend-build.log",
+      "bytes": 6334,
+      "sha256": "db073c497286e5ea61ceb5be7d519bd342c4b1ca6afb5b8918ed9e17f65aa5c1"
+    },
+    {
+      "file": "restored-production-frontend.log",
+      "bytes": 6334,
+      "sha256": "42bd999e46566ee34fbfec4558f4a6220d77ecb90356dc9b0d8eb7fee8720444"
+    },
+    {
+      "file": "final-build-amd64.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "final-build-386.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "fingerprint-before.log",
+      "bytes": 229,
+      "sha256": "e9493ed4734c7fbc3abeb600b90bd4ce2b1b54a8d5c98f1e170b7ca4c3f5d0df"
+    },
+    {
+      "file": "sharing-state-before.log",
+      "bytes": 973,
+      "sha256": "b19be01e5ea2560e28a5ebe18c9378018f4edba46a2e2adf6f052ca5368dbad3"
+    }
+  ],
+  "sourceHashes": [
+    {
+      "file": "verify-windows-import-memory.mjs",
+      "bytes": 7632,
+      "sha256": "00bbe5e9da382b086dedd151141712927fbe0db8d947f811c7583b88c65c605f",
+      "path": "scripts/verify-windows-import-memory.mjs"
+    },
+    {
+      "file": "sample-owned-process-tree.ps1",
+      "bytes": 2831,
+      "sha256": "ec5b8e791f1ed422d49d42b84e30c76193f0bf5eb16f6ef19fb4c0a16a807cb4",
+      "path": "scripts/acceptance/layout/sample-owned-process-tree.ps1"
+    },
+    {
+      "file": "capturememory_test.go",
+      "bytes": 5961,
+      "sha256": "51d600999ef5882b94ea5ed1e6029a48b00d59430d640b39e4c2a8b000f939b5",
+      "path": "apps/engine-native/cmd/archscope-app/capturememory_test.go"
+    },
+    {
+      "file": "captureimportmemory_test.go",
+      "bytes": 2312,
+      "sha256": "be717aa682a79328ed253a9581129cbc73b367b7495482d91f8826d8a0ddab7d",
+      "path": "apps/engine-native/cmd/archscope-app/captureimportmemory_test.go"
+    },
+    {
+      "file": "capturesessionfile.go",
+      "bytes": 5844,
+      "sha256": "f54f18a276dad010d63fdb7c75e6f927c831d1b3c14fcef0bb5e2ee4fb30dffc",
+      "path": "apps/engine-native/cmd/archscope-app/capturesessionfile.go"
+    },
+    {
+      "file": "analysisWorkspace.ts",
+      "bytes": 12768,
+      "sha256": "45213321e3e6e188117882f48815bc2c2846258e9492d899bf381dd4bcb1205d",
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/state/analysisWorkspace.ts"
+    }
+  ],
+  "statuses": {
+    "T-613": "PENDING",
+    "T-627": "REVIEW",
+    "independent": "CONDITIONAL"
+  }
+}

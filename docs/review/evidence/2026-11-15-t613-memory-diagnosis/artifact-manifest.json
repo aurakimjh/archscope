@@ -1,0 +1,150 @@
+{
+  "scope": "Exact Git index blobs for this evidence folder, excluding this self manifest. Private controller/profile/fixture/log bytes are not included.",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 5874,
+      "sha256": "152251154d59ddb967b28093c17450da8dec8c89fccdafc74c6f59588c676fb8"
+    },
+    {
+      "path": "baseline-amd64.json",
+      "bytes": 137628,
+      "sha256": "b68f1ea22b23514e0ceb3a03573805b3e0f9edf77bcd4c6f32fda22b204ed127"
+    },
+    {
+      "path": "baseline-import-final.jpg",
+      "bytes": 159039,
+      "sha256": "4e622fd8d98fea803c8c85a78b4a9b7e701aa344ddb8088575b2ddecd8fc6e83"
+    },
+    {
+      "path": "baseline-import-final.txt",
+      "bytes": 34215,
+      "sha256": "ab207eee8f742f1cbc7cacffbbc4b84106276e8bb7da2208aaf48b566e97e430"
+    },
+    {
+      "path": "cleanup.json",
+      "bytes": 388,
+      "sha256": "4f244c44fff8b742b3e1371c46c40f8e78e67ce3fcb54014c111ec1729278c50"
+    },
+    {
+      "path": "final-validation.json",
+      "bytes": 5723,
+      "sha256": "166aeb4522068cf4547ba720e350172f590d2d0ed774c01818c32e09e22376e4"
+    },
+    {
+      "path": "fixed-amd64-1.json",
+      "bytes": 137725,
+      "sha256": "84813115a5fc71bdd0c7090b1aa0c6cf525175f5a71fc6ba8481819709165e77"
+    },
+    {
+      "path": "fixed-amd64-2.json",
+      "bytes": 137696,
+      "sha256": "c87ed434457d8b043768a833c658d4c4d7e7327981a48c45df3926bd50072606"
+    },
+    {
+      "path": "fixed-one-annotation-preserved.jpg",
+      "bytes": 148569,
+      "sha256": "92426b9ce95fd5c7d731d3cf0fe9f9e0737629e5920b2974d175f1fde5960445"
+    },
+    {
+      "path": "fixed-one-annotation-preserved.txt",
+      "bytes": 33955,
+      "sha256": "d4668090f33ae21ac09e3ce3898520627316461d58dcdd03bb624fe92c9d716a"
+    },
+    {
+      "path": "fixed-one-import-final.jpg",
+      "bytes": 157201,
+      "sha256": "0ab77a98bebbbca38e9c0788f62df02d46653c39f82b236e944bc960a078a32b"
+    },
+    {
+      "path": "fixed-one-import-final.txt",
+      "bytes": 34108,
+      "sha256": "d60a635643d3d9b5636aed379c96dbec60a6991edb799946efdee79cc7766571"
+    },
+    {
+      "path": "fixed-two-annotation-preserved.jpg",
+      "bytes": 148527,
+      "sha256": "8783a84c449034ae854cd7983e52cf8643e4d86f94783ebc47d96d425ba3d6ff"
+    },
+    {
+      "path": "fixed-two-annotation-preserved.txt",
+      "bytes": 33079,
+      "sha256": "1def70370db05f9c9afe150ee20b244e334c068a791876701e167bb848b72be6"
+    },
+    {
+      "path": "fixed-two-import-final.jpg",
+      "bytes": 157107,
+      "sha256": "5767ab607fa5a9425dbdb9dcfcb45d701324e16f6bd3333cf5cd29c9acb927c0"
+    },
+    {
+      "path": "fixed-two-import-final.txt",
+      "bytes": 33248,
+      "sha256": "0a7b3059672f2c4d346b4f054c0355215622030784e46380ac72b4dfd3fed720"
+    },
+    {
+      "path": "historical-attribution.json",
+      "bytes": 6935,
+      "sha256": "1fa81a570d6e6c77f24d67b30bc054685aa553d2ed23d25746cb2b587dbdfb8d"
+    },
+    {
+      "path": "model-probe-used.go",
+      "bytes": 1271,
+      "sha256": "3c6f5a0ce6ea1c825eba1b7a01a486b07949489bcd4a869a9420dad7e3cef0f4"
+    },
+    {
+      "path": "native-cases.json",
+      "bytes": 2242,
+      "sha256": "f5b539ca2c7c09986d588f9704aaf89e996216d7b8e3793619b38edc2a481850"
+    },
+    {
+      "path": "native-memory-validation.json",
+      "bytes": 4282,
+      "sha256": "1dba212163e9f18c4d5a8f68872437c9bec57ba780b5b4af3bdb4cfa828bb16f"
+    },
+    {
+      "path": "native-retention-probe-used.mjs",
+      "bytes": 2676,
+      "sha256": "c6b93b8c993de387f37451a31aa40ab261b5885e7a8cd341ac7cfbb8425f468b"
+    },
+    {
+      "path": "native-retention.json",
+      "bytes": 42002,
+      "sha256": "30438dfd47576bb3bb706d4f2f10e89b3348b6c36e896ebd6d52cc78f13f3501"
+    },
+    {
+      "path": "protocol.json",
+      "bytes": 1243,
+      "sha256": "554293f4c632cabd6f590f5940915aa32a5c91ee58966b5fc9d804f26149d675"
+    },
+    {
+      "path": "remaining-acceptance.json",
+      "bytes": 5885,
+      "sha256": "e4ae1b31e2f5dc4e13eb21301f8cb578af7f7928654847e5a26c70fb030c7b8b"
+    },
+    {
+      "path": "retention-comparison.json",
+      "bytes": 25503,
+      "sha256": "aa7133d6643d40606306c965b1cfaad29f26bbec738f2fc520aa387a2bca16d5"
+    },
+    {
+      "path": "retention-probe-used.mjs",
+      "bytes": 2114,
+      "sha256": "704b8934aed0ed330486141d3b30ba4f9964f38d4cddadab239d43ba76c2f227"
+    },
+    {
+      "path": "semantic-equivalence.json",
+      "bytes": 364,
+      "sha256": "b8fefa5a0b952d4bfe90633123e2761d65f58b74b8a925dc59211882b92064d4"
+    },
+    {
+      "path": "semantic-probe-used.mjs",
+      "bytes": 2638,
+      "sha256": "65a53ff05c1ade261f48bf98acce2b2627c88ffeaa86f0d39fee2b9907df23a2"
+    },
+    {
+      "path": "verify-native-used.py",
+      "bytes": 6304,
+      "sha256": "39fcfdd4dca2a546a404c0b0209792652684c7c7e3db708f8abca28f42754cdd"
+    }
+  ]
+}

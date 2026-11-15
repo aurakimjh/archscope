@@ -1,0 +1,15 @@
+{
+  "ownedAppsRemaining": 0,
+  "ownedContainersRemaining": 0,
+  "preexistingContainersPreserved": [
+    "kind-cloud-provider",
+    "kind-registry-mirror",
+    "desktop-worker2",
+    "desktop-control-plane",
+    "desktop-worker4",
+    "desktop-worker",
+    "desktop-worker3"
+  ],
+  "privateProfilesAndFixturesRetained": true,
+  "policyOrDriverChangesThisIncrement": false
+}

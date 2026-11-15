@@ -2091,3 +2091,29 @@ amd64protectedSKIP remains separate from positive remoting qualification. Origin
 reference/IME/drag/full matrix/isolated-host/memory limits and T-613PENDING/
 T-627REVIEW/independentCONDITIONAL remain. Current receipts and remaining gates:
 docs/review/evidence/2026-11-15-windows-stream-boundaries/.
+
+### 2026-11-15 repeated-import memory diagnosis
+
+The workspace retained separate copies of identical transaction projections in
+its80result history. OpenCaptureFile now fingerprints the exact sanitized rows;
+matching retained entries share immutable snapshots while preserving80separate
+cards, all result values and per-analysis metadata. Changed annotations/order
+invalidate identity; legacy inputs keep independent ownership. Matched Docker
+diagnostics retain121184logical rows using3arrays/4640unique rows instead of80
+arrays; explicit diagnostic GC is separate from native memory qualification.
+
+Ordinary production x64 baseline and two fresh fixed profiles each completed
+36cycles/108opens with unchanged28warmup/8measured budgets and no forced GC/trim.
+All pass independent metric checks; final-window tree medians are838.277MiB
+baseline and572.941/558.758MiB fixed. Native32/32rows, checked star and Hangul note
+survive both fixed runs. Actual diagnostic WebView counters also confirm80cards/
+3immutable arrays. Full guarded x64/x86 app tests and final ordinary builds pass;
+the diagnostic getter is absent from ordinary production.
+
+The current baseline also passes. Historical failed receipts are preserved and
+their entire late variability is not conclusively explained. Remaining OS private
+versus JS heap allocations, unique/body-rich workloads, longer durations and x86
+native memory repeats remain open. No new original/client/IME/drag/driver/DPI or
+isolated-host closure. T-613 PENDING/T-627 REVIEW/independent CONDITIONAL remain.
+Current evidence and remaining inventory:
+docs/review/evidence/2026-11-15-t613-memory-diagnosis/.
