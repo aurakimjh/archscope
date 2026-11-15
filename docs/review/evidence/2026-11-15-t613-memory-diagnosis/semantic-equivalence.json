@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "scope": "Full value/card metadata equivalence and registry ownership, not native memory qualification",
+  "importsCompared": 108,
+  "retainedCardsCompared": 80,
+  "allRetainedResultFieldsSha256": "4c2c017477a22d8a6685ccc767f73ed3af6bb1661b28f6b7da33d887aea7640f",
+  "uniqueImmutableTransactionArrays": 3,
+  "clearReleasesAllEntries": true
+}

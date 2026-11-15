@@ -34,3 +34,17 @@ Same-size/same-mtime annotation changes and row count/order invalidate identity.
 Full guarded app tests pass Windowsamd6440.224s/38643.409s; frontend state/build pass.
 Original lifecycle memory tests are preserved; new import tests live separately.
 Native repeat qualification remains a separate receipt, not implied by unit tests.
+
+## Value equivalence and diagnostic-only native counters
+
+Isolated Docker checker compares all result fields for108imports and all80retained
+cards (including separate creation metadata/provenance/title). SHA256 over the
+retained full-value results agrees before/after. Immutable rows remain3arrays;
+clearing the registry releases every entry. This is semantic/ownership proof,
+not an ordinary Windows memory screening result.
+
+A VITE_MEMORY_DIAGNOSTICS=1 bundle plus existing layoutaudit build can expose
+read-only entry/row/array/frozen counts to the passive observer. No payload/path,
+second owner/cache, action API or forced GC is added. The getter is verified
+absent from the normal production bundle. Diagnostic-only rapid native opens
+will verify actual WebView adoption separately from the primary ordinary runs.

@@ -6022,3 +6022,12 @@ row count/order and legacy inputs remain independent. Meaningful before failures
 then state/build and full guarded Windowsx64/x86 app40.224s/43.409s pass. Native
 fixed-protocol repeats are separately pending; prior failed verdicts unchanged.
 Evidence:2026-11-15-t613-memory-diagnosis/README.md.
+
+### 2026-11-15 - T-613 semantic equivalence and passive retention counters
+
+Docker actual-module check compares108imports/all80retained full results and
+metadata; hashes match,3immutable transaction arrays and clear ownership pass.
+Opt-in Vite/layoutaudit read-only counters permit native reference attribution;
+no payload/actions/extra cache/forcedGC. Getter absent from ordinary production
+bundle. Rapid diagnostic native opens remain separate from36-cycle screens.
+Evidence:2026-11-15-t613-memory-diagnosis/semantic-equivalence.json.

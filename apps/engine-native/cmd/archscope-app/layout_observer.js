@@ -58,6 +58,8 @@
     observation.mainScrollTop=Math.round(main.scrollTop);
     const selectedTabs=[...main.querySelectorAll('[role=tab][aria-selected=true]')];
     observation.selectedTabFits=selectedTabs.every(tab=>{const rect=tab.getBoundingClientRect();return rect.left>=0 && rect.right<=innerWidth;});
+    const retention=window.__archscopeWorkspaceRetention?.();
+    if(retention) observation.workspaceRetention=retention;
     const key=JSON.stringify(observation);
     if(observations.has(key)) return;
     if(observations.size>=500) observations.delete(observations.keys().next().value);

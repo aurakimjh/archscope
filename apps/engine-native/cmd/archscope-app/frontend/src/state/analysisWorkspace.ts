@@ -1,5 +1,10 @@
 import { useSyncExternalStore } from "react";
 
+declare global {
+  interface ImportMetaEnv { readonly VITE_MEMORY_DIAGNOSTICS?: string; }
+  interface ImportMeta { readonly env: ImportMetaEnv; }
+}
+
 const MAX_ENTRIES = 80;
 
 export type WorkspaceAnalysisResult = {
@@ -251,4 +256,23 @@ export async function reopenWorkspaceCase(caseID: string, resultID: string): Pro
   try { entry.summary_preview = summaryPreview(JSON.parse(reopened.summaryJSON)); } catch { entry.summary_preview = []; }
   entry.saved_case = { case_id: caseID, result_id: resultID, result_sha256: result.sha256 }; emit();
   return entry;
+}
+
+// Explicit diagnostic bundle only. Return counts, never payloads or paths, and
+// never keep a second owner/cache or force collection. Ordinary Vite builds
+// remove this branch; the layoutaudit observer is excluded from production Go.
+if (import.meta.env && import.meta.env.VITE_MEMORY_DIAGNOSTICS === "1" && typeof window !== "undefined") {
+  (window as unknown as {__archscopeWorkspaceRetention: () => unknown}).__archscopeWorkspaceRetention = () => {
+    const http = entries.filter(entry => entry.result_type === "http_capture");
+    const arrays = http.map(entry => entry.result.tables?.transactions).filter(Array.isArray);
+    const unique = [...new Set(arrays)];
+    const memory = (performance as Performance & {memory?: {usedJSHeapSize:number;totalJSHeapSize:number}}).memory;
+    return {entries:entries.length,httpEntries:http.length,
+      fingerprintedHttpEntries:http.filter(entry => httpRowFingerprints.has(entry)).length,
+      uniqueTransactionArrays:unique.length,logicalRows:arrays.reduce((sum,array)=>sum+array.length,0),
+      uniqueRetainedRows:unique.reduce((sum,array)=>sum+array.length,0),
+      immutableArrays:unique.filter(Object.isFrozen).length,
+      activeRows:(getActiveWorkspaceEntry()?.result.tables?.transactions as unknown[] | undefined)?.length ?? 0,
+      jsHeap:memory?{used:memory.usedJSHeapSize,total:memory.totalJSHeapSize}:null};
+  };
 }
