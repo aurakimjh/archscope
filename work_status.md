@@ -5779,3 +5779,13 @@ multipart/file-associated; fixed native edits/sends exact form text. File-picker
 Escape preserves attachment. State/build and guarded386build pass. No IME/drag
 claim; T-613PENDING/T-627REVIEW unchanged.
 Evidence:2026-11-15-windows-conditional/README.md.
+
+### 2026-11-15 - T-613 Builder response decoding failure boundaries
+
+Malformed gzip discarded HTTP envelope; unsupported br bytes could create false
+PNG/decoded evidence. Failing regressions reproduce both. Preserve headers/type/
+length and mark decoded data unavailable; clear image/legacy/text on unsupported
+or failed gzip, including checksum-error prefixes. Complete requestbuilder suites
+Windowsx64/x86 and native failed-gzip Body recheck pass; guarded app tests45.369s/
+46.041s pass. T-613PENDING; full capture/reference/DPI scope separate.
+Evidence:2026-11-15-windows-conditional/README.md.

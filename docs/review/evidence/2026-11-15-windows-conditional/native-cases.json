@@ -40,5 +40,19 @@
     "observed": "Native form-after-file POST200; independent ordered field upload=converted + 한글 matches. No captured source session was loaded or modified.",
     "build": "fbf2ce2c-plus-builder-mode",
     "arch": "386"
+  },
+  {
+    "id": "builder-bad-gzip-headers-before",
+    "result": "FAIL",
+    "observed": "Explicit Accept-Encoding:gzip plus malformed response yields invalid gzip response, but response headers/contenttype/declared20wirebytes are lost and displayed as empty response. Must preserve envelope and encoded-unavailable state.",
+    "build": "fbf2ce2c-plus-builder-mode",
+    "arch": "386"
+  },
+  {
+    "id": "builder-bad-gzip-envelope-fixed",
+    "result": "PASS",
+    "observed": "Fixed native response preserves HTTP200,Content-Length20,application/json,gzip; Body shows20B wire-body size,decoded/transfer unknown dash and encoded-unavailable notice. No decoded text/image fabricated; transaction failure remains separate.",
+    "build": "7117d654-plus-response-envelope",
+    "arch": "386"
   }
 ]

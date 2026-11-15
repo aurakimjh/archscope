@@ -157,6 +157,9 @@ func execute(ctx context.Context, input Request) (models.CaptureTransaction, err
 		tx.RedirectURL = response.Header.Get("Location")
 		var reader io.Reader = response.Body
 		encoding := response.Header.Get("Content-Encoding")
+		// The HTTP envelope remains evidence even when decoding fails before
+		// any preview can be read. Unknown decoded size must not become zero.
+		tx.Response = encodedMessage(response.Header, response.ContentLength, encoding)
 		// Go automatically decodes its own negotiated gzip. Explicit gzip also gets
 		// a bounded decoded preview; unsupported encodings remain unavailable.
 		var gz *gzip.Reader
@@ -176,12 +179,17 @@ func execute(ctx context.Context, input Request) (models.CaptureTransaction, err
 			if truncated {
 				preview = preview[:MaxResponseBytes]
 			}
-			tx.Response = message(response.Header, preview, truncated)
-			tx.Response.BodyEncoding = encoding
-			tx.Response.BodySize = response.ContentLength
 			if encoding != "" && !strings.EqualFold(encoding, "gzip") {
-				tx.Response.BodyPreview = ""
-				tx.Response.BodyStorage = "encoded"
+				// Never run image/legacy decoders on unsupported encoded bytes.
+				tx.Response = encodedMessage(response.Header, response.ContentLength, encoding)
+			} else if readErr != nil && (strings.EqualFold(encoding, "gzip") || response.Uncompressed) {
+				// A failed gzip stream is not a verified decoded payload, even
+				// if its reader returned a prefix before the checksum failure.
+				tx.Response = encodedMessage(response.Header, response.ContentLength, "gzip")
+			} else {
+				tx.Response = message(response.Header, preview, truncated)
+				tx.Response.BodyEncoding = encoding
+				tx.Response.BodySize = response.ContentLength
 			}
 			if readErr != nil {
 				tx.State = models.TxFailed
@@ -199,6 +207,16 @@ func execute(ctx context.Context, input Request) (models.CaptureTransaction, err
 	}
 	return doc.Transactions[0], nil
 }
+
+func encodedMessage(headers http.Header, wireSize int64, encoding string) models.HTTPMessage {
+	m := message(headers, nil, false)
+	m.BodySize = wireSize
+	m.BodyDecoded = -1
+	m.BodyEncoding = encoding
+	m.BodyStorage = "encoded"
+	return m
+}
+
 func validHeaderName(name string) bool {
 	if name == "" {
 		return false

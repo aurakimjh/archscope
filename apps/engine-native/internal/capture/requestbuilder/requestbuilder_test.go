@@ -1,8 +1,11 @@
 package requestbuilder
 
 import (
+	"bytes"
 	"compress/gzip"
 	"context"
+	"image"
+	"image/png"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -14,6 +17,81 @@ import (
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 )
+
+func TestEncodedResponseFailuresPreserveEnvelopeWithoutInventingDecodedPreview(t *testing.T) {
+	var raster bytes.Buffer
+	if err := png.Encode(&raster, image.NewRGBA(image.Rect(0, 0, 1, 1))); err != nil {
+		t.Fatal(err)
+	}
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Envelope-Proof", "retained")
+		if r.URL.Path == "/bad-gzip" {
+			w.Header().Set("Content-Type", "text/plain")
+			w.Header().Set("Content-Encoding", "gzip")
+			io.WriteString(w, "invalid-gzip-fixture")
+			return
+		}
+		// Encoded bytes that happen to look like a valid image are still not
+		// evidence of a decoded image when that encoding is unsupported.
+		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Content-Encoding", "br")
+		w.Write(raster.Bytes())
+	}))
+	defer origin.Close()
+	for _, path := range []string{"/bad-gzip", "/unsupported"} {
+		t.Run(path, func(t *testing.T) {
+			tx, err := NewClient().Send(Request{ID: path, URL: origin.URL + path,
+				Headers: []models.HeaderField{{Name: "Accept-Encoding", Value: "gzip"}}})
+			if err != nil {
+				t.Fatal(err)
+			}
+			proof := false
+			for _, header := range tx.Response.Headers {
+				if header.Name == "X-Envelope-Proof" && header.Value == "retained" {
+					proof = true
+				}
+			}
+			if !proof || tx.StatusCode != 200 || tx.Response.ContentType == "" || tx.Response.BodySize <= 0 {
+				t.Fatalf("lost response envelope: %+v", tx.Response)
+			}
+			if tx.Response.BodyStorage != "encoded" || tx.Response.BodyDecoded != -1 || tx.Response.BodyPreview != "" || tx.Response.ImagePreview != nil || tx.Response.LegacyPreview != nil {
+				t.Fatalf("invented decoded preview: storage=%s decoded=%d image=%v legacy=%v", tx.Response.BodyStorage, tx.Response.BodyDecoded, tx.Response.ImagePreview != nil, tx.Response.LegacyPreview != nil)
+			}
+			if path == "/bad-gzip" && (tx.State != models.TxFailed || tx.Error != "invalid gzip response") {
+				t.Fatalf("invalid gzip state=%s error=%s", tx.State, tx.Error)
+			}
+		})
+	}
+}
+
+func TestCorruptGzipPrefixIsNotPresentedAsDecodedPayload(t *testing.T) {
+	var compressed bytes.Buffer
+	w := gzip.NewWriter(&compressed)
+	w.Write([]byte(`{"marker":"unverified-prefix"}`))
+	w.Close()
+	body := compressed.Bytes()
+	body[len(body)-8] ^= 1 // A readable prefix followed by an invalid CRC.
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Encoding", "gzip")
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("X-Envelope-Proof", "retained")
+		w.Write(body)
+	}))
+	defer origin.Close()
+	for _, explicit := range []bool{false, true} {
+		headers := []models.HeaderField{}
+		if explicit {
+			headers = append(headers, models.HeaderField{Name: "Accept-Encoding", Value: "gzip"})
+		}
+		tx, err := NewClient().Send(Request{ID: "checksum", URL: origin.URL, Headers: headers})
+		if err != nil || tx.State != models.TxFailed || !strings.Contains(tx.Error, "checksum") {
+			t.Fatalf("explicit=%v state=%s error=%s send=%v", explicit, tx.State, tx.Error, err)
+		}
+		if tx.Response.ContentType != "application/json" || tx.Response.BodyEncoding != "gzip" || tx.Response.BodyStorage != "encoded" || tx.Response.BodyDecoded != -1 || tx.Response.BodyPreview != "" {
+			t.Fatalf("explicit=%v unverified prefix became decoded evidence: %+v", explicit, tx.Response)
+		}
+	}
+}
 
 func TestExplicitRawFormMultipartAndRedirect(t *testing.T) {
 	var requests int

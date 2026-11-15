@@ -23,3 +23,20 @@ No ordinary IME or drag claim; Unicode is delivered via native set_value/readbac
 
 builder-server-receipts.json contains independent ordered form/multipart parser
 receipts; upload-proof.bin is synthetic. Native before/after cases are separate.
+
+## Response envelopes and unsupported encodings
+
+Native explicit Accept-Encoding:gzip + malformed Docker response exposed loss of
+all response headers/content type/20B declared length. New failing regressions
+also showed unsupported br bytes that happen to be PNG were decoded as a raster,
+with a false decoded-byte count. Preserve the HTTP envelope before decoding;
+unsupported or failed gzip payloads have encoded storage, unknown decoded bytes,
+no text/raster/legacy preview. Partial gzip checksum errors (automatic and explicit
+negotiation) are not presented as verified decoded prefixes.
+
+Meaningful before-fix regression fails both branches, then complete requestbuilder
+suites pass Windows386/amd64. Final native7117d654-plus-response-envelope preserves
+HTTP200/Content-Length20/type/gzip; Body reports decoded unknown and explicit
+encoded-unavailable, not a zero-byte response. Full guarded Windows app tests pass
+amd6445.369s/38646.041s. This is Builder response handling; capture backend behavior
+and raw-wire fidelity are not relabeled by this result.
