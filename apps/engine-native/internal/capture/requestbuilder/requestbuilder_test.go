@@ -232,3 +232,53 @@ func TestTimeoutAndTLSVerification(t *testing.T) {
 		t.Fatalf("TLS state=%s error=%v", tx.State, err)
 	}
 }
+
+func TestObservedUnencodedBodySizeDoesNotUseDeclaredLength(t *testing.T) {
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/short", "/head":
+			w.Header().Set("Content-Length", "12")
+			if r.Method != "HEAD" {
+				io.WriteString(w, "short")
+			}
+		case "/chunked":
+			w.(http.Flusher).Flush()
+			io.WriteString(w, "short")
+		case "/auto-gzip":
+			w.Header().Set("Content-Encoding", "gzip")
+			g := gzip.NewWriter(w)
+			io.WriteString(g, "gzip-boundary")
+			g.Close()
+		}
+	}))
+	defer origin.Close()
+	for _, test := range []struct {
+		path, method  string
+		size, decoded int64
+		state         models.TxState
+	}{
+		{"/short", "GET", 5, 5, models.TxFailed},
+		{"/chunked", "GET", 5, 5, models.TxComplete},
+		{"/head", "HEAD", 0, 0, models.TxComplete},
+		{"/auto-gzip", "GET", -1, 13, models.TxComplete},
+	} {
+		tx, err := NewClient().Send(Request{ID: test.path, Method: test.method, URL: origin.URL + test.path})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if tx.State != test.state || tx.Response.BodySize != test.size || tx.Response.BodyDecoded != test.decoded {
+			t.Errorf("%s: state=%s body=%d decoded=%d; expected %s/%d/%d", test.path, tx.State, tx.Response.BodySize, tx.Response.BodyDecoded, test.state, test.size, test.decoded)
+		}
+		if test.path == "/short" || test.path == "/head" {
+			found := false
+			for _, h := range tx.Response.Headers {
+				if strings.EqualFold(h.Name, "Content-Length") && h.Value == "12" {
+					found = true
+				}
+			}
+			if !found {
+				t.Error("original declared Content-Length must remain independently inspectable")
+			}
+		}
+	}
+}

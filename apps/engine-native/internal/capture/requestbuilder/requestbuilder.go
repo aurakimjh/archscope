@@ -190,6 +190,12 @@ func execute(ctx context.Context, input Request) (models.CaptureTransaction, err
 				tx.Response = message(response.Header, preview, truncated)
 				tx.Response.BodyEncoding = encoding
 				tx.Response.BodySize = response.ContentLength
+				// Without decoding or a preview cap, these are the bytes actually
+				// read, including a short failed response, chunked body or HEAD.
+				// Automatic gzip has already hidden the wire size: keep unknown.
+				if encoding == "" && !response.Uncompressed && !truncated {
+					tx.Response.BodySize = int64(len(preview))
+				}
 			}
 			if readErr != nil {
 				tx.State = models.TxFailed

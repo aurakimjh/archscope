@@ -1,0 +1,69 @@
+{
+  "passed": true,
+  "build": "8c471359-plus-observed-bytes",
+  "execution": "Windows386 backend sends, then native saved-file readback; same helper source as response-helper-used.go",
+  "sessionSha256": "eb5771753cc0d790c12244ddbd6c34d4a6ccfb50ad15a0f25205704ffeb050b1",
+  "short": {
+    "streamProvenance": "reconstructed_semantic",
+    "id": "builder-cb7c17bf5a2e150ce77bf4fd",
+    "connectionId": "builder-matrix-short",
+    "sequence": 1,
+    "method": "GET",
+    "url": "http://127.0.0.1:11515/short",
+    "scheme": "http",
+    "host": "127.0.0.1:11515",
+    "path": "/short",
+    "httpVersion": "HTTP/1.1",
+    "statusCode": 200,
+    "statusText": "OK",
+    "timings": {},
+    "usedExistingConnection": false,
+    "startedAt": "2026-11-15T03:02:27.2180286Z",
+    "endedAt": "2026-11-15T03:02:27.2218183Z",
+    "state": "failed",
+    "totalMs": 3.789,
+    "captureMode": "request_builder",
+    "observationPoint": "request_builder",
+    "coverage": "explicit_request",
+    "fidelity": "semantic",
+    "error": "unexpected EOF",
+    "response": {
+      "headers": [
+        {
+          "name": "Server",
+          "value": "BaseHTTP/0.6 Python/3.12.16"
+        },
+        {
+          "name": "Date",
+          "value": "Sun, 15 Nov 2026 03:02:27 GMT"
+        },
+        {
+          "name": "Content-Type",
+          "value": "text/plain"
+        },
+        {
+          "name": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "name": "Content-Length",
+          "value": "12"
+        }
+      ],
+      "cookies": [],
+      "headerSize": -1,
+      "bodySize": 5,
+      "bodyDecoded": 5,
+      "transferSize": -1,
+      "contentType": "text/plain",
+      "bodyStorage": "inline",
+      "bodyPreview": "short"
+    }
+  },
+  "unchangedOtherBranches": {
+    "gzip": "46wire-body/26decoded",
+    "large": "1048634declared/1048576capped",
+    "unsupported": "21/unknown"
+  },
+  "beforeReceipt": "response-matrix-readback.json preserves prior12B declared-body behavior"
+}
