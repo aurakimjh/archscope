@@ -5829,3 +5829,12 @@ unknown. Own default gzip negotiation prevents Go hiding response coding headers
 HEAD/Range excluded. Default gzip known wire length retained. Full requestbuilder
 suites x64/x86 pass2.557s/2.592s. Prior unknown-wire receipts remain historical.
 Evidence:2026-11-15-windows-stream-boundaries/README.md.
+
+### 2026-11-15 - T-613 capped binary body classification
+
+Recorder+summary regression reproduces binary early-return hiding raw/decompressed
+128B caps, inventing compression from partial sizes. Apply truncated after binary
+classification; no false text/raster. Exact128B binary stays complete/eligible.
+Full proxy+summary Windowsx64/x86 suites pass. Internal synthetic recorder checks
+are separate from actual live-body preflight and native saved-file observations.
+Evidence:2026-11-15-windows-stream-boundaries/README.md.

@@ -2,6 +2,8 @@ package proxy
 
 import (
 	"bytes"
+	"compress/gzip"
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture/summary"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	"image"
 	"image/png"
@@ -44,6 +46,38 @@ func TestLegacyPreviewRequiresBodyCapture(t *testing.T) {
 		}
 		if enabled && message.LegacyPreview.Root.Children[0].Value != "hi" {
 			t.Fatalf("%+v", message.LegacyPreview)
+		}
+	}
+}
+
+func TestBinaryPreviewCapRemainsVisibleToSummary(t *testing.T) {
+	for _, size := range []int{128, 8192} {
+		payload := bytes.Repeat([]byte{0xff, 0x00}, size/2)
+		for _, encoding := range []string{"", "gzip"} {
+			wire := payload
+			if encoding == "gzip" {
+				var packed bytes.Buffer
+				g := gzip.NewWriter(&packed)
+				g.Write(payload)
+				g.Close()
+				wire = packed.Bytes()
+			}
+			recorder := newBodyRecorder(io.NopCloser(bytes.NewReader(wire)), true, 128)
+			if _, err := io.Copy(io.Discard, recorder); err != nil {
+				t.Fatal(err)
+			}
+			message := models.HTTPMessage{ContentType: "application/octet-stream"}
+			recorder.apply(&message, encoding)
+			expectedStorage := "binary"
+			expectedKnown := 1
+			if size > 128 {
+				expectedStorage = "truncated"
+				expectedKnown = 0
+			}
+			totals := summary.Build([]models.CaptureTransaction{{State: models.TxComplete, Response: message}})
+			if message.BodyStorage != expectedStorage || message.BodyDecoded != 128 || message.BodySize != int64(len(wire)) || message.BodyPreview != "" || message.ImagePreview != nil || totals.CompressionKnown != expectedKnown {
+				t.Errorf("size=%d encoding=%q: storage=%s decoded=%d wire=%d compressionKnown=%d; want storage=%s known=%d", size, encoding, message.BodyStorage, message.BodyDecoded, message.BodySize, totals.CompressionKnown, expectedStorage, expectedKnown)
+			}
 		}
 	}
 }

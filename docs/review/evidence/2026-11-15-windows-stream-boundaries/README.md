@@ -17,3 +17,13 @@ so original headers and known Content-Length survive before decode. Default gzip
 now retains its known37B envelope/13B decoded in the prior regression; previous
 unknown-wire receipts stay historical. Complete requestbuilder suites pass
 Windows amd642.557s/3862.592s. Native/Docker follow-up is recorded separately below.
+
+## Capped binary capture
+
+Before-fix recorder+summary regression fails raw8192B and gzip47B→8192B at128B
+preview cap: binary early return hides truncation and falsely includes partial
+sizes in compression. Keep binary text absent but apply truncated classification
+for wire or decoded cap. Exact128B binary remains binary/eligible; capped raw and
+compressed binary are truncated/excluded. This is synthetic internal recorder
+coverage, not a live-body SEC10 preflight pass. Full Windows proxy+summary suites
+pass amd641.450s/0.422s and3861.474s/0.431s.

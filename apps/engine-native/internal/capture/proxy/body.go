@@ -23,7 +23,7 @@ const (
 	// BodyStorageInline means the whole body is present in BodyPreview.
 	BodyStorageInline = "inline"
 	// BodyStorageTruncated means the body exceeded the per-message cap and
-	// BodyPreview holds only its leading bytes.
+	// any readable BodyPreview holds only its leading bytes (binary has none).
 	BodyStorageTruncated = "truncated"
 	// BodyStorageEncoded means bytes were captured but the Content-Encoding is
 	// one this tier does not decode, so no readable text is claimed.
@@ -125,16 +125,17 @@ func (r *bodyRecorder) apply(message *models.HTTPMessage, contentEncoding string
 			return
 		}
 	}
-	if !utf8.Valid(decoded) {
+	if utf8.Valid(decoded) {
+		message.BodyPreview = string(decoded)
+		message.BodyStorage = BodyStorageInline
+	} else {
 		message.BodyStorage = BodyStorageBinary
-		return
 	}
-	message.BodyPreview = string(decoded)
+	// A non-text prefix can still be capped; never present it as a complete
+	// binary body or include its partial decoded size in compression totals.
 	if r.truncated || decodedTruncated {
 		message.BodyStorage = BodyStorageTruncated
-		return
 	}
-	message.BodyStorage = BodyStorageInline
 }
 
 // decodeBody inflates the encodings this tier understands. A body that was
