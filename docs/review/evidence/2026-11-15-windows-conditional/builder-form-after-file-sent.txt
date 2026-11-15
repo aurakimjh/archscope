@@ -1,0 +1,235 @@
+Window: "ArchScope Layout QA", App: archscope-builder-fixed-386.exe.
+	0 window (창) ArchScope Layout QA Secondary Actions: Raise
+		1 pane (창) ArchScope
+			2 pane (창) (disabled)
+			3 pane (영역) ArchScope - 웹 콘텐츠
+				4 pane (영역)
+					5 pane (영역)
+					6 pane (영역)
+						7 pane (영역)
+							8 pane (영역)
+							9 pane (영역)
+								10 pane (영역)
+									11 pane (영역)
+										12 pane (영역)
+											13 pane (영역)
+											14 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												15 group (그룹) ID: root
+													16 group (머리글)
+														17 text (텍스트) HTTP 캡처
+													18 group (기본)
+														19 group (세부정보)
+															20 button (펼치기/접기 삼각형) 파일·요청 작성
+																21 text (텍스트) 파일·요청 작성
+															117 button (단추) HTTP 도움말
+															118 button (단추) 세션 열기
+															119 button (단추) 레거시 .halog 파일 정보
+															120 group (세부정보)
+																121 button (펼치기/접기 삼각형) HTTP Request Builder
+																	122 text (텍스트) HTTP Request Builder
+																130 text (텍스트) 요청을 작성하거나 요청 행을 여기에 끌어 놓으세요. 전송 버튼을 누르면 실행하며 리다이렉트는 자동으로 따라가지 않습니다.
+																131 text field (편집) (settable, string) 메서드 Value: POST
+																132 text field (편집) (settable, string) 요청 URL Value: http://127.0.0.1:11515/form-after-file
+																133 text (텍스트) 헤더
+																134 text field (편집) (settable, string) 요청 헤더 (줄마다 이름: 값) Description: Content-Type: application/json
+																135 text (텍스트) 본문 형식
+																136 combo box (콤보 상자) (settable, string) 본문 형식 Value: application/x-www-form-urlencoded
+																148 text field (편집) (settable, string) 필드 이름 1 Value: upload
+																149 text field (편집) (settable, string) 필드 값 1 Value: converted + 한글
+																151 button (단추) 필드 삭제
+																147 button (단추) 필드 추가
+																138 text (텍스트) 제한 시간 (초)
+																139 spinner (스핀 단추) (settable, float) 제한 시간 (초) Value: 30
+																140 button (단추) 요청 전송
+																436 text (텍스트) Builder 응답 — 최대 1 MiB 본문 미리보기
+																437 group (지역) 트랜잭션
+																	438 group (세부정보)
+																		439 button (펼치기/접기 삼각형) 메서드, URL, 호스트, 상태로 필터 · 1 / 1
+																			440 text (텍스트) 메서드, URL, 호스트, 상태로 필터
+																			441 text (텍스트) ·
+																			442 text (텍스트) 1
+																			443 text (텍스트) /
+																			444 text (텍스트) 1
+																	445 group (세부정보)
+																		446 button (펼치기/접기 삼각형) 세션 도구
+																			447 text (텍스트) 세션 도구
+																	448 group (세부정보)
+																		449 button (펼치기/접기 삼각형) 열 필터
+																			450 text (텍스트) 열 필터
+																	451 combo box (콤보 상자) (settable, string) 그룹 기준 Value: 프로세스
+																	452 group (세부정보)
+																		453 button (펼치기/접기 삼각형) 표시 열
+																			454 text (텍스트) 표시 열
+																	455 group (그룹) 트랜잭션
+																		456 table (TABLE) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																			457 text (텍스트) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																			458 data item (행)
+																				459 button (단추) # Description: Sort by this column
+																					460 button (단추) #
+																				461 button (단추) 시작 Description: Sort by this column
+																					462 button (단추) 시작
+																				463 button (단추) 메서드 Description: Sort by this column
+																					464 button (단추) 메서드
+																				465 button (단추) 결과 Description: Sort by this column
+																					466 button (단추) 결과
+																				467 button (단추) 호스트 Description: Sort by this column
+																					468 button (단추) 호스트
+																				469 button (단추) 경로 Description: Sort by this column
+																					470 button (단추) 경로
+																				471 button (단추) 종류 Description: Sort by this column
+																					472 button (단추) 종류
+																				473 button (단추) 크기 Description: Sort by this column
+																					474 button (단추) 크기
+																				475 button (단추) 시간 Description: Sort by this column
+																					476 button (단추) 시간
+																				477 button (단추) 타임라인 Description: Sort by this column
+																				478 button (단추) 프로세스 Description: Sort by this column
+																					479 button (단추) 프로세스
+																			480 data item (행)
+																				481 data item (항목) ▾ 127.0.0.1:11515 1 · ↑ - · ↓ -
+																					482 button (단추) ▾ 127.0.0.1:11515 1 · ↑ - · ↓ -
+																			483 data item (행)
+																				484 data item (항목) 1 Description: 1
+																				485 data item (항목) 02:27:18.938 Description: 02:27:18.938
+																				486 data item (항목) POST Description: POST
+																				487 data item (항목) 200 Description: 200
+																				488 data item (항목) 127.0.0.1:11515 Description: 127.0.0.1:11515
+																				489 data item (항목) /form-after-file Description: /form-after-file
+																				490 data item (항목) JSON Description: json
+																				491 data item (항목) — Description: —
+																				492 data item (항목) 5 ms Description: 5 ms
+																				493 data item (항목) — Description: —
+																				494 data item (항목) — Description: —
+																	495 text (텍스트) 방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+																	496 thumb (위치 조정) 트랜잭션 목록 크기 조절 Description: 드래그·방향키로 크기를 조절하고, 더블클릭·Home으로 기본 높이를 복원합니다. Value: 100
+																	497 button (단추) Request Builder로 복사
+																	498 text (텍스트) 200
+																	499 text (텍스트) POST
+																	500 text (텍스트) http://127.0.0.1:11515/form-after-file
+																	501 text (텍스트) 신규 연결
+																	502 text (텍스트) semantic
+																	503 tab (Tab) 트랜잭션
+																		504 tab item (탭 항목) (selectable) 힌트 / 상태 / 주석
+																		505 tab item (탭 항목) (selectable) Raw
+																		506 tab item (탭 항목) (selectable) 스트림
+																		507 tab item (탭 항목) (selectable) 헤더
+																		508 tab item (탭 항목) (selectable) 쿼리 문자열
+																		509 tab item (탭 항목) (selectable) POST 데이터
+																		510 tab item (탭 항목) (selectable) 본문
+																		511 tab item (탭 항목) (selectable) 타이밍
+																		512 tab item (탭 항목) (selectable) 쿠키
+																		513 tab item (탭 항목) (selectable) 프로세스
+																	514 pane (탭 패널) Raw
+																		515 text (텍스트) 정규화된 모델에서 재구성한 텍스트입니다. 헤더 이름·값·중복은 보존되지만 원본 필드 순서·대소문자·프레이밍은 보존되지 않습니다 — 이 캡처 tier는 raw wire가 아니라 semantic 등급입니다.
+																		516 text (제목) 요청
+																		517 button (단추) 복사
+																		518 text (텍스트) POST /form-after-file HTTP/1.1 Content-Type: application/x-www-form-urlencoded Host: 127.0.0.1:11515 upload=converted+%2B+%ED%95%9C%EA%B8%80
+																		519 text (제목) 응답
+																		520 button (단추) 복사
+																		521 text (텍스트) HTTP/1.1 200 OK Server: BaseHTTP/0.6 Python/3.12.16 Date: Sun, 15 Nov 2026 02:27:18 GMT Content-Type: application/json Cache-Control: no-store Content-Length: 283 {"bodyBytes":39,"bodySha256":"2370cf5314df627089a83dfbc4dd175c3b88000996873bf1ed8fc08f8a1eff3e","contentType":"application/x-www-form-urlencoded","fields":[["upload","converted + 한글"]],"marker":"windows-conditional-origin","method":"POST","path":"/form-after-file"}
+															123 button (단추) 캡처 소스
+															124 group (그룹) HAR 파일
+																125 text (텍스트) HAR 파일
+																126 button (단추) 도움말 보기
+																127 button (단추) 찾아보기
+															128 button (단추) (disabled) 분석
+															129 text (텍스트) HAR 내보내기 파일을 선택하고 분석을 누르면 요청 타임라인, 유사 프로세스 트리, 트랜잭션별 상세를 볼 수 있습니다.
+														22 group (세부정보)
+															23 button (펼치기/접기 삼각형) 캡처 설정
+																24 text (텍스트) 캡처 설정
+														25 button (단추) (disabled) 캡처 시작
+														26 button (단추) (disabled) 캡처 중지
+														27 button (단추) 자동 추적 중
+														28 button (단추) (disabled) 일시정지
+														29 button (단추) (disabled) 비우기
+														30 group (세부정보)
+															31 button (펼치기/접기 삼각형) 저장된 전체 세션에서 찾기
+																32 text (텍스트) 저장된 전체 세션에서 찾기
+														33 text (텍스트) 프로세스
+														34 combo box (콤보 상자) (settable, string) 프로세스 Value: 모든 프로세스
+														35 text (텍스트) 0
+														36 text (텍스트) /
+														37 text (텍스트) 0
+														38 group (지역) 트랜잭션
+															39 group (세부정보)
+																40 button (펼치기/접기 삼각형) 메서드, URL, 호스트, 상태로 필터 · 0 / 0
+																	41 text (텍스트) 메서드, URL, 호스트, 상태로 필터
+																	42 text (텍스트) ·
+																	43 text (텍스트) 0
+																	44 text (텍스트) /
+																	45 text (텍스트) 0
+															46 group (세부정보)
+																47 button (펼치기/접기 삼각형) 세션 도구
+																	48 text (텍스트) 세션 도구
+															49 status bar (상태)
+																50 text (텍스트) 행을 유지합니다. 종료된 저장소가 권위 있는 원본입니다.
+															51 group (세부정보)
+																52 button (펼치기/접기 삼각형) 열 필터
+																	53 text (텍스트) 열 필터
+															54 combo box (콤보 상자) (settable, string) 그룹 기준 Value: 프로세스
+															55 group (세부정보)
+																56 button (펼치기/접기 삼각형) 표시 열
+																	57 text (텍스트) 표시 열
+															58 group (그룹) 트랜잭션
+																59 table (TABLE) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																	60 text (텍스트) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																	61 data item (행)
+																		62 data item (열 머리글) #
+																			63 button (단추) #
+																		64 data item (열 머리글) 시작
+																			65 button (단추) 시작
+																		66 data item (열 머리글) 메서드
+																			67 button (단추) 메서드
+																		68 data item (열 머리글) 결과
+																			69 button (단추) 결과
+																		70 data item (열 머리글) 호스트
+																			71 button (단추) 호스트
+																		72 data item (열 머리글) 경로
+																			73 button (단추) 경로
+																		74 data item (열 머리글) 종류
+																			75 button (단추) 종류
+																		76 data item (열 머리글) 크기
+																			77 button (단추) 크기
+																		78 data item (열 머리글) 시간
+																			79 button (단추) 시간
+																		80 data item (열 머리글) 타임라인
+																		81 data item (열 머리글) 프로세스
+																			82 button (단추) 프로세스
+																	83 data item (행)
+																		84 data item (항목) 현재 필터에 해당하는 트랜잭션이 없습니다.
+															85 text (텍스트) 방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+															86 thumb (위치 조정) 트랜잭션 목록 크기 조절 Description: 드래그·방향키로 크기를 조절하고, 더블클릭·Home으로 기본 높이를 복원합니다. Value: 100
+															87 status bar (상태)
+																88 text (텍스트) 위에서 요청을 선택하면 상세가 표시됩니다.
+														89 status bar (상태)
+															90 text (텍스트) 대기
+															91 text (텍스트) 캡처
+															92 text (텍스트) :
+															93 text (텍스트) 0
+															94 text (텍스트) 저장
+															95 text (텍스트) :
+															96 text (텍스트) 0
+															97 group (세부정보)
+																98 button (펼치기/접기 삼각형) 세션 요약 및 근거
+																	99 text (텍스트) 세션 요약 및 근거
+							100 pane (영역)
+					101 pane (영역)
+		102 title bar (제목 표시줄) (settable, string) Value: ArchScope Layout QA
+			103 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				104 menu item (메뉴 항목) 시스템
+			105 button (단추) 최소화
+			106 button (단추) 최대화
+			107 button (단추) 닫기
+		108 menu bar (메뉴 모음) 응용 프로그램 ID: MenuBar
+			109 menu item (메뉴 항목) 파일
+			110 menu item (메뉴 항목) 편집
+			111 menu item (메뉴 항목) 분석
+			112 menu item (메뉴 항목) 워크스페이스
+			113 menu item (메뉴 항목) 캡처
+			114 menu item (메뉴 항목) 보기
+			115 menu item (메뉴 항목) 도움말
+			116 menu item (메뉴 항목) Layout QA
+
+Document text: ```
+converted + 한글
+```

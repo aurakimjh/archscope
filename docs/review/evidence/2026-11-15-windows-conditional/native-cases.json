@@ -1,0 +1,44 @@
+[
+  {
+    "id": "builder-form-duplicate-empty",
+    "result": "PASS",
+    "observed": "Native POST form request completes; independent owned Docker sees35UTF8bytes and exact ordered duplicate fields x=한글 + & =,x=empty. No original session loaded or mutated.",
+    "build": "6b3cf283-plus-settings-labels",
+    "arch": "386"
+  },
+  {
+    "id": "builder-multipart-binary-basename",
+    "result": "PASS",
+    "observed": "Native multipart POST200; independent parser verifies duplicate x fields (Unicode and empty),54byte binary upload SHA/content exactly, custom ..\\renamed-proof.bin reduced to basename. Old form response not used as evidence.",
+    "build": "6b3cf283-plus-settings-labels",
+    "arch": "386"
+  },
+  {
+    "id": "builder-form-after-file-before",
+    "result": "FAIL",
+    "observed": "After multipart file selection, switch to URL-encoded form hides file controls but leaves field3 value disabled. Form backend ignores file path, leaving user unable to edit the text value without deleting field.",
+    "build": "6b3cf283-plus-settings-labels",
+    "arch": "386"
+  },
+  {
+    "id": "builder-file-picker-cancel",
+    "result": "PASS",
+    "observed": "Fixed build fbf2ce2c-plus-builder-mode: native replacement picker Escape preserves existing upload-proof.bin association and disabled multipart text value.",
+    "build": "fbf2ce2c-plus-builder-mode",
+    "arch": "386"
+  },
+  {
+    "id": "builder-form-after-file-fixed",
+    "result": "PASS",
+    "observed": "Fixed form mode enables formerly attached-file value; native edit converted + 한글 and actual POST preserve exact text at owned Docker endpoint; original file association preserved for multipart.",
+    "build": "fbf2ce2c-plus-builder-mode",
+    "arch": "386"
+  },
+  {
+    "id": "builder-form-after-file-sent",
+    "result": "PASS",
+    "observed": "Native form-after-file POST200; independent ordered field upload=converted + 한글 matches. No captured source session was loaded or modified.",
+    "build": "fbf2ce2c-plus-builder-mode",
+    "arch": "386"
+  }
+]

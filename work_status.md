@@ -5769,3 +5769,13 @@ stores remain private. Paired EN/KO HTTP/layout notes and exact artifact hashes
 updated. Current original/reference/IME/driver/clean-host/isolated-fault and full
 condition/DPI/locale boundaries are explicit; no universal acceptance PASS.
 Evidence:2026-11-14-windows-final/remaining-acceptance.json,final-validation.json.
+
+### 2026-11-15 - T-613 Builder form/multipart conditional follow-up
+
+Native386 form duplicate/empty/Unicode-reserved values and54binary-byte multipart
+file arrive exactly at owned Docker parser; filename basename enforced. Mode
+transition exposed disabled form value after file attachment. Disable only while
+multipart/file-associated; fixed native edits/sends exact form text. File-picker
+Escape preserves attachment. State/build and guarded386build pass. No IME/drag
+claim; T-613PENDING/T-627REVIEW unchanged.
+Evidence:2026-11-15-windows-conditional/README.md.

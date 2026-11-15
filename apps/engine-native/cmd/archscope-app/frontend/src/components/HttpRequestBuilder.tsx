@@ -282,7 +282,7 @@ export function HttpRequestBuilder({ onReveal }: { onReveal?: () => void }): Rea
                         patchPart(index, { value: event.target.value })
                       }
                       className="min-w-0 flex-1 rounded border px-1"
-                      disabled={Boolean(part.path)}
+                      disabled={mode === "multipart" && Boolean(part.path)}
                     />
                     {mode === "multipart" && (
                       <>
