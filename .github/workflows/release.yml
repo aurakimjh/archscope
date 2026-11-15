@@ -256,15 +256,25 @@ jobs:
         run: task darwin:package:dmg ARCH=${{ matrix.arch }}
         working-directory: apps/engine-native/cmd/archscope-app
 
+      - name: Archive macOS app with permissions and symlinks
+        if: startsWith(matrix.label, 'darwin-')
+        run: ditto -c -k --keepParent bin/archscope.app bin/archscope-${{ matrix.label }}.zip
+        working-directory: apps/engine-native/cmd/archscope-app
+
+      - name: Archive Linux executable with permissions
+        if: matrix.os == 'ubuntu-latest'
+        run: tar -czf bin/archscope-${{ matrix.label }}.tar.gz -C bin archscope
+        working-directory: apps/engine-native/cmd/archscope-app
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
           name: archscope-${{ matrix.label }}
           path: |
-            apps/engine-native/cmd/archscope-app/bin/archscope.app/**
+            apps/engine-native/cmd/archscope-app/bin/*.zip
+            apps/engine-native/cmd/archscope-app/bin/*.tar.gz
             apps/engine-native/cmd/archscope-app/bin/*.dmg
             apps/engine-native/cmd/archscope-app/bin/*.exe
-            apps/engine-native/cmd/archscope-app/bin/archscope
             apps/engine-native/cmd/archscope-app/bin/*.deb
             apps/engine-native/cmd/archscope-app/bin/*.rpm
           if-no-files-found: error
@@ -292,16 +302,14 @@ jobs:
           set -euo pipefail
           OUT=release-files
           mkdir -p "$OUT"
-          # macOS: ship the .dmg if present, else zip the .app
+          # Preserve archives made on the native runner: artifact transfer strips modes.
           for arch in arm64 amd64; do
             DIR="artifacts/archscope-darwin-${arch}"
             if [ -d "$DIR" ]; then
               if ls "$DIR"/*.dmg >/dev/null 2>&1; then
                 cp "$DIR"/*.dmg "$OUT/" || true
               fi
-              if [ -d "$DIR/archscope.app" ]; then
-                ( cd "$DIR" && zip -qr "../../$OUT/archscope-darwin-${arch}.zip" archscope.app )
-              fi
+              cp "$DIR/archscope-darwin-${arch}.zip" "$OUT/"
             fi
           done
           # Windows: zip exe / nsis output
@@ -311,9 +319,7 @@ jobs:
           # Linux: ship .deb + .rpm individually + tar.gz of the raw binary
           DIR="artifacts/archscope-linux-amd64"
           if [ -d "$DIR" ]; then
-            if [ -f "$DIR/archscope" ]; then
-              tar -czf "$OUT/archscope-linux-amd64.tar.gz" -C "$DIR" archscope
-            fi
+            cp "$DIR/archscope-linux-amd64.tar.gz" "$OUT/"
             for f in "$DIR"/*.deb "$DIR"/*.rpm; do
               [ -f "$f" ] && cp "$f" "$OUT/" || true
             done
@@ -323,10 +329,25 @@ jobs:
           git archive --format=zip --output="$OUT/archscope-docs.zip" HEAD docs/en docs/ko examples
           cp "docs/en/releases/$RELEASE_TAG.md" "$OUT/RELEASE_NOTES.en.md"
           cp "docs/ko/releases/$RELEASE_TAG.md" "$OUT/RELEASE_NOTES.ko.md"
+          test -s "$OUT/archscope-darwin-arm64.zip"
           test -s "$OUT/archscope-windows-amd64.zip"
           test -s "$OUT/archscope-linux-amd64.tar.gz"
           ls "$OUT"/*.dmg "$OUT"/*.deb "$OUT"/*.rpm >/dev/null
           ls -lh "$OUT"
+
+      - name: Verify archived executable permissions
+        shell: python
+        run: |
+          import tarfile, zipfile
+          from pathlib import Path
+          root = Path("release-files")
+          with zipfile.ZipFile(root / "archscope-darwin-arm64.zip") as archive:
+              assert archive.testzip() is None, "macOS archive CRC failure"
+              binary = archive.getinfo("archscope.app/Contents/MacOS/archscope")
+              assert (binary.external_attr >> 16) & 0o111, "macOS executable mode lost"
+          with tarfile.open(root / "archscope-linux-amd64.tar.gz") as archive:
+              binary = archive.getmember("archscope")
+              assert binary.isfile() and binary.mode & 0o111, "Linux executable mode lost"
 
       - name: Compute checksums
         run: |
