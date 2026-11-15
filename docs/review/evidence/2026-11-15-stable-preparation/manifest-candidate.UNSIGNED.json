@@ -1,0 +1,81 @@
+{
+  "pack_format": "1.0.0",
+  "id": "diagnostics.snapshot-foundation",
+  "version": "1.0.1",
+  "signer": "bundled-bootstrap-20261111",
+  "app": {
+    "min": "0.3.0",
+    "before": "0.4.1"
+  },
+  "adapter": {
+    "min": "1.0.0",
+    "before": "1.1.0"
+  },
+  "extension": {
+    "min": "1.0.0",
+    "before": "1.1.0"
+  },
+  "dependencies": [],
+  "license": "CC0-1.0",
+  "license_file": "licenses/CC0.txt",
+  "changes": "CHANGELOG.md",
+  "files": {
+    "CHANGELOG.md": {
+      "sha256": "ab489231ae7435313e9ec3c8c3f936c594c1a7728474fde4af543ddece9632be",
+      "size": 162,
+      "role": "changes"
+    },
+    "fixtures/expected.json": {
+      "sha256": "bb691fdf77e784003b242b32675c6d9a46a7cd0ac4bb6029d1686e91f84f7d1b",
+      "size": 222,
+      "role": "fixture"
+    },
+    "fixtures/input.jsonl": {
+      "sha256": "37fab97aafba6a98e41f48a738b849f7e43af0971bf6290177f59dc43b1c62a7",
+      "size": 191,
+      "role": "fixture"
+    },
+    "fixtures/invalid.jsonl": {
+      "sha256": "f7b89fa5cef38fd0d0049ef1939d78c0f62a09e27ab1135a7c499c6f08d5f6a3",
+      "size": 93,
+      "role": "fixture"
+    },
+    "fixtures/rejected.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size": 3,
+      "role": "fixture"
+    },
+    "licenses/CC0.txt": {
+      "sha256": "6c0f73df1fa627ab171bc482d48d88458394fc6ba80050ac56f5712549645a9b",
+      "size": 193,
+      "role": "license"
+    },
+    "mappings/synthetic.json": {
+      "sha256": "99a86537486ad4a8f29123cf82b720ccf4d772cf0b0fe6a69bdab951ed130dc8",
+      "size": 529,
+      "role": "mapping"
+    },
+    "schemas/metric-mapping.schema.json": {
+      "sha256": "ab1ac68bb3776924bec0ebbb97882d4227d7847fca65d37f911b9cd3a588749a",
+      "size": 2127,
+      "role": "schema"
+    }
+  },
+  "mappings": [
+    "mappings/synthetic.json"
+  ],
+  "fixtures": [
+    {
+      "mapping": "data.synthetic-metrics",
+      "input": "fixtures/input.jsonl",
+      "expected": "fixtures/expected.json",
+      "accept": true
+    },
+    {
+      "mapping": "data.synthetic-metrics",
+      "input": "fixtures/invalid.jsonl",
+      "expected": "fixtures/rejected.json",
+      "accept": false
+    }
+  ]
+}

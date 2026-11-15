@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "scope": "Headless actual renderer state and Wails services through synthetic loopback test transport; no native UI acceptance",
+  "families": [
+    "profile",
+    "server",
+    "thread"
+  ],
+  "cases": 3,
+  "exports": 9,
+  "exactJSONPreservedAcrossFreshBackend": true,
+  "saveIdempotent": true,
+  "opaqueExportRouting": true,
+  "unsupportedPptxRefused": true,
+  "independentRemovalAndLeaseCleanup": true,
+  "caseDataSurvivesWorkspaceClear": true,
+  "sourceResultHashes": [
+    {
+      "family": "profile",
+      "sha256": "a0ef3d689253321f1ca2bd4f2fc9415e001a8d3a06f5c0998978eef59a9800cd"
+    },
+    {
+      "family": "server",
+      "sha256": "e7b849c4ecade2d9694b301118e4bc32701f54cd7aa5ff9b4e35abccaba4b67b"
+    },
+    {
+      "family": "thread",
+      "sha256": "762f16d32864efaee35af30d7b3b68823acc73fbdd8a8f9fe31b903a7458c498"
+    }
+  ]
+}

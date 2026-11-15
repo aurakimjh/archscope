@@ -1135,6 +1135,42 @@ filtered before analysis.
 
 ## Next Execution Queue
 
+### Stable v0.4.0 preparation — Mac/Docker (2026-11-15)
+
+User authorizes local stable-release preparation, validation receipts, tracker
+updates and scoped commit/push. Production stays at RC.1. These readiness items
+do not close the six numbered acceptance tasks or change registry counts.
+[Evidence and reproduction](docs/review/evidence/2026-11-15-stable-preparation/README.md).
+
+| Priority / area | Result | Remaining action |
+|---|---|---|
+| P1 — stable pack and RC upgrade | COMPATIBILITY_VERIFIED / RELEASE_GATE_OPEN | Mac and network-none Linux actual validator/store matrix: original signed pack accepts RC only; proposed 1.0.1 before0.4.1 accepts RC/stable0.4.0 and rejects stable0.4.1. Ephemeral trusted test signatures, activation/restart, RC rollback, prepared-store upgrade and atomic rejection of incompatible stable rollback pass. Official existing-signer signature, embedded default startup and actual installer migration/recovery remain required. No production trust or signed bytes changed. |
+| P2 — analysis/Workspace integration | LOCALLY_VERIFIED | Native Mac race and Docker Linux/arm64 purego headless service/renderer bridge: three families, three real durable cases, nine JSON/HTML/CSV exports each, exact large integers after fresh cache/store restart, idempotent save, ownership release and case survival after clear. Native window/Save dialog/Office acceptance remains T-627. |
+| P2 — retained-memory diagnosis | DIAGNOSTIC_VERIFIED / NATIVE_SCOPE_OPEN | 219 actual Mac/Docker full transaction projections/fingerprints agree. Both hosts: four36-cycle/28warmup/8measured scenarios pass explicit-GC retained-object limits. Repeated80cards share3arrays/4640rows; unshared control80arrays/121184rows; unique/body-rich inputs retain80arrays then clear releases entries. Windows OSprivate/JSheap gap, historical late variability, longer/body-rich/unique/x86 ordinary screens remain T-613. Not T-662 natural evidence. |
+
+Next actions remain ordered by priority and dependency:
+
+1. P1 pack gate: obtain the existing authorized signing procedure, qualify the
+   actual compatible signed bundle and RC-to-stable transition. Unprepared old
+   active packs fail under stable; preserve owner choices and recovery paths.
+2. P1 T-601: isolated native WinDivert/driver-policy, proxy-ignoring clients,
+   services and other-session capture reach.
+3. P2 T-627: Windows physical-unit chart/CSV combinations after WREV2-01; remaining
+   reference/dense/error/OS-DPI/EN-KO/keyboard/provider matrix, IME and drag.
+4. P3 T-611, then dependent T-613: vendor/foreign COM and cookie/clean-host
+   lifecycle; remaining original16-case parity, real preflight-permitted x64
+   body, isolated disk/power-loss recovery, unique/body-rich/longer/x86 ordinary
+   memory qualification and renderer native allocation attribution.
+5. Different-reviewer revalidation of the remaining remediation/acceptance
+   evidence; original CONDITIONAL reviews remain unchanged. T-654 actual
+   two-NVIDIA-GPU CUDA/NCCL and T-662 authorized natural swap/pressure stay TODO.
+
+Docker backend checks use a headless purego test variant, not production Linux
+CGO/GTK/WebView qualification. Mac/Docker heap diagnosis uses explicit GC only
+in isolated test processes. Full targeted packs/cases/app race, tagged
+integration race/vet, frontend state and resource/version checks pass. Public
+release signing and clean-host install/upgrade remain separate from these tests.
+
 ### Release candidate v0.4.0-rc.1 (2026-11-15)
 
 **PUBLISHED_AND_VERIFIED** — [GitHub prerelease](https://github.com/aurakimjh/archscope/releases/tag/v0.4.0-rc.1).
@@ -1981,7 +2017,7 @@ deferred until explicitly promoted.
 | T-610 | P2 | DONE | Add the Stand-alone HTTP Request Builder | T-594 | Desktop Request Builder supports fresh requests, selected-row copies and a fixed drag/drop target, editable headers/raw/form/multipart files, explicit send/cancel and separate response inspection. Local raw/form/multipart/redirect/timeout/TLS/gzip fixtures, race detector, browser mouse copy/edit/send/drag with original-row preservation, Go suite/vet/build and frontend state/build pass; native Windows acceptance remains T-613. |
 | T-611 | P3 | REVIEW | Support Stand-alone automation and desktop launch switches | T-596, T-607 | Physical retention, pre-storage admission cancellation, owned custom-IID registration, nested normalized filters and common-engine soak tooling implemented. Mac and hosted race/vet/frontend/package plus both GUI cross-builds pass; amd64-race/386 native COM, including custom-IID RPC and explicit registration replacement/cleanup, pass. Current vendor early-bound compatibility, unobserved native filter/cache-origin evidence and foreign-process in-memory session-cookie integration remain. Follow-up hosted evidence: docs/review/evidence/2026-11-11-five-followups/ci.json. |
 | T-612 | P3 | DONE | Restore legacy content inspectors | T-606 | Added bounded inert AMF0/AMF3 and remoting-packet readers, ViewState v1 token trees/text, references/traits/vectors/dictionaries, form/HTML chunk extraction and explicit invalid/limited/unsupported states. Classes/converters/binary objects are never instantiated; MAC/encryption remain unverified, opaque bytes omitted and secret trees/raw ViewState sources masked. Capture/HAR/Builder/portable paths, known-byte fixtures and 15-second fuzz pass; native/reference-EXE visual interoperability remains T-613. |
-| T-613 | P3 | PENDING | Verify complete Stand-alone parity on Windows | T-601, T-602, T-603, T-604, T-605, T-606, T-607, T-608, T-609, T-610, T-611, T-612 | Prior2hour/clear soak and six private-file readbacks retained. New Windows corrupt-store/reserve/export retry, Unicode notes, post-mask limit and redacted provenance fixes, Builder/format boundaries and actual approved386body cases reviewed. Eight memory receipts independently reproduce: capture2pass, import initial2fail/history36x64fail/history36x86pass/x64continuationpass, body3862470.27s/5120requests passes finite fixed budgets. No universal leak-free verdict; diagnose/repeat retained import-growth failures. Actual x64body remains SEC10 gated. Full originalV7.6.4/reference parity, IME/drag, body/format/locale/DPI, T-601driver/service and T-611vendor/cookie/clean-host plus isolated Windows disk/power-loss remain. Receipt: docs/review/evidence/2026-11-15-windows-review/; original raw evidence unchanged. |
+| T-613 | P3 | PENDING | Verify complete Stand-alone parity on Windows | T-601, T-602, T-603, T-604, T-605, T-606, T-607, T-608, T-609, T-610, T-611, T-612 | Prior2hour/clear soak and six private-file readbacks retained. New Windows corrupt-store/reserve/export retry, Unicode notes, post-mask limit and redacted provenance fixes, Builder/format boundaries and actual approved386body cases reviewed. Eight memory receipts independently reproduce: capture2pass, import initial2fail/history36x64fail/history36x86pass/x64continuationpass, body3862470.27s/5120requests passes finite fixed budgets. No universal leak-free verdict; diagnose/repeat retained import-growth failures. Actual x64body remains SEC10 gated. Full originalV7.6.4/reference parity, IME/drag, body/format/locale/DPI, T-601driver/service and T-611vendor/cookie/clean-host plus isolated Windows disk/power-loss remain. Receipt: docs/review/evidence/2026-11-15-windows-review/; original raw evidence unchanged. Mac/Docker stable preparation now verifies219matching backend projections and repeated/unique/body-rich/unshared retained-object scenarios; explicit diagnosticGC only, no new Windows ordinary-memory or independent closure. Receipt: docs/review/evidence/2026-11-15-stable-preparation/. |
 | T-589 | P1 | DONE | Restore unified GC uptime/date coordinates and valid throughput/allocation/promotion rate denominators; define observation-window rules, expose unavailable values honestly, and align absolute versus elapsed UI axes. | None; existing GC parser/analyzer and AnalysisResult envelope | Completed 2026-11-09: unified date/uptime parsing, monotonic observed-window accounting, nullable unavailable metrics with reasons, elapsed/absolute axes and EN/KO disclosure. GC parser/analyzer regressions, frontend state suite and production build passed; local source review completed (no independent or desktop E2E claim). |
 | T-590 | P1 | DONE | Preserve internal-frame self samples in the shared Canvas flamegraph so totals, widths, tooltips, and search use the original inclusive weights without double counting. | None; coordinate hidden-weight fixtures with T-591 | Completed 2026-11-09: Canvas derives self weights from inclusive nodes; shared layout/search helpers preserve prefix-stack totals and union recursive matches. Prefix, leaf, recursion, focus/search and synthetic-hidden-weight regressions plus frontend state suite/build passed; local source review completed. |
 | T-591 | P1 | DONE | Apply profiler drilldown filters to canonical evidence before display pruning; conserve/disclose omitted subtree weight while keeping every result stage within node/payload limits. | None; coordinate Canvas accounting with T-590 | Completed 2026-11-09: filters consume canonical Go-only evidence before each bounded display stage; pruning preserves explicit hidden-descendant weight without mutating later filter input. Service tests verify rare=10 at node budgets 1, 3 and 100; profiler budget/accounting tests, app tests, generated Wails bindings and frontend state/build passed; local source review completed. |
@@ -6099,3 +6135,23 @@ Linux DEB binary parity, manuals/notes/corpus source parity and ZIP CRC passed.
 Stable Latest remains v0.3.5-24. Publication evidence is committed separately
 from the immutable release source. Existing six open task states, independent
 review dispositions and unrelated local HTTP preparation work are preserved.
+
+### 2026-11-15 - Mac/Docker stable-release preparation
+
+User-requested pack compatibility, analysis/Workspace integration and retained
+memory diagnosis completed within local scope. Production version, signed
+bootstrap/trust, RC release tag and existing acceptance states are preserved.
+Actual validator/store overlays exercise RC/stable/future bounds and prepared
+upgrade/rollback gates using ephemeral fixture trust only; the real authorized
+signer and bundled/installer migration are still required. Actual renderer and
+Wails services save/reopen three synthetic families and nine exports on each
+host, including fresh cache/store and exact large integer preservation. Both
+backends independently produce219identical transaction projections/fingerprints.
+Four per-host36cycle retained-object scenarios pass fixed diagnostic limits;
+known sharing reduces repeated input to3arrays while unique/body-rich history
+retains80arrays and releases on clear. No explanation of every historical late
+Windows OSprivate fluctuation, native leak-freedom verdict or natural pressure
+qualification is claimed. Remaining Windows work is ordered in the current
+queue and linked acceptance receipt; T-601/T-611/T-627 REVIEW, T-613 PENDING and
+T-654/T-662 TODO remain unchanged. Scoped staging preserves unrelated HTTP docs,
+verifier and the original tracker history block.

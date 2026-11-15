@@ -1,0 +1,85 @@
+{
+  "date": "2026-11-15",
+  "baseline": "70db13ba6e899e56a26955dccfe6549117037953",
+  "scope": "Mac/Docker stable-release preparation; no new Windows native acceptance or production-signing claim",
+  "host": {
+    "os": "Darwin",
+    "arch": "arm64",
+    "macos": "27.2.1",
+    "go": "go version go1.26.10 darwin/arm64",
+    "node": "v25.9.0"
+  },
+  "dockerImages": {
+    "node:22-alpine": "sha256:c610fcdfb1d5b4740dd70c284ed3cb16bb857e0f7166196e36a5501df7a3aa32",
+    "node:22-bookworm-slim": "sha256:e9f565d32859f0cbfb52125eafe8be39390f24dac302dc3cdf566e8ba3ab21ee"
+  },
+  "checks": {
+    "targeted-race": {
+      "exitCode": 0,
+      "logBytes": 3730,
+      "logSha256": "6c9cac5bbc57c99430327dde37621077e42135b3f00cb25090c58c30ceada01c"
+    },
+    "final-pack-race": {
+      "exitCode": 0,
+      "logBytes": 77,
+      "logSha256": "4e19d2b19aabc3be62dd69a6526eb6b29a544dd6929198c47de93fb6e3d609c2"
+    },
+    "workspace-race": {
+      "exitCode": 0,
+      "logBytes": 3790,
+      "logSha256": "74f69b9ed6dbe170be9216c25787b3fcf62a1e98301f9276fba1d0cdac7f0abc"
+    },
+    "state": {
+      "exitCode": 0,
+      "logBytes": 171,
+      "logSha256": "c6d5b501b4b1e15cc950a6e0cbe0b8f1d38f134e8af46f8995d748fd0c4cab81"
+    },
+    "vet": {
+      "exitCode": 0,
+      "logBytes": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "docker-backend-models": {
+      "exitCode": 0,
+      "logBytes": 440,
+      "logSha256": "9f7c9a5ff8e7b00ab44f498e27ca2a77ca6085b4ff891a7e2e2cee826d464951"
+    },
+    "docker-workspace": {
+      "exitCode": 0,
+      "logBytes": 215,
+      "logSha256": "9fa3be5be0433000b02340912286ca508dde36d3da264b1666606e15ca297626"
+    },
+    "tagged-pack-matrix-mac": {
+      "exitCode": 0,
+      "logBytes": 1229,
+      "logSha256": "dfc4198cb95cccbfc02c3bf64b49457a4799fcf626d7567ba520b792206393e9"
+    },
+    "tagged-pack-matrix-docker": {
+      "exitCode": 0,
+      "logBytes": 1249,
+      "logSha256": "7a85878312041f0e04b6105bee132c4d1fae6df801abea682c0cba5a0d258456"
+    }
+  },
+  "resourceVersionChecks": "PASS canonical RC identity, offline assets, input assistance",
+  "sources": {
+    "scripts/qualify-stable-packs.py": "2f1a5356be091a8c717827bb258a6125a57c67da41e169e6970d4b7cee961952",
+    "scripts/verify-stable-workspace.mjs": "9add72caa54f1e36d95f8db11a5fca1fe36568bcff6b5e204e2e24c88b0411f6",
+    "scripts/diagnose-workspace-retention.mjs": "cd553f6a509ec8dc85def7fb364611d8083b627147ed3b44b1acf6a9918f4e0b",
+    "apps/engine-native/internal/packs/stable_preparation_test.go": "4379397a1080fe4d7a25edad8bd1ace621c91604c8f711be8c4b292870159ed3",
+    "apps/engine-native/cmd/archscope-app/stable_preparation_test.go": "e38c5c81fc95e3bb4068d7a0d0a7447a3bb811885693edb26f7bc1c9e2be3938",
+    "apps/engine-native/cmd/archscope-app/stable_memory_preparation_test.go": "d3ae72ded3c4f3e846dbbef4faaf2c548503c8584de312aebaaae48f6f107b86",
+    "apps/engine-native/internal/packs/model.go": "4d53301974fa5c6d3e6bfd07450bcb9ee229561e867f7742fe55e0339ef5eb3f",
+    "apps/engine-native/internal/packs/assets/bootstrap.zip": "88a380b7ead09ba7bf3893d7698b66bccf8d3132bbee5c55a64b00e2fb4d1108",
+    "apps/engine-native/internal/packs/assets/trusted-keys.json": "d39081f6415d8f449cd1dc214351553c90b58dd0bd39efe4e387c8ef9f83fc92",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/analysisWorkspace.ts": "29d95d7061769035efd49f039d31912da5c79e18870aafb475147aa4828a5a7c",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/workspaceExport.ts": "20282de4f0b0887f250795d3dff03d6dfb6da45ab5cb00bb364250a2e1d20461"
+  },
+  "linuxBackendVariant": "Linux/arm64 cross-compiled purego releasequalification test, executed in glibc Node22 container; headless only, no GTK/WebView or production CGO package qualification",
+  "memoryProtocol": "36 cycles, 28 warmup, 8 measured, 80 history entries, 108 imports; isolated diagnostic explicit GC; 16MiB post-clear heap delta and 4MiB/cycle saturated heap slope limits",
+  "modelParity": "219 independently generated native Mac/Linux model transaction tables and fingerprints match",
+  "officialSignedPack": "PENDING authorized existing signer, bundled startup and actual upgrade packaging",
+  "existingAcceptanceStatesUnchanged": true,
+  "independentFinalPassClaimed": false,
+  "tagOrReleaseCreated": false,
+  "qualificationBuildTag": "releasequalification; preparatory test harnesses are excluded from ordinary production builds/default tests"
+}

@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "productionVersionUnchanged": "0.4.0-rc.1",
+  "execution": "Docker Linux/arm64 network-none",
+  "originalBootstrapSha256": "88a380b7ead09ba7bf3893d7698b66bccf8d3132bbee5c55a64b00e2fb4d1108",
+  "productionTrustUnchanged": true,
+  "officialSignedPack": "PENDING existing authorized signer and release migration",
+  "candidateRangeBefore": "0.4.1",
+  "matrix": [
+    {
+      "appVersion": "0.4.0-rc.1",
+      "candidateAccepted": true,
+      "installActivateRestart": true,
+      "officialSignerQualified": false,
+      "originalAccepted": true,
+      "reversiblePreCutover": true,
+      "scope": "ephemeral fixture trust only; production bytes and trust unchanged",
+      "tamperedAndUntrustedRejected": true
+    },
+    {
+      "appVersion": "0.4.0",
+      "candidateAccepted": true,
+      "explicitlyPreparedRcStoreReopens": true,
+      "incompatibleRollbackRejectedWithoutStateChange": true,
+      "installActivateRestart": true,
+      "officialSignerQualified": false,
+      "originalAccepted": false,
+      "scope": "ephemeral fixture trust only; production bytes and trust unchanged",
+      "tamperedAndUntrustedRejected": true,
+      "unpreparedRcStoreRejected": true
+    },
+    {
+      "appVersion": "0.4.1",
+      "candidateAccepted": false,
+      "officialSignerQualified": false,
+      "originalAccepted": false,
+      "scope": "ephemeral fixture trust only; production bytes and trust unchanged"
+    }
+  ]
+}

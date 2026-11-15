@@ -1,0 +1,1541 @@
+{
+  "passed": true,
+  "models": 219,
+  "actualProjectedRowsAndFingerprintsEqualAcrossMacAndDocker": true,
+  "scope": "Source paths and creation metadata intentionally differ; normalized full transaction tables compared",
+  "inventory": [
+    {
+      "file": "body-rich-000.json",
+      "fingerprint": "v1:fdfa5ae260d571ca8830e68d1f5230a81437143797b346a9fe2aeb1f6387ba70",
+      "rows": 128,
+      "modelSha256Mac": "9686076228b02b45e653dcdd07a4a7a7bcf0f2d3f03b77bbf2bbb7ad25186a1a",
+      "modelSha256Docker": "3975fce633c2cdb1a1a94369dd2f339aebca5a80865cca2787eb3c749e5a5b3c"
+    },
+    {
+      "file": "body-rich-001.json",
+      "fingerprint": "v1:b5605c48786fafdd4a4e578badc0ed522abf090fcc1618b0c1275be46b22a46d",
+      "rows": 128,
+      "modelSha256Mac": "45a5f22f0c76002fdae2d4d7554c2be41009260241ff2df776f6a7c443c32db3",
+      "modelSha256Docker": "82a13878cf2d62cbafb8d72ff9de7c65bd090141d55d448e00f16caa6d3cc580"
+    },
+    {
+      "file": "body-rich-002.json",
+      "fingerprint": "v1:8ee6b8ec83a8e3e3e3874b95dc0854c37d439683714cb056462ac3554a5881ff",
+      "rows": 128,
+      "modelSha256Mac": "2bcf4463a7b4e03c4fdbfa07e4edfb45ac06822f1d643dcb608564222c81779a",
+      "modelSha256Docker": "7aaf661a8487f8e4e25c24d6c695051af46a194aee8ca8e83603e8ea1a21daea"
+    },
+    {
+      "file": "body-rich-003.json",
+      "fingerprint": "v1:cda9386967d1edb53f28d1e7c4f699bb3b0844bd797d3562208c06487d6ce26f",
+      "rows": 128,
+      "modelSha256Mac": "3a977255d64c77d194ccba89d64441ac62ce37268c3faeb82bd96cfa953c8a27",
+      "modelSha256Docker": "a9a5314e30f6c9d28e9cff10809b8465b9fbbd332093b251034a10b1a7423225"
+    },
+    {
+      "file": "body-rich-004.json",
+      "fingerprint": "v1:6d1309dda5ac83003654436f91d0162f22db5ac1622e38bdb42a56ecdd021503",
+      "rows": 128,
+      "modelSha256Mac": "6875e132b3fdd3ad92801c596ac002f8b12c91d28ccf27c763aeb6a4917d238d",
+      "modelSha256Docker": "6ac3ebf36dfd5b73d7a5b070e757949ad7febbb5bc7ac883ee0e94ace3307354"
+    },
+    {
+      "file": "body-rich-005.json",
+      "fingerprint": "v1:7a580752a90e85aa992d2e8ea202971fc49f5b8286393097777039086ec8037e",
+      "rows": 128,
+      "modelSha256Mac": "78e3c7493615adab00be829d8f89825b983c7a4da435b9bbb6155b9b74428353",
+      "modelSha256Docker": "ecbcd463d644957914bec10b9b402c0c6fbebb56c66f32f597429c873d5836cb"
+    },
+    {
+      "file": "body-rich-006.json",
+      "fingerprint": "v1:aecd5d574b013ecdb3f7e5e94d09f7bc92d2a6be383203c5c7269be369e0cc0c",
+      "rows": 128,
+      "modelSha256Mac": "cf61fda383b6650a4afa92d9c74a34a988425d8c8363c406263ef8da20a08da3",
+      "modelSha256Docker": "e05162058a14b9f2012da9fa80435d5d0a383873226b34c7e4f2e91f2211260a"
+    },
+    {
+      "file": "body-rich-007.json",
+      "fingerprint": "v1:c0bc8ee3044b6dfb5e9d7bc9da9a869ff1bf251515b9fc6bef490ad9ca5297ca",
+      "rows": 128,
+      "modelSha256Mac": "09176fe2e04ab16900b1817637e97eab6978c1264c45f828cd6271b5d765fd76",
+      "modelSha256Docker": "4f3c1f819b8657e1bba9253c51f731ae162cb4c44a93809b14b9f263da3dc41a"
+    },
+    {
+      "file": "body-rich-008.json",
+      "fingerprint": "v1:9775e8068ed3ad0480cf709460e874b72c7f3ac7fd82cd9e139bb907f82e8c84",
+      "rows": 128,
+      "modelSha256Mac": "d299be308654c9016e02a6d74c3e994730016f528fcf44b3d21480ef77c661ad",
+      "modelSha256Docker": "acd6439e7098ff22e5106130b2884b0367fc3ebf0e9f0ebaa3900300b3adb112"
+    },
+    {
+      "file": "body-rich-009.json",
+      "fingerprint": "v1:80f79876bca635842159e46423cb2c9bc4a755585a6b258b5c579d5b41455e23",
+      "rows": 128,
+      "modelSha256Mac": "ae81d8f38522712347263a4d80d2fde65b9da1ed63fb7dff4c37a5e6a6b90ffa",
+      "modelSha256Docker": "fadba4fa624331ec84a77cc43ba10a16d38e95dfd0d7be312279a934335b6950"
+    },
+    {
+      "file": "body-rich-010.json",
+      "fingerprint": "v1:06d3b9932b00978d0b3baa13d9cbf29ef681f050dd14cd1b1633301a54d07fad",
+      "rows": 128,
+      "modelSha256Mac": "ad4082812a109fda6c76dfc02daeaefbe410a24389afc84d4e4b176b7048e41e",
+      "modelSha256Docker": "28c128b668429501f9920b28050012ce17d05140e49e3304764650e704aa53a9"
+    },
+    {
+      "file": "body-rich-011.json",
+      "fingerprint": "v1:e3602038aa89dc12fa60d1a379468b0551bdac12a101ee7728034c76e675b80a",
+      "rows": 128,
+      "modelSha256Mac": "ef979875a61a740cc38d9e0e17fafc601af3793a80f34d9dc74d8aa911f81f49",
+      "modelSha256Docker": "1740ae888e7918a366a55d8bd0ad2df9e5cb2dbaaa697ef4924260b1cce82e5d"
+    },
+    {
+      "file": "body-rich-012.json",
+      "fingerprint": "v1:1c4cbcef2204003e0fd70448c21ee2b73b240e29595c14396cc75f5f6d574e57",
+      "rows": 128,
+      "modelSha256Mac": "db9604463d24dc7c5872460b27021d69faebf07f0635316fa7a2360b42bb34e2",
+      "modelSha256Docker": "1c7a6f0556047e7f642c8c2be8c9428ab1c5ad25a49836800b8359e1efdd4525"
+    },
+    {
+      "file": "body-rich-013.json",
+      "fingerprint": "v1:4b25935b149bf02e46642d31571feedbb78d6456859ac6545e4f59e8b7bdf80a",
+      "rows": 128,
+      "modelSha256Mac": "87e2504cacdd43433df1214824e552a1f67aa0177ef94880a5d7f6f13d9ed7fe",
+      "modelSha256Docker": "1dde2411941adf94b84ea55455e30f56a56b036a0a56b4cdd17343886d6c5b1b"
+    },
+    {
+      "file": "body-rich-014.json",
+      "fingerprint": "v1:3450469d5057075941f33608819e5e25d631108a815bb62b56cc88c7cbf5f1b2",
+      "rows": 128,
+      "modelSha256Mac": "8734784df35a8b744fa05c9e21d36a5b97723f94be223255f8a975b36a4df7b5",
+      "modelSha256Docker": "ec1ec0ab3a06487e31a41ceb648c3ce4f88b55b862c4957eaadf7c127f5bd706"
+    },
+    {
+      "file": "body-rich-015.json",
+      "fingerprint": "v1:084dd949e428b4b7194288565097aaac53ebc115238f424f05c8c3e1f9e31866",
+      "rows": 128,
+      "modelSha256Mac": "ea63a76439419f246d1c4c669c490af916e3c91937feaa443a20dc46f488d373",
+      "modelSha256Docker": "1c416c11ad35066575820ff86df0ba7344eba35f616378c2d415a35fb052ec73"
+    },
+    {
+      "file": "body-rich-016.json",
+      "fingerprint": "v1:0c76ef7024f298a874862277ab99c6d36ee25f33166eeaf9410b3daef63a709f",
+      "rows": 128,
+      "modelSha256Mac": "30485b4167fc1550b539c4ab8422a2bb203c7a3928e262c614d0c94dbdfdd1b2",
+      "modelSha256Docker": "f5e8aa09380f06dcbc7f82a47b0dd596e54e9e501cbf28bfc12766b9fa7aea1b"
+    },
+    {
+      "file": "body-rich-017.json",
+      "fingerprint": "v1:84bd116cdbc8de5681b5459e526f9528e579090f00c7a95d2196b44c3c370fa5",
+      "rows": 128,
+      "modelSha256Mac": "e30fe1832cb7a03888648c22784c694b3c50e598efb17b97f2d7c3aebe974f6e",
+      "modelSha256Docker": "643151a2d6f61cada3d5563b754aeca2bfb035e91bd2febaa5c0c323f1e2f53e"
+    },
+    {
+      "file": "body-rich-018.json",
+      "fingerprint": "v1:80e774cfed4107c471bd1be099408feafa69c7a77cd2458e872022882f22c9d2",
+      "rows": 128,
+      "modelSha256Mac": "63a532eea3024bf4ab8678bddb441b94e3168610e3d50d9b1ce38f1d2d28933b",
+      "modelSha256Docker": "cdc156d5cfe6df10ef68f40e5501e8d05074748ca4750ff97cc4601568035116"
+    },
+    {
+      "file": "body-rich-019.json",
+      "fingerprint": "v1:448498756e61b0f0f03e7cd2c2b49824fae5ea56beb9a9ef55e38b8b87aad6e9",
+      "rows": 128,
+      "modelSha256Mac": "8c8c0d3c08a6d7f608a015c78723d2c8aba22223cd18db5c56afe8f82e90f396",
+      "modelSha256Docker": "7fe41d9371ec4c159e9bbed5965c7e6a6dd273a61414fd96ecd07d171ce6d4bd"
+    },
+    {
+      "file": "body-rich-020.json",
+      "fingerprint": "v1:c208ba71123c4543ce63a1c960ab67f499132e59d798beb33b40605c6220e844",
+      "rows": 128,
+      "modelSha256Mac": "9b46a4ec2e1ef73ec323654e7efceffb68459501b8c440d2037014c2d547e595",
+      "modelSha256Docker": "ddd34c378d726d957836d249ec7843b1c44f404e94275b7628567f2d88a0352e"
+    },
+    {
+      "file": "body-rich-021.json",
+      "fingerprint": "v1:b1097530ac66c862902aea5e065844538be40a2c5d57af065ebf922131d078c5",
+      "rows": 128,
+      "modelSha256Mac": "f919613f554ac94cf26a9515872a8eba9890e2bc5d7361ad5b96aeaf5e6c9444",
+      "modelSha256Docker": "dde20890c220fae154fa8b99da73fa613d6fc85c9ca8dbd94c25d40b176d8f94"
+    },
+    {
+      "file": "body-rich-022.json",
+      "fingerprint": "v1:9bc4427eec797549ef304adde7677d30bd257c5c35e2603709e537d60fc0df29",
+      "rows": 128,
+      "modelSha256Mac": "8b8ac36092c5abd7bace63975d81ee36898d0046a5c2435d562be0c35964f8aa",
+      "modelSha256Docker": "73c3f837f14558b74aa37eefe443d21aa102713a1768873660a92f6150f9b509"
+    },
+    {
+      "file": "body-rich-023.json",
+      "fingerprint": "v1:5a056d164a091148636259cf5a703fc1162d8f84ca4b4cfa8009805f37c1f28c",
+      "rows": 128,
+      "modelSha256Mac": "d253e7f8bf610c103f843540ae42b75ebdc83a53338657b46c9e4d5ed5f1a41d",
+      "modelSha256Docker": "ea720b71c18e1701cf627b2b23edfb7878edc1d310894ff4a05d4fdc8896b29e"
+    },
+    {
+      "file": "body-rich-024.json",
+      "fingerprint": "v1:c054ee42b7d0806fa2612d3d1829c63328e870209f7286e2c0fc7b305af271d4",
+      "rows": 128,
+      "modelSha256Mac": "22751ccb95b33ca5e679b660d2105590bad18d7f8132f8d1460aa7cd6111b6fe",
+      "modelSha256Docker": "d1c5d27bc68535111ef53a3e42c0e984a535506c41707643ac960f6bde10f9d5"
+    },
+    {
+      "file": "body-rich-025.json",
+      "fingerprint": "v1:991ccaa00caf1c1294c175dcb4073de8a107090f3a0fb2db41554165bf5b0854",
+      "rows": 128,
+      "modelSha256Mac": "e48b43c4cd3576efb459d51d7924a705c73b985638b001f3bb48dcc40b3eb7b5",
+      "modelSha256Docker": "6479fa11ad1d4661903d9e95d8b6bf41476b307ec6488a52b0dcdc4e82cc2644"
+    },
+    {
+      "file": "body-rich-026.json",
+      "fingerprint": "v1:ce75f12908cdef5338f97af55c83932a4d7823d3bd43258e1b9c015dee74c1d0",
+      "rows": 128,
+      "modelSha256Mac": "362b969d1d3e54918328fa16fed8b7e9414951fa10c676f91844fcd1d41b9273",
+      "modelSha256Docker": "ba98da4ede202ba3c7588fc39d375ab5f00f623b3de80c1c20e3b370b0dcbe81"
+    },
+    {
+      "file": "body-rich-027.json",
+      "fingerprint": "v1:5320c99ce1f3d79c92f9ecdebd08c5854dcd8cfa388f5f09adc51eb025c719e5",
+      "rows": 128,
+      "modelSha256Mac": "ec31b8c4afa364db4f65d92222ef5806bc8be563739d43f77b5f7f5a8ee84200",
+      "modelSha256Docker": "3a12f80695fcb589e4a1e230d81e4f0ee2bfad0db27eb5f88593e08da417bedd"
+    },
+    {
+      "file": "body-rich-028.json",
+      "fingerprint": "v1:e8f215ee2334f207d8d8018758bb094d87a8570da3a395e3abb80cf17fcba940",
+      "rows": 128,
+      "modelSha256Mac": "d462c62c89a4a3ce8f256defcbad378b04dcab8c64d61f634d559307df26f4f9",
+      "modelSha256Docker": "503d951a907211d520e3a20d5fdd53a6ad15458b0ef76ebb7f2719dbd4644561"
+    },
+    {
+      "file": "body-rich-029.json",
+      "fingerprint": "v1:46a8f700b1cfe9c587e2685dc0336897cd3134208a76c4457dbabfa24fdf99ff",
+      "rows": 128,
+      "modelSha256Mac": "93a024765341c75c520a2a01461ec8c02e379fac67a9e14d8658c2926b08a9ba",
+      "modelSha256Docker": "cf64db5148e216acf64a56c1f1a821d94fd21ef109a050162a078f2c23c8adae"
+    },
+    {
+      "file": "body-rich-030.json",
+      "fingerprint": "v1:6cb545bd3d283c656145132557636e50efb7d93e8aebdff0e2c9273dd5bacd3b",
+      "rows": 128,
+      "modelSha256Mac": "b56564fab6bcb2c3bb49ef135f528e07f03b13318c5cf4a5e998a28fb8ed25fb",
+      "modelSha256Docker": "009a7b52e233859a34a02e07f16a84d91bbb9a160422354f628efc8b20396101"
+    },
+    {
+      "file": "body-rich-031.json",
+      "fingerprint": "v1:276d3d3bb819c4a3fe805d9cea955af21d4da32d237da5230cce2f9fc4260025",
+      "rows": 128,
+      "modelSha256Mac": "66aaaa091e905c4e6cfb1bca59867a87b6a725040ad85e61371e43e1fb5ab104",
+      "modelSha256Docker": "7698de9702d1fa6e0f7ba9467e88fb98a3d787d0c53ec262139737ed48859b12"
+    },
+    {
+      "file": "body-rich-032.json",
+      "fingerprint": "v1:5512ec1a3061faa8664fbaecf817d166c44552692f17fb59dd46f636b86fa17a",
+      "rows": 128,
+      "modelSha256Mac": "60c1dee3089ad63dd9fa63954a5617f72fe2b891c8a4ee35aaac6f102e78d52b",
+      "modelSha256Docker": "905c322bf8f0827c9f88f76e74746cddf21c77ddcc89d30082fdc7e6e302a31d"
+    },
+    {
+      "file": "body-rich-033.json",
+      "fingerprint": "v1:d73ffd4d0cbe1b9388570064719e98baa2e15f50cad550db570a6140751e6544",
+      "rows": 128,
+      "modelSha256Mac": "9709a5e06634b62d9d0c2bcf53a634e456b33da9028c439e92b8aa7fc8f7685f",
+      "modelSha256Docker": "9c928656334e75d68b86a44f48d0227b89ef9c562ad8456100692a4b5a777722"
+    },
+    {
+      "file": "body-rich-034.json",
+      "fingerprint": "v1:383c157a78c3e172e760f36f095101b06577151a21cf4ebef3bbe38ca7843766",
+      "rows": 128,
+      "modelSha256Mac": "5c64dbca6ce55b730111216100c4e4189a0ae6d4d1a9a5fe6708aecc333782c0",
+      "modelSha256Docker": "121ab42ca341d2c23321799ae0b73cabbe2fcbcfd106d73cb214a3ecc5860965"
+    },
+    {
+      "file": "body-rich-035.json",
+      "fingerprint": "v1:dd9a7d87a826b3f27149fa5d17a81261507893c0365b5444951f2026213b2792",
+      "rows": 128,
+      "modelSha256Mac": "836657f962b65a057bc1b5994d19d13e7c9f2af33f262eaf225e6870f8a12c91",
+      "modelSha256Docker": "4acda1fad24b0fd30539699888e1e54431ef8fc55cb0c7e43c198c479adae62b"
+    },
+    {
+      "file": "body-rich-036.json",
+      "fingerprint": "v1:2f69a0293702d7d23996604c30317666e4f77a07397762ab3732d0657daea49a",
+      "rows": 128,
+      "modelSha256Mac": "51563e3cba1e079abdcdce248ca711c3da5e4984c934aa55b594131c454a60d0",
+      "modelSha256Docker": "cc9bf5dd0066b55cdc178e75de2891f58c8225a9e0f9289a62394d82475302be"
+    },
+    {
+      "file": "body-rich-037.json",
+      "fingerprint": "v1:2dbd0bf47a01edd430e266e1733e072ce0d5b30f0ad5a17410dc67dc12029dc6",
+      "rows": 128,
+      "modelSha256Mac": "7a900b0d6410e5181d2dc98f96623aead788ced1eea39918f2987ba97077d21d",
+      "modelSha256Docker": "dce24dfa257b7a848062fd460ccd54945b52e07a490e6579be74231e018737a1"
+    },
+    {
+      "file": "body-rich-038.json",
+      "fingerprint": "v1:8186010f847c6fdf65f5304d41ac6a6216e0bc52012d7214b22b9aabccb9f836",
+      "rows": 128,
+      "modelSha256Mac": "e1a387957dc0ee27f482ff6cbba53234e3cebbaa698a6e59ab6ef2d32107ca94",
+      "modelSha256Docker": "ad7609de415d434e875194253e27aecceb6d585f9fcf8305729fdb43e5e91d3b"
+    },
+    {
+      "file": "body-rich-039.json",
+      "fingerprint": "v1:721ba7efac5fdaa921cdae9738f05e13c536461213800562c814a8d790059801",
+      "rows": 128,
+      "modelSha256Mac": "40d6d55e5041a500c199679f156b43e5fa7f7cf7ff321c910027f51b5557a9a5",
+      "modelSha256Docker": "13efa3ca8008bc3abc2a1f61a57359117a4e0dbef4e4662500522075924e09c8"
+    },
+    {
+      "file": "body-rich-040.json",
+      "fingerprint": "v1:51b7c00a195a4d623f5157b6b7b4493244b58f71200d965d8dd375180a2db3d1",
+      "rows": 128,
+      "modelSha256Mac": "b6f9910ec754569f68fb4bfef6294769f1a40c36f21c9cdba9420c0b6dcdc945",
+      "modelSha256Docker": "089745fca7ce668c1296be157369e7e4eb79c03c37b2d971803adf43081961da"
+    },
+    {
+      "file": "body-rich-041.json",
+      "fingerprint": "v1:82fdf7c407e47361f9c510d8938be9c0e5e6d56a86e6ab7211d62560cb0b51ea",
+      "rows": 128,
+      "modelSha256Mac": "7803cd4c04f1f2bf63f79de5a375aae77bb014312b88d81b9c07e71ff57b5d21",
+      "modelSha256Docker": "79482881034a90840f32e564dc7a68843346100f975f7a6cd9f5c652dc8b38e3"
+    },
+    {
+      "file": "body-rich-042.json",
+      "fingerprint": "v1:3b5287f4454045395a29141be61662e99ea71e11e2e4b6fce2ae9aedbbf85c66",
+      "rows": 128,
+      "modelSha256Mac": "07acd0f815fc03c537af5d3585fe6d00b0e5104f22c67d99ebbab3a411c5dfbe",
+      "modelSha256Docker": "371bd4f8b20f11404da6636f25d2e07db74a95e40a76661926443c021eb1a5ec"
+    },
+    {
+      "file": "body-rich-043.json",
+      "fingerprint": "v1:f521a4b1d554d18597ed026d7b051ec56e10b679bb09c0e9d056687654081e1a",
+      "rows": 128,
+      "modelSha256Mac": "d5364e6bd8bbd1bdb9fcf6740abb6a21d7e1e93ef7204f0fdff0ff0c9a83e391",
+      "modelSha256Docker": "c91d916cc4a2341c75adb92562a4f026afe5977e3e8138ffddfd28eabfede6dc"
+    },
+    {
+      "file": "body-rich-044.json",
+      "fingerprint": "v1:8d51cdaa71cfb305f0a2b63abf911d661090abd0ffc5dc3e82af2b734b32fbde",
+      "rows": 128,
+      "modelSha256Mac": "0a033cbd4a48a66b13248281905f51d709b57cbf191db000d23560ffde0fa5e3",
+      "modelSha256Docker": "c7195663ac7dddf551053ce86155e451f5bbf6990631fcf4262b82f137eeb750"
+    },
+    {
+      "file": "body-rich-045.json",
+      "fingerprint": "v1:6913555ffd225f8283253ab6ed9dc34a173a2b0f7f038781ef3253536dd4c176",
+      "rows": 128,
+      "modelSha256Mac": "7a9d81d46d6735b2efdcb08874af5c4a19e13008d81afd956888274ae98a28eb",
+      "modelSha256Docker": "3581452b9fa5898f4a189208bbd37a45fe14e5b2c72d74bffba26590e6c09b7d"
+    },
+    {
+      "file": "body-rich-046.json",
+      "fingerprint": "v1:991eae73773ca2e97680f5ce7d4a5fdfb3e5b9bf116b06feb0ad9419f5f042b1",
+      "rows": 128,
+      "modelSha256Mac": "f79459b7edf1426caba881dae6ba6338636d399c44c13dbacc0d511c8f2e3696",
+      "modelSha256Docker": "7909c6ee7c684b70911d514c4a962d88e2f115a42ceb4f74805f4729f0cfc4ad"
+    },
+    {
+      "file": "body-rich-047.json",
+      "fingerprint": "v1:13fa7d9a769ed4c135efd44584a8ce70ec0f9c6ec53e44820aa77aa314ed6cef",
+      "rows": 128,
+      "modelSha256Mac": "6eb5779142cf8ce64aa6ef59abe7f4f626b21994f744274a3ef380db69b75e4f",
+      "modelSha256Docker": "a491b0643c7c35978bad1b945744031a59642c3c12b21368c07bf5f26f3cd63c"
+    },
+    {
+      "file": "body-rich-048.json",
+      "fingerprint": "v1:9b18f1462a0c6384948f21cf2735fc4da58d602153435efc07be9d194731bdff",
+      "rows": 128,
+      "modelSha256Mac": "41f88e7799e1a83721737d56e2ba7dec2ae781f09fe108a47022d02352bf77ef",
+      "modelSha256Docker": "03f8a5657eefa3bee8f5fe04709fb457dc49428c13f32ae1b99d7fed04b56c18"
+    },
+    {
+      "file": "body-rich-049.json",
+      "fingerprint": "v1:d6986841b9d0a595a8a82cd081fe0e7ec26799be4d162e3ea29ab52e15f2ea04",
+      "rows": 128,
+      "modelSha256Mac": "68f1c9156e32aa5cd703d46fcac9d91bf027ee2a1442215fdd2b0bcf0a9a4b13",
+      "modelSha256Docker": "8d9d4fce0a3b8a4634232924a95290376aceac88df03b2208f1d5a8e3ff34f99"
+    },
+    {
+      "file": "body-rich-050.json",
+      "fingerprint": "v1:1c672456d6a4bbfbf878b4d464318c0e9ecd65049b895b1eb6c62fe458152828",
+      "rows": 128,
+      "modelSha256Mac": "c92ea69c0193678a95d703e9c4a9bd840ccc08a945f832226b48d11154aad12f",
+      "modelSha256Docker": "902bede14ab8969d6b1076156ea7d3655bd4cddfe9f35236a49944bf108eaa39"
+    },
+    {
+      "file": "body-rich-051.json",
+      "fingerprint": "v1:e5f821049127d9b39b00d1ca4f6d73f98a3a42f6bf19d4b7d6949672e3abccb2",
+      "rows": 128,
+      "modelSha256Mac": "d9b5c9ba65cc1b82b216e68de7b853441f01eb3b959b93ac9b7e11d36c260b2d",
+      "modelSha256Docker": "085a70fece645cadc771a992a481e2175e30f4b372c6ecb156fd8ee7bd2e5840"
+    },
+    {
+      "file": "body-rich-052.json",
+      "fingerprint": "v1:235f38a75b8d7d8eca03a65f5addfcb2512df6c6429789a1f24727a5134607ca",
+      "rows": 128,
+      "modelSha256Mac": "531e2a16f5ad70b6c1d6a523b506be8af995e4f9d1d5c56e5a9f5f58a9600da9",
+      "modelSha256Docker": "014d94b40da70c871b55ab851efa4a948f8b6598a17d8bcb538f3063901f664f"
+    },
+    {
+      "file": "body-rich-053.json",
+      "fingerprint": "v1:5a6c609aed88fba63ae3bf4b0977c6dd4c4d299e5921e65747f1c14175b17257",
+      "rows": 128,
+      "modelSha256Mac": "402e1d241a98ea4002657665ceda44d462785c8744359dbb576e192597062afe",
+      "modelSha256Docker": "b46fec748e920642435c3f5660d9fd7a5e5346893ddd5274d074c4785de2e5eb"
+    },
+    {
+      "file": "body-rich-054.json",
+      "fingerprint": "v1:24fff049d028deb7515636e7a7760694c453ee2e9374b6f5442606d2d37d7337",
+      "rows": 128,
+      "modelSha256Mac": "2c04851f1f47eb9ce95b827650f166bef7db93ab0bcef4a2df7d6db2fdf9a5bb",
+      "modelSha256Docker": "90a44130b08f4ba978b7c13f5f5735764c867bfde92a686ce3c1e8b5f295f289"
+    },
+    {
+      "file": "body-rich-055.json",
+      "fingerprint": "v1:528f180e3a43b56b91593170a4afa4ec7c4e600b3198814f03ae38a6ade20ad7",
+      "rows": 128,
+      "modelSha256Mac": "ac254a44c3d9e22d2686d4ec1e0d34c32e42032799aea7dd64c8e246e26d7a29",
+      "modelSha256Docker": "f2b207903bb746e2bcae067f3b1deb9328c9a211abd9908256882265deb46eb4"
+    },
+    {
+      "file": "body-rich-056.json",
+      "fingerprint": "v1:17e13bbfb22940e132246be05676ac05d884fc0feb06c0f1638034959ef28799",
+      "rows": 128,
+      "modelSha256Mac": "904bc947f3251d803d3b0ec0fb44c23e8b55b1733dd9435d217fc48d0a1a9068",
+      "modelSha256Docker": "97db4591042e1fe4a73c545c1cc09cab18d9afadd1191bbdd10135c8c34fc7ac"
+    },
+    {
+      "file": "body-rich-057.json",
+      "fingerprint": "v1:f2df482bf99fcbd2b66cc5449caf1c34c1fb2798ee0211eedf96583707abff87",
+      "rows": 128,
+      "modelSha256Mac": "8f2c3471cfc1c9fe93714df7238f0304f239d70ed91f61f4cea2b8c0392b4c13",
+      "modelSha256Docker": "c53b087fc3b611cf2c3f024da6dce731be6708908f8b564bf4e7719aaf978e1f"
+    },
+    {
+      "file": "body-rich-058.json",
+      "fingerprint": "v1:befaa718096c40b757c269ebaf772c30d24b5a120d8bba7b77aca4653cadd2b9",
+      "rows": 128,
+      "modelSha256Mac": "65f239683f6d204dbeb52337d340a3aa50a59126f6d91ce50bf77febf187935a",
+      "modelSha256Docker": "2ded94fd9488719ee5a0a4a4903c14fcf3eedd3fc9145fea51a4c1617ef975c8"
+    },
+    {
+      "file": "body-rich-059.json",
+      "fingerprint": "v1:b5c9f51455c1da5e784b9c7e5b4beab5609c887af7d5ddb7b9f6e658ebff3527",
+      "rows": 128,
+      "modelSha256Mac": "ab0c60afc2d4a8d8ec4a4ea345a074b1781cc4e9d1ec83251bc9d549e40fa34c",
+      "modelSha256Docker": "13c380ed6f24260e3af8e0d67a7246b2d29bd2f864d5d8b951e801a2d186bc4b"
+    },
+    {
+      "file": "body-rich-060.json",
+      "fingerprint": "v1:93066544417071cd1d304f99fd4b0299927f89e1a3b9b307c25d17e5b2764b8f",
+      "rows": 128,
+      "modelSha256Mac": "a4d6ca3d0237c896bb74ec750a81ebf199295341746e563819c605042f50821e",
+      "modelSha256Docker": "95d4f169eb9c2e8bc49b7cdb4b9a10521278b7adf3611a61f5e97b59144d6752"
+    },
+    {
+      "file": "body-rich-061.json",
+      "fingerprint": "v1:3ecc15e991686768ec442e0b1a4663c8522877833c10acc28a6c0e83a5c2f0aa",
+      "rows": 128,
+      "modelSha256Mac": "9ff04d773457e98cdd454d4ca0edf385cd1fd1925695d6ab3bdb87cc994979b2",
+      "modelSha256Docker": "73d55bd1f9577b533e27adfe6f7d0312be9f20ff37807c869b9e64083f842695"
+    },
+    {
+      "file": "body-rich-062.json",
+      "fingerprint": "v1:ba224e13cad12440684d14fae316530869a9ca6e9347d6eba70b09a36c461d28",
+      "rows": 128,
+      "modelSha256Mac": "2bf1c8c1bf14d4655ca6235151abcafa0e06f17380d0502e0e3e52ae3dac78e0",
+      "modelSha256Docker": "8f15bcfdd9d429c77538e422d28f2b12544160034e8839d0e53920b5ab69feda"
+    },
+    {
+      "file": "body-rich-063.json",
+      "fingerprint": "v1:5047635903f51149c40fa0b58256c40b39e2cd3bc67ab0150645832b12635a00",
+      "rows": 128,
+      "modelSha256Mac": "be9ca94b38bff789da3e9bdbc5d8d65d86d2ee5264b655065db81ec32303649e",
+      "modelSha256Docker": "f34badf03921d29ea30f8caf1944ee635d995ea67b965029e4e4c326db238593"
+    },
+    {
+      "file": "body-rich-064.json",
+      "fingerprint": "v1:f06d73befb660ad8119ba9044c72ec49b8801a2bf1b9ef9c447d7f43bf3a5f7a",
+      "rows": 128,
+      "modelSha256Mac": "3ceb7c17ecac1c62ffde3667373c081e7c63ddd8e255e488222626b67e206ab9",
+      "modelSha256Docker": "f7dc3d2e537f683aab845e14cc4a09df4c01f46c0a74b68376630cd983647137"
+    },
+    {
+      "file": "body-rich-065.json",
+      "fingerprint": "v1:cc5a640082f7db202938c8e9eb604ed13e91a34776fa666158bfb36a726eda52",
+      "rows": 128,
+      "modelSha256Mac": "1db0abd4eaa5867408cf022bcbabcc1ea9e0cf479f170a6870aeb773c715a0d6",
+      "modelSha256Docker": "5f4a5325cbb399696539ab0450dcaa3781439262c89729f62a2a244d44cac707"
+    },
+    {
+      "file": "body-rich-066.json",
+      "fingerprint": "v1:e0f0af5e85cd97939340a234ce3884d95a945d39d3fc582a487bb7e86187ea64",
+      "rows": 128,
+      "modelSha256Mac": "ece45775a8ad422db7c98bd381b2a40b745b48ae6145d5e39ad3b7ae38fa7b3d",
+      "modelSha256Docker": "0b40c89db5492cc0badbfd5765d73a1adf16d352ee43c59cd482b6b9b0b0008a"
+    },
+    {
+      "file": "body-rich-067.json",
+      "fingerprint": "v1:20a843c26f2c038b6fb73081407e954989da5f28535af5ad2de72b8b8d792fb7",
+      "rows": 128,
+      "modelSha256Mac": "ca0ef273f454c8f49e277f7041d3a3c4d1541b5288742b977ba9cf7fcd85047f",
+      "modelSha256Docker": "4bcaf52baf1876980b6fe1b8f6145b37bb7c6e8f9ea9ecbc0583ec659ade934d"
+    },
+    {
+      "file": "body-rich-068.json",
+      "fingerprint": "v1:585bc068e979963b6181a8ed85cfd534bf81d83d347656fe46928f615a18e8a9",
+      "rows": 128,
+      "modelSha256Mac": "61a35fa11a8e58fc8c3a19711a49a4435b57ca9bf1dacaeda9ee053947eee06a",
+      "modelSha256Docker": "ee9f869027b9bd960a91a6b06e94ef56ea600beb26023d31f6c63a05eeb32130"
+    },
+    {
+      "file": "body-rich-069.json",
+      "fingerprint": "v1:14b3aa23365b0b539d10ecab80d3108b4bd71cb7c61081460f6aeee036584b72",
+      "rows": 128,
+      "modelSha256Mac": "0e40bc6164d09840c2642f586a82ae9dcefcfacc0183c182921648d8f005a841",
+      "modelSha256Docker": "538fb67ad32fa25acf5e17a15e165cbdab8a7d61d17ff9fb98a61e53815c17d4"
+    },
+    {
+      "file": "body-rich-070.json",
+      "fingerprint": "v1:cadb24f88f24f6f74b08a6e7f16b11e7668a2380f561803018095de8f82613ea",
+      "rows": 128,
+      "modelSha256Mac": "41f1b95d6cc88eed0022fb37a60d1e97d2c23600a956f93f8320fb27ef375461",
+      "modelSha256Docker": "f2db50540582b5d700e199491d2bbb5ae0f6ad35dc87d981be20ae0df163670e"
+    },
+    {
+      "file": "body-rich-071.json",
+      "fingerprint": "v1:7924a146d456aeb965a6115fe1088ab72ccd8f8b2d6739e36dc1cc6e314499fb",
+      "rows": 128,
+      "modelSha256Mac": "ee202246115d29a5cbda244db4b5cc265c8830b6e97b56d38ea2dfdbd52a2cc8",
+      "modelSha256Docker": "b10515caf0586ac969a7c100188c128e383d4254031a3d09f709d68652530de3"
+    },
+    {
+      "file": "body-rich-072.json",
+      "fingerprint": "v1:1bee50418046f825436dfba4862c9d1bf0daee72eb6e64bc6c7faf0956a2d1bf",
+      "rows": 128,
+      "modelSha256Mac": "6d4a7dd981ff12e4caf24501d36f1c015e83d648f63c4f326cef35e14981958e",
+      "modelSha256Docker": "4d3aedd4e40f409065300fa08b84dabef7633a98b2af6d7816f3b445d12791d0"
+    },
+    {
+      "file": "body-rich-073.json",
+      "fingerprint": "v1:0ebaddba92ae4ad024bd1c5e9a0db24c400d4e0906315ba2540126649e6233d5",
+      "rows": 128,
+      "modelSha256Mac": "cb1adcb666d060f92a7d92fe814ad7b7563f3fa00d1b01d2d6987276a629a2ea",
+      "modelSha256Docker": "ec8dc35de3c9017bf95b5dd392b403150d8f8ee9796cb86a3e638d24c07e66bf"
+    },
+    {
+      "file": "body-rich-074.json",
+      "fingerprint": "v1:3dd7794f6745857c1a5967fdd76ab80a672a6e4e23ed9a4d541988bf09c03723",
+      "rows": 128,
+      "modelSha256Mac": "3c40959ee756ca3002a69bc501ae3af00a655f46969c76bb47d5e52c1c166af7",
+      "modelSha256Docker": "87a94f39ec1abcd91444f8ae8a73b8329b05d763b26ef0281b4910c1f1366182"
+    },
+    {
+      "file": "body-rich-075.json",
+      "fingerprint": "v1:60d9d24f509c17b568cad975c11fcfec866d8b30a995510306e6d1fc036c91e1",
+      "rows": 128,
+      "modelSha256Mac": "9fccd095deea0b1c6a4478a939d6134df248ab7a76caba7f22e2a7bb52db30bc",
+      "modelSha256Docker": "a7482f54af6e70212d9a0a7916febc7400b2370f6c415d89ff1efc2a116d96c9"
+    },
+    {
+      "file": "body-rich-076.json",
+      "fingerprint": "v1:1a194c1c55cba2ee0ada6f8e12c2c9763f1a1e9e1e7e843a1d14e7b50b605711",
+      "rows": 128,
+      "modelSha256Mac": "2f400db0f4e10d01450c9aa9f2cb3b30c04c340628da68136dd046f526cbcfa8",
+      "modelSha256Docker": "77622b5331fd28d1103052765e7bfa4f1c7cfa60f14ba1e400f8e72dc358f68c"
+    },
+    {
+      "file": "body-rich-077.json",
+      "fingerprint": "v1:0ee4752a638d2a76fb6523e398d1451927cd1a52d64c987fa4907752b4dd6e40",
+      "rows": 128,
+      "modelSha256Mac": "f7fea830fa5b62ea8af8c128f952ab78cc01407a9c31e083dce29c4ee81508d2",
+      "modelSha256Docker": "f8185aa24295b5000d70d0023fdbb655ee8abbf2620d47f49e140aba105f1684"
+    },
+    {
+      "file": "body-rich-078.json",
+      "fingerprint": "v1:c9417594abb98474482fb11314ac3ab999ae16d2930773d4abb656b9c74497c7",
+      "rows": 128,
+      "modelSha256Mac": "0072cde47a68ab5e446b70d7a888db3c4c99b50d261f271be07178f3bc8b74da",
+      "modelSha256Docker": "1b07a6d67d2c00da816f0d15d6433fee95ca7a153eae8710b882d02b3acc38ad"
+    },
+    {
+      "file": "body-rich-079.json",
+      "fingerprint": "v1:84f6132125967a08f8f5728c606efae217ac80e29312b3fd13d7970c85aeeeb8",
+      "rows": 128,
+      "modelSha256Mac": "2a2624977613af252b85f66beb7f0ceedee1efe8cbcdd2a42b1040ee8741b96c",
+      "modelSha256Docker": "078bb55d06becc296359edb14bd481818764acec1a3f955ba4f548f1dcc2d8e4"
+    },
+    {
+      "file": "body-rich-080.json",
+      "fingerprint": "v1:3ef8cf434480298823e8e8ba4e9e5321c56d88b039e7752ad13c92af7fe1ae2a",
+      "rows": 128,
+      "modelSha256Mac": "c63f2b129f613b202b6b237808bd03fc459cb2a89c11b8c3fd4408cb0405b73f",
+      "modelSha256Docker": "341eede0ccd49b727d295016c22f778009f6472b81a9bb4ce295737c3fcc7c48"
+    },
+    {
+      "file": "body-rich-081.json",
+      "fingerprint": "v1:3fdee538dbaaba97324b68d3b7a48b2b0c1fef981cd020aad9eef383a35f04c8",
+      "rows": 128,
+      "modelSha256Mac": "f7dbe0c5eef1b701fdcdb3dba82df83aa050d3b59374f55bf315d0ced6091fb7",
+      "modelSha256Docker": "ad1e7219c81782e6583ecd93b8e62692d5dea30572d5590be603716fe7690653"
+    },
+    {
+      "file": "body-rich-082.json",
+      "fingerprint": "v1:aa43a02fc3d09e1a77be6024b6048dc314fb967015fc0bb16fe6230337c6e187",
+      "rows": 128,
+      "modelSha256Mac": "63285d6076c3a4df14cde223b89c4ab199e6418ce9408a4be26fc027e11634ec",
+      "modelSha256Docker": "a946e7b27eee0379237048e1f9e5a9a06c6f62ddf28e6468cd5f3d27737f3c54"
+    },
+    {
+      "file": "body-rich-083.json",
+      "fingerprint": "v1:ddd2378598a465dac7e3d07347d3fd201f61102ea90a171c52614602411cd649",
+      "rows": 128,
+      "modelSha256Mac": "7cf530c63079358a0713de2947a9307a95a3ff21277d1202de5faa9ec31bedb6",
+      "modelSha256Docker": "8e692dfb18612536519fce0baace639b5cb08123d4f2dd03dde3f5c0e867cc72"
+    },
+    {
+      "file": "body-rich-084.json",
+      "fingerprint": "v1:e3ffeb4a3fc753effc1676f0e21e3a2566dffd3c6c84d6421a951f9f8fc79796",
+      "rows": 128,
+      "modelSha256Mac": "c4f592eb38f7fa4d01ca0bf774e19f3321cfe99052f50819b949b26c03ed1609",
+      "modelSha256Docker": "da34a5c4199c8cbb173a76345da472ad93ba65a77294b402e0b30e3b239a70c1"
+    },
+    {
+      "file": "body-rich-085.json",
+      "fingerprint": "v1:4b51a56fb4b5e80656d175633f510718328c347ff9255aa7715a62644a033a38",
+      "rows": 128,
+      "modelSha256Mac": "0aafe11cbbab9536900f9a9eb8380331888ed53789b44d06d6bdd8c29dc29fe6",
+      "modelSha256Docker": "f5cdd20bd1dc01a241765ac80f870639a2a44dc2acf1124df774d34aab0ee6b9"
+    },
+    {
+      "file": "body-rich-086.json",
+      "fingerprint": "v1:9dec9d2d425dac503f7e8b0f369c9dd3241a73cd7b98c42aaac313c1316e4061",
+      "rows": 128,
+      "modelSha256Mac": "bb8c01842b8666f7c2a1a760b953cebf6ae340b1211711eed961f72e2914c28f",
+      "modelSha256Docker": "5096387121069564357a575b7b3875e320e3158d04b6c7da74ab62e9a6700f53"
+    },
+    {
+      "file": "body-rich-087.json",
+      "fingerprint": "v1:9c6f187151462f051fd8bda6bbeaad08dfc8b8ebb307769944bfd9180bbc9de1",
+      "rows": 128,
+      "modelSha256Mac": "8931d65889673e54ec09a94f53e7662a557ccbc02d8f5d122cb6b79a6422d65d",
+      "modelSha256Docker": "061fae37cc4c9d7d412b82d1d9569878259487dbff05e7f1efc750e20d466519"
+    },
+    {
+      "file": "body-rich-088.json",
+      "fingerprint": "v1:41d848157c4dc720fd9fd3eb6c778cd59803a89bae100fe1f36d72775a8fc0a8",
+      "rows": 128,
+      "modelSha256Mac": "1613de55857548409889510514f09568e0d145a4b40ba76742c4a9d6d94f995d",
+      "modelSha256Docker": "bc66bcabf454e21f50ce00168c9afcb6af759ec9a0729ea33b574fc2aeb2ff6c"
+    },
+    {
+      "file": "body-rich-089.json",
+      "fingerprint": "v1:059c1e16e9eb95b6980fa7fc61910caee01d525ff5107375f02a35a2977eac05",
+      "rows": 128,
+      "modelSha256Mac": "79501a14d5e2e9ac08c0684f3be02a380b3ff8618f1a65c1801d8a09c50f5f5b",
+      "modelSha256Docker": "df10593744c36e3ab2d54f8d097e0cef090d9015665c556282c9101a8a647876"
+    },
+    {
+      "file": "body-rich-090.json",
+      "fingerprint": "v1:a696dd194ee5296402fd5821bf4435e04ceb2c4ebc85d6042bb3a6987229ea6e",
+      "rows": 128,
+      "modelSha256Mac": "fc367fced96022b983a2e1712091f47122911129ef88a28d839c56fa675f0ac9",
+      "modelSha256Docker": "bec7eca6df629c543af4a3053f2a2c62b836906db51befc2cd91d861c01abef1"
+    },
+    {
+      "file": "body-rich-091.json",
+      "fingerprint": "v1:26e4d3082e1bcdd85e4a5bca8aef0a99a6018c17e02f6f07f0e266bb63aa9cd2",
+      "rows": 128,
+      "modelSha256Mac": "8ba0ce31a480109289c82d1d4c01de60997ab03a39d944d95403d6ed8467bf20",
+      "modelSha256Docker": "795a54428934252d17d1fbb9d546cbb635485cd540a1290c4a2c245c68db458f"
+    },
+    {
+      "file": "body-rich-092.json",
+      "fingerprint": "v1:4a57944fd3174bd51f9d20c44143871922cb487287d5166f39f0ede74c2e1e6e",
+      "rows": 128,
+      "modelSha256Mac": "8a9d7c635408e737346b23cc3ed9e569a95732561ae5a6aa8ff2bd3fc11e5548",
+      "modelSha256Docker": "d2ea559b0a0f516a7ee7b2227e4544199d1f5e02af3f5fb3960958c6a00c69a9"
+    },
+    {
+      "file": "body-rich-093.json",
+      "fingerprint": "v1:237baa05dd8fc017ae52d398da02d1eb4cfd526edc41d51695c5a43d2dbc057d",
+      "rows": 128,
+      "modelSha256Mac": "17de4f89a68d9adadcfd1fd063b76114fbf82a1ba28525bee4016b4808c01f2f",
+      "modelSha256Docker": "72603654509418552ea9ff5b0e2d114ca7f3bf84b6f8119715926a0e2b5f654a"
+    },
+    {
+      "file": "body-rich-094.json",
+      "fingerprint": "v1:7599a3ebd5dd534ed26699858782f533cf48d040f9793e9790b12b6004d71179",
+      "rows": 128,
+      "modelSha256Mac": "e69cd877b3926d9850829ccb8dfe04970d410e13527fae5f35b4aa739083461f",
+      "modelSha256Docker": "1ae9102402e5a30ad4abde816d27599edbb36c527588af3c3bc196488487c2b9"
+    },
+    {
+      "file": "body-rich-095.json",
+      "fingerprint": "v1:1076021b7fb60c1a729ab736a794499c11c669928480d216befdc657a987388e",
+      "rows": 128,
+      "modelSha256Mac": "8451f38024d348a4436a76a49297430d0877bd9434340323200a612d4fae04de",
+      "modelSha256Docker": "dd5a054d0351e839a0ed9fa8f19c18feb2688357c6d2fd3406557925f6688466"
+    },
+    {
+      "file": "body-rich-096.json",
+      "fingerprint": "v1:2e2a3bc5adb30f4e7c4716bf172efa1b5aad4fc502e9435aec5358bcec401ba4",
+      "rows": 128,
+      "modelSha256Mac": "6050700e0a9e87d573c4b160935ae2b020ee8b4b944ebf0d33850c24d3ffc549",
+      "modelSha256Docker": "8d0c951a0ea09f2cf94244f419f3b47b7c285b6ec758d0edd106f0163e11e239"
+    },
+    {
+      "file": "body-rich-097.json",
+      "fingerprint": "v1:72037fd5fcfc6ff98bc52b1c56cdb34979d55e385bb1c1d4a287b4b8fff02aa1",
+      "rows": 128,
+      "modelSha256Mac": "504ad68bb533ed0bcb274d5559717b7b03200d4939238315d57f8ce3aff15a7d",
+      "modelSha256Docker": "c3e98f338d4a1196cb583ce68f53b2866896f02a3a0d5fe8a05efd6af6b3e610"
+    },
+    {
+      "file": "body-rich-098.json",
+      "fingerprint": "v1:4308962bd3bd106515c94eb90485804c13ace5e51f82353b896130c35722f4bb",
+      "rows": 128,
+      "modelSha256Mac": "32c15840a3adebb545b5454575e3d4165c345020a44d9577dcc53db65bfd7783",
+      "modelSha256Docker": "e84b06c9e70fa41718fbe0a467bf663f602593d8116ff5383214b521a23443d4"
+    },
+    {
+      "file": "body-rich-099.json",
+      "fingerprint": "v1:5577c7d2b3b88f8fe64cf0ea512fc761a73fa2b14b5dac1b9942e31e049a3eb5",
+      "rows": 128,
+      "modelSha256Mac": "ed7470180be5552b612afede22001fe077dbf0c7501d28042baa1b075cef3b68",
+      "modelSha256Docker": "965c89f12328bb25bdbe00af443b4e57d181ed51a2564e9056dab5b3f30d96aa"
+    },
+    {
+      "file": "body-rich-100.json",
+      "fingerprint": "v1:0cf7dea2d6e5178606b4dc83c4c9cc31e1fcccc718bfcb3649e321d105edecf4",
+      "rows": 128,
+      "modelSha256Mac": "bc6c5241c0c0cf9fd9b3bc9ab34de273ee01bbd69e4d4e020c21bdf54a261fbf",
+      "modelSha256Docker": "e93f8429275663d4b9dce2ed177816e6479b34eb7b5908e66254f6545f742ccb"
+    },
+    {
+      "file": "body-rich-101.json",
+      "fingerprint": "v1:271db3219e6eaba433d3869225659ffbb5d52a33d711dee10f2d5bd715b9079a",
+      "rows": 128,
+      "modelSha256Mac": "875f21b6b14bdbb4656f787d87c3c3c3aee3b179b64c92d896ff370e07949442",
+      "modelSha256Docker": "d6edead5228a586368ff8b9b31f5aa3375d90338f15b5c5682b57b29e38ed204"
+    },
+    {
+      "file": "body-rich-102.json",
+      "fingerprint": "v1:d86f2962793a74760f87e0722be17ff054981f5fb52674cdf2402ff8c3a9177a",
+      "rows": 128,
+      "modelSha256Mac": "35aeb1fbb890d846451c69687c61e3dedc3e254bfdc9247b10937b72e16c9e5e",
+      "modelSha256Docker": "b054a9f50dac39858d4afffdb5e47bcdd694148be98d38a7da019689f71e3543"
+    },
+    {
+      "file": "body-rich-103.json",
+      "fingerprint": "v1:28d468e38ebbcc95f0b1f39e6869036d250da1fc2f111e736a2494519c0003fb",
+      "rows": 128,
+      "modelSha256Mac": "6678bc0acdef9e64dd96da33c34d2149209dbb7d2a36dc6df36a69c2fcdd74fc",
+      "modelSha256Docker": "0524b2884c329534712afabcadbfe3fb88a7a15df6fcb455d68dfd7608381b2f"
+    },
+    {
+      "file": "body-rich-104.json",
+      "fingerprint": "v1:502bfbe1a0dff0f0486edd31bc399e35509d25e4479815199c6eb1c0d1b55499",
+      "rows": 128,
+      "modelSha256Mac": "712c8d8570809ad49561b5ed8a0a7a549a9673832093e299b2b094d5d87a3db9",
+      "modelSha256Docker": "3b65ba2edc7e16c064c4404a79de30e24ef551a3df144f376e62e669c31e996a"
+    },
+    {
+      "file": "body-rich-105.json",
+      "fingerprint": "v1:9c09fd8390951d18cfcfdf603f2ba7060421b536bb2f549637878a7106a7da00",
+      "rows": 128,
+      "modelSha256Mac": "b389659aa4b40eae744e20a600a13bd5206af2d7615acef2390569b9edc8e6cd",
+      "modelSha256Docker": "f0bf0381e240d42463d019a97f4f72da8b6e8c4aad97a88b0588c531ae23c439"
+    },
+    {
+      "file": "body-rich-106.json",
+      "fingerprint": "v1:29d71f38b2af5fd210d8918c3e7d82bd7283fc73224efca570719387099233d6",
+      "rows": 128,
+      "modelSha256Mac": "bea6440bd958256bebc51e78c83b3db966d75b57dc6a213a4efa932705ae695c",
+      "modelSha256Docker": "e61edd9401085997a004abd641a1490f4421a54bcf300b6b48f274c2130605ba"
+    },
+    {
+      "file": "body-rich-107.json",
+      "fingerprint": "v1:3f21b589d11d247674ad3c12fc6a7d1ff1268b7db1e8b62128d4e3befdb950c9",
+      "rows": 128,
+      "modelSha256Mac": "73bc3a2aff4278306755bc224e04eea7d13b783d8c9e801e91d089ff49f41264",
+      "modelSha256Docker": "26d21d3e10b42fa74080723eb111572b02c27caf9c19309fefdec75b6f8e0afb"
+    },
+    {
+      "file": "repeated-32.json",
+      "fingerprint": "v1:12197672aa8be212c18b3d49296194440c0835bffb59c96e78730e60e2351885",
+      "rows": 32,
+      "modelSha256Mac": "8bb445a29c312529bddeb60a0e0c570606dfcab9781f43b590f5d0f527b2eaa2",
+      "modelSha256Docker": "d015c25c3324fdc4b3330ee2522f001f6410a0a54bfcdec5ea773d886c93411f"
+    },
+    {
+      "file": "repeated-4096.json",
+      "fingerprint": "v1:a0fd9576a964eb90fa066d3fe1534e51d5a2440a05a8d3c717dfcd3c20d27b73",
+      "rows": 4096,
+      "modelSha256Mac": "b00d5cb0dd78427142a48f2d3242db68bb8e25f6128dab7bdf813ba7685e17b9",
+      "modelSha256Docker": "89ae6dc8d1303b2e7de4de4c41ead910b9bb57dc78741bf684c443b306a6c6bd"
+    },
+    {
+      "file": "repeated-512.json",
+      "fingerprint": "v1:95373e4ca493e7fd127dcfac57718dc5aeb00102f556d310f7fcde3195be44cd",
+      "rows": 512,
+      "modelSha256Mac": "7b357b60173824070de524f9d80f00613cad3efe25477723751a0465ad076e0b",
+      "modelSha256Docker": "efcee08bcd6e7ae8296441eb977c0f7a88c666d9b3b701129fa82e43b1d4b44e"
+    },
+    {
+      "file": "unique-000.json",
+      "fingerprint": "v1:95373e4ca493e7fd127dcfac57718dc5aeb00102f556d310f7fcde3195be44cd",
+      "rows": 512,
+      "modelSha256Mac": "80e21fd29430b92f7e0ca7a6eaedbb1a5499e57b1f9d4b2c7e2c749d19560952",
+      "modelSha256Docker": "e6d3862982ad29f9d60e3f228961bebae8c6d0adfb24817e90d59bd19b4714d4"
+    },
+    {
+      "file": "unique-001.json",
+      "fingerprint": "v1:726592ce73c99f881991496d908a1a03be420e7c35bf4bd4d84e5222cdd283aa",
+      "rows": 512,
+      "modelSha256Mac": "08596f60d8d8cf94bba99aa94aa1343c6a3be333574fc3b2bef8f52fde456b91",
+      "modelSha256Docker": "ac7ba748c5878b9fd84fa5a7d98bbb87c5cc4d7f13e56ee3488900cafbf5bd9a"
+    },
+    {
+      "file": "unique-002.json",
+      "fingerprint": "v1:8ad1e389287770792321b3a2c5feba6ef4713ab4a58850742cb85b0b7c81bdd5",
+      "rows": 512,
+      "modelSha256Mac": "0e96516a5142982ea7fe527fc953a2317a96d63f969cda413cee6522c4392e66",
+      "modelSha256Docker": "9d00066bade14b14cbcfacd9535e34adff227f24e0f7f65b72b2405d6e214643"
+    },
+    {
+      "file": "unique-003.json",
+      "fingerprint": "v1:47dd973032ea8c2b3d4598b8b410ee91a208ddb4030ce66be5dce2b7722755d3",
+      "rows": 512,
+      "modelSha256Mac": "2e6a1d844a6a77837563549256ba441d6ce97feb651bbb864c3dbe53af84ade7",
+      "modelSha256Docker": "ae7e33c36a58d39a80a7cdbcd1f2291c5cc26bd89d58531f4fd607472c8a6d4e"
+    },
+    {
+      "file": "unique-004.json",
+      "fingerprint": "v1:009dcf9f22597625e68d6426b5f7f94a441ce8d98b8891b993699807a39c05e0",
+      "rows": 512,
+      "modelSha256Mac": "c5ccdd86b727cec65117e863085d22f78ca29838d3f5b1caf6f8bde6870b054e",
+      "modelSha256Docker": "e726270043a38621f3e5e936418f0b7d818bcefbe34dc9c8c83f746819187058"
+    },
+    {
+      "file": "unique-005.json",
+      "fingerprint": "v1:b01fecd5f6ec24553e0a748254684eb7027bd2d3583a0c3d986307dd0be5039f",
+      "rows": 512,
+      "modelSha256Mac": "92ec27cdae98253da4ac3b04853031562881d6aebaf5fd4bcda9ac748fa582c5",
+      "modelSha256Docker": "171dcfce46632e32bc50bb975a164b44a824916ee58946b20e95fb6ae6f64006"
+    },
+    {
+      "file": "unique-006.json",
+      "fingerprint": "v1:2eec7b9eb2b932a02f6a8707b80bdbe3e228ecf2990ed386f6e751ac180118e8",
+      "rows": 512,
+      "modelSha256Mac": "b274f047ee05cd595c9f8a2d1d3c933968d19f9abc7b0a61f88ae97923d806c8",
+      "modelSha256Docker": "60a4ce6fb9b5bb0fb3e8379ff570f9e251b4a44b292edce6a2a63c7eb67a1bf9"
+    },
+    {
+      "file": "unique-007.json",
+      "fingerprint": "v1:f290c72ed4f0d0b5e81d697672ed5814703569d99124e893ac03f46fdf0b3261",
+      "rows": 512,
+      "modelSha256Mac": "5470833f21d1d89a73586d11552fa2e74ce1e14f7edbbfef12b8f82dcd81c81b",
+      "modelSha256Docker": "0ffdff9b729bc1cce6528d07484f82fdf0dfccacc431ae3eb5d4c389eef41331"
+    },
+    {
+      "file": "unique-008.json",
+      "fingerprint": "v1:e1ece24afcd25abdcf27ce5df80bc60db7e785e74626548df8c948c9882ec313",
+      "rows": 512,
+      "modelSha256Mac": "c4db462b19d006cca9708423d3af904781110133c08a0658b9544d266abb8ddc",
+      "modelSha256Docker": "3fe779fbe5fed6721ceb4fa3aff6e7507ab513fd3a572a636c5162254f5b1e45"
+    },
+    {
+      "file": "unique-009.json",
+      "fingerprint": "v1:1bddeba0351a67c4f00c49f56cec677fb151c93a4bc40cc0a9b2169f34d5349e",
+      "rows": 512,
+      "modelSha256Mac": "bd414227519c0cbc97977aa97af738a7d2f38e1888528c7878705c29a46b9196",
+      "modelSha256Docker": "af1273158355985664aa21b0109dd364f9901d69ecf26d6c9e4cb9f737fda036"
+    },
+    {
+      "file": "unique-010.json",
+      "fingerprint": "v1:3fc7bb022bc44d762e2c5ddf90baeeeaad2d48b584d0d549da522fe29eece723",
+      "rows": 512,
+      "modelSha256Mac": "320f50c30288d6c216043907670a91138bf72e48901a4c9a55740b0540e3b4e6",
+      "modelSha256Docker": "d3de4a78df8445918026996fcb857b2b4094eaa9bcc444ca1ef30ac784ee775e"
+    },
+    {
+      "file": "unique-011.json",
+      "fingerprint": "v1:4788bfa3b0ab692c4061ac92edccd44cc3be9cd27324b2414a6018a05c8b4ba9",
+      "rows": 512,
+      "modelSha256Mac": "fcbfd56bacd6fdd83b21b4720252eebea0a9dc9321d7b63abedbe64f01b962cd",
+      "modelSha256Docker": "cdfab37d7868edca1acaad4b8fb2f41f13553757def80cd5465a78de294c42ab"
+    },
+    {
+      "file": "unique-012.json",
+      "fingerprint": "v1:82a97ee3cda6ee3ca2cf53468e8cff40e80f9af443f3e27be39980ba7536fa0d",
+      "rows": 512,
+      "modelSha256Mac": "e17ccfaa63b9204a14dde2c231b9d0f2d58fd935558d8a6dedcd48b8c2fac6a0",
+      "modelSha256Docker": "390d830e0a6e7805252666ead468f5788e47025d3295ec5da566c2c36f62ff6f"
+    },
+    {
+      "file": "unique-013.json",
+      "fingerprint": "v1:5c1a56525eb032c07a8c3be4d077a87f14fe40e34e89cd04262a0e745e9f03c3",
+      "rows": 512,
+      "modelSha256Mac": "eda35c0b70885a53c1a8833498eb79a6dfec343952727e8c51ceefb641e2d912",
+      "modelSha256Docker": "216a356c49bda871fbe251a4e54d29cd06c05870a861eca51c89c7795f4ed6e7"
+    },
+    {
+      "file": "unique-014.json",
+      "fingerprint": "v1:53c60ad0549d05aea566f03eb6359b4dc405dae7695657190fb2c7350078ebd5",
+      "rows": 512,
+      "modelSha256Mac": "9de0847787d3a9784fd2ca57e111babe6692ed8216236dc08e7a2dbd548cdf4a",
+      "modelSha256Docker": "e847a2d40e11f8fbcd5cbf255585b76bea3a50814bbec9e9ccb0cdb6bca5ff1f"
+    },
+    {
+      "file": "unique-015.json",
+      "fingerprint": "v1:99c8840452269f06238b26925ef2dccac75ff8f707ec27bf0e1462f56676ff3a",
+      "rows": 512,
+      "modelSha256Mac": "1c43de8009b6d0e98ae501f8144b66fa93a9f0c9c23201f0560669692f0454ea",
+      "modelSha256Docker": "e1f5e062076dac122ab20d7b92b6fb8a9266f9479abc70889c457c02c2a8aa0d"
+    },
+    {
+      "file": "unique-016.json",
+      "fingerprint": "v1:d068ef44e344987aeb506f2a749654195ef493bdafe9d7ef7f514d1d5644e335",
+      "rows": 512,
+      "modelSha256Mac": "0c2a12d5e56244a6ab11e16b11fc500a0ee133db29f1032721bbbf1fddb46fec",
+      "modelSha256Docker": "a475257d0c8a3c34d234431fc1f98c49b7909c89cdab4f4743ed72124abd1bc5"
+    },
+    {
+      "file": "unique-017.json",
+      "fingerprint": "v1:90124a8be4ae9704791dd6a10367f527aff325fbfb9daf1931ded8bafeed731d",
+      "rows": 512,
+      "modelSha256Mac": "2b7f78843d79e01b04f097e8de94b606c03f7d5021c492e98df932789505a2c0",
+      "modelSha256Docker": "ad2093a3e245d1be9828bde90da1dcdb1c3e69c037fdbad1cce4c3b165eb0f96"
+    },
+    {
+      "file": "unique-018.json",
+      "fingerprint": "v1:ce324f79a72407727ee12d671398b9dcee8398dc1158ad463d330fcc2f6aab8b",
+      "rows": 512,
+      "modelSha256Mac": "752f72687337d70ceffcf0b3139f1d242b1734a5ade99f7092ae4576fbcb3673",
+      "modelSha256Docker": "a89366192b8cc74cf36beeb0c84e61d7acb60a569bc41240e9ee6ccd2020b783"
+    },
+    {
+      "file": "unique-019.json",
+      "fingerprint": "v1:75f10a206fae483e94c4ab439e2a5fbb64c0e9c84ae8682bce2bdc0b8c68d4f3",
+      "rows": 512,
+      "modelSha256Mac": "02b14a55a37c0210bbe2bb00cbeabbce2f50f6c0a00cf62940eb8ca2b80c4d86",
+      "modelSha256Docker": "060115d5c203369bea1a26076bfccfd5efe8952cca0ff1783f91e341fb5f8a11"
+    },
+    {
+      "file": "unique-020.json",
+      "fingerprint": "v1:c4a00173a9c669aca260dc292bc596654a496b467b236194e5950df126d7ff7c",
+      "rows": 512,
+      "modelSha256Mac": "5735d2983c24830d41f606bff6fc9e2e7bee6007c78a60f546775238efe1a4a2",
+      "modelSha256Docker": "b9b70eb93d0869066a9602a7916c7e51b6523151d1089b8cf0e9a668e5987c81"
+    },
+    {
+      "file": "unique-021.json",
+      "fingerprint": "v1:e00c40e473204ad8115fe004cf5af5ee65ac4caea6626c3b89c94e81552a1522",
+      "rows": 512,
+      "modelSha256Mac": "086e69fc5ccc4c4f0236f8c5ec61b9a5dd5d89da229119b3a101e8b0912a6a9b",
+      "modelSha256Docker": "6bdba2303c1a432a99f587403f838f335a4e48702edcf86d987f215145136227"
+    },
+    {
+      "file": "unique-022.json",
+      "fingerprint": "v1:bbee098afaea9efa40a6dca57a6b737d9a8fe295604accb767036c78b3d1b0ca",
+      "rows": 512,
+      "modelSha256Mac": "6941bfa4b85782ccb883c84f4c27f227e73fc80ac97685766f21a39b2e4891b1",
+      "modelSha256Docker": "937919d0caae714525933276d3fbc53110b57b83e23f4064829cc2215fef1f7b"
+    },
+    {
+      "file": "unique-023.json",
+      "fingerprint": "v1:af4076c41364ad9d4f8e7822e9748fa1267acf8f279e8c5a8088c098a73deb38",
+      "rows": 512,
+      "modelSha256Mac": "52f5f4fa1fe9679d2b3f40bc5e50fe315417a047573f574726e24a591a4384a4",
+      "modelSha256Docker": "cfeaef7c8ed8c76875cb8f514acaf221a3f0058e4230c2eae23173dd44411b23"
+    },
+    {
+      "file": "unique-024.json",
+      "fingerprint": "v1:879fcb4934c6981e37a20bde0210fdb2d001a3716e7efba136590dcc0c0c856b",
+      "rows": 512,
+      "modelSha256Mac": "59377241360a2d60f1cdea8e17105fab447d02e6ec10d2b4c2511b335f1923f8",
+      "modelSha256Docker": "2be1fb5a2b37b42733a14e3d00c9feceafce01bb59d5bb9b5f21761f9eaec92a"
+    },
+    {
+      "file": "unique-025.json",
+      "fingerprint": "v1:06a8ef2b2a25ff6fc8d501d61dd7ab08ee304e142f79a2bbc0ad34fdc26e97f8",
+      "rows": 512,
+      "modelSha256Mac": "c437abf05b3e00478082cb1e9b7888fb602ab094ab2c99e28e69695e20b66724",
+      "modelSha256Docker": "8926d5d047c085235926dd372d83143418a3817a0dfea00cb6080a530b31ca27"
+    },
+    {
+      "file": "unique-026.json",
+      "fingerprint": "v1:9350491b94212b5ee9da78c2e5f5d02b3ef37c39168157a2a70816cca856070d",
+      "rows": 512,
+      "modelSha256Mac": "3f50aacda6a3eebd3284d89e3749f5d9fe5091ef7b1a1c8372e046ce6b0bf4c3",
+      "modelSha256Docker": "abacf67456b1e45d840c693742f169b5db23a1303c36a62450806ee3a983823a"
+    },
+    {
+      "file": "unique-027.json",
+      "fingerprint": "v1:99f3dc4156f9bc2ab607b581f376b86a1663cf555717837d8e0f2b7e1db085cb",
+      "rows": 512,
+      "modelSha256Mac": "930a2225bf5dd83714afabe2de90eafa7306bbcc87302596471fae1bd3e85118",
+      "modelSha256Docker": "ac769ebae9ce61fc53d7d11a6cece6e4c39da343276c2196f62cbfefe49e673a"
+    },
+    {
+      "file": "unique-028.json",
+      "fingerprint": "v1:5ef68d40aea54763814617aec4decbd83b69ff868e1d59681823187736502346",
+      "rows": 512,
+      "modelSha256Mac": "372e2ccf9953bbb5e89e49ce933b78a59195739272b3ff6c1b44f2e756ecd1a4",
+      "modelSha256Docker": "c1ef2fb15d5359fe70eaac01eb9519872238d7b663011caec7becaeac76b6c09"
+    },
+    {
+      "file": "unique-029.json",
+      "fingerprint": "v1:31b60a4183e81816f5b1034c4920f9aae8db7a5b9c45545d32cef0e2d112042c",
+      "rows": 512,
+      "modelSha256Mac": "bccb8d5f96d7527e248c7489bde7112e16479eead434f0049ae7bcba80741418",
+      "modelSha256Docker": "3d196efdb3ab365ffe6f827ef895c4056779f5897f4e2c26d05128c15eabff98"
+    },
+    {
+      "file": "unique-030.json",
+      "fingerprint": "v1:6fd1bbe3897213966f36e604cf9ba833a9fc5246bd9c74387393286c1fce75bb",
+      "rows": 512,
+      "modelSha256Mac": "80a946de7a2c85068545d1b130295193c752cc0472368cbbaff96a310b92b65d",
+      "modelSha256Docker": "f05da9516630a6844a76e9b75f946f8707a2706bdf5fe1204f524ed8fc287356"
+    },
+    {
+      "file": "unique-031.json",
+      "fingerprint": "v1:95e5b0c2b9ac4f86c55235aa33db3beb56154affadcada0f54e5613ad8c723e4",
+      "rows": 512,
+      "modelSha256Mac": "2d9fbfd3e9d1f3a443ef94dfcd67b803c5ef3dd46bfc53621dc4e7ec24d68126",
+      "modelSha256Docker": "fa538f586189150dc1564beac42ea3eb25535fcb01da2fcbbff41e33e9d82083"
+    },
+    {
+      "file": "unique-032.json",
+      "fingerprint": "v1:1f51ba76ac85b31b9bb76c9ce0b0cdfc44bfdf324f8e3b356534d71a7b7b5489",
+      "rows": 512,
+      "modelSha256Mac": "a6385e04f253b0d69ef93c6f1fac50860a3d1978ac4f355fc56e8cd230fc453a",
+      "modelSha256Docker": "637eea07d3335b5e56893bc848f7c0ca9c027a190f42a8f3091790061b1e65d2"
+    },
+    {
+      "file": "unique-033.json",
+      "fingerprint": "v1:fe136aa839352de536153630fd59cc76e1b0b3ee3e5d8999fb7491082e220f79",
+      "rows": 512,
+      "modelSha256Mac": "c265fbe47d60809dcc5a3073152519fd95c7aec9b5a49a50af1322c9d60b472d",
+      "modelSha256Docker": "f3d020e883c62f23a45f52ac15ccf6334118fad6c9f8626641ace016b9a540c1"
+    },
+    {
+      "file": "unique-034.json",
+      "fingerprint": "v1:85c8398c433e16e7b72c3294162f38c0164ceaaaa845a118cfbbbd4711a46d75",
+      "rows": 512,
+      "modelSha256Mac": "d9cb86f00d58d8784db310cc68c03f744477d89316464c2be384f6169f6ddf32",
+      "modelSha256Docker": "cece04d1e2d998dd975e77a06cb8bb059870b6e7c42460de8775fa71cbb63df8"
+    },
+    {
+      "file": "unique-035.json",
+      "fingerprint": "v1:6c07d05b621fe04df08e01f867fe068711ce97d970b0d1774f751de4b771c2d3",
+      "rows": 512,
+      "modelSha256Mac": "226ca2e64e2002560119dfb72442b7059f682d83c646c85b8ce182d352e52f4a",
+      "modelSha256Docker": "3c80ffbc8e550e7c93762a69a2b1647e59819b21c99cd27ddeb5093ff7ab5f88"
+    },
+    {
+      "file": "unique-036.json",
+      "fingerprint": "v1:325b383e09571c3509201c6cda480ccc53758c4a6c99496ca5d6c0fe21be30d4",
+      "rows": 512,
+      "modelSha256Mac": "f1bc1de446c6af57f87515bf46a1254da08a5c0c9f074cfee4abf6f645866e07",
+      "modelSha256Docker": "69075880ab8a0e21a6fdb80e41cfeba8e3cc1fe122329ff2ebfa682981687df1"
+    },
+    {
+      "file": "unique-037.json",
+      "fingerprint": "v1:af1b8c2889ad475df9aafdd7f4290383d60c5409af2c54d5a7e63f995f999845",
+      "rows": 512,
+      "modelSha256Mac": "7b5efb3c8412ce71b41b08d706be22204f30f90e9fd85441a927fd1456745139",
+      "modelSha256Docker": "986f6adde705c6afbe7a94d7f9322ea27bf48d4f56943e1588101b9778a39958"
+    },
+    {
+      "file": "unique-038.json",
+      "fingerprint": "v1:3fae2069de1506db3f98f49df5b57162586652c6013a1efdeb5a887853062338",
+      "rows": 512,
+      "modelSha256Mac": "4f290e3dd129d2abfa93800747e462ef8bc13969e994836e67cdd93528538969",
+      "modelSha256Docker": "acb542638c656e2731661eddf38712e6a256bea1005d6802c6f2620df52ef4d0"
+    },
+    {
+      "file": "unique-039.json",
+      "fingerprint": "v1:82292fb73c7c2036ea5f8403675b48296dd2b2ca6ea018a2e46da9fbba830982",
+      "rows": 512,
+      "modelSha256Mac": "d0c16a8add2d9dcc3da80064cef48e403865363d7b834a393acb6df7db1e7095",
+      "modelSha256Docker": "c781818745e188a60cf56a7d074c6432e1c8df6ca10b637add118d1d016bcafb"
+    },
+    {
+      "file": "unique-040.json",
+      "fingerprint": "v1:e506e75834043bb13b166c05feb880219bbb1e9a536ad965e6f06e27bb184686",
+      "rows": 512,
+      "modelSha256Mac": "d362ad271ed3bb2ac2b6719fd3358aaad9c5c5aa021427d081c07b5f1f2920ee",
+      "modelSha256Docker": "b790e229b0883a18bc6350585b4f8bc2b73a403af6166136dedf26941e2e8a47"
+    },
+    {
+      "file": "unique-041.json",
+      "fingerprint": "v1:5f558b49091c6f4a9cf13a3f360c414a6f580daa171afec5aa4b5030e3d8b62a",
+      "rows": 512,
+      "modelSha256Mac": "ac405c1bf16f95153a1746d39232b333d726efe0f2d6928382107541d882ef83",
+      "modelSha256Docker": "362a7c18fe5668fda787622825889d71f8cd86aebaf65ba0a3fe3c61b6460cdd"
+    },
+    {
+      "file": "unique-042.json",
+      "fingerprint": "v1:bd133c047dee68e29aaf1266adb20712b4e0818f8e1d58295337bed2367f1a1a",
+      "rows": 512,
+      "modelSha256Mac": "9c134cdd9c6cc12aab89e87f2c0fa92beceeb03bad2aef2e377135df8adc9748",
+      "modelSha256Docker": "d860ea7bdfcbbe01b94c488c62545df91d945e380e6efa37738b13cab427d95c"
+    },
+    {
+      "file": "unique-043.json",
+      "fingerprint": "v1:abbc8c89f801df7b8eb1fed0e49d84276ec6323ff8cdc195ec259f9f63897f77",
+      "rows": 512,
+      "modelSha256Mac": "ba79c89d81975e84dca094907d813aa17295f0f25b8c37b16c8be2c7297f0d40",
+      "modelSha256Docker": "b65ca926c9ee02d007548cd886dad024a1bc61933465777bcbe945d260dbd70d"
+    },
+    {
+      "file": "unique-044.json",
+      "fingerprint": "v1:a2057d9f415e3c28c7201ca03a3ae5d80c660617b858c547a874920b7f224516",
+      "rows": 512,
+      "modelSha256Mac": "c9cdb0ef603071eeaf997d445d81140f7a01b0e4c91e37bb55d163584758c0f4",
+      "modelSha256Docker": "4adf056ec706089a04bf6f8dc04a98104f2f3b32dd9efbc75d1638cbb140adc9"
+    },
+    {
+      "file": "unique-045.json",
+      "fingerprint": "v1:35ccfb5ccee57359b02d58019550f0a37c1aa3c1bf86e55c9bba6b7a54233142",
+      "rows": 512,
+      "modelSha256Mac": "16739f8e5850fb14d332fa304473c4980f4ca99150b9ca3cac41db130c86e99a",
+      "modelSha256Docker": "3004d64c735914157707d067bf0a8196ca3e6a39d582cb9c2578d1f67cd5e7e7"
+    },
+    {
+      "file": "unique-046.json",
+      "fingerprint": "v1:5dd83aefa2be25456eef839f5e0a5d7d6fe019eac9e87f2d5aaaf3aa21dc28b7",
+      "rows": 512,
+      "modelSha256Mac": "2fbc25197b06ec7e56f3b21d774ab4f82cd951a9b8c288f19fb8967617d56de7",
+      "modelSha256Docker": "8c88f2c2c06ea6727d7faff8c957e3e6760db7d7ebb46b9dd53f22c00fb7f5ca"
+    },
+    {
+      "file": "unique-047.json",
+      "fingerprint": "v1:64811f9f377a54a54d342c34ef9767b23c110583a0f93f8de82394e4ed62f93e",
+      "rows": 512,
+      "modelSha256Mac": "c1a07e8f98742503429aae350e726634dac00452c785124a2131bb282c487f8f",
+      "modelSha256Docker": "d14779954129a5ce923cb893d3ecb4592b2c23c5647facf1ae55e2f82b3033c6"
+    },
+    {
+      "file": "unique-048.json",
+      "fingerprint": "v1:61f113933d4471d9c77c891ce25405bad357ef9f3edc1d1cdd6fb8916e982f48",
+      "rows": 512,
+      "modelSha256Mac": "27c2e02a67b3b218e9d0a5cc3a6715edeb950c4769686efb08390d49f95b2214",
+      "modelSha256Docker": "c5b30577f509904c66b240c8c5e65263a2b13ef87ed20b4b95547e259b6cad2c"
+    },
+    {
+      "file": "unique-049.json",
+      "fingerprint": "v1:16aed6995b06052774b794ff87b79f6bb2c52302c3fa00bf12ba10713b92ee8c",
+      "rows": 512,
+      "modelSha256Mac": "5b8489af4d78ae914809d4d1de75dce491ee56096c464494130a19d3fad10bf7",
+      "modelSha256Docker": "db7f6f7e3d56279be87c4015bdadcfd52493f7ec73360b273633e013c1ab4149"
+    },
+    {
+      "file": "unique-050.json",
+      "fingerprint": "v1:5cbf0cb0811d8ab343e3a9ec6b3bf97ae52f3087cd0d5c8efc7f284ff321732f",
+      "rows": 512,
+      "modelSha256Mac": "96e4649b9e92e97676455e1561b55d83a2ed3dc360729ac234c7f750520fec59",
+      "modelSha256Docker": "475272dc72fcadacadded016357ea327d020fe90c1b74b348fc5928be6ab940a"
+    },
+    {
+      "file": "unique-051.json",
+      "fingerprint": "v1:8b88d36cbf28ccf5a22dc9768300758bb2eb3dfbcec73827bcd5b2fb8394b6bf",
+      "rows": 512,
+      "modelSha256Mac": "c7db4d6953b1df09cda2842f1df6e7acf873c93506d84ca1629d80c1bd2d93e2",
+      "modelSha256Docker": "c8d92e11e4d29cc2d9a6d3fb8d1e87cf8b3e423b228af53f6a07297eee4ff054"
+    },
+    {
+      "file": "unique-052.json",
+      "fingerprint": "v1:52c94479d96b830b22faa3110c033db63b21c5274ee4eb730ecca3051f1b2d4d",
+      "rows": 512,
+      "modelSha256Mac": "b9be27cd791c79fc89ab5a4d45dc0a01cd00e74f57845a6cf9c03a5322c305f8",
+      "modelSha256Docker": "b6573e4077f158eee45b1bae16be685e1e01dbc5ae0efbe9031ce1ab7f1974df"
+    },
+    {
+      "file": "unique-053.json",
+      "fingerprint": "v1:87c230fb7030f7abcd9158141dea090b3277af5871a5a25b69473724a36b83ab",
+      "rows": 512,
+      "modelSha256Mac": "cf17b0b7fcefbd01d3bf856811bc2811c83f6eea5e42c6f90e4781e0b4e7bbd2",
+      "modelSha256Docker": "173997955a02c06aa7f741c2e4aed02bcecd7b8d0a5c2532158fb439e38465c6"
+    },
+    {
+      "file": "unique-054.json",
+      "fingerprint": "v1:445fd523cda0f61befce3265140c5e6ddc7c646a49ef1951df863befcae798a9",
+      "rows": 512,
+      "modelSha256Mac": "3afe2da59281d696397d5ddaa5f1117f828d5e0175ca61f56787ea18e6de2ac9",
+      "modelSha256Docker": "b57ede36da7d69db11cb30c2db3b94347400e809a5066353fa1917144b0dc85b"
+    },
+    {
+      "file": "unique-055.json",
+      "fingerprint": "v1:d3eb460bbedf1e5ed3343e5d1681950759336cd228c831dccabb6c24ecea3b11",
+      "rows": 512,
+      "modelSha256Mac": "d9397ae5d22e5a57f69e03375fe3cdeaf126d1e98c8295bc5d10b550910fdf83",
+      "modelSha256Docker": "2cc2dbe42bf6baa2753d2ca86c14e2cc42cfc6161a23a6a1b2f0f8870375cb09"
+    },
+    {
+      "file": "unique-056.json",
+      "fingerprint": "v1:7570adf5b835631f36e437b3acc2c1ead7a2bad4ecc570345cd7fda67c366431",
+      "rows": 512,
+      "modelSha256Mac": "e07b40183fab64688a8506b76e6f9b0425d6a5fe61f674561bafa0d7f88675a4",
+      "modelSha256Docker": "55848ce025e35c71d9cccd53028f51b10cad02f8439a50603796675ed7c96605"
+    },
+    {
+      "file": "unique-057.json",
+      "fingerprint": "v1:fd8ebf94b89d62ef93f3a8256a28dca00dc44b0424c38b723127c223e8b72b59",
+      "rows": 512,
+      "modelSha256Mac": "1250ac4a386a3192310a584600c49d332edf43e6f6b76eacd14733a3c564978c",
+      "modelSha256Docker": "2011a4c1d1e96544815cb153857c64f069cf29a0ed60312be49c44f875494420"
+    },
+    {
+      "file": "unique-058.json",
+      "fingerprint": "v1:d316744fab14717761885819851ef46e0d7a2d37f88e556ed1162e5b97620fd4",
+      "rows": 512,
+      "modelSha256Mac": "66b4b9244b85844f79e90d88730483d48dedc9ae386798eacdee88043604dc07",
+      "modelSha256Docker": "23f6d1decc62045e6aefde9fa2c606fd3e02170d30e2c8e2166552c7a0bf5358"
+    },
+    {
+      "file": "unique-059.json",
+      "fingerprint": "v1:a3ad4da7a6487dc725887d07d98ff6357996bfed3ae36b50374a50ba4fba372f",
+      "rows": 512,
+      "modelSha256Mac": "d1cb759e28cbf39d2f81c741b15214da283d7c5e5845644e671407db0463af24",
+      "modelSha256Docker": "59c5e6de6a3575b40bec205d0ff6b25e1f3e831195023c7f74d051df9a01e5e9"
+    },
+    {
+      "file": "unique-060.json",
+      "fingerprint": "v1:345179ddc87a88c6609a1af8a9739c971ebfc183cc8d4830bbd79e52224cb9d9",
+      "rows": 512,
+      "modelSha256Mac": "ded8109bde59752f67ef6487117bdc2955e22294ad4b9584fd549714922d6d99",
+      "modelSha256Docker": "736d09391e9c334db01679e980cdb4cae27ec5e7bf2e384559a3aba70cdd842e"
+    },
+    {
+      "file": "unique-061.json",
+      "fingerprint": "v1:d453922a83d5f23d365650b39ece39549c42323d91c569c9df52a40be0229ec4",
+      "rows": 512,
+      "modelSha256Mac": "8181f4f928e297787d017472ad6494ca65669cf54edae0c67b0a7906cea7e7a3",
+      "modelSha256Docker": "4d494b0a575882a6e92a5b34dad58e8fb35122e49dc8bcfc215a32630abea864"
+    },
+    {
+      "file": "unique-062.json",
+      "fingerprint": "v1:1c0d4c9f994e7c71a699dc18b11e4dd0a193158f921a15a3eb10725a233d8426",
+      "rows": 512,
+      "modelSha256Mac": "182747d21b5ead1f882a550a4fc0f9d1797d8b19798ebbdabc24e9f024c03b43",
+      "modelSha256Docker": "2d0f6b6ad97b3d0adb81f9c62ceed19db0ccc7511e492a257851839bca18ca99"
+    },
+    {
+      "file": "unique-063.json",
+      "fingerprint": "v1:d3625a9e3724f5b7ddfa9a37a6e7a00a907253e19bcebeeab2a834446cd05a03",
+      "rows": 512,
+      "modelSha256Mac": "a3d19af738ed0becbbac0ba249403ddd953f25288c6ef6e5e5df1b0348189d4c",
+      "modelSha256Docker": "4567c3a1b68135f56ccab885301f1e07855251882da642077dbe8492c20c9838"
+    },
+    {
+      "file": "unique-064.json",
+      "fingerprint": "v1:a49b2ca8dae8cee24f5d9e80e2e67144c462e02c5dfb71e72a8b580b7667e0bc",
+      "rows": 512,
+      "modelSha256Mac": "a7608c1d00f7d4caa38560430ecfe4bce8ca47f547c9dd3f79678c0c9e02bc9a",
+      "modelSha256Docker": "ad25946e2db07dee0a4cfc9b8c60f9795c48e3083a9d0dd1d0503b12c5baf7fa"
+    },
+    {
+      "file": "unique-065.json",
+      "fingerprint": "v1:c7f901a5a4ee7d1694ef2953a782e873f74ad5987fc22890989e9ddf369ccd59",
+      "rows": 512,
+      "modelSha256Mac": "9e530a5bd73c8b8beca9f15cf32838dbeb8e544fce932e76f7dbe732360a6139",
+      "modelSha256Docker": "e6f431fa0e4c9fbf6dcff43a2a796ef80a3714aaeb59cdfe56820838d2509682"
+    },
+    {
+      "file": "unique-066.json",
+      "fingerprint": "v1:967ad9645979519a007ab47443ce24df5ecc0b0184dc2520d25c5e99a4d6691a",
+      "rows": 512,
+      "modelSha256Mac": "0ade0dba6cdd8cdc3008026ad6c9e9a14aad1792750f473369d6626e5a64d228",
+      "modelSha256Docker": "977f1bc0e66d29c8c09f4e55c00df48a3dfe6d10681f692cc53290a988e9de71"
+    },
+    {
+      "file": "unique-067.json",
+      "fingerprint": "v1:ac3f1812f79e5b80204b1170ed12f39116fa4b182732f45b31ea546054ee63a7",
+      "rows": 512,
+      "modelSha256Mac": "e1bb0ca0ef8ddadf31538d34150001d46db45dfc22a7bfe5365d17c383b0f566",
+      "modelSha256Docker": "7c4fc7439e06326d48c3aa3b6ac618535692b76a512769f8de8ddcc5d8bb7303"
+    },
+    {
+      "file": "unique-068.json",
+      "fingerprint": "v1:d4d1f7eac3b1c34ceb5e68bec6b93effd1cde74744d37b87b81436812f4d76a1",
+      "rows": 512,
+      "modelSha256Mac": "262d6cf61858ebc91a8ea778a2005ea430ed5d21996b537be0c5fae94cc5a5b9",
+      "modelSha256Docker": "a44c888b169f2a299377c48cb12aa3b0a3cf2fba43ab9b6a88453b1a9bbfa006"
+    },
+    {
+      "file": "unique-069.json",
+      "fingerprint": "v1:78d6cc5103c25c6d3702498ac784c6e25095c1ddc483e7f0beac9f3306543897",
+      "rows": 512,
+      "modelSha256Mac": "63a282c1b1c6448dbde325c2a6b13c48d4ac5990674a61445f011b18765ff19a",
+      "modelSha256Docker": "078250f81e21e4c6d3cfaed7f88f2c8775db65026fde1788d1c63efef39dd994"
+    },
+    {
+      "file": "unique-070.json",
+      "fingerprint": "v1:37279f4ecf31fe5b34b3a0183eb167ce5d84fbaa695de9c7fcc842d7e4d60fcf",
+      "rows": 512,
+      "modelSha256Mac": "4195a83916f3ab30056fbe75f0c4ee671d30127e61cd2287e181c81f6d4e70fd",
+      "modelSha256Docker": "48ed48fdc65e54d5e2f2d6ca4f38dd797615a5d962794e81d8fbb0fcb07087f7"
+    },
+    {
+      "file": "unique-071.json",
+      "fingerprint": "v1:37a001f77d6214bdda96e90c24f48b5ad08819bb70afa70f2c8e2fe7c6459743",
+      "rows": 512,
+      "modelSha256Mac": "0a5c607999fe8fb0e16143c0afea439258313c36b09e683c5fe550cf3186d892",
+      "modelSha256Docker": "108944f309350b05946e1a48da1af505a763ceffd9df62c4baec102a56f00d6d"
+    },
+    {
+      "file": "unique-072.json",
+      "fingerprint": "v1:485ca7d63de3c0244981443c625f8dfb85b2444a41be927962b1d7870c110dc8",
+      "rows": 512,
+      "modelSha256Mac": "b1b2e17ca657ebcb8de3e156677b8b9d448f1a7fa10c5e3742feb7298fac05c6",
+      "modelSha256Docker": "1bac9d98545020fc7d4b12e8e262c9e012f76361f9cc433bcb153110a499d70d"
+    },
+    {
+      "file": "unique-073.json",
+      "fingerprint": "v1:18a8407bab7bc77ed4011fea8d38cf5af2e1f118e4d78e29c57cd1e8969e348c",
+      "rows": 512,
+      "modelSha256Mac": "6162bac81a43d34a2feac684dc228a88932a48a9f25e8c570d7a08bb9ebf0d36",
+      "modelSha256Docker": "0861e68a43a0e89bc5451c79e84aa05c8f267211c0b52a76887bbb451d0abef2"
+    },
+    {
+      "file": "unique-074.json",
+      "fingerprint": "v1:2da6bf61dc294e9ba923b9ae7eb2866a3e859462a955157500ba0eddd59bc1c8",
+      "rows": 512,
+      "modelSha256Mac": "2ca4557a1ae71045eefb151a85089a2c3f6589e0065e7d79f9de66f993813ede",
+      "modelSha256Docker": "f22528ae805a68c8dfccaa03516493137983d36d6145ff6ea62a37f2138376a2"
+    },
+    {
+      "file": "unique-075.json",
+      "fingerprint": "v1:39a282e1a4fa7fc90926be90d5eee5c990eab4949721627e9ac674694ef00bb4",
+      "rows": 512,
+      "modelSha256Mac": "a8c5dfd1c7bbe0ef024c146b065d1e2702a0cd675a8116001ea6b93eeb42e54d",
+      "modelSha256Docker": "b76a0ae3414735f2a7f73f464833c5089c4eecad6c3af3ef5c0c4afb3da0898e"
+    },
+    {
+      "file": "unique-076.json",
+      "fingerprint": "v1:0a9ab71c5588cd6ddd575c36da7c0ca383303078a698aed88b6d775546132c56",
+      "rows": 512,
+      "modelSha256Mac": "ab458cb6d95f089158021d1ac588655f7079a081993da8baf39288d6ec35cb1e",
+      "modelSha256Docker": "5e7bb3fc974f57fad3e833235a082d2e1447ea3943ea8dcc41c758b3d02fe9c0"
+    },
+    {
+      "file": "unique-077.json",
+      "fingerprint": "v1:caa8f0d966358f3bea239073a062e151992f9db25396e5bb8d716fe553df3250",
+      "rows": 512,
+      "modelSha256Mac": "28f225a9981d285462788475c9a8523da8ac7588abaf2468af61aa625cc22c01",
+      "modelSha256Docker": "8ad46128bf5f5bb569fe1bf8f3655e2b386d06ddb920fd600c0b02e161638b12"
+    },
+    {
+      "file": "unique-078.json",
+      "fingerprint": "v1:8fbd77cdee73c1560dfdaae8968e1466b8b986c2e37c13ab3c90cf38081a13e9",
+      "rows": 512,
+      "modelSha256Mac": "8dead0eca5f44dc7af5d6aa06c16193f0661f5b94f95626daf4e987c53bfcd7a",
+      "modelSha256Docker": "0c37fdf00273ed862406da7ecc983b56f9aafb3644f0d6316b8340cd8d1e4b84"
+    },
+    {
+      "file": "unique-079.json",
+      "fingerprint": "v1:40dc79752dbaa3f763d68d92f69eb0fdeee4895150bea0fe4479660b2c2a2757",
+      "rows": 512,
+      "modelSha256Mac": "d6b7c423f2680dfc0d95c33115331518ea2b3b5b55aec47ec6e70ab1f581e989",
+      "modelSha256Docker": "240d88e2138fe616f35fd5d04c582a1f569c0f543a40043460d0d5735af3dbe0"
+    },
+    {
+      "file": "unique-080.json",
+      "fingerprint": "v1:408040fd70ca509d51c6cf229fc798f0c0328927c4a98f3ca845a333d66dcf77",
+      "rows": 512,
+      "modelSha256Mac": "493202c62bc1674e6c264555a33664dbc817a66da40aa62acd12b39c43d4ea02",
+      "modelSha256Docker": "c8b36aaf26f95676632d35449a0ac2c8ce69ce6175486f5a40863dd5268260fc"
+    },
+    {
+      "file": "unique-081.json",
+      "fingerprint": "v1:335a7de21790f759f8a37751a55c76f243c01ceb9907dacf98325b9810c244da",
+      "rows": 512,
+      "modelSha256Mac": "68380a97fd7a3883cae95d0695d8373f1fd66e9fe658729adbd944a7c5f3fb7a",
+      "modelSha256Docker": "70c33c45ae45bc670126e9a725ee66422e9d1be4ba9fff71331f2b94ad9460ee"
+    },
+    {
+      "file": "unique-082.json",
+      "fingerprint": "v1:8c8fc944c8f46d90164dbdbb7831017e781292831f9925842fbde42147858432",
+      "rows": 512,
+      "modelSha256Mac": "ce725f42a5588f9fba70b2680866e8221d2f1ba601466d523c145e78c53add9f",
+      "modelSha256Docker": "e2b3b6653daca3f14d09bcf837e1fc265489289c91413301e31114c6ac7150e5"
+    },
+    {
+      "file": "unique-083.json",
+      "fingerprint": "v1:c25e478b2a20b2f93fbc87302a3fa1786d7fc2525afe48f8a117e23b2f222508",
+      "rows": 512,
+      "modelSha256Mac": "a19afcb5239fa37aef164c1a644afa0ac5956740af61349db9bcbf61e8410787",
+      "modelSha256Docker": "c033547a3fa8a936b6b3ac376c66b2ab38e16696a477631eaec06ed18b7c574a"
+    },
+    {
+      "file": "unique-084.json",
+      "fingerprint": "v1:3f32f04ad602acbfe2c5cb344c4062105f22e834ecad4f48b34f4b8283aa663a",
+      "rows": 512,
+      "modelSha256Mac": "a5cb46df5ddf7a75d602282360482d4aa152cf8968b4d5622b2116e8cedc839d",
+      "modelSha256Docker": "7f3ce8c343d10b2a097a47ff2c03427584311136b5fa18787a3606b9f222d46f"
+    },
+    {
+      "file": "unique-085.json",
+      "fingerprint": "v1:244613ab228df33cff93b4781aca84d6776b9f84f1706570840e577cf7f7904d",
+      "rows": 512,
+      "modelSha256Mac": "a369815c322e20b73727b8c658931bff8f4ff0f918e0dd86c370e87f5bf7f493",
+      "modelSha256Docker": "ff4852a8d3b1ffe44cc37bd4b3449d7c7fb928ad979a643275fea94ca66c2969"
+    },
+    {
+      "file": "unique-086.json",
+      "fingerprint": "v1:a52a4097d702d45cfa6cab747028402f170dea05d0f55b3b9e7b12cb886c49e1",
+      "rows": 512,
+      "modelSha256Mac": "f2fa41d4cf6b9fea7d78fa5e15e9ed93e463f20637925e828a06df4749dab27c",
+      "modelSha256Docker": "368edbb727b0fa50a4940ffaef28c957b3c92564a74bb1fb8fb20e4f26e815f9"
+    },
+    {
+      "file": "unique-087.json",
+      "fingerprint": "v1:81f2721bd85a39ff3b34b01dce2c263e713cdc78a54a4a47ffad5583a7b336aa",
+      "rows": 512,
+      "modelSha256Mac": "0f942455611c3885bb56b377f2d11e9adc24e75cd5d7bca13352eb52b5ff1d24",
+      "modelSha256Docker": "d63c2aca03ffd19d9290baecf49b92a7671e2ae6f70567de3d14cfa176c07611"
+    },
+    {
+      "file": "unique-088.json",
+      "fingerprint": "v1:369f27c5c1553ca5be2fda92396cf3abae6bcb8d0efd921d4ba0d5e1f48d0c13",
+      "rows": 512,
+      "modelSha256Mac": "3f2ffe527220818c2d53fd70be001200d989b5b4bda36682dd949e39da1347ec",
+      "modelSha256Docker": "d6ba0131586e12cd9b08c767d55bc9e637d03ea385294f16e9ce09dfef4226dc"
+    },
+    {
+      "file": "unique-089.json",
+      "fingerprint": "v1:8916935110ce3017bbf2901168a471280bcf9a9cbfdd6bff4a77739f036038c3",
+      "rows": 512,
+      "modelSha256Mac": "8642d7b5b57165619d37c1ceabe7940fff51d18ba77e28e71f66158acdc78a03",
+      "modelSha256Docker": "ef2a0c2bf5244031d1c37ca7b758a3ac9d034f1c2997a0e5dcf746a72582e3ef"
+    },
+    {
+      "file": "unique-090.json",
+      "fingerprint": "v1:97026899e0372ef315eab75867e645e1fb09dce551f431e57c266ace37fb754e",
+      "rows": 512,
+      "modelSha256Mac": "429ae712cc4a4cc320a6936aab8647de9dab1e21bb74a7a6af7e1f4d3cc9d058",
+      "modelSha256Docker": "df79ebccb0d05d5ffda95e6bbbfd184ed064970c9d37960decf9371b4457eccf"
+    },
+    {
+      "file": "unique-091.json",
+      "fingerprint": "v1:1669143fc2bbc072c42631e15ad2701b9f315ca290afe4e177677555cc169c68",
+      "rows": 512,
+      "modelSha256Mac": "35d2523f88ec0522dc17d1bed3982f6b9b66dc2536cc6abffada3e202494c438",
+      "modelSha256Docker": "a468bc22ec72e7e023fd812250a667bbe0f41609da3208e9033acb456c8a0077"
+    },
+    {
+      "file": "unique-092.json",
+      "fingerprint": "v1:f8ea1034819aff93da91b9a4e519c7a05605868337aa1fdf5714905811be8602",
+      "rows": 512,
+      "modelSha256Mac": "9f2ad95f242ef1be00b445f097ee8ea941b2082b5caee3d15887e0e0c945bcc9",
+      "modelSha256Docker": "314e8dad59dbe2a9e0dfa0a1572b51b772fddb9fb597cfc7bf5e4be41fae2a8b"
+    },
+    {
+      "file": "unique-093.json",
+      "fingerprint": "v1:06fb7fb5ff3969a3ee5c7865d95dee0c1c87976dd7d886cf974967d6f7639f2e",
+      "rows": 512,
+      "modelSha256Mac": "3abb3b1722d4e3f71341e243cf0529fff54eaa989affaf1fec865f88cb002431",
+      "modelSha256Docker": "d9e954a21263c5346617a2616652a3efd4f2828bd333c5d1d2dc5f7e37ee592f"
+    },
+    {
+      "file": "unique-094.json",
+      "fingerprint": "v1:7dc57f2b2e0b1fc42bd41475bae7687739f4f50622725520ed636576235a9104",
+      "rows": 512,
+      "modelSha256Mac": "6c7864e1d3dbf234f2ded67ad07c5fb792737849541db39d2ee17515d3e30b8b",
+      "modelSha256Docker": "3f9bb77bfc0258ba113dfa927f8e928344cb9e3adc652fbea4e730eb41235768"
+    },
+    {
+      "file": "unique-095.json",
+      "fingerprint": "v1:ec98675ab69df715d08d69193486da0b578eadce41ff071cbba9522a0473fe98",
+      "rows": 512,
+      "modelSha256Mac": "5da94eed3cebc3957f9a4b547598c1ea05ebde0f375128619cb7b0ec06dd4881",
+      "modelSha256Docker": "49e6025d474e6fbf8c9b1bf7cffb15ecb6be0ed743cff1e709c04e19c2889fce"
+    },
+    {
+      "file": "unique-096.json",
+      "fingerprint": "v1:a24ebd1f395a305c8a18cc52456c3c22cf9dd1f515d13ca52bbe7f117ba53157",
+      "rows": 512,
+      "modelSha256Mac": "21676698e12a4db4bfeaf47735260fde230024be780508d0e8f6fab24c794f81",
+      "modelSha256Docker": "bad06d8cc7ce1b1b0ede03f48700f647fe9cec7941af1d4a1fc1c09e20b25ef8"
+    },
+    {
+      "file": "unique-097.json",
+      "fingerprint": "v1:d09dcecbafcfda3efeef2d591ec71fe13e79f3f44be01feda7399a955d321cc7",
+      "rows": 512,
+      "modelSha256Mac": "40d84ba1c16011d34b83bcc199021c04995a806f4fe7b9536af409cdb02f1bf2",
+      "modelSha256Docker": "3a5569cba086d529a921528e7513133e8ee0e8abdf1d33d965be697eab9caac5"
+    },
+    {
+      "file": "unique-098.json",
+      "fingerprint": "v1:320bac395c77d2c3947b1af773e2ab51695c7325450866774f8fafce190025a7",
+      "rows": 512,
+      "modelSha256Mac": "3fe57ab095b716eb91bbd8c8dd6e722600fd5ca3e007eeb08b2d8f2c9ebedff9",
+      "modelSha256Docker": "44ccebd6de7978f99d1a2358d56039fd5626dc65d2273e03403f37eb74618036"
+    },
+    {
+      "file": "unique-099.json",
+      "fingerprint": "v1:97647ac1b384657ea3fa39acaa3310022451837e495da32f9b255a750aa31e2d",
+      "rows": 512,
+      "modelSha256Mac": "3ae1ef3e33960209904c61e5839184ef1e4434e9f65f518dd91d3b716f5e2a2d",
+      "modelSha256Docker": "d5adb76ba49494d2e1fff7e9e2bcd8dff638d1ebe54a6aa7d6202b6ec7c70915"
+    },
+    {
+      "file": "unique-100.json",
+      "fingerprint": "v1:33593a38312c0b9843c170026249de128cf4da3b7a4c1e0a7f368af30b75579b",
+      "rows": 512,
+      "modelSha256Mac": "508ac6fc3881d81a0b538450a7b535246142f65e0a59b0d70cbe981b3880b762",
+      "modelSha256Docker": "d24746adbc1a79707d3c7b41924b98ad1bb3e0a713ab608bec61cf93fe110f69"
+    },
+    {
+      "file": "unique-101.json",
+      "fingerprint": "v1:5b08e32a088f86670abc8fd2f136d669b19dffecf8de9a247b8c186081cd44ee",
+      "rows": 512,
+      "modelSha256Mac": "f8c8c18982bf3188dfb353342218b417c8f996d20f8925652deea9636ea6802b",
+      "modelSha256Docker": "946125ec18993db0a52a99385578062f97f4ce7c008ac8fdcbac73a30dd04cd5"
+    },
+    {
+      "file": "unique-102.json",
+      "fingerprint": "v1:b7207de8acdb5454400860ee717772217c34235a1bd75d6336ad4ef5b2dc1d55",
+      "rows": 512,
+      "modelSha256Mac": "4a61e921d1cbf5c8867a4a9713e8b910b561910175753f44c132551c3b3675aa",
+      "modelSha256Docker": "15a735f506b648aa79d9e5be221e0a2515cbba6378908a46921581d3f5e58f71"
+    },
+    {
+      "file": "unique-103.json",
+      "fingerprint": "v1:bcbe954bf55e116b1f011c64d715bd9de984365075d18693529d05a624810439",
+      "rows": 512,
+      "modelSha256Mac": "9a0422e382f7aa36fb36cdf77e785c52acdee724faf39eba9cd880f29a0e6fb7",
+      "modelSha256Docker": "9b43d84a73b7758dce4f40e584d27f53a46df239fb08a0a75c11b31b48dbd5f0"
+    },
+    {
+      "file": "unique-104.json",
+      "fingerprint": "v1:9d1aa5dd12ad1754c73cb1dcd516f57bd342ede0493528a03d461333c49ef19f",
+      "rows": 512,
+      "modelSha256Mac": "ec840751980b7e49ec511ac0b1d094b3f5bfd275297db6e55d54d322cb7b4790",
+      "modelSha256Docker": "aece66b1d5b3042d90a0ff75e1ec5e010cedaab3688d13dc7a9cc03d53658a46"
+    },
+    {
+      "file": "unique-105.json",
+      "fingerprint": "v1:239f8b25a6ce03940b097b3e9ca80a6fbcbe6c65e47f98ed173ff29cbcbca554",
+      "rows": 512,
+      "modelSha256Mac": "1b88a5e17f20e636e89b7572bea25ac08914e3c0abe53f706fe1f8cfc60fbe77",
+      "modelSha256Docker": "b7aae213fdae00c5939f6bd54a9ab3b89943f12ebbe070d5643eca9f5e6641d9"
+    },
+    {
+      "file": "unique-106.json",
+      "fingerprint": "v1:317f498a8db6814d337855fde83585a6ee287ffb3acb22b4b1734f197d4a69e8",
+      "rows": 512,
+      "modelSha256Mac": "ea8d08b0701cd9a144de363ab9f77d4f7dec4dbf44c16da82bdfe009b9b83637",
+      "modelSha256Docker": "ae814ca4f4f7cf6def4d29ba22eb116c401796cf32d10bc1cbf8de2a478930b8"
+    },
+    {
+      "file": "unique-107.json",
+      "fingerprint": "v1:b857f1d32a2010bb55cc0b5652c0c1c50026e99fd540b940f8dcdccd0c81372c",
+      "rows": 512,
+      "modelSha256Mac": "a4157409a93745898e7df9500fd97344f14ec517c9d5ee9fe11b2a33b82a6384",
+      "modelSha256Docker": "fb9dd177f5b4424b769a3d7103ce4ab479218b0d1a6fd2b8d07e3e318ea15fea"
+    }
+  ]
+}

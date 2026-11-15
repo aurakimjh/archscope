@@ -1,0 +1,60 @@
+{
+  "T-601": {
+    "status": "REVIEW",
+    "priority": "P1",
+    "remaining": [
+      "Isolated WinDivert installation/injection/cleanup and driver-policy compatibility",
+      "Proxy-ignoring client, service and other-session actual capture reach"
+    ]
+  },
+  "T-627": {
+    "status": "REVIEW",
+    "priority": "P2",
+    "remaining": [
+      "Native Chart Studio/Save dialog 7 physical-unit combinations after WREV2-01",
+      "Remaining original/reference, dense/error/empty, actual OS DPI, EN/KO and keyboard/provider combinations",
+      "Actual Hangul IME composition and drag-specific paths; Office/renderer combinations beyond pinned receipts"
+    ]
+  },
+  "T-611": {
+    "status": "REVIEW",
+    "priority": "P3",
+    "remaining": [
+      "Original/vendor early-bound foreign COM client compatibility",
+      "Foreign session-cookie integration and clean-host registration/unregistration/remoting lifecycle"
+    ]
+  },
+  "T-613": {
+    "status": "PENDING",
+    "priority": "P3",
+    "dependsOn": [
+      "T-601",
+      "T-611",
+      "T-627"
+    ],
+    "remaining": [
+      "Original V7.6.4/client remaining 16-case exchange/display/export parity",
+      "Actual x64 body runtime capability only if real SEC-10 preflight permits; no security/dump policy bypass",
+      "Unique/body-rich/longer workloads and x86 ordinary native repeated-import screens",
+      "Windows renderer OS-private versus JS-heap attribution and historical late variability",
+      "Isolated Windows actual disk exhaustion, interrupted writes/power-loss and recovery",
+      "Actual signed-pack clean installation and RC-to-stable upgrade preserving cases/settings/owner activation"
+    ]
+  },
+  "T-654": {
+    "status": "TODO",
+    "environment": "Permitted real two-NVIDIA-GPU Linux CUDA/NCCL execution; unavailable on this Mac/Docker host"
+  },
+  "T-662": {
+    "status": "TODO",
+    "environment": "Owner-authorized natural nonzero swap/elevated pressure with independent OS values; these explicit-GC synthetic diagnostics do not qualify it"
+  },
+  "releasePackGate": {
+    "status": "PENDING",
+    "remaining": "Official existing-signer pack, embedded bundle startup, explicit migration/recovery with owner state preserved; ephemeral test signatures are not release approval"
+  },
+  "independentReview": {
+    "status": "PENDING",
+    "remaining": "Different reviewer must assess remediation and acceptance evidence; original CONDITIONAL reviews remain unchanged"
+  }
+}
