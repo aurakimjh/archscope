@@ -6001,3 +6001,13 @@ description/count/state. Raw received sources/manifests remain unchanged.
 No new Windows native Chart unit/renderer claim. Import growth failures/repeats
 and cause diagnosis remain open alongside other explicit acceptance gates.
 Evidence:2026-11-15-windows-stream-boundaries/portable-inventory.json.
+
+### 2026-11-15 - T-613 role attribution and duplicate projection retention
+
+Historical import growth is concentrated in renderer,not Go root. Matched isolated
+actual workspace modules retain80cards/121184logical rows; exact repeated tables
+use80arrays/~516MiB before versus3arrays/4640unique rows/~54MiB after sharing.
+Explicit Docker/Node GC is causal diagnostics only. Ordinary production baseline
+and2fixed36-cycle x64 screens predeclared with original budgets/no forced GC;
+historical late fluctuations and failures are not retroactively qualified.
+Evidence:2026-11-15-t613-memory-diagnosis/retention-comparison.json.

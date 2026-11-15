@@ -1,0 +1,37 @@
+{
+  "asOf": "2026-11-15",
+  "baseline": "30e5e078",
+  "primaryQuestion": "Which retained objects explain renderer growth, and does a semantic-preserving correction stabilize repeated import?",
+  "primaryRuns": [
+    "baseline-amd64",
+    "fixed-amd64-1",
+    "fixed-amd64-2"
+  ],
+  "protocol": {
+    "cycles": 36,
+    "warmupCycles": 28,
+    "measuredCycles": 8,
+    "workspaceCapacity": 80,
+    "openSizes": [
+      4096,
+      512,
+      32
+    ],
+    "settleAfterOpenSeconds": 3,
+    "matchedSmallFileIdleSeconds": 15,
+    "forcedGC": false,
+    "cacheOrWorkingSetTrim": false
+  },
+  "screeningBudgets": {
+    "treeDeltaBytes": 67108864,
+    "treeSlopeBytesPerCycle": 4194304,
+    "rootDeltaBytes": 16777216,
+    "rootSlopeBytesPerCycle": 1048576,
+    "handleDelta": 24,
+    "handleSlope": 2,
+    "threadDelta": 4,
+    "threadSlope": 0.5
+  },
+  "diagnosticControls": "Isolated Docker/Node retention experiments are separate causal probes, may explicitly collect GC, and cannot be used as a native screening PASS. No concurrent owned native memory runs. Earlier FAIL receipts stay unchanged.",
+  "nativeVerdict": "Finite fixed workload only; retain failures and require diagnosis if any budget fails."
+}

@@ -1,0 +1,220 @@
+{
+  "scope": "Independent role attribution; medians per role are not additive; original verdicts unchanged",
+  "runs": [
+    {
+      "source": "import-initial-amd64.json",
+      "sha256": "3448bc220822b5e9641675ae1c0ef8a84eea530e68289d9ad8422b74b9b60b89",
+      "originalPassed": false,
+      "roles": {
+        "app": {
+          "firstMedianBytes": 85172224,
+          "lastMedianBytes": 78802944,
+          "deltaBytes": -6369280,
+          "slopeBytesPerCycle": -929792.0
+        },
+        "renderer": {
+          "firstMedianBytes": 250085376,
+          "lastMedianBytes": 413270016,
+          "deltaBytes": 163184640,
+          "slopeBytesPerCycle": 32634880.0
+        },
+        "browser": {
+          "firstMedianBytes": 48803840,
+          "lastMedianBytes": 49176576,
+          "deltaBytes": 372736,
+          "slopeBytesPerCycle": 82841.6
+        },
+        "gpu": {
+          "firstMedianBytes": 101249024,
+          "lastMedianBytes": 102367232,
+          "deltaBytes": 1118208,
+          "slopeBytesPerCycle": 147456.0
+        },
+        "utility": {
+          "firstMedianBytes": 23416832,
+          "lastMedianBytes": 23293952,
+          "deltaBytes": -122880,
+          "slopeBytesPerCycle": 7099.733333333334
+        },
+        "crashpad": {
+          "firstMedianBytes": 4702208,
+          "lastMedianBytes": 4603904,
+          "deltaBytes": -98304,
+          "slopeBytesPerCycle": -15213.714285714286
+        }
+      }
+    },
+    {
+      "source": "import-initial-386.json",
+      "sha256": "a7a848ef53d7aa778f03ecc4a4729fbcc6480fedc1d36b8d0c902531ef44b487",
+      "originalPassed": false,
+      "roles": {
+        "app": {
+          "firstMedianBytes": 66326528,
+          "lastMedianBytes": 66035712,
+          "deltaBytes": -290816,
+          "slopeBytesPerCycle": -1818624.0
+        },
+        "renderer": {
+          "firstMedianBytes": 239362048,
+          "lastMedianBytes": 401723392,
+          "deltaBytes": 162361344,
+          "slopeBytesPerCycle": 33000448.0
+        },
+        "browser": {
+          "firstMedianBytes": 42536960,
+          "lastMedianBytes": 42905600,
+          "deltaBytes": 368640,
+          "slopeBytesPerCycle": 55954.28571428571
+        },
+        "gpu": {
+          "firstMedianBytes": 98504704,
+          "lastMedianBytes": 99106816,
+          "deltaBytes": 602112,
+          "slopeBytesPerCycle": 105130.66666666666
+        },
+        "utility": {
+          "firstMedianBytes": 23453696,
+          "lastMedianBytes": 23445504,
+          "deltaBytes": -8192,
+          "slopeBytesPerCycle": -512.0
+        },
+        "crashpad": {
+          "firstMedianBytes": 4706304,
+          "lastMedianBytes": 4595712,
+          "deltaBytes": -110592,
+          "slopeBytesPerCycle": -17115.428571428572
+        }
+      }
+    },
+    {
+      "source": "import-history36-amd64.json",
+      "sha256": "792563b9dad20421ee45fa59d4ab0241e46b7c646a259bf4bb7965ac9d6091b6",
+      "originalPassed": false,
+      "roles": {
+        "app": {
+          "firstMedianBytes": 83021824,
+          "lastMedianBytes": 82067456,
+          "deltaBytes": -954368,
+          "slopeBytesPerCycle": 14848.0
+        },
+        "renderer": {
+          "firstMedianBytes": 673054720,
+          "lastMedianBytes": 705720320,
+          "deltaBytes": 32665600,
+          "slopeBytesPerCycle": 6730410.666666666
+        },
+        "browser": {
+          "firstMedianBytes": 45125632,
+          "lastMedianBytes": 45195264,
+          "deltaBytes": 69632,
+          "slopeBytesPerCycle": 14336.0
+        },
+        "gpu": {
+          "firstMedianBytes": 100880384,
+          "lastMedianBytes": 100814848,
+          "deltaBytes": -65536,
+          "slopeBytesPerCycle": 7168.0
+        },
+        "utility": {
+          "firstMedianBytes": 24383488,
+          "lastMedianBytes": 24412160,
+          "deltaBytes": 28672,
+          "slopeBytesPerCycle": 3510.857142857143
+        },
+        "crashpad": {
+          "firstMedianBytes": 4562944,
+          "lastMedianBytes": 4562944,
+          "deltaBytes": 0,
+          "slopeBytesPerCycle": 0.0
+        }
+      }
+    },
+    {
+      "source": "import-history36-386.json",
+      "sha256": "d05df0eaed0db7eecca900da7b2b3f765ae9b901cdf20d052861ef7090665782",
+      "originalPassed": true,
+      "roles": {
+        "app": {
+          "firstMedianBytes": 73764864,
+          "lastMedianBytes": 72069120,
+          "deltaBytes": -1695744,
+          "slopeBytesPerCycle": -274314.97142857144
+        },
+        "renderer": {
+          "firstMedianBytes": 658481152,
+          "lastMedianBytes": 624541696,
+          "deltaBytes": -33939456,
+          "slopeBytesPerCycle": 145237.33333333334
+        },
+        "browser": {
+          "firstMedianBytes": 47022080,
+          "lastMedianBytes": 46997504,
+          "deltaBytes": -24576,
+          "slopeBytesPerCycle": -1404.3428571428572
+        },
+        "gpu": {
+          "firstMedianBytes": 101203968,
+          "lastMedianBytes": 101158912,
+          "deltaBytes": -45056,
+          "slopeBytesPerCycle": 22835.2
+        },
+        "utility": {
+          "firstMedianBytes": 23539712,
+          "lastMedianBytes": 23531520,
+          "deltaBytes": -8192,
+          "slopeBytesPerCycle": -1365.3333333333333
+        },
+        "crashpad": {
+          "firstMedianBytes": 4571136,
+          "lastMedianBytes": 4571136,
+          "deltaBytes": 0,
+          "slopeBytesPerCycle": 0.0
+        }
+      }
+    },
+    {
+      "source": "import-history52-amd64.json",
+      "sha256": "4d7689109aae6c2733aa6166156f8029d89e07ccb968ed26cbe03da915875055",
+      "originalPassed": true,
+      "roles": {
+        "app": {
+          "firstMedianBytes": 82411520,
+          "lastMedianBytes": 80400384,
+          "deltaBytes": -2011136,
+          "slopeBytesPerCycle": -432537.6
+        },
+        "renderer": {
+          "firstMedianBytes": 660217856,
+          "lastMedianBytes": 665300992,
+          "deltaBytes": 5083136,
+          "slopeBytesPerCycle": 1379328.0
+        },
+        "browser": {
+          "firstMedianBytes": 45137920,
+          "lastMedianBytes": 45191168,
+          "deltaBytes": 53248,
+          "slopeBytesPerCycle": -585.1428571428571
+        },
+        "gpu": {
+          "firstMedianBytes": 100175872,
+          "lastMedianBytes": 100184064,
+          "deltaBytes": 8192,
+          "slopeBytesPerCycle": -3072.0
+        },
+        "utility": {
+          "firstMedianBytes": 24395776,
+          "lastMedianBytes": 24367104,
+          "deltaBytes": -28672,
+          "slopeBytesPerCycle": -3072.0
+        },
+        "crashpad": {
+          "firstMedianBytes": 4562944,
+          "lastMedianBytes": 4562944,
+          "deltaBytes": 0,
+          "slopeBytesPerCycle": 0.0
+        }
+      }
+    }
+  ]
+}
