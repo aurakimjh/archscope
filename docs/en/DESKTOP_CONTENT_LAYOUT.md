@@ -427,3 +427,20 @@ Final Builder byte-count review also fixes short/chunked/HEAD response bodySize
 to actual unencoded uncapped bytes while preserving declared headers and unknown
 automatic-gzip wire size. Corrected native short response:5B,header12. Final x64/
 x86 app45.781s/49.029s and DockerCGO race pass; prior receipts remain separate.
+
+### 2026-11-15 encoding, binary caps and streaming follow-up
+
+Windowsx64/x86 each13 actual Builder sends verify identity/x-gzip,full encoding
+stacks,binary caps,chunked,cancel/deadline,ID reuse andHEAD. Corrected proxy wire
+negotiation/encoding interpretation and unknown sizes; actual SEC10-verified386
+five-case capture/save/open has0drops and all5client wire SHA256 match direct
+Docker origin. x64body capability remains gated. Capped binary no-text notice and
+sticky-header selected-row scroll are fixed; same finalized-live header/13-row
+native Down11→12→13 keeps chosen rows fully visible. KO1280x800 OS100/Web100 only;
+no full70percent/DPI/locale claim. Native9cases7PASS/2preserved before-fixFAILs.
+Windows capture24packages perarch,guarded app/native builds,frontend and Docker
+CGO race24packages pass. COM test mutex prevents shared metadata races; targeted
+amd64protectedSKIP remains separate from positive remoting qualification. Original
+reference/IME/drag/full matrix/isolated-host/memory limits and T-613PENDING/
+T-627REVIEW/independentCONDITIONAL remain. Current receipts and remaining gates:
+docs/review/evidence/2026-11-15-windows-stream-boundaries/.

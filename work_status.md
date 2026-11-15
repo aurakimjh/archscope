@@ -5885,3 +5885,13 @@ Native9cases7PASS/2preserved before-fixFAILs,including same-header13row keyboard
 Windows capture24packages perarch,guarded app37.891s/43.744s,frontend,both native
 builds and DockerCGO race24packages pass; protected COM skips are separate.
 Evidence:2026-11-15-windows-stream-boundaries/windows-readback.json.
+
+### 2026-11-15 - streaming follow-up completion inventory
+
+Seven separate task commits cover encoding,binary cap,wire fidelity/unknown sizes,
+COM fixture serialization,absent-text notice,sticky-header keyboard scrolling and
+actual transport/live readback. Final paired docs,build/source/log hashes,current
+remaining inventory and exact cleanup receipts retain all explicit acceptance
+boundaries. Owned apps/containers removed,7preexistingcontainers preserved.
+T-613PENDING/T-627REVIEW/originalCONDITIONAL unchanged; actualx64body still gated.
+Evidence:2026-11-15-windows-stream-boundaries/remaining-acceptance.json.

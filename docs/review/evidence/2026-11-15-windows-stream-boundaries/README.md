@@ -99,3 +99,19 @@ Native9cases:7PASS/2preserved before-fixFAILs. KO1280x800 OS100/Web100 only here
 Frontend state/build, guarded x64/x86 native builds pass. Final full Windows capture
 24packages each pass; guarded app amd6437.891s/38643.744s; Linux DockerCGO race
 24capture packages pass. Windows COM targeted protective skips remain distinct.
+
+## Final cleanup and remaining acceptance
+
+Owned test apps,fixture and race containers are removed; seven preexisting Docker
+containers remain running. Local raw profiles/sessions/logs remain private. Exact
+indexed evidence hashes and actual-controller-token scan are recorded in
+artifact-sha256.json; final-validation.json pins builds/source/private logs.
+remaining-acceptance.json retains original/client parity,actual IME/drag,full
+condition/language/actual OS-DPI,amd64 body gate,driver/foreign-client/clean-host,
+isolated Windows fault and finite memory bounds. No OS/security/dump/driver
+settings were changed. No new independent acceptance verdict is issued.
+
+Concurrent remote17d22161 Chart unit/JFR counter correction is integrated separately.
+Current route inventory is2026-11-15-windows-remediation/remaining-acceptance.current.json
+(JFR3010total/filtered,153sample/stack samples,29unique stacks). Prior import growth
+failures remain unresolved; fixed-protocol repeats and cause diagnosis remain open.

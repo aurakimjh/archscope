@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 4,
+  "asOf": "2026-11-15",
+  "baseline": "3f55342b",
+  "scope": "Selected incremental encoding/binary/stream/keyboard boundaries, actual Windows backend sends and SEC10-verified386 capture. Not universal acceptance closure.",
+  "priorInventory": "../2026-11-15-windows-conditional/remaining-acceptance.json",
+  "T-613": {
+    "status": "PENDING",
+    "newlyVerified": [
+      "Windowsx64/x86 each13 actual Builder sends: identity,short,x-gzip,repeated encoding,binary raw/gzip caps/exact cap,chunked,mid-body cancel/timeout,duplicate-ID rejection and reuse,HEAD",
+      "Own Builder gzip negotiation preserves coding envelope; full unsupported stacks have no false decode",
+      "Actual SEC10-verified386 five-case4096B-cap live capture/save/open with0drops; all five client wire bodies match direct Docker origin SHA256",
+      "Proxy forwards negotiation/wire bytes and evaluates all coding headers for requests/responses; unknown decoded/transfer sizes remain unknown",
+      "Capped binary preserves truncation/excludes partial compression; native absent-text notice corrected in EN/KO",
+      "Native13-row boundary under finalized5-row live header: selected row12/13 fully visible after sticky-header correction",
+      "Windows capture24packages perarch,guarded appx64/x86,frontend state/build,both native builds and DockerLinuxCGO race24capture packages pass"
+    ],
+    "remaining": [
+      "Original V7.6.4/client full16case exchange/native display/export equivalence",
+      "ActualHangul IME composition and drag-specific column/Builder paths remain unverified; helper rejected composition key and drag did not establish outcome",
+      "Other body/stream/format/annotation/error/language/OS-DPI combinations beyond individually pinned fixtures remain open; selected encoding/binary/cancellation/keyboard cases above are now verified.",
+      "amd64 actual runtime body-capture capability remains gated in this increment; no positive body-capture assertion or policy bypass.",
+      "Transparent/driver/service/other-session/proxy-ignoring reach requires corresponding native backend and isolated qualification",
+      "Full foreign-client/early-bound COM/session-cookie and clean-host registration lifecycle",
+      "Actual Windows disk exhaustion/power-loss/pressure recovery requires an isolated host/VM; Docker tmpfs is scoped only",
+      "Prior import-memory failures remain unresolved: tree delta/slope +147.398/+29.840MiB, +157.152/+28.051MiB, and36-cyclex64 +32.008/+5.943MiB/cycle. Fixed-protocol repeats and growth-cause diagnosis remain required; later passing windows do not erase them. No new long memory run this increment."
+    ]
+  },
+  "T-627": {
+    "status": "REVIEW",
+    "additionalNativeCondition": "KO1280x800 OS100/WebView100;13-row list with11complete rows observed and same-header selected-row11→12→13 scrolling. No70percent or full density/locale/DPI closure.",
+    "actualOS125": "Not changed/retested this increment; prior unavailability receipt preserved. OS remained100%.",
+    "remaining": "Original/reference parity and full condition/language/actual OS-DPI/density matrix; previous21-route inventory remains authoritative outside these selected cases. Six rows do not qualify ten-row dense layout."
+  },
+  "COMTestBoundary": {
+    "initial": "Concurrent architecture suites exposed shared temporary metadata cleanup race; initialamd64FAIL preserved",
+    "correction": "Named Windows test mutex around preflight/register/owned cleanup",
+    "targetedConcurrentRecheck": "3863PASS;amd643protectedSKIP for foreign Interface mapping, not a positive remoting acceptance pass",
+    "remaining": "Foreign/vendor client compatibility and clean-host registration/remoting lifecycle unchanged; no forced registry deletion"
+  },
+  "otherOpenTasks": {
+    "T-601": "Actual WinDivert/native reach and driver-policy evidence remains separate; no driver installation in this shared host.",
+    "T-611": "Original foreign-client/vendor compatibility/session-cookie and clean-host lifecycle remain separate.",
+    "T-654": "Permitted actual CUDA/NCCL distributed inference inputs, selected versions and hardware required.",
+    "T-662": "Actual naturally elevated pressure/nonzero-swap evidence on target host remains required."
+  },
+  "unchangedIndependentVerdict": "CONDITIONAL; no new independent review or universal PASS",
+  "correctedRouteInventory": "../2026-11-15-windows-remediation/remaining-acceptance.current.json",
+  "incomingRemoteCorrection": {
+    "commit": "17d22161",
+    "JFR": "3010 total/filtered events,153 sample events/stack samples,29 unique stacks; original receipts unchanged",
+    "Chart": "Profiler CSV retains original samples/ns/us/ms/s/bytes/unknown measurement unit"
+  }
+}

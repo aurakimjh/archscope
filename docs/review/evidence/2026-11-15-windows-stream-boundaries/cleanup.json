@@ -1,0 +1,18 @@
+{
+  "asOf": "2026-11-15",
+  "ownedAppsStopped": true,
+  "ownedFixtureRemoved": true,
+  "ownedRaceContainersRemoved": true,
+  "preexistingContainersPreserved": [
+    "kind-cloud-provider",
+    "kind-registry-mirror",
+    "desktop-worker2",
+    "desktop-control-plane",
+    "desktop-worker4",
+    "desktop-worker",
+    "desktop-worker3"
+  ],
+  "privateFiles": "Retained locally; not staged",
+  "systemSettings": "Unchanged; OS100%; no security/dump-policy/driver changes",
+  "COM": "Protected foreign Interface mapping preserved; no forced deletion; clean-host remoting remains open"
+}

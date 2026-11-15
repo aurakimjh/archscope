@@ -1,0 +1,318 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-11-15",
+  "latestProductCommit": "3b36b2c5",
+  "latestIntegrationCommit": "ff872ba6",
+  "finalNativeBuildStamp": "2bc1d138-plus-keyboard-visibility",
+  "taskCommits": [
+    "be128226",
+    "5971ae35",
+    "135c117b",
+    "18f31498",
+    "2bc1d138",
+    "3b36b2c5",
+    "ff872ba6"
+  ],
+  "nativeCases": 9,
+  "caseResultsIncludingPreservedBeforeFixFailures": {
+    "FAIL": 2,
+    "PASS": 7
+  },
+  "builds": [
+    {
+      "file": "archscope-keyboard-386.exe",
+      "bytes": 54321152,
+      "sha256": "94a6d270554f6499b4b26e4270b7bfdee5ff3ee1ebd9f94ab855bc58e4e13c17",
+      "PEMachine": "0x14c"
+    },
+    {
+      "file": "archscope-keyboard-amd64.exe",
+      "bytes": 56270336,
+      "sha256": "f1951bcb2684f53c6b21e4b2eb4fe4c4db6d19b32f43319f32e816fd01bd620f",
+      "PEMachine": "0x8664"
+    }
+  ],
+  "checks": {
+    "WindowsCapture": "PASS24packages each x64/x86; includes protected COM conditional skips",
+    "guardedWindowsFullAppTests": {
+      "amd64": "PASS37.891s",
+      "386": "PASS43.744s",
+      "scope": "After final Go proxy change; later frontend-only notice/keyboard changes covered by final state/build/native checks"
+    },
+    "frontend": "PASS final state regression+tsc/Vite after keyboard correction",
+    "guardedWindowsNativeBuilds": "PASS386/amd64 production,layoutaudit with POINTABI guard",
+    "dockerLinuxCGORace": "PASS24capture packages after final Go proxy change",
+    "actualBuilderMatrix": "PASS13cases perWindowsarchitecture; independent canonical readback and Docker events",
+    "actual386Proxy": "PASS actualSEC10 gate,5requests,0drops,save/open; all5wire SHA256 match direct origin",
+    "actualAmd64Body": "GATED current capability; not a positive body test",
+    "COM": "Initial concurrent cleanupFAIL preserved; named mutex added. Targeted3863PASS/amd643protectedSKIP; clean-host remains open",
+    "native": "7PASS/2preserved before-fixFAILs; notice and same-condition keyboard after checks pinned",
+    "memory": "Prior long-run receipts retain original build/workload bounded verdict; no new long-run memory claim",
+    "postNativeImmutableFiles": "PASS both architecture13-row source files and both actual5-row capture files match independent readback SHA; HEAD preserves declared999 while body0"
+  },
+  "privateLogHashes": [
+    {
+      "file": "app-386.log",
+      "bytes": 82,
+      "sha256": "559265a37f26f9d651d3b860dfee140c6ea261c03c7a78816811d81820f749cb"
+    },
+    {
+      "file": "app-amd64.log",
+      "bytes": 82,
+      "sha256": "fad55bb5bf8b961313febb53b76d02e3b7dc51df554ee46f11e9650423264d57"
+    },
+    {
+      "file": "binary-cap-386.log",
+      "bytes": 174,
+      "sha256": "442707fb5419f7aeeeef9d4926c822f2029bc28e7e7c55eb1c31c140d6d3a408"
+    },
+    {
+      "file": "binary-cap-amd64.log",
+      "bytes": 174,
+      "sha256": "5ae065daa6952148f339849f7f557eb81c174412d8ce7339b80d9158f141fb62"
+    },
+    {
+      "file": "binary-cap-before.log",
+      "bytes": 429,
+      "sha256": "26f00df03b9a80be61603bbd25bdcb3ce9ec743fc3de4a2d26f08d33d2ef0156"
+    },
+    {
+      "file": "com-concurrent-386.log",
+      "bytes": 442,
+      "sha256": "ec17b56261ea66bf76c1685d76feaa1521d9e14823c49c512ec768d255c6bacb"
+    },
+    {
+      "file": "com-concurrent-amd64.log",
+      "bytes": 802,
+      "sha256": "52a504ddbc8f6ca80f682575819323683da7c97d7617b9a3338fb091954371a2"
+    },
+    {
+      "file": "docker-capture-race.log",
+      "bytes": 2227,
+      "sha256": "9a965b0635358f2b389740dcb3ad05af76f9d9f9286350897a6784cada8bfd42"
+    },
+    {
+      "file": "encoding-386.log",
+      "bytes": 95,
+      "sha256": "b574b0ab5fd2aa9e1c4b8f43ae750bf37f698a27c7325020d38cbf70b4918bff"
+    },
+    {
+      "file": "encoding-amd64.log",
+      "bytes": 95,
+      "sha256": "0a4d0d05d75a278a41ccdb1699aa87c7611a7644cd6a8f3cda127983285dc038"
+    },
+    {
+      "file": "encoding-before.log",
+      "bytes": 1259,
+      "sha256": "e14ddc08abd0978bc625742ea586679a6f30170fae937d69097ca4a5ba0f7763"
+    },
+    {
+      "file": "final-app-386.log",
+      "bytes": 82,
+      "sha256": "4df7061b53024dee227306016addb06f14bd8c08d76915463a19ff9c945124a7"
+    },
+    {
+      "file": "final-app-amd64.log",
+      "bytes": 82,
+      "sha256": "17a6de41cb307efd86ddea1fe573d5ea63c45a087ff946862b5abe35c85e16b9"
+    },
+    {
+      "file": "final-capture-386.log",
+      "bytes": 2142,
+      "sha256": "340f88b179979e82938579666afdd964eb92bcd916c307921235d496c75ce36d"
+    },
+    {
+      "file": "final-capture-amd64.log",
+      "bytes": 2333,
+      "sha256": "5dd935b220e5e225c3123ad6cf902b71df5e85bd66a5e5edf7602b81c846605d"
+    },
+    {
+      "file": "final-docker-capture-race.log",
+      "bytes": 2227,
+      "sha256": "02e3b22392ce22650e0e8bf3aebca7fa3f929d462555eaac89866601d38791cc"
+    },
+    {
+      "file": "final-frontend-build.log",
+      "bytes": 6255,
+      "sha256": "2e5ecdeb46b30634fd49891e8841bfb8f57ef7cace7b0e36e9b0e0be129b990f"
+    },
+    {
+      "file": "final-frontend-state.log",
+      "bytes": 170,
+      "sha256": "3e6dc9263931725271709552759a92e933f7959e2b1b9c69475a3e30a57ee0ec"
+    },
+    {
+      "file": "final-native-386.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "final-native-amd64.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "final-stream-386.log",
+      "bytes": 1304,
+      "sha256": "c13e7e0e8264535e17fd2cef4a69f90673e754ab34a9538db858365d6290dce4"
+    },
+    {
+      "file": "final-stream-amd64.log",
+      "bytes": 1304,
+      "sha256": "c13e7e0e8264535e17fd2cef4a69f90673e754ab34a9538db858365d6290dce4"
+    },
+    {
+      "file": "frontend-build.log",
+      "bytes": 6255,
+      "sha256": "b5e21ae24ca14283e00c45c59cc4a8e3a4e161b01bfcd9e0164946f380f767fe"
+    },
+    {
+      "file": "frontend-state.log",
+      "bytes": 170,
+      "sha256": "3e6dc9263931725271709552759a92e933f7959e2b1b9c69475a3e30a57ee0ec"
+    },
+    {
+      "file": "keyboard-build.log",
+      "bytes": 6255,
+      "sha256": "b3019a42de311cf1703ddaeb6182ba1868d53ebf314e8c9d9463a76a3bb1cec1"
+    },
+    {
+      "file": "keyboard-native-386.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "keyboard-native-amd64.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "keyboard-state.log",
+      "bytes": 170,
+      "sha256": "3e6dc9263931725271709552759a92e933f7959e2b1b9c69475a3e30a57ee0ec"
+    },
+    {
+      "file": "native-386.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "native-amd64.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "notice-native-386.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "notice-native-amd64.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "proxy-encoding-386.log",
+      "bytes": 269,
+      "sha256": "25820de2a303087acc47618f1ad1d3dd3c1d68d4dd9c88fc2bc521dba35c01e9"
+    },
+    {
+      "file": "proxy-encoding-amd64.log",
+      "bytes": 269,
+      "sha256": "595948ec901abc15ceef1390b9f280a8aca3c177e0392744c962a0e79328c795"
+    },
+    {
+      "file": "proxy-encoding-before.log",
+      "bytes": 677,
+      "sha256": "7ba79d8179d9add90f3d386df5124cca120d23cae9053d55f89bd6370ca4a29a"
+    },
+    {
+      "file": "proxy-unknown-before.log",
+      "bytes": 640,
+      "sha256": "8417197adae7ae2700cc34cbe9f5c8542af04df2c5404b2bfa9cb3a7e55db35a"
+    },
+    {
+      "file": "rechecked-capture-386.log",
+      "bytes": 2142,
+      "sha256": "f2724f651b028d5fecebb52e3450e28a4d0d91da5571c41afa32b50a4fdbad50"
+    },
+    {
+      "file": "rechecked-capture-amd64.log",
+      "bytes": 2142,
+      "sha256": "8bf6b72a325f51b89960c44e2e320ced831b634f37c273af3eb153ff2ab6a3f0"
+    },
+    {
+      "file": "stream-386.log",
+      "bytes": 1304,
+      "sha256": "c13e7e0e8264535e17fd2cef4a69f90673e754ab34a9538db858365d6290dce4"
+    }
+  ],
+  "privateSessionHashes": [
+    {
+      "file": "stream-386.httpsession",
+      "bytes": 26384,
+      "sha256": "a3507fc56ba6a6110847e56f57cff2b09d413c1d254110a83b8a6360f83f4c52"
+    },
+    {
+      "file": "stream-amd64.httpsession",
+      "bytes": 26381,
+      "sha256": "11905dd04b0256098eaab5a789feb0d161a9f040599a2b8f978a656b9597c748"
+    },
+    {
+      "file": "live-binary.httpsession",
+      "bytes": 18400,
+      "sha256": "4332be835f0e5629ee9dd73e2c7e5f2a5c0c2656adb524bbed56180971631ffd"
+    },
+    {
+      "file": "live-binary.httpsession",
+      "bytes": 18393,
+      "sha256": "8fe3e0b8abf5ef59f94f41d0c5663ddb6128976730d49fb3c0f36ee8f3f5bf3f"
+    }
+  ],
+  "sourceHashBasis": "Final worktree bytes tested/built; evidence manifest separately hashes exact Git index blobs",
+  "sourceHashes": [
+    {
+      "file": "requestbuilder.go",
+      "bytes": 13170,
+      "sha256": "fd9e3ca4941240a4da71e991ac849ec325eeea7f17233ba4468ef615458a2953",
+      "path": "apps/engine-native/internal/capture/requestbuilder/requestbuilder.go"
+    },
+    {
+      "file": "body.go",
+      "bytes": 6235,
+      "sha256": "b3cb28c96301b82a1e3ce8416ae821c75e6b590db52df435e1ad391f37a26c2a",
+      "path": "apps/engine-native/internal/capture/proxy/body.go"
+    },
+    {
+      "file": "server.go",
+      "bytes": 28874,
+      "sha256": "84d08e9706726fb2662525b3eaa9f309eba379b8f9104da45d5ca65c42518211",
+      "path": "apps/engine-native/internal/capture/proxy/server.go"
+    },
+    {
+      "file": "remoting_windows_test.go",
+      "bytes": 8954,
+      "sha256": "e9b0022586b0b208b67f2e0d8171c0ce3230403289be4bd3bffc7daca67a7237",
+      "path": "apps/engine-native/internal/capture/comautomation/remoting_windows_test.go"
+    },
+    {
+      "file": "HttpAnalyzerView.tsx",
+      "bytes": 64378,
+      "sha256": "e8d222622e9f3583c05258feab93d09051c2d97accdcecc8503af7ce8dee3cb9",
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/components/HttpAnalyzerView.tsx"
+    },
+    {
+      "file": "httpAnalyzer.ts",
+      "bytes": 25263,
+      "sha256": "191041b31a9ce453c99e800f3bd8538663fb9598fde3ebf6c462e7a088fdc459",
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/state/httpAnalyzer.ts"
+    },
+    {
+      "file": "messages.ts",
+      "bytes": 211669,
+      "sha256": "c573eb3852a8e5f3085a277f7e6708fbe137a0bd63e52ea2236cf75950a6f994",
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/i18n/messages.ts"
+    }
+  ],
+  "cleanup": "PASS owned apps/fixture/race containers removed; seven preexisting containers preserved (cleanup.json)"
+}
