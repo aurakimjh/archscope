@@ -1,0 +1,129 @@
+{
+  "scope": "Independent finite Windows import screens; original failures unchanged; no universal leak-free claim",
+  "complete": true,
+  "runs": [
+    {
+      "name": "baseline-amd64",
+      "passed": true,
+      "classification": "BOUNDED_IN_THIS_RUN",
+      "metrics": {
+        "treePrivateBytes": {
+          "firstMedian": 913227776,
+          "lastMedian": 878997504,
+          "delta": -34230272,
+          "slopePerCycle": 652288.0,
+          "withinBudget": true
+        },
+        "rootPrivateBytes": {
+          "firstMedian": 78860288,
+          "lastMedian": 80441344,
+          "delta": 1581056,
+          "slopePerCycle": 421668.5714285714,
+          "withinBudget": true
+        },
+        "rootHandles": {
+          "firstMedian": 691,
+          "lastMedian": 691,
+          "delta": 0,
+          "slopePerCycle": 0.0,
+          "withinBudget": true
+        },
+        "rootThreads": {
+          "firstMedian": 35,
+          "lastMedian": 36,
+          "delta": 1,
+          "slopePerCycle": 0.0,
+          "withinBudget": true
+        }
+      },
+      "measuredProcessCount": 7,
+      "stableIdentities": true,
+      "elapsedSeconds": 927.5933232,
+      "binarySha256": "f8d1bd72a0308c7d56c1e1bceacc35f7214ea09ff4ebf86f34900ed8fd073b8d",
+      "sourceReportSha256": "b68f1ea22b23514e0ceb3a03573805b3e0f9edf77bcd4c6f32fda22b204ed127"
+    },
+    {
+      "name": "fixed-amd64-1",
+      "passed": true,
+      "classification": "BOUNDED_IN_THIS_RUN",
+      "metrics": {
+        "treePrivateBytes": {
+          "firstMedian": 583135232,
+          "lastMedian": 600772608,
+          "delta": 17637376,
+          "slopePerCycle": 2324070.4,
+          "withinBudget": true
+        },
+        "rootPrivateBytes": {
+          "firstMedian": 79388672,
+          "lastMedian": 90398720,
+          "delta": 11010048,
+          "slopePerCycle": 837222.4,
+          "withinBudget": true
+        },
+        "rootHandles": {
+          "firstMedian": 693,
+          "lastMedian": 695,
+          "delta": 2,
+          "slopePerCycle": 0.30952380952380953,
+          "withinBudget": true
+        },
+        "rootThreads": {
+          "firstMedian": 35,
+          "lastMedian": 36,
+          "delta": 1,
+          "slopePerCycle": 0.15476190476190477,
+          "withinBudget": true
+        }
+      },
+      "measuredProcessCount": 7,
+      "stableIdentities": true,
+      "elapsedSeconds": 932.9437372,
+      "binarySha256": "03021b99c88524d07745d950b00bf9269006292aceffb1f7a8e27f45521c4941",
+      "sourceReportSha256": "84813115a5fc71bdd0c7090b1aa0c6cf525175f5a71fc6ba8481819709165e77"
+    },
+    {
+      "name": "fixed-amd64-2",
+      "passed": true,
+      "classification": "BOUNDED_IN_THIS_RUN",
+      "metrics": {
+        "treePrivateBytes": {
+          "firstMedian": 579248128,
+          "lastMedian": 585900032,
+          "delta": 6651904,
+          "slopePerCycle": 829440.0,
+          "withinBudget": true
+        },
+        "rootPrivateBytes": {
+          "firstMedian": 83828736,
+          "lastMedian": 88428544,
+          "delta": 4599808,
+          "slopePerCycle": 519680.0,
+          "withinBudget": true
+        },
+        "rootHandles": {
+          "firstMedian": 666,
+          "lastMedian": 666,
+          "delta": 0,
+          "slopePerCycle": 0.0,
+          "withinBudget": true
+        },
+        "rootThreads": {
+          "firstMedian": 35,
+          "lastMedian": 36,
+          "delta": 1,
+          "slopePerCycle": 0.0,
+          "withinBudget": true
+        }
+      },
+      "measuredProcessCount": 7,
+      "stableIdentities": true,
+      "elapsedSeconds": 931.9157789000001,
+      "binarySha256": "03021b99c88524d07745d950b00bf9269006292aceffb1f7a8e27f45521c4941",
+      "sourceReportSha256": "c87ed434457d8b043768a833c658d4c4d7e7327981a48c45df3926bd50072606"
+    }
+  ],
+  "allPlannedRunsQualified": true,
+  "historicalLimit": "Current baseline may pass; do not relabel old failures or attribute every historical late private-byte fluctuation to duplicate data.",
+  "hostLimit": "Shared interactive Windows host; other applications/user activity are not isolated. Agent UI bookend inspection is after measured cycles."
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "baseline-import-final",
+    "result": "PASS",
+    "observed": "After108opens/36cycles native ordinary app still shows32/32 rows and selected synthetic first request /import?size=32&row=0 with canonical headers. Agent UI inspection occurred after measured cycles.",
+    "build": "30e5e078-baseline",
+    "arch": "amd64",
+    "image": "baseline-import-final.jpg",
+    "environment": "Ordinary production owned profile; layout/DPI not requalified"
+  },
+  {
+    "id": "fixed-one-import-final",
+    "result": "PASS",
+    "observed": "After108opens/36cycles ordinary production d25581d4 still renders32/32 synthetic rows and selected first request. Agent UI inspection occurred after measured cycles; memory budget result is separately calculated.",
+    "build": "d25581d4",
+    "arch": "amd64",
+    "image": "fixed-one-import-final.jpg",
+    "environment": "Ordinary production owned profile; layout/DPI not requalified"
+  },
+  {
+    "id": "fixed-one-annotation-preserved",
+    "result": "PASS",
+    "observed": "After36ordinary cycles the selected first row still has checked star and exact Hangul/English synthetic note. This is read-only inspection after measured endpoints, not an IME or edit-write acceptance claim.",
+    "build": "d25581d4",
+    "arch": "amd64",
+    "image": "fixed-one-annotation-preserved.jpg",
+    "environment": "Ordinary production owned profile; layout/DPI not requalified"
+  },
+  {
+    "id": "fixed-two-import-final",
+    "result": "PASS",
+    "observed": "After measured cycles, native UI shows32/32 transactions with first source row selected. Layout/DPI not requalified.",
+    "build": "d25581d4",
+    "arch": "amd64",
+    "image": "fixed-two-import-final.jpg",
+    "environment": "Ordinary production owned profile; layout/DPI not requalified"
+  },
+  {
+    "id": "fixed-two-annotation-preserved",
+    "result": "PASS",
+    "observed": "After measured cycles, first transaction retains checked star and exact Hangul note: 메모리 재열기 synthetic note. Agent read-only UI inspection; no annotation edit.",
+    "build": "d25581d4",
+    "arch": "amd64",
+    "image": "fixed-two-annotation-preserved.jpg",
+    "environment": "Ordinary production owned profile; layout/DPI not requalified"
+  }
+]

@@ -16,8 +16,8 @@ Other per-result tables, metadata and separate history cards remain present.
 
 The primary protocol was declared before baseline launch: ordinary production,
 36cycles,28warmup,8measured,4096→512→32 rows,3s/open+15ssmall-file idle; unchanged
-budgets and no forced GC/cache trim. Baseline and two fixed x64 runs are planned
-sequentially. Windows process metrics, source hashes and native functional checks
+budgets and no forced GC/cache trim. Baseline and two fixed x64 runs completed
+sequentially and passed. Windows process metrics, source hashes and native functional checks
 are recorded after completion. Controller/profile/raw fixtures stay private.
 
 ## Exact shared transaction snapshots
@@ -46,5 +46,49 @@ not an ordinary Windows memory screening result.
 A VITE_MEMORY_DIAGNOSTICS=1 bundle plus existing layoutaudit build can expose
 read-only entry/row/array/frozen counts to the passive observer. No payload/path,
 second owner/cache, action API or forced GC is added. The getter is verified
-absent from the normal production bundle. Diagnostic-only rapid native opens
-will verify actual WebView adoption separately from the primary ordinary runs.
+absent from the normal production bundle. Diagnostic-only108rapid native opens
+verified actual WebView adoption separately from the primary ordinary runs.
+
+
+## Completed ordinary Windows screens
+
+All three predeclared runs completed with the original36/28/8 protocol and
+unchanged budgets. Independent verifier checks every fixture hash, open count,
+selected ID, process identity, metric sum, median delta and Theil–Sen slope.
+Both fixed profiles use the identical ordinary production d25581d4 binary.
+
+| Run | Seconds | Final-window tree median MiB | Tree delta MiB | Tree slope MiB/cycle | Verdict |
+| --- | ---: | ---: | ---: | ---: | --- |
+| baseline-amd64 | 927.6 | 838.277 | -32.645 | 0.622 | PASS |
+| fixed-amd64-1 | 932.9 | 572.941 | 16.820 | 2.216 | PASS |
+| fixed-amd64-2 | 931.9 | 558.758 | 6.344 | 0.791 | PASS |
+
+Tree limits remain64MiB delta/4MiB per cycle; root16/1MiB, handle24/2 and
+thread4/0.5 budgets also pass. Each fixed screen performs108opens in ~15.5minutes.
+No forced GC, pressure injection or cache/working-set trimming is used.
+The current baseline also PASSES. Earlier10/36-cycle failures remain unchanged;
+this comparison does not demonstrate that every historical late-growth cause
+has been reproduced or eliminated. The interactive host is shared with other
+apps/user activity. No x86 native memory screen is newly qualified.
+
+After measurement, actual native UI still shows32/32 transactions/first row,
+checked star and the exact Hangul note in both fixed profiles (five paired
+screenshot/accessibility receipts). These are read-only bookends, not IME/edit
+or new DPI/layout qualification. Docker semantic comparison additionally checks
+all full retained result values and metadata across108imports, not counts alone.
+
+## Actual renderer ownership and remaining attribution
+
+Diagnostic-only WebView counters independently observe80cards,121184logical
+rows,3frozen arrays/4640unique rows after108opens. A later passive idle observation
+reports JS heap29,604,516B versus renderer OS private416,047,104B. Chromium heap
+metrics may be rounded; OS private includes other allocations. The difference
+has not been conclusively attributed to cache, fragmentation or a leak. This
+diagnostic binary/timing is excluded from ordinary memory-budget verdicts.
+
+Full guarded app tests pass x64/x86 and final ordinary79fa117c builds pass both
+architectures with the diagnostic getter absent. All owned apps and labeled
+containers are stopped; seven preexisting containers and private profiles remain.
+T-613 stays PENDING, T-627 REVIEW and independent CONDITIONAL. See
+remaining-acceptance.json for the concrete remaining acceptance gates, including
+unique/body-rich/longer memory workloads and original client/IME/driver/host limits.

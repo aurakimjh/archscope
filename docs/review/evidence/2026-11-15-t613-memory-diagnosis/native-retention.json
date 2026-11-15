@@ -1,0 +1,1761 @@
+{
+  "schemaVersion": 1,
+  "scope": "Instrumented actual Windows renderer owner/reference counts; no native memory-budget claim",
+  "forcedGC": false,
+  "passed": true,
+  "samples": [
+    {
+      "open": 1,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 1,
+      "fingerprintedHttpEntries": 1,
+      "httpEntries": 1,
+      "immutableArrays": 1,
+      "jsHeap": {
+        "total": 69555035,
+        "used": 35171179
+      },
+      "logicalRows": 4096,
+      "uniqueRetainedRows": 4096,
+      "uniqueTransactionArrays": 1
+    },
+    {
+      "open": 2,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 2,
+      "fingerprintedHttpEntries": 2,
+      "httpEntries": 2,
+      "immutableArrays": 2,
+      "jsHeap": {
+        "total": 71934128,
+        "used": 48386292
+      },
+      "logicalRows": 4608,
+      "uniqueRetainedRows": 4608,
+      "uniqueTransactionArrays": 2
+    },
+    {
+      "open": 3,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 3,
+      "fingerprintedHttpEntries": 3,
+      "httpEntries": 3,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 72352671,
+        "used": 51715995
+      },
+      "logicalRows": 4640,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 4,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 4,
+      "fingerprintedHttpEntries": 4,
+      "httpEntries": 4,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 104919435,
+        "used": 33523083
+      },
+      "logicalRows": 8736,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 5,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 5,
+      "fingerprintedHttpEntries": 5,
+      "httpEntries": 5,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 106084524,
+        "used": 42061264
+      },
+      "logicalRows": 9248,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 6,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 6,
+      "fingerprintedHttpEntries": 6,
+      "httpEntries": 6,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 106235052,
+        "used": 44807820
+      },
+      "logicalRows": 9280,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 7,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 7,
+      "fingerprintedHttpEntries": 7,
+      "httpEntries": 7,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 114786766,
+        "used": 69939578
+      },
+      "logicalRows": 13376,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 8,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 8,
+      "fingerprintedHttpEntries": 8,
+      "httpEntries": 8,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 120413146,
+        "used": 78024110
+      },
+      "logicalRows": 13888,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 9,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 9,
+      "fingerprintedHttpEntries": 9,
+      "httpEntries": 9,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 129480463,
+        "used": 68091451
+      },
+      "logicalRows": 13920,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 10,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 10,
+      "fingerprintedHttpEntries": 10,
+      "httpEntries": 10,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 107541667,
+        "used": 34631135
+      },
+      "logicalRows": 18016,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 11,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 11,
+      "fingerprintedHttpEntries": 11,
+      "httpEntries": 11,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 108714173,
+        "used": 42840921
+      },
+      "logicalRows": 18528,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 12,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 12,
+      "fingerprintedHttpEntries": 12,
+      "httpEntries": 12,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 108872516,
+        "used": 45763572
+      },
+      "logicalRows": 18560,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 13,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 13,
+      "fingerprintedHttpEntries": 13,
+      "httpEntries": 13,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 122390034,
+        "used": 70101530
+      },
+      "logicalRows": 22656,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 14,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 14,
+      "fingerprintedHttpEntries": 14,
+      "httpEntries": 14,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 125925777,
+        "used": 78180537
+      },
+      "logicalRows": 23168,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 15,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 15,
+      "fingerprintedHttpEntries": 15,
+      "httpEntries": 15,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 129494586,
+        "used": 69198950
+      },
+      "logicalRows": 23200,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 16,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 16,
+      "fingerprintedHttpEntries": 16,
+      "httpEntries": 16,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 107280043,
+        "used": 35343031
+      },
+      "logicalRows": 27296,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 17,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 17,
+      "fingerprintedHttpEntries": 17,
+      "httpEntries": 17,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 108459222,
+        "used": 43628066
+      },
+      "logicalRows": 27808,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 18,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 18,
+      "fingerprintedHttpEntries": 18,
+      "httpEntries": 18,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 108624074,
+        "used": 46244390
+      },
+      "logicalRows": 27840,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 19,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 19,
+      "fingerprintedHttpEntries": 19,
+      "httpEntries": 19,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 123000292,
+        "used": 71087008
+      },
+      "logicalRows": 31936,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 20,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 20,
+      "fingerprintedHttpEntries": 20,
+      "httpEntries": 20,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 126837242,
+        "used": 79128038
+      },
+      "logicalRows": 32448,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 21,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 21,
+      "fingerprintedHttpEntries": 21,
+      "httpEntries": 21,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 130676675,
+        "used": 69856387
+      },
+      "logicalRows": 32480,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 22,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 22,
+      "fingerprintedHttpEntries": 22,
+      "httpEntries": 22,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 139267329,
+        "used": 89506197
+      },
+      "logicalRows": 36576,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 23,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 23,
+      "fingerprintedHttpEntries": 23,
+      "httpEntries": 23,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 110268029,
+        "used": 44119805
+      },
+      "logicalRows": 37088,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 24,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 24,
+      "fingerprintedHttpEntries": 24,
+      "httpEntries": 24,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 110440730,
+        "used": 46785370
+      },
+      "logicalRows": 37120,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 25,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 25,
+      "fingerprintedHttpEntries": 25,
+      "httpEntries": 25,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 124586108,
+        "used": 70983540
+      },
+      "logicalRows": 41216,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 26,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 26,
+      "fingerprintedHttpEntries": 26,
+      "httpEntries": 26,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 125776020,
+        "used": 74484532
+      },
+      "logicalRows": 41728,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 27,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 27,
+      "fingerprintedHttpEntries": 27,
+      "httpEntries": 27,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 130188814,
+        "used": 71036114
+      },
+      "logicalRows": 41760,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 28,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 28,
+      "fingerprintedHttpEntries": 28,
+      "httpEntries": 28,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 110164890,
+        "used": 36743462
+      },
+      "logicalRows": 45856,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 29,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 29,
+      "fingerprintedHttpEntries": 29,
+      "httpEntries": 29,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 111402734,
+        "used": 45133662
+      },
+      "logicalRows": 46368,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 30,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 30,
+      "fingerprintedHttpEntries": 30,
+      "httpEntries": 30,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 111583884,
+        "used": 47941060
+      },
+      "logicalRows": 46400,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 31,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 31,
+      "fingerprintedHttpEntries": 31,
+      "httpEntries": 31,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 120209715,
+        "used": 67684987
+      },
+      "logicalRows": 50496,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 32,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 32,
+      "fingerprintedHttpEntries": 32,
+      "httpEntries": 32,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 130324724,
+        "used": 80316064
+      },
+      "logicalRows": 51008,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 33,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 33,
+      "fingerprintedHttpEntries": 33,
+      "httpEntries": 33,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 132868433,
+        "used": 71456777
+      },
+      "logicalRows": 51040,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 34,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 34,
+      "fingerprintedHttpEntries": 34,
+      "httpEntries": 34,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 115670523,
+        "used": 37447023
+      },
+      "logicalRows": 55136,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 35,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 35,
+      "fingerprintedHttpEntries": 35,
+      "httpEntries": 35,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 116873364,
+        "used": 45597764
+      },
+      "logicalRows": 55648,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 36,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 36,
+      "fingerprintedHttpEntries": 36,
+      "httpEntries": 36,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 117061690,
+        "used": 48814558
+      },
+      "logicalRows": 55680,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 37,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 37,
+      "fingerprintedHttpEntries": 37,
+      "httpEntries": 37,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 131531811,
+        "used": 72824991
+      },
+      "logicalRows": 59776,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 38,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 38,
+      "fingerprintedHttpEntries": 38,
+      "httpEntries": 38,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 132737370,
+        "used": 76373950
+      },
+      "logicalRows": 60288,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 39,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 39,
+      "fingerprintedHttpEntries": 39,
+      "httpEntries": 39,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 137650389,
+        "used": 72697361
+      },
+      "logicalRows": 60320,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 40,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 40,
+      "fingerprintedHttpEntries": 40,
+      "httpEntries": 40,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 113836050,
+        "used": 38144134
+      },
+      "logicalRows": 64416,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 41,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 41,
+      "fingerprintedHttpEntries": 41,
+      "httpEntries": 41,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 115044357,
+        "used": 41797349
+      },
+      "logicalRows": 64928,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 42,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 42,
+      "fingerprintedHttpEntries": 42,
+      "httpEntries": 42,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 115240056,
+        "used": 49498020
+      },
+      "logicalRows": 64960,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 43,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 43,
+      "fingerprintedHttpEntries": 43,
+      "httpEntries": 43,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 123906964,
+        "used": 69020340
+      },
+      "logicalRows": 69056,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 44,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 44,
+      "fingerprintedHttpEntries": 44,
+      "httpEntries": 44,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 133249234,
+        "used": 81581354
+      },
+      "logicalRows": 69568,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 45,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 45,
+      "fingerprintedHttpEntries": 45,
+      "httpEntries": 45,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 136068779,
+        "used": 72942859
+      },
+      "logicalRows": 69600,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 46,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 46,
+      "fingerprintedHttpEntries": 46,
+      "httpEntries": 46,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 117244479,
+        "used": 38288747
+      },
+      "logicalRows": 73696,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 47,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 47,
+      "fingerprintedHttpEntries": 47,
+      "httpEntries": 47,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 118460702,
+        "used": 46577930
+      },
+      "logicalRows": 74208,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 48,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 48,
+      "fingerprintedHttpEntries": 48,
+      "httpEntries": 48,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 118662722,
+        "used": 49344726
+      },
+      "logicalRows": 74240,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 49,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 49,
+      "fingerprintedHttpEntries": 49,
+      "httpEntries": 49,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 130828316,
+        "used": 74057240
+      },
+      "logicalRows": 78336,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 50,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 50,
+      "fingerprintedHttpEntries": 50,
+      "httpEntries": 50,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 138147473,
+        "used": 82222377
+      },
+      "logicalRows": 78848,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 51,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 51,
+      "fingerprintedHttpEntries": 51,
+      "httpEntries": 51,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 140713354,
+        "used": 73987478
+      },
+      "logicalRows": 78880,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 52,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 52,
+      "fingerprintedHttpEntries": 52,
+      "httpEntries": 52,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 149417712,
+        "used": 116655792
+      },
+      "logicalRows": 82976,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 53,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 53,
+      "fingerprintedHttpEntries": 53,
+      "httpEntries": 53,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 121425378,
+        "used": 47317894
+      },
+      "logicalRows": 83488,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 54,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 54,
+      "fingerprintedHttpEntries": 54,
+      "httpEntries": 54,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 121635886,
+        "used": 50258618
+      },
+      "logicalRows": 83520,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 55,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 55,
+      "fingerprintedHttpEntries": 55,
+      "httpEntries": 55,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 133835436,
+        "used": 74855032
+      },
+      "logicalRows": 87616,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 56,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 56,
+      "fingerprintedHttpEntries": 56,
+      "httpEntries": 56,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 141094682,
+        "used": 82888186
+      },
+      "logicalRows": 88128,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 57,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 57,
+      "fingerprintedHttpEntries": 57,
+      "httpEntries": 57,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 143930546,
+        "used": 74466850
+      },
+      "logicalRows": 88160,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 58,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 58,
+      "fingerprintedHttpEntries": 58,
+      "httpEntries": 58,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 152658409,
+        "used": 100403985
+      },
+      "logicalRows": 92256,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 59,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 59,
+      "fingerprintedHttpEntries": 59,
+      "httpEntries": 59,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 122066744,
+        "used": 32475036
+      },
+      "logicalRows": 92768,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 60,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 60,
+      "fingerprintedHttpEntries": 60,
+      "httpEntries": 60,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 122284461,
+        "used": 35344237
+      },
+      "logicalRows": 92800,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 61,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 61,
+      "fingerprintedHttpEntries": 61,
+      "httpEntries": 61,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 131104847,
+        "used": 59899563
+      },
+      "logicalRows": 96896,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 62,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 62,
+      "fingerprintedHttpEntries": 62,
+      "httpEntries": 62,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 132341958,
+        "used": 67972134
+      },
+      "logicalRows": 97408,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 63,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 63,
+      "fingerprintedHttpEntries": 63,
+      "httpEntries": 63,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 132648280,
+        "used": 71119212
+      },
+      "logicalRows": 97440,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 64,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 64,
+      "fingerprintedHttpEntries": 64,
+      "httpEntries": 64,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 118220634,
+        "used": 52747454
+      },
+      "logicalRows": 101536,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 65,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 65,
+      "fingerprintedHttpEntries": 65,
+      "httpEntries": 65,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 119461017,
+        "used": 60881953
+      },
+      "logicalRows": 102048,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 66,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 66,
+      "fingerprintedHttpEntries": 66,
+      "httpEntries": 66,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 119685881,
+        "used": 63766205
+      },
+      "logicalRows": 102080,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 67,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 67,
+      "fingerprintedHttpEntries": 67,
+      "httpEntries": 67,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 112789995,
+        "used": 41189543
+      },
+      "logicalRows": 106176,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 68,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 68,
+      "fingerprintedHttpEntries": 68,
+      "httpEntries": 68,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 114033399,
+        "used": 49427075
+      },
+      "logicalRows": 106688,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 69,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 69,
+      "fingerprintedHttpEntries": 69,
+      "httpEntries": 69,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 114262185,
+        "used": 52306153
+      },
+      "logicalRows": 106720,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 70,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 70,
+      "fingerprintedHttpEntries": 70,
+      "httpEntries": 70,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 123126981,
+        "used": 77322769
+      },
+      "logicalRows": 110816,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 71,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 71,
+      "fingerprintedHttpEntries": 71,
+      "httpEntries": 71,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 129713250,
+        "used": 85558010
+      },
+      "logicalRows": 111328,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 72,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 72,
+      "fingerprintedHttpEntries": 72,
+      "httpEntries": 72,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 137548784,
+        "used": 77178448
+      },
+      "logicalRows": 111360,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 73,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 73,
+      "fingerprintedHttpEntries": 73,
+      "httpEntries": 73,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 155344799,
+        "used": 103908215
+      },
+      "logicalRows": 115456,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 74,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 74,
+      "fingerprintedHttpEntries": 74,
+      "httpEntries": 74,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 156595397,
+        "used": 107551309
+      },
+      "logicalRows": 115968,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 75,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 75,
+      "fingerprintedHttpEntries": 75,
+      "httpEntries": 75,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 115286689,
+        "used": 32400497
+      },
+      "logicalRows": 116000,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 76,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 76,
+      "fingerprintedHttpEntries": 76,
+      "httpEntries": 76,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 124185464,
+        "used": 58220772
+      },
+      "logicalRows": 120096,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 77,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 77,
+      "fingerprintedHttpEntries": 77,
+      "httpEntries": 77,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 125442169,
+        "used": 66312473
+      },
+      "logicalRows": 120608,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 78,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 78,
+      "fingerprintedHttpEntries": 78,
+      "httpEntries": 78,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 125683365,
+        "used": 69309281
+      },
+      "logicalRows": 120640,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 79,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 79,
+      "fingerprintedHttpEntries": 79,
+      "httpEntries": 79,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 119974886,
+        "used": 42838898
+      },
+      "logicalRows": 124736,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 80,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 121233668,
+        "used": 51131956
+      },
+      "logicalRows": 125248,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 81,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 121478138,
+        "used": 54088034
+      },
+      "logicalRows": 121184,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 82,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 130405670,
+        "used": 79679958
+      },
+      "logicalRows": 124768,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 83,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 134291010,
+        "used": 87807214
+      },
+      "logicalRows": 125248,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 84,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 140942374,
+        "used": 79239518
+      },
+      "logicalRows": 121184,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 85,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 158162717,
+        "used": 105514361
+      },
+      "logicalRows": 124768,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 86,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 120656577,
+        "used": 30487161
+      },
+      "logicalRows": 125248,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 87,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 120908644,
+        "used": 33498120
+      },
+      "logicalRows": 121184,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 88,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 129872788,
+        "used": 59607620
+      },
+      "logicalRows": 124768,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 89,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 131145840,
+        "used": 67762572
+      },
+      "logicalRows": 125248,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 90,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 131403383,
+        "used": 70681383
+      },
+      "logicalRows": 121184,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 91,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 121181256,
+        "used": 42820616
+      },
+      "logicalRows": 124768,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 92,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 122579731,
+        "used": 51477767
+      },
+      "logicalRows": 125248,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 93,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 122841192,
+        "used": 54482568
+      },
+      "logicalRows": 121184,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 94,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 131707957,
+        "used": 74788497
+      },
+      "logicalRows": 124768,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 95,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 134825391,
+        "used": 87704763
+      },
+      "logicalRows": 125248,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 96,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 140857286,
+        "used": 79188038
+      },
+      "logicalRows": 121184,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 97,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 157992346,
+        "used": 106033190
+      },
+      "logicalRows": 124768,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 98,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 120919932,
+        "used": 30722384
+      },
+      "logicalRows": 125248,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 99,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 121322302,
+        "used": 34593686
+      },
+      "logicalRows": 121184,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 100,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 130880458,
+        "used": 77468518
+      },
+      "logicalRows": 124768,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 101,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 132572605,
+        "used": 67888929
+      },
+      "logicalRows": 125248,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 102,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 132980345,
+        "used": 70821945
+      },
+      "logicalRows": 121184,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 103,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 121444648,
+        "used": 42778516
+      },
+      "logicalRows": 124768,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 104,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 122874917,
+        "used": 51085357
+      },
+      "logicalRows": 125248,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 105,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 123290674,
+        "used": 54096702
+      },
+      "logicalRows": 121184,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 106,
+      "rows": 4096,
+      "activeRows": 4096,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 132634794,
+        "used": 78400486
+      },
+      "logicalRows": 124768,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 107,
+      "rows": 512,
+      "activeRows": 512,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 134073421,
+        "used": 86592273
+      },
+      "logicalRows": 125248,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    },
+    {
+      "open": 108,
+      "rows": 32,
+      "activeRows": 32,
+      "entries": 80,
+      "fingerprintedHttpEntries": 80,
+      "httpEntries": 80,
+      "immutableArrays": 3,
+      "jsHeap": {
+        "total": 137117980,
+        "used": 89536216
+      },
+      "logicalRows": 121184,
+      "uniqueRetainedRows": 4640,
+      "uniqueTransactionArrays": 3
+    }
+  ],
+  "build": "d25581d4-plus-retention-audit",
+  "postRunPassiveObservation": {
+    "activeRows": 32,
+    "entries": 80,
+    "fingerprintedHttpEntries": 80,
+    "httpEntries": 80,
+    "immutableArrays": 3,
+    "jsHeap": {
+      "total": 32200872,
+      "used": 29604516
+    },
+    "logicalRows": 121184,
+    "uniqueRetainedRows": 4640,
+    "uniqueTransactionArrays": 3
+  },
+  "postRunProcessPrivateByRole": {
+    "gpu": 97579008,
+    "utility": 24969216,
+    "crashpad": 4640768,
+    "app": 77475840,
+    "renderer": 416047104,
+    "browser": 47517696
+  },
+  "heapMetricLimit": "Chromium reported JS heap is separate from OS private bytes and may be rounded; no native budget verdict here.",
+  "respondingAtDiagnosticEnd": true
+}

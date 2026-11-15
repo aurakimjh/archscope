@@ -6031,3 +6031,16 @@ Opt-in Vite/layoutaudit read-only counters permit native reference attribution;
 no payload/actions/extra cache/forcedGC. Getter absent from ordinary production
 bundle. Rapid diagnostic native opens remain separate from36-cycle screens.
 Evidence:2026-11-15-t613-memory-diagnosis/semantic-equivalence.json.
+
+
+### 2026-11-15 - T-613 completed repeated-import memory qualification
+
+Predeclared ordinary x64 baseline+2fixed fresh-profile36cycle/108open runs PASS
+original unchanged budgets; independent metric/fixture/binary verification PASS.
+Tree final-window medians838.277→572.941/558.758MiB. Current baseline alsoPASS;
+historical failures retained and entire late-growth cause not claimed resolved.
+Native80card/3immutable-array attribution and full-value Docker equivalence PASS;
+five UI bookends preserve32rows/star/Hangul note. Final ordinary x64/x86 builds
+exclude diagnostics. Remaining OSprivate/JSheap gap and unique/body-rich/longer/
+x86native workloads stay open. Owned apps/containers stopped,7usercontainers kept.
+Evidence:2026-11-15-t613-memory-diagnosis/native-memory-validation.json.
