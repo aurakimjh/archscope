@@ -626,9 +626,9 @@ T-629 is DONE after independent R2 confirmed R4 remediation and allowed closure;
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
 | 1 | T-601 | P1 | `REVIEW` | Windows capture entry points and reach measurement. |
-| 2 | T-627 | P2 | `REVIEW` | Windows production native-menu entry to all 21 routes, locale switching and saved HTTP Headers/Body/reentry pass on 2026-11-12. Full populated/conditional/error, small-window and OS DPI acceptance remains. MSA initial tab/empty-state labels and raw file-dialog cancellation were fixed and natively observed on2026-11-13; the full remaining matrix is still open. |
+| 2 | T-627 | P2 | `REVIEW` | Latest2026-11-15 reviewed21-route/173case scoped native inventory, including preserved before-fix failures/partial/inconclusive cases. Final normalized386Diff, JFR/input lifecycle, report/export, labels and Settings persistence receipts checked;528artifact/34source hashes match. WREV2-01 chart CSV units and WREV2-02 JFR inventory are locally fixed/regression-verified; new native unit combinations and independent review remain separate. Full original/reference, conditional/error, actual OS-DPI/locale/density/keyboard matrix remains. |
 | 3 | T-611 | P3 | `REVIEW` | Physical retention, pre-storage admission cancellation, owned custom-IID registration, nested normalized filters and common-engine soak tooling implemented. Mac and hosted race/vet/frontend/package plus both GUI cross-builds pass; amd64-race/386 native COM, including custom-IID RPC and explicit registration replacement/cleanup, pass. Current vendor early-bound compatibility, unobserved native filter/cache-origin evidence and foreign-process in-memory session-cookie integration remain. |
-| 4 | T-613 | P3 | `PENDING` | Overall Windows parity depends on capture, automation and native acceptance gates. |
+| 4 | T-613 | P3 | `PENDING` | New scoped failure/retry, Unicode/full-field readback, x86 approved-body and finite memory receipts reviewed. Initial import growth failures and36cycle x64FAIL remain; later windows do not prove universal leak freedom. Full parity depends on T-601/T-611, original V7.6.4 equivalence, actual IME/drag/remaining body-format combinations and isolated fault tests; x64body remains genuinely gated. |
 
 ### Native Windows follow-up (2026-11-11)
 
@@ -1134,6 +1134,60 @@ filtered before analysis.
 | Collapsed profiler | 29 MB / 500k lines | 0.26s | 16 MB | 6.8 KB | Good baseline |
 
 ## Next Execution Queue
+
+### Received Windows follow-up review (2026-11-15)
+
+Reviewed ca722025..fbf2ce2c (40commits/585files): CONDITIONAL, one new P2 and
+one P3, no confirmed new P1. These are follow-ups within T-627/T-613, so numbered
+registry counts remain243DONE/3REVIEW/1PENDING/2TODO. Existing Codex-authored
+review documents remain pending a different AI; this receipt is not independent
+closure of the original CONDITIONAL. Original Windows evidence is immutable.
+
+Both findings were subsequently remediated under the user's explicit instruction.
+Current corrected inventory: [remaining-acceptance.current.json](docs/review/evidence/2026-11-15-windows-remediation/remaining-acceptance.current.json).
+The original review verdict is preserved; local fix verification is not independent
+closure. The user authorizes committing/pushing the review, fixes and tracker.
+
+| Order | Finding | Priority | Status | Action / acceptance |
+|---:|---|---|---|---|
+| 1 | WREV2-01 | P2 | LOCALLY_VERIFIED | Chart and CSV share a unit resolved from the selected profile summary; samples/ns/us/ms/s/bytes/unknown weights stay unchanged, missing/unrecognized units stay unknown. Production state regressions preserve zero/null and all sources; real Go7unit outputs fail6pre-fix cases and pass7/7on Mac and network-none/read-only Docker. Frontend build and targeted Go unit-flow checks pass. Fresh Windows native unit/renderer combinations and independent review remain separate. Receipt: docs/review/evidence/2026-11-15-windows-remediation/. |
+| 2 | WREV2-02 | P3 | LOCALLY_VERIFIED | Published a separate current inventory with original/native total3010/filtered3010/sample153/stack153/unique29 and source hashes. Original remaining-acceptance.json and528received artifact bytes stay unchanged. Source-derived checker passes8valid/tamper/acceptance-status tests including Python -O; read-only Python3.12Docker check passes. Current: docs/review/evidence/2026-11-15-windows-remediation/remaining-acceptance.current.json. |
+
+Reviewed528manifested artifacts and34final source digests match Git bytes.
+173native cases retain140PASS/22before-fixFAIL/7PARTIAL/3INCONCLUSIVE/1OBSERVED;
+these are not173final PASS. Eight memory receipts independently reproduce fixed
+budgets and same7process ordinal/role sets. Initial import amd64/386 screens and
+36cycle amd64 remain growth failures; later matched windows pass without changing
+those failures or proving universal leak freedom. Body-enabled3862470.27s/5120
+requests and eight measured idle points pass only the declared finite workload.
+Actual amd64 body remains SEC10 gated; no policy bypass. Chart8CSV/8SVG/8PNG
+public exports pass numeric/provenance, vector and PNG CRC/zlib/geometry checks;
+the profiler samples fixture does not cover WREV2-01's other units.
+
+Local macOS arm64 validation: Go27packages, race26packages, targeted vet,
+frontend state/build, helper49tests and resource checks pass. Private Windows
+stores/binaries/rawJFR were not reopened; receipt checks are not new Windows UI
+execution. Review: docs/review/2026-11-15_codex_windows-followup-review.ko.md.
+Receipts: docs/review/evidence/2026-11-15-windows-review/.
+
+Remaining work by priority/dependency:
+1. T-601(P1 REVIEW): authorized isolated Windows driver/service/other-session
+   reach; matching native backend and driver-policy evidence required.
+2. T-627(P2 REVIEW): WREV2-01 is locally fixed; verify physical-unit chart/native
+   exports on Windows, matching original/reference fixtures and remaining
+   conditional/error, actual OS-DPI/language, density/keyboard/provider combinations.
+3. T-654(P2 TODO): permitted two-NVIDIA-GPU Linux CUDA/NCCL distributed inference
+   evidence with declared versions/rank clocks; local CPU fixtures do not close it.
+4. T-611(P3 REVIEW): vendor/foreign early-bound COM, session cookies and clean-host
+   registration lifecycle. T-613(P3 PENDING) depends on those capture/automation
+   gates plus full V7.6.4 exchange/display/export equivalence. Repeat a predeclared
+   import-memory workload and diagnose the retained early/x64 growth failures;
+   late-window PASS alone is insufficient. Actual IME/drag, remaining body/format
+   conditions and x64body only with an actual permitted gate remain. Real Windows
+   disk/power-loss tests need an isolated host/VM; Docker reserve is scoped only.
+5. T-662(P3 TODO): naturally nonzero swap/elevated pressure and independent values;
+   no qualifying new sample is supplied and no forced memory pressure is authorized.
+
 
 ### Windows pull review local remediation (2026-11-14)
 
@@ -1681,6 +1735,7 @@ Long Task semantics).
 
 | Review | Decision | Follow-up |
 |---|---|---|
+| 2026-11-15 received Windows follow-up review (Codex) | CONDITIONAL, new P2 WREV2-01 profiler CSV units and P3 WREV2-02 JFR inventory counts.528artifact/34source digests,173historical native outcomes,8memory receipts and24chart files checked; local Go/race/vet/frontend/helper49 pass. Existing independent verdict and raw receipts preserved. T-613PENDING/T-627REVIEW; task counts unchanged. | docs/review/2026-11-15_codex_windows-followup-review.ko.md; both findings subsequently LOCALLY_VERIFIED at docs/review/evidence/2026-11-15-windows-remediation/; original/reference/environment gates remain in Next Execution Queue. |
 | 2026-11-12 T-633 independent implementation review (claude-code) | Verdict CONDITIONAL, no P1. Discovery is snapshot/hash based with no adjacent-file scan; sidecars bind only on exact hash+size and leave undeclared context missing; drafts stay unknown; first-row mapping preview is sample-only (12.50 -> 0.0125 seconds); manual kit is inert; real CLI conversion with Temurin 11/17/21 succeeds, SIGINT kills the converter process tree and cleans scratch, offline refuses conversion before executable access, legacy binary JFR requires explicit ARCHSCOPE_JFR_CLI; verified at 3d443d3 (102 Go packages race, vet, Windows amd64/386 cross-vet, frontend tsc/state, 88 evidence hashes). P2: R10-01 the 64 MiB conversion output cap trips on ordinary recordings (jfr print --json expands 5x-30x: a 10.5 MB 40 s profile recording yields 310 MB JSON and fails CONVERTER_OUTPUT_LIMIT in both jfr convert and legacy jfr analyze-*, while the same JSON analyzed after manual conversion succeeds) and the error text blames the JDK rather than size. P3: R10-02 provenance hard-codes tool jdk.jfr for any absolute executable (JDK 11/17 report version 1.0), R10-03 >16 KiB stderr fails a successful conversion, R10-04 output collision found only after full conversion with internal temp path leaked and ~4.4x RSS, R10-05 PARSER_DESIGN still documents PATH/JAVA_HOME discovery. Not verified: real WebView UI, Windows Job Object native execution, desktop network observation, hosted CI, real producers. Review document: docs/review/done/2026-11-12_claude-code_T-633_implementation-review.ko.md. Processed before unchanged archival. R10-01–R10-05 are now locally remediated and verified; DONE under explicit after-R10-01 permission, original CONDITIONAL retained with no final independent re-review. Evidence: docs/review/evidence/2026-11-12-t633-r10/local.json. |
 | 2026-11-12 T-632 independent implementation review (claude-code) | Verdict CONDITIONAL, no P1. Exact-manifest-byte Ed25519 verification with trust only from the registered store, closed ZIP/mapping vocabulary with exact decimals (probes: precision preserved, null/negative counter/1e-400 refused), sequential trust updates, revision-guarded atomic activation, hash/undeclared-file-rejecting offline bundle, three-importer mandatory fixtures and seven guarded app network/exec entry points verified at 34dbd8f (99 Go packages race, vet, Windows amd64/386 cross-vet, frontend tsc/state, 170 evidence hashes, real CLI packs/offline build/verify/tamper). P2: R9-01 revoking the bundled bootstrap key (a valid signed rotation, reachable from Settings and packs update-trust) makes OpenDefault fail its bundled-pack reinstall with PACK_SIGNER_UNTRUSTED, so the app evidence service and every packs CLI command (including recovery commands) fail on the next start; a revoked active-pack key also blocks all new imports. P3: R9-02 application-scope activation is not checked against existing user/case scopes (user scope later fails with PACK_ALIAS_CONFLICT), R9-03 Snapshot loads/decompresses/revalidates every active pack three times per call (93 ms for 12 MiB, ~0.25 s at the 32 MiB cap) under the manager mutex, R9-04 mapped metric names pass BiDi/control characters (same class as R8-03). Not verified: real WebView UI, Windows native Fixed Version launch/offline browser observation, desktop network observation, hosted CI, real producers. Review document: docs/review/done/2026-11-12_claude-code_T-632_implementation-review.ko.md. Processed into the ordered R9 queue below before unchanged archival. Intake was separate from T-631. R9-01–R9-04 are now locally remediated and verified; T-632 DONE under the explicit R9-01 closure condition, without changing the original CONDITIONAL or claiming final independent re-review. Evidence: docs/review/evidence/2026-11-12-t632-r9/local.json. |
 | 2026-11-11 T-631 independent implementation review (claude-code) | Verdict CONDITIONAL, no P1. Capabilities come only from compiled providers (forged imported strings grant nothing), exact values/null/zero stay text, page/column/cell bounds hold, comparison refusals carry no delta and declared identity; verified at ff06c54 (96 Go packages, vet, frontend tsc/state, Windows cross-vet pass; real CLI describe/query/compare). P2: R8-01 timeline/SLI payload validation is quadratic (referenced() re-marshals the id list per row; 2k rows 1.2 s, 8k 19 s, 16k 75 s per Capabilities call, repeated on every describe/page) — latent until a producer registers a timeline/SLI provider. P3: R8-02 every describe/page re-reads and re-scans the whole result (~0.5 s per 25-row page at 100k rows), R8-03 BiDi/control characters displayed raw, R8-04 incompatible comparison target returns an untyped error instead of a typed refusal. Processed into the ordered R8-01, R8-02, R8-04, R8-03 follow-up queue before unchanged archival. R8-01–R8-04 locally fixed/verified on 2026-11-12; DONE under this review's explicit after-R8-01-remediation permission. Original verdict CONDITIONAL; no independent re-review/PASS for final fixes. | docs/review/done/2026-11-11_claude-code_T-631_implementation-review.ko.md |
@@ -1878,7 +1933,7 @@ deferred until explicitly promoted.
 | T-624 | P1 | DONE | Prioritize profiler and GC results | T-621, T-622 | Completed Mac native detailed acceptance: deep profiler first data y=172, 71.2% visible-data union, resized frame zoom/reset and matched/empty drilldown. GC first data y=147, 72.5%, 26 full preview rows; no-clock and all seven tabs verified. Compact 32-row preview exposes total count and full 15-column Events retains explicit 50/60 top-N count. Evidence: mac-detail-T624.json. |
 | T-625 | P2 | DONE | Convert nine remaining analysis views | T-621, T-622 | Completed Mac native matrix: all nine analyzers, normal and conditional tabs, sparse/empty states, malformed input and recovery, comparison and detail drawers. Fixed async completion-before-ID race with repeated native completion and error-retry checks. Shared long-path/keyboard/resize evidence is T-622; sparse fixtures do not prove a universal 70% area ratio. Evidence: mac-detail-T625.json and mac-detail-async.json. |
 | T-626 | P2 | DONE | Convert eight workspace views and Settings | T-621, T-622 | Completed Mac eight-route/result handoff matrix, all eight chart templates, Canvas/SVG cross-format native PNG/SVG/CSV writes, Export Center HTML/PPTX/JSON/CSV/directory/cancel/error recovery and invalid Settings drafts with restored defaults. Chart Studio first data y=184 and 72.3% visible-data union at observed 1281x801; forms/sparse results excluded with reasons. Evidence: mac-detail-T626.json and mac-detail-exports.json. |
-| T-627 | P2 | REVIEW | Verify all views in native desktop windows | T-623–T-626 | Completed Mac original/current 21-route baseline and detailed functional/layout checks. Windows production native menus reached all 21 empty/form routes on 2026-11-12; locale switching, synthetic saved HTTP Headers/Body and menu reentry passed. Selected populated/conditional/error, small-window and actual OS125% cases were extended on2026-11-13/14, including MSA EN/KO, dark chart contrast, JFR/JVM, visual/report/Word/Excel/PowerPoint PNG/table/SVG, live Raw URL reconstruction and bounded HTTP failure layout. Full original-reference/conditional/error/locale/DPI and exact-area matrix remains. Evidence: docs/review/evidence/2026-11-12-windows/README.md; earlier Mac mac-detail-validation.json; latest docs/review/evidence/2026-11-14-native-followup/README.md. |
+| T-627 | P2 | REVIEW | Verify all views in native desktop windows | T-623–T-626 | Reviewed2026-11-15 incoming ca722025..fbf2ce2c:21routes/173native cases retain historical failures/partial/inconclusive states. Selected input lifecycle, canonical386Diff, real JFR, report/chart/export, names and Settings persistence receipts verified;528artifact and34source digests match. WREV2-01(P2) now locally preserves real profiler units in chart/CSV with7unit Mac/Docker regressions; WREV2-02(P3) has a separate source-bound corrected inventory3010events/153samples/29stacks. New Windows unit/renderer checks and independent review remain separate. Full original/reference, condition/error, actual OS-DPI/locale and density/keyboard/provider matrix remains. Current review: docs/review/2026-11-15_codex_windows-followup-review.ko.md; docs/review/evidence/2026-11-15-windows-review/. |
 | T-619 | P1 | DONE | Enforce the Wails 3.1.0 desktop-only product and remove unused launch templates | Existing native desktop packaging | Completed 2026-11-10: removed server hosting/mobile/preview paths, added compiler and frontend native-transport guards with CI enforcement, isolated opt-in external Electron HTTP probe without weakening full acceptance, and refreshed paired guides. Full Go/vet and frontend state/build, native macOS package/signature, Windows x86/x64 GUI builds and expected server build refusal pass; Windows runtime acceptance remains separate. |
 | T-599 | P1 | DONE | Establish the V7.6.4 Stand-alone visual and command reference | Existing baseline | Completed 2026-11-09. Official screen, V7 additions, complete manual field inventory, state behavior, shortcuts and edition exceptions recorded in paired SYSTEM_HTTP_CAPTURE references. The tour image is explicitly V4; native Windows acceptance remains T-603. |
 | T-594 | P1 | DONE | Keep capture controls, live grid and selected detail in one window | Existing baseline | Completed 2026-11-09. Live rows use the shared grid and inspector, one-ID redacted store fetch stays available during recording, and async detail ignores obsolete selections. Real local proxy/service regression and frontend build passed; browser renderer at 1280x800 showed selected headers/body while active. Native Windows integration remains T-603. |
@@ -1899,7 +1954,7 @@ deferred until explicitly promoted.
 | T-610 | P2 | DONE | Add the Stand-alone HTTP Request Builder | T-594 | Desktop Request Builder supports fresh requests, selected-row copies and a fixed drag/drop target, editable headers/raw/form/multipart files, explicit send/cancel and separate response inspection. Local raw/form/multipart/redirect/timeout/TLS/gzip fixtures, race detector, browser mouse copy/edit/send/drag with original-row preservation, Go suite/vet/build and frontend state/build pass; native Windows acceptance remains T-613. |
 | T-611 | P3 | REVIEW | Support Stand-alone automation and desktop launch switches | T-596, T-607 | Physical retention, pre-storage admission cancellation, owned custom-IID registration, nested normalized filters and common-engine soak tooling implemented. Mac and hosted race/vet/frontend/package plus both GUI cross-builds pass; amd64-race/386 native COM, including custom-IID RPC and explicit registration replacement/cleanup, pass. Current vendor early-bound compatibility, unobserved native filter/cache-origin evidence and foreign-process in-memory session-cookie integration remain. Follow-up hosted evidence: docs/review/evidence/2026-11-11-five-followups/ci.json. |
 | T-612 | P3 | DONE | Restore legacy content inspectors | T-606 | Added bounded inert AMF0/AMF3 and remoting-packet readers, ViewState v1 token trees/text, references/traits/vectors/dictionaries, form/HTML chunk extraction and explicit invalid/limited/unsupported states. Classes/converters/binary objects are never instantiated; MAC/encryption remain unverified, opaque bytes omitted and secret trees/raw ViewState sources masked. Capture/HAR/Builder/portable paths, known-byte fixtures and 15-second fuzz pass; native/reference-EXE visual interoperability remains T-613. |
-| T-613 | P3 | PENDING | Verify complete Stand-alone parity on Windows | T-601, T-602, T-603, T-604, T-605, T-606, T-607, T-608, T-609, T-610, T-611, T-612 | Fixed production x64/x86 desktop soak completes7200.507s/7200.681s,24780/24804requests,119pause cycles/11clears per arch; all482checkpoints paginated,zero drops,captured=persisted. Both save/open128rows with exact selected-ID equality and native Raw/Headers/Body plus Profiler reentry. Real Windows manifest sharing failure reproduced/fixed; historical386 FAIL retained. Latest x64/x86 builds and scoped capture/app/frontend/clipboard tests pass. Memory/tree/handle observations are scoped, not leak-free proof. Full original native/vendor/transparent-driver/service parity remains open. Evidence: docs/review/evidence/2026-11-14-desktop-soak/README.md. |
+| T-613 | P3 | PENDING | Verify complete Stand-alone parity on Windows | T-601, T-602, T-603, T-604, T-605, T-606, T-607, T-608, T-609, T-610, T-611, T-612 | Prior2hour/clear soak and six private-file readbacks retained. New Windows corrupt-store/reserve/export retry, Unicode notes, post-mask limit and redacted provenance fixes, Builder/format boundaries and actual approved386body cases reviewed. Eight memory receipts independently reproduce: capture2pass, import initial2fail/history36x64fail/history36x86pass/x64continuationpass, body3862470.27s/5120requests passes finite fixed budgets. No universal leak-free verdict; diagnose/repeat retained import-growth failures. Actual x64body remains SEC10 gated. Full originalV7.6.4/reference parity, IME/drag, body/format/locale/DPI, T-601driver/service and T-611vendor/cookie/clean-host plus isolated Windows disk/power-loss remain. Receipt: docs/review/evidence/2026-11-15-windows-review/; original raw evidence unchanged. |
 | T-589 | P1 | DONE | Restore unified GC uptime/date coordinates and valid throughput/allocation/promotion rate denominators; define observation-window rules, expose unavailable values honestly, and align absolute versus elapsed UI axes. | None; existing GC parser/analyzer and AnalysisResult envelope | Completed 2026-11-09: unified date/uptime parsing, monotonic observed-window accounting, nullable unavailable metrics with reasons, elapsed/absolute axes and EN/KO disclosure. GC parser/analyzer regressions, frontend state suite and production build passed; local source review completed (no independent or desktop E2E claim). |
 | T-590 | P1 | DONE | Preserve internal-frame self samples in the shared Canvas flamegraph so totals, widths, tooltips, and search use the original inclusive weights without double counting. | None; coordinate hidden-weight fixtures with T-591 | Completed 2026-11-09: Canvas derives self weights from inclusive nodes; shared layout/search helpers preserve prefix-stack totals and union recursive matches. Prefix, leaf, recursion, focus/search and synthetic-hidden-weight regressions plus frontend state suite/build passed; local source review completed. |
 | T-591 | P1 | DONE | Apply profiler drilldown filters to canonical evidence before display pruning; conserve/disclose omitted subtree weight while keeping every result stage within node/payload limits. | None; coordinate Canvas accounting with T-590 | Completed 2026-11-09: filters consume canonical Go-only evidence before each bounded display stage; pruning preserves explicit hidden-descendant weight without mutating later filter input. Service tests verify rare=10 at node budgets 1, 3 and 100; profiler budget/accounting tests, app tests, generated Wails bindings and frontend state/build passed; local source review completed. |
@@ -5820,3 +5875,42 @@ both native builds pass. Exact owned cleanup preserves7preexistingcontainers.
 Paired EN/KO docs,current remaining gates and exact indexed hashes updated.
 T-613PENDING/T-627REVIEW/originalCONDITIONAL unchanged; OS125 unverified here.
 Evidence:2026-11-15-windows-conditional/remaining-acceptance.json.
+
+### 2026-11-15 - Received Windows follow-up review at fbf2ce2c
+
+Reviewed40incoming commits/585files with528manifested artifact and34final source
+hashes,173native-case outcomes and8independent memory recalculations. Added
+CONDITIONAL review with P2 real-profiler CSV unit loss and P3 JFR inventory
+population wording, both reproducible. Updated the current queue, Open Work
+Snapshot, T-613/T-627 registry and review intake without changing numbered task
+states/counts or original evidence. Existing source/Windows/native acceptance
+boundaries, import-growth failures, x64body gate, T-654/T-662TODO and different-AI
+review processing remain explicit. Current-host Go27/race26/vet/frontend/helper49
+and asset checks pass. No product fix, commit or push in this review task.
+Receipt: docs/review/evidence/2026-11-15-windows-review/.
+
+### 2026-11-15 - WREV2-01/02 remediation and publication request
+
+The selected result now determines profiler chart/CSV units through one resolver;
+physical weights are not rescaled, and missing/unknown declarations are not
+sample counts. Existing non-profile template units are preserved. All7real Go
+profile-unit results pass Mac and isolated Docker verification after6pre-fix
+mismatches; state regressions include zero/null, source vectors and missing/bad
+units. Full frontend state/build and selected Go profiler/CLI/service unit-flow
+tests pass. No Go implementation changed.
+
+A separate corrected current inventory derives3010total/filtered events,
+153sample/stack events and29unique stacks from hashed original native/JDK
+receipts. Eight source-bound checker cases, including optimized Python and
+wrong-count/description/acceptance-promotion refusal, pass; DockerPython3.12-O
+check passes. Original review/evidence bytes and528received artifacts preserved.
+T-613PENDING/T-627REVIEW, all249numbered-task states/counts and T-654/T-662TODO
+remain unchanged. Fresh Windows unit UI/renderer tests and independent re-review
+are not inferred. User requests scoped commit/push of fixes, regression receipts,
+review and tracker; unrelated HTTP edits/verifier/history remain outside scope.
+Publication integration retains seven additional incoming commits through
+3f55342b and both tracker histories. Original40commit review scope is unchanged.
+Combined frontend state/build and read-only Docker checks pass; additional
+requestbuilder/summary package suites pass. Corrected route inventory links the
+separate later conditional inventory and its hash without changing its claims.
+Receipt: docs/review/evidence/2026-11-15-windows-remediation/.

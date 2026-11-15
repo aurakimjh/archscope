@@ -1,0 +1,19 @@
+{
+  "scope": "actual Go result and production CSV helper; source-selected template; no native UI rerun",
+  "sourcePath": "frontend/src/pages/ChartStudioPage.tsx",
+  "chartUnits": {
+    "reproduced": true,
+    "originalUnit": "nanoseconds",
+    "exportedUnit": "samples",
+    "value": 1000000,
+    "durationSeconds": 0.001,
+    "sourceLabelsSanitized": true,
+    "csv": "label,value,value_unit,template_id,result_type,source_files\r\nOther,1000000,samples,profiler.components,profiler_collapsed,\"[\"\"synthetic-unit-reproduction\"\"]\"\r\n"
+  },
+  "jfrInventory": {
+    "reproduced": true,
+    "originalFilteredEvents": 3010,
+    "stackSamples": 153,
+    "mislabeledFilteredEvents": 153
+  }
+}

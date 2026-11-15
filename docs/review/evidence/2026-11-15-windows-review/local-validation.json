@@ -1,0 +1,84 @@
+{
+  "reviewed_head": "fbf2ce2c04ff3f9cd5bed20c867122af35074c5c",
+  "platform": "Darwin/arm64",
+  "local_checks": [
+    {
+      "command": "go test ./internal/capture/... ./internal/profiler ./internal/exporters/pptx ./cmd/archscope-app",
+      "exit_code": 0,
+      "log_bytes": 5902,
+      "log_sha256": "21a3570f2dab844486d2fd9cef5da59b16859bcade2e0258e0a196d2c2ae9c4d"
+    },
+    {
+      "command": "go test -race ./internal/capture/... ./internal/profiler ./internal/exporters/pptx",
+      "exit_code": 0,
+      "log_bytes": 2318,
+      "log_sha256": "9b40c8d4b4f5c6766e4803e35006bb0f15b9173662a43da086076710b65f98bc"
+    },
+    {
+      "command": "go vet ./internal/capture/... ./internal/profiler ./internal/exporters/pptx ./cmd/archscope-app",
+      "exit_code": 0,
+      "log_bytes": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "npm run test:state",
+      "exit_code": 0,
+      "log_bytes": 166,
+      "log_sha256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb"
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "log_bytes": 6168,
+      "log_sha256": "e1adef1824a24883cdfa01b65a05d24e8ca2fa4b4077b5ff4ad698b9faa68a0c"
+    },
+    {
+      "command": "node --test scripts/test-desktop-memory-checks.mjs scripts/test-desktop-soak-checks.mjs",
+      "exit_code": 0,
+      "log_bytes": 4346,
+      "log_sha256": "a7e1f4ddb0c0a7f382c086d5ebca2a6a5487b5c05250c4315271cfbca2bf83ea"
+    },
+    {
+      "command": "python3 scripts/build-offline-assets.py --check",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 scripts/build-input-assistance-assets.py --check",
+      "exit_code": 0
+    }
+  ],
+  "go_packages": 27,
+  "race_packages": 26,
+  "helper_tests": 49,
+  "new_windows_ui_execution": false,
+  "private_windows_stores_reopened": false,
+  "notes": [
+    "Received committed receipts/source hashes and public process metrics were independently checked. Private raw stores, JFR and binaries are represented by received hashes/receipts.",
+    "Targeted Darwin Go link emitted existing deployment-target warnings; test exit codes were zero.",
+    "No product implementation was modified during this review."
+  ],
+  "additional_checks": [
+    {
+      "command": "python3 docs/review/evidence/2026-11-15-windows-review/audit_received.py",
+      "exit_code": 0,
+      "artifact_files": 528,
+      "source_digests": 34,
+      "memory_receipts": 8,
+      "chart_files": 24
+    },
+    {
+      "command": "node docs/review/evidence/2026-11-15-windows-review/reproduce_units.mjs <synthetic-result>",
+      "exit_code": 0,
+      "confirmed_findings": [
+        "WREV2-01",
+        "WREV2-02"
+      ]
+    },
+    {
+      "command": "tracker consistency and local review links",
+      "exit_code": 0,
+      "tasks": 249,
+      "states_changed": false
+    }
+  ]
+}

@@ -4,6 +4,10 @@
 
 ## 미처리
 
+- [Windows 후속 테스트와 변경 사항 검토](2026-11-15_codex_windows-followup-review.ko.md) — `ca722025..fbf2ce2c`, 40커밋/585파일. 수신 artifact528개·제품 소스34개, native173case 분포, 메모리8건과 차트24파일 대조. **CONDITIONAL: P2 WREV2-01(profiler CSV 실제 단위 누락), P3 WREV2-02(JFR 이벤트/스택 샘플 수 혼용)**를 작업표 우선순위 큐·현행 snapshot·registry에 반영했다. 로컬 Go27/race26/vet/frontend/helper49 및 자원 검사 통과([근거](evidence/2026-11-15-windows-review/README.md)). T-613 PENDING/T-627 REVIEW·기존 원 판정과 초기 메모리 실패를 유지하며 작성자와 다른 AI의 독립 처리 대기다.
+
+WREV2-01/02 후속: 실제 프로파일 단위를 차트와 CSV에 함께 전달하고, JFR 이벤트/샘플 수를 원 근거에서 재계산한 [현행 목록](evidence/2026-11-15-windows-remediation/remaining-acceptance.current.json)을 별도로 발행했다. Mac·격리 Docker 단위7종, 프런트엔드 state/build, 기존 Go 단위 흐름과 정정 검증8건 통과로 두 항목은 LOCALLY_VERIFIED다([수정 근거](evidence/2026-11-15-windows-remediation/README.md)). 원 리뷰·528개 수신 증거·원 판정은 보존하며 새 Windows UI 실행이나 독립 PASS로 바꾸지 않는다.
+
 - [Windows 테스트 변경 검토](2026-11-14_codex_windows-pull-review.ko.md) — `f25ab80a..ab42eeb8`, 원 판정 CONDITIONAL(P2 2건) 보존. WR-01/02 로컬 수정·회귀 및 Mac 네이티브·Docker 검증([근거](evidence/2026-11-14-p2-remediation/README.md))에 이어, 사용자 지시로 `324a8d97` Windows x64/x86 실제 live query와 schema4 각130초 종료·저장·재열기 검증 완료([Windows 근거](evidence/2026-11-14-p2-windows/README.md)). 해당130초 결과는2시간 검증을 포함하지 않으며 장시간 후속은 아래 별도 기록. 전체 수용·독립 PASS 판정은 별도이고, 독립 재검토·처리는 다른 AI 대기이며 원문은 미처리 위치에 유지.
 
 2026-11-14 수신 증거 검토: `e113eadc`까지 pull 후 해시·소스·카운터·대표 화면을 대조하고 작업표에 반영했다([검토 근거](evidence/2026-11-14-p2-windows-review/README.md)). 추가 제품 P1/P2는 확인되지 않았으며, 비교기가 star/comment를 제외하는데 전체 필드 비교로 표현한 WREV-01(P3)을 등록했다. 동일 작성자의 수신 증거 검토이므로 위 원 리뷰의 독립 재검토·처리 대기는 유지한다.

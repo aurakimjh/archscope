@@ -1,0 +1,62 @@
+{
+  "mode": "pre-fix fbf2ce2c",
+  "passed": false,
+  "cases": [
+    {
+      "expectedUnit": "samples",
+      "exportedUnit": "samples",
+      "value": 1000000,
+      "sourceCount": 1,
+      "passed": true,
+      "csvSha256": "4b3fbbb7536d7037e961e9b2b32c7f0c47108283d7f3287171594d0cd4a0426d"
+    },
+    {
+      "expectedUnit": "nanoseconds",
+      "exportedUnit": "samples",
+      "value": 1000000,
+      "sourceCount": 1,
+      "passed": false,
+      "csvSha256": "4b3fbbb7536d7037e961e9b2b32c7f0c47108283d7f3287171594d0cd4a0426d"
+    },
+    {
+      "expectedUnit": "microseconds",
+      "exportedUnit": "samples",
+      "value": 1000000,
+      "sourceCount": 1,
+      "passed": false,
+      "csvSha256": "4b3fbbb7536d7037e961e9b2b32c7f0c47108283d7f3287171594d0cd4a0426d"
+    },
+    {
+      "expectedUnit": "milliseconds",
+      "exportedUnit": "samples",
+      "value": 1000000,
+      "sourceCount": 1,
+      "passed": false,
+      "csvSha256": "4b3fbbb7536d7037e961e9b2b32c7f0c47108283d7f3287171594d0cd4a0426d"
+    },
+    {
+      "expectedUnit": "seconds",
+      "exportedUnit": "samples",
+      "value": 1000000,
+      "sourceCount": 1,
+      "passed": false,
+      "csvSha256": "4b3fbbb7536d7037e961e9b2b32c7f0c47108283d7f3287171594d0cd4a0426d"
+    },
+    {
+      "expectedUnit": "bytes",
+      "exportedUnit": "samples",
+      "value": 1000000,
+      "sourceCount": 1,
+      "passed": false,
+      "csvSha256": "4b3fbbb7536d7037e961e9b2b32c7f0c47108283d7f3287171594d0cd4a0426d"
+    },
+    {
+      "expectedUnit": "unknown",
+      "exportedUnit": "samples",
+      "value": 1000000,
+      "sourceCount": 1,
+      "passed": false,
+      "csvSha256": "4b3fbbb7536d7037e961e9b2b32c7f0c47108283d7f3287171594d0cd4a0426d"
+    }
+  ]
+}
