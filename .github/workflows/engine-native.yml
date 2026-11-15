@@ -1,6 +1,7 @@
 name: Engine Native (Go + Wails)
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - ".gitattributes"
