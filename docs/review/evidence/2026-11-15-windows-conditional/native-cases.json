@@ -54,5 +54,47 @@
     "observed": "Fixed native response preserves HTTP200,Content-Length20,application/json,gzip; Body shows20B wire-body size,decoded/transfer unknown dash and encoded-unavailable notice. No decoded text/image fabricated; transaction failure remains separate.",
     "build": "7117d654-plus-response-envelope",
     "arch": "386"
+  },
+  {
+    "id": "response-gzip-native-body",
+    "result": "PASS",
+    "observed": "Controller-opened actual backend response fixture: native /gzip shows46B body/26B decoded,gzip and decoded marker. This is saved-view validation separate from native Builder send.",
+    "build": "7117d654-plus-response-envelope",
+    "arch": "386"
+  },
+  {
+    "id": "response-encoded-native-body",
+    "result": "PASS",
+    "observed": "Native /encoded preserves21B/body encodingbr,decoded unknown dash and explicit no decoded-text claim; no preview.",
+    "build": "7117d654-plus-response-envelope",
+    "arch": "386"
+  },
+  {
+    "id": "response-short-native-body",
+    "result": "PASS",
+    "observed": "Native /short response shows declared12B,decoded retained5B and short prefix; failed row highlighted. Backend statefailed/unexpectedEOF separately verified.",
+    "build": "7117d654-plus-response-envelope",
+    "arch": "386"
+  },
+  {
+    "id": "response-large-native-body",
+    "result": "PASS",
+    "observed": "Native imported actual Builder response retains1MiB preview and explicit per-message truncation notice; independent original body1048634B and preview1048576B. Prefix builder-large-prefix visible; not full-body claim.",
+    "build": "7117d654-plus-response-envelope",
+    "arch": "386"
+  },
+  {
+    "id": "response-http503-native-body",
+    "result": "PASS",
+    "observed": "Native /error shows HTTP503 and27B decoded JSON marker; HTTP error response retained as complete exchange, distinct from short-body transport failure.",
+    "build": "7117d654-plus-response-envelope",
+    "arch": "386"
+  },
+  {
+    "id": "response-small-en-web125-keyboard",
+    "result": "PASS",
+    "observed": "1024x768actualwindow/OS100/WebView125/EN: Up moves error503→short200,Bodyselected preserved; request/response sides stack and scroll to reveal12declared/5decoded/short. Six rows only; no10-row/70percent density pass. ActualOS125 not verified.",
+    "build": "7117d654-plus-response-envelope",
+    "arch": "386"
   }
 ]

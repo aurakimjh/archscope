@@ -40,3 +40,16 @@ HTTP200/Content-Length20/type/gzip; Body reports decoded unknown and explicit
 encoded-unavailable, not a zero-byte response. Full guarded Windows app tests pass
 amd6445.369s/38646.041s. This is Builder response handling; capture backend behavior
 and raw-wire fidelity are not relabeled by this result.
+
+## Six response boundaries and small English viewport
+
+Windows386 requestbuilder sends six requests to the owned Docker fixture; the
+independent verifier checks the canonical session before native controller-open.
+This is backend-send plus native saved-file inspection, not six Builder UI sends.
+Native Body views verify gzip46/26B, unsupported br21/unknown, interrupted12/5B,
+large1048634/1048576B with cap notice, and complete HTTP50327B. Delay is2003ms in
+this sample. Readback and helper source pin the source hash and exact conditions.
+English1024x768 at OS100%/WebView125% retains six rows and stacked Body content;
+native Up moves from503 to interrupted row. No ten-row/dense-layout claim.
+Windows Settings launch and Start did not expose a targetable settings window;
+actual OS125% remains unverified. No OS scale setting was changed.

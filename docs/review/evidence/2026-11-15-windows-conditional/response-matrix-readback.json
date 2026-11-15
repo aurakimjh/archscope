@@ -1,0 +1,252 @@
+{
+  "passed": true,
+  "execution": "Actual Windows386 Go requestbuilder transport against owned Docker; not all requests sent by UI",
+  "sourceCommit": "f51e8fe3",
+  "sessionSha256": "a44103fe5dc4a2e6e5964e41ce4474fe39893b1b3bb189a280f145d4178afe45",
+  "cases": [
+    {
+      "path": "/gzip",
+      "statusCode": 200,
+      "state": "complete",
+      "totalMs": 6.491,
+      "error": null,
+      "response": {
+        "headers": [
+          {
+            "name": "Content-Length",
+            "value": "46"
+          },
+          {
+            "name": "Server",
+            "value": "BaseHTTP/0.6 Python/3.12.16"
+          },
+          {
+            "name": "Date",
+            "value": "Sun, 15 Nov 2026 02:39:51 GMT"
+          },
+          {
+            "name": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "name": "Content-Encoding",
+            "value": "gzip"
+          },
+          {
+            "name": "Cache-Control",
+            "value": "no-store"
+          }
+        ],
+        "cookies": [],
+        "headerSize": -1,
+        "bodySize": 46,
+        "bodyDecoded": 26,
+        "transferSize": -1,
+        "bodyEncoding": "gzip",
+        "contentType": "application/json",
+        "bodyStorage": "inline"
+      },
+      "retainedPreviewBytes": 26
+    },
+    {
+      "path": "/encoded",
+      "statusCode": 200,
+      "state": "complete",
+      "totalMs": 3.24,
+      "error": null,
+      "response": {
+        "headers": [
+          {
+            "name": "Date",
+            "value": "Sun, 15 Nov 2026 02:39:51 GMT"
+          },
+          {
+            "name": "Content-Type",
+            "value": "text/plain"
+          },
+          {
+            "name": "Content-Encoding",
+            "value": "br"
+          },
+          {
+            "name": "Cache-Control",
+            "value": "no-store"
+          },
+          {
+            "name": "Content-Length",
+            "value": "21"
+          },
+          {
+            "name": "Server",
+            "value": "BaseHTTP/0.6 Python/3.12.16"
+          }
+        ],
+        "cookies": [],
+        "headerSize": -1,
+        "bodySize": 21,
+        "bodyDecoded": -1,
+        "transferSize": -1,
+        "bodyEncoding": "br",
+        "contentType": "text/plain",
+        "bodyStorage": "encoded"
+      },
+      "retainedPreviewBytes": 0
+    },
+    {
+      "path": "/short",
+      "statusCode": 200,
+      "state": "failed",
+      "totalMs": 3.388,
+      "error": "unexpected EOF",
+      "response": {
+        "headers": [
+          {
+            "name": "Server",
+            "value": "BaseHTTP/0.6 Python/3.12.16"
+          },
+          {
+            "name": "Date",
+            "value": "Sun, 15 Nov 2026 02:39:51 GMT"
+          },
+          {
+            "name": "Content-Type",
+            "value": "text/plain"
+          },
+          {
+            "name": "Cache-Control",
+            "value": "no-store"
+          },
+          {
+            "name": "Content-Length",
+            "value": "12"
+          }
+        ],
+        "cookies": [],
+        "headerSize": -1,
+        "bodySize": 12,
+        "bodyDecoded": 5,
+        "transferSize": -1,
+        "contentType": "text/plain",
+        "bodyStorage": "inline"
+      },
+      "retainedPreviewBytes": 5
+    },
+    {
+      "path": "/large",
+      "statusCode": 200,
+      "state": "complete",
+      "totalMs": 14.59,
+      "error": null,
+      "response": {
+        "headers": [
+          {
+            "name": "Date",
+            "value": "Sun, 15 Nov 2026 02:39:51 GMT"
+          },
+          {
+            "name": "Content-Type",
+            "value": "text/plain"
+          },
+          {
+            "name": "Cache-Control",
+            "value": "no-store"
+          },
+          {
+            "name": "Content-Length",
+            "value": "1048634"
+          },
+          {
+            "name": "Server",
+            "value": "BaseHTTP/0.6 Python/3.12.16"
+          }
+        ],
+        "cookies": [],
+        "headerSize": -1,
+        "bodySize": 1048634,
+        "bodyDecoded": 1048576,
+        "transferSize": -1,
+        "contentType": "text/plain",
+        "bodyStorage": "truncated"
+      },
+      "retainedPreviewBytes": 1048576
+    },
+    {
+      "path": "/error",
+      "statusCode": 503,
+      "state": "complete",
+      "totalMs": 3.678,
+      "error": null,
+      "response": {
+        "headers": [
+          {
+            "name": "Server",
+            "value": "BaseHTTP/0.6 Python/3.12.16"
+          },
+          {
+            "name": "Date",
+            "value": "Sun, 15 Nov 2026 02:39:52 GMT"
+          },
+          {
+            "name": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "name": "Cache-Control",
+            "value": "no-store"
+          },
+          {
+            "name": "Content-Length",
+            "value": "27"
+          }
+        ],
+        "cookies": [],
+        "headerSize": -1,
+        "bodySize": 27,
+        "bodyDecoded": 27,
+        "transferSize": -1,
+        "contentType": "application/json",
+        "bodyStorage": "inline"
+      },
+      "retainedPreviewBytes": 27
+    },
+    {
+      "path": "/delay",
+      "statusCode": 200,
+      "state": "complete",
+      "totalMs": 2002.95,
+      "error": null,
+      "response": {
+        "headers": [
+          {
+            "name": "Date",
+            "value": "Sun, 15 Nov 2026 02:39:54 GMT"
+          },
+          {
+            "name": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "name": "Cache-Control",
+            "value": "no-store"
+          },
+          {
+            "name": "Content-Length",
+            "value": "192"
+          },
+          {
+            "name": "Server",
+            "value": "BaseHTTP/0.6 Python/3.12.16"
+          }
+        ],
+        "cookies": [],
+        "headerSize": -1,
+        "bodySize": 192,
+        "bodyDecoded": 192,
+        "transferSize": -1,
+        "contentType": "application/json",
+        "bodyStorage": "inline"
+      },
+      "retainedPreviewBytes": 181
+    }
+  ]
+}

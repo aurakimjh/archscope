@@ -5789,3 +5789,12 @@ or failed gzip, including checksum-error prefixes. Complete requestbuilder suite
 Windowsx64/x86 and native failed-gzip Body recheck pass; guarded app tests45.369s/
 46.041s pass. T-613PENDING; full capture/reference/DPI scope separate.
 Evidence:2026-11-15-windows-conditional/README.md.
+
+### 2026-11-15 - T-613 response matrix and small English viewport
+
+Six Windows386 backend sends to owned Docker are independently checked before
+native saved-file inspection: gzip,unsupported encoding,short/large,503,delay.
+Native body bytes/cap/unknown views and1024x768 EN WebView125 keyboard selection
+pass within six rows. OS remains100%; Settings unavailable to native tool,so
+actual OS125/dense10rows remain open. T-613PENDING/T-627REVIEW unchanged.
+Evidence:2026-11-15-windows-conditional/response-matrix-readback.json.
