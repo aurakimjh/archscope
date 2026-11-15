@@ -1137,25 +1137,29 @@ filtered before analysis.
 
 ### Release candidate v0.4.0-rc.1 (2026-11-15)
 
-The user explicitly authorizes this prerelease, including version/packaging/notes,
-tests, scoped commit/push, an annotated tag and GitHub deployment. This is an RC
-for declared supported paths; T-601/T-611/T-613/T-627 and T-654/T-662 keep their
-existing states and acceptance boundaries. Both EN/KO release scopes are in
-[release notes](docs/en/releases/v0.4.0-rc.1.md) / [한국어](docs/ko/releases/v0.4.0-rc.1.md).
+**PUBLISHED_AND_VERIFIED** — [GitHub prerelease](https://github.com/aurakimjh/archscope/releases/tag/v0.4.0-rc.1).
+Annotated tag `v0.4.0-rc.1` pins `9f0e5116eaef64fd5f87abb381adf90c9d99b2e5`.
+The latest stable designation remains `v0.3.5-24`. The user authorized versions,
+notes, tests, scoped commits/push, annotated tag and deployment. T-601/T-611/
+T-613/T-627/T-654/T-662 retain their existing states and acceptance boundaries.
+[English scope](docs/en/releases/v0.4.0-rc.1.md) / [한국어](docs/ko/releases/v0.4.0-rc.1.md).
 
 | Release item | State | Scope / acceptance |
 |---|---|---|
-| App/platform metadata and CHANGELOG | LOCALLY_VERIFIED | Public0.4.0-rc.1; Windows0.4.0.1; macOS0.4.0/build4001; LinuxRC; canonical manifest/version checker and cross-platform Go notices. |
-| Local regression and packaging | PASS | Full Go131packages and race131packages;4no-test packages; vet; frontend state/build; actual arm64 app/signature/version;70offline network-none operations; signed bootstrap RC eligibility. |
-| Hosted checks and packaging preflight | PENDING | Engine Native, Windows GUI Smoke, and macOSarm64/Windowsx64/Linuxx64 packaging must pass on the candidate before the tag. Manual Release publish=false builds without creating a release. |
-| Annotated tag / GitHub prerelease | AUTHORIZED_NOT_PUBLISHED | Targetv0.4.0-rc.1; publish prerelease, preserve latest stable designation; verify downloaded assets/checksums and actual package identity. |
+| App/platform metadata and CHANGELOG | VERIFIED | Public 0.4.0-rc.1; Windows 0.4.0.1; macOS 0.4.0/build 4001; Linux package 0.4.0~rc.1-1; canonical manifest/version checker and 89 dependency notices. |
+| Local regression and packaging | PASS | Full Go/race: 131 packages each, four no-test packages; vet; frontend state/build; actual arm64 app/signature/version; 70 disconnected CLI operations; signed bootstrap RC eligibility. |
+| Hosted checks and packaging preflight | PASS | Exact candidate: Engine Native nine jobs, CI, Windows GUI and COM x64/x86, three-platform packaging and assembled-archive checks. Full race step: 131 packages on each OS. |
+| Annotated tag / GitHub prerelease | PUBLISHED_AND_VERIFIED | Tag source fixed; all four publication jobs passed; 11 uploaded assets downloaded, ten SHA256SUMS entries and 11 GitHub digests verified; package versions, executable modes, CRC, DMG/app signatures and source resources verified. |
 
-The unchanged signed bootstrap range is before stable0.4.0. SemVer places this
+The unchanged signed bootstrap range is before stable 0.4.0. SemVer places this
 RC below that bound; data/adapter/extension versions remain strict numeric.
-A final0.4.0 needs a newly qualified compatible signed pack, not range bypass.
-Recent CI failed only uploading owner-only observer files; gates themselves
-passed. Upload the bounded public summary only, keeping raw outputs private.
-Local receipts: docs/review/evidence/2026-11-15-release-rc1/.
+A final 0.4.0 needs a newly qualified compatible signed pack, not range bypass.
+The earlier observer upload permission failure was fixed by uploading only the
+public summary. Preparation fixes also preserve native archive modes and read
+Windows metadata as UTF-8. macOS uses ad-hoc signing without notarization;
+Windows artifacts are not Authenticode-signed by this workflow. These checks
+do not close clean-host/native/reference/GPU/natural-pressure acceptance.
+[Publication and validation receipts](docs/review/evidence/2026-11-15-release-rc1/README.md).
 
 
 ### Received Windows follow-up review (2026-11-15)
@@ -6081,3 +6085,17 @@ Workflow checks tag identity, package resources and required assets, and has a
 nonpublishing preflight. Hosted checks/tag/release remain pending until observed;
 no native/reference/GPU/natural-pressure acceptance status is silently closed.
 Unrelated HTTP docs/verifier/history remain outside the release commit.
+
+### 2026-11-15 - v0.4.0-rc.1 published and verified
+
+All five required hosted runs passed on candidate `9f0e5116`: Engine Native,
+CI, Windows GUI x64/x86, Windows COM x64/x86 and nonpublishing packaging
+preflight. Each OS full race step passed 131 packages. Annotated tag
+`v0.4.0-rc.1` was pushed without moving an existing tag; publication run
+43714519800 passed all four jobs and created the GitHub prerelease. All 11
+published assets were downloaded; ten SHA256SUMS entries and all GitHub asset
+digests match. Native archive modes, platform versions, Mac ZIP/DMG signatures,
+Linux DEB binary parity, manuals/notes/corpus source parity and ZIP CRC passed.
+Stable Latest remains v0.3.5-24. Publication evidence is committed separately
+from the immutable release source. Existing six open task states, independent
+review dispositions and unrelated local HTTP preparation work are preserved.

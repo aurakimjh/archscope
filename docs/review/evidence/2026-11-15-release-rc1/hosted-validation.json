@@ -1,0 +1,282 @@
+{
+  "candidate": "9f0e5116eaef64fd5f87abb381adf90c9d99b2e5",
+  "runs": {
+    "preflight": {
+      "conclusion": "success",
+      "createdAt": "2026-11-15T12:04:55Z",
+      "event": "workflow_dispatch",
+      "headSha": "9f0e5116eaef64fd5f87abb381adf90c9d99b2e5",
+      "jobs": [
+        {
+          "name": "Package (darwin-arm64)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712017857/job/132805450285",
+          "startedAt": "2026-11-15T12:10:08Z",
+          "completedAt": "2026-11-15T12:11:14Z"
+        },
+        {
+          "name": "Package (linux-amd64)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712017857/job/132805450486",
+          "startedAt": "2026-11-15T12:05:11Z",
+          "completedAt": "2026-11-15T12:07:51Z"
+        },
+        {
+          "name": "Package (windows-amd64)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712017857/job/132805450512",
+          "startedAt": "2026-11-15T12:05:10Z",
+          "completedAt": "2026-11-15T12:09:06Z"
+        },
+        {
+          "name": "Verify release assets and publish",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712017857/job/132807066237",
+          "startedAt": "2026-11-15T12:11:16Z",
+          "completedAt": "2026-11-15T12:11:34Z"
+        }
+      ],
+      "status": "completed",
+      "updatedAt": "2026-11-15T12:11:35Z",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43712017857"
+    },
+    "engine": {
+      "conclusion": "success",
+      "createdAt": "2026-11-15T12:04:56Z",
+      "event": "workflow_dispatch",
+      "headSha": "9f0e5116eaef64fd5f87abb381adf90c9d99b2e5",
+      "jobs": [
+        {
+          "name": "Windows GUI cross-build (386)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712020236/job/132805458380",
+          "startedAt": "2026-11-15T12:05:13Z",
+          "completedAt": "2026-11-15T12:06:13Z"
+        },
+        {
+          "name": "Native Windows tests (386)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712020236/job/132805458554",
+          "startedAt": "2026-11-15T12:05:13Z",
+          "completedAt": "2026-11-15T12:09:12Z"
+        },
+        {
+          "name": "Go test/build (macos-15)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712020236/job/132805458570",
+          "startedAt": "2026-11-15T12:05:12Z",
+          "completedAt": "2026-11-15T12:33:26Z"
+        },
+        {
+          "name": "Wails frontend build",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712020236/job/132805458587",
+          "startedAt": "2026-11-15T12:05:22Z",
+          "completedAt": "2026-11-15T12:05:34Z"
+        },
+        {
+          "name": "Windows GUI cross-build (amd64)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712020236/job/132805458601",
+          "startedAt": "2026-11-15T12:05:16Z",
+          "completedAt": "2026-11-15T12:05:46Z"
+        },
+        {
+          "name": "Go test/build (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712020236/job/132805458602",
+          "startedAt": "2026-11-15T12:05:12Z",
+          "completedAt": "2026-11-15T12:32:05Z"
+        },
+        {
+          "name": "Linux disconnected CLI and architecture gates",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712020236/job/132805458658",
+          "startedAt": "2026-11-15T12:05:23Z",
+          "completedAt": "2026-11-15T12:07:20Z"
+        },
+        {
+          "name": "macOS offline import/package smoke",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712020236/job/132805458669",
+          "startedAt": "2026-11-15T12:05:14Z",
+          "completedAt": "2026-11-15T12:06:45Z"
+        },
+        {
+          "name": "Go test/build (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712020236/job/132805458675",
+          "startedAt": "2026-11-15T12:05:23Z",
+          "completedAt": "2026-11-15T12:30:10Z"
+        }
+      ],
+      "status": "completed",
+      "updatedAt": "2026-11-15T12:33:26Z",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43712020236"
+    },
+    "ci": {
+      "conclusion": "success",
+      "createdAt": "2026-11-15T12:04:55Z",
+      "event": "push",
+      "headSha": "9f0e5116eaef64fd5f87abb381adf90c9d99b2e5",
+      "jobs": [
+        {
+          "name": "Wails Frontend",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712017921/job/132805447564",
+          "startedAt": "2026-11-15T12:05:13Z",
+          "completedAt": "2026-11-15T12:05:32Z"
+        },
+        {
+          "name": "Go Engine Native",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712017921/job/132805447734",
+          "startedAt": "2026-11-15T12:05:13Z",
+          "completedAt": "2026-11-15T12:09:09Z"
+        }
+      ],
+      "status": "completed",
+      "updatedAt": "2026-11-15T12:09:09Z",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43712017921"
+    },
+    "windowsGui": {
+      "conclusion": "success",
+      "createdAt": "2026-11-15T12:04:58Z",
+      "event": "workflow_dispatch",
+      "headSha": "9f0e5116eaef64fd5f87abb381adf90c9d99b2e5",
+      "jobs": [
+        {
+          "name": "Build and launch Wails exe (amd64)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712022715/job/132805466375",
+          "startedAt": "2026-11-15T12:05:04Z",
+          "completedAt": "2026-11-15T12:08:40Z"
+        },
+        {
+          "name": "Build and launch Wails exe (386)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712022715/job/132805466566",
+          "startedAt": "2026-11-15T12:05:04Z",
+          "completedAt": "2026-11-15T12:08:42Z"
+        }
+      ],
+      "status": "completed",
+      "updatedAt": "2026-11-15T12:08:42Z",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43712022715"
+    },
+    "windowsCom": {
+      "conclusion": "success",
+      "createdAt": "2026-11-15T12:09:56Z",
+      "event": "workflow_dispatch",
+      "headSha": "9f0e5116eaef64fd5f87abb381adf90c9d99b2e5",
+      "jobs": [
+        {
+          "name": "Native COM (386)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712438403/job/132806737639",
+          "startedAt": "2026-11-15T12:09:59Z",
+          "completedAt": "2026-11-15T12:10:50Z"
+        },
+        {
+          "name": "Native COM (amd64)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43712438403/job/132806737787",
+          "startedAt": "2026-11-15T12:09:59Z",
+          "completedAt": "2026-11-15T12:11:16Z"
+        }
+      ],
+      "status": "completed",
+      "updatedAt": "2026-11-15T12:11:16Z",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43712438403"
+    },
+    "publication": {
+      "conclusion": "success",
+      "createdAt": "2026-11-15T12:34:12Z",
+      "event": "push",
+      "headSha": "9f0e5116eaef64fd5f87abb381adf90c9d99b2e5",
+      "jobs": [
+        {
+          "name": "Package (linux-amd64)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43714519800/job/132813038024",
+          "startedAt": "2026-11-15T12:34:14Z",
+          "completedAt": "2026-11-15T12:36:49Z"
+        },
+        {
+          "name": "Package (windows-amd64)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43714519800/job/132813038180",
+          "startedAt": "2026-11-15T12:34:14Z",
+          "completedAt": "2026-11-15T12:38:19Z"
+        },
+        {
+          "name": "Package (darwin-arm64)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43714519800/job/132813038249",
+          "startedAt": "2026-11-15T12:34:15Z",
+          "completedAt": "2026-11-15T12:35:54Z"
+        },
+        {
+          "name": "Verify release assets and publish",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/43714519800/job/132814083502",
+          "startedAt": "2026-11-15T12:38:21Z",
+          "completedAt": "2026-11-15T12:38:44Z"
+        }
+      ],
+      "status": "completed",
+      "updatedAt": "2026-11-15T12:38:45Z",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43714519800"
+    }
+  },
+  "publication": "PUBLISHED_AND_VERIFIED",
+  "supersededPreflightAttempts": [
+    {
+      "run": 43711911212,
+      "outcome": "cancelled; Windows identity step failed on default cp1252 decoding; UTF-8 fixed before tag"
+    },
+    {
+      "run": 43711955716,
+      "outcome": "cancelled and superseded"
+    },
+    {
+      "run": 43711995422,
+      "outcome": "cancelled; final attempt also verifies assembled archives"
+    }
+  ],
+  "annotatedTag": {
+    "name": "v0.4.0-rc.1",
+    "object": "2400ab73d0e722fc263f03f4e3c19ba30d86840c",
+    "commit": "9f0e5116eaef64fd5f87abb381adf90c9d99b2e5"
+  },
+  "releaseUrl": "https://github.com/aurakimjh/archscope/releases/tag/v0.4.0-rc.1",
+  "stableLatestBeforeAndAfter": "v0.3.5-24",
+  "publishedAssetCount": 11,
+  "downloadedAssetCount": 11,
+  "sha256SumsEntries": 10,
+  "githubAssetDigestsVerified": 11,
+  "remainingTaskStatesUnchanged": true
+}

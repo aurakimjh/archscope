@@ -1,0 +1,95 @@
+{
+  "sourceRef": "9f0e5116eaef64fd5f87abb381adf90c9d99b2e5",
+  "assets": [
+    {
+      "name": "RELEASE_NOTES.en.md",
+      "bytes": 5407,
+      "sha256": "87e3e38717e5c997e002288b478e9cfad80300684f43703978fd7830907d5502"
+    },
+    {
+      "name": "RELEASE_NOTES.ko.md",
+      "bytes": 5512,
+      "sha256": "14f46cd4f03463abadbef6c4209b5029a5c6a6e13724c01a61a18a1bd8e42552"
+    },
+    {
+      "name": "archscope-arm64.dmg",
+      "bytes": 20232019,
+      "sha256": "fe29f07ba58d52e59e1daed97072737000309d8491d2cd753113dd69afc1e9d4"
+    },
+    {
+      "name": "archscope-conformance-v1.zip",
+      "bytes": 1427038,
+      "sha256": "085f3148071af6be5048dbace5b7393f5076d0fc7bdb899b67cb74d5b97e3272"
+    },
+    {
+      "name": "archscope-darwin-arm64.zip",
+      "bytes": 18572406,
+      "sha256": "8a59af0894f9300843e92a17d2ac59b057257c4f42350dd0a6b5b19633419094"
+    },
+    {
+      "name": "archscope-docs.zip",
+      "bytes": 862321,
+      "sha256": "c74c8d7c7bbaa6ecf8d5119568aefaa6f007cb618d8a6f6b87d1c1f3f13f0dfd"
+    },
+    {
+      "name": "archscope-linux-amd64.tar.gz",
+      "bytes": 17552130,
+      "sha256": "c9f84fad7d20be676a0ac37dfe461ea9822a1da4e6a98cffd16242a6a25398cd"
+    },
+    {
+      "name": "archscope-windows-amd64.zip",
+      "bytes": 37413911,
+      "sha256": "26f1d85ac4a4b8c2aa48b25758ec6d483344da41093bd9b8a4a13fbc49a328aa"
+    },
+    {
+      "name": "archscope.deb",
+      "bytes": 17918216,
+      "sha256": "9ebc743530af7e0ecc40f217596357805354972256918509a792e984f89ca75b"
+    },
+    {
+      "name": "archscope.rpm",
+      "bytes": 18452358,
+      "sha256": "b35199456d30885f956ff50d49ac47e21782ad6f98909d72b6bce7137b2f739b"
+    }
+  ],
+  "checks": {
+    "sha256": "PASS",
+    "zipCRC": "PASS",
+    "macos": {
+      "arch": "arm64",
+      "shortVersion": "0.4.0",
+      "build": "4001",
+      "executableMode": "0o755",
+      "binarySha256": "e54c601215164935ace46628b621c698241e3e7fdcb6da12b9439b6c9c6f9813"
+    },
+    "windows": [
+      {
+        "name": "archscope.exe",
+        "machine": "0x8664",
+        "numericVersion": "0.4.0.1",
+        "publicVersion": "0.4.0-rc.1"
+      },
+      {
+        "name": "archscope-amd64-installer.exe",
+        "machine": "0x14c",
+        "numericVersion": "0.4.0.1",
+        "publicVersion": "0.4.0-rc.1"
+      }
+    ],
+    "linux": {
+      "arch": "x86_64",
+      "executableMode": "0o755",
+      "binarySha256": "25bc2951e1c3575d5b02751ee4164aac3e28623f233f016f12c0661e55f9de38"
+    },
+    "deb": {
+      "version": "0.4.0~rc.1-1",
+      "arch": "amd64",
+      "binaryMatchesTar": true
+    },
+    "rpm": {
+      "version": "0.4.0~rc.1-1",
+      "arch": "x86_64"
+    },
+    "manualsNotesAndCorpusMatchSource": "PASS"
+  }
+}

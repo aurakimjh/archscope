@@ -1,0 +1,102 @@
+{
+  "sourceRef": "v0.4.0-rc.1",
+  "assets": [
+    {
+      "name": "RELEASE_NOTES.en.md",
+      "bytes": 5407,
+      "sha256": "87e3e38717e5c997e002288b478e9cfad80300684f43703978fd7830907d5502"
+    },
+    {
+      "name": "RELEASE_NOTES.ko.md",
+      "bytes": 5512,
+      "sha256": "14f46cd4f03463abadbef6c4209b5029a5c6a6e13724c01a61a18a1bd8e42552"
+    },
+    {
+      "name": "archscope-arm64.dmg",
+      "bytes": 20231994,
+      "sha256": "ed88b5d137237c3e4c9b2e743d2b891a0558eec7aba942220bd9119f03b91f95"
+    },
+    {
+      "name": "archscope-conformance-v1.zip",
+      "bytes": 1427038,
+      "sha256": "085f3148071af6be5048dbace5b7393f5076d0fc7bdb899b67cb74d5b97e3272"
+    },
+    {
+      "name": "archscope-darwin-arm64.zip",
+      "bytes": 18572406,
+      "sha256": "850f78bd512e90479f4c6958f3cab0ec5ef05b8f181b4fa3b43a195f21bc785e"
+    },
+    {
+      "name": "archscope-docs.zip",
+      "bytes": 862321,
+      "sha256": "c74c8d7c7bbaa6ecf8d5119568aefaa6f007cb618d8a6f6b87d1c1f3f13f0dfd"
+    },
+    {
+      "name": "archscope-linux-amd64.tar.gz",
+      "bytes": 17552130,
+      "sha256": "7c86e5c956ec476c1a84e260d2717f66c0a972930f088f273c23d4912ffc0580"
+    },
+    {
+      "name": "archscope-windows-amd64.zip",
+      "bytes": 37413918,
+      "sha256": "17aa40f600da7b9c24f96cff3ab27b16ff87987f824d848a8aeeb71ebb2064c6"
+    },
+    {
+      "name": "archscope.deb",
+      "bytes": 17918214,
+      "sha256": "df49973ea8c3f83de07bf76290b9e4af4079aba7529be61d664a0b44bbeb51d5"
+    },
+    {
+      "name": "archscope.rpm",
+      "bytes": 18452358,
+      "sha256": "becea58d076cd434d6c0d1b56d94873e1e7f92ab2d451c305b6310323f0433ac"
+    }
+  ],
+  "checks": {
+    "sha256": "PASS",
+    "zipCRC": "PASS",
+    "macos": {
+      "arch": "arm64",
+      "shortVersion": "0.4.0",
+      "build": "4001",
+      "executableMode": "0o755",
+      "binarySha256": "e54c601215164935ace46628b621c698241e3e7fdcb6da12b9439b6c9c6f9813",
+      "deepStrictSignature": "PASS",
+      "signatureType": "ad-hoc",
+      "notarized": false,
+      "dmgChecksum": "PASS",
+      "dmgBundleSignatureAndVersion": "PASS",
+      "dmgBinaryMatchesZip": true
+    },
+    "windows": [
+      {
+        "name": "archscope.exe",
+        "machine": "0x8664",
+        "numericVersion": "0.4.0.1",
+        "publicVersion": "0.4.0-rc.1"
+      },
+      {
+        "name": "archscope-amd64-installer.exe",
+        "machine": "0x14c",
+        "numericVersion": "0.4.0.1",
+        "publicVersion": "0.4.0-rc.1"
+      }
+    ],
+    "linux": {
+      "arch": "x86_64",
+      "executableMode": "0o755",
+      "binarySha256": "25bc2951e1c3575d5b02751ee4164aac3e28623f233f016f12c0661e55f9de38"
+    },
+    "deb": {
+      "version": "0.4.0~rc.1-1",
+      "arch": "amd64",
+      "binaryMatchesTar": true
+    },
+    "rpm": {
+      "version": "0.4.0~rc.1-1",
+      "arch": "x86_64"
+    },
+    "manualsNotesAndCorpusMatchSource": "PASS",
+    "githubAssetDigests": "PASS all 11"
+  }
+}

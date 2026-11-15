@@ -1,0 +1,32 @@
+[
+  {
+    "job": "Go test/build (macos-15)",
+    "jobUrl": "https://github.com/aurakimjh/archscope/actions/runs/43712020236/job/132805458570",
+    "conclusion": "success",
+    "logBytes": 47968,
+    "logSha256": "061d2e7da02183e58371dc2dfb5a11c1f89353e9a3d1ab7c33ec63024e748de6",
+    "raceCommand": "go test ./... -race -count=1 -p 2 -timeout 20m",
+    "racePackagePassLines": 131,
+    "allJobGoPackagePassLines": 131
+  },
+  {
+    "job": "Go test/build (windows-latest)",
+    "jobUrl": "https://github.com/aurakimjh/archscope/actions/runs/43712020236/job/132805458602",
+    "conclusion": "success",
+    "logBytes": 52481,
+    "logSha256": "e303a36f8d882b11e1e9eecf034a4650f86d0db9269263c7fc308d0f00af82b6",
+    "raceCommand": "go test ./... -race -count=1 -p 2 -timeout 20m",
+    "racePackagePassLines": 131,
+    "allJobGoPackagePassLines": 135
+  },
+  {
+    "job": "Go test/build (ubuntu-latest)",
+    "jobUrl": "https://github.com/aurakimjh/archscope/actions/runs/43712020236/job/132805458675",
+    "conclusion": "success",
+    "logBytes": 148864,
+    "logSha256": "7bc500fa56f411d7d3b82273e83135f6e5954ef98bab8ad0ee19b7d2ed2f64e3",
+    "raceCommand": "go test ./... -race -count=1 -p 2 -timeout 20m",
+    "racePackagePassLines": 131,
+    "allJobGoPackagePassLines": 131
+  }
+]
