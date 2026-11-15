@@ -260,7 +260,7 @@ func TestObservedUnencodedBodySizeDoesNotUseDeclaredLength(t *testing.T) {
 		{"/short", "GET", 5, 5, models.TxFailed},
 		{"/chunked", "GET", 5, 5, models.TxComplete},
 		{"/head", "HEAD", 0, 0, models.TxComplete},
-		{"/auto-gzip", "GET", -1, 13, models.TxComplete},
+		{"/auto-gzip", "GET", 37, 13, models.TxComplete},
 	} {
 		tx, err := NewClient().Send(Request{ID: test.path, Method: test.method, URL: origin.URL + test.path})
 		if err != nil {
@@ -278,6 +278,60 @@ func TestObservedUnencodedBodySizeDoesNotUseDeclaredLength(t *testing.T) {
 			}
 			if !found {
 				t.Error("original declared Content-Length must remain independently inspectable")
+			}
+		}
+	}
+}
+
+func TestContentEncodingIdentityAndRepeatedHeaderBoundaries(t *testing.T) {
+	var packed bytes.Buffer
+	g := gzip.NewWriter(&packed)
+	io.WriteString(g, "encoding-proof")
+	g.Close()
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		switch r.URL.Path {
+		case "/identity":
+			w.Header().Set("Content-Encoding", "identity")
+			io.WriteString(w, "encoding-proof")
+		case "/identity-short":
+			w.Header().Set("Content-Encoding", "IdEnTiTy")
+			w.Header().Set("Content-Length", "20")
+			io.WriteString(w, "short")
+		case "/alias":
+			w.Header().Set("Content-Encoding", "x-gzip")
+			w.Write(packed.Bytes())
+		case "/multiple":
+			w.Header().Add("Content-Encoding", "gzip")
+			w.Header().Add("Content-Encoding", "br")
+			w.Write(packed.Bytes())
+		}
+	}))
+	defer origin.Close()
+	for _, test := range []struct {
+		path, storage, preview string
+		decoded, size          int64
+		state                  models.TxState
+	}{
+		{"/identity", "inline", "encoding-proof", 14, 14, models.TxComplete},
+		{"/identity-short", "inline", "short", 5, 5, models.TxFailed},
+		{"/alias", "inline", "encoding-proof", 14, int64(packed.Len()), models.TxComplete},
+		{"/multiple", "encoded", "", -1, int64(packed.Len()), models.TxComplete},
+	} {
+		for _, explicit := range []bool{false, true} {
+			var headers []models.HeaderField
+			if explicit {
+				headers = []models.HeaderField{{Name: "Accept-Encoding", Value: "gzip"}}
+			}
+			tx, err := NewClient().Send(Request{ID: test.path, URL: origin.URL + test.path, Headers: headers})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if tx.State != test.state || tx.Response.BodyStorage != test.storage || tx.Response.BodyPreview != test.preview || tx.Response.BodyDecoded != test.decoded || tx.Response.BodySize != test.size {
+				t.Errorf("%s: state=%s storage=%s decoded=%d size=%d preview=%q", test.path, tx.State, tx.Response.BodyStorage, tx.Response.BodyDecoded, tx.Response.BodySize, tx.Response.BodyPreview)
+			}
+			if test.path == "/multiple" && (tx.Response.BodyEncoding != "gzip, br" || tx.Response.ImagePreview != nil || tx.Response.LegacyPreview != nil) {
+				t.Errorf("must preserve the whole unsupported encoding stack: %+v", tx.Response)
 			}
 		}
 	}

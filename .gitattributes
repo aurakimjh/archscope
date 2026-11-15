@@ -155,3 +155,6 @@ docs/review/evidence/2026-11-14-windows-final/*.txt -text whitespace=-blank-at-e
 docs/review/evidence/2026-11-14-windows-final/chart-exports/** -text whitespace=cr-at-eol
 docs/review/evidence/2026-11-15-windows-conditional/** -text whitespace=cr-at-eol
 docs/review/evidence/2026-11-15-windows-conditional/*.txt -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+
+docs/review/evidence/2026-11-15-windows-stream-boundaries/** -text whitespace=cr-at-eol
+docs/review/evidence/2026-11-15-windows-stream-boundaries/*.txt -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol

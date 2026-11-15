@@ -130,6 +130,11 @@ func execute(ctx context.Context, input Request) (models.CaptureTransaction, err
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)
 	}
+	// Negotiate the same default gzip as net/http, but retain the response
+	// envelope before decoding so repeated coding headers cannot be hidden.
+	if req.Header.Get("Accept-Encoding") == "" && req.Header.Get("Range") == "" && req.Method != "HEAD" {
+		req.Header.Set("Accept-Encoding", "gzip")
+	}
 	token := make([]byte, 12)
 	if _, err = rand.Read(token); err != nil {
 		return models.CaptureTransaction{}, err
@@ -142,7 +147,7 @@ func execute(ctx context.Context, input Request) (models.CaptureTransaction, err
 		tx.Request.Headers = append(tx.Request.Headers, models.HeaderField{Name: "Host", Value: req.Host})
 	}
 	// Independent transport: no automatic cookies, redirects, or insecure TLS.
-	transport := &http.Transport{Proxy: http.ProxyFromEnvironment, MaxResponseHeaderBytes: 1 << 20, TLSHandshakeTimeout: 10 * time.Second, ResponseHeaderTimeout: 0}
+	transport := &http.Transport{DisableCompression: true, Proxy: http.ProxyFromEnvironment, MaxResponseHeaderBytes: 1 << 20, TLSHandshakeTimeout: 10 * time.Second, ResponseHeaderTimeout: 0}
 	defer transport.CloseIdleConnections()
 	client := &http.Client{Transport: transport, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 	response, sendErr := client.Do(req)
@@ -156,14 +161,16 @@ func execute(ctx context.Context, input Request) (models.CaptureTransaction, err
 		tx.StatusText = http.StatusText(response.StatusCode)
 		tx.RedirectURL = response.Header.Get("Location")
 		var reader io.Reader = response.Body
-		encoding := response.Header.Get("Content-Encoding")
+		encoding := strings.Join(response.Header.Values("Content-Encoding"), ", ")
+		encodingKey := strings.ToLower(strings.TrimSpace(encoding))
+		identity := encodingKey == "" || encodingKey == "identity"
+		gzipEncoded := encodingKey == "gzip" || encodingKey == "x-gzip"
 		// The HTTP envelope remains evidence even when decoding fails before
 		// any preview can be read. Unknown decoded size must not become zero.
 		tx.Response = encodedMessage(response.Header, response.ContentLength, encoding)
-		// Go automatically decodes its own negotiated gzip. Explicit gzip also gets
-		// a bounded decoded preview; unsupported encodings remain unavailable.
+		// Decode only a supported single coding; preserve unsupported stacks.
 		var gz *gzip.Reader
-		if strings.EqualFold(encoding, "gzip") {
+		if gzipEncoded {
 			gz, err = gzip.NewReader(response.Body)
 			if err == nil {
 				defer gz.Close()
@@ -179,10 +186,10 @@ func execute(ctx context.Context, input Request) (models.CaptureTransaction, err
 			if truncated {
 				preview = preview[:MaxResponseBytes]
 			}
-			if encoding != "" && !strings.EqualFold(encoding, "gzip") {
+			if !identity && !gzipEncoded {
 				// Never run image/legacy decoders on unsupported encoded bytes.
 				tx.Response = encodedMessage(response.Header, response.ContentLength, encoding)
-			} else if readErr != nil && (strings.EqualFold(encoding, "gzip") || response.Uncompressed) {
+			} else if readErr != nil && (gzipEncoded || response.Uncompressed) {
 				// A failed gzip stream is not a verified decoded payload, even
 				// if its reader returned a prefix before the checksum failure.
 				tx.Response = encodedMessage(response.Header, response.ContentLength, "gzip")
@@ -193,7 +200,7 @@ func execute(ctx context.Context, input Request) (models.CaptureTransaction, err
 				// Without decoding or a preview cap, these are the bytes actually
 				// read, including a short failed response, chunked body or HEAD.
 				// Automatic gzip has already hidden the wire size: keep unknown.
-				if encoding == "" && !response.Uncompressed && !truncated {
+				if identity && !response.Uncompressed && !truncated {
 					tx.Response.BodySize = int64(len(preview))
 				}
 			}

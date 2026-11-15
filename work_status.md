@@ -5820,3 +5820,12 @@ both native builds pass. Exact owned cleanup preserves7preexistingcontainers.
 Paired EN/KO docs,current remaining gates and exact indexed hashes updated.
 T-613PENDING/T-627REVIEW/originalCONDITIONAL unchanged; OS125 unverified here.
 Evidence:2026-11-15-windows-conditional/remaining-acceptance.json.
+
+### 2026-11-15 - T-613 identity and repeated Content-Encoding
+
+Failing regressions expose unreadable identity/x-gzip and falsely decoded repeated
+gzip+br. Interpret full coding stack, support identity/alias, preserve unsupported
+unknown. Own default gzip negotiation prevents Go hiding response coding headers;
+HEAD/Range excluded. Default gzip known wire length retained. Full requestbuilder
+suites x64/x86 pass2.557s/2.592s. Prior unknown-wire receipts remain historical.
+Evidence:2026-11-15-windows-stream-boundaries/README.md.
