@@ -5857,3 +5857,11 @@ on the locked OS thread. Concurrent3repeats:3863PASS,amd643protectedSKIP for for
 Interface registration; no forced cleanup or clean-host acceptance claim.
 Production COM registration unchanged. Initial failure retained separately.
 Evidence:2026-11-15-windows-stream-boundaries/README.md.
+
+### 2026-11-15 - T-613 truncated binary readable-text notice
+
+Native actual-capture4096B cap/1052B wire has no text, but old notice claimed a
+prefix shown below. Dedicated EN/KO no-readable-preview notice corrects this;
+text prefixes keep their ordinary truncation notice. State/build and native
+actual SEC10 capture/save-open recheck pass. Before/after native receipts pinned.
+Evidence:2026-11-15-windows-stream-boundaries/live-binary-no-text-notice-fixed.jpg.

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "live-binary-no-text-notice-before",
+    "result": "FAIL",
+    "observed": "Actual SEC10-verified binary gzip cap4096 has no text preview, but generic truncated notice incorrectly says shown content is leading body bytes. Byte/storage fields correct; notice requires explicit no readable text.",
+    "build": "135c117b",
+    "arch": "386",
+    "environment": "KO1280x800 OS100/WebView100"
+  },
+  {
+    "id": "live-binary-no-text-notice-fixed",
+    "result": "PASS",
+    "observed": "Actual SEC10-verified5-row capture saved/reopened: gzip binary1052wire bytes,4096decoded cap, no readable preview. Final KO notice explicitly states no readable text, preserving truncation and full observed transfer count.",
+    "build": "18f31498-plus-binary-notice",
+    "arch": "386",
+    "environment": "KO1280x800 OS100/WebView100"
+  }
+]

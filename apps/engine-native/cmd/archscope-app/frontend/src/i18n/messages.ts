@@ -1682,6 +1682,7 @@ export const messages = {
     httpAnalyzerBodyInline: "Body captured in full.",
     httpAnalyzerBodyTruncated:
       "Body truncated at the per-message capture limit; the bytes below are its start.",
+    httpAnalyzerBodyTruncatedUnavailable: "Body exceeded the capture limit; no readable text preview is available.",
     httpAnalyzerBodyEncoded:
       "Bytes were seen but the Content-Encoding is one this tier does not decode, so no text is claimed.",
     httpAnalyzerBodyBinary: "Original binary bytes are not retained. A structured inspector may be available.",
@@ -3565,6 +3566,7 @@ export const messages = {
     httpAnalyzerBodyInline: "본문이 전부 캡처되었습니다.",
     httpAnalyzerBodyTruncated:
       "메시지당 캡처 상한에서 잘렸습니다. 아래 내용은 본문의 앞부분입니다.",
+    httpAnalyzerBodyTruncatedUnavailable: "본문이 캡처 상한에서 잘렸으며 읽을 수 있는 텍스트 미리보기는 없습니다.",
     httpAnalyzerBodyEncoded:
       "바이트는 관측했지만 이 tier가 해제하지 못하는 Content-Encoding이라 텍스트를 주장하지 않습니다.",
     httpAnalyzerBodyBinary: "원본 바이너리 바이트는 보존하지 않습니다. 구조화 뷰어가 제공될 수 있습니다.",

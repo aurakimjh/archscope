@@ -258,6 +258,7 @@ export function bodyUnavailableKey(
   if (storage === "inline" && (message?.bodySize ?? 0) === 0) {
     return "httpAnalyzerBodyEmpty";
   }
+  if (storage === "truncated") return "httpAnalyzerBodyTruncatedUnavailable";
   return BODY_STORAGE_LABEL_KEYS[storage];
 }
 

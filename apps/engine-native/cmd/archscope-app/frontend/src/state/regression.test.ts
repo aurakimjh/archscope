@@ -3654,3 +3654,5 @@ const compressionBoundaryRows = [
 const compressionBoundary = summarizeHttpRows(compressionBoundaryRows);
 assert(compressionBoundary.compressionKnown===2&&compressionBoundary.compressionSaved===-20,"partial reads and preview caps must not invent compression overhead; complete HTTP503 and real gzip overhead remain eligible");
 assert(compressionBoundary.received.bytes===1048940&&compressionBoundary.decoded.bytes===1048667&&compressionBoundary.received.unknown===1&&compressionBoundary.decoded.unknown===1,"compression eligibility must retain independently observed byte totals");
+
+assert(bodyUnavailableKey({...analyzerRows[2]!.response,bodyStorage:"truncated",bodyPreview:""})==="httpAnalyzerBodyTruncatedUnavailable","capped binary without retained text must not claim that a body prefix is shown below");

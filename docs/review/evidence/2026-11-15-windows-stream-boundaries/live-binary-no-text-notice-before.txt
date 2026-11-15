@@ -1,0 +1,384 @@
+Window: "ArchScope Layout QA", App: archscope-stream-final-386.exe.
+	0 window (창) ArchScope Layout QA Secondary Actions: Raise
+		16 pane (창) ArchScope
+			17 pane (창) (disabled)
+			18 pane (영역) ArchScope - 웹 콘텐츠
+				19 pane (영역)
+					20 pane (영역)
+					21 pane (영역)
+						22 pane (영역)
+							23 pane (영역)
+							24 pane (영역)
+								25 pane (영역)
+									26 pane (영역)
+										27 pane (영역)
+											28 pane (영역)
+											29 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												30 group (그룹) ID: root
+													31 group (머리글)
+														32 text (텍스트) HTTP 캡처
+													33 group (기본)
+														34 group (세부정보)
+															35 button (펼치기/접기 삼각형) 파일·요청 작성
+																36 text (텍스트) 파일·요청 작성
+														37 group (세부정보)
+															38 button (펼치기/접기 삼각형) 캡처 설정
+																39 text (텍스트) 캡처 설정
+														40 button (단추) (disabled) 캡처 시작
+														41 button (단추) (disabled) 캡처 중지
+														42 button (단추) 자동 추적 중
+														43 button (단추) (disabled) 일시정지
+														44 button (단추) 비우기
+														119 button (단추) 종료 세션 분석 불러오기
+														120 text (텍스트) proxy://
+														121 text (텍스트) 127.0.0.1:10764
+														104 status bar (상태)
+															105 text (텍스트) 종료됨
+															106 text (텍스트) 캡처
+															107 text (텍스트) :
+															108 text (텍스트) 5
+															109 text (텍스트) 저장
+															110 text (텍스트) :
+															111 text (텍스트) 5
+															122 text (텍스트) 현재 보관
+															123 text (텍스트) :
+															124 text (텍스트) 5
+															125 text (텍스트) ·
+															126 text (텍스트) 순환 제외
+															127 text (텍스트) :
+															128 text (텍스트) 0
+															129 text (텍스트) 선택한 프로세스
+															130 text (텍스트) :
+															131 text (텍스트) 1
+															112 group (세부정보)
+																113 button (펼치기/접기 삼각형) 세션 요약 및 근거
+																	114 text (텍스트) 세션 요약 및 근거
+														132 group (지역) 트랜잭션
+															133 group (세부정보)
+																134 button (펼치기/접기 삼각형) 메서드, URL, 호스트, 상태로 필터 · 5 / 5
+																	135 text (텍스트) 메서드, URL, 호스트, 상태로 필터
+																	136 text (텍스트) ·
+																	137 text (텍스트) 5
+																	138 text (텍스트) /
+																	139 text (텍스트) 5
+															140 group (세부정보)
+																141 button (펼치기/접기 삼각형) 세션 도구
+																	142 text (텍스트) 세션 도구
+															143 group (세부정보)
+																144 button (펼치기/접기 삼각형) 열 필터
+																	145 text (텍스트) 열 필터
+															146 combo box (콤보 상자) (settable, string) 그룹 기준 Value: 프로세스
+															147 group (세부정보)
+																148 button (펼치기/접기 삼각형) 표시 열
+																	149 text (텍스트) 표시 열
+															150 group (그룹) 트랜잭션
+																151 table (TABLE) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																	152 text (텍스트) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																	153 data item (행)
+																		154 button (단추) # Description: Sort by this column
+																			155 button (단추) #
+																		156 button (단추) 시작 Description: Sort by this column
+																			157 button (단추) 시작
+																		158 button (단추) 메서드 Description: Sort by this column
+																			159 button (단추) 메서드
+																		160 button (단추) 결과 Description: Sort by this column
+																			161 button (단추) 결과
+																		162 button (단추) 호스트 Description: Sort by this column
+																			163 button (단추) 호스트
+																		164 button (단추) 경로 Description: Sort by this column
+																			165 button (단추) 경로
+																		166 button (단추) 종류 Description: Sort by this column
+																			167 button (단추) 종류
+																		168 button (단추) 크기 Description: Sort by this column
+																			169 button (단추) 크기
+																		170 button (단추) 시간 Description: Sort by this column
+																			171 button (단추) 시간
+																		172 button (단추) 타임라인 Description: Sort by this column
+																		173 button (단추) 프로세스 Description: Sort by this column
+																			174 button (단추) 프로세스
+																	175 data item (행)
+																		176 data item (항목) ▾ node.exe [31688] · 2026-11-15T04:09:54.3286644Z 5 · ↑ 0 B · ↓ 1.0 MiB
+																			177 button (단추) ▾ node.exe [31688] · 2026-11-15T04:09:54.3286644Z 5 · ↑ 0 B · ↓ 1.0 MiB
+																	178 data item (행)
+																		179 data item (항목) 1 Description: 1
+																		180 data item (항목) 04:09:54.558 Description: 04:09:54.558
+																		181 data item (항목) GET Description: GET
+																		182 data item (항목) 200 Description: 200
+																		183 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		184 data item (항목) /identity Description: /identity
+																		185 data item (항목) JSON Description: json
+																		186 data item (항목) 27 B Description: 27 B
+																		187 data item (항목) 4 ms Description: 4 ms
+																		188 data item (항목) — Description: —
+																		189 data item (항목) node.exe Description: node.exe
+																	190 data item (행)
+																		191 data item (항목) 2 Description: 2
+																		192 data item (항목) 04:09:54.579 Description: 04:09:54.579
+																		193 data item (항목) GET Description: GET
+																		194 data item (항목) 200 Description: 200
+																		195 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		196 data item (항목) /x-gzip Description: /x-gzip
+																		197 data item (항목) JSON Description: json
+																		198 data item (항목) 47 B Description: 47 B
+																		199 data item (항목) 4 ms Description: 4 ms
+																		200 data item (항목) — Description: —
+																		201 data item (항목) node.exe Description: node.exe
+																	202 data item (행)
+																		203 data item (항목) 3 Description: 3
+																		204 data item (항목) 04:09:54.600 Description: 04:09:54.600
+																		205 data item (항목) GET Description: GET
+																		206 data item (항목) 200 Description: 200
+																		207 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		208 data item (항목) /stacked Description: /stacked
+																		209 data item (항목) JSON Description: json
+																		210 data item (항목) 47 B Description: 47 B
+																		211 data item (항목) 4 ms Description: 4 ms
+																		212 data item (항목) — Description: —
+																		213 data item (항목) node.exe Description: node.exe
+																	214 data item (행)
+																		215 data item (항목) 4 Description: 4
+																		216 data item (항목) 04:09:54.617 Description: 04:09:54.617
+																		217 data item (항목) GET Description: GET
+																		218 data item (항목) 200 Description: 200
+																		219 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		220 data item (항목) /binary Description: /binary
+																		221 data item (항목) 바이너리 Description: binary
+																		222 data item (항목) 1.0 MiB Description: 1.0 MiB
+																		223 data item (항목) 11 ms Description: 11 ms
+																		224 data item (항목) — Description: —
+																		225 data item (항목) node.exe Description: node.exe
+																	226 data item (행)
+																		227 data item (항목) 5 Description: 5
+																		228 data item (항목) 04:09:54.632 Description: 04:09:54.632
+																		229 data item (항목) GET Description: GET
+																		230 data item (항목) 200 Description: 200
+																		231 data item (항목) 127.0.0.1:11516 Description: 127.0.0.1:11516
+																		232 data item (항목) /binary-gzip Description: /binary-gzip
+																		233 data item (항목) 바이너리 Description: binary
+																		234 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		235 data item (항목) 11 ms Description: 11 ms
+																		236 data item (항목) — Description: —
+																		237 data item (항목) node.exe Description: node.exe
+															238 text (텍스트) 방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+															239 thumb (위치 조정) 트랜잭션 목록 크기 조절 Description: 드래그·방향키로 크기를 조절하고, 더블클릭·Home으로 기본 높이를 복원합니다. Value: 100
+															240 button (단추) Request Builder로 복사
+															241 text (텍스트) 200
+															242 text (텍스트) GET
+															243 text (텍스트) http://127.0.0.1:11516/binary-gzip
+															244 text (텍스트) 신규 연결
+															245 group (그룹) Description: decoded_wire
+																246 text (텍스트) 와이어 복호화
+															247 tab (Tab) 트랜잭션
+																248 tab item (탭 항목) (selectable) 힌트 / 상태 / 주석
+																249 tab item (탭 항목) (selectable) Raw
+																250 tab item (탭 항목) (selectable) 스트림
+																251 tab item (탭 항목) (selectable) 헤더
+																252 tab item (탭 항목) (selectable) 쿼리 문자열
+																253 tab item (탭 항목) (selectable) POST 데이터
+																254 tab item (탭 항목) (selectable) 본문
+																255 tab item (탭 항목) (selectable) 타이밍
+																256 tab item (탭 항목) (selectable) 쿠키
+																257 tab item (탭 항목) (selectable) 프로세스
+															258 pane (탭 패널) 본문
+																259 text (제목) 요청
+																260 text (텍스트) —
+																261 text (텍스트) 0 B
+																262 text (텍스트) 디코딩 본문
+																263 text (텍스트) :
+																264 text (텍스트) 0 B
+																265 text (텍스트) ·
+																266 text (텍스트) 전송 크기
+																267 text (텍스트) :
+																268 text (텍스트) 0 B
+																269 button (전환 버튼) Raw
+																270 button (전환 버튼) 강조 / XML / SOAP
+																271 button (전환 버튼) Hex + 오프셋
+																272 button (전환 버튼) 미리보기
+																273 button (전환 버튼) AMF / ViewState
+																274 button (전환 버튼) JSON
+																275 status bar (상태)
+																	276 text (텍스트) 본문이 없는 메시지입니다.
+																277 text (제목) 응답
+																278 text (텍스트) application/octet-stream
+																279 text (텍스트) 1.0 KiB
+																280 text (텍스트) 디코딩 본문
+																281 text (텍스트) :
+																282 text (텍스트) 4.0 KiB
+																283 text (텍스트) ·
+																284 text (텍스트) 전송 크기
+																285 text (텍스트) :
+																286 text (텍스트) 1.0 KiB
+																287 text (텍스트) gzip
+																288 button (전환 버튼) Raw
+																289 button (전환 버튼) 강조 / XML / SOAP
+																290 button (전환 버튼) Hex + 오프셋
+																291 button (전환 버튼) 미리보기
+																292 button (전환 버튼) AMF / ViewState
+																293 button (전환 버튼) JSON
+																294 status bar (상태)
+																	295 text (텍스트) 메시지당 캡처 상한에서 잘렸습니다. 아래 내용은 본문의 앞부분입니다.
+														296 button (단추) 세션 요약 및 근거
+							115 pane (영역)
+					116 pane (영역)
+		1 title bar (제목 표시줄) (settable, string) Value: ArchScope Layout QA
+			2 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				3 menu item (메뉴 항목) 시스템
+			4 button (단추) 최소화
+			5 button (단추) 최대화
+			6 button (단추) 닫기
+		117 menu bar (메뉴 모음) 응용 프로그램 ID: MenuBar
+			8 menu item (메뉴 항목) 파일
+			9 menu item (메뉴 항목) 편집
+			10 menu item (메뉴 항목) 분석
+			11 menu item (메뉴 항목) 워크스페이스
+			12 menu item (메뉴 항목) 캡처
+			13 menu item (메뉴 항목) 보기
+			14 menu item (메뉴 항목) 도움말
+			298 menu item (메뉴 항목) Layout QA
+
+Document text: ```
+HTTP 캡처
+파일·요청 작성
+캡처 설정
+캡처 시작
+캡처 중지
+자동 추적 중
+일시정지
+비우기
+종료 세션 분석 불러오기
+proxy://127.0.0.1:10764
+종료됨
+캡처: 5
+저장: 5
+현재 보관: 5 · 순환 제외: 0
+선택한 프로세스: 1
+세션 요약 및 근거
+메서드, URL, 호스트, 상태로 필터 · 5 / 5
+세션 도구
+열 필터
+그룹 기준
+표시 열
+캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+#
+￼
+시작
+￼
+메서드
+￼
+결과
+￼
+호스트
+￼
+경로
+￼
+종류
+￼
+크기
+￼
+시간
+￼
+타임라인
+￼
+프로세스
+￼
+▾
+node.exe [31688] · 2026-11-15T04:09:54.3286644Z
+5 · ↑ 0 B · ↓ 1.0 MiB
+1
+04:09:54.558
+GET
+200
+127.0.0.1:11516
+/identity
+JSON
+27 B
+4 ms
+￼
+node.exe
+2
+04:09:54.579
+GET
+200
+127.0.0.1:11516
+/x-gzip
+JSON
+47 B
+4 ms
+￼
+node.exe
+3
+04:09:54.600
+GET
+200
+127.0.0.1:11516
+/stacked
+JSON
+47 B
+4 ms
+￼
+node.exe
+4
+04:09:54.617
+GET
+200
+127.0.0.1:11516
+/binary
+바이너리
+1.0 MiB
+11 ms
+￼
+node.exe
+5
+04:09:54.632
+GET
+200
+127.0.0.1:11516
+/binary-gzip
+바이너리
+1.0 KiB
+11 ms
+￼
+node.exe
+방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+트랜잭션 목록 크기 조절
+Request Builder로 복사
+200
+GET
+http://127.0.0.1:11516/binary-gzip
+신규 연결
+와이어 복호화
+힌트 / 상태 / 주석
+Raw
+스트림
+헤더
+쿼리 문자열
+POST 데이터
+본문
+타이밍
+쿠키
+프로세스
+요청
+—
+0 B
+디코딩 본문: 0 B · 전송 크기: 0 B
+Raw
+강조 / XML / SOAP
+Hex + 오프셋
+미리보기
+AMF / ViewState
+JSON
+본문이 없는 메시지입니다.
+응답
+application/octet-stream
+1.0 KiB
+디코딩 본문: 4.0 KiB · 전송 크기: 1.0 KiB
+gzip
+Raw
+강조 / XML / SOAP
+Hex + 오프셋
+미리보기
+AMF / ViewState
+JSON
+메시지당 캡처 상한에서 잘렸습니다. 아래 내용은 본문의 앞부분입니다.
+세션 요약 및 근거
+```

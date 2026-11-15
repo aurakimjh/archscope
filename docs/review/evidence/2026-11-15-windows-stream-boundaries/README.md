@@ -52,3 +52,13 @@ Repeat concurrently three times each:386 remoting3PASS;amd64 protects preexistin
 foreign Interface mapping with3SKIP. A protected skip is not a remoting acceptance
 PASS. No existing registration is deleted or overwritten to force qualification;
 full clean-host/client compatibility remains open. Initial logs are preserved.
+
+## Native capped binary without readable text
+
+Native actual-capture Body correctly reports4096B decoded cap/1052B wire, but the
+previous generic truncation notice claimed a leading body below despite absent
+binary text. Preserved nativeFAIL records the misleading notice. A dedicated
+EN/KO unavailable-text notice now distinguishes this case; text prefixes retain
+their existing cap notice. State regression and frontend build pass. Native
+18f31498-plus-binary-notice KO1280x800 OS100/Web100 recheck passes after actual
+SEC10 capture/save/open. The original response/cap metadata is preserved.
