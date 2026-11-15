@@ -32,7 +32,8 @@ Unicode true
 ####
 !define INFO_PROJECTNAME    "archscope"
 !define INFO_PRODUCTNAME    "ArchScope"
-!define INFO_PRODUCTVERSION "0.3.0"
+!define INFO_PRODUCTVERSION "0.4.0-rc.1"
+!define INFO_NUMERICVERSION "0.4.0.1"
 !define INFO_COPYRIGHT      "(c) 2026, ArchScope"
 !define PRODUCT_EXECUTABLE  "archscope.exe"
 !define UNINST_KEY_NAME     "ArchScope"
@@ -42,8 +43,8 @@ Unicode true
 !include "wails_tools.nsh"
 
 # The version information for this two must consist of 4 parts
-VIProductVersion "${INFO_PRODUCTVERSION}.0"
-VIFileVersion    "${INFO_PRODUCTVERSION}.0"
+VIProductVersion "${INFO_NUMERICVERSION}"
+VIFileVersion    "${INFO_NUMERICVERSION}"
 
 VIAddVersionKey "CompanyName"     "${INFO_COMPANYNAME}"
 VIAddVersionKey "FileDescription" "${INFO_PRODUCTNAME} Installer"

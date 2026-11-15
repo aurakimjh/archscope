@@ -72,7 +72,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: linux-offline-syscalls
-          path: ${{ runner.temp }}/offline-syscalls
+          # Raw CLI outputs keep their owner-only permissions inside the observer.
+          # Upload only its bounded, public summary; do not chmod private models.
+          path: ${{ runner.temp }}/offline-syscalls/summary.json
           if-no-files-found: error
 
   windows-cross:

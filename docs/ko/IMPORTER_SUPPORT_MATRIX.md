@@ -1,7 +1,9 @@
 # Importer Support Matrix
 
-이 문서는 `v0.3.5` 이후 아직 릴리스되지 않은 browser profile, Lighthouse,
-HAR 추가분을 포함해 현재 지원하는 local evidence importer를 정리한다.
+현재 배포는 v0.4.0-rc.1 사전 릴리스입니다. 아래 생성 도구·버전 검증 범위는 개별로 유지하며 [릴리스 제한](releases/v0.4.0-rc.1.md)을 함께 확인하세요.
+
+이 문서는 `v0.4.0-rc.1` 후보판의 browser profile, Lighthouse, HAR 추가분을
+포함해 현재 지원하는 local evidence importer를 정리한다.
 
 | Family | Result type | CLI | 대표 입력 |
 |---|---|---|---|

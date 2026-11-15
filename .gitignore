@@ -38,6 +38,7 @@ apps/engine-native/package-lock.json
 # Keep the desktop Windows runner source visible alongside tracked templates.
 !apps/engine-native/cmd/archscope-app/build/
 apps/engine-native/cmd/archscope-app/build/*
+!apps/engine-native/cmd/archscope-app/build/release.json
 !apps/engine-native/cmd/archscope-app/build/windows/
 apps/engine-native/cmd/archscope-app/build/windows/*
 !apps/engine-native/cmd/archscope-app/build/windows/go.mjs

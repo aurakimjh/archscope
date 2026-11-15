@@ -26,8 +26,12 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Version tag (e.g. v0.3.0-rc1) — used when running manually'
+        description: 'Version tag (e.g. v0.4.0-rc.1) — validated against the source metadata'
         required: true
+      publish:
+        description: 'Publish the existing tag after packaging (false runs packaging preflight only)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -56,6 +60,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && (inputs.publish && inputs.tag || github.sha) || github.ref }}
+
+      - name: Record packaged source identity
+        shell: bash
+        run: printf 'VITE_APP_BUILD=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Validate release identity
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: python3 scripts/check-release-version.py --expected-tag "$RELEASE_TAG"
 
       - name: Set up Go
         uses: actions/setup-go@v7
@@ -140,9 +156,41 @@ jobs:
         run: npm ci
         working-directory: apps/engine-native/cmd/archscope-app/frontend
 
+      - name: Frontend state regression
+        run: npm run test:state
+        working-directory: apps/engine-native/cmd/archscope-app/frontend
+
       - name: Wails package
-        run: task package
+        if: matrix.os != 'ubuntu-latest'
+        run: task package ARCH=${{ matrix.arch }}
         working-directory: apps/engine-native/cmd/archscope-app
+
+      - name: Linux release packages
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          GOARCH: ${{ matrix.arch }}
+        run: |
+          export GIT_COMMITTER_NAME="$(git log -1 --format=%cn)"
+          export GIT_COMMITTER_EMAIL="$(git log -1 --format=%ce)"
+          task linux:create:deb linux:create:rpm ARCH=${{ matrix.arch }}
+        working-directory: apps/engine-native/cmd/archscope-app
+
+      - name: Verify Windows version resources and installer
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        working-directory: apps/engine-native/cmd/archscope-app
+        run: |
+          $ErrorActionPreference = "Stop"
+          $release = Get-Content build/release.json | ConvertFrom-Json
+          $binaries = @(Get-Item bin/archscope.exe) + @(Get-ChildItem bin/*installer*.exe)
+          if ($binaries.Count -lt 2) { throw "Windows installer missing" }
+          foreach ($file in $binaries) {
+            $info = $file.VersionInfo
+            $numeric = "$($info.FileMajorPart).$($info.FileMinorPart).$($info.FileBuildPart).$($info.FilePrivatePart)"
+            if ($numeric -ne $release.windowsVersion -or $info.ProductVersion -ne $release.version) {
+              throw "Release version mismatch in $($file.Name)"
+            }
+          }
 
       # ── macOS: codesign with Developer ID if cert is in repo secrets ──
       - name: Import Developer ID certificate (macOS)
@@ -195,6 +243,7 @@ jobs:
         run: |
           set -euo pipefail
           codesign --verify --deep --strict --verbose=2 bin/archscope.app
+          python3 ../../../../scripts/check-release-version.py --bundle bin/archscope.app
           if [ "$HAS_NOTARY_CREDS" = "true" ]; then
             xcrun stapler validate bin/archscope.app
           else
@@ -218,15 +267,20 @@ jobs:
             apps/engine-native/cmd/archscope-app/bin/archscope
             apps/engine-native/cmd/archscope-app/bin/*.deb
             apps/engine-native/cmd/archscope-app/bin/*.rpm
-          if-no-files-found: warn
+          if-no-files-found: error
 
   release:
+    if: github.event_name == 'push' || inputs.publish == true
     name: Create GitHub Release
+    env:
+      RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
     needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && (inputs.publish && inputs.tag || github.sha) || github.ref }}
 
       - name: Download all artifacts
         uses: actions/download-artifact@v8
@@ -266,6 +320,12 @@ jobs:
           fi
           # Required standalone corpus; missing files fail release assembly.
           cp apps/engine-native/internal/distribution/assets/fixtures.zip "$OUT/archscope-conformance-v1.zip"
+          git archive --format=zip --output="$OUT/archscope-docs.zip" HEAD docs/en docs/ko examples
+          cp "docs/en/releases/$RELEASE_TAG.md" "$OUT/RELEASE_NOTES.en.md"
+          cp "docs/ko/releases/$RELEASE_TAG.md" "$OUT/RELEASE_NOTES.ko.md"
+          test -s "$OUT/archscope-windows-amd64.zip"
+          test -s "$OUT/archscope-linux-amd64.tar.gz"
+          ls "$OUT"/*.dmg "$OUT"/*.deb "$OUT"/*.rpm >/dev/null
           ls -lh "$OUT"
 
       - name: Compute checksums
@@ -275,19 +335,16 @@ jobs:
 
       - name: Resolve tag name
         id: tag
-        run: |
-          if [ -n "${{ github.event.inputs.tag }}" ]; then
-            echo "name=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
-          else
-            echo "name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          fi
+        run: printf 'name=%s\n' "$RELEASE_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.name }}
           name: ${{ steps.tag.outputs.name }}
-          generate_release_notes: true
+          body_path: docs/en/releases/${{ env.RELEASE_TAG }}.md
+          generate_release_notes: false
+          make_latest: ${{ contains(steps.tag.outputs.name, '-') && 'false' || 'true' }}
           prerelease: ${{ contains(steps.tag.outputs.name, '-rc') || contains(steps.tag.outputs.name, '-alpha') || contains(steps.tag.outputs.name, '-beta') }}
           draft: false
           files: |

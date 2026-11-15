@@ -14,7 +14,7 @@
     !define INFO_PRODUCTNAME "ArchScope"
 !endif
 !ifndef INFO_PRODUCTVERSION
-    !define INFO_PRODUCTVERSION "0.3.5"
+    !define INFO_PRODUCTVERSION "0.4.0-rc.1"
 !endif
 !ifndef INFO_COPYRIGHT
     !define INFO_COPYRIGHT "Copyright (c) 2026 ArchScope contributors."

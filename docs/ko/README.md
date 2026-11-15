@@ -1,5 +1,7 @@
 # ArchScope 문서
 
+현재 사전 릴리스: [v0.4.0-rc.1 범위와 남은 검증](releases/v0.4.0-rc.1.md).
+
 이 디렉터리는 현재 Go/Wails 기반 ArchScope 라인의 한국어 문서를 포함합니다.
 Python/FastAPI/browser 구현 관련 문서는 `archive/`를 명시하지 않는 한
 historical note로 취급합니다.
@@ -28,7 +30,7 @@ historical note로 취급합니다.
 - [로컬 장애 및 성능 분석 개선 설계](./LOCAL_DIAGNOSTICS_EVOLUTION_DESIGN.md) — py-spy 등 프로파일 확대, perf/eBPF, 스택·GC·로그, GPU/vLLM, 드릴다운과 보고서용 이미지·표
 - [아키텍처](./ARCHITECTURE.md) — Go/Wails 구성, 컴포넌트 경계, archive 정책
 - [데이터 모델](./DATA_MODEL.md) — AnalysisResult 공통 contract, Go/TypeScript 타입 정의
-- [Importer Support Matrix](./IMPORTER_SUPPORT_MATRIX.md) — v0.3.5 evidence importer 지원 범위
+- [Importer Support Matrix](./IMPORTER_SUPPORT_MATRIX.md) — v0.4.0-rc.1 evidence importer 지원 범위
 - [파서 설계](./PARSER_DESIGN.md) — Parser 책임, 에러 처리, 대용량 파일 전략
 - [차트 설계](./CHART_DESIGN.md) — Chart template, factory 패턴, 성능 가이드라인
 - [Chart Studio 설계](./CHART_STUDIO_DESIGN.md) — Chart 미리보기, option persistence

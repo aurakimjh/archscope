@@ -12,11 +12,12 @@ import (
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/resultcontract"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/wirejson"
+	"golang.org/x/mod/semver"
 )
 
 const Format = "1.0.0"
 const Interpreter = "1.0.0"
-const AppVersion = "0.3.5"
+const AppVersion = "0.4.0-rc.1"
 const MaxArchiveBytes = 8 << 20
 const MaxExpandedBytes = 16 << 20
 const MaxFileBytes = 4 << 20
@@ -49,6 +50,23 @@ type Range struct {
 
 func (r Range) accepts(v string) bool {
 	return (resultcontract.Range{Min: r.Min, Before: r.Before}).Accepts(v)
+}
+
+// App releases may have SemVer prerelease labels. Data/adapter/extension versions
+// retain the existing strict three-number contract. Range endpoints stay strict;
+// no signed pack is rewritten or promoted past its declared stable upper bound.
+func (r Range) acceptsAppVersion(v string) bool {
+	if _, ok := resultcontract.Version(r.Min); !ok {
+		return false
+	}
+	if _, ok := resultcontract.Version(r.Before); !ok {
+		return false
+	}
+	core := strings.SplitN(strings.SplitN(v, "+", 2)[0], "-", 2)[0]
+	if _, ok := resultcontract.Version(core); !ok || !semver.IsValid("v"+v) {
+		return false
+	}
+	return semver.Compare("v"+v, "v"+r.Min) >= 0 && semver.Compare("v"+v, "v"+r.Before) < 0
 }
 
 type File struct {
@@ -174,7 +192,7 @@ func safeName(p string) bool {
 	return true
 }
 func (m Manifest) validate() error {
-	if m.Format != Format || !ID.MatchString(m.ID) || !m.App.accepts(AppVersion) || !m.Adapter.accepts(Interpreter) || !m.Extension.accepts(Interpreter) {
+	if m.Format != Format || !ID.MatchString(m.ID) || !m.App.acceptsAppVersion(AppVersion) || !m.Adapter.accepts(Interpreter) || !m.Extension.accepts(Interpreter) {
 		return problem("PACK_INCOMPATIBLE", "unsupported pack/app/adapter/extension contract")
 	}
 	if _, ok := resultcontract.Version(m.Version); !ok {

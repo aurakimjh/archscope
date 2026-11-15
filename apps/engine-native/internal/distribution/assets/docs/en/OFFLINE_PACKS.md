@@ -50,7 +50,7 @@ Application activation/rollback validates every active user/case scope before
 commit. Both activation orders reject canonical/alias collisions; replacing an
 application dependency cannot silently suspend a previously usable local pack.
 Dependencies require a pinned digest and version range. Application, interpreter
-and extension ranges are checked. The application version is currently 0.3.5.
+and extension ranges are checked. The application version is 0.4.0-rc.1. Application prerelease ordering follows SemVer; data/adapter/extension contracts remain strict numeric versions. The existing signed bootstrap range ends before stable 0.4.0: this RC is eligible, while a final 0.4.0 release requires a newly qualified compatible pack.
 
 Unsigned packs require an explicit `--unsigned-local` plus `--scope user` or
 `case:case-<32 lowercase hex digits>`. They are labelled `locally_authored` and

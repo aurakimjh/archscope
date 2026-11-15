@@ -6,83 +6,73 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+Changes after the 0.4.0 release candidate will be recorded here.
+
+## [0.4.0-rc.1] — 2026-11-15
+
+Prerelease for controlled evaluation. Release scope, platform versions and
+remaining qualification: [English](docs/en/releases/v0.4.0-rc.1.md) ·
+[Korean](docs/ko/releases/v0.4.0-rc.1.md).
+This candidate does not close the outstanding Windows/reference, GPU or natural
+memory-pressure acceptance tasks.
+
 ### Added
 
-- Added HTTP Analyzer V7.6.4 native `.halog` import and redacted retained-text
-  export in the desktop, CLI conversion and automation paths, with reference
-  read/write interoperability, explicit provenance and encoding/timezone limits.
-- Added Chrome Performance trace (`.json`/`.json.gz`) and V8 `.cpuprofile`
-  analysis with bounded sampled-CPU runs, timing diagnostics, flamegraph
-  drilldown, and a dedicated Browser CPU desktop workflow.
-- Added Lighthouse report JSON import with preserved report-authored scores,
-  Core Web Vitals, audit/resource projections, URL redaction, and a dedicated
-  browser-audit page.
-- Added bounded HAR 1.2 import with browser/tool dialect detection,
-  import-time redaction, explicit fidelity/timing diagnostics, and an offline
-  HTTP analysis workspace.
-- Added an opt-in Windows live HTTP capture tier with loopback-only proxying,
-  connection-specific process attribution, crash-safe bounded session storage,
-  CA lifecycle controls, and live/recovery UI state.
-- Added proxy-upstream and proxy-internal network timing phases to live
-  capture (DNS, connect, TLS, send, TTFB, receive), so a finalized transaction
-  carries a phase waterfall instead of only a total. Reused connections report
-  the handshake phases as `not_applicable` and unobserved phases stay
-  `unknown`, so a printed total is explicitly a lower bound.
-- Added the bounded request/response body-processing core for live capture,
-  including gzip/deflate decoding and existing-policy redaction. The product
-  capability remains unavailable while
-  `bodyCaptureGate = "sec10_preflight_pending"`: both the session manager and
-  proxy constructor reject body-enabled starts until the SEC-10 crash-dump
-  exclusion preflight is implemented and verified.
-- Added an HTTP Analyzer-style transaction view: a virtualized packet grid
-  (sequence, start clock, method, result, host, path, resource type, size,
-  time, session-relative timeline bar, process) over a resizable detail pane
-  with Raw, Headers, Body, Timing, Cookies, and Process tabs. The Raw tab
-  reconstructs the request and response protocol text and states that it is a
-  reconstruction, because this capture tier is graded `semantic` and does not
-  preserve field order, casing, or framing.
-- Added resource-type classification and filtering for captured transactions,
-  derived from the response MIME, the path extension, and the request MIME, so
-  image, stylesheet, script, font, and media calls are visible and filterable.
-- Added HTTP session Diff with versioned URL templates, explicit rate
-  denominators, time-alignment grades, and a grade-aware comparison UI.
-- Added HTTP evidence correlation with Chrome/V8 CPU runs, Jennifer
-  network-gap evidence, and access logs, including provenance-aware drilldown,
-  fail-closed clock alignment, and non-causal overlays.
+- Chrome Performance/V8 sampled CPU and Lighthouse report analysis with dedicated
+  native screens; bounded, redacted HAR import.
+- Windows opt-in explicit-proxy HTTP/1.x capture, process attribution, bounded
+  session retention/recovery and timing phases with explicit unavailable states.
+- Conditional, default-off body capture after actual SEC-10 preflight, bounded
+  decoding/redaction, inert inspectors, HTTP Analyzer V7.6.4 retained-text
+  interoperability, annotations, session comparison and cross-evidence correlation.
+- Stand-alone Request Builder, supported session exports and safe legacy-content
+  inspectors; incomplete reference equivalence remains explicitly qualified.
+- Original profile import, canonical drilldown, source-aware case search and
+  reusable verified baselines; exact metric history and system/perf/limited BPF,
+  runtime, DB/socket, LLM/serving, benchmark/crash and CPU/GPU evidence workflows.
+- Detailed bilingual screen-by-screen user manuals and downloadable documentation,
+  examples and the synthetic conformance corpus.
 
 ### Changed
 
-- Expanded release acceptance with a named Windows-native live-capture E2E,
-  Windows GUI launch smoke, and an isolated `GetExtendedTcpTable`
-  resolver-cost measurement whose bounded JSON evidence is archived by CI.
-- Added macOS release smoke coverage that imports representative offline access
-  log and Lighthouse evidence before building and verifying the ad-hoc-signed
-  Wails application bundle.
-- The frontend release gate now runs the state regression suite as well as the
-  production build.
-- The `http_capture` transaction table no longer shares the aggregate top-N
-  budget. It has its own limit (default 20,000 rows, ceiling 200,000, exposed
-  as `--transaction-rows` and `transactionRows`), because the 50-row top-N used
-  for endpoint and host rankings was dropping every image, stylesheet, script,
-  and font of an ordinary page load before the UI could show them.
-- `LiveCaptureContract` is now schema version 2 and publishes body-tier
-  availability, the gate a session will record, the per-message body cap, and
-  whether upstream timings are emitted, so the renderer reads these rather than
-  inferring them from absent data.
+- Promoted application version to 0.4.0-rc.1; Windows numeric version 0.4.0.1;
+  macOS short version 0.4.0/build 4001; Linux prerelease package metadata.
+- Application pack ranges now compare valid SemVer prereleases; numeric
+  data/adapter/extension contracts and signed pack contents stay unchanged.
+  The bootstrap's stable 0.4.0 upper bound is retained.
+- Expanded native Windows, offline CLI, memory and frontend acceptance receipts.
+  Finite memory budgets and selected native cases do not assert universal parity.
+- Repeated imports retain the 80-result bound while sharing immutable row arrays;
+  history, metadata and differing annotations/inputs remain independent.
+- Release packaging preflight validates metadata, frontend regressions and three
+  platform packages before publishing the tag; public offline CI uploads contain
+  only the bounded summary, retaining owner-only raw output permissions.
 
-### Security
+### Fixed
 
-- Offline HAR analysis remains a file import with bounded parsing and
-  import-time redaction. Windows live capture remains Windows-only,
-  loopback-bound, and opt-in: HTTP/2 and QUIC are not decoded, pinning failures
-  are retained only as attributed unsupported/not-captured evidence, and
-  endpoint ownership does not claim complete machine traffic coverage.
-- Request and response bodies remain unconditionally omitted. The body tier is
-  fail-closed while SEC-10 is pending: the renderer contract marks it
-  unavailable, and direct body-enabled starts are rejected before a CA or
-  session artifact is allocated. The dormant decoder also caps decompressed
-  previews at the per-message limit and clears its unredacted wire buffer after
-  canonicalization.
+- Input changes no longer present prior analyzer results as current evidence.
+- Canonical x86 profile Diff weights and fractional labels; profiler chart/CSV
+  units retain time/bytes/unknown semantics without rescaling values.
+- JFR inventory distinguishes total/filtered events from stack samples; missing
+  durations remain unavailable in evidence cards.
+- Capture persistence/finalization, annotation post-mask bounds, body-redaction
+  provenance, corrupted-store capability loading, and visible import retry errors.
+- Builder form/multipart transitions, failed/unsupported decoding envelopes,
+  observed body sizes and complete-pair-only compression summaries.
+- Stable bounded PowerPoint summaries with omissions disclosed, chart provenance,
+  canceled output drafts, compact rows, accessible actions and Settings persistence.
+
+### Security and remaining qualification
+
+- All analysis remains local; live HTTP capture is Windows-only and opt-in.
+  HTTP/2/QUIC decoding, pinning bypass, universal process/traffic coverage and
+  unqualified driver/service/foreign-COM compatibility are not claimed.
+- Body starts fail closed when actual preflight does not permit collection.
+  This RC does not modify OS dump/trust policy to bypass a body gate.
+- Keep T-601/T-611/T-613/T-627 open for their remaining acceptance, and T-654/T-662
+  TODO for actual CUDA/NCCL and natural elevated-pressure/nonzero-swap evidence.
+- A final 0.4.0 requires a newly qualified compatible signed bootstrap pack.
+  See the release notes for signing/runtime and platform-specific limitations.
 
 ## [0.3.5] — 2026-05-17
 

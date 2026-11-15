@@ -1,0 +1,98 @@
+{
+  "date": "2026-11-15",
+  "version": {
+    "version": "0.4.0-rc.1",
+    "tag": "v0.4.0-rc.1",
+    "windowsVersion": "0.4.0.1",
+    "macosShortVersion": "0.4.0",
+    "macosBuildVersion": "4001",
+    "platforms": [
+      "darwin-arm64",
+      "windows-amd64",
+      "linux-amd64"
+    ]
+  },
+  "sourceBaseline": "adde06c3740f962717bca33f5470613c5ef401b5",
+  "host": "Darwin/arm64",
+  "checks": {
+    "go": {
+      "exitCode": 0,
+      "logBytes": 15518,
+      "logSha256": "d6100e2bc799de48f3066ff6795f00752b6f517de4ec1e7890ad45983de517a4"
+    },
+    "race": {
+      "exitCode": 0,
+      "logBytes": 15615,
+      "logSha256": "7d6e1f31f5c2249c76841acdda66d93e505f65ba0dc0f3ee53c7099e6c6b3e51"
+    },
+    "vet": {
+      "exitCode": 0,
+      "logBytes": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "state": {
+      "exitCode": 0,
+      "logBytes": 383,
+      "logSha256": "0b5bc625402a9e0f129d16c26b52649247146d497e5b7d919187819b993db6ee"
+    },
+    "build": {
+      "exitCode": 0,
+      "logBytes": 6251,
+      "logSha256": "6c8219d3ed6bb08e1f900ef6480e5c465aaef14ac9036df45d96df465ba06af7"
+    },
+    "pack-tests": {
+      "exitCode": 0,
+      "logBytes": 161,
+      "logSha256": "7b7926addc2e4844e6399b0d70fe6a9ca84acc3eb2072ca8d8a71fb7a3f6299f"
+    },
+    "final-pack-tests": {
+      "exitCode": 0,
+      "logBytes": 3823,
+      "logSha256": "a52eabc09545be61bf8cecb52724c82740f89112c22e6563bb3d4548ccdab1aa"
+    },
+    "package": {
+      "exitCode": 0,
+      "logBytes": 1802,
+      "logSha256": "2c33a3a09bd2d77685f3620fc3a920d2eed8f6924395738d30640720c5a09e20"
+    },
+    "actionlint": {
+      "exitCode": 0,
+      "logBytes": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "goTestPackages": 131,
+  "goRacePackages": 131,
+  "noTestPackages": 4,
+  "versionChecker": {
+    "matchingTag": "PASS",
+    "wrongStableTag": "REFUSED"
+  },
+  "actualMacBundle": {
+    "arch": "arm64",
+    "shortVersion": "0.4.0",
+    "build": "4001",
+    "adHocSignatureVerified": true,
+    "bytes": 41263200,
+    "sha256": "e399807d36ac3c59559e540538810b6e673120cb0ab7eff56ada07fc82165483"
+  },
+  "offline": {
+    "network": "none",
+    "operations": 70,
+    "targetInetSyscalls": 0,
+    "failedConnectPositiveControl": 2,
+    "summaryMode": "0644",
+    "rawModelsKeepOwnerOnlyPermissions": true
+  },
+  "notices": {
+    "dependencies": 89,
+    "missingRootNotices": 0,
+    "goTargets": [
+      "darwin-arm64",
+      "windows-amd64",
+      "linux-amd64"
+    ]
+  },
+  "hostedChecks": "Pending on preparation commit; not yet tagged/published",
+  "remainingTaskStatesUnchanged": true
+}

@@ -45,7 +45,7 @@ application 활성화/롤백은 모든 활성 user/case 범위를 검증한 뒤 
 어느 활성화 순서에서도 canonical/별칭 충돌을 거부하며 application 의존 팩 교체로
 기존에 사용 가능한 로컬 팩을 조용히 휴면으로 만들 수 없다.
 의존성은 digest와 버전 범위를 고정한다. 앱/해석기/확장 버전 범위를 검사하며
-현재 앱 버전은 0.3.5다.
+현재 앱 버전은 0.4.0-rc.1이다. 앱의 사전 릴리스 순서는 SemVer를 따르고 데이터·adapter·extension 계약은 기존 숫자 버전을 유지한다. 기존 서명 bootstrap의 범위는 정식 0.4.0 미만이다. 이 RC는 포함되며 정식 0.4.0에는 새로 검증한 호환 팩이 필요하다.
 
 미서명 팩은 명시적 `--unsigned-local`과 `--scope user` 또는
 `case:case-<32자리 소문자 hex>`를 요구한다. `locally_authored`로 표시하며

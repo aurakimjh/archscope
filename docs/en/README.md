@@ -1,5 +1,7 @@
 # ArchScope Documentation
 
+Current prerelease: [v0.4.0-rc.1 release scope and remaining qualification](releases/v0.4.0-rc.1.md).
+
 This directory contains the English design documents for the current
 Go/Wails ArchScope line. Python/FastAPI/browser implementation notes are
 historical unless they explicitly reference `archive/`.

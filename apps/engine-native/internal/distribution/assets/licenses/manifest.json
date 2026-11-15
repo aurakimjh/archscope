@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "go_sum_sha256": "59c89aa186d3fea3eb57cde3dcc0d596c3fbd8539292b6fa847b9ddf9cc5b365",
-  "npm_lock_sha256": "6b6353b9fb4d4b81e219eaf7b4b93618209671644f28bc87e34debb3f611419a",
+  "npm_lock_sha256": "a7b25f7228cfcfa4a41c319bf0fca3e0742b597245a71c8a8eae5e8e79ef1baa",
   "dependencies": [
     {
       "ecosystem": "go",
@@ -67,6 +67,20 @@
       "notices": [
         {
           "file": "734b9cf7fcaf3228b7f7.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+        }
+      ],
+      "notice_status": "included"
+    },
+    {
+      "ecosystem": "go",
+      "name": "golang.org/x/mod",
+      "version": "v0.41.0",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "38619c989015e6fc4552.txt",
           "upstream_name": "LICENSE",
           "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
         }
@@ -285,6 +299,48 @@
           "file": "30bcc93c7c512f472edc.txt",
           "upstream_name": "LICENSE",
           "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+        }
+      ],
+      "notice_status": "included"
+    },
+    {
+      "ecosystem": "go",
+      "name": "github.com/inconshreveable/mousetrap",
+      "version": "v1.1.0",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "3f8612c73a62ce00ec25.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "4819582701f150b28a563a6cd8ed0bf5a754e3c67b90ad38d78ba4131bf77795"
+        }
+      ],
+      "notice_status": "included"
+    },
+    {
+      "ecosystem": "go",
+      "name": "github.com/go-ole/go-ole",
+      "version": "v1.3.0",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "af4161bb2948bb2f9ef3.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "d883dbca28769ff23dd4368a8edb7ad9f9f23a8f86adde2875c6e41a828aac62"
+        }
+      ],
+      "notice_status": "included"
+    },
+    {
+      "ecosystem": "go",
+      "name": "github.com/godbus/dbus/v5",
+      "version": "v5.2.2",
+      "declared_license": "",
+      "notices": [
+        {
+          "file": "468962eb0211fdc40c57.txt",
+          "upstream_name": "LICENSE",
+          "sha256": "e4646a82a976369d7ae8f6ed5c11d35dc0af18433a8ccc24c85b459ad8b95128"
         }
       ],
       "notice_status": "included"
@@ -1200,7 +1256,7 @@
     {
       "ecosystem": "project",
       "name": "archscope",
-      "version": "0.3.5",
+      "version": "0.4.0-rc.1",
       "declared_license": "MIT",
       "notices": [
         {
@@ -1226,5 +1282,5 @@
       "notice_status": "included"
     }
   ],
-  "scope": "host compiled Go modules and installed production npm lock entries (including build tooling); missing root notices explicit; platform native/system/runtime licenses require platform distribution review; Noto notices separate"
+  "scope": "Go dependency closure for darwin/arm64, windows/amd64 and linux/amd64 CLI/desktop, plus installed production npm lock entries (including build tooling); missing root notices explicit; platform native/system/runtime licenses require platform distribution review; Noto notices separate"
 }

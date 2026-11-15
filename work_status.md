@@ -1135,6 +1135,29 @@ filtered before analysis.
 
 ## Next Execution Queue
 
+### Release candidate v0.4.0-rc.1 (2026-11-15)
+
+The user explicitly authorizes this prerelease, including version/packaging/notes,
+tests, scoped commit/push, an annotated tag and GitHub deployment. This is an RC
+for declared supported paths; T-601/T-611/T-613/T-627 and T-654/T-662 keep their
+existing states and acceptance boundaries. Both EN/KO release scopes are in
+[release notes](docs/en/releases/v0.4.0-rc.1.md) / [한국어](docs/ko/releases/v0.4.0-rc.1.md).
+
+| Release item | State | Scope / acceptance |
+|---|---|---|
+| App/platform metadata and CHANGELOG | LOCALLY_VERIFIED | Public0.4.0-rc.1; Windows0.4.0.1; macOS0.4.0/build4001; LinuxRC; canonical manifest/version checker and cross-platform Go notices. |
+| Local regression and packaging | PASS | Full Go131packages and race131packages;4no-test packages; vet; frontend state/build; actual arm64 app/signature/version;70offline network-none operations; signed bootstrap RC eligibility. |
+| Hosted checks and packaging preflight | PENDING | Engine Native, Windows GUI Smoke, and macOSarm64/Windowsx64/Linuxx64 packaging must pass on the candidate before the tag. Manual Release publish=false builds without creating a release. |
+| Annotated tag / GitHub prerelease | AUTHORIZED_NOT_PUBLISHED | Targetv0.4.0-rc.1; publish prerelease, preserve latest stable designation; verify downloaded assets/checksums and actual package identity. |
+
+The unchanged signed bootstrap range is before stable0.4.0. SemVer places this
+RC below that bound; data/adapter/extension versions remain strict numeric.
+A final0.4.0 needs a newly qualified compatible signed pack, not range bypass.
+Recent CI failed only uploading owner-only observer files; gates themselves
+passed. Upload the bounded public summary only, keeping raw outputs private.
+Local receipts: docs/review/evidence/2026-11-15-release-rc1/.
+
+
 ### Received Windows follow-up review (2026-11-15)
 
 Reviewed ca722025..fbf2ce2c (40commits/585files): CONDITIONAL, one new P2 and
@@ -6044,3 +6067,17 @@ five UI bookends preserve32rows/star/Hangul note. Final ordinary x64/x86 builds
 exclude diagnostics. Remaining OSprivate/JSheap gap and unique/body-rich/longer/
 x86native workloads stay open. Owned apps/containers stopped,7usercontainers kept.
 Evidence:2026-11-15-t613-memory-diagnosis/native-memory-validation.json.
+
+### 2026-11-15 - v0.4.0-rc.1 release preparation
+
+User authorizes prerelease publication with explicit remaining scope. App/public,
+Windows resources/NSIS, macOS bundle and Linux package versions are synchronized;
+CHANGELOG and bilingual notes/manual links are current. SemVer-aware application
+pack bounds accept this RC without changing signed bytes or numeric data-contract
+rules. Full local Go131/race131,vet,frontend and native arm64 package checks pass.
+Disconnected CLI70operations show no target network syscalls with a working
+failed-connect control. Cross-platform Go dependency notices are included.
+Workflow checks tag identity, package resources and required assets, and has a
+nonpublishing preflight. Hosted checks/tag/release remain pending until observed;
+no native/reference/GPU/natural-pressure acceptance status is silently closed.
+Unrelated HTTP docs/verifier/history remain outside the release commit.

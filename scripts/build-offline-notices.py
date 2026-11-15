@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """Vendor dependency notices at development time; never downloads at runtime."""
-import argparse,hashlib,json,pathlib,re,subprocess
+import argparse,hashlib,json,os,pathlib,re,subprocess
 root=pathlib.Path(__file__).resolve().parents[1]; app=root/'apps/engine-native'; frontend=app/'cmd/archscope-app/frontend'
 parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=pathlib.Path,default=app/'internal/distribution/assets/licenses');args=parser.parse_args()
 out=args.out;out.mkdir(parents=True,exist_ok=True)
-raw=subprocess.check_output(['go','list','-deps','-json','./cmd/archscope-engine','./cmd/archscope-app'],cwd=app,text=True,encoding='utf-8');decoder=json.JSONDecoder();mods={}
-while raw.strip():
- raw=raw.lstrip();pkg,pos=decoder.raw_decode(raw);raw=raw[pos:];m=pkg.get('Module')
- if m:mods[m['Path']]=m
+decoder=json.JSONDecoder();mods={}
+# Include the Go dependency closure of every shipped target, not just this host.
+# Listing sources does not cross-compile or require target native GUI headers.
+for target,arch,cgo in [('darwin','arm64','1'),('windows','amd64','0'),('linux','amd64','1')]:
+ env=dict(os.environ,GOOS=target,GOARCH=arch,CGO_ENABLED=cgo)
+ raw=subprocess.check_output(['go','list','-deps','-json','./cmd/archscope-engine','./cmd/archscope-app'],cwd=app,env=env,text=True,encoding='utf-8')
+ while raw.strip():
+  raw=raw.lstrip();pkg,pos=decoder.raw_decode(raw);raw=raw[pos:];m=pkg.get('Module')
+  if m:mods[m['Path']]=m
 for old in out.iterdir():
  if old.is_file():old.unlink()
 items=[]
@@ -28,7 +33,7 @@ for n,v in sorted(lock['packages'].items()):
  if not n or v.get('dev') or not (frontend/n).is_dir():continue
  folder=frontend/n;meta=json.loads((folder/'package.json').read_text(encoding='utf-8')) if (folder/'package.json').exists() else {}
  notice('npm',meta.get('name',n.removeprefix('node_modules/')),v.get('version',''),folder,meta.get('license',''))
-notice('project','archscope','0.3.5',root,'MIT')
+notice('project','archscope',json.loads((frontend/'package.json').read_text(encoding='utf-8'))['version'],root,'MIT')
 b=(frontend/'Inter Font License.txt').read_bytes();(out/'inter-OFL.txt').write_bytes(b)
 items.append({'ecosystem':'font','name':'Inter','version':'bundled','declared_license':'OFL-1.1','notices':[{'file':'inter-OFL.txt','upstream_name':'Inter Font License.txt','sha256':hashlib.sha256(b).hexdigest()}],'notice_status':'included'})
 for item in items:
@@ -38,6 +43,6 @@ for item in items:
   source=frontend/'node_modules/rolldown/LICENSE';n='rolldown-MIT.txt'
  else:continue
  b=source.read_bytes();(out/n).write_bytes(b);item['notices']=[{'file':n,'upstream_name':source.name,'sha256':hashlib.sha256(b).hexdigest(),'source':'same upstream project root license'}];item['notice_status']='included_upstream_project_root'
-manifest={'version':'1.0.0','go_sum_sha256':hashlib.sha256((app/'go.sum').read_bytes()).hexdigest(),'npm_lock_sha256':hashlib.sha256((frontend/'package-lock.json').read_bytes()).hexdigest(),'dependencies':items,'scope':'host compiled Go modules and installed production npm lock entries (including build tooling); missing root notices explicit; platform native/system/runtime licenses require platform distribution review; Noto notices separate'}
+manifest={'version':'1.0.0','go_sum_sha256':hashlib.sha256((app/'go.sum').read_bytes()).hexdigest(),'npm_lock_sha256':hashlib.sha256((frontend/'package-lock.json').read_bytes()).hexdigest(),'dependencies':items,'scope':'Go dependency closure for darwin/arm64, windows/amd64 and linux/amd64 CLI/desktop, plus installed production npm lock entries (including build tooling); missing root notices explicit; platform native/system/runtime licenses require platform distribution review; Noto notices separate'}
 (out/'manifest.json').write_bytes((json.dumps(manifest,ensure_ascii=False,indent=2)+'\n').encode('utf-8'))
 print(json.dumps({'dependencies':len(items),'without_root_notice':[x['name'] for x in items if not x['notices']]}))
