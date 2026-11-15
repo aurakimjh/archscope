@@ -108,6 +108,13 @@
     "id": "summary-status503-native",
     "result": "PASS",
     "observed": "Native summary5xx button filters six imported rows to single complete503; displayed scope updates to1(1/0),received/decoded27B and sent0B, compression0B(1/1). Previous gzip detail clears when its row is excluded. Source file is unchanged.",
+    "build": "6eb28f4f-plus-summary-pairs",
+    "arch": "386"
+  },
+  {
+    "id": "builder-observed-short-bytes-fixed",
+    "result": "PASS",
+    "observed": "Windows386 KO1280x800 OS100/Web100: actual backend six-response send/readback then native saved-file Body shows interrupted /short5B and decoded5B, payload short; row remains failure. Canonical independent header retains declared Content-Length12. Earlier12B-body receipt remains separate.",
     "build": "8c471359-plus-observed-bytes",
     "arch": "386"
   }

@@ -3,6 +3,8 @@
   "hashedBytes": "Exact Git index blobs; evidence -text attributes preserve bytes; manifest excludes itself",
   "actualOwnedTokenScan": "PASS (prior and current owned controller tokens)",
   "jsonParse": "PASS",
+  "caseRegistryAndArtifacts": "PASS17 cases with screenshot/accessibility pairs; prior case prefix preserved",
+  "immutableSessions": "PASS both independently checked session hashes",
   "files": [
     {
       "file": "README.md",
@@ -138,9 +140,9 @@
     },
     {
       "file": "native-cases.json",
-      "bytes": 5678,
-      "gitBlob": "6b525cc619025c1d2354a8cadfc7afdf3b01289b",
-      "sha256": "75ba4fdadaff9afe88bc974f27be31ec00eaa7c8ca1206f5276870a2df693442"
+      "bytes": 6249,
+      "gitBlob": "05d1cac4b2679e76445ba1b0f00aaec4ab3ae9ce",
+      "sha256": "a2fe8aac5af884e2f6d94724e3f0f63048873229a6a43641cb455e5892285ce7"
     },
     {
       "file": "observed-byte-size.md",
