@@ -66,3 +66,26 @@ Docker responses display -20B/3known in native KO1280x800 OS100/WebView100.
 Native screenshot and accessibility receipt pin6eb28f4f-plus-summary-pairs.
 Full guarded app tests: amd6449.800s,38648.696s. Focused summary/requestbuilder
 x64/x86, frontend state/build and guarded x64/x86 native builds pass.
+
+## Final scoped receipt
+
+Native summary5xx action filters6→1 complete503, updates received/decoded27B,
+compression0B(1/1), and clears excluded selection. Source session SHA is unchanged.
+Docker Linux CGO race passes summary1.042s/requestbuilder11.101s at Go1.26.10;
+initial image GOTOOLCHAIN=local setup failure is retained separately, not a test
+failure or Windows race claim. Final native cases16:14PASS plus2preserved pre-fix
+FAILs with explicit corrected rechecks. Full app49.800s/48.696s and guarded x64/x86
+builds pass. Private raw log/binary/source hashes are in final-validation.json.
+Owned application/fixture/race containers are removed; seven preexisting Docker
+containers remain running. Private test profiles and raw sessions stay local.
+Current remaining-acceptance.json references the prior21-route inventory and
+keeps original/client, actual IME/drag, full combinations, x64 body preflight,
+native driver/foreign-client/isolated-host and bounded-memory limits explicit.
+artifact-sha256.json hashes exact indexed evidence bytes, excluding itself.
+
+Final byte-count review additionally corrects short/chunked/HEAD bodySize; see
+observed-byte-size.md. This supersedes the earlier interrupted12B-body observation
+with actual5B/header12, preserving the older receipts. Final17nativecases are
+15PASS/2preserved pre-fixFAILs. Latest guarded app tests45.781s/49.029s and Docker
+race1.026s/11.511s pass after the last Go change; final builds are
+8c471359-plus-observed-bytes x64/x86. Owned cleanup was repeated after this check.

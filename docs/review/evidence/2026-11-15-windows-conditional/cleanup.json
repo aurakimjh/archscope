@@ -1,0 +1,19 @@
+{
+  "asOf": "2026-11-15",
+  "ownedAppStopped": true,
+  "ownedFixtureRemoved": true,
+  "ownedRaceRemoved": true,
+  "preexistingContainersPreserved": [
+    "kind-cloud-provider",
+    "kind-registry-mirror",
+    "desktop-worker2",
+    "desktop-control-plane",
+    "desktop-worker4",
+    "desktop-worker",
+    "desktop-worker3"
+  ],
+  "otherUserApplications": "Not stopped or changed",
+  "privateProfiles": "Retained locally; never staged",
+  "osScale": "Unchanged100%; WebView125 was scoped to isolated test profile",
+  "observedSizeFinalRecheck": "PASS; final app exact PID/path stopped, restarted fixture label verified and removed; both race containers auto-removed; seven preexisting containers remain running"
+}

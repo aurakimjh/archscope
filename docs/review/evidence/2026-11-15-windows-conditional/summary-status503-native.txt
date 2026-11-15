@@ -1,0 +1,290 @@
+Window: "ArchScope Layout QA", App: archscope-summary-fixed-386.exe.
+	0 window (창) ArchScope Layout QA Secondary Actions: Raise
+		16 pane (창) ArchScope
+			17 pane (창) (disabled)
+			18 pane (영역) ArchScope - 웹 콘텐츠
+				19 pane (영역)
+					20 pane (영역)
+					21 pane (영역)
+						22 pane (영역)
+							23 pane (영역)
+							24 pane (영역)
+								25 pane (영역)
+									26 pane (영역)
+										27 pane (영역)
+											28 pane (영역)
+											29 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												30 group (그룹) ID: root
+													31 group (머리글)
+														32 text (텍스트) HTTP 캡처
+													33 group (기본)
+														34 group (세부정보)
+															35 button (펼치기/접기 삼각형) 파일·요청 작성
+																36 text (텍스트) 파일·요청 작성
+														37 group (세부정보)
+															38 button (펼치기/접기 삼각형) 캡처 설정
+																39 text (텍스트) 캡처 설정
+														40 button (단추) (disabled) 캡처 시작
+														41 button (단추) (disabled) 캡처 중지
+														42 button (단추) 자동 추적 중
+														43 button (단추) (disabled) 일시정지
+														44 button (단추) (disabled) 비우기
+														118 group (지역) 트랜잭션
+															119 group (세부정보)
+																120 button (펼치기/접기 삼각형) 메서드, URL, 호스트, 상태로 필터 · 1 / 6 ●
+																	121 text (텍스트) 메서드, URL, 호스트, 상태로 필터
+																	122 text (텍스트) ·
+																	123 text (텍스트) 1
+																	124 text (텍스트) /
+																	125 text (텍스트) 6
+																	364 text (텍스트) ●
+															126 group (세부정보)
+																127 button (펼치기/접기 삼각형) 세션 도구
+																	128 text (텍스트) 세션 도구
+																265 group (세부정보)
+																	266 button (펼치기/접기 삼각형) 타이밍 및 세션 요약
+																		267 text (텍스트) 타이밍 및 세션 요약
+																	276 combo box (콤보 상자) (settable, string) 요약 범위 Value: 현재 표시된 행
+																	277 text (텍스트) 요청 (종료 / 진행 중)
+																	278 text (텍스트) :
+																	279 text (텍스트) 1
+																	280 text (텍스트) (
+																	281 text (텍스트) 1
+																	282 text (텍스트) /
+																	283 text (텍스트) 0
+																	284 text (텍스트) )
+																	285 text (텍스트) 관측 시간 범위
+																	286 text (텍스트) :
+																	287 text (텍스트) 4.0 ms
+																	288 text (텍스트) 송신 본문
+																	289 text (텍스트) :
+																	290 text (텍스트) 0 B
+																	291 text (텍스트) 수신 본문
+																	292 text (텍스트) :
+																	293 text (텍스트) 27 B
+																	294 text (텍스트) 디코딩 본문
+																	295 text (텍스트) :
+																	296 text (텍스트) 27 B
+																	298 text (텍스트) DNS:
+																	299 text (텍스트) 0
+																	300 text (텍스트) + ? (1)
+																	301 text (텍스트) TCP:
+																	302 text (텍스트) 1
+																	303 text (텍스트) 디코딩 크기 − 수신 크기
+																	304 text (텍스트) :
+																	306 text (텍스트) 0 B
+																	307 text (텍스트) (
+																	308 text (텍스트) 1
+																	309 text (텍스트) /
+																	310 text (텍스트) 1
+																	311 text (텍스트) )
+																	313 button (단추) 5xx: 1
+																	314 text (텍스트) 관점
+																	315 combo box (콤보 상자) (settable, string) 관점 Value: 프록시 → 원본 서버
+																	316 group (그룹) Description: 0 / 1 / 0
+																		317 text (텍스트) 대기
+																		318 text (텍스트) :
+																		319 text (텍스트) —
+																		320 text (텍스트) + ?
+																	321 group (그룹) Description: 0 / 1 / 0
+																		322 text (텍스트) DNS
+																		323 text (텍스트) :
+																		324 text (텍스트) —
+																		325 text (텍스트) + ?
+																	326 group (그룹) Description: 0 / 1 / 0
+																		327 text (텍스트) 연결
+																		328 text (텍스트) :
+																		329 text (텍스트) —
+																		330 text (텍스트) + ?
+																	331 group (그룹) Description: 0 / 1 / 0
+																		332 text (텍스트) TLS
+																		333 text (텍스트) :
+																		334 text (텍스트) —
+																		335 text (텍스트) + ?
+																	336 group (그룹) Description: 0 / 1 / 0
+																		337 text (텍스트) 전송
+																		338 text (텍스트) :
+																		339 text (텍스트) —
+																		340 text (텍스트) + ?
+																	341 group (그룹) Description: 0 / 1 / 0
+																		342 text (텍스트) 대기 (TTFB)
+																		343 text (텍스트) :
+																		344 text (텍스트) —
+																		345 text (텍스트) + ?
+																	346 group (그룹) Description: 0 / 1 / 0
+																		347 text (텍스트) 수신
+																		348 text (텍스트) :
+																		349 text (텍스트) —
+																		350 text (텍스트) + ?
+																	351 text (텍스트) ?는 미관측 값입니다. 타이밍 관측 지점을 합치지 않으며 재사용 연결·DNS는 한 번 계산합니다. 상태 버튼은 그리드를 필터링합니다.
+																	352 text (텍스트) 프로세스별 상대 워터폴 (표시된 행)
+																	353 text (텍스트) (
+																	354 text (텍스트) 1
+																	355 text (텍스트) /
+																	356 text (텍스트) 1
+																	357 text (텍스트) )
+																	363 button (단추) ? · /error +0.0 ms
+																268 text (텍스트) 저장 / 내보내기
+																269 combo box (콤보 상자) (settable, string) 내보내기 형식 Value: ArchScope session
+																270 combo box (콤보 상자) (settable, string) 내보내기 범위 Value: 저장된 전체 요청
+																271 button (단추) 저장…
+																272 text (텍스트) 텍스트는 마스킹하며 보존 이미지 픽셀은 마스킹하지 않습니다.
+																273 group (세부정보)
+																	274 button (펼치기/접기 삼각형) WinINet 캐시·쿠키
+																		275 text (텍스트) WinINet 캐시·쿠키
+															129 group (세부정보)
+																130 button (펼치기/접기 삼각형) 열 필터
+																	131 text (텍스트) 열 필터
+															132 combo box (콤보 상자) (settable, string) 그룹 기준 Value: 프로세스
+															133 group (세부정보)
+																134 button (펼치기/접기 삼각형) 표시 열
+																	135 text (텍스트) 표시 열
+															136 group (그룹) 트랜잭션
+																137 table (TABLE) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																	138 text (텍스트) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																	139 data item (행)
+																		140 button (단추) # Description: Sort by this column
+																			141 button (단추) #
+																		142 button (단추) 시작 Description: Sort by this column
+																			143 button (단추) 시작
+																		144 button (단추) 메서드 Description: Sort by this column
+																			145 button (단추) 메서드
+																		146 button (단추) 결과 Description: Sort by this column
+																			147 button (단추) 결과
+																		148 button (단추) 호스트 Description: Sort by this column
+																			149 button (단추) 호스트
+																		150 button (단추) 경로 Description: Sort by this column
+																			151 button (단추) 경로
+																		152 button (단추) 종류 Description: Sort by this column
+																			153 button (단추) 종류
+																		154 button (단추) 크기 Description: Sort by this column
+																			155 button (단추) 크기
+																		156 button (단추) 시간 Description: Sort by this column
+																			157 button (단추) 시간
+																		158 button (단추) 타임라인 Description: Sort by this column
+																		159 button (단추) 프로세스 Description: Sort by this column
+																			160 button (단추) 프로세스
+																	161 data item (행)
+																		162 data item (항목) ▾ 127.0.0.1:11515 1 · ↑ 0 B · ↓ 27 B
+																			163 button (단추) ▾ 127.0.0.1:11515 1 · ↑ 0 B · ↓ 27 B
+																	224 data item (행)
+																		225 data item (항목) 1 Description: 1
+																		226 data item (항목) 02:39:52.227 Description: 02:39:52.227
+																		227 data item (항목) GET Description: GET
+																		228 data item (항목) 503 Description: 503
+																		229 data item (항목) 127.0.0.1:11515 Description: 127.0.0.1:11515
+																		230 data item (항목) /error Description: /error
+																		231 data item (항목) JSON Description: json
+																		232 data item (항목) 27 B Description: 27 B
+																		233 data item (항목) 4 ms Description: 4 ms
+																		234 data item (항목) — Description: —
+																		235 data item (항목) — Description: —
+															236 text (텍스트) 방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+															237 thumb (위치 조정) 트랜잭션 목록 크기 조절 Description: 드래그·방향키로 크기를 조절하고, 더블클릭·Home으로 기본 높이를 복원합니다. Value: 100
+															365 status bar (상태)
+																366 text (텍스트) 위에서 요청을 선택하면 상세가 표시됩니다.
+														264 button (단추) 세션 요약 및 근거
+							115 pane (영역)
+					116 pane (영역)
+		1 title bar (제목 표시줄) (settable, string) Value: ArchScope Layout QA
+			2 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				3 menu item (메뉴 항목) 시스템
+			4 button (단추) 최소화
+			5 button (단추) 최대화
+			6 button (단추) 닫기
+		117 menu bar (메뉴 모음) 응용 프로그램 ID: MenuBar
+			8 menu item (메뉴 항목) 파일
+			9 menu item (메뉴 항목) 편집
+			10 menu item (메뉴 항목) 분석
+			11 menu item (메뉴 항목) 워크스페이스
+			12 menu item (메뉴 항목) 캡처
+			13 menu item (메뉴 항목) 보기
+			14 menu item (메뉴 항목) 도움말
+			15 menu item (메뉴 항목) Layout QA
+
+Document text: ```
+HTTP 캡처
+파일·요청 작성
+캡처 설정
+캡처 시작
+캡처 중지
+자동 추적 중
+일시정지
+비우기
+메서드, URL, 호스트, 상태로 필터 · 1 / 6 ●
+세션 도구
+타이밍 및 세션 요약
+요약 범위
+요청 (종료 / 진행 중): 1 (1 / 0)
+관측 시간 범위: 4.0 ms
+송신 본문: 0 B
+수신 본문: 27 B
+디코딩 본문: 27 B
+DNS: 0 + ? (1)
+TCP: 1
+디코딩 크기 − 수신 크기: 0 B (1/1)
+5xx: 1
+관점
+￼
+대기: — + ?
+DNS: — + ?
+연결: — + ?
+TLS: — + ?
+전송: — + ?
+대기 (TTFB): — + ?
+수신: — + ?
+?는 미관측 값입니다. 타이밍 관측 지점을 합치지 않으며 재사용 연결·DNS는 한 번 계산합니다. 상태 버튼은 그리드를 필터링합니다.
+프로세스별 상대 워터폴 (표시된 행) (1/1)
+? · /error
++0.0 ms
+저장 / 내보내기
+내보내기 형식
+내보내기 범위
+저장…
+텍스트는 마스킹하며 보존 이미지 픽셀은 마스킹하지 않습니다.
+WinINet 캐시·쿠키
+열 필터
+그룹 기준
+표시 열
+캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+#
+￼
+시작
+￼
+메서드
+￼
+결과
+￼
+호스트
+￼
+경로
+￼
+종류
+￼
+크기
+￼
+시간
+￼
+타임라인
+￼
+프로세스
+￼
+▾
+127.0.0.1:11515
+1 · ↑ 0 B · ↓ 27 B
+1
+02:39:52.227
+GET
+503
+127.0.0.1:11515
+/error
+JSON
+27 B
+4 ms
+￼
+—
+방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+트랜잭션 목록 크기 조절
+위에서 요청을 선택하면 상세가 표시됩니다.
+세션 요약 및 근거
+```

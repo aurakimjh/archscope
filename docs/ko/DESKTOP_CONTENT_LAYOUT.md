@@ -434,3 +434,22 @@ Trace ms/예시 메서드 표기, Diff x86 정수 상한과 소수 표시, Works
 기록했습니다. 원본 동등성·전체 조건부 상태·실제 OS DPI/KO/EN 조합은 남아 있고
 T-627 REVIEW 및 독립 CONDITIONAL 판정은 유지합니다. 최신 목록과 UI/출력 증거:
 docs/review/evidence/2026-11-14-windows-final/.
+
+### 2026-11-15 Windows/Docker 조건별 추가 검증
+
+네이티브386 form/multipart의 정확한 서버 수신, 파일 선택 취소와 모드 전환을
+검증했습니다. 첨부 후 form 값 비활성화, gzip 실패 응답 메타데이터 손실,
+미지원 인코딩의 잘못된 디코딩 표시, 중단·잘린 본문의 압축 집계를 수정했습니다.
+여섯 응답의 네이티브 재열기와5xx 요약 필터, 영어1024x768 OS100/WebView125,
+한국어1280x800 OS100/WebView100은 각각의 조건으로 기록합니다. 전체 x64/x86
+앱 테스트·빌드, 프런트엔드와 DockerCGO race가 통과했습니다.
+설정 창을 조작할 수 없어 이번 실제 OS125 검증은 남았습니다. 여섯 행으로
+밀집 배치를 통과 처리하지 않습니다. 원본/client 전체 동등성, 실제 IME/drag,
+전체 조건 조합과 격리 호스트 항목은 남으며 T-613 PENDING/T-627 REVIEW 및
+독립 CONDITIONAL을 유지합니다. 최신 목록과 증거:
+docs/review/evidence/2026-11-15-windows-conditional/.
+
+최종 Builder 크기 검토에서 중단/chunked/HEAD 응답의 bodySize도 실제 수신한
+비압축·비잘림 바이트로 수정했습니다. 선언 헤더와 자동 gzip 전송 크기 unknown은
+보존합니다. 수정 후 네이티브 중단 응답은5B, 헤더 선언은12입니다. 최종 x64/x86
+앱45.781초/49.029초와 DockerCGO race가 통과했으며 이전 증거는 구분해 보존합니다.

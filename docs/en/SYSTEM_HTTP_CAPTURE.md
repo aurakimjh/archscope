@@ -2055,3 +2055,22 @@ combinations, transparent/driver/service reach, clean-host COM lifecycle and
 isolated Windows disk/power-loss remain open. T-613PENDING/T-627REVIEW and the
 independent CONDITIONAL verdict are unchanged. Current per-case boundaries:
 `docs/review/evidence/2026-11-14-windows-final/remaining-acceptance.json`.
+
+### 2026-11-15 conditional Windows/Docker increment
+
+Native386 form/multipart exact parser receipts, file-picker cancellation and mode
+transition are verified. Fixed form value disabled after multipart file, lost
+gzip-failure envelopes, false unsupported-encoding decoded previews, and partial/
+capped-body compression totals. Native six-response readback,5xx summary filter,
+English1024x768 OS100/WebView125 and Korean1280x800 OS100/WebView100 are scoped
+separately. Full guarded x64/x86 app tests/builds, frontend and DockerCGO race pass.
+Actual OS125 could not be set through a targetable Settings window; it remains
+unverified here. Six rows do not qualify dense layout. Original/client parity,
+actual IME/drag, full conditional matrix and isolated-host gates remain open.
+T-613PENDING/T-627REVIEW and independent CONDITIONAL are unchanged. Current
+inventory and evidence: docs/review/evidence/2026-11-15-windows-conditional/.
+
+Final Builder byte-count review also fixes short/chunked/HEAD response bodySize
+to actual unencoded uncapped bytes while preserving declared headers and unknown
+automatic-gzip wire size. Corrected native short response:5B,header12. Final x64/
+x86 app45.781s/49.029s and DockerCGO race pass; prior receipts remain separate.

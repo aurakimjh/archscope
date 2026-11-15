@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-11-15",
+  "latestProductCommit": "98e4a9be",
+  "nativeBuildStamp": "8c471359-plus-observed-bytes",
+  "builds": [
+    {
+      "file": "archscope-observed-fixed-386.exe",
+      "bytes": 54319616,
+      "sha256": "d5a5414b6e1b6b3bd38e259ccc3104766725dc4e57f7a53cd5754bad62173e24",
+      "PEMachine": "0x14c"
+    },
+    {
+      "file": "archscope-observed-fixed-amd64.exe",
+      "bytes": 56268288,
+      "sha256": "040a9f769076da995ec830a948eba9737c994c8f7ccb4da48e59f05968ca46d1",
+      "PEMachine": "0x8664"
+    }
+  ],
+  "nativeCases": 16,
+  "caseResultsIncludingPreservedBeforeFixFailures": {
+    "PASS": 14,
+    "FAIL": 2
+  },
+  "checks": {
+    "guardedWindowsFullAppTests": {
+      "amd64": "PASS45.781s",
+      "386": "PASS49.029s"
+    },
+    "guardedNativeBuilds": "PASS x64/x86 production,layoutaudit; POINTABI guard",
+    "focusedSummaryRequestBuilder": "PASS x64/x86",
+    "frontend": "PASS state regression and tsc/Vite",
+    "dockerRace": "PASS final Linux CGO race summary1.026s/requestbuilder11.511s atGo1.26.10; earlier toolchain setup failure separately preserved",
+    "independentReadback": "Exact ordered form/multipart parser receipts; six response canonical readbacks and unchanged session SHA256",
+    "notRerun": "Prior41-minute body-memory and WR02 runs retain their original bounded verdicts; this increment changes Builder response and summary only.",
+    "observedBodySize": "Before-fix regression fails short/chunked/HEAD; corrected focused suites x64/x86 and native5B body/header12 readback pass; auto gzip wire-body remains unknown"
+  },
+  "privateLogHashes": [
+    {
+      "file": "app-386.log",
+      "bytes": 82,
+      "sha256": "c2f257f0e3279db3799733a496a571cd8965783102ddc864fb8f06e1a7be916c"
+    },
+    {
+      "file": "app-amd64.log",
+      "bytes": 82,
+      "sha256": "f29a24af21524e37688f10c9ab3fe2ad17910e814a8eac7b167219ff63d08157"
+    },
+    {
+      "file": "builder-build.log",
+      "bytes": 6255,
+      "sha256": "c59889501c489831f1ee5a73cd4fa212ba133d524c3c5fe99dfbeb60aadb0fc6"
+    },
+    {
+      "file": "builder-native-build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "builder-state.log",
+      "bytes": 170,
+      "sha256": "3e6dc9263931725271709552759a92e933f7959e2b1b9c69475a3e30a57ee0ec"
+    },
+    {
+      "file": "observed-app-386.log",
+      "bytes": 82,
+      "sha256": "6e9e4dff1ddf26073e2c6f48eb4b067369a4a6fd5d945213052e035663c72526"
+    },
+    {
+      "file": "observed-app-amd64.log",
+      "bytes": 82,
+      "sha256": "129b406f35e0b0a86ce5b821e0dca9abb632eed1c7ef55f862b4ec8dd9ff5c2f"
+    },
+    {
+      "file": "observed-docker-race.log",
+      "bytes": 268,
+      "sha256": "be2d996aade7ce5eb8edb7f2f01cb0700912cd84b41528ce118a143dff18257a"
+    },
+    {
+      "file": "observed-native-386.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "observed-native-amd64.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "observed-size-386.log",
+      "bytes": 183,
+      "sha256": "83b59af359c888b2f61813f69928624c2986472c47961e8ca0d2e834c6ab50bc"
+    },
+    {
+      "file": "observed-size-amd64.log",
+      "bytes": 183,
+      "sha256": "1add44c7a9e84e1c35258bb48d55c25621259835541d077a1882f33561894a40"
+    },
+    {
+      "file": "observed-size-before.log",
+      "bytes": 468,
+      "sha256": "2f3789792d7cd0a164d30793ccaacaa36ac3caff9847a139c6a83b18ef45f498"
+    },
+    {
+      "file": "observed-size-matrix.log",
+      "bytes": 541,
+      "sha256": "e381814df0a08fac6b8e62085f44280f3ad1432593eaef2b18639e8243f87114"
+    },
+    {
+      "file": "response-386.log",
+      "bytes": 95,
+      "sha256": "903a9edb8d2cc054725418c3674af4ba94ae461ce6d393a0372f8a5d7038e4ee"
+    },
+    {
+      "file": "response-amd64.log",
+      "bytes": 95,
+      "sha256": "4350367e1010e80b5c91d166dcd73341e07b394803c1ef27a746bc2f5fc83925"
+    },
+    {
+      "file": "response-before.log",
+      "bytes": 783,
+      "sha256": "1d0459d54a37adca569faf3be4f5c917c067f758d4e9ec70a03aab096bad7af6"
+    },
+    {
+      "file": "response-matrix.log",
+      "bytes": 542,
+      "sha256": "4ab5ec11de2cd9b37b53a92654b43afd8850dd9f9660cdf7dad4c46c8a34dd87"
+    },
+    {
+      "file": "response-native-build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "summary-386.log",
+      "bytes": 183,
+      "sha256": "b53abfd2c6c1a2bc68880edd62e3588448eef0f798932b02c8df6f07415f4d92"
+    },
+    {
+      "file": "summary-amd64.log",
+      "bytes": 183,
+      "sha256": "f1f03fe0f0ffa0f50e3b1472914422571196f0767bfdbe02d097395bc104acbc"
+    },
+    {
+      "file": "summary-app-386.log",
+      "bytes": 82,
+      "sha256": "447aa088c52c6b52a3ef477c319111147e6323ea6950771583bc3d8dc5ec42dc"
+    },
+    {
+      "file": "summary-app-amd64.log",
+      "bytes": 82,
+      "sha256": "21ca116cea552250a8f766978093d4e76fc74f24774d350e8d06de82e6403722"
+    },
+    {
+      "file": "summary-before.log",
+      "bytes": 256,
+      "sha256": "4ec95e1bbe8ab8953df302fa8f90c27a90ac1e2e072b8c3db37c5f114070795a"
+    },
+    {
+      "file": "summary-docker-race-retry.log",
+      "bytes": 268,
+      "sha256": "632edcdb59c4a48747bcb39a1e66086013874c59dfa2c8c171b3b4907ef04bdb"
+    },
+    {
+      "file": "summary-docker-race.log",
+      "bytes": 74,
+      "sha256": "b8e4ad67f01841259eef05d2d15e642ab4a9d88e38dfebc345b0abeb912c0d64"
+    },
+    {
+      "file": "summary-frontend-build.log",
+      "bytes": 6255,
+      "sha256": "496f75bce3288d3326eb4a80e5b0608b41ad14bfa3f10d23e029a6aeb20c46fc"
+    },
+    {
+      "file": "summary-native-386.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "summary-native-amd64.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "summary-state-before.log",
+      "bytes": 1017,
+      "sha256": "2183c837d6bb29d1156fdd00c099c726582d96ab7157d5fddb933d50a4b3de9b"
+    },
+    {
+      "file": "summary-state.log",
+      "bytes": 170,
+      "sha256": "3e6dc9263931725271709552759a92e933f7959e2b1b9c69475a3e30a57ee0ec"
+    }
+  ],
+  "responseFixture": {
+    "file": "response-matrix.httpsession",
+    "bytes": 1061032,
+    "sha256": "a44103fe5dc4a2e6e5964e41ce4474fe39893b1b3bb189a280f145d4178afe45"
+  },
+  "sourceHashes": [
+    {
+      "file": "requestbuilder.go",
+      "bytes": 12798,
+      "sha256": "3b4024f5f7c0100f5121d62ac2628689e6acd8d6e14124dfb93c45615535bafa"
+    },
+    {
+      "file": "summary.go",
+      "bytes": 5387,
+      "sha256": "4a26d10556ecf79c9c38e7ec2c72165b3f9c973f5231f4135d8c97ebf0d7a99d"
+    },
+    {
+      "file": "httpSummary.ts",
+      "bytes": 4399,
+      "sha256": "3b5c893f057505dd9ec9f1e2a73791fb57e3221f7807c211c51bdc42d7f3e190"
+    },
+    {
+      "file": "HttpRequestBuilder.tsx",
+      "bytes": 14416,
+      "sha256": "c95e4e157fb996f37444d7da6ba559f120ccf2dfddac0d9e20a30d071691d35f"
+    }
+  ],
+  "cleanup": "PASS; exact owned app PID/path and fixture label checked; owned containers removed, seven preexisting containers preserved (cleanup.json)",
+  "correctedResponseFixture": {
+    "file": "observed-size.httpsession",
+    "bytes": 1061031,
+    "sha256": "eb5771753cc0d790c12244ddbd6c34d4a6ccfb50ad15a0f25205704ffeb050b1"
+  },
+  "sourceHashBasis": "Final worktree bytes; evidence manifest separately hashes exact Git index blobs",
+  "taskCommits": [
+    "7117d654",
+    "f51e8fe3",
+    "6eb28f4f",
+    "8c471359",
+    "98e4a9be"
+  ]
+}

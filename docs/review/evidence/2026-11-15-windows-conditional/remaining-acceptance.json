@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 3,
+  "asOf": "2026-11-15",
+  "baseline": "fbf2ce2c",
+  "scope": "Incremental Windows386 native and Windows x64/x86 backend tests against owned Docker; bounded selected fixtures, not full acceptance closure.",
+  "priorRouteInventory": "../2026-11-14-windows-final/remaining-acceptance.json",
+  "T-613": {
+    "status": "PENDING",
+    "newlyVerified": [
+      "Native form duplicate/empty/Unicode-reserved fields; exact independent Docker parser bytes/order",
+      "Native multipart54binary bytes and sanitized custom basename; replacement file-picker Escape preserves attachment",
+      "Fixed multipart-file to form mode: hidden file no longer disables editable text; exact form send",
+      "Preserved failed-gzip envelope and unknown decoded data; unsupported br no false PNG/legacy/text decode; corrupt checksum prefix rejected",
+      "Six actual Windows386 backend response sends then native saved-file Body views: gzip,unsupported br,short read,capped large,503,delay",
+      "Complete-pair compression summary matches native six-row -20B(3/6); native5xx filter updates one-row0B(1/1) and clears excluded selection",
+      "Full guarded app tests and builds x64/x86; frontend state/build; Linux DockerCGO race focused summary/requestbuilder",
+      "Unencoded uncapped bodySize uses actual bytes, not declared header: short5/header12, chunked5, HEAD0; auto gzip wire-body unknown. New native corrected5B receipt supersedes earlier12B-body fixture."
+    ],
+    "remaining": [
+      "Original V7.6.4/client full16case exchange/native display/export equivalence",
+      "ActualHangul IME composition and drag-specific column/Builder paths remain unverified; helper rejected composition key and drag did not establish outcome",
+      "Other body/stream/format/annotation/error/locale/DPI combinations beyond individually recorded fixtures; selected unsupported/multipart/error boundaries above are now verified.",
+      "amd64 body-enabled matrix remains actual-preflight gated; no dump/security policy bypass",
+      "Transparent/driver/service/other-session/proxy-ignoring reach requires corresponding native backend and isolated qualification",
+      "Full foreign-client/early-bound COM/session-cookie and clean-host registration lifecycle",
+      "Actual Windows disk exhaustion/power-loss/pressure recovery requires an isolated host/VM; Docker tmpfs is scoped only",
+      "Memory result is BOUNDED_IN_THIS_RUN; other workloads/durations and universal leak freedom remain unqualified"
+    ]
+  },
+  "T-627": {
+    "status": "REVIEW",
+    "additionalNativeCondition": "English1024x768 OS100%/WebView125%; six rows,stacked Body and Up selection. KO1280x800 OS100%/WebView100% summary/filter.",
+    "actualOS125": "Not verified this increment. Settings launch exposed no targetable window; Start recovery also unavailable. No OS scale was changed. WebView125 is separate.",
+    "remaining": "Original/reference parity and full condition/language/actual OS-DPI/density matrix; previous21-route inventory remains authoritative outside these selected cases. Six rows do not qualify ten-row dense layout."
+  },
+  "otherOpenTasks": {
+    "T-601": "Actual WinDivert/native reach and driver-policy evidence remains separate; no driver installation in this shared host.",
+    "T-611": "Original foreign-client/vendor compatibility/session-cookie and clean-host lifecycle remain separate.",
+    "T-654": "Permitted actual CUDA/NCCL distributed inference inputs, selected versions and hardware required.",
+    "T-662": "Actual naturally elevated pressure/nonzero-swap evidence on target host remains required."
+  },
+  "unchangedIndependentVerdict": "CONDITIONAL; no new independent review or universal PASS"
+}

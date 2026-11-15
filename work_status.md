@@ -5807,3 +5807,16 @@ retain independent byte totals and genuine gzip overhead/complete503. Native
 six-row readback shows-20B(3/6). Focused x64/x86,state/build,guarded native builds
 and full app49.800s/48.696s pass. T-613PENDING; original acceptance unchanged.
 Evidence:2026-11-15-windows-conditional/summary-complete-pairs-native.jpg.
+
+### 2026-11-15 - conditional Windows/Docker completion receipt
+
+Five task commits cover native form/multipart transition, response envelope/
+decoding boundaries, six-response smallENviewport, complete-pair summary and
+observed short/chunked/HEAD body-size fixes.
+Additional native5xx filter updates27B/0B(1/1) and clears excluded selection.
+17nativecases:15PASS/2preserved pre-fixFAILs. Final DockerCGO race summary1.026s and
+requestbuilder11.511s pass; full guarded app x6445.781s/x8649.029s,frontend and
+both native builds pass. Exact owned cleanup preserves7preexistingcontainers.
+Paired EN/KO docs,current remaining gates and exact indexed hashes updated.
+T-613PENDING/T-627REVIEW/originalCONDITIONAL unchanged; OS125 unverified here.
+Evidence:2026-11-15-windows-conditional/remaining-acceptance.json.
