@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "scope": "Actual Windows explicit proxy to owned Docker; current SEC10 gate, no dump-policy or trust changes",
+  "passed": false,
+  "build": "5971ae35-plus-stream-fixture",
+  "gate": {
+    "available": true,
+    "state": "sec10_verified"
+  },
+  "responses": [
+    {
+      "path": "/identity",
+      "state": "complete",
+      "bodySize": 27,
+      "bodyDecoded": 27,
+      "bodyStorage": "inline",
+      "bodyEncoding": "IdEnTiTy",
+      "previewBytes": 27,
+      "codingHeaders": [
+        "IdEnTiTy"
+      ]
+    },
+    {
+      "path": "/x-gzip",
+      "state": "complete",
+      "bodySize": 47,
+      "bodyDecoded": 27,
+      "bodyStorage": "inline",
+      "bodyEncoding": "x-gzip",
+      "previewBytes": 27,
+      "codingHeaders": [
+        "x-gzip"
+      ]
+    },
+    {
+      "path": "/stacked",
+      "state": "complete",
+      "bodySize": 47,
+      "bodyDecoded": 27,
+      "bodyStorage": "inline",
+      "bodyEncoding": "gzip",
+      "previewBytes": 27,
+      "codingHeaders": [
+        "gzip",
+        "br"
+      ]
+    },
+    {
+      "path": "/binary",
+      "state": "complete",
+      "bodySize": 1048610,
+      "bodyDecoded": 4096,
+      "bodyStorage": "truncated",
+      "bodyEncoding": "",
+      "previewBytes": 0,
+      "codingHeaders": []
+    },
+    {
+      "path": "/binary-gzip",
+      "state": "complete",
+      "bodySize": 1052,
+      "bodyDecoded": 4096,
+      "bodyStorage": "truncated",
+      "bodyEncoding": "gzip",
+      "previewBytes": 0,
+      "codingHeaders": [
+        "gzip"
+      ]
+    }
+  ],
+  "failure": "Actual live proxy assertions failed; details remain private",
+  "compression": {
+    "compressionKnown": 3,
+    "compressionSaved": -40,
+    "total": 5
+  }
+}

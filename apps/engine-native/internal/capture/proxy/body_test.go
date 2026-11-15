@@ -81,3 +81,32 @@ func TestBinaryPreviewCapRemainsVisibleToSummary(t *testing.T) {
 		}
 	}
 }
+
+func TestUnavailableDecodedSizesStayUnknown(t *testing.T) {
+	for _, test := range []struct {
+		name, encoding   string
+		capture, missing bool
+		payload          []byte
+		decoded          int64
+	}{
+		{"missing", "", false, true, nil, -1},
+		{"omitted", "", false, false, []byte("abc"), -1},
+		{"unsupported", "br", true, false, []byte("abc"), -1},
+		{"invalid-gzip", "gzip", true, false, []byte("abc"), -1},
+		{"observed-empty", "", true, false, nil, 0},
+	} {
+		var recorder *bodyRecorder
+		if !test.missing {
+			recorder = newBodyRecorder(io.NopCloser(bytes.NewReader(test.payload)), test.capture, 128)
+			io.Copy(io.Discard, recorder)
+		}
+		message := models.HTTPMessage{}
+		applyBody(&message, recorder, test.encoding)
+		if message.BodyDecoded != test.decoded {
+			t.Errorf("%s decoded=%d want=%d", test.name, message.BodyDecoded, test.decoded)
+		}
+		if test.missing && (message.BodySize != -1 || message.TransferSize != -1) {
+			t.Errorf("unobserved recorder must not invent transferred bytes: %+v", message)
+		}
+	}
+}

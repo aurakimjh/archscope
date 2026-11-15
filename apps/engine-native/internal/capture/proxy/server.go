@@ -238,8 +238,11 @@ func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 
 func (s *Server) transport() *http.Transport {
 	return &http.Transport{
-		TLSClientConfig:   &tls.Config{RootCAs: s.cfg.UpstreamRoots, MinVersion: tls.VersionTLS12},
-		ForceAttemptHTTP2: false,
+		// Forward client negotiation and wire bytes unchanged; bodyRecorder
+		// decodes a bounded copy after recording the full coding headers.
+		DisableCompression: true,
+		TLSClientConfig:    &tls.Config{RootCAs: s.cfg.UpstreamRoots, MinVersion: tls.VersionTLS12},
+		ForceAttemptHTTP2:  false,
 		DialContext: func(ctx context.Context, network, address string) (net.Conn, error) {
 			if destination, ok := ctx.Value(transparentDestinationKey{}).(string); ok && destination != "" {
 				address = destination
@@ -623,8 +626,8 @@ func (SemanticInterceptor) Transaction(exchange Exchange) models.CaptureTransact
 		BodyStorage: BodyStorageOmitted,
 		ContentType: response.Header.Get("Content-Type"),
 	}
-	applyBody(&requestMessage, exchange.RequestBody, request.Header.Get("Content-Encoding"))
-	applyBody(&responseMessage, exchange.ResponseBody, response.Header.Get("Content-Encoding"))
+	applyBody(&requestMessage, exchange.RequestBody, strings.Join(request.Header.Values("Content-Encoding"), ", "))
+	applyBody(&responseMessage, exchange.ResponseBody, strings.Join(response.Header.Values("Content-Encoding"), ", "))
 
 	tx := models.CaptureTransaction{
 		ID: newTransactionID(started), Method: request.Method, URL: urlValue, Scheme: scheme,
@@ -658,6 +661,8 @@ func (SemanticInterceptor) Transaction(exchange Exchange) models.CaptureTransact
 // wrapped that body, which is reported as omission rather than as zero bytes.
 func applyBody(message *models.HTTPMessage, recorder *bodyRecorder, contentEncoding string) {
 	if recorder == nil {
+		message.BodyDecoded = -1
+		message.TransferSize = -1
 		message.BodySize = -1
 		message.BodyStorage = BodyStorageOmitted
 		return

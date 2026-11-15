@@ -398,3 +398,57 @@ func TestIncompleteBodyIsFailedExchange(t *testing.T) {
 		t.Fatalf("incomplete=%+v", tx)
 	}
 }
+
+func TestRepeatedContentEncodingIsNotDecodedAsOnlyFirstValue(t *testing.T) {
+	var packed bytes.Buffer
+	g := gzip.NewWriter(&packed)
+	io.WriteString(g, "stacked-proof")
+	g.Close()
+	req, _ := http.NewRequest("POST", "http://example.test/stacked", bytes.NewReader(packed.Bytes()))
+	headers := http.Header{"Content-Encoding": []string{"gzip", "br"}, "Content-Type": []string{"text/plain"}}
+	req.Header = headers.Clone()
+	response := &http.Response{StatusCode: 200, Header: headers.Clone()}
+	requestBody := newBodyRecorder(io.NopCloser(bytes.NewReader(packed.Bytes())), true, 4096)
+	responseBody := newBodyRecorder(io.NopCloser(bytes.NewReader(packed.Bytes())), true, 4096)
+	io.Copy(io.Discard, requestBody)
+	io.Copy(io.Discard, responseBody)
+	tx := (SemanticInterceptor{}).Transaction(Exchange{Request: req, Response: response, RequestBody: requestBody, ResponseBody: responseBody, Started: time.Now(), Ended: time.Now()})
+	for _, m := range []models.HTTPMessage{tx.Request, tx.Response} {
+		if m.BodyStorage != "encoded" || m.BodyDecoded != -1 || m.BodyEncoding != "gzip, br" || m.BodyPreview != "" || m.ImagePreview != nil {
+			t.Errorf("unsupported stack falsely decoded: storage=%s encoding=%s decoded=%d preview=%q", m.BodyStorage, m.BodyEncoding, m.BodyDecoded, m.BodyPreview)
+		}
+	}
+}
+
+func TestProxyPreservesClientEncodingNegotiationAndWireBody(t *testing.T) {
+	var packed bytes.Buffer
+	g := gzip.NewWriter(&packed)
+	io.WriteString(g, "unsolicited-gzip")
+	g.Close()
+	negotiated := make(chan string, 1)
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		negotiated <- r.Header.Get("Accept-Encoding")
+		w.Header().Set("Content-Encoding", "gzip")
+		w.Write(packed.Bytes())
+	}))
+	defer origin.Close()
+	address, _ := startPlainProxy(t, Config{})
+	transport := &http.Transport{Proxy: http.ProxyURL(proxyURL(address)), DisableCompression: true}
+	defer transport.CloseIdleConnections()
+	client := &http.Client{Transport: transport}
+	response, err := client.Get(origin.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := io.ReadAll(response.Body)
+	response.Body.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := <-negotiated; got != "" {
+		t.Errorf("proxy invented Accept-Encoding: %q", got)
+	}
+	if response.Header.Get("Content-Encoding") != "gzip" || !bytes.Equal(data, packed.Bytes()) {
+		t.Errorf("proxy changed wire response: encoding=%q size=%d expected=%d", response.Header.Get("Content-Encoding"), len(data), packed.Len())
+	}
+}

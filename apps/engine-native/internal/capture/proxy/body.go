@@ -96,11 +96,13 @@ func (r *bodyRecorder) apply(message *models.HTTPMessage, contentEncoding string
 	message.BodySize = r.n
 	message.TransferSize = r.n
 	message.BodyEncoding = contentEncoding
+	message.BodyDecoded = -1
 	if !r.capture {
 		message.BodyStorage = BodyStorageOmitted
 		return
 	}
 	if r.n == 0 {
+		message.BodyDecoded = 0
 		message.BodyStorage = BodyStorageInline
 		return
 	}

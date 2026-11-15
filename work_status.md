@@ -5838,3 +5838,13 @@ classification; no false text/raster. Exact128B binary stays complete/eligible.
 Full proxy+summary Windowsx64/x86 suites pass. Internal synthetic recorder checks
 are separate from actual live-body preflight and native saved-file observations.
 Evidence:2026-11-15-windows-stream-boundaries/README.md.
+
+### 2026-11-15 - T-613 live proxy encoding fidelity and unknown sizes
+
+Actual SEC10-verified386 capture confirms binary cap but reproduces repeated
+coding headers falsely decoded. Regressions also catch proxy-added gzip negotiation
+and automatic wire response inflation, plus unknown decoded/transfer sizes shown0.
+Forward negotiation/wire bytes, inspect full coding stack, preserve unknown sizes
+and observed-empty0. Full proxy/requestbuilder/summary Windowsx64/x86 suites pass.
+Before live receipt preserved; native/actual after-fix check is separately pinned.
+Evidence:2026-11-15-windows-stream-boundaries/live-proxy-before.json.

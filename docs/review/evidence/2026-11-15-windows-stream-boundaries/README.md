@@ -27,3 +27,17 @@ for wire or decoded cap. Exact128B binary remains binary/eligible; capped raw an
 compressed binary are truncated/excluded. This is synthetic internal recorder
 coverage, not a live-body SEC10 preflight pass. Full Windows proxy+summary suites
 pass amd641.450s/0.422s and3861.474s/0.431s.
+
+## Live proxy encoding and unknown sizes
+
+Actual Windows386 SEC10-verified body capture confirms binary raw/gzip caps at
+4096B but exposes repeated gzip+br falsely inline/decoded27, compression-40B/3known
+instead of encoded/unknown and-20B/2known. live-proxy-before.json preserves it.
+New failing request/response regressions reproduce the same stack interpretation;
+a transport regression shows the proxy inventing Accept-Encoding:gzip and
+inflating an unsolicited40B gzip into16B while stripping the coding header.
+Disable proxy transport auto-negotiation/inflation and interpret every coding
+header. Separate failing tests expose decoded/transfer zero for unavailable
+bodies: missing/omitted/unsupported/corrupt sizes now unknown; observed empty is0.
+Complete proxy/requestbuilder/summary suites pass Windowsx64/x86 after correction.
+Actual gate/current runtime and native after-fix receipts remain separately pinned.
