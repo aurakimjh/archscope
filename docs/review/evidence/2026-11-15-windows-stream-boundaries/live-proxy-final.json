@@ -1,0 +1,355 @@
+{
+  "schemaVersion": 1,
+  "scope": "Actual Windows explicit proxy to owned Docker; current SEC10 gate, no dump-policy or trust changes",
+  "passed": true,
+  "build": "18f31498-plus-binary-notice",
+  "gate": {
+    "available": true,
+    "state": "sec10_verified"
+  },
+  "clientWire": {
+    "identity": {
+      "bytes": 27,
+      "sha256": "f3cd054840395c2f3651fa624de36eda2fb55bec089e48f7c6e97bdd22d8981a",
+      "encoding": "IdEnTiTy"
+    },
+    "x-gzip": {
+      "bytes": 47,
+      "sha256": "051d89e09a317d83127b2e8eeaaa610fd31ea619f0800dc12f8126fabeec9455",
+      "encoding": "x-gzip"
+    },
+    "stacked": {
+      "bytes": 47,
+      "sha256": "051d89e09a317d83127b2e8eeaaa610fd31ea619f0800dc12f8126fabeec9455",
+      "encoding": "gzip, br"
+    },
+    "binary": {
+      "bytes": 1048610,
+      "sha256": "0cbd17461191a95eb491bfd3286c2eda40502d44c74bbd6a65abf1ab24d89d57",
+      "encoding": ""
+    },
+    "binary-gzip": {
+      "bytes": 1052,
+      "sha256": "f8471dd5d231f1767277971c6c61b0f2dcc0a2e8c2d3fae2ae4c4b48592a37e1",
+      "encoding": "gzip"
+    }
+  },
+  "responses": [
+    {
+      "path": "/identity",
+      "state": "complete",
+      "bodySize": 27,
+      "bodyDecoded": 27,
+      "bodyStorage": "inline",
+      "bodyEncoding": "IdEnTiTy",
+      "previewBytes": 27,
+      "codingHeaders": [
+        "IdEnTiTy"
+      ]
+    },
+    {
+      "path": "/x-gzip",
+      "state": "complete",
+      "bodySize": 47,
+      "bodyDecoded": 27,
+      "bodyStorage": "inline",
+      "bodyEncoding": "x-gzip",
+      "previewBytes": 27,
+      "codingHeaders": [
+        "x-gzip"
+      ]
+    },
+    {
+      "path": "/stacked",
+      "state": "complete",
+      "bodySize": 47,
+      "bodyDecoded": -1,
+      "bodyStorage": "encoded",
+      "bodyEncoding": "gzip, br",
+      "previewBytes": 0,
+      "codingHeaders": [
+        "gzip",
+        "br"
+      ]
+    },
+    {
+      "path": "/binary",
+      "state": "complete",
+      "bodySize": 1048610,
+      "bodyDecoded": 4096,
+      "bodyStorage": "truncated",
+      "bodyEncoding": "",
+      "previewBytes": 0,
+      "codingHeaders": []
+    },
+    {
+      "path": "/binary-gzip",
+      "state": "complete",
+      "bodySize": 1052,
+      "bodyDecoded": 4096,
+      "bodyStorage": "truncated",
+      "bodyEncoding": "gzip",
+      "previewBytes": 0,
+      "codingHeaders": [
+        "gzip"
+      ]
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "completed": 5,
+    "pending": 0,
+    "sent": {
+      "bytes": 0,
+      "unknown": 0
+    },
+    "received": {
+      "bytes": 1049783,
+      "unknown": 0
+    },
+    "decoded": {
+      "bytes": 8246,
+      "unknown": 1
+    },
+    "compressionSaved": -20,
+    "compressionKnown": 2,
+    "connections": 5,
+    "connectionsUnknown": 0,
+    "dns": 0,
+    "dnsUnknown": 5,
+    "elapsedMs": 112.756,
+    "timeKnown": true,
+    "statusCounts": {
+      "2xx": 5
+    },
+    "phases": [
+      {
+        "perspective": "clientProxy",
+        "name": "blocked",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "clientProxy",
+        "name": "dns",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "clientProxy",
+        "name": "connect",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "clientProxy",
+        "name": "tls",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "clientProxy",
+        "name": "send",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "clientProxy",
+        "name": "wait",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "clientProxy",
+        "name": "receive",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "proxyInternal",
+        "name": "blocked",
+        "ms": 0,
+        "known": 5,
+        "unknown": 0,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "proxyInternal",
+        "name": "dns",
+        "ms": 0,
+        "known": 0,
+        "unknown": 0,
+        "notApplicable": 5
+      },
+      {
+        "perspective": "proxyInternal",
+        "name": "connect",
+        "ms": 0,
+        "known": 0,
+        "unknown": 0,
+        "notApplicable": 5
+      },
+      {
+        "perspective": "proxyInternal",
+        "name": "tls",
+        "ms": 0,
+        "known": 0,
+        "unknown": 0,
+        "notApplicable": 5
+      },
+      {
+        "perspective": "proxyInternal",
+        "name": "send",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "proxyInternal",
+        "name": "wait",
+        "ms": 28.509999999999998,
+        "known": 5,
+        "unknown": 0,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "proxyInternal",
+        "name": "receive",
+        "ms": 9.273,
+        "known": 5,
+        "unknown": 0,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "proxyUpstream",
+        "name": "blocked",
+        "ms": 0,
+        "known": 5,
+        "unknown": 0,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "proxyUpstream",
+        "name": "dns",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "proxyUpstream",
+        "name": "connect",
+        "ms": 6.895,
+        "known": 5,
+        "unknown": 0,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "proxyUpstream",
+        "name": "tls",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "proxyUpstream",
+        "name": "send",
+        "ms": 0,
+        "known": 5,
+        "unknown": 0,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "proxyUpstream",
+        "name": "wait",
+        "ms": 21.613,
+        "known": 5,
+        "unknown": 0,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "proxyUpstream",
+        "name": "receive",
+        "ms": 9.273,
+        "known": 5,
+        "unknown": 0,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "importedHar",
+        "name": "blocked",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "importedHar",
+        "name": "dns",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "importedHar",
+        "name": "connect",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "importedHar",
+        "name": "tls",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "importedHar",
+        "name": "send",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "importedHar",
+        "name": "wait",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      },
+      {
+        "perspective": "importedHar",
+        "name": "receive",
+        "ms": 0,
+        "known": 0,
+        "unknown": 5,
+        "notApplicable": 0
+      }
+    ]
+  },
+  "positiveBodyVerified": true,
+  "zeroDrops": true,
+  "savedReopened": true
+}

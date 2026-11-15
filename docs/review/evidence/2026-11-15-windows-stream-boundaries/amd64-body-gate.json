@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "scope": "Actual Windows explicit proxy to owned Docker; current SEC10 gate, no dump-policy or trust changes",
+  "passed": false,
+  "build": "2bc1d138-plus-keyboard-visibility",
+  "gate": {
+    "available": false,
+    "state": "sec10_unavailable"
+  },
+  "gated": true,
+  "positiveBodyVerified": false
+}

@@ -1,0 +1,335 @@
+{
+  "passed": true,
+  "execution": "Actual Windows backend sends; native saved-file observations separately pinned",
+  "architectures": {
+    "386": {
+      "sessionSha256": "a3507fc56ba6a6110847e56f57cff2b09d413c1d254110a83b8a6360f83f4c52",
+      "count": 13,
+      "summary": {
+        "total": 13,
+        "completed": 13,
+        "pending": 0,
+        "compressionKnown": 6,
+        "compressionSaved": -20
+      },
+      "rows": [
+        {
+          "path": "/identity",
+          "state": "complete",
+          "bodySize": 27,
+          "bodyDecoded": 27,
+          "storage": "inline"
+        },
+        {
+          "path": "/identity-short",
+          "state": "failed",
+          "bodySize": 5,
+          "bodyDecoded": 5,
+          "storage": "inline"
+        },
+        {
+          "path": "/x-gzip",
+          "state": "complete",
+          "bodySize": 47,
+          "bodyDecoded": 27,
+          "storage": "inline"
+        },
+        {
+          "path": "/stacked",
+          "state": "complete",
+          "bodySize": 47,
+          "bodyDecoded": -1,
+          "storage": "encoded"
+        },
+        {
+          "path": "/binary",
+          "state": "complete",
+          "bodySize": 1048610,
+          "bodyDecoded": 1048576,
+          "storage": "truncated"
+        },
+        {
+          "path": "/binary-gzip",
+          "state": "complete",
+          "bodySize": 1052,
+          "bodyDecoded": 1048576,
+          "storage": "truncated"
+        },
+        {
+          "path": "/binary-exact",
+          "state": "complete",
+          "bodySize": 1048576,
+          "bodyDecoded": 1048576,
+          "storage": "binary"
+        },
+        {
+          "path": "/stream",
+          "state": "complete",
+          "bodySize": 19,
+          "bodyDecoded": 19,
+          "storage": "inline"
+        },
+        {
+          "path": "/hold",
+          "state": "failed",
+          "bodySize": 7,
+          "bodyDecoded": 7,
+          "storage": "inline"
+        },
+        {
+          "path": "/identity",
+          "state": "complete",
+          "bodySize": 27,
+          "bodyDecoded": 27,
+          "storage": "inline"
+        },
+        {
+          "path": "/hold-gzip",
+          "state": "failed",
+          "bodySize": -1,
+          "bodyDecoded": -1,
+          "storage": "encoded"
+        },
+        {
+          "path": "/timeout",
+          "state": "failed",
+          "bodySize": 17,
+          "bodyDecoded": 17,
+          "storage": "inline"
+        },
+        {
+          "path": "/head",
+          "state": "complete",
+          "bodySize": 0,
+          "bodyDecoded": 0,
+          "storage": "inline"
+        }
+      ],
+      "independentServerCancellationEvents": [
+        {
+          "path": "/hold?id=cancel-18e81c5f31dd9c14-hold",
+          "stage": "start",
+          "method": "GET",
+          "acceptEncoding": "gzip"
+        },
+        {
+          "path": "/hold?id=cancel-18e81c5f31dd9c14-hold",
+          "stage": "prefix",
+          "method": "GET",
+          "acceptEncoding": "gzip"
+        },
+        {
+          "path": "/hold?id=cancel-18e81c5f31dd9c14-hold",
+          "stage": "client-closed",
+          "method": "GET",
+          "acceptEncoding": "gzip"
+        },
+        {
+          "path": "/hold-gzip?id=cancel-18e81c5f31dd9c14-hold-gzip",
+          "stage": "start",
+          "method": "GET",
+          "acceptEncoding": "gzip"
+        },
+        {
+          "path": "/hold-gzip?id=cancel-18e81c5f31dd9c14-hold-gzip",
+          "stage": "prefix",
+          "method": "GET",
+          "acceptEncoding": "gzip"
+        },
+        {
+          "path": "/hold-gzip?id=cancel-18e81c5f31dd9c14-hold-gzip",
+          "stage": "client-closed",
+          "method": "GET",
+          "acceptEncoding": "gzip"
+        }
+      ]
+    },
+    "amd64": {
+      "sessionSha256": "11905dd04b0256098eaab5a789feb0d161a9f040599a2b8f978a656b9597c748",
+      "count": 13,
+      "summary": {
+        "total": 13,
+        "completed": 13,
+        "pending": 0,
+        "compressionKnown": 6,
+        "compressionSaved": -20
+      },
+      "rows": [
+        {
+          "path": "/identity",
+          "state": "complete",
+          "bodySize": 27,
+          "bodyDecoded": 27,
+          "storage": "inline"
+        },
+        {
+          "path": "/identity-short",
+          "state": "failed",
+          "bodySize": 5,
+          "bodyDecoded": 5,
+          "storage": "inline"
+        },
+        {
+          "path": "/x-gzip",
+          "state": "complete",
+          "bodySize": 47,
+          "bodyDecoded": 27,
+          "storage": "inline"
+        },
+        {
+          "path": "/stacked",
+          "state": "complete",
+          "bodySize": 47,
+          "bodyDecoded": -1,
+          "storage": "encoded"
+        },
+        {
+          "path": "/binary",
+          "state": "complete",
+          "bodySize": 1048610,
+          "bodyDecoded": 1048576,
+          "storage": "truncated"
+        },
+        {
+          "path": "/binary-gzip",
+          "state": "complete",
+          "bodySize": 1052,
+          "bodyDecoded": 1048576,
+          "storage": "truncated"
+        },
+        {
+          "path": "/binary-exact",
+          "state": "complete",
+          "bodySize": 1048576,
+          "bodyDecoded": 1048576,
+          "storage": "binary"
+        },
+        {
+          "path": "/stream",
+          "state": "complete",
+          "bodySize": 19,
+          "bodyDecoded": 19,
+          "storage": "inline"
+        },
+        {
+          "path": "/hold",
+          "state": "failed",
+          "bodySize": 7,
+          "bodyDecoded": 7,
+          "storage": "inline"
+        },
+        {
+          "path": "/identity",
+          "state": "complete",
+          "bodySize": 27,
+          "bodyDecoded": 27,
+          "storage": "inline"
+        },
+        {
+          "path": "/hold-gzip",
+          "state": "failed",
+          "bodySize": -1,
+          "bodyDecoded": -1,
+          "storage": "encoded"
+        },
+        {
+          "path": "/timeout",
+          "state": "failed",
+          "bodySize": 17,
+          "bodyDecoded": 17,
+          "storage": "inline"
+        },
+        {
+          "path": "/head",
+          "state": "complete",
+          "bodySize": 0,
+          "bodyDecoded": 0,
+          "storage": "inline"
+        }
+      ],
+      "independentServerCancellationEvents": [
+        {
+          "path": "/hold?id=cancel-18e81c5f4a1c2264-hold",
+          "stage": "start",
+          "method": "GET",
+          "acceptEncoding": "gzip"
+        },
+        {
+          "path": "/hold?id=cancel-18e81c5f4a1c2264-hold",
+          "stage": "prefix",
+          "method": "GET",
+          "acceptEncoding": "gzip"
+        },
+        {
+          "path": "/hold?id=cancel-18e81c5f4a1c2264-hold",
+          "stage": "client-closed",
+          "method": "GET",
+          "acceptEncoding": "gzip"
+        },
+        {
+          "path": "/hold-gzip?id=cancel-18e81c5f4a1c2264-hold-gzip",
+          "stage": "start",
+          "method": "GET",
+          "acceptEncoding": "gzip"
+        },
+        {
+          "path": "/hold-gzip?id=cancel-18e81c5f4a1c2264-hold-gzip",
+          "stage": "prefix",
+          "method": "GET",
+          "acceptEncoding": "gzip"
+        },
+        {
+          "path": "/hold-gzip?id=cancel-18e81c5f4a1c2264-hold-gzip",
+          "stage": "client-closed",
+          "method": "GET",
+          "acceptEncoding": "gzip"
+        }
+      ]
+    }
+  },
+  "actualProxy": {
+    "build": "18f31498-plus-binary-notice",
+    "gate": {
+      "available": true,
+      "state": "sec10_verified"
+    },
+    "sessionSha256": "4332be835f0e5629ee9dd73e2c7e5f2a5c0c2656adb524bbed56180971631ffd",
+    "directOriginMatchesAllFiveClientWireBodies": {
+      "identity": {
+        "bytes": 27,
+        "sha256": "f3cd054840395c2f3651fa624de36eda2fb55bec089e48f7c6e97bdd22d8981a"
+      },
+      "x-gzip": {
+        "bytes": 47,
+        "sha256": "051d89e09a317d83127b2e8eeaaa610fd31ea619f0800dc12f8126fabeec9455"
+      },
+      "stacked": {
+        "bytes": 47,
+        "sha256": "051d89e09a317d83127b2e8eeaaa610fd31ea619f0800dc12f8126fabeec9455"
+      },
+      "binary": {
+        "bytes": 1048610,
+        "sha256": "0cbd17461191a95eb491bfd3286c2eda40502d44c74bbd6a65abf1ab24d89d57"
+      },
+      "binary-gzip": {
+        "bytes": 1052,
+        "sha256": "f8471dd5d231f1767277971c6c61b0f2dcc0a2e8c2d3fae2ae4c4b48592a37e1"
+      }
+    }
+  },
+  "latestNativeBuildActualProxy": {
+    "build": "2bc1d138-plus-keyboard-visibility",
+    "gate": {
+      "available": true,
+      "state": "sec10_verified"
+    },
+    "sessionSha256": "8fe3e0b8abf5ef59f94f41d0c5663ddb6128976730d49fb3c0f36ee8f3f5bf3f",
+    "allFiveWireHashesMatch": true
+  },
+  "amd64BodyCapability": {
+    "gated": true,
+    "positiveBodyVerified": false,
+    "scope": "Current runtime capability check only; no gate bypass or positive body assertion"
+  },
+  "headDefaultNegotiationAbsent": true
+}

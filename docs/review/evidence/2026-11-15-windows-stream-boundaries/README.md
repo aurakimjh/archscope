@@ -75,3 +75,27 @@ builds pass. Same immutable13-row file and same finalized5-row status header in
 fully visible, retaining timeout17B and HEAD0B details. Before failure and fixed
 screenshots stay separate. This is selected-row visibility, not a full70percent
 layout/DPI/locale or screen-reader qualification.
+
+## Actual Windows/Docker stream matrix and wire readback
+
+windows-helper-used.go runs inside the engine module on actual Windows386/amd64:
+13cases each: identity/short/x-gzip/repeated stack,binary cap/raw+gzip/exact cap,
+finite chunked stream,plain/gzip mid-body cancellation,duplicate active ID refusal,
+ID reuse,deadline after headers,HEAD. These are backend sends plus separately
+recorded native saved-file inspection, not26manual Builder UI sends. Independent
+Docker prefix/client-close events precede cancellation results; IDs are unique per
+run to avoid reusing old server receipts. Both complete-pair summaries are-20B/6known.
+
+live-proxy-used.mjs checks actual current SEC10 gate before attaching its own
+producer instance and starting a4096B-cap explicit proxy. Real Windows3865-case
+capture/drop0/save/open passes on final native build. Independent direct-origin
+SHA256 matches all five client-received wire bodies, including unsupported stack
+and both binary representations. Live summary-20B/2known; body sizes unknown where
+unobserved. Actual x64 runtime capability remains gated, so no positive body claim.
+verify-stream-used.py records exact source session hashes in windows-readback.json.
+
+Native9cases:7PASS/2preserved before-fixFAILs. KO1280x800 OS100/Web100 only here;
+11complete rows observed in the13-row list, but no70percent/full DPI/locale claim.
+Frontend state/build, guarded x64/x86 native builds pass. Final full Windows capture
+24packages each pass; guarded app amd6437.891s/38643.744s; Linux DockerCGO race
+24capture packages pass. Windows COM targeted protective skips remain distinct.

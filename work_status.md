@@ -5874,3 +5874,14 @@ viewport/column change. Same finalized-live header and immutable13-row fixture
 native Down11→12→13 now keeps selected timeout/HEAD rows fully visible. State,
 frontend and guarded x64/x86 builds pass. Full layout/OS-DPI matrix remains open.
 Evidence:2026-11-15-windows-stream-boundaries/builder-keyboard-row-visibility-fixed.jpg.
+
+### 2026-11-15 - Windows/Docker stream and actual-proxy readback
+
+Actual Windowsx64/x86 each13Builder backend cases pass:encoding,binary caps,chunked,
+mid-body cancel/deadline,duplicate-ID refusal/reuse,HEAD. Independent Docker events
+and saved-file readback match. Actual SEC10-verified3865-case body capture/save/open
+has0drops; all5client wire SHA256 match direct origin. x64current capability gated.
+Native9cases7PASS/2preserved before-fixFAILs,including same-header13row keyboard fix.
+Windows capture24packages perarch,guarded app37.891s/43.744s,frontend,both native
+builds and DockerCGO race24packages pass; protected COM skips are separate.
+Evidence:2026-11-15-windows-stream-boundaries/windows-readback.json.
