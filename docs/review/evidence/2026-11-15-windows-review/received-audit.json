@@ -1,0 +1,343 @@
+{
+  "reviewed_head": "fbf2ce2c04ff3f9cd5bed20c867122af35074c5c",
+  "artifact_manifests": [
+    {
+      "directory": "2026-11-14-t613-readback-v2",
+      "verified_files": 10,
+      "worktree_byte_differences": []
+    },
+    {
+      "directory": "2026-11-14-t613-failures",
+      "verified_files": 30,
+      "worktree_byte_differences": []
+    },
+    {
+      "directory": "2026-11-14-t613-memory",
+      "verified_files": 30,
+      "worktree_byte_differences": []
+    },
+    {
+      "directory": "2026-11-14-windows-final",
+      "verified_files": 458,
+      "worktree_byte_differences": []
+    }
+  ],
+  "memory": [
+    {
+      "file": "docs/review/evidence/2026-11-14-t613-memory/native-amd64.json",
+      "passed": true,
+      "stable_processes": 7,
+      "measured_points": 8,
+      "metrics": {
+        "treePrivateBytes": {
+          "delta": 9568256,
+          "slope_per_cycle": 2453504.0,
+          "within_budget": true
+        },
+        "rootPrivateBytes": {
+          "delta": 405504,
+          "slope_per_cycle": -164790.85714285716,
+          "within_budget": true
+        },
+        "rootHandles": {
+          "delta": 0,
+          "slope_per_cycle": 0.0,
+          "within_budget": true
+        },
+        "rootThreads": {
+          "delta": -1,
+          "slope_per_cycle": 0.0,
+          "within_budget": true
+        }
+      }
+    },
+    {
+      "file": "docs/review/evidence/2026-11-14-t613-memory/native-386.json",
+      "passed": true,
+      "stable_processes": 7,
+      "measured_points": 8,
+      "metrics": {
+        "treePrivateBytes": {
+          "delta": 13762560,
+          "slope_per_cycle": 2966869.333333333,
+          "within_budget": true
+        },
+        "rootPrivateBytes": {
+          "delta": 1748992,
+          "slope_per_cycle": -17578.666666666668,
+          "within_budget": true
+        },
+        "rootHandles": {
+          "delta": 8,
+          "slope_per_cycle": 1.2380952380952381,
+          "within_budget": true
+        },
+        "rootThreads": {
+          "delta": 0,
+          "slope_per_cycle": 0.0,
+          "within_budget": true
+        }
+      }
+    },
+    {
+      "file": "docs/review/evidence/2026-11-14-windows-final/import-initial-amd64.json",
+      "passed": false,
+      "stable_processes": 7,
+      "measured_points": 8,
+      "metrics": {
+        "treePrivateBytes": {
+          "delta": 154558464,
+          "slope_per_cycle": 31289344.0,
+          "within_budget": false
+        },
+        "rootPrivateBytes": {
+          "delta": -6369280,
+          "slope_per_cycle": -929792.0,
+          "within_budget": true
+        },
+        "rootHandles": {
+          "delta": 4,
+          "slope_per_cycle": 0.5833333333333333,
+          "within_budget": true
+        },
+        "rootThreads": {
+          "delta": -3,
+          "slope_per_cycle": 0.0,
+          "within_budget": true
+        }
+      }
+    },
+    {
+      "file": "docs/review/evidence/2026-11-14-windows-final/import-initial-386.json",
+      "passed": false,
+      "stable_processes": 7,
+      "measured_points": 8,
+      "metrics": {
+        "treePrivateBytes": {
+          "delta": 164786176,
+          "slope_per_cycle": 29413376.0,
+          "within_budget": false
+        },
+        "rootPrivateBytes": {
+          "delta": -290816,
+          "slope_per_cycle": -1818624.0,
+          "within_budget": true
+        },
+        "rootHandles": {
+          "delta": 4,
+          "slope_per_cycle": 1.1,
+          "within_budget": true
+        },
+        "rootThreads": {
+          "delta": -3,
+          "slope_per_cycle": 0.0,
+          "within_budget": true
+        }
+      }
+    },
+    {
+      "file": "docs/review/evidence/2026-11-14-windows-final/import-history36-amd64.json",
+      "passed": false,
+      "stable_processes": 7,
+      "measured_points": 8,
+      "metrics": {
+        "treePrivateBytes": {
+          "delta": 33562624,
+          "slope_per_cycle": 6231381.333333334,
+          "within_budget": false
+        },
+        "rootPrivateBytes": {
+          "delta": -954368,
+          "slope_per_cycle": 14848.0,
+          "within_budget": true
+        },
+        "rootHandles": {
+          "delta": 0,
+          "slope_per_cycle": 0.0,
+          "within_budget": true
+        },
+        "rootThreads": {
+          "delta": 1,
+          "slope_per_cycle": 0.0,
+          "within_budget": true
+        }
+      }
+    },
+    {
+      "file": "docs/review/evidence/2026-11-14-windows-final/import-history36-386.json",
+      "passed": true,
+      "stable_processes": 7,
+      "measured_points": 8,
+      "metrics": {
+        "treePrivateBytes": {
+          "delta": 6504448,
+          "slope_per_cycle": 684544.0,
+          "within_budget": true
+        },
+        "rootPrivateBytes": {
+          "delta": -1695744,
+          "slope_per_cycle": -274314.97142857144,
+          "within_budget": true
+        },
+        "rootHandles": {
+          "delta": 0,
+          "slope_per_cycle": 0.0,
+          "within_budget": true
+        },
+        "rootThreads": {
+          "delta": 1,
+          "slope_per_cycle": 0.0,
+          "within_budget": true
+        }
+      }
+    },
+    {
+      "file": "docs/review/evidence/2026-11-14-windows-final/import-history52-amd64.json",
+      "passed": true,
+      "stable_processes": 7,
+      "measured_points": 8,
+      "metrics": {
+        "treePrivateBytes": {
+          "delta": 7434240,
+          "slope_per_cycle": 2407765.333333333,
+          "within_budget": true
+        },
+        "rootPrivateBytes": {
+          "delta": -2011136,
+          "slope_per_cycle": -432537.6,
+          "within_budget": true
+        },
+        "rootHandles": {
+          "delta": 0,
+          "slope_per_cycle": 0.0,
+          "within_budget": true
+        },
+        "rootThreads": {
+          "delta": -1,
+          "slope_per_cycle": 0.0,
+          "within_budget": true
+        }
+      }
+    },
+    {
+      "file": "docs/review/evidence/2026-11-14-windows-final/body-memory-386-result.json",
+      "passed": true,
+      "stable_processes": 7,
+      "measured_points": 8,
+      "metrics": {
+        "treePrivateBytes": {
+          "delta": 16478208,
+          "slope_per_cycle": 3013632.0,
+          "within_budget": true
+        },
+        "rootPrivateBytes": {
+          "delta": -499712,
+          "slope_per_cycle": 153600.0,
+          "within_budget": true
+        },
+        "rootHandles": {
+          "delta": 0,
+          "slope_per_cycle": 0.0,
+          "within_budget": true
+        },
+        "rootThreads": {
+          "delta": -1,
+          "slope_per_cycle": 0.0,
+          "within_budget": true
+        }
+      }
+    }
+  ],
+  "pinned_product_sources": 34,
+  "native_cases": {
+    "total": 173,
+    "historical_results": {
+      "PASS": 140,
+      "OBSERVED": 1,
+      "INCONCLUSIVE": 3,
+      "FAIL": 22,
+      "PARTIAL": 7
+    }
+  },
+  "remaining_inventory": {
+    "routes": 21,
+    "T-613": "PENDING",
+    "T-627": "REVIEW"
+  },
+  "chart_exports": [
+    {
+      "template": "comparison.deltas",
+      "rows": 2,
+      "unit": "metric-specific",
+      "png_dimensions": [
+        2398,
+        1102
+      ]
+    },
+    {
+      "template": "profiler.components",
+      "rows": 1,
+      "unit": "samples",
+      "png_dimensions": [
+        2398,
+        1102
+      ]
+    },
+    {
+      "template": "trace.services",
+      "rows": 2,
+      "unit": "ms",
+      "png_dimensions": [
+        2398,
+        1102
+      ]
+    },
+    {
+      "template": "trace.dependencies",
+      "rows": 1,
+      "unit": "ms",
+      "png_dimensions": [
+        2398,
+        1102
+      ]
+    },
+    {
+      "template": "gc.pause",
+      "rows": 60,
+      "unit": "ms",
+      "png_dimensions": [
+        2398,
+        1102
+      ]
+    },
+    {
+      "template": "gc.heap",
+      "rows": 60,
+      "unit": "MB",
+      "png_dimensions": [
+        2398,
+        1102
+      ]
+    },
+    {
+      "template": "access.requests",
+      "rows": 1,
+      "unit": "count",
+      "png_dimensions": [
+        2398,
+        1102
+      ]
+    },
+    {
+      "template": "access.p95",
+      "rows": 1,
+      "unit": "ms",
+      "png_dimensions": [
+        2398,
+        1102
+      ]
+    }
+  ],
+  "chart_validation_scope": "8 CSV values/units/source counts, 8 vector SVG structures, 8 PNG chunk CRC/zlib/geometry checks; not new Office/native rendering",
+  "verified_artifact_files": 528
+}

@@ -1,5 +1,5 @@
 import { fileDialogResult } from "./fileDialog.js";
-import { chartRowsToCSV } from "./chartStudioExport.js";
+import { chartRowsToCSV, chartValueUnit } from "./chartStudioExport.js";
 import { loadLiveCaptureBootstrap } from "./liveCaptureBootstrap.js";
 import { exportWorkspaceResult, backendWorkspaceExportSupported, type WorkspaceExportMode } from "./workspaceExport.js";
 import { resultPanelID, RESULT_PANEL_RENDERERS } from "./resultPanels.js";
@@ -166,6 +166,26 @@ assert(chartCSV.includes('"first,\r""line""",0,ms,access.p95,access_log,'), "cha
 assert(chartCSV.includes("missing,,ms,access.p95,access_log,"), "chart CSV preserves missing values without fabricating zero");
 assert(chartCSV.includes('"[""first.json"",""second.json""]"'), "chart CSV retains the complete source vector");
 assert(chartRowsToCSV([], {template: "access.p95", unit: "ms", resultType: "access_log", sourceFiles: []}) === "", "empty chart data does not invent a measurement row");
+
+for (const unit of ["samples", "nanoseconds", "microseconds", "milliseconds", "seconds", "bytes", "unknown"]) {
+  const summary = { value_unit: unit, total_samples: 1000000, interval_ms: 100 };
+  const sources = ["worker-a.json", "worker-b.json"];
+  const before = JSON.stringify({ summary, sources });
+  const valueUnit = chartValueUnit("profiler.components", "samples", summary);
+  const csv = chartRowsToCSV([{label: "work", value: 1000000}, {label: "zero", value: 0}, {label: "missing", value: null}], {
+    template: "profiler.components", unit: valueUnit, resultType: "profiler_collapsed", sourceFiles: sources,
+  });
+  assert(valueUnit === unit, "profile chart keeps the declared physical unit: " + unit);
+  assert(csv.includes("work,1000000," + unit + ",profiler.components,profiler_collapsed,"), "profile CSV does not rescale weights: " + unit);
+  assert(csv.includes("zero,0," + unit + ",") && csv.includes("missing,," + unit + ","), "zero and missing weights remain distinct: " + unit);
+  assert(csv.includes('"[""worker-a.json"",""worker-b.json""]"'), "profile CSV preserves both source references: " + unit);
+  assert(JSON.stringify({ summary, sources }) === before, "unit resolution and export do not change their source: " + unit);
+}
+for (const summary of [undefined, null, {}, {value_unit: null}, {value_unit: 1}, {value_unit: ""}, {value_unit: "ns"}, {value_unit: "SAMPLES"}]) {
+  assert(chartValueUnit("profiler.components", "samples", summary) === "unknown", "missing or unsupported profile units must not become sample counts");
+}
+assert(chartValueUnit("access.p95", "ms", {value_unit: "bytes"}) === "ms", "other templates retain their own measurement unit");
+assert(chartValueUnit("comparison.deltas", "metric-specific", {}) === "metric-specific", "comparison keeps per-metric units");
 
 function entry(id: string, type: string, result: Partial<WorkspaceAnalysisResult>): AnalysisWorkspaceEntry {
   return {

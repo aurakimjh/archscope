@@ -1,0 +1,62 @@
+{
+  "mode": "fixed production helper",
+  "passed": true,
+  "cases": [
+    {
+      "expectedUnit": "samples",
+      "exportedUnit": "samples",
+      "value": 1000000,
+      "sourceCount": 1,
+      "passed": true,
+      "csvSha256": "4b3fbbb7536d7037e961e9b2b32c7f0c47108283d7f3287171594d0cd4a0426d"
+    },
+    {
+      "expectedUnit": "nanoseconds",
+      "exportedUnit": "nanoseconds",
+      "value": 1000000,
+      "sourceCount": 1,
+      "passed": true,
+      "csvSha256": "18912633a4175510d0515f2ca6da698145a6d7cae13dfa932dc415dab23319bd"
+    },
+    {
+      "expectedUnit": "microseconds",
+      "exportedUnit": "microseconds",
+      "value": 1000000,
+      "sourceCount": 1,
+      "passed": true,
+      "csvSha256": "654dfd2aeb9c3ef336d791d74b2f41bdf43eb871799d63f71a590b4a75ff4266"
+    },
+    {
+      "expectedUnit": "milliseconds",
+      "exportedUnit": "milliseconds",
+      "value": 1000000,
+      "sourceCount": 1,
+      "passed": true,
+      "csvSha256": "43a898716ce334fbad1927072cad62e3d1e6564cfed85243fc141582a430dac5"
+    },
+    {
+      "expectedUnit": "seconds",
+      "exportedUnit": "seconds",
+      "value": 1000000,
+      "sourceCount": 1,
+      "passed": true,
+      "csvSha256": "e52aff134af41cae994b2769e1dec3a687e27ef3af3081a05db74d3dc8712f3e"
+    },
+    {
+      "expectedUnit": "bytes",
+      "exportedUnit": "bytes",
+      "value": 1000000,
+      "sourceCount": 1,
+      "passed": true,
+      "csvSha256": "7122826ffc8b6e79e7e6373ebc9dab00abd3f966a9e4181dd5b6f7d366345900"
+    },
+    {
+      "expectedUnit": "unknown",
+      "exportedUnit": "unknown",
+      "value": 1000000,
+      "sourceCount": 1,
+      "passed": true,
+      "csvSha256": "dc8d54b9f54d0afbba27ee0478c3b462af34879beb201bed2fae0a3ccddb553f"
+    }
+  ]
+}

@@ -1,4 +1,21 @@
+import { PROFILE_VALUE_UNITS } from "./profileDuration.js";
+
 export type ChartExportRow = Record<string, string | number | null>;
+
+// Component rows retain their historical "samples" field name even when their
+// weights measure time or bytes. The result, not that field or template default,
+// declares the measurement. Missing/unrecognized units remain unknown.
+export function chartValueUnit(
+  template: string,
+  templateUnit: string,
+  summary: Record<string, unknown> | null | undefined,
+): string {
+  if (template !== "profiler.components") return templateUnit;
+  const unit = summary?.value_unit;
+  return typeof unit === "string" && (PROFILE_VALUE_UNITS as readonly string[]).includes(unit)
+    ? unit
+    : "unknown";
+}
 
 export function chartRowsToCSV(rows: ChartExportRow[], context: {
   template: string;

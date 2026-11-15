@@ -8,7 +8,8 @@ import { HelpedLabel, HelpedTitle } from "@/components/HelpTip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getHelpText } from "@/help/helpCatalog";
-import { chartRowsToCSV } from "@/state/chartStudioExport";
+import { chartRowsToCSV, chartValueUnit } from "@/state/chartStudioExport";
+import { profileWeightUnit } from "@/state/profileDuration";
 import { useI18n, type MessageKey } from "@/i18n/I18nProvider";
 import {
   selectWorkspaceResult,
@@ -23,7 +24,7 @@ type ChartTemplate = {
   unit: string;
   labelKey: MessageKey;
   resultTypes: string[];
-  build: (entry: AnalysisWorkspaceEntry, labels: ChartStudioLabels) => ChartBuild;
+  build: (entry: AnalysisWorkspaceEntry, labels: ChartStudioLabels, unit: string) => ChartBuild;
 };
 
 type ChartBuild = {
@@ -33,6 +34,8 @@ type ChartBuild = {
 
 type ChartStudioLabels = {
   count: string;
+  samples: string;
+  unknownUnit: string;
   milliseconds: string;
   duration: string;
   delta: string;
@@ -85,11 +88,12 @@ const TEMPLATES: ChartTemplate[] = [
   },
   {
     id: "profiler.components",
-    unit: "samples",
+    unit: "unknown",
     labelKey: "chartTemplateProfilerComponents",
     resultTypes: ["profiler_collapsed"],
-    build: (entry, labels) =>
-      barSeriesOption(entry, "component_breakdown", "component", "samples", labels.count),
+    build: (entry, labels, unit) =>
+      barSeriesOption(entry, "component_breakdown", "component", "samples",
+        unit === "unknown" ? labels.unknownUnit : unit === "samples" ? labels.samples : profileWeightUnit(unit)),
   },
   {
     id: "comparison.deltas",
@@ -153,6 +157,8 @@ export function ChartStudioPage(): React.JSX.Element {
   const labels = useMemo<ChartStudioLabels>(
     () => ({
       count: t("count"),
+      samples: t("samples"),
+      unknownUnit: t("profileUnitUnknown"),
       milliseconds: t("millisecondsAxis"),
       duration: t("millisecondsAxis"),
       delta: "Delta",
@@ -161,7 +167,10 @@ export function ChartStudioPage(): React.JSX.Element {
   );
 
   const selectedTemplate = templates.find((template) => template.id === templateID) ?? templates[0] ?? null;
-  const build = selectedEntry && selectedTemplate ? selectedTemplate.build(selectedEntry, labels) : null;
+  const valueUnit = selectedTemplate
+    ? chartValueUnit(selectedTemplate.id, selectedTemplate.unit, selectedEntry?.result.summary)
+    : "unknown";
+  const build = selectedEntry && selectedTemplate ? selectedTemplate.build(selectedEntry, labels, valueUnit) : null;
   const title = selectedTemplate ? t(selectedTemplate.labelKey) : t("navChartStudio");
 
   const save = async (type: "png" | "svg" | "csv"): Promise<void> => {
@@ -171,7 +180,7 @@ export function ChartStudioPage(): React.JSX.Element {
     try {
       let data = chartRowsToCSV(build.rows, {
         template: selectedTemplate?.id ?? "",
-        unit: selectedTemplate?.unit ?? "",
+        unit: valueUnit,
         resultType: selectedEntry?.result_type ?? "",
         sourceFiles: selectedEntry?.source_files ?? [],
       });
@@ -244,7 +253,7 @@ export function ChartStudioPage(): React.JSX.Element {
         </div>
       </section>
 
-      {selectedTemplate?.unit === "metric-specific" && (
+      {valueUnit === "metric-specific" && (
         <p role="status" className="text-xs text-muted-foreground">{t("chartStudioMetricSpecificUnits")}</p>
       )}
 

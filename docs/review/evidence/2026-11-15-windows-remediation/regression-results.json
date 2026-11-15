@@ -1,0 +1,96 @@
+{
+  "date": "2026-11-15",
+  "host": "Darwin/arm64",
+  "reviewedBaseline": "fbf2ce2c",
+  "publicationBase": "3f55342bf60ebcd3f3e3ab49156fb91d8eb8ee94",
+  "findings": {
+    "WREV2-01": "LOCALLY_VERIFIED",
+    "WREV2-02": "LOCALLY_VERIFIED"
+  },
+  "unitRegression": {
+    "baselineMismatchCount": 6,
+    "supportedUnits": 7,
+    "macPassed": true,
+    "dockerPassed": true,
+    "missingOrInvalidUnit": "unknown",
+    "zeroAndNull": "distinct",
+    "valuesRescaled": false,
+    "sourceReferencesPreserved": true
+  },
+  "inventoryRegression": {
+    "cases": 8,
+    "passed": true,
+    "optimizedPython": true,
+    "dockerPython312Optimized": true,
+    "originalInventoryModified": false,
+    "totalEvents": 3010,
+    "filteredEvents": 3010,
+    "sampleEvents": 153,
+    "stackSamples": 153,
+    "uniqueStacks": 29,
+    "relatedIncrementalInventory": "docs/review/evidence/2026-11-15-windows-conditional/remaining-acceptance.json"
+  },
+  "receivedAudit": {
+    "artifactFiles": 528,
+    "sourceDigests": 34,
+    "memoryReceipts": 8,
+    "chartTemplates": 8
+  },
+  "checks": {
+    "state": {
+      "exitCode": 0,
+      "bytes": 166,
+      "sha256": "96ab3e7763edc1082d01e3a18afd8649d6c9bcdb89fb7b8a072303fcc49805cb"
+    },
+    "build": {
+      "exitCode": 0,
+      "bytes": 6246,
+      "sha256": "9861e1be31a308b71a1f3bebfa0d9fa8482d25d32ecd48892db35df0886fe1e9"
+    },
+    "go": {
+      "exitCode": 0,
+      "bytes": 3738,
+      "sha256": "92742ad920555cfc4091fc23a4200c059c18414df6ed41ddf21dc2e5ff83367e"
+    },
+    "docker-state": {
+      "exitCode": 0,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "docker-inventory": {
+      "exitCode": 0,
+      "bytes": 85,
+      "sha256": "6de331864f21c172ece19438e574259b60f22ec5a808372d979a5b81b7c65f0a"
+    },
+    "integration-go": {
+      "exitCode": 0,
+      "bytes": 181,
+      "sha256": "a5a7abd9dd3fe572aeb75ace9d161b83b8de786b43823ee5ed7b6eafbb4f7e0f"
+    }
+  },
+  "resourceChecks": {
+    "offlineAssets": true,
+    "inputAssistance": true
+  },
+  "sourceWorktreeSha256": {
+    "apps/engine-native/cmd/archscope-app/frontend/src/pages/ChartStudioPage.tsx": "6f339809733c574490a7356cdbc9208e38f947f6aed5befea961de707a52ce04",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/chartStudioExport.ts": "bd1c1933b1563977a8264c3aee8ebc94da8d2be92b52e587b011b3e45b259e52",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/regression.test.ts": "9e16e19c6ca7431115a569ff43ee4b230a24c36b690fd0d30341e668a691444c"
+  },
+  "scope": {
+    "newWindowsNativeRun": false,
+    "goImplementationChanged": false,
+    "T-613": "PENDING",
+    "T-627": "REVIEW",
+    "independentVerdict": "Original CONDITIONAL preserved"
+  },
+  "setupCorrections": [
+    "Initial added source-string expectation literal corrected.",
+    "Initial Docker unit run started before fixture generation completed; rerun only after fixture job exit0."
+  ],
+  "integration": {
+    "base": "3f55342bf60ebcd3f3e3ab49156fb91d8eb8ee94",
+    "incomingCommits": 7,
+    "scope": "Additional Windows conditional commits integrated; both tracker histories retained. Original review scope remains ca722025..fbf2ce2c. Frontend state/build and Docker rerun; requestbuilder/summary suites pass."
+  }
+}

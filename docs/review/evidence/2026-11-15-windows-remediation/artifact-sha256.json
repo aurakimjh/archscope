@@ -1,0 +1,45 @@
+{
+  "base": "fbf2ce2c",
+  "files": {
+    "README.md": {
+      "bytes": 5051,
+      "sha256": "57d94fc904b3b069ef1992f2bd4276e0e6295184531c4bd24433f0d5ea032879"
+    },
+    "inventory-regression.json": {
+      "bytes": 1048,
+      "sha256": "661f929bb7eb31b42b7e48055a2543d5ae451dd0439e5ad3a32c0d70e07a3785"
+    },
+    "regression-results.json": {
+      "bytes": 3273,
+      "sha256": "92478a02e3391dee8e1bcc112e279f8138a414a86752096ced5c7634510d1c3b"
+    },
+    "remaining-acceptance.current.json": {
+      "bytes": 16676,
+      "sha256": "94c9617d0377c9d20a1c337c92bdfa7f77ce78137aac0ec862cfaa6e8bd150ab"
+    },
+    "units-after-docker.json": {
+      "bytes": 1744,
+      "sha256": "cdd08d556e830de241b599a8868dba3dbe9071d42e194e3207b8d3a0aef95997"
+    },
+    "units-after-mac.json": {
+      "bytes": 1744,
+      "sha256": "cdd08d556e830de241b599a8868dba3dbe9071d42e194e3207b8d3a0aef95997"
+    },
+    "units-before.json": {
+      "bytes": 1732,
+      "sha256": "e0dab74c1fadd4bf3245d5d470883281e16310212d9a0d20d95287ad7e5e562e"
+    },
+    "update_inventory.py": {
+      "bytes": 4991,
+      "sha256": "ba0edab9dcab4cca5bc502c60f0dca7be88c77b92fa75a08dcaffafb9e711481"
+    },
+    "verify_inventory.py": {
+      "bytes": 1693,
+      "sha256": "c84f3030b72ce145c1cc1a451e1da2fb57266232d175b201932657fc7e9782d0"
+    },
+    "verify_units.mjs": {
+      "bytes": 3349,
+      "sha256": "4d7d153d6c7801bfde138db85ec59d4c2cd021a3c7fe1364405e3bdca3fd209a"
+    }
+  }
+}
