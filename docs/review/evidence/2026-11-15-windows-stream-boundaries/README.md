@@ -41,3 +41,14 @@ header. Separate failing tests expose decoded/transfer zero for unavailable
 bodies: missing/omitted/unsupported/corrupt sizes now unknown; observed empty is0.
 Complete proxy/requestbuilder/summary suites pass Windowsx64/x86 after correction.
 Actual gate/current runtime and native after-fix receipts remain separately pinned.
+
+## Shared COM test registration
+
+Broad capture suites ran concurrently across architectures and exposed a shared
+TypeLib cleanup race in the real remoting fixture (x64 FAIL preserving foreign
+owner). Add a named Windows mutex around preflight/register/owned-cleanup while
+the fixture holds its OS thread. This changes tests only, not product registration.
+Repeat concurrently three times each:386 remoting3PASS;amd64 protects preexisting
+foreign Interface mapping with3SKIP. A protected skip is not a remoting acceptance
+PASS. No existing registration is deleted or overwritten to force qualification;
+full clean-host/client compatibility remains open. Initial logs are preserved.

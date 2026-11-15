@@ -63,6 +63,26 @@ func TestCOMRemotingHelper(t *testing.T) {
 func TestNativeOutOfProcessDispatchAndTypeInfo(t *testing.T) {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
+	// Both PE architectures share this user's TypeLib/Interface mappings.
+	// Keep preflight, temporary registration and owned cleanup atomic across
+	// separate go test processes; per-process t.Parallel rules cannot do that.
+	name, err := windows.UTF16PtrFromString(`Local\ArchScope.COMRemotingTest.Metadata`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	mutex, err := windows.CreateMutex(nil, false, name)
+	if err != nil && err != windows.ERROR_ALREADY_EXISTS {
+		t.Fatal(err)
+	}
+	if mutex == 0 {
+		t.Fatal("COM test metadata mutex unavailable")
+	}
+	defer windows.CloseHandle(mutex)
+	acquired, err := windows.WaitForSingleObject(mutex, 30000)
+	if err != nil || (acquired != windows.WAIT_OBJECT_0 && acquired != windows.WAIT_ABANDONED) {
+		t.Fatalf("COM test metadata mutex wait: result=%d error=%v", acquired, err)
+	}
+	defer windows.ReleaseMutex(mutex)
 	if e := windows.CoInitializeEx(0, windows.COINIT_APARTMENTTHREADED); e != nil {
 		t.Fatal(e)
 	}

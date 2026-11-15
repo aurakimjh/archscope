@@ -5848,3 +5848,12 @@ Forward negotiation/wire bytes, inspect full coding stack, preserve unknown size
 and observed-empty0. Full proxy/requestbuilder/summary Windowsx64/x86 suites pass.
 Before live receipt preserved; native/actual after-fix check is separately pinned.
 Evidence:2026-11-15-windows-stream-boundaries/live-proxy-before.json.
+
+### 2026-11-15 - Windows cross-architecture COM test serialization
+
+Concurrent full capture runs expose remoting fixture shared TypeLib cleanup race.
+Named mutex serializes preflight/register/owned cleanup across go test processes
+on the locked OS thread. Concurrent3repeats:3863PASS,amd643protectedSKIP for foreign
+Interface registration; no forced cleanup or clean-host acceptance claim.
+Production COM registration unchanged. Initial failure retained separately.
+Evidence:2026-11-15-windows-stream-boundaries/README.md.
