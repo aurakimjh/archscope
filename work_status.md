@@ -5798,3 +5798,12 @@ Native body bytes/cap/unknown views and1024x768 EN WebView125 keyboard selection
 pass within six rows. OS remains100%; Settings unavailable to native tool,so
 actual OS125/dense10rows remain open. T-613PENDING/T-627REVIEW unchanged.
 Evidence:2026-11-15-windows-conditional/response-matrix-readback.json.
+
+### 2026-11-15 - T-613 incomplete-body compression summary correction
+
+Backend/frontend failing regressions reproduce false compression from partial
+reads/capped previews. Count only complete,non-truncated/non-encoded known pairs;
+retain independent byte totals and genuine gzip overhead/complete503. Native
+six-row readback shows-20B(3/6). Focused x64/x86,state/build,guarded native builds
+and full app49.800s/48.696s pass. T-613PENDING; original acceptance unchanged.
+Evidence:2026-11-15-windows-conditional/summary-complete-pairs-native.jpg.

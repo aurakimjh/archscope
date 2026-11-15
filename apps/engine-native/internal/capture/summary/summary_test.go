@@ -25,3 +25,24 @@ func TestSummaryKeepsUnknownsPerspectivesAndConnections(t *testing.T) {
 		t.Fatal(got)
 	}
 }
+
+// A preview cap or interrupted read is not evidence of compression overhead.
+func TestCompressionUsesOnlyCompleteUntruncatedBodyPairs(t *testing.T) {
+	rows := []models.CaptureTransaction{
+		{State: models.TxComplete, Response: models.HTTPMessage{BodySize: 46, BodyDecoded: 26, BodyStorage: "inline"}},
+		{State: models.TxComplete, StatusCode: 503, Response: models.HTTPMessage{BodySize: 27, BodyDecoded: 27, BodyStorage: "inline"}},
+		{State: models.TxFailed, Response: models.HTTPMessage{BodySize: 12, BodyDecoded: 5, BodyStorage: "inline"}},
+		{State: models.TxAborted, Response: models.HTTPMessage{BodySize: 100, BodyDecoded: 10, BodyStorage: "inline"}},
+		{State: models.TxReceiving, Response: models.HTTPMessage{BodySize: 100, BodyDecoded: 20, BodyStorage: "inline"}},
+		{State: models.TxComplete, Response: models.HTTPMessage{BodySize: 1048634, BodyDecoded: 1048576, BodyStorage: "truncated"}},
+		{State: models.TxComplete, Response: models.HTTPMessage{BodySize: 21, BodyDecoded: -1, BodyStorage: "encoded"}},
+		{State: models.TxComplete, Response: models.HTTPMessage{BodySize: -1, BodyDecoded: 3}},
+	}
+	got := Build(rows)
+	if got.CompressionKnown != 2 || got.CompressionSaved != -20 {
+		t.Fatalf("partial body sizes invented compression: known=%d saved=%d", got.CompressionKnown, got.CompressionSaved)
+	}
+	if got.Received.Bytes != 1048940 || got.Decoded.Bytes != 1048667 || got.Received.Unknown != 1 || got.Decoded.Unknown != 1 {
+		t.Fatalf("compression eligibility must not discard independently observed byte totals: %+v", got)
+	}
+}

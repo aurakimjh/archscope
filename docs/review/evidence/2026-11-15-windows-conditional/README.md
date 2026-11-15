@@ -53,3 +53,16 @@ English1024x768 at OS100%/WebView125% retains six rows and stacked Body content;
 native Up moves from503 to interrupted row. No ten-row/dense-layout claim.
 Windows Settings launch and Start did not expose a targetable settings window;
 actual OS125% remains unverified. No OS scale setting was changed.
+
+## Compression summary completeness
+
+Go and frontend regressions first fail: interrupted/aborted/in-progress reads and
+preview caps create false compression differences. Both summaries now require a
+complete transaction and non-truncated/non-encoded body size pair. Independently
+observed byte aggregates remain unchanged. Complete503 and real gzip overhead
+remain eligible. Known canonical HAR sizes can qualify without retained text.
+The mixed regression includes eight rows; expected -20B/2known. The actual six
+Docker responses display -20B/3known in native KO1280x800 OS100/WebView100.
+Native screenshot and accessibility receipt pin6eb28f4f-plus-summary-pairs.
+Full guarded app tests: amd6449.800s,38648.696s. Focused summary/requestbuilder
+x64/x86, frontend state/build and guarded x64/x86 native builds pass.

@@ -1,0 +1,480 @@
+Window: "ArchScope Layout QA", App: archscope-summary-fixed-386.exe.
+	0 window (창) ArchScope Layout QA Secondary Actions: Raise
+		16 pane (창) ArchScope
+			17 pane (창) (disabled)
+			18 pane (영역) ArchScope - 웹 콘텐츠
+				19 pane (영역)
+					20 pane (영역)
+					21 pane (영역)
+						22 pane (영역)
+							23 pane (영역)
+							24 pane (영역)
+								25 pane (영역)
+									26 pane (영역)
+										27 pane (영역)
+											28 pane (영역)
+											29 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												30 group (그룹) ID: root
+													31 group (머리글)
+														32 text (텍스트) HTTP 캡처
+													33 group (기본)
+														34 group (세부정보)
+															35 button (펼치기/접기 삼각형) 파일·요청 작성
+																36 text (텍스트) 파일·요청 작성
+														37 group (세부정보)
+															38 button (펼치기/접기 삼각형) 캡처 설정
+																39 text (텍스트) 캡처 설정
+														40 button (단추) (disabled) 캡처 시작
+														41 button (단추) (disabled) 캡처 중지
+														42 button (단추) 자동 추적 중
+														43 button (단추) (disabled) 일시정지
+														44 button (단추) (disabled) 비우기
+														118 group (지역) 트랜잭션
+															119 group (세부정보)
+																120 button (펼치기/접기 삼각형) 메서드, URL, 호스트, 상태로 필터 · 6 / 6
+																	121 text (텍스트) 메서드, URL, 호스트, 상태로 필터
+																	122 text (텍스트) ·
+																	123 text (텍스트) 6
+																	124 text (텍스트) /
+																	125 text (텍스트) 6
+															126 group (세부정보)
+																127 button (펼치기/접기 삼각형) 세션 도구
+																	128 text (텍스트) 세션 도구
+																265 group (세부정보)
+																	266 button (펼치기/접기 삼각형) 타이밍 및 세션 요약
+																		267 text (텍스트) 타이밍 및 세션 요약
+																	276 combo box (콤보 상자) (settable, string) 요약 범위 Value: 현재 표시된 행
+																	277 text (텍스트) 요청 (종료 / 진행 중)
+																	278 text (텍스트) :
+																	279 text (텍스트) 6
+																	280 text (텍스트) (
+																	281 text (텍스트) 6
+																	282 text (텍스트) /
+																	283 text (텍스트) 0
+																	284 text (텍스트) )
+																	285 text (텍스트) 관측 시간 범위
+																	286 text (텍스트) :
+																	287 text (텍스트) 2633.0 ms
+																	288 text (텍스트) 송신 본문
+																	289 text (텍스트) :
+																	290 text (텍스트) 0 B
+																	291 text (텍스트) 수신 본문
+																	292 text (텍스트) :
+																	293 text (텍스트) 1.0 MiB
+																	294 text (텍스트) 디코딩 본문
+																	295 text (텍스트) :
+																	296 text (텍스트) 1.0 MiB
+																	297 text (텍스트) + ? (1)
+																	298 text (텍스트) DNS:
+																	299 text (텍스트) 0
+																	300 text (텍스트) + ? (6)
+																	301 text (텍스트) TCP:
+																	302 text (텍스트) 6
+																	303 text (텍스트) 디코딩 크기 − 수신 크기
+																	304 text (텍스트) :
+																	305 text (텍스트) −
+																	306 text (텍스트) 20 B
+																	307 text (텍스트) (
+																	308 text (텍스트) 3
+																	309 text (텍스트) /
+																	310 text (텍스트) 6
+																	311 text (텍스트) )
+																	312 button (단추) 2xx: 5
+																	313 button (단추) 5xx: 1
+																	314 text (텍스트) 관점
+																	315 combo box (콤보 상자) (settable, string) 관점 Value: 프록시 → 원본 서버
+																	316 group (그룹) Description: 0 / 6 / 0
+																		317 text (텍스트) 대기
+																		318 text (텍스트) :
+																		319 text (텍스트) —
+																		320 text (텍스트) + ?
+																	321 group (그룹) Description: 0 / 6 / 0
+																		322 text (텍스트) DNS
+																		323 text (텍스트) :
+																		324 text (텍스트) —
+																		325 text (텍스트) + ?
+																	326 group (그룹) Description: 0 / 6 / 0
+																		327 text (텍스트) 연결
+																		328 text (텍스트) :
+																		329 text (텍스트) —
+																		330 text (텍스트) + ?
+																	331 group (그룹) Description: 0 / 6 / 0
+																		332 text (텍스트) TLS
+																		333 text (텍스트) :
+																		334 text (텍스트) —
+																		335 text (텍스트) + ?
+																	336 group (그룹) Description: 0 / 6 / 0
+																		337 text (텍스트) 전송
+																		338 text (텍스트) :
+																		339 text (텍스트) —
+																		340 text (텍스트) + ?
+																	341 group (그룹) Description: 0 / 6 / 0
+																		342 text (텍스트) 대기 (TTFB)
+																		343 text (텍스트) :
+																		344 text (텍스트) —
+																		345 text (텍스트) + ?
+																	346 group (그룹) Description: 0 / 6 / 0
+																		347 text (텍스트) 수신
+																		348 text (텍스트) :
+																		349 text (텍스트) —
+																		350 text (텍스트) + ?
+																	351 text (텍스트) ?는 미관측 값입니다. 타이밍 관측 지점을 합치지 않으며 재사용 연결·DNS는 한 번 계산합니다. 상태 버튼은 그리드를 필터링합니다.
+																	352 text (텍스트) 프로세스별 상대 워터폴 (표시된 행)
+																	353 text (텍스트) (
+																	354 text (텍스트) 6
+																	355 text (텍스트) /
+																	356 text (텍스트) 6
+																	357 text (텍스트) )
+																	358 button (단추) ? · /delay +630.0 ms
+																	359 button (단추) ? · /encoded +7.0 ms
+																	360 button (단추) ? · /gzip +0.0 ms
+																	361 button (단추) ? · /large +14.0 ms
+																	362 button (단추) ? · /short +11.0 ms
+																	363 button (단추) ? · /error +626.0 ms
+																268 text (텍스트) 저장 / 내보내기
+																269 combo box (콤보 상자) (settable, string) 내보내기 형식 Value: ArchScope session
+																270 combo box (콤보 상자) (settable, string) 내보내기 범위 Value: 저장된 전체 요청
+																271 button (단추) 저장…
+																272 text (텍스트) 텍스트는 마스킹하며 보존 이미지 픽셀은 마스킹하지 않습니다.
+																273 group (세부정보)
+																	274 button (펼치기/접기 삼각형) WinINet 캐시·쿠키
+																		275 text (텍스트) WinINet 캐시·쿠키
+															129 group (세부정보)
+																130 button (펼치기/접기 삼각형) 열 필터
+																	131 text (텍스트) 열 필터
+															132 combo box (콤보 상자) (settable, string) 그룹 기준 Value: 프로세스
+															133 group (세부정보)
+																134 button (펼치기/접기 삼각형) 표시 열
+																	135 text (텍스트) 표시 열
+															136 group (그룹) 트랜잭션
+																137 table (TABLE) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																	138 text (텍스트) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																	139 data item (행)
+																		140 button (단추) # Description: Sort by this column
+																			141 button (단추) #
+																		142 button (단추) 시작 Description: Sort by this column
+																			143 button (단추) 시작
+																		144 button (단추) 메서드 Description: Sort by this column
+																			145 button (단추) 메서드
+																		146 button (단추) 결과 Description: Sort by this column
+																			147 button (단추) 결과
+																		148 button (단추) 호스트 Description: Sort by this column
+																			149 button (단추) 호스트
+																		150 button (단추) 경로 Description: Sort by this column
+																			151 button (단추) 경로
+																		152 button (단추) 종류 Description: Sort by this column
+																			153 button (단추) 종류
+																		154 button (단추) 크기 Description: Sort by this column
+																			155 button (단추) 크기
+																		156 button (단추) 시간 Description: Sort by this column
+																			157 button (단추) 시간
+																		158 button (단추) 타임라인 Description: Sort by this column
+																		159 button (단추) 프로세스 Description: Sort by this column
+																			160 button (단추) 프로세스
+																	161 data item (행)
+																		162 data item (항목) ▾ 127.0.0.1:11515 6 · ↑ 0 B · ↓ 1.0 MiB
+																			163 button (단추) ▾ 127.0.0.1:11515 6 · ↑ 0 B · ↓ 1.0 MiB
+																	164 data item (행)
+																		165 data item (항목) 1 Description: 1
+																		166 data item (항목) 02:39:52.231 Description: 02:39:52.231
+																		167 data item (항목) GET Description: GET
+																		168 data item (항목) 200 Description: 200
+																		169 data item (항목) 127.0.0.1:11515 Description: 127.0.0.1:11515
+																		170 data item (항목) /delay Description: /delay
+																		171 data item (항목) JSON Description: json
+																		172 data item (항목) 192 B Description: 192 B
+																		173 data item (항목) 2003 ms Description: 2003 ms
+																		174 data item (항목) — Description: —
+																		175 data item (항목) — Description: —
+																	176 data item (행)
+																		177 data item (항목) 1 Description: 1
+																		178 data item (항목) 02:39:51.608 Description: 02:39:51.608
+																		179 data item (항목) GET Description: GET
+																		180 data item (항목) 200 Description: 200
+																		181 data item (항목) 127.0.0.1:11515 Description: 127.0.0.1:11515
+																		182 data item (항목) /encoded Description: /encoded
+																		183 data item (항목) 텍스트 Description: text
+																		184 data item (항목) 21 B Description: 21 B
+																		185 data item (항목) 3 ms Description: 3 ms
+																		186 data item (항목) — Description: —
+																		187 data item (항목) — Description: —
+																	188 data item (행)
+																		189 data item (항목) 1 Description: 1
+																		190 data item (항목) 02:39:51.601 Description: 02:39:51.601
+																		191 data item (항목) GET Description: GET
+																		192 data item (항목) 200 Description: 200
+																		193 data item (항목) 127.0.0.1:11515 Description: 127.0.0.1:11515
+																		194 data item (항목) /gzip Description: /gzip
+																		195 data item (항목) JSON Description: json
+																		196 data item (항목) 46 B Description: 46 B
+																		197 data item (항목) 6 ms Description: 6 ms
+																		198 data item (항목) — Description: —
+																		199 data item (항목) — Description: —
+																	200 data item (행)
+																		201 data item (항목) 1 Description: 1
+																		202 data item (항목) 02:39:51.615 Description: 02:39:51.615
+																		203 data item (항목) GET Description: GET
+																		204 data item (항목) 200 Description: 200
+																		205 data item (항목) 127.0.0.1:11515 Description: 127.0.0.1:11515
+																		206 data item (항목) /large Description: /large
+																		207 data item (항목) 텍스트 Description: text
+																		208 data item (항목) 1.0 MiB Description: 1.0 MiB
+																		209 data item (항목) 15 ms Description: 15 ms
+																		210 data item (항목) — Description: —
+																		211 data item (항목) — Description: —
+																	212 data item (행)
+																		213 data item (항목) 1 Description: 1
+																		214 data item (항목) 02:39:51.612 Description: 02:39:51.612
+																		215 data item (항목) GET Description: GET
+																		216 data item (항목) 200 Description: 200
+																		217 data item (항목) 127.0.0.1:11515 Description: 127.0.0.1:11515
+																		218 data item (항목) /short Description: /short
+																		219 data item (항목) 텍스트 Description: text
+																		220 data item (항목) 12 B Description: 12 B
+																		221 data item (항목) 3 ms Description: 3 ms
+																		222 data item (항목) — Description: —
+																		223 data item (항목) — Description: —
+																	224 data item (행)
+																		225 data item (항목) 1 Description: 1
+																		226 data item (항목) 02:39:52.227 Description: 02:39:52.227
+																		227 data item (항목) GET Description: GET
+																		228 data item (항목) 503 Description: 503
+																		229 data item (항목) 127.0.0.1:11515 Description: 127.0.0.1:11515
+																		230 data item (항목) /error Description: /error
+																		231 data item (항목) JSON Description: json
+																		232 data item (항목) 27 B Description: 27 B
+																		233 data item (항목) 4 ms Description: 4 ms
+																		234 data item (항목) — Description: —
+																		235 data item (항목) — Description: —
+															236 text (텍스트) 방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+															237 thumb (위치 조정) 트랜잭션 목록 크기 조절 Description: 드래그·방향키로 크기를 조절하고, 더블클릭·Home으로 기본 높이를 복원합니다. Value: 100
+															238 button (단추) Request Builder로 복사
+															239 text (텍스트) 200
+															240 text (텍스트) GET
+															241 text (텍스트) http://127.0.0.1:11515/gzip
+															242 text (텍스트) 신규 연결
+															243 text (텍스트) semantic
+															244 tab (Tab) 트랜잭션
+																245 tab item (탭 항목) (selectable) 힌트 / 상태 / 주석
+																246 tab item (탭 항목) (selectable) Raw
+																247 tab item (탭 항목) (selectable) 스트림
+																248 tab item (탭 항목) (selectable) 헤더
+																249 tab item (탭 항목) (selectable) 쿼리 문자열
+																250 tab item (탭 항목) (selectable) POST 데이터
+																251 tab item (탭 항목) (selectable) 본문
+																252 tab item (탭 항목) (selectable) 타이밍
+																253 tab item (탭 항목) (selectable) 쿠키
+																254 tab item (탭 항목) (selectable) 프로세스
+															255 pane (탭 패널) Raw
+																256 text (텍스트) 정규화된 모델에서 재구성한 텍스트입니다. 헤더 이름·값·중복은 보존되지만 원본 필드 순서·대소문자·프레이밍은 보존되지 않습니다 — 이 캡처 tier는 raw wire가 아니라 semantic 등급입니다.
+																257 text (제목) 요청
+																258 button (단추) 복사
+																259 text (텍스트) GET /gzip HTTP/1.1 Accept-Encoding: gzip Host: 127.0.0.1:11515
+																260 text (텍스트) 본문이 없는 메시지입니다.
+																261 text (제목) 응답
+																262 button (단추) 복사
+																263 text (텍스트) HTTP/1.1 200 OK Content-Length: 46 Server: BaseHTTP/0.6 Python/3.12.16 Date: Sun, 15 Nov 2026 02:39:51 GMT Content-Type: application/json Content-Encoding: gzip Cache-Control: no-store {"marker":"gzip-boundary"}
+														264 button (단추) 세션 요약 및 근거
+							115 pane (영역)
+					116 pane (영역)
+		1 title bar (제목 표시줄) (settable, string) Value: ArchScope Layout QA
+			2 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				3 menu item (메뉴 항목) 시스템
+			4 button (단추) 최소화
+			5 button (단추) 최대화
+			6 button (단추) 닫기
+		117 menu bar (메뉴 모음) 응용 프로그램 ID: MenuBar
+			8 menu item (메뉴 항목) 파일
+			9 menu item (메뉴 항목) 편집
+			10 menu item (메뉴 항목) 분석
+			11 menu item (메뉴 항목) 워크스페이스
+			12 menu item (메뉴 항목) 캡처
+			13 menu item (메뉴 항목) 보기
+			14 menu item (메뉴 항목) 도움말
+			15 menu item (메뉴 항목) Layout QA
+
+Document text: ```
+HTTP 캡처
+파일·요청 작성
+캡처 설정
+캡처 시작
+캡처 중지
+자동 추적 중
+일시정지
+비우기
+메서드, URL, 호스트, 상태로 필터 · 6 / 6
+세션 도구
+타이밍 및 세션 요약
+요약 범위
+요청 (종료 / 진행 중): 6 (6 / 0)
+관측 시간 범위: 2633.0 ms
+송신 본문: 0 B
+수신 본문: 1.0 MiB
+디코딩 본문: 1.0 MiB + ? (1)
+DNS: 0 + ? (6)
+TCP: 6
+디코딩 크기 − 수신 크기: −20 B (3/6)
+2xx: 5
+5xx: 1
+관점
+￼
+대기: — + ?
+DNS: — + ?
+연결: — + ?
+TLS: — + ?
+전송: — + ?
+대기 (TTFB): — + ?
+수신: — + ?
+?는 미관측 값입니다. 타이밍 관측 지점을 합치지 않으며 재사용 연결·DNS는 한 번 계산합니다. 상태 버튼은 그리드를 필터링합니다.
+프로세스별 상대 워터폴 (표시된 행) (6/6)
+? · /delay
++630.0 ms
+? · /encoded
++7.0 ms
+? · /gzip
++0.0 ms
+? · /large
++14.0 ms
+? · /short
++11.0 ms
+? · /error
++626.0 ms
+저장 / 내보내기
+내보내기 형식
+내보내기 범위
+저장…
+텍스트는 마스킹하며 보존 이미지 픽셀은 마스킹하지 않습니다.
+WinINet 캐시·쿠키
+열 필터
+그룹 기준
+표시 열
+캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+#
+￼
+시작
+￼
+메서드
+￼
+결과
+￼
+호스트
+￼
+경로
+￼
+종류
+￼
+크기
+￼
+시간
+￼
+타임라인
+￼
+프로세스
+￼
+▾
+127.0.0.1:11515
+6 · ↑ 0 B · ↓ 1.0 MiB
+1
+02:39:52.231
+GET
+200
+127.0.0.1:11515
+/delay
+JSON
+192 B
+2003 ms
+￼
+—
+1
+02:39:51.608
+GET
+200
+127.0.0.1:11515
+/encoded
+텍스트
+21 B
+3 ms
+￼
+—
+1
+02:39:51.601
+GET
+200
+127.0.0.1:11515
+/gzip
+JSON
+46 B
+6 ms
+￼
+—
+1
+02:39:51.615
+GET
+200
+127.0.0.1:11515
+/large
+텍스트
+1.0 MiB
+15 ms
+￼
+—
+1
+02:39:51.612
+GET
+200
+127.0.0.1:11515
+/short
+텍스트
+12 B
+3 ms
+￼
+—
+1
+02:39:52.227
+GET
+503
+127.0.0.1:11515
+/error
+JSON
+27 B
+4 ms
+￼
+—
+방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+트랜잭션 목록 크기 조절
+Request Builder로 복사
+200
+GET
+http://127.0.0.1:11515/gzip
+신규 연결
+semantic
+힌트 / 상태 / 주석
+Raw
+스트림
+헤더
+쿼리 문자열
+POST 데이터
+본문
+타이밍
+쿠키
+프로세스
+정규화된 모델에서 재구성한 텍스트입니다. 헤더 이름·값·중복은 보존되지만 원본 필드 순서·대소문자·프레이밍은 보존되지 않습니다 — 이 캡처 tier는 raw wire가 아니라 semantic 등급입니다.
+요청
+복사
+GET /gzip HTTP/1.1
+Accept-Encoding: gzip
+Host: 127.0.0.1:11515
+본문이 없는 메시지입니다.
+응답
+복사
+HTTP/1.1 200 OK
+Content-Length: 46
+Server: BaseHTTP/0.6 Python/3.12.16
+Date: Sun, 15 Nov 2026 02:39:51 GMT
+Content-Type: application/json
+Content-Encoding: gzip
+Cache-Control: no-store
+
+{"marker":"gzip-boundary"}
+세션 요약 및 근거
+```

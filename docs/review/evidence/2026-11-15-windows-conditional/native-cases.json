@@ -96,5 +96,12 @@
     "observed": "1024x768actualwindow/OS100/WebView125/EN: Up moves error503→short200,Bodyselected preserved; request/response sides stack and scroll to reveal12declared/5decoded/short. Six rows only; no10-row/70percent density pass. ActualOS125 not verified.",
     "build": "7117d654-plus-response-envelope",
     "arch": "386"
+  },
+  {
+    "id": "summary-complete-pairs-native",
+    "result": "PASS",
+    "observed": "Windows386 KO1280x800 OS100/WebView100. Six immutable Docker response rows show compression -20B (3/6), excluding interrupted/capped/encoded pairs while retaining genuine gzip overhead and complete503/delay. Decoded aggregate keeps one unknown; DNS unknown6 and TCP6 remain distinct.",
+    "build": "6eb28f4f-plus-summary-pairs",
+    "arch": "386"
   }
 ]

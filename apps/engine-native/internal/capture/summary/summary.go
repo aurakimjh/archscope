@@ -61,7 +61,8 @@ func Build(rows []models.CaptureTransaction) Snapshot {
 		addBytes(&out.Sent, tx.Request.BodySize)
 		addBytes(&out.Received, tx.Response.BodySize)
 		addBytes(&out.Decoded, tx.Response.BodyDecoded)
-		if tx.Response.BodyDecoded >= 0 && tx.Response.BodySize >= 0 {
+		// Partial reads and capped previews are not complete compression pairs.
+		if tx.State == models.TxComplete && tx.Response.BodyStorage != "truncated" && tx.Response.BodyStorage != "encoded" && tx.Response.BodyDecoded >= 0 && tx.Response.BodySize >= 0 {
 			out.CompressionKnown++
 			out.CompressionSaved += tx.Response.BodyDecoded - tx.Response.BodySize
 		}

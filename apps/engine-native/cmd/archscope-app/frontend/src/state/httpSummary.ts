@@ -6,7 +6,8 @@ export function summarizeHttpRows(rows:HttpCaptureTransactionRow[]):HttpSummary{
  const connections=new Set<string>(),dns=new Set<string>();let first=Infinity,last=-Infinity;
  for(const row of rows){if(["complete","failed","aborted"].includes(row.state))out.completed++;else out.pending++;
   for(const [sum,value] of [[out.sent,row.request.bodySize],[out.received,row.response.bodySize],[out.decoded,row.response.bodyDecoded]] as const){if(Number.isFinite(value)&&value>=0)sum.bytes+=value;else sum.unknown++}
-  if(row.response.bodyDecoded>=0&&row.response.bodySize>=0){out.compressionKnown++;out.compressionSaved+=row.response.bodyDecoded-row.response.bodySize}
+  // Partial reads and capped previews are not complete compression pairs.
+  if(row.state==="complete"&&!["truncated","encoded"].includes(row.response.bodyStorage)&&Number.isFinite(row.response.bodyDecoded)&&Number.isFinite(row.response.bodySize)&&row.response.bodyDecoded>=0&&row.response.bodySize>=0){out.compressionKnown++;out.compressionSaved+=row.response.bodyDecoded-row.response.bodySize}
   if(row.connection_id)connections.add(row.connection_id);else out.connectionsUnknown++;
   const group=row.status>=200&&row.status<600?`${Math.floor(row.status/100)}xx`:"other";out.statusCounts[group]=(out.statusCounts[group]??0)+1;
   const start=Date.parse(row.started_at),end=Date.parse(row.ended_at);if(Number.isFinite(start)){first=Math.min(first,start);if(Number.isFinite(end))last=Math.max(last,end);else if(row.duration_ms>=0&&Number.isFinite(row.duration_ms))last=Math.max(last,start+row.duration_ms)}

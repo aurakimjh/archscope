@@ -3640,3 +3640,17 @@ catch (error) { coreFailurePropagated = error === coreFailure; }
 assert(coreFailurePropagated, "core/capability failure remains fail-closed and is never substituted with successful defaults");
 
 })();
+
+const compressionBoundaryRows = [
+ {state:"complete",status:200,bodySize:46,bodyDecoded:26,bodyStorage:"inline"},
+ {state:"complete",status:503,bodySize:27,bodyDecoded:27,bodyStorage:"inline"},
+ {state:"failed",status:200,bodySize:12,bodyDecoded:5,bodyStorage:"inline"},
+ {state:"aborted",status:200,bodySize:100,bodyDecoded:10,bodyStorage:"inline"},
+ {state:"receiving",status:200,bodySize:100,bodyDecoded:20,bodyStorage:"inline"},
+ {state:"complete",status:200,bodySize:1048634,bodyDecoded:1048576,bodyStorage:"truncated"},
+ {state:"complete",status:200,bodySize:21,bodyDecoded:-1,bodyStorage:"encoded"},
+ {state:"complete",status:200,bodySize:-1,bodyDecoded:3,bodyStorage:"omitted"},
+].map(({state,status,...response},i)=>({...selectedLiveRow,id:`compression-boundary-${i}`,state,status,response:{...selectedLiveRow.response,...response}} as typeof selectedLiveRow));
+const compressionBoundary = summarizeHttpRows(compressionBoundaryRows);
+assert(compressionBoundary.compressionKnown===2&&compressionBoundary.compressionSaved===-20,"partial reads and preview caps must not invent compression overhead; complete HTTP503 and real gzip overhead remain eligible");
+assert(compressionBoundary.received.bytes===1048940&&compressionBoundary.decoded.bytes===1048667&&compressionBoundary.received.unknown===1&&compressionBoundary.decoded.unknown===1,"compression eligibility must retain independently observed byte totals");
