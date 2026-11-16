@@ -11,7 +11,7 @@ func TestApplicationPrereleaseRangeKeepsSignedStableBoundary(t *testing.T) {
 		version string
 		want    bool
 	}{
-		{"0.3.5", true}, {"0.4.0-rc.1", true}, {"0.4.0-rc.1+build.1", true},
+		{"0.3.5", true}, {"0.4.0-rc.1", true}, {"0.4.0-rc.2", true}, {"0.4.0-rc.1+build.1", true},
 		{"0.4.0", false}, {"0.4.1", false}, {"0.5.0-alpha.1", false},
 		{"0.3.0-rc.1", false}, {"0.2.9", false}, {"0.4", false},
 		{"v0.4.0-rc.1", false}, {"0.4.0-rc.01", false}, {"0.4.0-", false},

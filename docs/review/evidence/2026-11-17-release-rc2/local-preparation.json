@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-17",
+  "baseline": "d74b7953de07262e157ee7fcea912bf8dca30afb",
+  "checks": {
+    "state": {
+      "command": [
+        "npm",
+        "run",
+        "test:state"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.914,
+      "logBytes": 171,
+      "logSha256": "923531447043f2649bb4e732d9eb2d26d924765dbef57ae38b8bd97650974ebf"
+    },
+    "frontend-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.085,
+      "logBytes": 5783,
+      "logSha256": "7d2cfec6c3a14519251eaa70e424e79fdb5ca9047f5a7c8b90c20984f11e3b17"
+    },
+    "vet": {
+      "command": [
+        "go",
+        "-C",
+        "apps/engine-native",
+        "vet",
+        "./..."
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.247,
+      "logBytes": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "tagged-receipt": {
+      "command": [
+        "go",
+        "-C",
+        "apps/engine-native",
+        "test",
+        "-race",
+        "-tags",
+        "layoutaudit",
+        "./cmd/archscope-app",
+        "-run",
+        "^TestLayoutAuditReceipt",
+        "-count=20"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.382,
+      "logBytes": 3575,
+      "logSha256": "8553312dd1eb60725fb9db4559f8a8de8a3d17200a8592003f54e2370704aa38"
+    },
+    "pack-release": {
+      "command": [
+        "go",
+        "-C",
+        "apps/engine-native",
+        "test",
+        "./internal/packs",
+        "-run",
+        "TestApplicationPrereleaseRangeKeepsSignedStableBoundary|TestReleaseInstallsOriginalSignedBootstrap",
+        "-count=1",
+        "-v"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.535,
+      "logBytes": 336,
+      "logSha256": "f4f0098e522561a6a82ad024dfb45040583d2a0e9db2053d72107a6b430dc3ab"
+    },
+    "version": {
+      "old": {
+        "version": "0.4.0-rc.1",
+        "tag": "v0.4.0-rc.1",
+        "windowsVersion": "0.4.0.1",
+        "macosShortVersion": "0.4.0",
+        "macosBuildVersion": "4001",
+        "platforms": [
+          "darwin-arm64",
+          "windows-amd64",
+          "linux-amd64"
+        ]
+      },
+      "new": {
+        "version": "0.4.0-rc.2",
+        "tag": "v0.4.0-rc.2",
+        "windowsVersion": "0.4.0.2",
+        "macosShortVersion": "0.4.0",
+        "macosBuildVersion": "4002",
+        "platforms": [
+          "darwin-arm64",
+          "windows-amd64",
+          "linux-amd64"
+        ]
+      },
+      "monotonicPlatformBuilds": true,
+      "tagChecks": {
+        "v0.4.0-rc.2": {
+          "exitCode": 0,
+          "accepted": true
+        },
+        "v0.4.0-rc.1": {
+          "exitCode": 1,
+          "accepted": false
+        },
+        "v0.4.0": {
+          "exitCode": 1,
+          "accepted": false
+        }
+      }
+    },
+    "fullLocalGoRace": "RUNNING; final result recorded before tagging",
+    "portableNode": {
+      "testsEach": 41,
+      "macPassed": true,
+      "dockerPassed": true,
+      "macLogSha256": "152d15f11cb085828605215f03496889d65bc09468575ebaaf60cc7a2f9714ad",
+      "dockerLogSha256": "b59632d9f6d0c41cf7a31ec28eed5e05b03e9410413d779cc2a0eb6f1df55bad"
+    },
+    "i18n": {
+      "passed": true,
+      "requiredPhrasesPerAddedLocale": 2197
+    },
+    "offlineAssets": {
+      "passed": true
+    },
+    "notices": {
+      "dependencies": 89,
+      "missingRootNotices": 0
+    }
+  },
+  "nativeWindowsAcceptance": false,
+  "published": false
+}

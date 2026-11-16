@@ -6,7 +6,55 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Changes after the 0.4.0 release candidate will be recorded here.
+Changes after the latest release candidate will be recorded here.
+
+## [0.4.0-rc.2] — 2026-11-17
+
+Prerelease for controlled evaluation. Scope and remaining qualification:
+[English](docs/en/releases/v0.4.0-rc.2.md) ·
+[Korean](docs/ko/releases/v0.4.0-rc.2.md).
+
+### Added
+
+- Compact, hideable desktop ribbon with saved expanded/tab-only/hidden modes,
+  visible command icons, responsive groups and native desktop command routing.
+- English, Korean, Japanese, Simplified Chinese and Traditional Chinese UI.
+  Translation/geometry checks do not establish fluent-speaker or IME acceptance.
+- Native Windows x64/x86 saved-chart coverage for seven profiler units, plus
+  ordinary distinct-file memory screens and correlated diagnostic receipts.
+- Aggregate-only owned Windows renderer memory collection tooling for further
+  allocation diagnosis; native execution of the new collector remains pending.
+
+### Fixed
+
+- Windows Settings shortcut routing and selected ribbon/language contrast.
+- Windows stream batching regression tests use deterministic timing bounds;
+  translation source checks explicitly decode UTF-8 on Windows.
+- Layout-audit final receipts are completed before publication. The Windows
+  ribbon runner retries partial legacy JSON and transient Windows sharing
+  violations within its bounded wait and retains
+  failures for invalid, timed-out, exited or explicitly failed reports.
+
+### Changed
+
+- Application version 0.4.0-rc.2; Windows numeric version 0.4.0.2;
+  macOS short version 0.4.0/build 4002; Linux RC2 package metadata.
+- Documentation indexes and bundled pack guidance identify RC2 while keeping
+  RC1 release notes and historical evidence intact.
+
+### Remaining qualification
+
+- Ordinary Windows body-rich imports still fail the original 4 MiB/cycle tree
+  memory slope limit on both architectures (4.801 x64 / 8.764 x86). Unique-file
+  screens pass. Bounded JS ownership and explicit-GC diagnostics do not close
+  renderer-private growth or justify an allocation fix.
+- Changed receipt handling and the new aggregate collector require native
+  Windows revalidation. Full driver/vendor/reference, keyboard/IME/OS-DPI,
+  language review and installation/upgrade qualification remain scoped and open.
+- T-601/T-611/T-627/T-663/T-664 stay REVIEW, T-613 stays PENDING,
+  T-654/T-662 stay TODO. This candidate does not assert stable acceptance.
+- The original signed bootstrap remains eligible for this prerelease; stable
+  0.4.0 still requires a newly qualified compatible signed bootstrap pack.
 
 ## [0.4.0-rc.1] — 2026-11-15
 

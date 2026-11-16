@@ -1,8 +1,8 @@
 {
-  "version": "0.4.0-rc.1",
-  "tag": "v0.4.0-rc.1",
-  "windowsVersion": "0.4.0.1",
+  "version": "0.4.0-rc.2",
+  "tag": "v0.4.0-rc.2",
+  "windowsVersion": "0.4.0.2",
   "macosShortVersion": "0.4.0",
-  "macosBuildVersion": "4001",
+  "macosBuildVersion": "4002",
   "platforms": ["darwin-arm64", "windows-amd64", "linux-amd64"]
 }

@@ -1,9 +1,9 @@
 # Importer Support Matrix
 
-Current distribution: v0.4.0-rc.1 prerelease. The producer/version qualifications below remain individually scoped; see [release limitations](releases/v0.4.0-rc.1.md).
+Current distribution: v0.4.0-rc.2 prerelease. The producer/version qualifications below remain individually scoped; see [release limitations](releases/v0.4.0-rc.2.md).
 
 This matrix tracks the currently supported local evidence importers, including
-the browser-profile, Lighthouse, and HAR additions in the `v0.4.0-rc.1` candidate.
+the browser-profile, Lighthouse, and HAR additions in the `v0.4.0-rc.2` candidate.
 
 | Family | Result type | CLI | Representative inputs |
 |---|---|---|---|

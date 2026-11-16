@@ -5,20 +5,23 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"syscall"
 	"testing"
+	"time"
 )
 
 func TestLayoutAuditReceiptCompletePublication(t *testing.T) {
 	root := t.TempDir()
 	path := filepath.Join(root, "result.json")
 	body := []byte(`{"report":{"passed":true},"synthetic":"` + strings.Repeat("x", 1<<18) + `"}`)
-	writerFinished := false
 	done := make(chan error, 1)
 	go func() { done <- publishLayoutAuditReceipt(path, body) }()
+	deadline := time.Now().Add(5 * time.Second)
 	for {
 		data, err := os.ReadFile(path)
 		if err == nil {
@@ -27,31 +30,19 @@ func TestLayoutAuditReceiptCompletePublication(t *testing.T) {
 			}
 			break
 		}
-		if !os.IsNotExist(err) {
+		// MoveFileEx may briefly expose a sharing violation during publication.
+		// Do not ignore permission failures or accept incomplete final bytes.
+		sharing := runtime.GOOS == "windows" && errors.Is(err, syscall.Errno(32))
+		if !os.IsNotExist(err) && !sharing {
 			t.Fatal(err)
 		}
-		select {
-		case err := <-done:
-			if err != nil {
-				t.Fatal(err)
-			}
-			data, err = os.ReadFile(path)
-			if err != nil || !bytes.Equal(data, body) {
-				t.Fatal("completed receipt", err)
-			}
-			writerFinished = true
-			break
-		default:
-			runtime.Gosched()
+		if time.Now().After(deadline) {
+			t.Fatal("complete receipt unavailable before deadline", err)
 		}
-		if writerFinished {
-			break
-		}
+		time.Sleep(time.Millisecond)
 	}
-	if !writerFinished {
-		if err := <-done; err != nil {
-			t.Fatal(err)
-		}
+	if err := <-done; err != nil {
+		t.Fatal(err)
 	}
 	info, err := os.Stat(path)
 	if err != nil {

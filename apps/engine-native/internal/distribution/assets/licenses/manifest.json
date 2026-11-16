@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "go_sum_sha256": "59c89aa186d3fea3eb57cde3dcc0d596c3fbd8539292b6fa847b9ddf9cc5b365",
-  "npm_lock_sha256": "a7b25f7228cfcfa4a41c319bf0fca3e0742b597245a71c8a8eae5e8e79ef1baa",
+  "npm_lock_sha256": "584fe6fff4e26aac58768fc089226735d878e27ff555e00e12186ec69f84e820",
   "dependencies": [
     {
       "ecosystem": "go",
@@ -1256,7 +1256,7 @@
     {
       "ecosystem": "project",
       "name": "archscope",
-      "version": "0.4.0-rc.1",
+      "version": "0.4.0-rc.2",
       "declared_license": "MIT",
       "notices": [
         {

@@ -32,8 +32,8 @@ Unicode true
 ####
 !define INFO_PROJECTNAME    "archscope"
 !define INFO_PRODUCTNAME    "ArchScope"
-!define INFO_PRODUCTVERSION "0.4.0-rc.1"
-!define INFO_NUMERICVERSION "0.4.0.1"
+!define INFO_PRODUCTVERSION "0.4.0-rc.2"
+!define INFO_NUMERICVERSION "0.4.0.2"
 !define INFO_COPYRIGHT      "(c) 2026, ArchScope"
 !define PRODUCT_EXECUTABLE  "archscope.exe"
 !define UNINST_KEY_NAME     "ArchScope"

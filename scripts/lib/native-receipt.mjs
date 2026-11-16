@@ -2,13 +2,19 @@
 // missing, timed-out or explicitly failed receipts as a passing report.
 import {readFile} from 'node:fs/promises';
 import {performance} from 'node:perf_hooks';
-export async function waitForNativeReceipt(file,{isRunning,timeoutMs=310000,intervalMs=250,read=readFile,now=()=>performance.now(),sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms))}={}){
+export async function waitForNativeReceipt(file,{isRunning,timeoutMs=310000,intervalMs=250,read=readFile,now=()=>performance.now(),sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms)),platform=process.platform}={}){
  if(typeof isRunning!=='function'||!Number.isFinite(timeoutMs)||timeoutMs<=0||!Number.isFinite(intervalMs)||intervalMs<=0)throw new TypeError('bounded native receipt wait configuration required');
  const deadline=now()+timeoutMs;let lastRead='missing';
  while(now()<deadline){
   let body;
   try{body=await read(file,'utf8');}
-  catch(error){if(error.code!=='ENOENT')throw error;lastRead='missing';}
+  catch(error){
+   if(error.code==='ENOENT')lastRead='missing';
+   // Windows can briefly deny reads while MoveFileEx publishes the closed file.
+   // libuv maps sharing/lock violations to EBUSY; permission failures still fail.
+   else if(platform==='win32' && error.code==='EBUSY')lastRead='busy';
+   else throw error;
+  }
   if(body!==undefined){
    let parsed;
    try{parsed=JSON.parse(body);}catch(error){if(!(error instanceof SyntaxError))throw error;lastRead='partial-or-invalid';}

@@ -17,7 +17,7 @@ import (
 
 const Format = "1.0.0"
 const Interpreter = "1.0.0"
-const AppVersion = "0.4.0-rc.1"
+const AppVersion = "0.4.0-rc.2"
 const MaxArchiveBytes = 8 << 20
 const MaxExpandedBytes = 16 << 20
 const MaxFileBytes = 4 << 20
