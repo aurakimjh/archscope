@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-17",
+  "status": "LOCAL_ANALYSIS_COMPLETE_WINDOWS_REQUIRED",
+  "batchTaskCompleted": false,
+  "baseCommit": "acdd1d49b2507b20f1b400883dcc99809d670c9e",
+  "sources": {
+    "scripts/collect-renderer-memory.mjs": "a73a979d20170700c41f3ea39f971aa13ea5555db34efcc3808664a2490e3bd8",
+    "scripts/lib/renderer-memory-probe.mjs": "002a3ff3cd1b81b57c9ac7fcb6b4ea9d14fa22b7157704502b49027816d69ed6",
+    "scripts/test-renderer-memory-probe.mjs": "6ed16cf5d19f61138db1696abfa2f8c820a1047e6383a6933377bcc05edd945d",
+    "scripts/acceptance/layout/sample-owned-debug-tree.ps1": "e607e54eb39162b663f71f5305c12e9d28bf3145f825738981043371d3174db5",
+    "scripts/acceptance/layout/sample-owned-process-tree.ps1": "ec5b8e791f1ed422d49d42b84e30c76193f0bf5eb16f6ef19fb4c0a16a807cb4",
+    "scripts/diagnose-workspace-retention.mjs": "cd553f6a509ec8dc85def7fb364611d8083b627147ed3b44b1acf6a9918f4e0b",
+    "scripts/lib/import-memory-fixtures.mjs": "bc37cb75621d2134cf2a85b94cc55c375ac4f3f0914c80b548b53f2f0852820c",
+    "apps/engine-native/cmd/archscope-app/import_workload_qualification_test.go": "225b7c9411d523ca60c0aaf7ec56c0a961af7fab00a927409ca53bda16264f51",
+    "apps/engine-native/cmd/archscope-app/frontend/src/state/analysisWorkspace.ts": "29d95d7061769035efd49f039d31912da5c79e18870aafb475147aa4828a5a7c",
+    "apps/engine-native/cmd/archscope-app/frontend/.tmp/state-tests/state/analysisWorkspace.js": "d26ed2f4aad25ef97818d359cf9bd21446a22eee92ec02d75cab07e30bce3f63",
+    "docs/review/evidence/2026-11-17-renderer-memory-investigation/analyze_received.py": "2b7ce22331591ce2be25630fe3ae200bf46ab29e102ca0e83bd995bcaa624adb"
+  },
+  "macBackendProjection": {
+    "passed": true,
+    "files": 216,
+    "allInputAndProjectionHashesMatchReceivedWindowsAndLinux": true,
+    "command": "ARCHSCOPE_IMPORT_WORKLOAD_MANIFEST=<owned-manifest> ARCHSCOPE_IMPORT_WORKLOAD_OUT=<new-output> go -C apps/engine-native test -tags releasequalification ./cmd/archscope-app -run '^TestQualifiedImportWorkloadProjection$' -count=1 -v"
+  },
+  "retainedOwnership": {
+    "passed": true,
+    "hosts": [
+      "macOS arm64 Node25.9.0",
+      "Docker Linux arm64 Node22.23.2"
+    ],
+    "scenarios": [
+      "unique",
+      "body-rich"
+    ],
+    "forcedGC": true,
+    "nativeAcceptance": false,
+    "naturalPressureEvidence": false,
+    "reports": [
+      "mac-unique.json",
+      "mac-body-rich.json",
+      "docker-unique.json",
+      "docker-body-rich.json"
+    ]
+  },
+  "aggregateProbeRegression": {
+    "macPassed": true,
+    "dockerPassed": true,
+    "testsEach": 11,
+    "command": "node --test scripts/test-renderer-memory-probe.mjs",
+    "macLogSha256": "319dfac24ef90cfddbb8bf7a49b32c3a978176dfc4cd958b97e1c32ab0dc7538",
+    "dockerLogSha256": "84cbcff16e8954b7596d2efb799bcbc2e8015017b6467efc9d769a4d53882fd0",
+    "nativeWindowsCollectorExecuted": false,
+    "powershellParserExecuted": false
+  },
+  "allocationCauseProven": false,
+  "productionAllocationPatchApplied": false,
+  "ordinaryBudgetChanged": false,
+  "ordinaryWindowsRevalidationExecuted": false,
+  "pushDeferred": false,
+  "publicationAuthorization": "Subsequent explicit user request to publish now for Windows testing; native task2 completion remains pending"
+}

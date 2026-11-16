@@ -1144,7 +1144,10 @@ filtered before analysis.
 
 ### User-authorized three-task batch (2026-11-17)
 
-Commit each completed task, push only after tasks1–3 and required checks finish.
+Initial instruction: commit each completed task and push after the batch.
+Latest user instruction (2026-11-17) authorizes publication now so native Windows
+testing can proceed. Task2 remains incomplete; publication does not close its
+Windows allocation-tracing or ordinary-build revalidation gates.
 Unrelated HTTP docs/verifier/original tracker history are excluded. The older
 uncommitted November16 review is included with task1, preserving original raw
 Windows artifacts and the different-reviewer requirement.
@@ -1152,7 +1155,7 @@ Windows artifacts and the different-reviewer requirement.
 | Order | Work | State / receipt |
 |---|---|---|
 | 1 | Review additional Windows eight commits/128 files and update gates | COMPLETE_LOCAL:111artifact digests,28native saved images,4ordinary memory screens,216three-host projection records and bounded native correlation recomputed. Unique bothPASS; body-rich bothFAIL remain. docs/review/2026-11-17_codex_windows-additional-review.ko.md |
-| 2 | Investigate body-rich renderer-private growth | IN_PROGRESS: unchanged4MiB/cycle ordinary budget; no forcedGC/trim acceptance substitution or blind allocation patch. Windows native cause remains to be traced. |
+| 2 | Investigate body-rich renderer-private growth | LOCAL_ANALYSIS_READY / WAITING_WINDOWS_ACCESS: received role attribution and216fresh Mac backend projections recomputed; Mac/Docker4ownership diagnostics pass; aggregate-only collector11tests/host passes. Actual native allocation cause and ordinary Windows revalidation remain; no production allocation patch or budget change. Local task2 analysis/tools are committed for Windows handoff under the latest publication instruction; native completion remains pending. See2026-11-17-renderer-memory-investigation. |
 | 3 | Fix WREV3-01 partial JSON receipt race and regress | COMPLETE_LOCAL: staged final receipt publication plus bounded compatibility polling. Mac/Docker23tests each; taggedGo race20repeats; Windowsamd64/386 test binaries cross-compile. Native Windows execution/independent acceptance remain. See2026-11-17-native-receipt-fix. |
 
 All8open numbered task states remain unchanged. Official signer/default-startup/
@@ -6410,3 +6413,47 @@ Task1 is committed; task3 local remediation is ready for its separate commit.
 Task2 still requires actual Windows allocation tracing and ordinary revalidation.
 No push occurs until the authorized batch is complete. Evidence:
 docs/review/evidence/2026-11-17-native-receipt-fix/README.md.
+
+### 2026-11-17 - renderer memory investigation (batch task2, incomplete)
+
+Received ordinary growth is concentrated in renderer-private commitment:
+body-rich tree slopes4.801MiB/cycle(amd64) and8.764(386), renderer5.213/8.567.
+Both ordinary verdicts remain FAIL against4MiB/cycle; omitting any one measured
+point for sensitivity still exceeds that limit. The received bounded80card/array
+counts and small isolate-used-heap trend do not identify native/DOM/GPU allocation
+or prove a leak-free renderer. No speculative production allocation patch.
+
+Fresh Mac backend import qualification matches all216exact inputs/projections/
+fingerprints. Current compiled workspace36cycle unique/body-rich diagnostics
+pass on Mac and disconnected Docker:80arrays,40960/10240rows and empty registry
+afterClear; postClear heap increments0.219–0.286MiB. These explicitGC diagnostics
+are neither ordinary native acceptance nor T-662 natural-event evidence.
+
+A new owned-loopback aggregate collector prepares isolate/embedder/backing-store,
+DOM/listener and performance counters correlated with exact process ownership.
+Its11portable regressions pass on Mac and Docker. Windows PowerShell, actual CDP
+collection, native allocation tracing/cause-specific correction and ordinary
+x64/x86 revalidation have not run: this host exposes Mac/Docker execution only,
+and Windows connection details were requested. Task2 stays incomplete. Its local
+analysis/tools are now committed for Windows handoff under the user's subsequent
+explicit push instruction. Task1=6104d018 and task3=2bc15755 are separate commits.
+The earlier batch push hold is superseded; all8open task states stay unchanged.
+Evidence:docs/review/evidence/2026-11-17-renderer-memory-investigation/README.md.
+
+### 2026-11-17 - Windows handoff publication
+
+The user explicitly requested push so testing can continue on Windows. Publish
+task1 review, task3 local remediation and the task2 local investigation/tools as
+separate commits. This instruction supersedes the earlier full-batch push hold.
+Task2 remains LOCAL_ANALYSIS_READY / WAITING_WINDOWS_ACCESS; no allocator cause,
+production allocation correction, new ordinary Windows PASS or native publisher
+acceptance is claimed. The two body-rich ordinary FAIL receipts, independent
+review gates, T-613 PENDING, T-662 TODO and every numbered task state are preserved.
+Unrelated HTTP documentation/verifier and original tracker history are excluded.
+
+Windows next: pull main; run the changed publisher/runner on x64/x86; collect
+owned renderer aggregate counters and trace the allocation domain; apply a
+cause-specific fix if established, then repeat ordinary unique/body-rich memory
+checks under the original4MiB/cycle budget without forcedGC/trim/debug acceptance
+substitution. See2026-11-17-renderer-memory-investigation/README.md and
+2026-11-17-native-receipt-fix/README.md for commands and evidence boundaries.

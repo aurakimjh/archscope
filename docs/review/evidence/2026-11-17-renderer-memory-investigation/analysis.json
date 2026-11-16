@@ -1,0 +1,213 @@
+{
+  "sourceRef": "acdd1d49b2507b20f1b400883dcc99809d670c9e",
+  "scope": "Role and isolate evidence only; not an allocator diagnosis or new Windows execution",
+  "ordinary": {
+    "unique-amd64": {
+      "passed": true,
+      "metrics": {
+        "delta": -23310336,
+        "slopePerCycle": 54954.66666666667
+      },
+      "roleMetrics": {
+        "app": {
+          "delta": -2306048,
+          "slopePerCycle": -172373.33333333334
+        },
+        "browser": {
+          "delta": -4096,
+          "slopePerCycle": 12902.4
+        },
+        "crashpad": {
+          "delta": 0,
+          "slopePerCycle": 0.0
+        },
+        "gpu": {
+          "delta": 69632,
+          "slopePerCycle": 22528.0
+        },
+        "renderer": {
+          "delta": -25292800,
+          "slopePerCycle": 179882.66666666666
+        },
+        "utility": {
+          "delta": 20480,
+          "slopePerCycle": 2730.666666666667
+        }
+      },
+      "originalSlopeBudget": 4194304,
+      "diagnosticLeaveOneOutSlopeRange": [
+        -1863680.0,
+        1025024.0
+      ],
+      "originalVerdictUnchanged": true
+    },
+    "body-rich-amd64": {
+      "passed": false,
+      "metrics": {
+        "delta": 39096320,
+        "slopePerCycle": 5033984.0
+      },
+      "roleMetrics": {
+        "app": {
+          "delta": -1634304,
+          "slopePerCycle": -420132.5714285714
+        },
+        "browser": {
+          "delta": -69632,
+          "slopePerCycle": -12288.0
+        },
+        "crashpad": {
+          "delta": 0,
+          "slopePerCycle": 0.0
+        },
+        "gpu": {
+          "delta": -36864,
+          "slopePerCycle": 5939.2
+        },
+        "renderer": {
+          "delta": 41009152,
+          "slopePerCycle": 5466112.0
+        },
+        "utility": {
+          "delta": 12288,
+          "slopePerCycle": 1901.7142857142858
+        }
+      },
+      "originalSlopeBudget": 4194304,
+      "diagnosticLeaveOneOutSlopeRange": [
+        4642406.4,
+        7273325.714285715
+      ],
+      "originalVerdictUnchanged": true
+    },
+    "unique-386": {
+      "passed": true,
+      "metrics": {
+        "delta": -26681344,
+        "slopePerCycle": -412160.0
+      },
+      "roleMetrics": {
+        "app": {
+          "delta": -1175552,
+          "slopePerCycle": -220330.6666666667
+        },
+        "browser": {
+          "delta": -180224,
+          "slopePerCycle": -22118.4
+        },
+        "crashpad": {
+          "delta": 4096,
+          "slopePerCycle": 633.9047619047619
+        },
+        "gpu": {
+          "delta": 294912,
+          "slopePerCycle": 49688.380952380954
+        },
+        "renderer": {
+          "delta": -26669056,
+          "slopePerCycle": 23210.666666666668
+        },
+        "utility": {
+          "delta": -40960,
+          "slopePerCycle": 0.0
+        }
+      },
+      "originalSlopeBudget": 4194304,
+      "diagnosticLeaveOneOutSlopeRange": [
+        -1404928.0,
+        95232.0
+      ],
+      "originalVerdictUnchanged": true
+    },
+    "body-rich-386": {
+      "passed": false,
+      "metrics": {
+        "delta": 48246784,
+        "slopePerCycle": 9189376.0
+      },
+      "roleMetrics": {
+        "app": {
+          "delta": 1286144,
+          "slopePerCycle": 194950.09523809524
+        },
+        "browser": {
+          "delta": 192512,
+          "slopePerCycle": 40243.2
+        },
+        "crashpad": {
+          "delta": 0,
+          "slopePerCycle": 0.0
+        },
+        "gpu": {
+          "delta": -335872,
+          "slopePerCycle": -38570.66666666667
+        },
+        "renderer": {
+          "delta": 46936064,
+          "slopePerCycle": 8982664.533333333
+        },
+        "utility": {
+          "delta": -16384,
+          "slopePerCycle": -819.2
+        }
+      },
+      "originalSlopeBudget": 4194304,
+      "diagnosticLeaveOneOutSlopeRange": [
+        9151283.2,
+        10747904.0
+      ],
+      "originalVerdictUnchanged": true
+    }
+  },
+  "causalAllocationProven": false,
+  "ordinaryFailuresPreserved": true,
+  "windowsTraceRequired": true,
+  "instrumented": {
+    "nativeAcceptance": false,
+    "matchedPoints": 8,
+    "maximumLagSeconds": 5.328,
+    "expectedCounters": {
+      "entries": 80,
+      "httpEntries": 80,
+      "fingerprintedHttpEntries": 80,
+      "uniqueTransactionArrays": 80,
+      "logicalRows": 10240,
+      "uniqueRetainedRows": 10240,
+      "immutableArrays": 80,
+      "activeRows": 128
+    },
+    "metrics": {
+      "rendererPrivateBytes": {
+        "firstMedian": 391479296,
+        "lastMedian": 397799424,
+        "delta": 6320128,
+        "slopePerCycle": 4674560.0
+      },
+      "treePrivateBytes": {
+        "firstMedian": 646123520,
+        "lastMedian": 651481088,
+        "delta": 5357568,
+        "slopePerCycle": 3937792.0
+      },
+      "jsHeapUsed": {
+        "firstMedian": 75281690,
+        "lastMedian": 74194457,
+        "delta": -1087233,
+        "slopePerCycle": 4260.333333333333
+      },
+      "jsHeapTotal": {
+        "firstMedian": 88002461,
+        "lastMedian": 76728777,
+        "delta": -11273684,
+        "slopePerCycle": -66745.125
+      }
+    },
+    "missingDomains": [
+      "DOM document/node/listener counts",
+      "V8 backing storage and embedder heap",
+      "allocation stacks/native allocator/graphics commitment",
+      "repeat ordinary run after cause-specific change"
+    ]
+  },
+  "conclusion": "Growth is concentrated in renderer-private bytes, with bounded workspace ownership and a small measured isolate used-heap trend. These accounting domains do not partition process memory; do not label their difference a proven native leak."
+}
