@@ -26,6 +26,8 @@ T-613 실패 경계 후속: 커밋된 행 손상 읽기 거절·정확한 backup
 
 T-613 메모리 후속: source324 production 양쪽 약41분 고정 반복 부하/idle의 사전 증가 기준, Windows 공통 엔진 양쪽24cycle GC후 힙/goroutine 검사와 Docker24capture 패키지 race를 통과했다([근거·남은 인수](evidence/2026-11-14-t613-memory/README.md)). 관측된 WebView 증분과 유한 기준의 한계를 명시하며 전체 누수 없음·T-613 완료·독립 PASS는 주장하지 않는다.
 
+WREV3-01 후속: 최종 JSON을 임시 파일에 완성한 후 게시하고, 러너는 실행 중인 앱의 부분 JSON을 기존 제한 시간 안에서 재시도하도록 수정했다. Mac·Docker 각23회귀, Go race20반복 및 Windows x64/x86 테스트 바이너리 교차 컴파일을 통과했다([검증 결과](evidence/2026-11-17-native-receipt-fix/README.md)). LOCALLY_VERIFIED이며 변경된 네이티브 Windows 실행·독립 수용은 남아 있다. 원 재현·Windows 수신 근거·리뷰 판정은 보존한다.
+
 ## 처리 기록
 
 | 날짜 | 문서 | 대상 | 판정·처리 |

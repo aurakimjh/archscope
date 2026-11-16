@@ -10,6 +10,9 @@ on:
       - "scripts/verify-desktop-only.mjs"
       - "scripts/check-desktop-i18n.py"
       - "scripts/verify-ribbon-native.js"
+      - "scripts/verify-windows-ribbon.mjs"
+      - "scripts/lib/native-receipt.mjs"
+      - "scripts/test-native-receipt.mjs"
       - "scripts/verify-windows-desktop-soak.mjs"
       - "scripts/lib/desktop-soak-checks.mjs"
       - "scripts/test-desktop-soak-checks.mjs"
@@ -32,6 +35,9 @@ on:
       - "scripts/verify-desktop-only.mjs"
       - "scripts/check-desktop-i18n.py"
       - "scripts/verify-ribbon-native.js"
+      - "scripts/verify-windows-ribbon.mjs"
+      - "scripts/lib/native-receipt.mjs"
+      - "scripts/test-native-receipt.mjs"
       - "scripts/verify-windows-desktop-soak.mjs"
       - "scripts/lib/desktop-soak-checks.mjs"
       - "scripts/test-desktop-soak-checks.mjs"
@@ -128,6 +134,9 @@ jobs:
       - name: Test native x86 packages with the production SDK fixes
         run: node cmd/archscope-app/build/windows/test.mjs -count=1 -timeout 10m ./...
 
+      - name: Test native x86 receipt publication
+        run: node cmd/archscope-app/build/windows/test.mjs -tags layoutaudit -run '^TestLayoutAuditReceipt' -count=1 ./cmd/archscope-app
+
   go:
     name: Go test/build (${{ matrix.os }})
     strategy:
@@ -180,6 +189,9 @@ jobs:
       - name: Windows live-capture E2E
         if: runner.os == 'Windows'
         run: go test -count=1 ./cmd/archscope-app -run '^TestWindowsLiveCaptureE2E$'
+
+      - name: Layout audit receipt publication
+        run: go test -race -tags layoutaudit ./cmd/archscope-app -run '^TestLayoutAuditReceipt' -count=1
 
       - name: Windows resolver-cost measurement
         if: runner.os == 'Windows'
@@ -281,6 +293,10 @@ jobs:
       - name: Desktop soak failure predicates
         working-directory: .
         run: node --test scripts/test-desktop-soak-checks.mjs
+
+      - name: Native receipt polling and runner failure regressions
+        working-directory: .
+        run: node --test scripts/test-native-receipt.mjs
 
       - name: Stored HTTP export readback regressions
         working-directory: .

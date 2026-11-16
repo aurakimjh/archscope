@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analysis"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
@@ -107,7 +108,7 @@ func configureLayoutAudit(app *application.App, window *application.WebviewWindo
 		}
 		data, err := json.MarshalIndent(receipt, "", "  ")
 		if err == nil {
-			err = os.WriteFile(output, data, 0600)
+			err = publishLayoutAuditReceipt(output, data)
 		}
 		if err != nil {
 			log.Print(err)
@@ -159,4 +160,10 @@ func decorateLayoutAuditMenu(menu *application.Menu) {
 	}
 	audit.Add("100% zoom").OnClick(func(_ *application.Context) { layoutAuditWindow.SetZoom(1) })
 	audit.Add("125% zoom").OnClick(func(_ *application.Context) { layoutAuditWindow.SetZoom(1.25) })
+}
+
+// Stage and close the complete final receipt in its own directory before rename.
+// Readers also tolerate partial legacy receipts; ordinary builds exclude this file.
+func publishLayoutAuditReceipt(path string, body []byte) error {
+	return analysis.AtomicExport(path, body)
 }

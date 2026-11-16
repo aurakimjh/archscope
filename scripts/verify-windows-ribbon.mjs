@@ -5,6 +5,7 @@ import {mkdir, readFile, writeFile, appendFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {performance} from 'node:perf_hooks';
+import {waitForNativeReceipt} from './lib/native-receipt.mjs';
 
 assert.equal(process.platform, 'win32');
 const [binary, destination] = process.argv.slice(2);
@@ -27,13 +28,13 @@ for (const [name, width, height, zoom] of [['wide',1280,800,1], ['compact',1024,
   child.stdout.on('data',log); child.stderr.on('data',log);
   let native;
   try {
-    while(performance.now()-started < 310000) {
-      if(launchError) throw launchError;
-      try { native=JSON.parse(await readFile(resultPath,'utf8')); break; } catch(error) { if(error.code!=='ENOENT') throw error; }
-      if(child.exitCode!==null || child.signalCode!==null) throw Error('Native app exited without a receipt');
-      await pause(250);
-    }
-    assert(native, 'No complete receipt before timeout; partial renderer/progress output retained privately');
+    native = await waitForNativeReceipt(resultPath, {
+      isRunning: () => {
+        if (launchError) throw launchError;
+        return child.exitCode === null && child.signalCode === null;
+      },
+      timeoutMs: Math.max(1, 310000 - (performance.now() - started)),
+    });
     const report = native.report;
     assert.equal(native.webviewZoom, zoom, 'Actual WebView zoom differs');
     assert.equal(report.passed, true, report.failure);

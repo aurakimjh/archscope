@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-17",
+  "finding": "WREV3-01",
+  "status": "LOCALLY_VERIFIED",
+  "baseCommit": "6104d0184f937d590d7316f41ae328603830f23e",
+  "scope": "Changed real publisher on macOS; real consumer in a controlled process/I/O harness; native Windows execution remains pending",
+  "sources": {
+    "scripts/lib/native-receipt.mjs": "963da315b01e8ddcc94443ae5717f0400ac041ade9016adccd03acadb37c88c0",
+    "scripts/test-native-receipt.mjs": "779735df7ae75c73c2e0693bd4f9d8eb9961f6964e0f76ab3bafac05d2852804",
+    "scripts/verify-windows-ribbon.mjs": "bde1ca8f6e24e11964b0628dbe535aa184edca6522a3f20397981157bf22e73c",
+    "apps/engine-native/cmd/archscope-app/layout_audit.go": "89bd8bfb3898655b931dc085cb45411a1eb7e9ba3a33bbc2f01fe487172d633f",
+    "apps/engine-native/cmd/archscope-app/layout_audit_receipt_test.go": "0e0d8e7b1ebd940310ca0dead10423c095a055065ea36b7efbcbf6e0673703fb",
+    "apps/engine-native/internal/analysis/results.go": "ea49e257d8fbf34865633064ceb9aa54f6c02febe39274eb3d84086160285637",
+    ".github/workflows/engine-native.yml": "606f5858a76ef41769d2cee428647b724f17e1b5c8ed1a0a638cf251f47ee7cf"
+  },
+  "checks": [
+    {
+      "command": "node --test scripts/test-native-receipt.mjs",
+      "host": "macOS arm64",
+      "passed": true,
+      "tests": 23,
+      "logSha256": "645a3c0d8ca5efc8cd4c47317620bfcd6bc93840c995738064e6d06c2e04b2e3"
+    },
+    {
+      "command": "docker run --rm --network none --read-only --tmpfs /tmp:rw,noexec,nosuid,size=16m --memory 512m --cpus 2 --mount type=bind,src=<repository>,dst=/repo,readonly --workdir /repo node:22-alpine node --test scripts/test-native-receipt.mjs",
+      "host": "Docker Desktop Linux arm64, Node22",
+      "passed": true,
+      "tests": 23,
+      "logSha256": "c499f0a4849ce5c1fa701332ebddba8cfd2880f8048019470b4e4d826b70b2f3"
+    },
+    {
+      "command": "go -C apps/engine-native test -race -tags layoutaudit ./cmd/archscope-app -run '^TestLayoutAuditReceipt' -count=20",
+      "host": "macOS arm64",
+      "passed": true,
+      "testsPerRepeat": 2,
+      "repeats": 20,
+      "logSha256": "ca4b8c095366fda6ccaf2ca0e5b529384dcefc251583165baeaf4523d1129e59",
+      "note": "Existing SDK object deployment-target linker warnings; no test/race failures"
+    },
+    {
+      "command": "Windows guarded runWindowsGo test -c -tags layoutaudit ./cmd/archscope-app",
+      "host": "Mac cross-compile",
+      "passed": true,
+      "architectures": [
+        "amd64",
+        "386"
+      ],
+      "nativeExecution": false
+    },
+    {
+      "command": "python3 scripts/build-offline-assets.py --check",
+      "passed": true
+    }
+  ],
+  "nativeWindowsExecution": false,
+  "hostedCIExecuted": false,
+  "independentAcceptance": false,
+  "ordinaryBuildChanged": false,
+  "rawReceivedReceiptsChanged": false
+}
