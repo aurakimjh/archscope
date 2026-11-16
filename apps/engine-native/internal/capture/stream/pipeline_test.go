@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"testing/synctest"
 	"time"
 
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/capture"
@@ -270,55 +271,59 @@ func TestLiveMetadataIsRedactedBeforeRendererExposure(t *testing.T) {
 
 func TestProgressIsBatchedStableAndAbortedOnClose(t *testing.T) {
 	st := testStore(t)
-	sink := &recordingSink{}
-	p, err := New(Config{
-		SessionID: "s", Store: st, EventSink: sink, LiveWindow: 10,
-		BatchInterval: 10 * time.Millisecond, StatsInterval: time.Hour,
+	synctest.Test(t, func(t *testing.T) {
+		sink := &recordingSink{}
+		p, err := New(Config{
+			SessionID: "s", Store: st, EventSink: sink, LiveWindow: 10,
+			BatchInterval: 10 * time.Millisecond, StatsInterval: time.Hour,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { _ = p.Close() })
+		process := &models.ProcessInstance{Name: "client", Attribution: "confirmed"}
+		first := models.CaptureTransaction{
+			ID: "first", Method: "GET", Host: "example.test", Path: "/first",
+			State: models.TxRequestSent, Fidelity: "pending", Process: process,
+		}
+		second := models.CaptureTransaction{
+			ID: "second", Method: "CONNECT", Host: "example.test", Path: "",
+			State: models.TxRequestSent, Fidelity: "unsupported", Process: process,
+		}
+		if err := p.TrackProgress(first); err != nil {
+			t.Fatal(err)
+		}
+		if err := p.TrackProgress(second); err != nil {
+			t.Fatal(err)
+		}
+		time.Sleep(30 * time.Millisecond)
+		synctest.Wait()
+		sink.mu.Lock()
+		progressCalls, progressItems := sink.progressCalls, sink.progressItems
+		sink.mu.Unlock()
+		if progressCalls != 1 || progressItems != 2 {
+			t.Fatalf("progress calls=%d items=%d", progressCalls, progressItems)
+		}
+		first.State = models.TxComplete
+		first.Fidelity = "decoded_wire"
+		first.StatusCode = http.StatusOK
+		if err := p.Submit(context.Background(), first); err != nil {
+			t.Fatal(err)
+		}
+		window := p.LiveWindow()
+		if len(window) != 2 || window[0].ID != "first" ||
+			window[0].State != models.TxComplete || window[1].ID != "second" {
+			t.Fatalf("stable live window=%+v", window)
+		}
+		if err := p.Close(); err != nil {
+			t.Fatal(err)
+		}
+		window = p.LiveWindow()
+		if len(window) != 2 || window[1].State != models.TxAborted ||
+			window[1].Fidelity != "unsupported" {
+			t.Fatalf("closed live window=%+v", window)
+		}
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	process := &models.ProcessInstance{Name: "client", Attribution: "confirmed"}
-	first := models.CaptureTransaction{
-		ID: "first", Method: "GET", Host: "example.test", Path: "/first",
-		State: models.TxRequestSent, Fidelity: "pending", Process: process,
-	}
-	second := models.CaptureTransaction{
-		ID: "second", Method: "CONNECT", Host: "example.test", Path: "",
-		State: models.TxRequestSent, Fidelity: "unsupported", Process: process,
-	}
-	if err := p.TrackProgress(first); err != nil {
-		t.Fatal(err)
-	}
-	if err := p.TrackProgress(second); err != nil {
-		t.Fatal(err)
-	}
-	time.Sleep(30 * time.Millisecond)
-	sink.mu.Lock()
-	progressCalls, progressItems := sink.progressCalls, sink.progressItems
-	sink.mu.Unlock()
-	if progressCalls != 1 || progressItems != 2 {
-		t.Fatalf("progress calls=%d items=%d", progressCalls, progressItems)
-	}
-	first.State = models.TxComplete
-	first.Fidelity = "decoded_wire"
-	first.StatusCode = http.StatusOK
-	if err := p.Submit(context.Background(), first); err != nil {
-		t.Fatal(err)
-	}
-	window := p.LiveWindow()
-	if len(window) != 2 || window[0].ID != "first" ||
-		window[0].State != models.TxComplete || window[1].ID != "second" {
-		t.Fatalf("stable live window=%+v", window)
-	}
-	if err := p.Close(); err != nil {
-		t.Fatal(err)
-	}
-	window = p.LiveWindow()
-	if len(window) != 2 || window[1].State != models.TxAborted ||
-		window[1].Fidelity != "unsupported" {
-		t.Fatalf("closed live window=%+v", window)
-	}
 }
 
 func TestCloseAbortsEveryInflightTransactionState(t *testing.T) {

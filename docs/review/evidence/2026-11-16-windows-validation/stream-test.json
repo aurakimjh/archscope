@@ -1,0 +1,16 @@
+{
+  "initial": {
+    "architecture": "386",
+    "result": "FAIL",
+    "test": "TestProgressIsBatchedStableAndAbortedOnClose",
+    "observed": "progress calls=0 items=0 after fixed30ms wall-clock sleep",
+    "logSha256": "9c93ed3c223bfe06817900a9da6177eed13889fa2157da3004adb07e8f607d1d"
+  },
+  "correction": "Use testing/synctest virtual time and Wait; preserve1batch/2items,stable order and close-abort assertions",
+  "recheck": {
+    "targetedRepeatsEachArchitecture": 25,
+    "amd64StreamSuite": "PASS",
+    "final386FullPackages": 131,
+    "final386Result": "PASS"
+  }
+}

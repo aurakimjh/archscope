@@ -6210,3 +6210,11 @@ Actual x64/x86 six runs pass180locale/tab layouts and18themes,selected contrast
 >=4.5:1. Scoped JA/Chinese glyph screenshots retained; OS100 only,WebView125 is
 not OS125 and independent language/IME acceptance remains. Before FAIL retained.
 Evidence:2026-11-16-windows-validation/ribbon-amd64.json.
+
+### 2026-11-16 - Windows stream timer-test determinism
+
+Initial full386 suite fails after30ms wall-clock wait with publisher calls0.
+Move existing batching/order/close-abort test into synctest virtual time and Wait;
+no production timer or one-batch/two-item assertion change. x64/x86 each25repeats,
+x64stream suite and final full386131packages pass. Initial FAIL preserved.
+Evidence:2026-11-16-windows-validation/stream-test.json.
