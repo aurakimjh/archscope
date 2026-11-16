@@ -1,0 +1,199 @@
+{
+  "osScreenScaleFactor": 1,
+  "report": {
+    "cases": [
+      {
+        "axis": "samples",
+        "canvasObserved": true,
+        "nativeSaveCompleted": true,
+        "saves": [
+          {
+            "format": "svg",
+            "height": 671,
+            "nativeSaveCompleted": true,
+            "renderer": "canvas",
+            "width": 1199
+          },
+          {
+            "format": "png",
+            "height": 671,
+            "nativeSaveCompleted": true,
+            "renderer": "svg",
+            "width": 1199
+          }
+        ],
+        "svgAxisObserved": true,
+        "unit": "samples"
+      },
+      {
+        "axis": "ns",
+        "canvasObserved": true,
+        "nativeSaveCompleted": true,
+        "saves": [
+          {
+            "format": "svg",
+            "height": 671,
+            "nativeSaveCompleted": true,
+            "renderer": "canvas",
+            "width": 1199
+          },
+          {
+            "format": "png",
+            "height": 671,
+            "nativeSaveCompleted": true,
+            "renderer": "svg",
+            "width": 1199
+          }
+        ],
+        "svgAxisObserved": true,
+        "unit": "nanoseconds"
+      },
+      {
+        "axis": "µs",
+        "canvasObserved": true,
+        "nativeSaveCompleted": true,
+        "saves": [
+          {
+            "format": "svg",
+            "height": 671,
+            "nativeSaveCompleted": true,
+            "renderer": "canvas",
+            "width": 1199
+          },
+          {
+            "format": "png",
+            "height": 671,
+            "nativeSaveCompleted": true,
+            "renderer": "svg",
+            "width": 1199
+          }
+        ],
+        "svgAxisObserved": true,
+        "unit": "microseconds"
+      },
+      {
+        "axis": "ms",
+        "canvasObserved": true,
+        "nativeSaveCompleted": true,
+        "saves": [
+          {
+            "format": "svg",
+            "height": 671,
+            "nativeSaveCompleted": true,
+            "renderer": "canvas",
+            "width": 1199
+          },
+          {
+            "format": "png",
+            "height": 671,
+            "nativeSaveCompleted": true,
+            "renderer": "svg",
+            "width": 1199
+          }
+        ],
+        "svgAxisObserved": true,
+        "unit": "milliseconds"
+      },
+      {
+        "axis": "s",
+        "canvasObserved": true,
+        "nativeSaveCompleted": true,
+        "saves": [
+          {
+            "format": "svg",
+            "height": 671,
+            "nativeSaveCompleted": true,
+            "renderer": "canvas",
+            "width": 1199
+          },
+          {
+            "format": "png",
+            "height": 671,
+            "nativeSaveCompleted": true,
+            "renderer": "svg",
+            "width": 1199
+          }
+        ],
+        "svgAxisObserved": true,
+        "unit": "seconds"
+      },
+      {
+        "axis": "bytes",
+        "canvasObserved": true,
+        "nativeSaveCompleted": true,
+        "saves": [
+          {
+            "format": "svg",
+            "height": 671,
+            "nativeSaveCompleted": true,
+            "renderer": "canvas",
+            "width": 1199
+          },
+          {
+            "format": "png",
+            "height": 671,
+            "nativeSaveCompleted": true,
+            "renderer": "svg",
+            "width": 1199
+          }
+        ],
+        "svgAxisObserved": true,
+        "unit": "bytes"
+      },
+      {
+        "axis": "Unknown",
+        "canvasObserved": true,
+        "nativeSaveCompleted": true,
+        "saves": [
+          {
+            "format": "svg",
+            "height": 671,
+            "nativeSaveCompleted": true,
+            "renderer": "canvas",
+            "width": 1199
+          },
+          {
+            "format": "png",
+            "height": 671,
+            "nativeSaveCompleted": true,
+            "renderer": "svg",
+            "width": 1199
+          }
+        ],
+        "svgAxisObserved": true,
+        "unit": "unknown"
+      }
+    ],
+    "exports": [
+      {
+        "format": "svg",
+        "renderer": "canvas"
+      },
+      {
+        "format": "png",
+        "renderer": "svg"
+      }
+    ],
+    "passed": true,
+    "scope": "Actual Windows profiler→Chart Studio→native Save; synthetic input dispatch, not physical drag or universal export qualification"
+  },
+  "screenLogicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 3840,
+    "Height": 2160
+  },
+  "screenPhysicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 3840,
+    "Height": 2160
+  },
+  "webviewZoom": 1,
+  "window": {
+    "height": 900,
+    "width": 1280,
+    "x": 1280,
+    "y": 606
+  }
+}

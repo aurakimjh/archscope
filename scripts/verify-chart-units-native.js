@@ -1,9 +1,11 @@
 // Explicit layoutaudit build only. Synthetic file-drop events load an owned
 // collapsed fixture through the real page/analyzer; this is NOT physical drag QA.
-// CSV actions open real native Save dialogs, which the operator must complete.
+// Export actions open real native Save dialogs, which the operator must complete.
 (async()=>{
-  const fixture='__ARCHSCOPE_UNIT_FIXTURE__';
-  const out={passed:false,scope:'Actual Windows profiler→Chart Studio→native CSV Save; synthetic input dispatch, not physical drag or universal export qualification',cases:[]};
+  const config=window.__archscopeChartAudit ?? {};
+  const fixture=config.fixture ?? '__ARCHSCOPE_UNIT_FIXTURE__';
+  const exports=config.exports ?? [{renderer:'svg',format:'csv'}];
+  const out={passed:false,scope:'Actual Windows profiler→Chart Studio→native Save; synthetic input dispatch, not physical drag or universal export qualification',exports,cases:[]};
   const wait=async (predicate,limit=180000)=>{const end=Date.now()+limit;while(!predicate()){if(Date.now()>end)throw Error('Chart unit readiness timeout');await new Promise(r=>setTimeout(r,75));}await new Promise(r=>setTimeout(r,100));};
   const require=(value,message)=>{if(!value)throw Error(message);};
   const emit=async(name,data)=>fetch(new URL('/wails/runtime',location.href),{method:'POST',headers:{'Content-Type':'application/json','x-wails-client-id':window._wails.clientId},body:JSON.stringify({object:3,method:0,args:{name,data}})});
@@ -41,15 +43,27 @@
       // Select the most recently analyzed result, not an older compatible card.
       const resultSelect=document.querySelector('.chartstudio select');
       select(resultSelect,resultSelect.options[0].value);
-      await wait(()=>document.querySelector('.chartstudio canvas'));
       const renderer=document.querySelector('.chartstudio select option[value="svg"]').parentElement;
+      // Every case first observes Canvas and SVG, independently of export format.
+      select(renderer,'canvas');await wait(()=>document.querySelector('.chartstudio canvas'));
       select(renderer,'svg');await wait(()=>document.querySelector('.chartstudio svg text'));
       const labels=[...document.querySelectorAll('.chartstudio svg text')].map(node=>node.textContent);
       require(labels.includes(axis),'Wrong native SVG axis for '+unit+': '+JSON.stringify(labels));
-      const point={unit,axis,svgAxisObserved:true,canvasObserved:true};
-      phase='native save '+unit;await emit('layout:progress',{phase,completed:out.cases.length});
-      button(document.querySelector('.chartstudio'),'CSV').click();
-      await wait(()=>document.querySelector('.chartstudio [role="status"]')?.textContent.includes('Export completed'),900000);
+      const point={unit,axis,svgAxisObserved:true,canvasObserved:true,saves:[]};
+      for(const item of exports){
+        require(['canvas','svg'].includes(item.renderer) && ['csv','svg','png'].includes(item.format),'Invalid export configuration');
+        select(renderer,item.renderer);
+        await wait(()=>document.querySelector('.chartstudio '+(item.renderer==='svg'?'svg text':'canvas')) && !button(document.querySelector('.chartstudio'),item.format.toUpperCase())?.disabled);
+        const surface=document.querySelector('.chartstudio [data-chart-surface]');
+        const bounds=surface.getBoundingClientRect();
+        require(bounds.width>100 && bounds.height>100,'Chart surface bounds must exclude toolbar icons');
+        phase='native save '+unit+' '+item.renderer+'→'+item.format;await emit('layout:progress',{phase,completed:out.cases.length});
+        button(document.querySelector('.chartstudio'),item.format.toUpperCase()).click();
+        // Wait for saving to clear the previous notice before accepting a new one.
+        await wait(()=>button(document.querySelector('.chartstudio'),item.format.toUpperCase())?.disabled);
+        await wait(()=>document.querySelector('.chartstudio [role="status"]')?.textContent.includes('Export completed') && !button(document.querySelector('.chartstudio'),item.format.toUpperCase())?.disabled,900000);
+        point.saves.push({...item,width:bounds.width,height:bounds.height,nativeSaveCompleted:true});
+      }
       point.nativeSaveCompleted=true;out.cases.push(point);
     }
     out.passed=true;

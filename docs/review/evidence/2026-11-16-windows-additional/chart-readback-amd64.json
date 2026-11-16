@@ -1,0 +1,122 @@
+{
+  "passed": true,
+  "scope": "Seven units; native Windows Canvas\u2192SVG and SVG\u2192PNG Save outputs; no Office/reference/full matrix closure",
+  "arch": "amd64",
+  "sourceReportSha256": "46bd7ff65d8278fc3941f4214faaaeb9b7e02396534af10ead871ca2832d9e1e",
+  "cases": [
+    {
+      "unit": "samples",
+      "axis": "samples",
+      "value": 1000000,
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ],
+      "svgSha256": "b6009bbf211bc54083acf5cb749b650f31780942351612bc7405f9b648f7c651",
+      "pngSha256": "c3a40c01b174b0a8eed05374c560324d34e852525dd07df6c9e3eb1ae6611aec",
+      "passed": true
+    },
+    {
+      "unit": "nanoseconds",
+      "axis": "ns",
+      "value": 1000000,
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ],
+      "svgSha256": "66ab38ab4ecadfc66cbb7475d0ca414c3251613d18b15bf5aaea08484656777f",
+      "pngSha256": "920f3668ac7dc7b30347de3cd07ce60213e3c170f8fc5d69a939ed7766db719d",
+      "passed": true
+    },
+    {
+      "unit": "microseconds",
+      "axis": "\u00b5s",
+      "value": 1000000,
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ],
+      "svgSha256": "2bc8580b86678da0654023643cfe6618211391e86a1cbcedf002ab8d8be5ebed",
+      "pngSha256": "c8960274ed487898f5d7c4551145227d78824b0fcc6d928e57d0054913b86e0a",
+      "passed": true
+    },
+    {
+      "unit": "milliseconds",
+      "axis": "ms",
+      "value": 1000000,
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ],
+      "svgSha256": "0724510ac3c2dd9bc2c403c0273eb204ba14857c324e5d0c7bf8f15840ccdd11",
+      "pngSha256": "f07dfff289c55450971e975fa15901173e75fa894c8b15d059ea5827777ab0b3",
+      "passed": true
+    },
+    {
+      "unit": "seconds",
+      "axis": "s",
+      "value": 1000000,
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ],
+      "svgSha256": "465661e2a7a732ca3edc19e0c00c26dec8eefc5b105e59fe49c630808c4b399c",
+      "pngSha256": "82cc29247feb94470d75f0053fc8222d34725b9aebe679e32d2e6c038925c9de",
+      "passed": true
+    },
+    {
+      "unit": "bytes",
+      "axis": "bytes",
+      "value": 1000000,
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ],
+      "svgSha256": "d07daf915efc3c2ed935be52e4988c237f9bfb4131fdbd25cdc11174843e6764",
+      "pngSha256": "3312c1ebb73b79335af4d8850824096d84b907ccf6527b3d19faa3869ba3211f",
+      "passed": true
+    },
+    {
+      "unit": "unknown",
+      "axis": "Unknown",
+      "value": 1000000,
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ],
+      "svgSha256": "fda28f51bd734d955ab9015da40758a75f424ccffe39ed94f5bd262290ed17f9",
+      "pngSha256": "7ce6f141b5907cf6556ee05b70fde7e3f22011f3b9fa49ebf2013a0072c1ac43",
+      "passed": true
+    }
+  ],
+  "nativePngBoundsMetadataTrusted": false,
+  "independentFileDimensionsChecked": true
+}

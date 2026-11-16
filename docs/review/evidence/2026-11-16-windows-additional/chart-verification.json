@@ -1,0 +1,21 @@
+{
+  "sourceCommit": "635512cf",
+  "scope": "Actual Windows x64/x86 seven-unit cross-renderer image Saves; 28 saved outputs",
+  "productErrorsFound": 0,
+  "harnessCorrection": "Use data-chart-surface bounds; initial x64 PNG bounds incorrectly measured a toolbar icon. Raw receipt retained; independent actual file dimensions verify all fourteen x64 outputs. Fixed x86 script confirms surface bounds for fourteen outputs.",
+  "initial386": "Operator cancelled first Save then stopped the descriptor-owned app to load corrected script; no files saved and no PASS claimed.",
+  "binaries": {
+    "amd64": {
+      "sha256": "abd65ae4d70eba54a5eeab9dbd02b20fe7653688dd71e1217cee43f9f332829b",
+      "peMachine": "0x8664"
+    },
+    "386": {
+      "sha256": "88aad2f5d30a6ef2540bc99d178db16bf4e26ec0c04aef81cf2753e7273a1873",
+      "peMachine": "0x14c"
+    }
+  },
+  "scripts": {
+    "chart-images.js": "c82cde7747adeec2f8cc6011a26cda53bc1743e988f4e7cee2c4ad1b1c52c4b0",
+    "chart-images-fixed.js": "004c59ada0863c3eaa68e6bf3a189c1a84a8987b180fcc8de2d9140faca26107"
+  }
+}
