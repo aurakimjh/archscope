@@ -6218,3 +6218,10 @@ Move existing batching/order/close-abort test into synctest virtual time and Wai
 no production timer or one-batch/two-item assertion change. x64/x86 each25repeats,
 x64stream suite and final full386131packages pass. Initial FAIL preserved.
 Evidence:2026-11-16-windows-validation/stream-test.json.
+
+### 2026-11-16 - Windows translation checker UTF-8
+
+Default Korean Windows CP949 decoding fails reading UTF-8 message sources.
+Declare UTF-8 on all checker reads; no catalog changes. Native Python3.10 normal
+and optimized executions both pass2197phrases per added locale with placeholders
+unchanged. Evidence:2026-11-16-windows-validation/README.md.

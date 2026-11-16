@@ -15,13 +15,13 @@ def decode(value):
 
 def required_sources():
     sources = set()
-    source = (ROOT / "i18n/messages.ts").read_text()
+    source = (ROOT / "i18n/messages.ts").read_text(encoding="utf-8")
     en = source[source.index("  en: {"):source.index("  ko: {")]
     sources.update(decode(value) for _, value in re.findall(r"^    (\w+):\s*(" + STRING + r"),", en, re.M))
     for path in sorted(ROOT.rglob("*.tsx")) + sorted(ROOT.rglob("*.ts")):
         if path.name in {"messages.ts", "ja.ts", "zh-CN.ts", "zh-TW.ts"}:
             continue
-        source = path.read_text()
+        source = path.read_text(encoding="utf-8")
         for match in re.finditer(r"\b(?:w|words|text)\(\s*(" + STRING + r")\s*,\s*" + STRING, source):
             sources.add(decode(match[1]))
         for match in re.finditer(r"\btranslateText\(\s*\w+\s*,\s*(" + STRING + r")\s*,", source):
@@ -38,7 +38,7 @@ def required_sources():
 def main():
     required = required_sources()
     for locale in ("ja", "zh-CN", "zh-TW"):
-        source = (ROOT / "i18n" / (locale + ".ts")).read_text()
+        source = (ROOT / "i18n" / (locale + ".ts")).read_text(encoding="utf-8")
         entries = json.loads(source[source.index("{"):source.rindex("}") + 1], object_pairs_hook=list)
         catalog = dict(entries)
         if len(catalog) != len(entries):
