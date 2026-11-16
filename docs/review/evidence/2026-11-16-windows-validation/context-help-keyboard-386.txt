@@ -1,0 +1,196 @@
+Window: "ArchScope Layout QA", App: archscope-final-audit-386.exe.
+	0 window (창) ArchScope Layout QA Secondary Actions: Raise
+		7 pane (창) ArchScope
+			8 pane (창) (disabled)
+			9 pane (영역) ArchScope - 웹 콘텐츠
+				10 pane (영역)
+					11 pane (영역)
+					12 pane (영역)
+						13 pane (영역)
+							14 pane (영역)
+							15 pane (영역)
+								16 pane (영역)
+									17 pane (영역)
+										18 pane (영역)
+											19 pane (영역)
+											20 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												246 group (그룹)
+													23 group (그룹) ID: root
+														24 group (머리글)
+															25 text (텍스트) 設定
+														26 group (탐색) 選單選項卡
+															27 button (단추) 檔案
+															28 button (전환 버튼) 常用
+															29 button (전환 버튼) 分析
+															30 button (전환 버튼) HTTP
+															31 button (전환 버튼) 工作區
+															32 button (전환 버튼) 檢視
+															33 button (전환 버튼) 說明
+															34 group (세부정보)
+																35 button (펼치기/접기 삼각형) 功能區顯示選項
+															36 button (단추) 摺疊功能區
+														37 group (그룹) 常用 ID: desktop-ribbon-panel
+															237 group (지역) 檔案
+																238 button (단추) (disabled) 開啟… Description: 開啟…
+																239 button (단추) (disabled) 最近使用的檔案 Description: 最近使用的檔案
+																240 button (단추) (disabled) 儲存 / 匯出 Description: 儲存 / 匯出
+																241 text (텍스트) 檔案
+															228 group (지역) 工具
+																229 button (단추) 效能剖析器 Description: 效能剖析器
+																230 button (단추) HTTP 擷取 Description: HTTP 擷取
+																231 button (단추) 分析工作區 Description: 分析工作區
+																232 text (텍스트) 工具
+															242 group (지역) 報告
+																243 button (단추) 圖表工作室 Description: 圖表工作室
+																244 button (단추) 匯出中心 Description: 匯出中心
+																245 text (텍스트) 報告
+														136 group (기본)
+															137 text (제목) 設定 顯示幫助
+																138 button (단추) 顯示幫助
+															139 text (텍스트) 語言
+															140 button (단추) 顯示幫助
+															141 button (전환 버튼) English
+															142 button (전환 버튼) 한국어
+															143 button (전환 버튼) 日本語
+															144 button (전환 버튼) 简体中文
+															145 button (전환 버튼) 繁體中文（台灣）
+															146 text (텍스트) 佈景主題
+															147 button (단추) 顯示幫助
+															148 button (전환 버튼) 淺色
+															149 button (전환 버튼) 深色
+															150 button (전환 버튼) 系統
+															151 text (텍스트) 預設取樣間隔（ms）
+															152 button (단추) 顯示幫助
+															153 spinner (스핀 단추) (settable, float) 預設取樣間隔（ms） Value: 100
+															154 text (텍스트) 預設前 N 項
+															155 button (단추) 顯示幫助
+															156 spinner (스핀 단추) (settable, float) 預設前 N 項 Value: 20
+															157 text (텍스트) 預設效能剖析型別
+															158 button (단추) 顯示幫助
+															159 combo box (콤보 상자) (settable, string) 預設效能剖析型別 Value: wall
+															160 button (단추) 儲存
+															161 group (세부정보)
+																162 button (펼치기/접기 삼각형) 最近使用的檔案 顯示幫助
+																	163 text (텍스트) 最近使用的檔案
+																	164 button (단추) 顯示幫助
+															165 group (세부정보)
+																166 button (펼치기/접기 삼각형) 關於 顯示幫助
+																	167 text (텍스트) 關於
+																	168 button (단추) 顯示幫助
+															169 group (그룹)
+																170 text (제목) 資料包
+																171 text (텍스트) 安裝可信的資料對映，再啟用版本。執行中的作業保持原始版本。
+																172 text (텍스트) 標準會話
+																173 text (텍스트) ·
+																174 text (텍스트) 韓文字型
+																175 text (텍스트) :
+																176 text (텍스트) 已從本地載入
+																177 text (텍스트) 安裝範圍
+																178 text field (편집) (settable, string) 安裝範圍 Description: application / user / case:case-… Value: application
+																179 checkbox (확인란) (settable, string) 顯式允許未簽名本地預設
+																180 button (단추) 安裝 ZIP
+																181 button (단추) 重新整理
+																182 group (세부정보)
+																	183 button (펼치기/접기 삼각형) 解決別名衝突
+																		184 text (텍스트) 解決別名衝突
+																190 text (텍스트) 狀態修訂
+																191 text (텍스트) :
+																192 text (텍스트) 3
+																193 text (텍스트) ·
+																194 text (텍스트) 信任序列
+																195 text (텍스트) :
+																196 text (텍스트) 0
+																197 list (LIST)
+																	198 list item (목록 항목) diagnostics.snapshot-foundation 1.0.0 · application · signed · 當前選中 SHA-256 ff5d7263cb411431d7382fe1a8d208a59fc8e374e65358ef30e1f07eefb7f79c 啟用回滾至此版本停用匯出 ZIP
+																		199 text (텍스트) diagnostics.snapshot-foundation
+																		200 text (텍스트) 
+																		201 text (텍스트) 1.0.0
+																		202 button (단추) (disabled) 啟用
+																		203 button (단추) (disabled) 回滾至此版本
+																		204 button (단추) 停用
+																		205 button (단추) 匯出 ZIP
+																206 group (세부정보)
+																	207 button (펼치기/접기 삼각형) 公開信任金鑰
+																		208 text (텍스트) 公開信任金鑰
+																185 hyperlink (링크) English manual Value: http://wails.localhost/offline-assets/docs/en/OFFLINE_PACKS.md
+																186 text (텍스트) ·
+																187 hyperlink (링크) 한국어 매뉴얼 Value: http://wails.localhost/offline-assets/docs/ko/OFFLINE_PACKS.md
+																188 text (텍스트) ·
+																189 hyperlink (링크) OFL-1.1 Value: http://wails.localhost/offline-assets/fonts/OFL.txt
+													247 tooltip (도구 설명) 配置預設分析選項、語言、主題、最近使用的檔案及應用資訊。
+							21 pane (영역)
+					22 pane (영역)
+		1 title bar (제목 표시줄) (settable, string) Value: ArchScope Layout QA
+			2 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				3 menu item (메뉴 항목) 시스템
+			4 button (단추) 최소화
+			5 button (단추) 최대화
+			6 button (단추) 닫기
+
+Document text: ```
+設定
+檔案
+常用
+分析
+HTTP
+工作區
+檢視
+說明
+功能區顯示選項
+摺疊功能區
+開啟…
+最近使用的檔案
+儲存 / 匯出
+檔案
+效能剖析器
+HTTP 擷取
+分析工作區
+工具
+圖表工作室
+匯出中心
+報告
+設定
+顯示幫助
+語言
+顯示幫助
+English
+한국어
+日本語
+简体中文
+繁體中文（台灣）
+佈景主題
+顯示幫助
+淺色
+深色
+系統
+預設取樣間隔（ms）
+顯示幫助
+100
+預設前 N 項
+顯示幫助
+20
+預設效能剖析型別
+顯示幫助
+預設效能剖析型別
+儲存
+最近使用的檔案
+顯示幫助
+關於
+顯示幫助
+資料包
+安裝可信的資料對映，再啟用版本。執行中的作業保持原始版本。
+標準會話 · 韓文字型: 已從本地載入
+安裝範圍
+application
+￼
+安裝 ZIP
+重新整理
+解決別名衝突
+狀態修訂: 3 · 信任序列: 0
+diagnostics.snapshot-foundation 1.0.0 · application · signed · 當前選中
+SHA-256 ff5d7263cb411431d7382fe1a8d208a59fc8e374e65358ef30e1f07eefb7f79c
+啟用回滾至此版本停用匯出 ZIP
+公開信任金鑰
+English manual · 한국어 매뉴얼 · OFL-1.1
+配置預設分析選項、語言、主題、最近使用的檔案及應用資訊。
+```

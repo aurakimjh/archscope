@@ -6236,3 +6236,14 @@ Windowsx64/x86 and Linuxpurego headless each3cases/9exports/fresh-cache restart
 pass;219sanitized projections match across3hosts. Docker four36cycle ownership
 scenarios pass with explicit diagnosticGC only; no native leak/race claim.
 Evidence:2026-11-16-windows-validation/chart-readback.json.
+
+### 2026-11-16 - Ordinary Windowsx86 repeated-import screen
+
+Production10228156 x86 runs36cycles/108opens,28warmup/8measured,933.923s,
+no forcedGC/trim. Independent original budgets PASS:tree-0.184MiB/0.712MiB per
+cycle,root-8.484MiB/0.057MiB percycle,handles/threads zero delta/slope. Native
+32rows,first selection,star/Hangul note preserved. Exact80native history count
+is PARTIAL due accessibility limits; headless80entry tests remain separate.
+Past failures and unique/body-rich/longer/OSprivate attribution gates stay open.
+Final native registry13cases:10PASS/2preservedFAIL/1PARTIAL.
+Evidence:2026-11-16-windows-validation/memory-validation.json.

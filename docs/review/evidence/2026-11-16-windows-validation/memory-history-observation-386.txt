@@ -1,0 +1,1647 @@
+Window: "ArchScope", App: archscope-production-386.exe.
+	0 window (창) ArchScope Secondary Actions: Raise
+		7 pane (창) ArchScope
+			8 pane (창) (disabled)
+			9 pane (영역) ArchScope - 웹 콘텐츠
+				10 pane (영역)
+					11 pane (영역)
+					12 pane (영역)
+						13 pane (영역)
+							14 pane (영역)
+							15 pane (영역)
+								16 pane (영역)
+									17 pane (영역)
+										18 pane (영역)
+											19 pane (영역)
+											20 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												21 group (그룹) ID: root
+													22 group (머리글)
+														23 text (텍스트) 분석 작업 공간
+													24 group (탐색) 메뉴 탭
+														25 button (단추) 파일
+														26 button (전환 버튼) 홈
+														27 button (전환 버튼) 분석
+														28 button (전환 버튼) HTTP
+														29 button (전환 버튼) 워크스페이스
+														30 button (전환 버튼) 보기
+														31 button (전환 버튼) 도움말
+														32 group (세부정보)
+															33 button (펼치기/접기 삼각형) 리본 표시 옵션
+														34 button (단추) 리본 접기
+													35 group (그룹) 홈 ID: desktop-ribbon-panel
+														36 group (지역) 파일
+															37 button (단추) (disabled) 열기… Description: 열기…
+															38 button (단추) (disabled) 최근 파일 Description: 최근 파일
+															39 button (단추) (disabled) 저장 / 내보내기 Description: 저장 / 내보내기
+															40 text (텍스트) 파일
+														41 group (지역) 도구
+															42 button (단추) 프로파일러 Description: 프로파일러
+															43 button (단추) HTTP 캡처 Description: HTTP 캡처
+															44 button (단추) 분석 작업 공간 Description: 분석 작업 공간
+															45 text (텍스트) 도구
+														46 group (지역) 보고서
+															47 button (단추) 차트 스튜디오 Description: 차트 스튜디오
+															48 button (단추) Export 센터 Description: Export 센터
+															49 text (텍스트) 보고서
+													43635 group (기본) (truncated: child_limit, omitted 2991 children)
+							51 pane (영역)
+					52 pane (영역)
+		1 title bar (제목 표시줄) (settable, string) Value: ArchScope
+			2 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				3 menu item (메뉴 항목) 시스템
+			4 button (단추) 최소화
+			5 button (단추) 최대화
+			6 button (단추) 닫기
+
+Document text: ```
+분석 작업 공간
+파일
+홈
+분석
+HTTP
+워크스페이스
+보기
+도움말
+리본 표시 옵션
+리본 접기
+열기…
+최근 파일
+저장 / 내보내기
+파일
+프로파일러
+HTTP 캡처
+분석 작업 공간
+도구
+차트 스튜디오
+Export 센터
+보고서
+분석 작업 공간
+도움말 보기
+저장된 케이스
+작업 공간 비우기
+케이스 검색과 재사용 baseline
+근거 가져오기 및 조회
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+활성
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:10:13
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:10:10
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:10:08
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:09:48
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:09:45
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:09:42
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:09:22
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:09:19
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:09:17
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:56
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:53
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:51
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:31
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:28
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:26
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:05
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:02
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:00
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:07:40
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:07:37
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:07:35
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:07:14
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:07:11
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:07:09
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:06:48
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:06:46
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:06:43
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:06:23
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:06:20
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:06:18
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:05:57
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:05:54
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:05:52
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:05:32
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:05:29
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:05:27
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:05:06
+C:\workspace\ar
+```
+
+Focused element: 7 pane (창) ArchScope
+
+Document text:
+분석 작업 공간
+파일
+홈
+분석
+HTTP
+워크스페이스
+보기
+도움말
+리본 표시 옵션
+리본 접기
+열기…
+최근 파일
+저장 / 내보내기
+파일
+프로파일러
+HTTP 캡처
+분석 작업 공간
+도구
+차트 스튜디오
+Export 센터
+보고서
+분석 작업 공간
+도움말 보기
+저장된 케이스
+작업 공간 비우기
+케이스 검색과 재사용 baseline
+근거 가져오기 및 조회
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+활성
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:10:13
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:10:10
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:10:08
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:09:48
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:09:45
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:09:42
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:09:22
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:09:19
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:09:17
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:56
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:53
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:51
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:31
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:28
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:26
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:05
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:02
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:08:00
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:07:40
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:07:37
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:07:35
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:07:14
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:07:11
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:07:09
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:06:48
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:06:46
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:06:43
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:06:23
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:06:20
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:06:18
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:05:57
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:05:54
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:05:52
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:05:32
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsessi…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:05:29
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-512.httpses…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:05:27
+C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpsessionC:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-4096.httpse…
+aborted_transactions: 0
+dialect: portable-session-v1
+duration_p50_ms: 3.678
+duration_p95_ms: 3.678
+duration_p99_ms: 3.678
+error_rate: 0
+error_transactions: 0
+redaction_applied: false
+AI 출처
+도움말 보기
+없음
+http_capture: C:\workspace\archscope\.tmp\windows-validation-20261116\memory-386\synthetic-32.httpsession
+도움말 보기
+사용
+추가
+A
+B
+￼
+http_capture
+2026. 11. 16. 오후 9:05:06
+C:\workspace\ar

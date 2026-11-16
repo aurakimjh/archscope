@@ -1,0 +1,193 @@
+Window: "ArchScope Layout QA", App: archscope-shortcut-amd64.exe.
+	0 window (창) ArchScope Layout QA Secondary Actions: Raise
+		1 pane (창) ArchScope
+			2 pane (창) (disabled)
+			3 pane (영역) ArchScope - 웹 콘텐츠
+				4 pane (영역)
+					5 pane (영역)
+					6 pane (영역)
+						7 pane (영역)
+							8 pane (영역)
+							9 pane (영역)
+								10 pane (영역)
+									11 pane (영역)
+										12 pane (영역)
+											13 pane (영역)
+											14 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												15 group (그룹) ID: root
+													16 group (머리글)
+														17 text (텍스트) 設定
+													18 group (탐색) メニュータブ
+														19 button (단추) ファイル
+														20 button (전환 버튼) ホーム
+														21 button (전환 버튼) 分析
+														22 button (전환 버튼) HTTP
+														23 button (전환 버튼) ワークスペース
+														24 button (전환 버튼) 表示
+														25 button (전환 버튼) ヘルプ
+														26 group (세부정보)
+															27 button (펼치기/접기 삼각형) リボン表示オプション
+														28 button (단추) リボンを折りたたむ
+													29 group (그룹) ホーム ID: desktop-ribbon-panel
+														210 group (지역) ファイル
+															211 button (단추) (disabled) 開く… Description: 開く…
+															212 button (단추) (disabled) 最近使ったファイル Description: 最近使ったファイル
+															213 button (단추) (disabled) 保存 / エクスポート Description: 保存 / エクスポート
+															214 text (텍스트) ファイル
+														215 group (지역) ツール
+															216 button (단추) プロファイラー Description: プロファイラー
+															217 button (단추) HTTP キャプチャ Description: HTTP キャプチャ
+															218 button (단추) 分析ワークスペース Description: 分析ワークスペース
+															219 text (텍스트) ツール
+														220 group (지역) レポート
+															221 button (단추) チャートスタジオ Description: チャートスタジオ
+															222 button (단추) エクスポートセンター Description: エクスポートセンター
+															223 text (텍스트) レポート
+													137 group (기본)
+														138 text (제목) 設定 ヘルプを表示
+															139 button (단추) ヘルプを表示
+														140 text (텍스트) 言語
+														141 button (단추) ヘルプを表示
+														142 button (전환 버튼) English
+														143 button (전환 버튼) 한국어
+														144 button (전환 버튼) 日本語
+														145 button (전환 버튼) 简体中文
+														146 button (전환 버튼) 繁體中文（台灣）
+														147 text (텍스트) テーマ
+														148 button (단추) ヘルプを表示
+														149 button (전환 버튼) ライト
+														150 button (전환 버튼) ダーク
+														151 button (전환 버튼) システム
+														152 text (텍스트) 既定のサンプル間隔（ms）
+														153 button (단추) ヘルプを表示
+														154 spinner (스핀 단추) (settable, float) 既定のサンプル間隔（ms） Value: 100
+														155 text (텍스트) 既定の上位 N 件
+														156 button (단추) ヘルプを表示
+														157 spinner (스핀 단추) (settable, float) 既定の上位 N 件 Value: 20
+														158 text (텍스트) 既定のプロファイル種類
+														159 button (단추) ヘルプを表示
+														160 combo box (콤보 상자) (settable, string) 既定のプロファイル種類 Value: wall
+														161 button (단추) 保存
+														162 group (세부정보)
+															163 button (펼치기/접기 삼각형) 最近使ったファイル ヘルプを表示
+																164 text (텍스트) 最近使ったファイル
+																165 button (단추) ヘルプを表示
+														166 group (세부정보)
+															167 button (펼치기/접기 삼각형) 情報 ヘルプを表示
+																168 text (텍스트) 情報
+																169 button (단추) ヘルプを表示
+														170 group (그룹)
+															171 text (제목) データパック
+															172 text (텍스트) 信頼済みデータ対応をインストールし、版を有効化します。実行中ジョブは元の版を維持します。
+															173 text (텍스트) 標準セッション
+															174 text (텍스트) ·
+															175 text (텍스트) 韓国語フォント
+															176 text (텍스트) :
+															177 text (텍스트) ローカルから読み込み済み
+															178 text (텍스트) インストール範囲
+															179 text field (편집) (settable, string) インストール範囲 Description: application / user / case:case-… Value: application
+															180 checkbox (확인란) (settable, string) 未署名のローカルプリセットを明示許可
+															181 button (단추) ZIP をインストール
+															182 button (단추) 更新
+															183 group (세부정보)
+																184 button (펼치기/접기 삼각형) 別名の競合を解決
+																	185 text (텍스트) 別名の競合を解決
+															191 text (텍스트) 状態リビジョン
+															192 text (텍스트) :
+															193 text (텍스트) 3
+															194 text (텍스트) ·
+															195 text (텍스트) 信頼シーケンス
+															196 text (텍스트) :
+															197 text (텍스트) 0
+															198 list (LIST)
+																199 list item (목록 항목) diagnostics.snapshot-foundation 1.0.0 · application · signed · 選択中 SHA-256 ff5d7263cb411431d7382fe1a8d208a59fc8e374e65358ef30e1f07eefb7f79c 有効化この版にロールバック無効化ZIP をエクスポート
+																	200 text (텍스트) diagnostics.snapshot-foundation
+																	201 text (텍스트) 
+																	202 text (텍스트) 1.0.0
+																	203 button (단추) (disabled) 有効化
+																	204 button (단추) (disabled) この版にロールバック
+																	205 button (단추) 無効化
+																	206 button (단추) ZIP をエクスポート
+															207 group (세부정보)
+																208 button (펼치기/접기 삼각형) 公開信頼鍵
+																	209 text (텍스트) 公開信頼鍵
+															186 hyperlink (링크) English manual Value: http://wails.localhost/offline-assets/docs/en/OFFLINE_PACKS.md
+															187 text (텍스트) ·
+															188 hyperlink (링크) 한국어 매뉴얼 Value: http://wails.localhost/offline-assets/docs/ko/OFFLINE_PACKS.md
+															189 text (텍스트) ·
+															190 hyperlink (링크) OFL-1.1 Value: http://wails.localhost/offline-assets/fonts/OFL.txt
+							45 pane (영역)
+					46 pane (영역)
+		47 title bar (제목 표시줄) (settable, string) Value: ArchScope Layout QA
+			48 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				49 menu item (메뉴 항목) 시스템
+			50 button (단추) 최소화
+			51 button (단추) 최대화
+			52 button (단추) 닫기
+
+Document text: ```
+設定
+ファイル
+ホーム
+分析
+HTTP
+ワークスペース
+表示
+ヘルプ
+リボン表示オプション
+リボンを折りたたむ
+開く…
+最近使ったファイル最近使ったフ…
+保存 / エクスポート保存 / エクス…
+ファイル
+プロファイラー
+HTTP キャプチャHTTP キャプ…
+分析ワークスペース分析ワークス…
+ツール
+チャートスタジオチャートスタ…
+エクスポートセンターエクスポート…
+レポート
+設定
+ヘルプを表示
+言語
+ヘルプを表示
+English
+한국어
+日本語
+简体中文
+繁體中文（台灣）
+テーマ
+ヘルプを表示
+ライト
+ダーク
+システム
+既定のサンプル間隔（ms）
+ヘルプを表示
+100
+既定の上位 N 件
+ヘルプを表示
+20
+既定のプロファイル種類
+ヘルプを表示
+既定のプロファイル種類
+保存
+最近使ったファイル
+ヘルプを表示
+情報
+ヘルプを表示
+データパック
+信頼済みデータ対応をインストールし、版を有効化します。実行中ジョブは元の版を維持します。
+標準セッション · 韓国語フォント: ローカルから読み込み済み
+インストール範囲
+application
+￼
+ZIP をインストール
+更新
+別名の競合を解決
+状態リビジョン: 3 · 信頼シーケンス: 0
+diagnostics.snapshot-foundation 1.0.0 · application · signed · 選択中
+SHA-256 ff5d7263cb411431d7382fe1a8d208a59fc8e374e65358ef30e1f07eefb7f79c
+有効化この版にロールバック無効化ZIP をエクスポート
+公開信頼鍵
+English manual · 한국어 매뉴얼 · OFL-1.1
+```

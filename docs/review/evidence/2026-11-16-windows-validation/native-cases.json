@@ -1,0 +1,106 @@
+[
+  {
+    "id": "settings-shortcut-before",
+    "observed": "FAIL: physical Ctrl+comma does not leave Profiler/HTTP, while physical Ctrl+F1 collapses ribbon; repeated after focus and fresh observation. OS100/WebView100/amd64.",
+    "build": "98eeaf3e",
+    "image": "settings-shortcut-before.jpg",
+    "result": "FAIL",
+    "scope": "Scoped agent native readback in explicit layoutaudit binary; shared Windows host OS100. No independent linguistic,IME or full DPI approval."
+  },
+  {
+    "id": "settings-shortcut-fixed-amd64",
+    "observed": "PASS: physical Ctrl+comma navigates HTTP→Settings through Windows logical key handling; ordinary key combinations/IME/completed handlers stay excluded by regression.",
+    "build": "98eeaf3e-plus-logical-shortcut",
+    "image": "settings-shortcut-fixed-amd64.jpg",
+    "result": "PASS",
+    "scope": "Scoped agent native readback in explicit layoutaudit binary; shared Windows host OS100. No independent linguistic,IME or full DPI approval."
+  },
+  {
+    "id": "ja-font-and-selection-before",
+    "observed": "Japanese characters render, but selected ribbon/locale text is almost white on pale background; before visual contrast correction. No linguistic approval.",
+    "build": "98eeaf3e-plus-logical-shortcut",
+    "image": "ja-font-and-selection-before.jpg",
+    "result": "FAIL",
+    "scope": "Scoped agent native readback in explicit layoutaudit binary; shared Windows host OS100. No independent linguistic,IME or full DPI approval."
+  },
+  {
+    "id": "settings-shortcut-fixed-386",
+    "observed": "PASS: physical Ctrl+comma opens Settings on actual x86 WebView2 frontend; selected Korean/home text is readable after token separation. OS100/WebView100.",
+    "build": "98eeaf3e-plus-windows-fixes",
+    "image": "settings-shortcut-fixed-386.jpg",
+    "result": "PASS",
+    "scope": "Scoped agent native readback in explicit layoutaudit binary; shared Windows host OS100. No independent linguistic,IME or full DPI approval."
+  },
+  {
+    "id": "ja-font-fixed-386",
+    "observed": "PASS scoped screenshot: Japanese glyphs and selected Home/locale labels are readable on actual WebView2; no independent linguistic/IME approval.",
+    "build": "98eeaf3e-plus-windows-fixes",
+    "image": "ja-font-fixed-386.jpg",
+    "result": "PASS",
+    "scope": "Scoped agent native readback in explicit layoutaudit binary; shared Windows host OS100. No independent linguistic,IME or full DPI approval."
+  },
+  {
+    "id": "zh-cn-font-fixed-386",
+    "observed": "PASS scoped screenshot: Simplified Chinese glyphs and selected labels readable on actual Windows WebView2. No independent language/IME approval.",
+    "build": "98eeaf3e-plus-windows-fixes",
+    "image": "zh-cn-font-fixed-386.jpg",
+    "result": "PASS",
+    "scope": "Scoped agent native readback in explicit layoutaudit binary; shared Windows host OS100. No independent linguistic,IME or full DPI approval."
+  },
+  {
+    "id": "zh-tw-font-fixed-386",
+    "observed": "PASS scoped screenshot: Taiwan Traditional Chinese glyphs and selected locale/home text readable on Windows WebView2; independent wording/IME review remains.",
+    "build": "98eeaf3e-plus-windows-fixes",
+    "image": "zh-tw-font-fixed-386.jpg",
+    "result": "PASS",
+    "scope": "Scoped agent native readback in explicit layoutaudit binary; shared Windows host OS100. No independent linguistic,IME or full DPI approval."
+  },
+  {
+    "id": "zh-tw-dark-fixed-386",
+    "observed": "PASS scoped screenshot: dark selected Traditional Chinese locale/theme labels and ribbon are readable. Full selected-control contrast is separately checked in actual native matrix.",
+    "build": "98eeaf3e-plus-windows-fixes",
+    "image": "zh-tw-dark-fixed-386.jpg",
+    "result": "PASS",
+    "scope": "Scoped agent native readback in explicit layoutaudit binary; shared Windows host OS100. No independent linguistic,IME or full DPI approval."
+  },
+  {
+    "id": "context-help-keyboard-386",
+    "observed": "PASS: physical F1 opens contextual Settings help tooltip in Traditional Chinese on Windowsx86; no capture started.",
+    "build": "98eeaf3e-plus-windows-fixes",
+    "image": "context-help-keyboard-386.jpg",
+    "result": "PASS",
+    "scope": "Scoped agent native readback in explicit layoutaudit binary; shared Windows host OS100. No independent linguistic,IME or full DPI approval."
+  },
+  {
+    "id": "ribbon-keyboard-fold-386",
+    "observed": "PASS: physical Ctrl+F1 changes expanded ribbon to tabs-only while preserving current Settings page; F1 contextual tooltip remains.",
+    "build": "98eeaf3e-plus-windows-fixes",
+    "image": "ribbon-keyboard-fold-386.jpg",
+    "result": "PASS",
+    "scope": "Scoped agent native readback in explicit layoutaudit binary; shared Windows host OS100. No independent linguistic,IME or full DPI approval."
+  },
+  {
+    "id": "memory-final-386",
+    "result": "PASS",
+    "observed": "After36ordinary cycles/108opens, actual UI shows32/32 and selected first request /import?size=32&row=0.",
+    "build": "10228156",
+    "image": "memory-final-386.jpg",
+    "scope": "Ordinary production Windowsx86 bookend after measured cycles; no new OS-DPI qualification"
+  },
+  {
+    "id": "memory-annotation-386",
+    "result": "PASS",
+    "observed": "After36ordinary cycles, first selected transaction retains checked star and exact note: 메모리 재열기 synthetic note. Read-only observation; no IME/edit-write claim.",
+    "build": "10228156",
+    "image": "memory-annotation-386.jpg",
+    "scope": "Ordinary production Windowsx86 bookend after measured cycles; no new OS-DPI qualification"
+  },
+  {
+    "id": "memory-history-observation-386",
+    "result": "PARTIAL",
+    "observed": "PARTIAL: native Analysis Workspace opens with retained HTTP cards; accessibility tree is child-limited and the document exposes37title lines. This does not independently verify an exact80native card count.",
+    "build": "10228156",
+    "image": "memory-history-observation-386.jpg",
+    "scope": "Ordinary production Windowsx86 bookend after measured cycles; no new OS-DPI qualification"
+  }
+]

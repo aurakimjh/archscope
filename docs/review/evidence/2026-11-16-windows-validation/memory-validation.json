@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "scope": "One finite ordinary Windows x86 body-omitted repeated-import screen; no forcedGC/trim, unique/body-rich/longer native closure or reinterpretation of historical failures",
+  "hostLimit": "Shared interactive host; owned domain tests and containers completed before native memory launch; agent UI bookends only after measurement",
+  "metrics": {
+    "treePrivateBytes": {
+      "firstMedian": 575242240,
+      "lastMedian": 575049728,
+      "delta": -192512,
+      "slopePerCycle": 746934.8571428572,
+      "withinBudget": true
+    },
+    "rootPrivateBytes": {
+      "firstMedian": 73216000,
+      "lastMedian": 64319488,
+      "delta": -8896512,
+      "slopePerCycle": 59904.0,
+      "withinBudget": true
+    },
+    "rootHandles": {
+      "firstMedian": 717,
+      "lastMedian": 717,
+      "delta": 0,
+      "slopePerCycle": 0.0,
+      "withinBudget": true
+    },
+    "rootThreads": {
+      "firstMedian": 36,
+      "lastMedian": 36,
+      "delta": 0,
+      "slopePerCycle": 0.0,
+      "withinBudget": true
+    }
+  },
+  "stableMeasuredIdentities": true,
+  "measuredProcessCount": 7,
+  "binarySha256": "1ba425c5320282a3e461c637b09e9c12321fbbd7697dd293d4b7ff0a16f77083",
+  "sourceReportSha256": "c9d3b92e5f12f6f44f492f6d59e0dd6ff9f72a5dfa80061a3674fb9bb874efd8",
+  "elapsedSeconds": 933.9227408
+}

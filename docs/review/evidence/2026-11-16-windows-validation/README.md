@@ -32,13 +32,14 @@ the publisher had not run. A synctest bubble makes the existing10ms ticker and
 close assertions remain. Both architectures pass25targeted repeats, x64 stream
 suite and final x86 full131packages. Initial failure receipts remain preserved.
 
-Seven units now pass actual Windowsamd64 profiler→Chart Studio→native CSV Save
+Seven units now pass actual Windowsamd64/386 profiler→Chart Studio→native CSV Save
 flow: samples/ns/µs/ms/s/bytes/unknown. The real analyzer reads a synthetic owned
 collapsed file via a synthetic renderer drop (not physical OS drag acceptance).
 Each case creates a Canvas surface, switches to SVG and checks the exact axis;
 the operator completes the real Save dialog. Independent Python CSV parsing
 checks value1000000, exact unit/template/type and the source-file array for all7
-unmodified saved outputs. This does not qualify every PNG/SVG export or x86 chart
+unmodified saved outputs per architecture; saved CSV bytes match across x64/x86.
+This does not qualify every PNG/SVG export or other chart
 condition. Native UIA failed to address modal element indexes; a fresh separate
 dialog screenshot and coordinate input completed the operation. Dialog shell
 screenshots/trees stay private; only synthetic exported CSVs are published.
@@ -58,6 +59,23 @@ releases every entry. Explicit Node GC is diagnostic only. The Linux purego test
 variant is not native GTK/UI or production CGO/race acceptance. An initial Docker
 CLI flag-splitting failure is separate from the successful array-argument rerun.
 
-Ordinary x86 native memory results are recorded separately when completed;
-protocol.json declares their unchanged screening budgets. Original historical
-memory failures and every independent review disposition remain unchanged.
+Ordinary production10228156 Windowsx86 completes36cycles/108opens in933.923s,
+28warmup+8measured, with no forcedGC or memory trim. All original budgets pass
+independent recomputation: tree delta-0.184MiB/slope0.712MiB per cycle, root
+delta-8.484MiB/slope0.057MiB per cycle, handle/thread deltas and slopes0. Final
+window tree median548.410MiB. The app remains responsive with32/32rows, selected
+first request, checked star and exact Hangul note after measurement. A separate
+native Workspace readback is PARTIAL: the accessibility tree/document limit
+exposes37card titles, so an exact80native count is not claimed from that view.
+Headless three-host ownership tests separately qualify80retained entries.
+Historical failed verdicts stay unchanged. Unique/body-rich/longer ordinary
+native workloads and the OSprivate-versus-JSheap gap remain open.
+
+Windowsx64/x86 source-overlay pack preparation each pass RC.1/stable/future
+boundaries, install/activate/restart, prepared-store migration and incompatible
+rollback refusal. Fixture trust is ephemeral; production version/bootstrap/trust
+are unchanged. Official existing-signer packs and actual installed upgrade are
+still PENDING. All owned test apps/containers are stopped, seven preexisting
+containers are preserved, and private profiles/controller credentials remain local.
+See remaining-acceptance.json for the current concrete gates; no numbered task
+or independent review disposition is promoted by this incremental test batch.
