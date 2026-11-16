@@ -444,3 +444,20 @@ amd64protectedSKIP remains separate from positive remoting qualification. Origin
 reference/IME/drag/full matrix/isolated-host/memory limits and T-613PENDING/
 T-627REVIEW/independentCONDITIONAL remain. Current receipts and remaining gates:
 docs/review/evidence/2026-11-15-windows-stream-boundaries/.
+
+### 2026-11-16 Windows ribbon and Chart unit readback
+
+Actual x64/x86 WebView2 ribbon tests pass180locale/tab layouts and18theme choices
+at OS100%, with WebView100/125% zoom. The selected-text accent collision is fixed
+and measured contrast is>=4.5:1. Windows Ctrl+comma Settings navigation is also
+fixed; remaining physical keyboard, actual OS-DPI and independent language/IME
+conditions retain their separate acceptance scope.
+
+Both Windows architectures analyze an owned synthetic collapsed profile for
+samples/ns/µs/ms/s/bytes/unknown, create Canvas surfaces, verify each SVG axis and
+complete7actual native CSV Save dialogs. Independent parsing preserves1000000,
+the exact unit/template/type and source array. Saved CSV bytes match across
+architectures. Input drop dispatch is synthetic; this does not qualify physical
+drag, all PNG/SVG exports, Office or the full reference/dense/error matrix.
+T-627/T-663/T-664 remain REVIEW. Current evidence:
+docs/review/evidence/2026-11-16-windows-validation/.

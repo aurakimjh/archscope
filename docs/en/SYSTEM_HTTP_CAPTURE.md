@@ -2117,3 +2117,22 @@ native memory repeats remain open. No new original/client/IME/drag/driver/DPI or
 isolated-host closure. T-613 PENDING/T-627 REVIEW/independent CONDITIONAL remain.
 Current evidence and remaining inventory:
 docs/review/evidence/2026-11-15-t613-memory-diagnosis/.
+
+### 2026-11-16 Windows x86 memory and saved workflows
+
+Ordinary production Windowsx86 completes36repeated-import cycles/108opens with
+the unchanged28warmup/8measured protocol and no forcedGC/trim. Independent checks
+pass all original budgets: tree delta-0.184MiB/slope0.712MiB per cycle, root
+delta-8.484MiB/slope0.057MiB per cycle, handles/threads unchanged. Actual native
+32/32rows, first selection, checked star and Hangul note survive. The exact80card
+Workspace readback is PARTIAL because of accessibility limits; separate headless
+ownership tests verify80entries. This finite run does not erase old failures or
+qualify unique/body-rich/longer native workloads or all OSprivate allocations.
+
+Windowsx64/x86 and DockerLinux purego headless each pass3saved cases/9exports and
+fresh-cache restart;219sanitized transaction projections/fingerprints match.
+Four Docker retained-object scenarios pass with explicit diagnostic GC only.
+Windows pack preparation passes RC/stable/future overlays with ephemeral fixture
+trust; official signed installation/upgrade remains pending. T-613 PENDING and
+the independent CONDITIONAL remain unchanged. Current receipts and open gates:
+docs/review/evidence/2026-11-16-windows-validation/.

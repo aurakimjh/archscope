@@ -1,0 +1,17 @@
+{
+  "ownedAppsRemaining": 0,
+  "ownedWebviewsRemaining": 0,
+  "ownedContainersRemaining": 0,
+  "preexistingContainersPreserved": [
+    "desktop-control-plane",
+    "desktop-worker",
+    "desktop-worker2",
+    "desktop-worker3",
+    "desktop-worker4",
+    "kind-cloud-provider",
+    "kind-registry-mirror"
+  ],
+  "currentContainerCount": 7,
+  "privateProfilesAndInputsRetained": true,
+  "driverOrSecurityPolicyChangesThisIncrement": false
+}

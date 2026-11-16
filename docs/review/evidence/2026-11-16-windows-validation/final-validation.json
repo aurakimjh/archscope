@@ -1,0 +1,291 @@
+{
+  "asOf": "2026-11-16",
+  "baseline": "98eeaf3e",
+  "taskCommits": [
+    "77aa4205",
+    "47bf842f",
+    "0eea1efb",
+    "10228156",
+    "237b8d9f",
+    "59c3164c",
+    "8faf1b76"
+  ],
+  "scope": "Current Windows/Docker incremental verification, not universal acceptance closure",
+  "checks": {
+    "fullWindowsGo": "amd64 baseline131packages PASS; after fixes affected amd64 full app78.231s and full stream suite PASS. Final386 full131packages PASS, including full app72.942s. Protected/environment skips are not native acceptance passes.",
+    "streamTimer": "Initial386 FAIL preserved; synctest correction,25repeats perarch,full affected suites PASS; production pipeline unchanged.",
+    "frontend": "Final state regression and tsc/Vite build PASS after keyboard/color correction",
+    "ribbon": "Actualx64/x86 three-size matrix180locale-tab layouts,18theme selections,selected text contrast>=4.5; original failure retained",
+    "i18n": "Native WindowsPython3.10 normal/optimized2197phrases per added locale PASS with explicit UTF8",
+    "chart": "Both actual Windowsarchitectures each7native SVG axes/Canvas creation/CSV Save; exact CSV/value/unit/source readback PASS and cross-arch bytes equal",
+    "workflow": "Windowsx64/x86 and Linuxamd64 purego headless each3cases/9exports/fresh-cache restart PASS;219projection/fingerprint parity",
+    "dockerMemory": "4separate36cycle explicit-GC diagnostics PASS; not native memory/race/pressure evidence",
+    "ordinaryNativeMemory": "Windowsx86 original36/28/8screen PASS,933.923s; no forcedGC/trim; other owned domain runs finished before launch",
+    "packs": "Both Windowsarchitectures RC/stable/future source overlays PASS; ephemeral fixture trust, production version/bootstrap/trust unchanged, official signer/installed upgrade PENDING"
+  },
+  "nativeCases": 13,
+  "nativeCaseResultsIncludingBeforeFailuresAndObservationLimits": {
+    "FAIL": 2,
+    "PASS": 10,
+    "PARTIAL": 1
+  },
+  "ordinaryBuilds": [
+    {
+      "file": "archscope-production-amd64.exe",
+      "bytes": 56828416,
+      "sha256": "064838bcdd34b36dc306f7345f565c5e590ed6af585a68c90e7eec69bcc0e2b5",
+      "sourceCommit": "10228156",
+      "tags": "production",
+      "PEMachine": "0x8664",
+      "diagnosticGetterAbsent": true
+    },
+    {
+      "file": "archscope-production-386.exe",
+      "bytes": 54881792,
+      "sha256": "1ba425c5320282a3e461c637b09e9c12321fbbd7697dd293d4b7ff0a16f77083",
+      "sourceCommit": "10228156",
+      "tags": "production",
+      "PEMachine": "0x14c",
+      "diagnosticGetterAbsent": true
+    }
+  ],
+  "docker": {
+    "serverVersion": "29.9.3",
+    "backendImageDigest": "sha256:e9f565d32859f0cbfb52125eafe8be39390f24dac302dc3cdf566e8ba3ab21ee",
+    "retentionImageDigest": "sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a",
+    "headlessTestBinary": {
+      "file": "stable-linux.test",
+      "bytes": 52283142,
+      "sha256": "fb830a1fa0058fefa12ee4ff7f94ce2423a41228cffa88de766a63c67022a995"
+    },
+    "linuxVariant": "CGO0/purego headless releasequalification; no native GTK or production CGO/race claim"
+  },
+  "privateLogHashes": [
+    {
+      "file": "frontend-state.log",
+      "bytes": 175,
+      "sha256": "7e752e5705ce137a98693418ece4457d580e00581b598be7cda324afc3afeb4a"
+    },
+    {
+      "file": "frontend-build.log",
+      "bytes": 6262,
+      "sha256": "d0021b9fbf88cfdf0c99fac24ecfe1ea23fbc83acaf6795c205d3da84e79d17c"
+    },
+    {
+      "file": "frontend-final-state.log",
+      "bytes": 175,
+      "sha256": "7e752e5705ce137a98693418ece4457d580e00581b598be7cda324afc3afeb4a"
+    },
+    {
+      "file": "frontend-final-build.log",
+      "bytes": 5865,
+      "sha256": "a1c1473362655575e03b777c69facbac4df5485ebb4c9bf55d23d4fa10aae260"
+    },
+    {
+      "file": "go-amd64.log",
+      "bytes": 12113,
+      "sha256": "807190bccab93d5c94fc6355e7176440e8e37bb0f6c7b61b7358d5e2fbcf84df"
+    },
+    {
+      "file": "go-386.log",
+      "bytes": 12202,
+      "sha256": "9c93ed3c223bfe06817900a9da6177eed13889fa2157da3004adb07e8f607d1d"
+    },
+    {
+      "file": "go-386-final.log",
+      "bytes": 12071,
+      "sha256": "d709fd3fc03626ebad761d018f27bebda5b81c9da1b111b629af3e2d87ffa8f5"
+    },
+    {
+      "file": "app-amd64-final.log",
+      "bytes": 82,
+      "sha256": "bd6d27338f2690c9064a7a1c90dad0e0d0eb1cf88082db2318dbf8642ffb556a"
+    },
+    {
+      "file": "stream-fixed-amd64.log",
+      "bytes": 87,
+      "sha256": "11ebbac07be0487a1f99b961db8849b649f571df5d81b26e1a7a15909447e583"
+    },
+    {
+      "file": "stream-fixed-386.log",
+      "bytes": 87,
+      "sha256": "fe07ec36500be3cc3e954876e1a4e102977a1ae75ee40f62cd335c4bde3e0b27"
+    },
+    {
+      "file": "stream-suite-amd64.log",
+      "bytes": 87,
+      "sha256": "22c2f13f88888d867fb85366de7c11cc4801019756866132e74f1f1504cd81af"
+    },
+    {
+      "file": "i18n-python.log",
+      "bytes": 225,
+      "sha256": "443520dd09c600a7efeabf8f9310014dcb58399d63e02894438ca3343f07dab7"
+    },
+    {
+      "file": "i18n-python-optimized.log",
+      "bytes": 225,
+      "sha256": "443520dd09c600a7efeabf8f9310014dcb58399d63e02894438ca3343f07dab7"
+    },
+    {
+      "file": "stable-amd64.log",
+      "bytes": 530,
+      "sha256": "9452681a7c16ce99110ac8497dfecbe95ac3a0e0d6b9ec356a7e6f8f21d86472"
+    },
+    {
+      "file": "stable-386.log",
+      "bytes": 530,
+      "sha256": "b53703e23217a2848ec86f1ce5cd18a202530e736c19d0aa81e427d6d804098f"
+    },
+    {
+      "file": "stable-docker.log",
+      "bytes": 2794,
+      "sha256": "7e58bf0bbbea2d2d47dd10cf8236e9dce69bb2f5e3e11a3615e51c610049dafb"
+    },
+    {
+      "file": "stable-docker-final.log",
+      "bytes": 440,
+      "sha256": "5cac114242e84699bfc6863fef90c019dac40c2e823f1e169c7d09b79ea0ddff"
+    },
+    {
+      "file": "memory-386.log",
+      "bytes": 2224,
+      "sha256": "a2d0c39bbf58df2ffb3a731ebff9a525c50bf567ddbf1ab39d921f7c0faece98"
+    },
+    {
+      "file": "build-production-amd64.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "build-production-386.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "packs-amd64.log",
+      "bytes": 1230,
+      "sha256": "7c7ae304bd7afcd26669461f04e23c9fceb02fdd4854ece2084bc7bbc9ddb702"
+    },
+    {
+      "file": "packs-386.log",
+      "bytes": 1230,
+      "sha256": "7c7ae304bd7afcd26669461f04e23c9fceb02fdd4854ece2084bc7bbc9ddb702"
+    }
+  ],
+  "sourceHashes": [
+    {
+      "file": "desktopmenu.go",
+      "bytes": 8067,
+      "sha256": "a6e219f8bcf965995ce293eff99656351430e6bbb53c7a8ecc572a295d98c27e",
+      "path": "apps/engine-native/cmd/archscope-app/desktopmenu.go"
+    },
+    {
+      "file": "App.tsx",
+      "bytes": 13498,
+      "sha256": "e26813b4d0008b779c9dfa509e3578608edc265eb10f57e19d867907ed7b322e",
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/App.tsx"
+    },
+    {
+      "file": "desktopNavigation.ts",
+      "bytes": 2335,
+      "sha256": "ddf88abaae7768e11dd66b55b31be32620a7762e3ba73f096304200c775efa69",
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/state/desktopNavigation.ts"
+    },
+    {
+      "file": "analysisWorkspace.ts",
+      "bytes": 12768,
+      "sha256": "45213321e3e6e188117882f48815bc2c2846258e9492d899bf381dd4bcb1205d",
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/state/analysisWorkspace.ts"
+    },
+    {
+      "file": "ribbon.css",
+      "bytes": 6721,
+      "sha256": "bf4ee27d88e6e9ef2b258d52fac8aef3da8e923d834d2031c76b878c8ba1b995",
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/styles/ribbon.css"
+    },
+    {
+      "file": "tailwind.css",
+      "bytes": 2540,
+      "sha256": "344dadf6d9edd28d7a334e4c2974a595d596ef8a7a911f0299f4e6aa77426047",
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/styles/tailwind.css"
+    },
+    {
+      "file": "style.css",
+      "bytes": 45866,
+      "sha256": "f8ee3e0bbfd1aa5068d6cd1d10732d6e236123e5d6c001916bcee2012bd759f1",
+      "path": "apps/engine-native/cmd/archscope-app/frontend/public/style.css"
+    },
+    {
+      "file": "pipeline_test.go",
+      "bytes": 22126,
+      "sha256": "e3c04d9ad3c4243ba9a105f3cfcd462a521e74ac431be37d6167e009506129b2",
+      "path": "apps/engine-native/internal/capture/stream/pipeline_test.go"
+    },
+    {
+      "file": "check-desktop-i18n.py",
+      "bytes": 2971,
+      "sha256": "e95f3031d74580a1531a865a4cbfed0f27e50167528a70244c4d9db4edd59229",
+      "path": "scripts/check-desktop-i18n.py"
+    },
+    {
+      "file": "verify-ribbon-native.js",
+      "bytes": 13649,
+      "sha256": "13700707d2aed83f41251cb857e4c1102031acc6ffd8192e0b00b837b06c19b2",
+      "path": "scripts/verify-ribbon-native.js"
+    },
+    {
+      "file": "verify-windows-ribbon.mjs",
+      "bytes": 4071,
+      "sha256": "15b877ec2baf220751608b3b6a1c3cfbd0245e663b557cf2eb1d7ba07cff3ad6",
+      "path": "scripts/verify-windows-ribbon.mjs"
+    },
+    {
+      "file": "verify-chart-units-native.js",
+      "bytes": 4923,
+      "sha256": "909282c35f1dc26ccd110a107b7d658e86dc6cd540eb7331967eb7e94ab40a93",
+      "path": "scripts/verify-chart-units-native.js"
+    },
+    {
+      "file": "verify-windows-import-memory.mjs",
+      "bytes": 7632,
+      "sha256": "00bbe5e9da382b086dedd151141712927fbe0db8d947f811c7583b88c65c605f",
+      "path": "scripts/verify-windows-import-memory.mjs"
+    },
+    {
+      "file": "desktop-memory-checks.mjs",
+      "bytes": 1705,
+      "sha256": "f6d06aef60e34b29174b77c4f830c96718af57f54d596e0700b153f1d419a324",
+      "path": "scripts/lib/desktop-memory-checks.mjs"
+    },
+    {
+      "file": "qualify-stable-packs.py",
+      "bytes": 4649,
+      "sha256": "244ead578a6c4cce11ab37ae7f29fc3a0d0bc1f556b07782a50f2db25a11dbd8",
+      "path": "scripts/qualify-stable-packs.py"
+    },
+    {
+      "file": "verify-stable-workspace.mjs",
+      "bytes": 4699,
+      "sha256": "4baf8af72b1c98348d2aecd3d13556d1de32eee30a8662f61a1e2e8a1a4b2be2",
+      "path": "scripts/verify-stable-workspace.mjs"
+    },
+    {
+      "file": "diagnose-workspace-retention.mjs",
+      "bytes": 3953,
+      "sha256": "6fa9e0841098329dab4e75f9f19c88a04f9420afc47370416afaaa43704ae2eb",
+      "path": "scripts/diagnose-workspace-retention.mjs"
+    }
+  ],
+  "limits": [
+    "Shared interactive Windows host; observed OSscale100%. WebView125 is not actual OS125.",
+    "Native history-count observation is PARTIAL due accessibility limits;32row/star/note and independent screen are separately PASS.",
+    "Historical late memory failures/OSprivate-vs-JSheap gap,unique/body-rich/longer native workloads remain open.",
+    "No original/vendor client,physicalIME/drag,driver/clean-host fault,official signer,GPU/natural pressure or independent review closure."
+  ],
+  "states": {
+    "T-613": "PENDING",
+    "T-601/T-611/T-627/T-663/T-664": "REVIEW",
+    "T-654/T-662": "TODO",
+    "independent": "CONDITIONAL"
+  }
+}

@@ -1,0 +1,350 @@
+{
+  "scope": "Exact Git index evidence blobs, excluding this self manifest; private profiles/controllers/raw fixtures are excluded",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 5556,
+      "sha256": "72437d30ee0482ecf4b30c5410a8966e070841cc3ec69e62a550f73bdd0c86cb"
+    },
+    {
+      "path": "chart-exports-386/bytes.csv",
+      "bytes": 201,
+      "sha256": "f023f14b770a8c395aeb35c7e6cd7028fe89b617fdeb8a4446a1a656660f93c2"
+    },
+    {
+      "path": "chart-exports-386/microseconds.csv",
+      "bytes": 208,
+      "sha256": "197884db8af234fcf492c785717689d150baba32cf6e48edbf509f44260e3c80"
+    },
+    {
+      "path": "chart-exports-386/milliseconds.csv",
+      "bytes": 208,
+      "sha256": "72e919494cd64608b609fb5fda252c8b6678d309275d7b52886d53051cb3a31e"
+    },
+    {
+      "path": "chart-exports-386/nanoseconds.csv",
+      "bytes": 207,
+      "sha256": "e5fffb014d0d386872b7c0b36f3e2a15d569039a446d0216bbfcf4b2bd33204b"
+    },
+    {
+      "path": "chart-exports-386/samples.csv",
+      "bytes": 203,
+      "sha256": "7e38280cbbd286295af3f73faa6be1f83ca1711bf6a8620d08ddf8011a6f9ddf"
+    },
+    {
+      "path": "chart-exports-386/seconds.csv",
+      "bytes": 203,
+      "sha256": "66d45ec52d9d4a975491d23e3f185b0a8221588cde3daf7ff7c03e06fa4f444a"
+    },
+    {
+      "path": "chart-exports-386/unknown.csv",
+      "bytes": 203,
+      "sha256": "6c03ed09ca6e3d177befccb6289057da98e37e22da88b396a6bedad90e792029"
+    },
+    {
+      "path": "chart-exports/bytes.csv",
+      "bytes": 201,
+      "sha256": "f023f14b770a8c395aeb35c7e6cd7028fe89b617fdeb8a4446a1a656660f93c2"
+    },
+    {
+      "path": "chart-exports/microseconds.csv",
+      "bytes": 208,
+      "sha256": "197884db8af234fcf492c785717689d150baba32cf6e48edbf509f44260e3c80"
+    },
+    {
+      "path": "chart-exports/milliseconds.csv",
+      "bytes": 208,
+      "sha256": "72e919494cd64608b609fb5fda252c8b6678d309275d7b52886d53051cb3a31e"
+    },
+    {
+      "path": "chart-exports/nanoseconds.csv",
+      "bytes": 207,
+      "sha256": "e5fffb014d0d386872b7c0b36f3e2a15d569039a446d0216bbfcf4b2bd33204b"
+    },
+    {
+      "path": "chart-exports/samples.csv",
+      "bytes": 203,
+      "sha256": "7e38280cbbd286295af3f73faa6be1f83ca1711bf6a8620d08ddf8011a6f9ddf"
+    },
+    {
+      "path": "chart-exports/seconds.csv",
+      "bytes": 203,
+      "sha256": "66d45ec52d9d4a975491d23e3f185b0a8221588cde3daf7ff7c03e06fa4f444a"
+    },
+    {
+      "path": "chart-exports/unknown.csv",
+      "bytes": 203,
+      "sha256": "6c03ed09ca6e3d177befccb6289057da98e37e22da88b396a6bedad90e792029"
+    },
+    {
+      "path": "chart-harness-history.json",
+      "bytes": 1549,
+      "sha256": "f530f30f517aac5c138afa65fdd49df9b0339eea9c5c01d07e630f5aeb1d4cc5"
+    },
+    {
+      "path": "chart-native-386.json",
+      "bytes": 1729,
+      "sha256": "c7975a38e1631574d1ffb09e6af5e2b29a63217f65c46ed1c0058b3bdf891535"
+    },
+    {
+      "path": "chart-native.json",
+      "bytes": 1729,
+      "sha256": "c7975a38e1631574d1ffb09e6af5e2b29a63217f65c46ed1c0058b3bdf891535"
+    },
+    {
+      "path": "chart-readback-386.json",
+      "bytes": 1868,
+      "sha256": "d70717eaab25d7a6e781e163dc2040c014e1db8159a58ac8ede29cadae62fbc7"
+    },
+    {
+      "path": "chart-readback.json",
+      "bytes": 1828,
+      "sha256": "b0a9454f9385e2b73b2fc5c93bc576ffcd7d597d6a4ef040dbea8fa4a9d02a81"
+    },
+    {
+      "path": "cleanup.json",
+      "bytes": 457,
+      "sha256": "18bae9e251b237637cd232d7947a62f0cf5bbf7bb7b8b137ac9a5fc696df64c2"
+    },
+    {
+      "path": "context-help-keyboard-386.jpg",
+      "bytes": 79726,
+      "sha256": "d2951a9db370b83021dbf39fe1f041455b058c1288ed638bb60303de31d26a8d"
+    },
+    {
+      "path": "context-help-keyboard-386.txt",
+      "bytes": 8278,
+      "sha256": "d090dfe128148da34370e9f3116c250f5c48a1da967a3ad8d2dc1f3a566cb070"
+    },
+    {
+      "path": "contrast-before.json",
+      "bytes": 3616,
+      "sha256": "8c423c7693a1d3b9c889c175e69405383b5890b2529e7645a299a9384f393ba3"
+    },
+    {
+      "path": "final-validation.json",
+      "bytes": 11241,
+      "sha256": "3e995a4ac27916eb9654779a241c6774fc86877b4d622decd55c28e5bd169847"
+    },
+    {
+      "path": "ja-font-and-selection-before.jpg",
+      "bytes": 86371,
+      "sha256": "12f3f76175128a08ef7ccf5bccfb739e1053542f8b29cc46a9e5d3365ab2b6ae"
+    },
+    {
+      "path": "ja-font-and-selection-before.txt",
+      "bytes": 9036,
+      "sha256": "be0d6c4ff8fdd18b1bfee8c7d8673b55aa67e674ffc06786eb42dd81cf6cab96"
+    },
+    {
+      "path": "ja-font-fixed-386.jpg",
+      "bytes": 88170,
+      "sha256": "61f34ca5e69969b3646f216dcbebf81894b47f44553702c831d062ff8e79dc2d"
+    },
+    {
+      "path": "ja-font-fixed-386.txt",
+      "bytes": 9037,
+      "sha256": "bd670e43f65abf688ab7158ed0eb7b8c23dfef5280370f763ac323327860f255"
+    },
+    {
+      "path": "memory-386.json",
+      "bytes": 137655,
+      "sha256": "c9d3b92e5f12f6f44f492f6d59e0dd6ff9f72a5dfa80061a3674fb9bb874efd8"
+    },
+    {
+      "path": "memory-annotation-386.jpg",
+      "bytes": 137642,
+      "sha256": "8d46011e9183ed10c22383251ea7bbb6c382aa15ccc7a4c8bc96ac5c37236914"
+    },
+    {
+      "path": "memory-annotation-386.txt",
+      "bytes": 36352,
+      "sha256": "72e06641bf84b3912b5657c2d57baaf203eac5f067a366186627b4b4c2a63146"
+    },
+    {
+      "path": "memory-final-386.jpg",
+      "bytes": 145053,
+      "sha256": "4b20ebdc01e3288e494f8fa0a812d65f8479d744b829ac28145461e445bf6428"
+    },
+    {
+      "path": "memory-final-386.txt",
+      "bytes": 36809,
+      "sha256": "20612ccb7923be820062d5f4c0071ea9a8be1257210d721f27d5040b257a4f18"
+    },
+    {
+      "path": "memory-history-observation-386.jpg",
+      "bytes": 125846,
+      "sha256": "2a6f904e69b8ef567b12e8379a41d93d2a60206ae4fbb97d92e0f36469953f19"
+    },
+    {
+      "path": "memory-history-observation-386.txt",
+      "bytes": 46312,
+      "sha256": "d263f49aebd025c9eb964c72808476954c6eecb2e9b3e71e30f3869ce3b8850a"
+    },
+    {
+      "path": "memory-validation.json",
+      "bytes": 1365,
+      "sha256": "67b624a9033e3e0fa69c4fd2552300b8c7c180ba539a57628657beb3a48d58e3"
+    },
+    {
+      "path": "model-parity.json",
+      "bytes": 56858,
+      "sha256": "6e5418f500f46ae01bcae792bd3cba2367a2bafa4d939455ca80b2552af0497b"
+    },
+    {
+      "path": "native-cases.json",
+      "bytes": 6079,
+      "sha256": "7b77a339de7c4db7f4195b17341fe99cf9145fbdf2232c0bc92ae5cbafc6d385"
+    },
+    {
+      "path": "packs-386.json",
+      "bytes": 1459,
+      "sha256": "56b1d5dbe9784d9952fae6130b1283a6698f420fc8fa6ba66c4c6f86293bb9b4"
+    },
+    {
+      "path": "packs-amd64.json",
+      "bytes": 1459,
+      "sha256": "56b1d5dbe9784d9952fae6130b1283a6698f420fc8fa6ba66c4c6f86293bb9b4"
+    },
+    {
+      "path": "protocol.json",
+      "bytes": 1377,
+      "sha256": "31c4f61c6d24b22654a24af5ea639968aa69041664467ec01bab3bc823864331"
+    },
+    {
+      "path": "remaining-acceptance.json",
+      "bytes": 5199,
+      "sha256": "62cc9916da7d6d5a33764cdd175d909f4cfed6c88d5b787ea0d3d94b8aa95413"
+    },
+    {
+      "path": "retention-docker-body-rich.json",
+      "bytes": 9772,
+      "sha256": "eaa88f0532f806ef12609f464f6649c9f08f8180e5e05bd4894eee78a4dfeacf"
+    },
+    {
+      "path": "retention-docker-repeated.json",
+      "bytes": 9706,
+      "sha256": "0d12c708154c662654150cbc953d243ea8b69b2f91c6ad129c6e7566cd7aa372"
+    },
+    {
+      "path": "retention-docker-unique.json",
+      "bytes": 9827,
+      "sha256": "94ac735d0d90221df137b7190900cc49310f7cd6fba87d208cb097b5e7467ab0"
+    },
+    {
+      "path": "retention-docker-unshared-control.json",
+      "bytes": 9840,
+      "sha256": "abdb0a5bc43e5bbda5591540e4a27b803ecba57a77d1134195ccbbc4ab93ad06"
+    },
+    {
+      "path": "ribbon-386.json",
+      "bytes": 22984,
+      "sha256": "678d640266f8d633770d1b48d8cdeafa56363649013e14f4cf6d3e6aa704fc85"
+    },
+    {
+      "path": "ribbon-amd64.json",
+      "bytes": 22993,
+      "sha256": "a425c0c61d035c4f48706ddf24fb1d5fa8b916c1814a53e3005c1105fbef3584"
+    },
+    {
+      "path": "ribbon-keyboard-fold-386.jpg",
+      "bytes": 79978,
+      "sha256": "3f146f6459c9272ff5b615066359ecd03ffdd2a3b06d92f3761b027f903d8132"
+    },
+    {
+      "path": "ribbon-keyboard-fold-386.txt",
+      "bytes": 7150,
+      "sha256": "1fc20081c0401766fd0aa476cc3d3d5d7416fa11ba48bd90b46563aff1384b46"
+    },
+    {
+      "path": "settings-shortcut-before.jpg",
+      "bytes": 44952,
+      "sha256": "705ba28f8c3ebcd36513e415e7580f2fc60c9f12156270c160edb2b4febee33b"
+    },
+    {
+      "path": "settings-shortcut-before.txt",
+      "bytes": 3485,
+      "sha256": "b5ae5d26b9ee38069f22f3ff8dbda3e5ec4b20fc88b08a9ce867a48dd1a73fb0"
+    },
+    {
+      "path": "settings-shortcut-fixed-386.jpg",
+      "bytes": 82514,
+      "sha256": "c562e5c5e75ed3f54f8a6c8e0bdba451bc4f7e8861b5d0e2cabfa2e280e40b61"
+    },
+    {
+      "path": "settings-shortcut-fixed-386.txt",
+      "bytes": 8172,
+      "sha256": "e1a5c96d62c8b4957280f44fb631601c899e04b7e59c07313f798cc33a0e3c14"
+    },
+    {
+      "path": "settings-shortcut-fixed-amd64.jpg",
+      "bytes": 81211,
+      "sha256": "a60587cb584a6c44a7d40e385debfe0f34b5d692435f21b33e94e0ca3919faca"
+    },
+    {
+      "path": "settings-shortcut-fixed-amd64.txt",
+      "bytes": 8171,
+      "sha256": "da31d487510a9b2adaf877ebd18c4bd5c65e27d8ab44751dd1d53dce20f32d05"
+    },
+    {
+      "path": "stream-test.json",
+      "bytes": 575,
+      "sha256": "b5b5da05189771bde49871775f4d9f12c41d3c7d543e3fdfff63c5cbc5fc6b9c"
+    },
+    {
+      "path": "verify-chart-units-used.py",
+      "bytes": 2770,
+      "sha256": "2b4e462fdfc600eacb93c96e4f070ae9a1304a8972257a82cb8f3905e777572c"
+    },
+    {
+      "path": "verify-memory-used.py",
+      "bytes": 4511,
+      "sha256": "9a4b10580e0ada54f2da6a352a557a736687cf2fc2441e782759c76f9ed0a5b6"
+    },
+    {
+      "path": "workspace-386.json",
+      "bytes": 868,
+      "sha256": "74e2ae9946b9163d9f66395a487630c363318609011eca7f9fb2c8495d45f01d"
+    },
+    {
+      "path": "workspace-amd64.json",
+      "bytes": 868,
+      "sha256": "2102eb5179966ac0c805ea7a7a9bdf8cc7d01e1b3b19f3f5acd952e8bbb9185c"
+    },
+    {
+      "path": "workspace-docker.json",
+      "bytes": 868,
+      "sha256": "67db63542b9bac41d67759258a8d4a9e10081300ca07a7a87a40051313aa1ae6"
+    },
+    {
+      "path": "zh-cn-font-fixed-386.jpg",
+      "bytes": 82703,
+      "sha256": "ad2ce59fd83477d473e75520c455069753575335c0cf97274089dc677c3b4759"
+    },
+    {
+      "path": "zh-cn-font-fixed-386.txt",
+      "bytes": 7910,
+      "sha256": "bdf9666714223d7339b2641349a57074e2e6dd3244b8218c63637a1aa83e72ce"
+    },
+    {
+      "path": "zh-tw-dark-fixed-386.jpg",
+      "bytes": 77210,
+      "sha256": "16d9c624f9d62b59f2aa4c2ba9ff57944180b476160f4c6ba4c8802400a31ac7"
+    },
+    {
+      "path": "zh-tw-dark-fixed-386.txt",
+      "bytes": 7934,
+      "sha256": "db133b1b7e582715105c5f889e9f5ee2b81c4665a08a5346a0c9ce5095e8c3e2"
+    },
+    {
+      "path": "zh-tw-font-fixed-386.jpg",
+      "bytes": 82837,
+      "sha256": "1ebc78ccf5f4a2e6ead526e76c45a09b9346c383f250d7da4744856db718a383"
+    },
+    {
+      "path": "zh-tw-font-fixed-386.txt",
+      "bytes": 7934,
+      "sha256": "db133b1b7e582715105c5f889e9f5ee2b81c4665a08a5346a0c9ce5095e8c3e2"
+    }
+  ]
+}

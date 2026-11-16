@@ -626,11 +626,11 @@ T-629 is DONE after independent R2 confirmed R4 remediation and allowed closure;
 | Order | ID | Priority | Status | Why it is not `DONE` / next action |
 |---:|---|---|---|---|
 | 1 | T-601 | P1 | `REVIEW` | Windows capture entry points and reach measurement. |
-| 2 | T-627 | P2 | `REVIEW` | Latest2026-11-15 reviewed21-route/173case scoped native inventory, including preserved before-fix failures/partial/inconclusive cases. Final normalized386Diff, JFR/input lifecycle, report/export, labels and Settings persistence receipts checked;528artifact/34source hashes match. WREV2-01 chart CSV units and WREV2-02 JFR inventory are locally fixed/regression-verified; new native unit combinations and independent review remain separate. Full original/reference, conditional/error, actual OS-DPI/locale/density/keyboard matrix remains. |
-| 3 | T-663 | P2 | `REVIEW` | Compact single-row desktop ribbon implemented with icon commands, three saved visibility modes and shared command routing. Local builds/state/race/vet and Windows cross-builds pass; native smoke scope is recorded in the dated evidence. Independent review and actual Windows layout/DPI/keyboard acceptance remain. |
-| 4 | T-664 | P2 | `REVIEW` | Depends on T-663 UI integration. Japanese, Simplified Chinese and Taiwan Traditional Chinese added alongside English/Korean; 2,197 phrases per added locale and placeholder parity pass. Independent linguistic review and actual Windows font/IME/layout acceptance remain. |
+| 2 | T-627 | P2 | `REVIEW` | Current Windowsx64/x86 seven profiler unit SVG-axis/nativeCSV Save cases pass with identical saved bytes; scoped responsive ribbon receipts are linked at2026-11-16-windows-validation. Earlier21route/173case and528artifact/34source review receipts remain unchanged. Full original/reference, other renderer/export/Office, actual OS-DPI/locale/density/keyboard matrix and independent review remain. |
+| 3 | T-663 | P2 | `REVIEW` | Actual Windowsx64/x86 responsive ribbon180locale/tab layouts,18theme selections,selected contrast>=4.5 pass; Settings shortcut/contrast defects fixed and physical selected shortcuts verified. Remaining independent review, full physical keyboard/provider/state and actual OS-DPI conditions remain. |
+| 4 | T-664 | P2 | `REVIEW` | Five-locale Windows geometry and selected KO/JA/Chinese glyph screenshots pass;2197phrases per added locale/placeholder checks pass under native WindowsPython after UTF8 correction. Independent fluent-speaker review, actual IME and full font/language/DPI/physical-keyboard conditions remain. |
 | 5 | T-611 | P3 | `REVIEW` | Physical retention, pre-storage admission cancellation, owned custom-IID registration, nested normalized filters and common-engine soak tooling implemented. Mac and hosted race/vet/frontend/package plus both GUI cross-builds pass; amd64-race/386 native COM, including custom-IID RPC and explicit registration replacement/cleanup, pass. Current vendor early-bound compatibility, unobserved native filter/cache-origin evidence and foreign-process in-memory session-cookie integration remain. |
-| 6 | T-613 | P3 | `PENDING` | New scoped failure/retry, Unicode/full-field readback, x86 approved-body and finite memory receipts reviewed. Initial import growth failures and36cycle x64FAIL remain; later windows do not prove universal leak freedom. Full parity depends on T-601/T-611, original V7.6.4 equivalence, actual IME/drag/remaining body-format combinations and isolated fault tests; x64body remains genuinely gated. |
+| 6 | T-613 | P3 | `PENDING` | Duplicate projection retention fixed; two earlier fixedx64 screens and current36cycle ordinaryx86 screen pass within original budgets. Historical initial/x64FAIL receipts and OSprivate/JSheap uncertainty remain. Windows/Docker saved workflows/219model parity and preparatory pack matrices pass within explicit fixture scope. Full originalV7.6.4/client/IME/drag/body-format/driver/isolated-fault/official-signer and unique/body-rich/longer native memory conditions remain; x64body is still gated. |
 
 ### Native Windows follow-up (2026-11-11)
 
@@ -6256,3 +6256,13 @@ pass install/activate/restart,prepared-store reopen and rollback refusal with
 ephemeral fixture trust. Productionversion/bootstrap/trust stay unchanged;
 official signer and actual installed upgrade remain PENDING.
 Evidence:2026-11-16-windows-validation/chart-readback-386.json.
+
+### 2026-11-16 - Windows/Docker completion inventory
+
+Seven task commits fix logical Settings input,selected-control contrast,virtual
+time stream tests and Windows UTF8 checker; qualify both-architecture native
+unit Save/headless workflows,ordinaryx86 memory and preparatory pack matrices.
+Final source/build/log hashes,current acceptance gates and native observation
+limits are recorded. Owned apps/WebViews/containers stopped,7usercontainers kept.
+All8open task states and independentCONDITIONAL remain; no release/tag created.
+Evidence:2026-11-16-windows-validation/final-validation.json.

@@ -470,3 +470,19 @@ COM 테스트 공유 등록 경합에는 잠금을 추가했으며 x64 보호 SK
 통과와 구분합니다. 원본/IME/drag/전체 조합/격리 호스트/유한 메모리 한계 및
 T-613 PENDING/T-627 REVIEW/독립 CONDITIONAL을 유지합니다. 최신 증거와 남은 항목:
 docs/review/evidence/2026-11-15-windows-stream-boundaries/.
+
+### 2026-11-16 Windows 리본과 차트 단위 재검증
+
+실제 x64/x86 WebView2 리본에서 OS100%, WebView100/125% 조건의 언어·탭180조합과
+테마18선택이 통과했습니다. 선택 글자의 accent 충돌을 수정했고 대비4.5:1 이상을
+검사했습니다. Windows Ctrl+, 설정 이동도 수정했습니다. 다른 물리 키보드, 실제
+OS 배율과 독립 언어·IME 조건은 별도 인수 범위로 유지합니다.
+
+양쪽 Windows 아키텍처에서 합성 collapsed 프로파일을 samples/ns/µs/ms/s/bytes/
+unknown으로 실제 분석했습니다. Canvas 표면 생성과 각 SVG 축을 확인하고 각각
+7번의 실제 네이티브 CSV Save 대화상자로 저장했습니다. 독립 파서가 값1000000,
+정확한 단위·템플릿·결과 종류·출처 배열을 확인했으며 양쪽 저장 파일의 바이트도
+같습니다. 입력 drop은 합성 이벤트로 전달했으므로 실제 drag, 모든 PNG/SVG 출력,
+Office와 전체 원본·밀집·오류 조합의 통과는 아닙니다. T-627/T-663/T-664는 REVIEW를
+유지합니다. 최신 증거:
+docs/review/evidence/2026-11-16-windows-validation/.

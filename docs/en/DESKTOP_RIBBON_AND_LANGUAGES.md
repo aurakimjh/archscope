@@ -60,3 +60,24 @@ For native responsive UI testing, the audit build accepts
 `ARCHSCOPE_LAYOUT_VIEWPORT='{"width":1024,"height":768,"zoom":1.25}'` and
 `ARCHSCOPE_LAYOUT_MAX_SECONDS=300`. These options are excluded from ordinary
 product builds. WebView zoom is distinct from changing OS display scaling.
+
+### Windows validation — 2026-11-16
+
+Actual Windows WebView2 x64/x86 tests now cover all five locales and six ribbon
+tabs at1280×800/100%,1024×768/125% and900×768/125%. All180locale/tab combinations
+and18theme selections pass; observed OS scaling is100%. These are native window
+requests; measured CSS widths are1264/806/707 because of Windows chrome and zoom.
+Selected tab/locale/theme text is checked at>=4.5:1 contrast. A shared legacy/
+Tailwind accent-token collision was corrected after its1.118:1 failure was
+observed. Windows logical Ctrl+comma now opens Settings through the renderer;
+Wails' OEM punctuation mapping prevented the previous native registration from
+matching. Other platforms keep their native shortcut ownership. Physical input
+checks cover Settings on both architectures and contextual F1/Ctrl+F1 on x86.
+
+Japanese and Chinese glyph screenshots confirm selected Windows display
+conditions only. Fluent-speaker review, actual IME composition, other physical
+keyboard/provider paths and the full actual OS-DPI matrix remain open.
+`check-desktop-i18n.py` explicitly reads UTF-8 so it also runs under Korean
+Windows' CP949 default. Normal and optimized Python execution both pass2197
+required phrases per added catalog. T-663/T-664 remain REVIEW. Receipts:
+docs/review/evidence/2026-11-16-windows-validation/.
