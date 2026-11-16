@@ -1142,6 +1142,29 @@ filtered before analysis.
 
 ## Next Execution Queue
 
+### v0.4.0-rc.2 release preparation (2026-11-17)
+
+User authorized RC2 release, including commit/push, tag and prerelease publication.
+Baseline d74b7953; RC1 tag remains immutable. Application0.4.0-rc.2,
+Windows0.4.0.2, macOS short0.4.0/build4002, LinuxRC2 are synchronized with
+frontend/Wails/NSIS/notices and EN/KO notes. Current state: PREPARING; local and
+hosted test/package results will be recorded before the immutable tag is made.
+The preceding d74b7953 native Windows386 CI exposed ERROR_SHARING_VIOLATION
+during final-file rename. RC2 adds Windows-only EBUSY polling within the same
+deadline; permanent EBUSY times out, exits and EACCES/EPERM still fail. The
+publication test permits only missing/transient Win32 sharing errors before
+requiring exact complete bytes. Portable receipt/probe tests now total41/host.
+
+RC2 includes the post-RC1 compact ribbon/five languages, shortcut/contrast fixes,
+Windows chart/unit receipts, deterministic Windows test/source decoding fixes,
+WREV3-01 local publisher/consumer remediation and aggregate-only memory tooling.
+Ordinary body-rich memory FAIL remains4.801MiB/cycle(amd64)/8.764(386) against
+unchanged4MiB/cycle. No native allocation cause/fix, new collector execution,
+full IME/keyboard/OS-DPI/fluent-language/reference/vendor/driver acceptance,
+clean-host installation/actual upgrade, GPU or natural-pressure PASS is claimed.
+T-601/T-611/T-627/T-663/T-664 remain REVIEW, T-613 PENDING, T-654/T-662 TODO.
+All251numbered task states and independent CONDITIONAL dispositions remain.
+
 ### User-authorized three-task batch (2026-11-17)
 
 Initial instruction: commit each completed task and push after the batch.
