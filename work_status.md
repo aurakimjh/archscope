@@ -6202,3 +6202,11 @@ are excluded. Physical x64/x86 input reaches Settings; frontend state/build and
 guarded app checks pass. Other platforms keep native ownership and all review
 states remain unchanged. Evidence:2026-11-16-windows-validation/README.md.
 
+### 2026-11-16 - Windows selected-control contrast
+
+Native selected ribbon/locale text reproduced1.118:1 contrast from shared accent
+token collision. Separate Tailwind background token and selected foregrounds.
+Actual x64/x86 six runs pass180locale/tab layouts and18themes,selected contrast
+>=4.5:1. Scoped JA/Chinese glyph screenshots retained; OS100 only,WebView125 is
+not OS125 and independent language/IME acceptance remains. Before FAIL retained.
+Evidence:2026-11-16-windows-validation/ribbon-amd64.json.

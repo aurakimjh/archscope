@@ -1,0 +1,146 @@
+{
+  "osScreenScaleFactor": 1,
+  "report": {
+    "checks": [
+      "all 21 route commands reachable and all six tabs fit in all five locales without remounting"
+    ],
+    "failure": "Error: Selected text contrast below4.5: [{\"control\":\"ribbon-tab ribbon-file\",\"ratio\":1.1181941404415698,\"foreground\":[238,242,255],\"background\":[255,255,255]},{\"control\":\"ribbon-tab ribbon-secondary-tab\",\"ratio\":1.1181941404415698,\"foreground\":[238,242,255],\"background\":[255,255,255]},{\"control\":\"locale-pill active\",\"ratio\":1.1181941404415698,\"foreground\":[255,255,255],\"background\":[238,242,255]},{\"control\":\"locale-pill active\",\"ratio\":5.362677580143151,\"foreground\":[99,104,117],\"background\":[249.05,250.45,255]}]",
+    "locales": [
+      {
+        "locale": "en",
+        "menuRows": 1,
+        "ribbonHeight": 122,
+        "selected": "true",
+        "tabHeight": 36
+      },
+      {
+        "locale": "ko",
+        "menuRows": 1,
+        "ribbonHeight": 122,
+        "selected": "true",
+        "tabHeight": 36
+      },
+      {
+        "locale": "ja",
+        "menuRows": 1,
+        "ribbonHeight": 122,
+        "selected": "true",
+        "tabHeight": 36
+      },
+      {
+        "locale": "zh-CN",
+        "menuRows": 1,
+        "ribbonHeight": 122,
+        "selected": "true",
+        "tabHeight": 36
+      },
+      {
+        "locale": "zh-TW",
+        "menuRows": 1,
+        "ribbonHeight": 122,
+        "selected": "true",
+        "tabHeight": 36
+      }
+    ],
+    "passed": false,
+    "phase": "themes",
+    "platform": "Win32",
+    "renderer": {
+      "heading": "設定",
+      "language": "zh-TW",
+      "paneHidden": false
+    },
+    "schemaVersion": 2,
+    "scope": "Native ribbon and five-language UI smoke",
+    "themes": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "foreground": "rgb(15, 23, 42)",
+        "resolved": "light",
+        "selectedTextContrast": [
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "control": "ribbon-tab ribbon-file",
+            "foreground": [
+              238,
+              242,
+              255
+            ],
+            "ratio": 1.1181941404415698
+          },
+          {
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "control": "ribbon-tab ribbon-secondary-tab",
+            "foreground": [
+              238,
+              242,
+              255
+            ],
+            "ratio": 1.1181941404415698
+          },
+          {
+            "background": [
+              238,
+              242,
+              255
+            ],
+            "control": "locale-pill active",
+            "foreground": [
+              255,
+              255,
+              255
+            ],
+            "ratio": 1.1181941404415698
+          },
+          {
+            "background": [
+              249.05,
+              250.45,
+              255
+            ],
+            "control": "locale-pill active",
+            "foreground": [
+              99,
+              104,
+              117
+            ],
+            "ratio": 5.362677580143151
+          }
+        ],
+        "theme": "light"
+      }
+    ],
+    "viewport": {
+      "height": 761,
+      "pixelRatio": 1,
+      "width": 1264
+    }
+  },
+  "screenLogicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 3840,
+    "Height": 2160
+  },
+  "screenPhysicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 3840,
+    "Height": 2160
+  },
+  "webviewZoom": 1,
+  "window": {
+    "height": 800,
+    "width": 1280,
+    "x": 1280,
+    "y": 656
+  }
+}

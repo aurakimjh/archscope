@@ -18,6 +18,17 @@
     await new Promise(resolve => setTimeout(resolve, 40));
   };
   const require = (condition, message) => { if (!condition) throw Error(message); };
+  const rgba = value => {
+    const channels = value.match(/[\d.]+/g)?.map(Number);
+    require(channels?.length >= 3, 'Unsupported computed color: '+value);
+    return [...channels.slice(0,3),channels[3] ?? 1];
+  };
+  const background = node => {
+    if (!node) return [255,255,255];
+    const color = rgba(getComputedStyle(node).backgroundColor), below = color[3] < 1 ? background(node.parentElement) : color;
+    return color.slice(0,3).map((channel,i)=>channel*color[3]+below[i]*(1-color[3]));
+  };
+  const luminance = color => color.map(value=>value/255).map(value=>value<=0.04045?value/12.92:((value+0.055)/1.055)**2.4).reduce((sum,value,index)=>sum+value*[0.2126,0.7152,0.0722][index],0);
   const click = selector => {
     const element = document.querySelector(selector);
     require(element && !element.disabled, "Unavailable control: " + selector);
@@ -98,9 +109,21 @@
       if (compact) document.querySelectorAll('.ribbon-group-overflow').forEach(element => { element.open = true; });
       themeSelect.value = theme; themeSelect.dispatchEvent(new Event('change', { bubbles: true }));
       await wait(() => localStorage.getItem(keys[2]) === theme && document.documentElement.dataset.theme === (theme === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme));
+      await new Promise(resolve=>setTimeout(resolve,200)); // Let the150ms theme-pill color transition finish.
       const computed = getComputedStyle(document.querySelector('.desktop-ribbon'));
       require(computed.color !== computed.backgroundColor, 'Ribbon text has no theme contrast');
       output.themes.push({ theme, resolved: document.documentElement.dataset.theme, foreground: computed.color, background: computed.backgroundColor });
+      const contrast = [];
+      for (const node of document.querySelectorAll('.ribbon-tab[aria-pressed="true"],.ribbon-file,.locale-pill.active')) {
+        if (!node.getClientRects().length) continue;
+        const foreground = rgba(getComputedStyle(node).color), bg = background(node);
+        const fg = foreground.slice(0,3).map((channel,i)=>channel*foreground[3]+bg[i]*(1-foreground[3]));
+        const light = [luminance(fg),luminance(bg)].sort((a,b)=>a-b);
+        const ratio = (light[1]+0.05)/(light[0]+0.05);
+        contrast.push({control:node.className,ratio,foreground:fg,background:bg});
+      }
+      output.themes.at(-1).selectedTextContrast = contrast;
+      require(contrast.length >= 3 && contrast.every(item=>item.ratio>=4.5), 'Selected text contrast below4.5: '+JSON.stringify(contrast));
     }
     await tab('http');
     require([...document.querySelectorAll('[data-ribbon-command^="capture:"]')].every(button => button.disabled), 'Capture command enabled outside HTTP page');

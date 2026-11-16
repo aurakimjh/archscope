@@ -20,7 +20,7 @@
   --secondary-foreground: #0f172a;
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
-  --accent: #eef2ff;
+  --control-accent: #eef2ff;
   --accent-foreground: #4f46e5;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
@@ -43,7 +43,7 @@
   --secondary-foreground: #e2e8f0;
   --muted: #111c34;
   --muted-foreground: #94a3b8;
-  --accent: #1e293b;
+  --control-accent: #1e293b;
   --accent-foreground: #818cf8;
   --destructive: #f87171;
   --destructive-foreground: #ffffff;
@@ -65,7 +65,7 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
+  --color-accent: var(--control-accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);

@@ -1,0 +1,808 @@
+{
+  "schemaVersion": 1,
+  "scope": "Windows native WebView2 renderer smoke; OS keyboard/font/IME/DPI require separate receipts",
+  "binarySha256": "7658521579bc8eb33a49845f1216c5faa31875165a05fd9434d9386724234462",
+  "scriptSha256": "13700707d2aed83f41251cb857e4c1102031acc6ffd8192e0b00b837b06c19b2",
+  "PEMachine": "0x14c",
+  "runs": [
+    {
+      "name": "wide",
+      "requested": {
+        "width": 1280,
+        "height": 800,
+        "zoom": 1
+      },
+      "elapsedSeconds": 6.3702141,
+      "receipt": {
+        "osScreenScaleFactor": 1,
+        "report": {
+          "checks": [
+            "all 21 route commands reachable and all six tabs fit in all five locales without remounting",
+            "capture commands disabled outside the HTTP page",
+            "tab ArrowRight/Home keyboard focus navigation",
+            "File screen preserves the mounted settings page",
+            "collapse, temporary expansion, Escape, outside pointer, hide and restore preserve page and saved mode"
+          ],
+          "locales": [
+            {
+              "locale": "en",
+              "menuRows": 1,
+              "ribbonHeight": 122,
+              "selected": "true",
+              "tabHeight": 36
+            },
+            {
+              "locale": "ko",
+              "menuRows": 1,
+              "ribbonHeight": 122,
+              "selected": "true",
+              "tabHeight": 36
+            },
+            {
+              "locale": "ja",
+              "menuRows": 1,
+              "ribbonHeight": 122,
+              "selected": "true",
+              "tabHeight": 36
+            },
+            {
+              "locale": "zh-CN",
+              "menuRows": 1,
+              "ribbonHeight": 122,
+              "selected": "true",
+              "tabHeight": 36
+            },
+            {
+              "locale": "zh-TW",
+              "menuRows": 1,
+              "ribbonHeight": 122,
+              "selected": "true",
+              "tabHeight": 36
+            }
+          ],
+          "passed": true,
+          "platform": "Win32",
+          "schemaVersion": 2,
+          "scope": "Native ribbon and five-language UI smoke",
+          "themes": [
+            {
+              "background": "rgb(255, 255, 255)",
+              "foreground": "rgb(15, 23, 42)",
+              "resolved": "light",
+              "selectedTextContrast": [
+                {
+                  "background": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "control": "ribbon-tab ribbon-file",
+                  "foreground": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "control": "ribbon-tab ribbon-secondary-tab",
+                  "foreground": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "ratio": 6.287528596095884
+                }
+              ],
+              "theme": "light"
+            },
+            {
+              "background": "rgb(30, 41, 59)",
+              "foreground": "rgb(226, 232, 240)",
+              "resolved": "dark",
+              "selectedTextContrast": [
+                {
+                  "background": [
+                    30,
+                    41,
+                    59
+                  ],
+                  "control": "ribbon-tab ribbon-file",
+                  "foreground": [
+                    129,
+                    140,
+                    248
+                  ],
+                  "ratio": 4.9041878728949
+                },
+                {
+                  "background": [
+                    30,
+                    41,
+                    59
+                  ],
+                  "control": "ribbon-tab ribbon-secondary-tab",
+                  "foreground": [
+                    129,
+                    140,
+                    248
+                  ],
+                  "ratio": 4.9041878728949
+                },
+                {
+                  "background": [
+                    129,
+                    140,
+                    248
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    30,
+                    41,
+                    59
+                  ],
+                  "ratio": 4.9041878728949
+                },
+                {
+                  "background": [
+                    129,
+                    140,
+                    248
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    30,
+                    41,
+                    59
+                  ],
+                  "ratio": 4.9041878728949
+                }
+              ],
+              "theme": "dark"
+            },
+            {
+              "background": "rgb(255, 255, 255)",
+              "foreground": "rgb(15, 23, 42)",
+              "resolved": "light",
+              "selectedTextContrast": [
+                {
+                  "background": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "control": "ribbon-tab ribbon-file",
+                  "foreground": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "control": "ribbon-tab ribbon-secondary-tab",
+                  "foreground": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "ratio": 6.287528596095884
+                }
+              ],
+              "theme": "system"
+            }
+          ],
+          "viewport": {
+            "height": 761,
+            "pixelRatio": 1,
+            "width": 1264
+          }
+        },
+        "screenLogicalBounds": {
+          "X": 0,
+          "Y": 0,
+          "Width": 3840,
+          "Height": 2160
+        },
+        "screenPhysicalBounds": {
+          "X": 0,
+          "Y": 0,
+          "Width": 3840,
+          "Height": 2160
+        },
+        "webviewZoom": 1,
+        "window": {
+          "height": 800,
+          "width": 1280,
+          "x": 1280,
+          "y": 656
+        }
+      }
+    },
+    {
+      "name": "compact",
+      "requested": {
+        "width": 1024,
+        "height": 768,
+        "zoom": 1.25
+      },
+      "elapsedSeconds": 6.5624456,
+      "receipt": {
+        "osScreenScaleFactor": 1,
+        "report": {
+          "checks": [
+            "all 21 route commands reachable and all six tabs fit in all five locales without remounting",
+            "capture commands disabled outside the HTTP page",
+            "tab ArrowRight/Home keyboard focus navigation",
+            "File screen preserves the mounted settings page",
+            "collapse, temporary expansion, Escape, outside pointer, hide and restore preserve page and saved mode"
+          ],
+          "locales": [
+            {
+              "locale": "en",
+              "menuRows": 1,
+              "ribbonHeight": 121.4000015258789,
+              "selected": "true",
+              "tabHeight": 35.400001525878906
+            },
+            {
+              "locale": "ko",
+              "menuRows": 1,
+              "ribbonHeight": 121.4000015258789,
+              "selected": "true",
+              "tabHeight": 35.400001525878906
+            },
+            {
+              "locale": "ja",
+              "menuRows": 1,
+              "ribbonHeight": 121.4000015258789,
+              "selected": "true",
+              "tabHeight": 35.400001525878906
+            },
+            {
+              "locale": "zh-CN",
+              "menuRows": 1,
+              "ribbonHeight": 121.4000015258789,
+              "selected": "true",
+              "tabHeight": 35.400001525878906
+            },
+            {
+              "locale": "zh-TW",
+              "menuRows": 1,
+              "ribbonHeight": 121.4000015258789,
+              "selected": "true",
+              "tabHeight": 35.400001525878906
+            }
+          ],
+          "passed": true,
+          "platform": "Win32",
+          "schemaVersion": 2,
+          "scope": "Native ribbon and five-language UI smoke",
+          "themes": [
+            {
+              "background": "rgb(255, 255, 255)",
+              "foreground": "rgb(15, 23, 42)",
+              "resolved": "light",
+              "selectedTextContrast": [
+                {
+                  "background": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "control": "ribbon-tab ribbon-file",
+                  "foreground": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "control": "ribbon-tab ribbon-secondary-tab",
+                  "foreground": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "ratio": 6.287528596095884
+                }
+              ],
+              "theme": "light"
+            },
+            {
+              "background": "rgb(30, 41, 59)",
+              "foreground": "rgb(226, 232, 240)",
+              "resolved": "dark",
+              "selectedTextContrast": [
+                {
+                  "background": [
+                    30,
+                    41,
+                    59
+                  ],
+                  "control": "ribbon-tab ribbon-file",
+                  "foreground": [
+                    129,
+                    140,
+                    248
+                  ],
+                  "ratio": 4.9041878728949
+                },
+                {
+                  "background": [
+                    30,
+                    41,
+                    59
+                  ],
+                  "control": "ribbon-tab ribbon-secondary-tab",
+                  "foreground": [
+                    129,
+                    140,
+                    248
+                  ],
+                  "ratio": 4.9041878728949
+                },
+                {
+                  "background": [
+                    129,
+                    140,
+                    248
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    30,
+                    41,
+                    59
+                  ],
+                  "ratio": 4.9041878728949
+                },
+                {
+                  "background": [
+                    129,
+                    140,
+                    248
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    30,
+                    41,
+                    59
+                  ],
+                  "ratio": 4.9041878728949
+                }
+              ],
+              "theme": "dark"
+            },
+            {
+              "background": "rgb(255, 255, 255)",
+              "foreground": "rgb(15, 23, 42)",
+              "resolved": "light",
+              "selectedTextContrast": [
+                {
+                  "background": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "control": "ribbon-tab ribbon-file",
+                  "foreground": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "control": "ribbon-tab ribbon-secondary-tab",
+                  "foreground": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "ratio": 6.287528596095884
+                }
+              ],
+              "theme": "system"
+            }
+          ],
+          "viewport": {
+            "height": 583,
+            "pixelRatio": 1.25,
+            "width": 806
+          }
+        },
+        "screenLogicalBounds": {
+          "X": 0,
+          "Y": 0,
+          "Width": 3840,
+          "Height": 2160
+        },
+        "screenPhysicalBounds": {
+          "X": 0,
+          "Y": 0,
+          "Width": 3840,
+          "Height": 2160
+        },
+        "webviewZoom": 1.25,
+        "window": {
+          "height": 768,
+          "width": 1024,
+          "x": 1408,
+          "y": 672
+        }
+      }
+    },
+    {
+      "name": "narrow",
+      "requested": {
+        "width": 900,
+        "height": 768,
+        "zoom": 1.25
+      },
+      "elapsedSeconds": 5.8201693,
+      "receipt": {
+        "osScreenScaleFactor": 1,
+        "report": {
+          "checks": [
+            "all 21 route commands reachable and all six tabs fit in all five locales without remounting",
+            "capture commands disabled outside the HTTP page",
+            "tab ArrowRight/Home keyboard focus navigation",
+            "File screen preserves the mounted settings page",
+            "collapse, temporary expansion, Escape, outside pointer, hide and restore preserve page and saved mode"
+          ],
+          "locales": [
+            {
+              "locale": "en",
+              "menuRows": 1,
+              "ribbonHeight": 121.4000015258789,
+              "selected": "true",
+              "tabHeight": 35.400001525878906
+            },
+            {
+              "locale": "ko",
+              "menuRows": 1,
+              "ribbonHeight": 121.4000015258789,
+              "selected": "true",
+              "tabHeight": 35.400001525878906
+            },
+            {
+              "locale": "ja",
+              "menuRows": 1,
+              "ribbonHeight": 121.4000015258789,
+              "selected": "true",
+              "tabHeight": 35.400001525878906
+            },
+            {
+              "locale": "zh-CN",
+              "menuRows": 1,
+              "ribbonHeight": 121.4000015258789,
+              "selected": "true",
+              "tabHeight": 35.400001525878906
+            },
+            {
+              "locale": "zh-TW",
+              "menuRows": 1,
+              "ribbonHeight": 121.4000015258789,
+              "selected": "true",
+              "tabHeight": 35.400001525878906
+            }
+          ],
+          "passed": true,
+          "platform": "Win32",
+          "schemaVersion": 2,
+          "scope": "Native ribbon and five-language UI smoke",
+          "themes": [
+            {
+              "background": "rgb(255, 255, 255)",
+              "foreground": "rgb(15, 23, 42)",
+              "resolved": "light",
+              "selectedTextContrast": [
+                {
+                  "background": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "control": "ribbon-tab ribbon-file",
+                  "foreground": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "ratio": 6.287528596095884
+                }
+              ],
+              "theme": "light"
+            },
+            {
+              "background": "rgb(30, 41, 59)",
+              "foreground": "rgb(226, 232, 240)",
+              "resolved": "dark",
+              "selectedTextContrast": [
+                {
+                  "background": [
+                    30,
+                    41,
+                    59
+                  ],
+                  "control": "ribbon-tab ribbon-file",
+                  "foreground": [
+                    129,
+                    140,
+                    248
+                  ],
+                  "ratio": 4.9041878728949
+                },
+                {
+                  "background": [
+                    129,
+                    140,
+                    248
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    30,
+                    41,
+                    59
+                  ],
+                  "ratio": 4.9041878728949
+                },
+                {
+                  "background": [
+                    129,
+                    140,
+                    248
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    30,
+                    41,
+                    59
+                  ],
+                  "ratio": 4.9041878728949
+                }
+              ],
+              "theme": "dark"
+            },
+            {
+              "background": "rgb(255, 255, 255)",
+              "foreground": "rgb(15, 23, 42)",
+              "resolved": "light",
+              "selectedTextContrast": [
+                {
+                  "background": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "control": "ribbon-tab ribbon-file",
+                  "foreground": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "ratio": 6.287528596095884
+                },
+                {
+                  "background": [
+                    79,
+                    70,
+                    229
+                  ],
+                  "control": "locale-pill active",
+                  "foreground": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "ratio": 6.287528596095884
+                }
+              ],
+              "theme": "system"
+            }
+          ],
+          "viewport": {
+            "height": 583,
+            "pixelRatio": 1.25,
+            "width": 707
+          }
+        },
+        "screenLogicalBounds": {
+          "X": 0,
+          "Y": 0,
+          "Width": 3840,
+          "Height": 2160
+        },
+        "screenPhysicalBounds": {
+          "X": 0,
+          "Y": 0,
+          "Width": 3840,
+          "Height": 2160
+        },
+        "webviewZoom": 1.25,
+        "window": {
+          "height": 768,
+          "width": 900,
+          "x": 1470,
+          "y": 672
+        }
+      }
+    }
+  ],
+  "passed": true
+}
