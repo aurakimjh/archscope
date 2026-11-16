@@ -1,0 +1,237 @@
+{
+  "reviewedRef": "635512cfdfe7673f8a255cd80fae1dcbbc0e16ba",
+  "artifacts": 69,
+  "artifactManifestComplete": true,
+  "sourceCounts": {
+    "git": 6,
+    "windows-crlf": 11
+  },
+  "sources": [
+    {
+      "path": "apps/engine-native/cmd/archscope-app/desktopmenu.go",
+      "receiptEncoding": "git",
+      "originalReceiptSha256": "a6e219f8bcf965995ce293eff99656351430e6bbb53c7a8ecc572a295d98c27e",
+      "gitSha256": "a6e219f8bcf965995ce293eff99656351430e6bbb53c7a8ecc572a295d98c27e"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/App.tsx",
+      "receiptEncoding": "windows-crlf",
+      "originalReceiptSha256": "e26813b4d0008b779c9dfa509e3578608edc265eb10f57e19d867907ed7b322e",
+      "gitSha256": "ae03e6c96ed87b8c6b85699f6e510e8cb34e27ec7fb70ee0318d24be45c3bdaa"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/state/desktopNavigation.ts",
+      "receiptEncoding": "windows-crlf",
+      "originalReceiptSha256": "ddf88abaae7768e11dd66b55b31be32620a7762e3ba73f096304200c775efa69",
+      "gitSha256": "3999ca18eec66f34d08d25e6bda2bb5921e37c8edcb67e66e9cddcda13995fd6"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/state/analysisWorkspace.ts",
+      "receiptEncoding": "windows-crlf",
+      "originalReceiptSha256": "45213321e3e6e188117882f48815bc2c2846258e9492d899bf381dd4bcb1205d",
+      "gitSha256": "29d95d7061769035efd49f039d31912da5c79e18870aafb475147aa4828a5a7c"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/styles/ribbon.css",
+      "receiptEncoding": "windows-crlf",
+      "originalReceiptSha256": "bf4ee27d88e6e9ef2b258d52fac8aef3da8e923d834d2031c76b878c8ba1b995",
+      "gitSha256": "601f349e3bc14e5515810d31f41b9989b90cdbb639ba035dac6ff0114313df64"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/src/styles/tailwind.css",
+      "receiptEncoding": "windows-crlf",
+      "originalReceiptSha256": "344dadf6d9edd28d7a334e4c2974a595d596ef8a7a911f0299f4e6aa77426047",
+      "gitSha256": "ae32761fbfbac4cc7309afa610f6eecc14d7c2fce2b1542aed434444565a1c48"
+    },
+    {
+      "path": "apps/engine-native/cmd/archscope-app/frontend/public/style.css",
+      "receiptEncoding": "windows-crlf",
+      "originalReceiptSha256": "f8ee3e0bbfd1aa5068d6cd1d10732d6e236123e5d6c001916bcee2012bd759f1",
+      "gitSha256": "92c6e958d6a81152540d1e045fd64f661d8a738dd2a10cf2d5a46f9a45d38bc0"
+    },
+    {
+      "path": "apps/engine-native/internal/capture/stream/pipeline_test.go",
+      "receiptEncoding": "git",
+      "originalReceiptSha256": "e3c04d9ad3c4243ba9a105f3cfcd462a521e74ac431be37d6167e009506129b2",
+      "gitSha256": "e3c04d9ad3c4243ba9a105f3cfcd462a521e74ac431be37d6167e009506129b2"
+    },
+    {
+      "path": "scripts/check-desktop-i18n.py",
+      "receiptEncoding": "windows-crlf",
+      "originalReceiptSha256": "e95f3031d74580a1531a865a4cbfed0f27e50167528a70244c4d9db4edd59229",
+      "gitSha256": "0f78d78dd8c5762625d638b9361fcfe8694a5a4e9d386ca15917dde8855d2dfe"
+    },
+    {
+      "path": "scripts/verify-ribbon-native.js",
+      "receiptEncoding": "windows-crlf",
+      "originalReceiptSha256": "13700707d2aed83f41251cb857e4c1102031acc6ffd8192e0b00b837b06c19b2",
+      "gitSha256": "5af9de011c3c787cc51da81d836452cd016fde8bb949d8224c9dded041751785"
+    },
+    {
+      "path": "scripts/verify-windows-ribbon.mjs",
+      "receiptEncoding": "git",
+      "originalReceiptSha256": "15b877ec2baf220751608b3b6a1c3cfbd0245e663b557cf2eb1d7ba07cff3ad6",
+      "gitSha256": "15b877ec2baf220751608b3b6a1c3cfbd0245e663b557cf2eb1d7ba07cff3ad6"
+    },
+    {
+      "path": "scripts/verify-chart-units-native.js",
+      "receiptEncoding": "git",
+      "originalReceiptSha256": "909282c35f1dc26ccd110a107b7d658e86dc6cd540eb7331967eb7e94ab40a93",
+      "gitSha256": "909282c35f1dc26ccd110a107b7d658e86dc6cd540eb7331967eb7e94ab40a93"
+    },
+    {
+      "path": "scripts/verify-windows-import-memory.mjs",
+      "receiptEncoding": "git",
+      "originalReceiptSha256": "00bbe5e9da382b086dedd151141712927fbe0db8d947f811c7583b88c65c605f",
+      "gitSha256": "00bbe5e9da382b086dedd151141712927fbe0db8d947f811c7583b88c65c605f"
+    },
+    {
+      "path": "scripts/lib/desktop-memory-checks.mjs",
+      "receiptEncoding": "git",
+      "originalReceiptSha256": "f6d06aef60e34b29174b77c4f830c96718af57f54d596e0700b153f1d419a324",
+      "gitSha256": "f6d06aef60e34b29174b77c4f830c96718af57f54d596e0700b153f1d419a324"
+    },
+    {
+      "path": "scripts/qualify-stable-packs.py",
+      "receiptEncoding": "windows-crlf",
+      "originalReceiptSha256": "244ead578a6c4cce11ab37ae7f29fc3a0d0bc1f556b07782a50f2db25a11dbd8",
+      "gitSha256": "2f1a5356be091a8c717827bb258a6125a57c67da41e169e6970d4b7cee961952"
+    },
+    {
+      "path": "scripts/verify-stable-workspace.mjs",
+      "receiptEncoding": "windows-crlf",
+      "originalReceiptSha256": "4baf8af72b1c98348d2aecd3d13556d1de32eee30a8662f61a1e2e8a1a4b2be2",
+      "gitSha256": "9add72caa54f1e36d95f8db11a5fca1fe36568bcff6b5e204e2e24c88b0411f6"
+    },
+    {
+      "path": "scripts/diagnose-workspace-retention.mjs",
+      "receiptEncoding": "windows-crlf",
+      "originalReceiptSha256": "6fa9e0841098329dab4e75f9f19c88a04f9420afc47370416afaaa43704ae2eb",
+      "gitSha256": "cd553f6a509ec8dc85def7fb364611d8083b627147ed3b44b1acf6a9918f4e0b"
+    }
+  ],
+  "csvFiles": 14,
+  "crossArchitectureCsvBytesEqual": true,
+  "ribbonLocaleTabChecks": 180,
+  "themeSelections": 18,
+  "computedContrastChecks": 66,
+  "minimumSelectedContrast": 4.904187872894899,
+  "environments": [
+    {
+      "arch": "amd64",
+      "name": "wide",
+      "osScale": 1,
+      "webviewZoom": 1,
+      "viewport": {
+        "height": 761,
+        "pixelRatio": 1,
+        "width": 1264
+      }
+    },
+    {
+      "arch": "amd64",
+      "name": "compact",
+      "osScale": 1,
+      "webviewZoom": 1.25,
+      "viewport": {
+        "height": 583,
+        "pixelRatio": 1.25,
+        "width": 806
+      }
+    },
+    {
+      "arch": "amd64",
+      "name": "narrow",
+      "osScale": 1,
+      "webviewZoom": 1.25,
+      "viewport": {
+        "height": 583,
+        "pixelRatio": 1.25,
+        "width": 707
+      }
+    },
+    {
+      "arch": "386",
+      "name": "wide",
+      "osScale": 1,
+      "webviewZoom": 1,
+      "viewport": {
+        "height": 761,
+        "pixelRatio": 1,
+        "width": 1264
+      }
+    },
+    {
+      "arch": "386",
+      "name": "compact",
+      "osScale": 1,
+      "webviewZoom": 1.25,
+      "viewport": {
+        "height": 583,
+        "pixelRatio": 1.25,
+        "width": 806
+      }
+    },
+    {
+      "arch": "386",
+      "name": "narrow",
+      "osScale": 1,
+      "webviewZoom": 1.25,
+      "viewport": {
+        "height": 583,
+        "pixelRatio": 1.25,
+        "width": 707
+      }
+    }
+  ],
+  "nativeCaseResultsIncludingHistoricalFailures": {
+    "FAIL": 2,
+    "PASS": 10,
+    "PARTIAL": 1
+  },
+  "memory": {
+    "cycles": 36,
+    "opens": 108,
+    "measuredPoints": 8,
+    "processIdentities": 7,
+    "metrics": {
+      "treePrivateBytes": {
+        "delta": -192512,
+        "slopePerCycle": 746934.8571428572,
+        "withinBudget": true
+      },
+      "rootPrivateBytes": {
+        "delta": -8896512,
+        "slopePerCycle": 59904.0,
+        "withinBudget": true
+      },
+      "rootHandles": {
+        "delta": 0,
+        "slopePerCycle": 0.0,
+        "withinBudget": true
+      },
+      "rootThreads": {
+        "delta": 0,
+        "slopePerCycle": 0.0,
+        "withinBudget": true
+      }
+    },
+    "classification": "BOUNDED_IN_THIS_RUN",
+    "privateBinaryAndSourceFixturesNotReopened": true
+  },
+  "headlessWorkflowReceipts": 3,
+  "syntheticPackMatrices": 2,
+  "nativeWindowsRerun": false,
+  "openTaskStates": {
+    "T-601": "REVIEW",
+    "T-627": "REVIEW",
+    "T-611": "REVIEW",
+    "T-613": "PENDING",
+    "T-654": "TODO",
+    "T-662": "TODO",
+    "T-663": "REVIEW",
+    "T-664": "REVIEW"
+  },
+  "newConfirmedProductFindings": [],
+  "scope": "Independent local receipt/code recheck; original author/review CONDITIONAL dispositions are not closed or renamed"
+}

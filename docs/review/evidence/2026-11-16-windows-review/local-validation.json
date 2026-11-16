@@ -1,0 +1,81 @@
+{
+  "date": "2026-11-16",
+  "reviewedRange": "98eeaf3e..635512cf",
+  "reviewedCommit": "635512cfdfe7673f8a255cd80fae1dcbbc0e16ba",
+  "commits": 8,
+  "changedFiles": 90,
+  "productFindings": {
+    "P1": 0,
+    "P2": 0
+  },
+  "verificationFindings": [
+    {
+      "id": "WREV3-01",
+      "priority": "P3",
+      "status": "TODO",
+      "task": "T-663",
+      "path": "scripts/verify-windows-ribbon.mjs",
+      "line": 32,
+      "scope": "Controlled source-bound I/O reproduction; not a newly observed Windows failure"
+    }
+  ],
+  "checks": {
+    "frontend-state": {
+      "exitCode": 0,
+      "bytes": 171,
+      "sha256": "c6d5b501b4b1e15cc950a6e0cbe0b8f1d38f134e8af46f8995d748fd0c4cab81"
+    },
+    "frontend-build": {
+      "exitCode": 0,
+      "bytes": 5783,
+      "sha256": "0be6151a1128043e515c8b93ce6aadfcf9dd8a32712db85530d752964207f162"
+    },
+    "progress-race-100": {
+      "exitCode": 0,
+      "bytes": 86,
+      "sha256": "4f231ab163c715dfd3d944d92b7759f9001cdaaf7545d103e4e412edf5439856"
+    },
+    "affected-go-race": {
+      "exitCode": 0,
+      "bytes": 3643,
+      "sha256": "bf78b34cfd20cfaf511be950bfc16a5d96937ad2479b9077239bf95cf637fe99"
+    },
+    "affected-vet": {
+      "exitCode": 0,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "i18n": {
+      "exitCode": 0,
+      "bytes": 222,
+      "sha256": "5ba498a8adb2920724665de0cd7c986e377a414b2c6b87c544d915ba399c1d25"
+    },
+    "i18n-optimized": {
+      "exitCode": 0,
+      "bytes": 222,
+      "sha256": "5ba498a8adb2920724665de0cd7c986e377a414b2c6b87c544d915ba399c1d25"
+    }
+  },
+  "receiptAuditNormalAndOptimizedEqual": true,
+  "resources": "offline-assets/input-assistance PASS",
+  "nativeWindowsRun": false,
+  "freshDockerRun": false,
+  "privateWindowsBinaryOrModelsReopened": false,
+  "independentOriginalReviewClosure": false,
+  "registryCounts": {
+    "total": 251,
+    "DONE": 243,
+    "REVIEW": 5,
+    "PENDING": 1,
+    "TODO": 2
+  },
+  "producerSource": {
+    "path": "apps/engine-native/cmd/archscope-app/layout_audit.go",
+    "sha256": "2eb4863a958aa3b69489a22063e0ef1de33a7c8a6e80b1131061881cdd689871"
+  },
+  "reviewToolSha256": {
+    "audit_received.py": "c45539065d6b1a4c191c1cd1893f2c58aa716f578c83514780a341c3d555799a",
+    "reproduce_receipt_read.mjs": "62dc63dc4a640e718cc0848de32c47c1a795df2bf85ecd42c4c442aa3cfddee4"
+  },
+  "historicalReproductionPinned": "635512cf; permits current runner remediation without rewriting original finding receipt"
+}

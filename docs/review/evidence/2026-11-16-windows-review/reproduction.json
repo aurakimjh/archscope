@@ -1,0 +1,30 @@
+{
+  "scope": "Actual newly added ribbon runner in a VM with controlled Windows process/filesystem I/O; not a new native failure or change to received PASS receipts",
+  "sourceSha256": "15b877ec2baf220751608b3b6a1c3cfbd0245e663b557cf2eb1d7ba07cff3ad6",
+  "producer": "layout_audit.go writes final JSON with os.WriteFile, not atomic publication",
+  "complete": {
+    "kind": "complete",
+    "reads": 3,
+    "completeOffered": true,
+    "passed": true
+  },
+  "delayed": {
+    "kind": "not-yet-created",
+    "reads": 4,
+    "completeOffered": true,
+    "passed": true
+  },
+  "partial": {
+    "kind": "partial-then-complete",
+    "reads": 1,
+    "completeOffered": false,
+    "passed": false,
+    "failure": {
+      "name": "SyntaxError",
+      "message": "Expected property name or '}' in JSON at position 1 (line 1 column 2)"
+    }
+  },
+  "finding": "WREV3-01",
+  "priority": "P3",
+  "conclusion": "ENOENT is retried, but an existing not-yet-complete JSON receipt fails immediately before the next valid read"
+}

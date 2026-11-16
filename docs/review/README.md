@@ -4,6 +4,10 @@
 
 ## 미처리
 
+- [Windows 추가 검증과 메모리 실패 검토](2026-11-17_codex_windows-additional-review.ko.md) — `635512cf..acdd1d49`, 8커밋/128파일. 수신111개·28이미지·4일반 메모리 검사와 계측 지연을 재계산. 고유 파일 양쪽PASS, 본문 포함 양쪽FAIL 유지. 원인 분석과 WREV3-01 수정은 별도 작업·커밋이며 전체 완료 후 push. 기존 독립 CONDITIONAL·8개 미완료 상태 유지.
+
+- [Windows 수신 결과와 정식 v0.4.0 준비 검토](2026-11-16_codex_windows-stable-readiness-review.ko.md) — `98eeaf3e..635512cf`, 8커밋/90파일. **CONDITIONAL: 새 제품 P1/P2 없음, 검증 러너 P3 WREV3-01(부분 JSON 읽기 즉시 실패)**. 수신69artifact·소스17개(6Git/11WindowsCRLF),14CSV·66대비·x86메모리 예산을 재계산했다([근거](evidence/2026-11-16-windows-review/README.md)). 후속과 정식 팩/실제 업그레이드·8개 미완료 작업·최종 배포 조건을 작업표에 반영했다. 기존 원 리뷰의 독립 종결·제품 수정·커밋/push는 포함하지 않으며 다른 처리자 재검토 대기다.
+
 - [Windows 후속 테스트와 변경 사항 검토](2026-11-15_codex_windows-followup-review.ko.md) — `ca722025..fbf2ce2c`, 40커밋/585파일. 수신 artifact528개·제품 소스34개, native173case 분포, 메모리8건과 차트24파일 대조. **CONDITIONAL: P2 WREV2-01(profiler CSV 실제 단위 누락), P3 WREV2-02(JFR 이벤트/스택 샘플 수 혼용)**를 작업표 우선순위 큐·현행 snapshot·registry에 반영했다. 로컬 Go27/race26/vet/frontend/helper49 및 자원 검사 통과([근거](evidence/2026-11-15-windows-review/README.md)). T-613 PENDING/T-627 REVIEW·기존 원 판정과 초기 메모리 실패를 유지하며 작성자와 다른 AI의 독립 처리 대기다.
 
 WREV2-01/02 후속: 실제 프로파일 단위를 차트와 CSV에 함께 전달하고, JFR 이벤트/샘플 수를 원 근거에서 재계산한 [현행 목록](evidence/2026-11-15-windows-remediation/remaining-acceptance.current.json)을 별도로 발행했다. Mac·격리 Docker 단위7종, 프런트엔드 state/build, 기존 Go 단위 흐름과 정정 검증8건 통과로 두 항목은 LOCALLY_VERIFIED다([수정 근거](evidence/2026-11-15-windows-remediation/README.md)). 원 리뷰·528개 수신 증거·원 판정은 보존하며 새 Windows UI 실행이나 독립 PASS로 바꾸지 않는다.

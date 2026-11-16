@@ -1,0 +1,507 @@
+{
+  "reviewedRef": "acdd1d49b2507b20f1b400883dcc99809d670c9e",
+  "artifacts": 111,
+  "manifestComplete": true,
+  "savedImageFiles": 28,
+  "crossArchitecturePngPairs": 7,
+  "images": [
+    {
+      "arch": "amd64",
+      "unit": "samples",
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ]
+    },
+    {
+      "arch": "amd64",
+      "unit": "nanoseconds",
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ]
+    },
+    {
+      "arch": "amd64",
+      "unit": "microseconds",
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ]
+    },
+    {
+      "arch": "amd64",
+      "unit": "milliseconds",
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ]
+    },
+    {
+      "arch": "amd64",
+      "unit": "seconds",
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ]
+    },
+    {
+      "arch": "amd64",
+      "unit": "bytes",
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ]
+    },
+    {
+      "arch": "amd64",
+      "unit": "unknown",
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ]
+    },
+    {
+      "arch": "386",
+      "unit": "samples",
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ]
+    },
+    {
+      "arch": "386",
+      "unit": "nanoseconds",
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ]
+    },
+    {
+      "arch": "386",
+      "unit": "microseconds",
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ]
+    },
+    {
+      "arch": "386",
+      "unit": "milliseconds",
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ]
+    },
+    {
+      "arch": "386",
+      "unit": "seconds",
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ]
+    },
+    {
+      "arch": "386",
+      "unit": "bytes",
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ]
+    },
+    {
+      "arch": "386",
+      "unit": "unknown",
+      "svgSize": [
+        1199,
+        671
+      ],
+      "pngSize": [
+        2398,
+        1342
+      ]
+    }
+  ],
+  "ordinaryScreens": {
+    "unique-amd64": {
+      "passed": true,
+      "elapsedSeconds": 912.9653179000001,
+      "metrics": {
+        "treePrivateBytes": {
+          "firstMedian": 741703680,
+          "lastMedian": 718393344,
+          "delta": -23310336,
+          "slopePerCycle": 54954.66666666667,
+          "withinBudget": true
+        },
+        "rootPrivateBytes": {
+          "firstMedian": 84619264,
+          "lastMedian": 82313216,
+          "delta": -2306048,
+          "slopePerCycle": -172373.33333333334,
+          "withinBudget": true
+        },
+        "rootHandles": {
+          "firstMedian": 657,
+          "lastMedian": 657,
+          "delta": 0,
+          "slopePerCycle": 0.0,
+          "withinBudget": true
+        },
+        "rootThreads": {
+          "firstMedian": 32,
+          "lastMedian": 32,
+          "delta": 0,
+          "slopePerCycle": 0.0,
+          "withinBudget": true
+        }
+      },
+      "roles": {
+        "app": {
+          "firstMedian": 84619264,
+          "lastMedian": 82313216,
+          "delta": -2306048,
+          "slopePerCycle": -172373.33333333334
+        },
+        "browser": {
+          "firstMedian": 49778688,
+          "lastMedian": 49774592,
+          "delta": -4096,
+          "slopePerCycle": 12902.4
+        },
+        "crashpad": {
+          "firstMedian": 4280320,
+          "lastMedian": 4280320,
+          "delta": 0,
+          "slopePerCycle": 0.0
+        },
+        "gpu": {
+          "firstMedian": 103649280,
+          "lastMedian": 103718912,
+          "delta": 69632,
+          "slopePerCycle": 22528.0
+        },
+        "renderer": {
+          "firstMedian": 480821248,
+          "lastMedian": 455528448,
+          "delta": -25292800,
+          "slopePerCycle": 179882.66666666666
+        },
+        "utility": {
+          "firstMedian": 23031808,
+          "lastMedian": 23052288,
+          "delta": 20480,
+          "slopePerCycle": 2730.666666666667
+        }
+      },
+      "processes": 7
+    },
+    "body-rich-amd64": {
+      "passed": false,
+      "elapsedSeconds": 922.3377834,
+      "metrics": {
+        "treePrivateBytes": {
+          "firstMedian": 615870464,
+          "lastMedian": 654966784,
+          "delta": 39096320,
+          "slopePerCycle": 5033984.0,
+          "withinBudget": false
+        },
+        "rootPrivateBytes": {
+          "firstMedian": 78811136,
+          "lastMedian": 77176832,
+          "delta": -1634304,
+          "slopePerCycle": -420132.5714285714,
+          "withinBudget": true
+        },
+        "rootHandles": {
+          "firstMedian": 643,
+          "lastMedian": 643,
+          "delta": 0,
+          "slopePerCycle": 0.0,
+          "withinBudget": true
+        },
+        "rootThreads": {
+          "firstMedian": 31,
+          "lastMedian": 31,
+          "delta": 0,
+          "slopePerCycle": 0.0,
+          "withinBudget": true
+        }
+      },
+      "roles": {
+        "app": {
+          "firstMedian": 78811136,
+          "lastMedian": 77176832,
+          "delta": -1634304,
+          "slopePerCycle": -420132.5714285714
+        },
+        "browser": {
+          "firstMedian": 50171904,
+          "lastMedian": 50102272,
+          "delta": -69632,
+          "slopePerCycle": -12288.0
+        },
+        "crashpad": {
+          "firstMedian": 4296704,
+          "lastMedian": 4296704,
+          "delta": 0,
+          "slopePerCycle": 0.0
+        },
+        "gpu": {
+          "firstMedian": 103198720,
+          "lastMedian": 103161856,
+          "delta": -36864,
+          "slopePerCycle": 5939.2
+        },
+        "renderer": {
+          "firstMedian": 355819520,
+          "lastMedian": 396828672,
+          "delta": 41009152,
+          "slopePerCycle": 5466112.0
+        },
+        "utility": {
+          "firstMedian": 22974464,
+          "lastMedian": 22986752,
+          "delta": 12288,
+          "slopePerCycle": 1901.7142857142858
+        }
+      },
+      "processes": 7
+    },
+    "unique-386": {
+      "passed": true,
+      "elapsedSeconds": 915.7952826000001,
+      "metrics": {
+        "treePrivateBytes": {
+          "firstMedian": 736538624,
+          "lastMedian": 709857280,
+          "delta": -26681344,
+          "slopePerCycle": -412160.0,
+          "withinBudget": true
+        },
+        "rootPrivateBytes": {
+          "firstMedian": 72011776,
+          "lastMedian": 70836224,
+          "delta": -1175552,
+          "slopePerCycle": -220330.6666666667,
+          "withinBudget": true
+        },
+        "rootHandles": {
+          "firstMedian": 687,
+          "lastMedian": 687,
+          "delta": 0,
+          "slopePerCycle": 0.0,
+          "withinBudget": true
+        },
+        "rootThreads": {
+          "firstMedian": 35,
+          "lastMedian": 36,
+          "delta": 1,
+          "slopePerCycle": 0.15476190476190477,
+          "withinBudget": true
+        }
+      },
+      "roles": {
+        "app": {
+          "firstMedian": 72011776,
+          "lastMedian": 70836224,
+          "delta": -1175552,
+          "slopePerCycle": -220330.6666666667
+        },
+        "browser": {
+          "firstMedian": 48459776,
+          "lastMedian": 48279552,
+          "delta": -180224,
+          "slopePerCycle": -22118.4
+        },
+        "crashpad": {
+          "firstMedian": 4255744,
+          "lastMedian": 4259840,
+          "delta": 4096,
+          "slopePerCycle": 633.9047619047619
+        },
+        "gpu": {
+          "firstMedian": 103116800,
+          "lastMedian": 103411712,
+          "delta": 294912,
+          "slopePerCycle": 49688.380952380954
+        },
+        "renderer": {
+          "firstMedian": 486612992,
+          "lastMedian": 459943936,
+          "delta": -26669056,
+          "slopePerCycle": 23210.666666666668
+        },
+        "utility": {
+          "firstMedian": 23166976,
+          "lastMedian": 23126016,
+          "delta": -40960,
+          "slopePerCycle": 0.0
+        }
+      },
+      "processes": 7
+    },
+    "body-rich-386": {
+      "passed": false,
+      "elapsedSeconds": 926.5491555,
+      "metrics": {
+        "treePrivateBytes": {
+          "firstMedian": 579858432,
+          "lastMedian": 628105216,
+          "delta": 48246784,
+          "slopePerCycle": 9189376.0,
+          "withinBudget": false
+        },
+        "rootPrivateBytes": {
+          "firstMedian": 63332352,
+          "lastMedian": 64618496,
+          "delta": 1286144,
+          "slopePerCycle": 194950.09523809524,
+          "withinBudget": true
+        },
+        "rootHandles": {
+          "firstMedian": 671,
+          "lastMedian": 671,
+          "delta": 0,
+          "slopePerCycle": 0.0,
+          "withinBudget": true
+        },
+        "rootThreads": {
+          "firstMedian": 34,
+          "lastMedian": 35,
+          "delta": 1,
+          "slopePerCycle": 0.0,
+          "withinBudget": true
+        }
+      },
+      "roles": {
+        "app": {
+          "firstMedian": 63332352,
+          "lastMedian": 64618496,
+          "delta": 1286144,
+          "slopePerCycle": 194950.09523809524
+        },
+        "browser": {
+          "firstMedian": 43704320,
+          "lastMedian": 43896832,
+          "delta": 192512,
+          "slopePerCycle": 40243.2
+        },
+        "crashpad": {
+          "firstMedian": 4255744,
+          "lastMedian": 4255744,
+          "delta": 0,
+          "slopePerCycle": 0.0
+        },
+        "gpu": {
+          "firstMedian": 102576128,
+          "lastMedian": 102240256,
+          "delta": -335872,
+          "slopePerCycle": -38570.66666666667
+        },
+        "renderer": {
+          "firstMedian": 343236608,
+          "lastMedian": 390172672,
+          "delta": 46936064,
+          "slopePerCycle": 8982664.533333333
+        },
+        "utility": {
+          "firstMedian": 22880256,
+          "lastMedian": 22863872,
+          "delta": -16384,
+          "slopePerCycle": -819.2
+        }
+      },
+      "processes": 7
+    }
+  },
+  "projectionFilesAcrossThreeHosts": 216,
+  "nativeDiagnostic": {
+    "ordinaryAcceptance": false,
+    "records": 181,
+    "maxLagSeconds": 5.328,
+    "metrics": {
+      "rendererPrivateBytes": {
+        "firstMedian": 391479296,
+        "lastMedian": 397799424,
+        "delta": 6320128,
+        "slopePerCycle": 4674560.0
+      },
+      "treePrivateBytes": {
+        "firstMedian": 646123520,
+        "lastMedian": 651481088,
+        "delta": 5357568,
+        "slopePerCycle": 3937792.0
+      },
+      "jsHeapUsed": {
+        "firstMedian": 75281690,
+        "lastMedian": 74194457,
+        "delta": -1087233,
+        "slopePerCycle": 4260.333333333333
+      },
+      "jsHeapTotal": {
+        "firstMedian": 88002461,
+        "lastMedian": 76728777,
+        "delta": -11273684,
+        "slopePerCycle": -66745.125
+      }
+    },
+    "boundedCounterMatches": 8
+  },
+  "privateWindowsBinariesNotReopened": true,
+  "originalFailuresPreserved": true,
+  "newConfirmedProductFindings": []
+}

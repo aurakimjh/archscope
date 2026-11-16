@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-17",
+  "task": 1,
+  "sourceRef": "acdd1d49",
+  "auditNormalOptimizedEqual": true,
+  "helperTests": {
+    "exitCode": 0,
+    "sha256": "345259a190f6b515a25c16b362f45719cdab1bf5c0ed64254ebf668dd38f8a78",
+    "bytes": 1063
+  },
+  "nativeWindowsRerun": false
+}

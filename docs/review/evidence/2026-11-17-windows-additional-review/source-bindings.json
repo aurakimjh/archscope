@@ -1,0 +1,26 @@
+[
+  {
+    "path": "apps/engine-native/cmd/archscope-app/layout_audit.go",
+    "receiptEncoding": "git",
+    "originalSha256": "8e9061b036358d83d59e405c6b4c212a4d03e4fd18abea5dac1838b90884fb5a",
+    "gitSha256": "8e9061b036358d83d59e405c6b4c212a4d03e4fd18abea5dac1838b90884fb5a"
+  },
+  {
+    "path": "apps/engine-native/cmd/archscope-app/layout_observer.js",
+    "receiptEncoding": "windows-crlf",
+    "originalSha256": "fe2c9980e21edd76016be8f25d2c46a1d38f6d506dcad5c48b99ae5b447a14a9",
+    "gitSha256": "569329ced9cbea0b0c9725224c8b9c485e28bc9fe40a8a048d0e6b53aea10c5b"
+  },
+  {
+    "path": "apps/engine-native/cmd/archscope-app/frontend/src/state/analysisWorkspace.ts",
+    "receiptEncoding": "windows-crlf",
+    "originalSha256": "45213321e3e6e188117882f48815bc2c2846258e9492d899bf381dd4bcb1205d",
+    "gitSha256": "29d95d7061769035efd49f039d31912da5c79e18870aafb475147aa4828a5a7c"
+  },
+  {
+    "path": "docs/review/evidence/2026-11-16-windows-additional/diagnose-native-memory-used.mjs",
+    "receiptEncoding": "git",
+    "originalSha256": "0690a8b4fd4fdc54aab70f38ee62568ec35ef24fbd7b34ab2d1a907442b860b0",
+    "gitSha256": "0690a8b4fd4fdc54aab70f38ee62568ec35ef24fbd7b34ab2d1a907442b860b0"
+  }
+]
