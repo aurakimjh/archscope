@@ -6247,3 +6247,12 @@ is PARTIAL due accessibility limits; headless80entry tests remain separate.
 Past failures and unique/body-rich/longer/OSprivate attribution gates stay open.
 Final native registry13cases:10PASS/2preservedFAIL/1PARTIAL.
 Evidence:2026-11-16-windows-validation/memory-validation.json.
+
+### 2026-11-16 - x86 Chart Save and native pack preparation
+
+Second architecture actual native7unit Save flow passes; all7CSV bytes equal
+amd64 outputs. Windowsx64/x86 each3source-overlay RC/stable/future pack phases
+pass install/activate/restart,prepared-store reopen and rollback refusal with
+ephemeral fixture trust. Productionversion/bootstrap/trust stay unchanged;
+official signer and actual installed upgrade remain PENDING.
+Evidence:2026-11-16-windows-validation/chart-readback-386.json.

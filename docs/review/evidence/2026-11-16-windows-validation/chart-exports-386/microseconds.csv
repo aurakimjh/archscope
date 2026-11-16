@@ -1,0 +1,2 @@
+label,value,value_unit,template_id,result_type,source_files
+Other,1000000,microseconds,profiler.components,profiler_collapsed,"[""C:/workspace/archscope/.tmp/windows-validation-20261116/units.collapsed""]"

@@ -1,0 +1,58 @@
+{
+  "passed": true,
+  "scope": "386 Windows actual native profiler/Chart Studio SVG axis and seven CSV Save dialogs; Canvas surface creation only, no physical drop/OS125/PNG/SVG export matrix closure",
+  "cases": [
+    {
+      "unit": "samples",
+      "value": 1000000,
+      "sourceCount": 1,
+      "csvSha256": "7e38280cbbd286295af3f73faa6be1f83ca1711bf6a8620d08ddf8011a6f9ddf",
+      "passed": true
+    },
+    {
+      "unit": "nanoseconds",
+      "value": 1000000,
+      "sourceCount": 1,
+      "csvSha256": "e5fffb014d0d386872b7c0b36f3e2a15d569039a446d0216bbfcf4b2bd33204b",
+      "passed": true
+    },
+    {
+      "unit": "microseconds",
+      "value": 1000000,
+      "sourceCount": 1,
+      "csvSha256": "197884db8af234fcf492c785717689d150baba32cf6e48edbf509f44260e3c80",
+      "passed": true
+    },
+    {
+      "unit": "milliseconds",
+      "value": 1000000,
+      "sourceCount": 1,
+      "csvSha256": "72e919494cd64608b609fb5fda252c8b6678d309275d7b52886d53051cb3a31e",
+      "passed": true
+    },
+    {
+      "unit": "seconds",
+      "value": 1000000,
+      "sourceCount": 1,
+      "csvSha256": "66d45ec52d9d4a975491d23e3f185b0a8221588cde3daf7ff7c03e06fa4f444a",
+      "passed": true
+    },
+    {
+      "unit": "bytes",
+      "value": 1000000,
+      "sourceCount": 1,
+      "csvSha256": "f023f14b770a8c395aeb35c7e6cd7028fe89b617fdeb8a4446a1a656660f93c2",
+      "passed": true
+    },
+    {
+      "unit": "unknown",
+      "value": 1000000,
+      "sourceCount": 1,
+      "csvSha256": "6c03ed09ca6e3d177befccb6289057da98e37e22da88b396a6bedad90e792029",
+      "passed": true
+    }
+  ],
+  "fixtureSha256": "fa3964a70ccb7a8728550b86e9e0ecc91d77b8202c42f43ea7f6f16fc3b5c3c1",
+  "nativeReportSha256": "c7975a38e1631574d1ffb09e6af5e2b29a63217f65c46ed1c0058b3bdf891535",
+  "nativeSavedCsvBytesMatchAmd64": true
+}
