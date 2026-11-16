@@ -1,0 +1,83 @@
+Window: "ArchScope Layout QA", App: archscope-audit-amd64.exe.
+	0 window (창) ArchScope Layout QA Secondary Actions: Raise
+		1 pane (창) ArchScope
+			2 pane (창) (disabled)
+			3 pane (영역) ArchScope - 웹 콘텐츠
+				4 pane (영역)
+					5 pane (영역)
+					6 pane (영역)
+						7 pane (영역)
+							8 pane (영역)
+							9 pane (영역)
+								10 pane (영역)
+									11 pane (영역)
+										12 pane (영역)
+											13 pane (영역)
+											14 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												15 group (그룹) ID: root
+													16 group (머리글)
+														17 text (텍스트) 프로파일러
+													18 group (탐색) 메뉴 탭
+														19 button (단추) 파일
+														20 button (전환 버튼) 홈
+														21 button (전환 버튼) 분석
+														22 button (전환 버튼) HTTP
+														23 button (전환 버튼) 워크스페이스
+														24 button (전환 버튼) 보기
+														25 button (전환 버튼) 도움말
+														26 group (세부정보)
+															27 button (펼치기/접기 삼각형) 리본 표시 옵션
+														28 button (단추) 리본 펼침 고정
+													134 group (기본)
+														135 group (그룹) 프로파일러 입력 파일을 선택하거나 경로를 붙여 넣으세요
+															136 text (텍스트) 프로파일러 입력 파일을 선택하거나 경로를 붙여 넣으세요
+															137 button (단추) 도움말 보기
+															138 button (단추) 파일 선택
+														139 button (단추) (disabled) 분석
+														140 button (단추) 분석 옵션
+														141 tab (Tab)
+															142 tab item (탭 항목) (selectable, disabled) 요약 ID: radix-_r_e_-trigger-summary
+															143 tab item (탭 항목) (selectable, disabled) 플레임그래프 ID: radix-_r_e_-trigger-flame
+															144 tab item (탭 항목) (selectable, disabled) 타임라인 ID: radix-_r_e_-trigger-timeline
+															145 tab item (탭 항목) (selectable, disabled) 드릴다운 ID: radix-_r_e_-trigger-drilldown
+															146 tab item (탭 항목) (selectable, disabled) 실행 분류 ID: radix-_r_e_-trigger-breakdown
+															147 tab item (탭 항목) (selectable, disabled) 상위 스택 ID: radix-_r_e_-trigger-topstacks
+															148 tab item (탭 항목) (selectable, disabled) 파서 리포트 ID: radix-_r_e_-trigger-diagnostics
+														149 button (단추) (disabled) pprof로 내보내기 (.pb.gz)
+														150 pane (탭 패널) 요약 ID: radix-_r_e_-content-summary
+															151 text (텍스트) 분석을 실행하면 결과가 표시됩니다.
+							126 pane (영역)
+					127 pane (영역)
+		128 title bar (제목 표시줄) (settable, string) Value: ArchScope Layout QA
+			129 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				130 menu item (메뉴 항목) 시스템
+			131 button (단추) 최소화
+			132 button (단추) 최대화
+			133 button (단추) 닫기
+
+Document text: ```
+프로파일러
+파일
+홈
+분석
+HTTP
+워크스페이스
+보기
+도움말
+리본 표시 옵션
+리본 펼침 고정
+프로파일러 입력 파일을 선택하거나 경로를 붙여 넣으세요
+도움말 보기
+파일 선택
+분석
+분석 옵션
+요약
+플레임그래프
+타임라인
+드릴다운
+실행 분류
+상위 스택
+파서 리포트
+pprof로 내보내기 (.pb.gz)
+분석을 실행하면 결과가 표시됩니다.
+```

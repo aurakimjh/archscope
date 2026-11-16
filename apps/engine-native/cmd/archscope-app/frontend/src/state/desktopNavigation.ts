@@ -21,6 +21,12 @@ export type NavKey =
   | "evidence_board"
   | "settings";
 
+export function windowsSettingsShortcut(platform: string, event: Pick<KeyboardEvent,
+  "key" | "ctrlKey" | "altKey" | "metaKey" | "shiftKey" | "isComposing" | "defaultPrevented">): boolean {
+  return /^Win/.test(platform) && event.key === "," && event.ctrlKey &&
+    !event.altKey && !event.metaKey && !event.shiftKey && !event.isComposing && !event.defaultPrevented;
+}
+
 
 export const DESKTOP_ROUTES = [
   {key: "profiler", labelKey: "navProfiler", group: "analyze"},

@@ -196,7 +196,14 @@ func configureRibbonKeyBindings(window *application.WebviewWindow) {
 	if runtime.GOOS == "darwin" {
 		return // The system menu keeps its native accelerator ownership on macOS.
 	}
-	for _, binding := range []struct{ key, command string }{{"Ctrl+O", "open"}, {"Ctrl+,", "navigate:settings"}, {"F1", "help"}} {
+	if runtime.GOOS != "windows" {
+		window.RegisterKeyBinding("Ctrl+,", func(application.Window) {
+			emitEvent("desktop:command", map[string]string{"command": "navigate:settings"})
+		})
+	}
+	// Windows OEM_COMMA is not accepted by Wails' accelerator parser. The
+	// renderer owns that logical shortcut; do not register a second dead binding.
+	for _, binding := range []struct{ key, command string }{{"Ctrl+O", "open"}, {"F1", "help"}} {
 		command := binding.command
 		window.RegisterKeyBinding(binding.key, func(application.Window) {
 			emitEvent("desktop:command", map[string]string{"command": command})

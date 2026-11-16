@@ -1,0 +1,193 @@
+Window: "ArchScope Layout QA", App: archscope-shortcut-amd64.exe.
+	0 window (창) ArchScope Layout QA Secondary Actions: Raise
+		1 pane (창) ArchScope
+			2 pane (창) (disabled)
+			3 pane (영역) ArchScope - 웹 콘텐츠
+				4 pane (영역)
+					5 pane (영역)
+					6 pane (영역)
+						7 pane (영역)
+							8 pane (영역)
+							9 pane (영역)
+								10 pane (영역)
+									11 pane (영역)
+										12 pane (영역)
+											13 pane (영역)
+											14 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												15 group (그룹) ID: root
+													16 group (머리글)
+														17 text (텍스트) 설정
+													18 group (탐색) 메뉴 탭
+														19 button (단추) 파일
+														20 button (전환 버튼) 홈
+														21 button (전환 버튼) 분석
+														22 button (전환 버튼) HTTP
+														23 button (전환 버튼) 워크스페이스
+														24 button (전환 버튼) 보기
+														25 button (전환 버튼) 도움말
+														26 group (세부정보)
+															27 button (펼치기/접기 삼각형) 리본 표시 옵션
+														28 button (단추) 리본 접기
+													29 group (그룹) 홈 ID: desktop-ribbon-panel
+														30 group (지역) 파일
+															31 button (단추) (disabled) 열기… Description: 열기…
+															32 button (단추) (disabled) 최근 파일 Description: 최근 파일
+															33 button (단추) (disabled) 저장 / 내보내기 Description: 저장 / 내보내기
+															34 text (텍스트) 파일
+														35 group (지역) 도구
+															36 button (단추) 프로파일러 Description: 프로파일러
+															37 button (단추) HTTP 캡처 Description: HTTP 캡처
+															38 button (단추) 분석 작업 공간 Description: 분석 작업 공간
+															39 text (텍스트) 도구
+														40 group (지역) 보고서
+															41 button (단추) 차트 스튜디오 Description: 차트 스튜디오
+															42 button (단추) Export 센터 Description: Export 센터
+															43 text (텍스트) 보고서
+													137 group (기본)
+														138 text (제목) 설정 도움말 보기
+															139 button (단추) 도움말 보기
+														140 text (텍스트) 언어
+														141 button (단추) 도움말 보기
+														142 button (전환 버튼) English
+														143 button (전환 버튼) 한국어
+														144 button (전환 버튼) 日本語
+														145 button (전환 버튼) 简体中文
+														146 button (전환 버튼) 繁體中文（台灣）
+														147 text (텍스트) 테마
+														148 button (단추) 도움말 보기
+														149 button (전환 버튼) 라이트
+														150 button (전환 버튼) 다크
+														151 button (전환 버튼) 시스템
+														152 text (텍스트) 기본 샘플 간격 (ms)
+														153 button (단추) 도움말 보기
+														154 spinner (스핀 단추) (settable, float) 기본 샘플 간격 (ms) Value: 100
+														155 text (텍스트) 기본 Top-N
+														156 button (단추) 도움말 보기
+														157 spinner (스핀 단추) (settable, float) 기본 Top-N Value: 20
+														158 text (텍스트) 기본 프로파일 종류
+														159 button (단추) 도움말 보기
+														160 combo box (콤보 상자) (settable, string) 기본 프로파일 종류 Value: wall
+														161 button (단추) 저장
+														162 group (세부정보)
+															163 button (펼치기/접기 삼각형) 최근 파일 도움말 보기
+																164 text (텍스트) 최근 파일
+																165 button (단추) 도움말 보기
+														166 group (세부정보)
+															167 button (펼치기/접기 삼각형) 정보 도움말 보기
+																168 text (텍스트) 정보
+																169 button (단추) 도움말 보기
+														170 group (그룹)
+															171 text (제목) 데이터 팩
+															172 text (텍스트) 신뢰된 데이터 매핑을 설치한 후 버전을 활성화합니다. 실행 중인 작업은 기존 버전을 유지합니다.
+															173 text (텍스트) 일반 세션
+															174 text (텍스트) ·
+															175 text (텍스트) 한글 글꼴
+															176 text (텍스트) :
+															177 text (텍스트) 로컬 로드됨
+															178 text (텍스트) 설치 범위
+															179 text field (편집) (settable, string) 설치 범위 Description: application / user / case:case-… Value: application
+															180 checkbox (확인란) (settable, string) 미서명 로컬 프리셋 명시적 허용
+															181 button (단추) ZIP 설치
+															182 button (단추) 새로고침
+															183 group (세부정보)
+																184 button (펼치기/접기 삼각형) 별칭 충돌 해결
+																	185 text (텍스트) 별칭 충돌 해결
+															191 text (텍스트) 상태 리비전
+															192 text (텍스트) :
+															193 text (텍스트) 3
+															194 text (텍스트) ·
+															195 text (텍스트) 신뢰 순서
+															196 text (텍스트) :
+															197 text (텍스트) 0
+															198 list (LIST)
+																199 list item (목록 항목) diagnostics.snapshot-foundation 1.0.0 · application · signed · 활성 SHA-256 ff5d7263cb411431d7382fe1a8d208a59fc8e374e65358ef30e1f07eefb7f79c 활성화이 버전으로 롤백비활성화ZIP 내보내기
+																	200 text (텍스트) diagnostics.snapshot-foundation
+																	201 text (텍스트) 
+																	202 text (텍스트) 1.0.0
+																	203 button (단추) (disabled) 활성화
+																	204 button (단추) (disabled) 이 버전으로 롤백
+																	205 button (단추) 비활성화
+																	206 button (단추) ZIP 내보내기
+															207 group (세부정보)
+																208 button (펼치기/접기 삼각형) 공개 신뢰키
+																	209 text (텍스트) 공개 신뢰키
+															186 hyperlink (링크) English manual Value: http://wails.localhost/offline-assets/docs/en/OFFLINE_PACKS.md
+															187 text (텍스트) ·
+															188 hyperlink (링크) 한국어 매뉴얼 Value: http://wails.localhost/offline-assets/docs/ko/OFFLINE_PACKS.md
+															189 text (텍스트) ·
+															190 hyperlink (링크) OFL-1.1 Value: http://wails.localhost/offline-assets/fonts/OFL.txt
+							45 pane (영역)
+					46 pane (영역)
+		47 title bar (제목 표시줄) (settable, string) Value: ArchScope Layout QA
+			48 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				49 menu item (메뉴 항목) 시스템
+			50 button (단추) 최소화
+			51 button (단추) 최대화
+			52 button (단추) 닫기
+
+Document text: ```
+설정
+파일
+홈
+분석
+HTTP
+워크스페이스
+보기
+도움말
+리본 표시 옵션
+리본 접기
+열기…
+최근 파일
+저장 / 내보내기
+파일
+프로파일러
+HTTP 캡처
+분석 작업 공간
+도구
+차트 스튜디오
+Export 센터
+보고서
+설정
+도움말 보기
+언어
+도움말 보기
+English
+한국어
+日本語
+简体中文
+繁體中文（台灣）
+테마
+도움말 보기
+라이트
+다크
+시스템
+기본 샘플 간격 (ms)
+도움말 보기
+100
+기본 Top-N
+도움말 보기
+20
+기본 프로파일 종류
+도움말 보기
+기본 프로파일 종류
+저장
+최근 파일
+도움말 보기
+정보
+도움말 보기
+데이터 팩
+신뢰된 데이터 매핑을 설치한 후 버전을 활성화합니다. 실행 중인 작업은 기존 버전을 유지합니다.
+일반 세션 · 한글 글꼴: 로컬 로드됨
+설치 범위
+application
+￼
+ZIP 설치
+새로고침
+별칭 충돌 해결
+상태 리비전: 3 · 신뢰 순서: 0
+diagnostics.snapshot-foundation 1.0.0 · application · signed · 활성
+SHA-256 ff5d7263cb411431d7382fe1a8d208a59fc8e374e65358ef30e1f07eefb7f79c
+활성화이 버전으로 롤백비활성화ZIP 내보내기
+공개 신뢰키
+English manual · 한국어 매뉴얼 · OFL-1.1
+```

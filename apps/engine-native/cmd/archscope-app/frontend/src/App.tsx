@@ -7,7 +7,7 @@ import { useI18n } from "./i18n/I18nProvider";
 
 import { useTheme, type Theme } from "./theme/ThemeProvider";
 import { useSortableTables } from "./hooks/useSortableTables";
-import { DESKTOP_ROUTES, type NavKey } from "./state/desktopNavigation";
+import { DESKTOP_ROUTES, windowsSettingsShortcut, type NavKey } from "./state/desktopNavigation";
 import { AboutDialog } from "./components/AboutDialog";
 import { SlideOverPanel } from "./components/SlideOverPanel";
 import { getHelpText } from "./help/helpCatalog";
@@ -255,6 +255,15 @@ function App() {
   useEffect(() => Events.On("desktop:command", event => {
     dispatchDesktopCommand((event.data as {command?: string})?.command ?? "");
   }), [dispatchDesktopCommand]);
+  useEffect(() => {
+    const settings = (event: KeyboardEvent) => {
+      if (!windowsSettingsShortcut(navigator.platform, event)) return;
+      event.preventDefault();
+      dispatchDesktopCommand("navigate:settings");
+    };
+    window.addEventListener("keydown", settings);
+    return () => window.removeEventListener("keydown", settings);
+  }, [dispatchDesktopCommand]);
   useEffect(() => {
     const update = (event: Event) => {
       const commands = (event as CustomEvent<unknown>).detail;

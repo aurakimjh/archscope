@@ -24,6 +24,7 @@ import { messages } from "../i18n/messages.js";
 import { locales, preferredLocale, resolveLocale, documentationLocale } from "../i18n/locales.js";
 import { translateText } from "../i18n/translations.js";
 import { ribbonMode, toggledRibbonMode } from "./ribbon.js";
+import { windowsSettingsShortcut } from "./desktopNavigation.js";
 import type { AnalysisWorkspaceEntry, WorkspaceAnalysisResult } from "./analysisWorkspace.js";
 import { evaluateAiInterpretation, extractAiInterpretation } from "./aiInterpretation.js";
 import {
@@ -3717,6 +3718,12 @@ for (const locale of locales) {
 assert(translateText("ja", "File") === "ファイル" && translateText("zh-CN", "File") === "文件" && translateText("zh-TW", "File") === "檔案", "new language catalogs need independent translations");
 assert(translateText("zh-TW", "Memory") === "記憶體" && translateText("zh-TW", "Thread") === "執行緒", "traditional locale must use Taiwan terminology");
 assert(ribbonMode("corrupted") === "expanded" && toggledRibbonMode("hidden") === "expanded", "persisted ribbon settings must have a recovery path");
+const settingsKeyEvent = { key: ",", ctrlKey: true, altKey: false, metaKey: false, shiftKey: false, isComposing: false, defaultPrevented: false };
+assert(windowsSettingsShortcut("Win32", settingsKeyEvent), "Windows logical Ctrl+comma must reach Settings without the native OEM key parser");
+for (const override of [{ctrlKey:false}, {altKey:true}, {metaKey:true}, {shiftKey:true}, {isComposing:true}, {defaultPrevented:true}, {key:"<"}]) {
+  assert(!windowsSettingsShortcut("Win32", {...settingsKeyEvent,...override}), "Settings shortcut must respect modified/IME/handled input");
+}
+assert(!windowsSettingsShortcut("MacIntel", settingsKeyEvent) && !windowsSettingsShortcut("Linux x86_64", settingsKeyEvent), "Other platforms keep native shortcut ownership");
 const ribbonRouter = new HttpCommandRouter();
 const observedCommands: string[] = [];
 const unsubscribeRibbon = ribbonRouter.subscribe(() => observedCommands.push(ribbonRouter.availableCommands().join(",")));

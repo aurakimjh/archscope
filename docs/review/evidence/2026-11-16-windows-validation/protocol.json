@@ -1,0 +1,25 @@
+{
+  "asOf": "2026-11-16",
+  "baseline": "98eeaf3e",
+  "scope": "Incremental actual Windows qualification after ribbon/language and stable-preparation changes; no universal acceptance closure",
+  "orderedTasks": [
+    "Guarded full Windows x64/x86 Go suites, frontend state/build and ordinary/audit builds",
+    "Windows WebView2 ribbon: x64/x86 each1280x800@100%,1024x768@125%,900x768@125%; five locales/six tabs; separate physical keyboard and screenshot bookends",
+    "Windows native Chart Studio and Save dialog for7physical units, where reachable using synthetic owned inputs",
+    "Ordinary x86 repeated-import36cycles/108opens with original28warmup/8measured budgets, no forcedGC/cache trim; no concurrent owned native app during measurement"
+  ],
+  "memoryPolicy": {
+    "fixture": "Synthetic omitted-body32/512/4096rows",
+    "settlePerOpenSeconds": 3,
+    "smallFileIdleSeconds": 15,
+    "treeDeltaMiB": 64,
+    "treeSlopeMiBPerCycle": 4,
+    "rootDeltaMiB": 16,
+    "rootSlopeMiBPerCycle": 1,
+    "handleDelta": 24,
+    "handleSlopePerCycle": 2,
+    "threadDelta": 4,
+    "threadSlopePerCycle": 0.5
+  },
+  "limits": "Preserve old failures and shared-host/OS-DPI/IME limitations. No driver/security-policy changes, forced system pressure, destructive disk/power-loss tests, official signer or independent review claims. Docker engine unavailable at initial check."
+}

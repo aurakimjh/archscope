@@ -6193,3 +6193,12 @@ qualification is claimed. Remaining Windows work is ordered in the current
 queue and linked acceptance receipt; T-601/T-611/T-627 REVIEW, T-613 PENDING and
 T-654/T-662 TODO remain unchanged. Scoped staging preserves unrelated HTTP docs,
 verifier and the original tracker history block.
+
+### 2026-11-16 - Windows Settings keyboard shortcut
+
+Actual Ctrl+comma fails before correction: Wails OEM_COMMA emission/parser disagree.
+Windows renderer now owns logical shortcut once; extra modifiers/IME/handled input
+are excluded. Physical x64/x86 input reaches Settings; frontend state/build and
+guarded app checks pass. Other platforms keep native ownership and all review
+states remain unchanged. Evidence:2026-11-16-windows-validation/README.md.
+

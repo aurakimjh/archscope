@@ -161,3 +161,6 @@ docs/review/evidence/2026-11-15-windows-stream-boundaries/*.txt -text whitespace
 
 docs/review/evidence/2026-11-15-t613-memory-diagnosis/** -text whitespace=cr-at-eol
 docs/review/evidence/2026-11-15-t613-memory-diagnosis/*.txt -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+
+docs/review/evidence/2026-11-16-windows-validation/** -text whitespace=cr-at-eol
+docs/review/evidence/2026-11-16-windows-validation/*.txt -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
