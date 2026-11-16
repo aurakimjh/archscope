@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "scope": "One finite ordinary production offline import screen; shared Windows host, no forced GC or trim; not universal leak proof",
+  "arch": "386",
+  "scenario": "unique",
+  "metrics": {
+    "treePrivateBytes": {
+      "firstMedian": 736538624,
+      "lastMedian": 709857280,
+      "delta": -26681344,
+      "slopePerCycle": -412160.0,
+      "withinBudget": true
+    },
+    "rootPrivateBytes": {
+      "firstMedian": 72011776,
+      "lastMedian": 70836224,
+      "delta": -1175552,
+      "slopePerCycle": -220330.6666666667,
+      "withinBudget": true
+    },
+    "rootHandles": {
+      "firstMedian": 687,
+      "lastMedian": 687,
+      "delta": 0,
+      "slopePerCycle": 0.0,
+      "withinBudget": true
+    },
+    "rootThreads": {
+      "firstMedian": 35,
+      "lastMedian": 36,
+      "delta": 1,
+      "slopePerCycle": 0.15476190476190477,
+      "withinBudget": true
+    }
+  },
+  "stableMeasuredIdentities": true,
+  "distinctFiles": 108,
+  "rowsPerFile": 512,
+  "sourceReportSha256": "c420ff74668b97f4f785ff4e44f17b9346f7ee4c4af5467e9715c3a73640f674",
+  "binarySha256": "c5db677aace3637e2127c1e92a94a5270df7d37aeab513d163ec2684be351ba5",
+  "elapsedSeconds": 915.7952826000001
+}

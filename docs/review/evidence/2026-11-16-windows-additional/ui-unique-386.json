@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "case": "unique-386",
+  "scope": "Post-measurement ordinary x86 native512/512rows, first request, checked star and exact last-file annotation; no exact80native count claim",
+  "observedComment": "메모리 재열기 synthetic note unique 107",
+  "artifacts": {
+    "unique-386-notes.jpg": "b014ce9ce5f83f8aeab0c251dba34f50ef1df760b754645ae5fa208560717d04",
+    "unique-386-notes.txt": "b18dbe3f6eb429dda74d193a6259bf4b413ccde0352fd99b88b7836e111266ff"
+  }
+}
