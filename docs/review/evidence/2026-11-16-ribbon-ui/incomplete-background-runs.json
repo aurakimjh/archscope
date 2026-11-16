@@ -1,0 +1,26 @@
+{
+  "result": "INCONCLUSIVE",
+  "acceptedAsPass": false,
+  "runs": [
+    {
+      "name": "wide",
+      "timeoutSeconds": 300,
+      "finalReceiptPresent": false,
+      "lastProgress": {
+        "completedLocales": 5,
+        "language": "zh-TW",
+        "phase": "visibility"
+      }
+    },
+    {
+      "name": "compact",
+      "timeoutSeconds": 300,
+      "finalReceiptPresent": false,
+      "lastProgress": {
+        "completedLocales": 5,
+        "language": "zh-TW",
+        "phase": "visibility"
+      }
+    }
+  ]
+}

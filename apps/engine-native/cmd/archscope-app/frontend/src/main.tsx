@@ -24,12 +24,18 @@ import { hasNativeDesktopBridge } from "./state/desktopRuntime";
 import { I18nProvider } from "./i18n/I18nProvider";
 import { ThemeProvider } from "./theme/ThemeProvider";
 import "./styles/tailwind.css";
+import { LOCALE_STORAGE_KEY, preferredLocale } from "./i18n/locales";
+import { translateText } from "./i18n/translations";
 
 const root = document.getElementById("root") as HTMLElement;
 if (!hasNativeDesktopBridge(window)) {
-  root.textContent = navigator.language.startsWith("ko")
-    ? "ArchScope 데스크톱 앱을 실행하세요. 브라우저 미리보기는 지원하지 않습니다."
-    : "Open the ArchScope desktop app. Browser preview is not supported.";
+  let saved: string | null = null;
+  try { saved = localStorage.getItem(LOCALE_STORAGE_KEY); } catch { /* Browser storage may be unavailable. */ }
+  const initialLocale = preferredLocale(saved, navigator.languages);
+  document.documentElement.lang = initialLocale;
+  root.textContent = translateText(initialLocale,
+    "Open the ArchScope desktop app. Browser preview is not supported.",
+    "ArchScope 데스크톱 앱을 실행하세요. 브라우저 미리보기는 지원하지 않습니다.");
 } else if (new URLSearchParams(location.search).has("visual-render")) {
   const token = new URLSearchParams(location.search).get("visual-render") || "";
   void import("./visualRenderSurface").then(module => module.runVisualRenderSurface(token));

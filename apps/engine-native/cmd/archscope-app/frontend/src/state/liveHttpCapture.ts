@@ -1,4 +1,5 @@
 import type { CaptureHTTPMessage, CaptureTimingSet, HttpCaptureTransactionRow, HttpInformationalResponse } from "../bridge/types";
+import { translateText } from "../i18n/translations.js";
 /**
  * Renderer half of the live-capture contract the engine publishes through
  * `CaptureService.GetLiveCaptureContract` (`capture.LiveCaptureContract`).
@@ -111,13 +112,13 @@ export const BODY_GATE_REASON_LABELS: Record<
  */
 export function bodyGateReasonLabel(
   reason: string,
-  language: "en" | "ko",
+  language: import("../i18n/locales").Locale,
 ): string {
   const entry = BODY_GATE_REASON_LABELS[reason];
-  if (entry) return entry[language];
-  return language === "ko"
-    ? "크래시 덤프 제외 사전검사가 통과하지 않아 본문 수집을 사용할 수 없습니다."
-    : "Body capture is unavailable because the crash-dump exclusion preflight did not pass.";
+  if (entry) return translateText(language, entry.en, entry.ko);
+  return translateText(language,
+    "Body capture is unavailable because the crash-dump exclusion preflight did not pass.",
+    "크래시 덤프 제외 사전검사가 통과하지 않아 본문 수집을 사용할 수 없습니다.");
 }
 
 /**

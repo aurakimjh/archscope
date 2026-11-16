@@ -13,17 +13,26 @@ type desktopMenuRoute struct {
 	Group string `json:"group"`
 }
 type desktopMenuState struct {
-	Locale    string             `json:"locale"`
-	Theme     string             `json:"theme"`
-	Active    string             `json:"active"`
-	CanRecent bool               `json:"canRecent"`
-	CanOpen   bool               `json:"canOpen"`
-	Routes    []desktopMenuRoute `json:"routes"`
+	Locale          string             `json:"locale"`
+	Theme           string             `json:"theme"`
+	Active          string             `json:"active"`
+	CanRecent       bool               `json:"canRecent"`
+	CanOpen         bool               `json:"canOpen"`
+	Routes          []desktopMenuRoute `json:"routes"`
+	Labels          map[string]string  `json:"labels"`
+	CaptureCommands []string           `json:"captureCommands"`
 }
 
 // 네이티브 메뉴는 renderer의 활성 도구/언어와 동기화한다.
 // 동일 명령은 기존 화면의 조작 경로로 전달하므로 분석 상태를 복제하지 않는다.
 func configureDesktopMenu(app *application.App, window *application.WebviewWindow) {
+	configureRibbonKeyBindings(window)
+	if runtime.GOOS != "darwin" {
+		// The renderer ribbon owns the single menu row. Removing the window menu
+		// also removes its accelerators, so explicit window bindings replace them.
+		window.SetMenu(nil)
+		return
+	}
 	var signature string
 	app.Event.On("desktop:state", func(event *application.CustomEvent) {
 		data, err := json.Marshal(event.Data)
@@ -36,7 +45,8 @@ func configureDesktopMenu(app *application.App, window *application.WebviewWindo
 		}
 		application.InvokeAsync(func() {
 			routes, _ := json.Marshal(state.Routes)
-			next := state.Locale + string(routes)
+			labels, _ := json.Marshal(state.Labels)
+			next := state.Locale + string(routes) + string(labels)
 			menu := app.Menu.GetApplicationMenu()
 			if signature != next {
 				previous := menu
@@ -53,12 +63,8 @@ func configureDesktopMenu(app *application.App, window *application.WebviewWindo
 }
 
 func updateDesktopMenu(menu *application.Menu, state desktopMenuState) {
-	ko := state.Locale == "ko"
 	label := func(en, kr string) string {
-		if ko {
-			return kr
-		}
-		return en
+		return desktopMenuLabel(state, en, kr)
 	}
 	if item := menu.FindByLabel(label("Open…", "열기…")); item != nil {
 		item.SetEnabled(state.CanOpen)
@@ -73,7 +79,7 @@ func updateDesktopMenu(menu *application.Menu, state desktopMenuState) {
 	}
 	for _, c := range desktopCaptureCommands {
 		if item := menu.FindByLabel(label(c.en, c.ko)); item != nil {
-			item.SetEnabled(state.Active == "http_capture")
+			item.SetEnabled(desktopCaptureCommandEnabled(state, c.name))
 		}
 	}
 	for _, v := range desktopThemes {
@@ -101,12 +107,8 @@ func buildDesktopMenu(state desktopMenuState) *application.Menu {
 }
 
 func populateDesktopMenu(menu *application.Menu, state desktopMenuState) {
-	ko := state.Locale == "ko"
 	label := func(en, kr string) string {
-		if ko {
-			return kr
-		}
-		return en
+		return desktopMenuLabel(state, en, kr)
 	}
 	add := func(parent *application.Menu, text, command, shortcut string) *application.MenuItem {
 		item := parent.Add(text).OnClick(func(_ *application.Context) { emitEvent("desktop:command", map[string]string{"command": command}) })
@@ -142,7 +144,7 @@ func populateDesktopMenu(menu *application.Menu, state desktopMenuState) {
 	for _, c := range desktopCaptureCommands {
 		name := c.name
 		item := capture.Add(label(c.en, c.ko)).OnClick(func(_ *application.Context) { emitEvent("capture:command", map[string]string{"command": name}) })
-		item.SetEnabled(state.Active == "http_capture")
+		item.SetEnabled(desktopCaptureCommandEnabled(state, c.name))
 		key := c.key
 		if key != "" {
 			if runtime.GOOS == "darwin" {
@@ -157,9 +159,56 @@ func populateDesktopMenu(menu *application.Menu, state desktopMenuState) {
 		add(view, label(v.en, v.ko), "theme:"+v.id, "").SetChecked(state.Theme == v.id)
 	}
 	view.AddSeparator()
-	add(view, "한국어", "locale:ko", "").SetChecked(ko)
-	add(view, "English", "locale:en", "").SetChecked(!ko)
+	for _, locale := range []struct{ id, label string }{{"en", "English"}, {"ko", "한국어"}, {"ja", "日本語"}, {"zh-CN", "简体中文"}, {"zh-TW", "繁體中文（台灣）"}} {
+		add(view, locale.label, "locale:"+locale.id, "").SetChecked(state.Locale == locale.id)
+	}
 	help := menu.AddSubmenu(label("Help", "도움말"))
 	add(help, label("Current tool help", "현재 도구 도움말"), "help", "F1")
 	add(help, label("About ArchScope", "ArchScope 정보"), "about", "")
+}
+
+func desktopMenuLabel(state desktopMenuState, en, ko string) string {
+	if text := state.Labels[en]; text != "" {
+		return text
+	}
+	if state.Locale == "ko" {
+		return ko
+	}
+	return en
+}
+
+func desktopCaptureCommandEnabled(state desktopMenuState, command string) bool {
+	if state.Active != "http_capture" {
+		return false
+	}
+	for _, available := range state.CaptureCommands {
+		if available == command {
+			return true
+		}
+	}
+	return false
+}
+
+func configureRibbonKeyBindings(window *application.WebviewWindow) {
+	window.RegisterKeyBinding("Ctrl+F1", func(application.Window) {
+		emitEvent("desktop:command", map[string]string{"command": "ribbon:toggle"})
+	})
+	if runtime.GOOS == "darwin" {
+		return // The system menu keeps its native accelerator ownership on macOS.
+	}
+	for _, binding := range []struct{ key, command string }{{"Ctrl+O", "open"}, {"Ctrl+,", "navigate:settings"}, {"F1", "help"}} {
+		command := binding.command
+		window.RegisterKeyBinding(binding.key, func(application.Window) {
+			emitEvent("desktop:command", map[string]string{"command": command})
+		})
+	}
+	for _, binding := range desktopCaptureCommands {
+		if binding.key == "" {
+			continue
+		}
+		command := binding.name
+		window.RegisterKeyBinding(binding.key, func(application.Window) {
+			emitEvent("capture:command", map[string]string{"command": command})
+		})
+	}
 }

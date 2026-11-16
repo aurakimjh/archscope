@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-16",
+  "baseCommit": "a7a0478a6500b1e1fd297b0f4afc70149d1fcdb5",
+  "state": "local_uncommitted",
+  "tasks": {
+    "T-663": "REVIEW",
+    "T-664": "REVIEW"
+  },
+  "versions": {
+    "node": "v25.9.0",
+    "go": "go version go1.26.10 darwin/arm64",
+    "python": "Python 3.14.4"
+  },
+  "checks": {
+    "frontendState": "PASS",
+    "frontendBuild": "PASS",
+    "translationCoverage": "PASS",
+    "translationCoverageOptimizedPython": "PASS",
+    "phrasesPerAddedLocale": 2197,
+    "nativeSmokeSyntax": "PASS",
+    "desktopOnly": "PASS",
+    "goRaceApp": {
+      "result": "PASS",
+      "seconds": 89.946
+    },
+    "goMenuFinal": {
+      "result": "PASS",
+      "seconds": 0.552
+    },
+    "goVetApp": "PASS",
+    "windowsProductionCrossBuild": {
+      "amd64": "PASS",
+      "386": "PASS"
+    },
+    "macProductionLayoutAuditBuild": "PASS",
+    "macNativeRenderer": {
+      "result": "PASS",
+      "receipt": "native-final.json",
+      "locales": 5,
+      "expandedRibbonHeightCssPx": 122,
+      "sourceOverlay": false
+    },
+    "visualScreenshot": {
+      "result": "UNOBSERVED",
+      "reason": "computer-use cgWindowNotFound"
+    },
+    "taskRegistry": {
+      "unique": 251,
+      "DONE": 243,
+      "REVIEW": 5,
+      "PENDING": 1,
+      "TODO": 2
+    }
+  },
+  "remaining": [
+    "Independent implementation and fluent-speaker review",
+    "Actual Windows WebView2 layout, fonts, IME, DPI and keyboard acceptance",
+    "Mac screenshot and visual readability observation"
+  ],
+  "notes": [
+    "The final native binary uses production and layoutaudit build tags without source overlays.",
+    "Before-sizing receipt used debug logger overlay only.",
+    "Harness failures are retained separately; no capture was started.",
+    "No commit or push performed."
+  ]
+}

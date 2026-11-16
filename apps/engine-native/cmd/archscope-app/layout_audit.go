@@ -22,6 +22,22 @@ var layoutAuditWindow *application.WebviewWindow
 // 스크립트와 결과 경로는 검증자가 지정하며 일반 제품 빌드에서는 제외된다.
 func configureLayoutAudit(app *application.App, window *application.WebviewWindow) {
 	layoutAuditWindow = window
+	desiredZoom := 0.0
+	if value := os.Getenv("ARCHSCOPE_LAYOUT_VIEWPORT"); value != "" {
+		var viewport struct {
+			Width  int     `json:"width"`
+			Height int     `json:"height"`
+			Zoom   float64 `json:"zoom"`
+		}
+		if err := json.Unmarshal([]byte(value), &viewport); err != nil {
+			log.Fatal(err)
+		}
+		if viewport.Width < 640 || viewport.Width > 3840 || viewport.Height < 480 || viewport.Height > 2160 || viewport.Zoom < 0.5 || viewport.Zoom > 2 {
+			log.Fatal("ARCHSCOPE_LAYOUT_VIEWPORT requires width640..3840, height480..2160, zoom0.5..2")
+		}
+		window.SetSize(viewport.Width, viewport.Height)
+		desiredZoom = viewport.Zoom
+	}
 	decorateLayoutAuditMenu(app.Menu.GetApplicationMenu())
 	path := os.Getenv("ARCHSCOPE_LAYOUT_SCRIPT")
 	passive := path == ""
@@ -40,10 +56,23 @@ func configureLayoutAudit(app *application.App, window *application.WebviewWindo
 	if output == "" {
 		output = filepath.Join(os.TempDir(), "archscope-layout-observations.json")
 	}
+	app.Event.On("layout:progress", func(event *application.CustomEvent) {
+		if data, err := json.MarshalIndent(event.Data, "", "  "); err == nil {
+			if err := os.WriteFile(output+".progress.json", data, 0600); err != nil {
+				log.Print(err)
+			}
+		}
+	})
 	app.Event.On("layout:audit", func(event *application.CustomEvent) {
+		// Retain the renderer result even if optional native geometry collection stalls.
+		if data, err := json.MarshalIndent(event.Data, "", "  "); err == nil {
+			if err := os.WriteFile(output+".renderer.json", data, 0600); err != nil {
+				log.Print(err)
+			}
+		}
 		x, y := window.Position()
 		width, height := window.Size()
-		receipt := map[string]any{"window": map[string]int{"x": x, "y": y, "width": width, "height": height}, "report": event.Data}
+		receipt := map[string]any{"window": map[string]int{"x": x, "y": y, "width": width, "height": height}, "webviewZoom": window.GetZoom(), "report": event.Data}
 		if screen, screenErr := window.GetScreen(); screenErr == nil && screen != nil {
 			receipt["osScreenScaleFactor"] = screen.ScaleFactor
 			receipt["screenLogicalBounds"] = screen.Bounds
@@ -63,6 +92,9 @@ func configureLayoutAudit(app *application.App, window *application.WebviewWindo
 	go func() {
 		for range 90 {
 			time.Sleep(time.Second)
+			if desiredZoom > 0 && window.GetZoom() != desiredZoom {
+				window.SetZoom(desiredZoom)
+			}
 			window.ExecJS("if (document.readyState === 'complete' && !window.__layoutAuditRunning) {window.__layoutAuditRunning=true;" + string(script) + "}")
 		}
 	}()
@@ -71,13 +103,13 @@ func configureLayoutAudit(app *application.App, window *application.WebviewWindo
 		limit := 180 * time.Second
 		if passive {
 			limit = 30 * time.Minute
-			if value := os.Getenv("ARCHSCOPE_LAYOUT_MAX_SECONDS"); value != "" {
-				seconds, err := strconv.Atoi(value)
-				if err != nil || seconds < 30 || seconds > 21600 {
-					log.Fatal("ARCHSCOPE_LAYOUT_MAX_SECONDS must be 30..21600")
-				}
-				limit = time.Duration(seconds) * time.Second
+		}
+		if value := os.Getenv("ARCHSCOPE_LAYOUT_MAX_SECONDS"); value != "" {
+			seconds, err := strconv.Atoi(value)
+			if err != nil || seconds < 30 || seconds > 21600 {
+				log.Fatal("ARCHSCOPE_LAYOUT_MAX_SECONDS must be 30..21600")
 			}
+			limit = time.Duration(seconds) * time.Second
 		}
 		time.Sleep(limit)
 		app.Quit()

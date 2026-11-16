@@ -1,32 +1,9 @@
-// ─────────────────────────────────────────────────────────────────────
-// [한글] i18n/messages.ts — 데스크톱 앱 i18n 메시지 카탈로그.
-//
-// 책임/목적: en/ko 두 로케일에 대해 동일 키 셋을 갖는 record 정의.
-// 모든 페이지/컴포넌트는 t(key) 로 번역 문자열을 조회하므로 키 추가
-// 시 양쪽 로케일 모두 채워야 합니다(타입스크립트 타입으로 강제됨).
-//
-// 의존성 주의: web 셸(apps/frontend) 의 카탈로그가 canonical 이며
-// 데스크톱 슬림 빌드는 그 부분집합. 신규 키는 일반적으로 web 측에
-// 먼저 도입한 뒤 데스크톱 카탈로그로 이식해 일관성을 유지합니다.
-// ─────────────────────────────────────────────────────────────────────
-// Native profiler app i18n catalog.
-//
-// Keys are deliberately scoped to the profiler-first slice. The web app
-// (apps/frontend) carries the full ArchScope catalog under the same key
-// vocabulary; once the native app grows beyond profiler-only, shared keys
-// should be lifted into apps/engine-native/cmd/archscope-app/frontend/src/i18n
-// and the web catalog should be kept in sync.
+// Desktop UI catalog: common keys for English, Korean, Japanese and both Chinese scripts.
+// Additional locale values are resolved from the English-source translation catalogs.
+import { translateMessages } from "./translations.js";
+export { locales, localeLabels, type Locale } from "./locales.js";
 
-export const locales = ["en", "ko"] as const;
-
-export type Locale = (typeof locales)[number];
-
-export const localeLabels: Record<Locale, string> = {
-  en: "English",
-  ko: "한국어",
-};
-
-export const messages = {
+const baseMessages = {
   en: {
     msaUiRootRT: "Root RT",
     msaUiProfiles: "Profiles",
@@ -3795,6 +3772,13 @@ export const messages = {
     httpCorrelationOverlayTitle: "시간 창 오버레이",
     httpCorrelationOverlayUnavailable: "오버레이용 타임스탬프를 해석할 수 없습니다.",
   },
-} as const satisfies Record<Locale, Record<string, string>>;
+} as const;
+
+export const messages = {
+  ...baseMessages,
+  ja: translateMessages("ja", baseMessages.en),
+  "zh-CN": translateMessages("zh-CN", baseMessages.en),
+  "zh-TW": translateMessages("zh-TW", baseMessages.en),
+};
 
 export type MessageKey = keyof (typeof messages)["en"];

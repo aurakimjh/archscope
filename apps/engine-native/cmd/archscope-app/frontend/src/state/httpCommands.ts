@@ -65,20 +65,28 @@ export function httpCommandForKey(
 
 export class HttpCommandRouter {
   private handlers = new Map<HttpCommand, () => void>();
+  private listeners = new Set<() => void>();
   private last: { command: HttpCommand; source: string; time: number } | null =
     null;
   register(command: HttpCommand, handler: () => void): () => void {
     this.handlers.set(command, handler);
+    this.listeners.forEach(listener => listener());
     return () => {
       if (this.handlers.get(command) === handler) {
         this.handlers.delete(command);
         this.last = null;
+        this.listeners.forEach(listener => listener());
       }
     };
   }
+  availableCommands(): HttpCommand[] { return [...this.handlers.keys()]; }
+  subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => { this.listeners.delete(listener); };
+  }
   dispatch(
     command: HttpCommand,
-    source: "native" | "keyboard",
+    source: "native" | "keyboard" | "ribbon",
     time: number,
   ): boolean {
     const handler = this.handlers.get(command);
@@ -87,7 +95,8 @@ export class HttpCommandRouter {
     // Coalesce only that cross-source echo; separate clicks/keystrokes still work.
     if (
       this.last?.command === command &&
-      this.last.source !== source &&
+      ((this.last.source === "native" && source === "keyboard") ||
+        (this.last.source === "keyboard" && source === "native")) &&
       time - this.last.time >= 0 &&
       time - this.last.time < 100
     )

@@ -1,17 +1,4 @@
-// ─────────────────────────────────────────────────────────────────────
-// [한글] i18n/I18nProvider.tsx — React Context 기반 i18n 제공자.
-//
-// 책임/목적:
-//   - 현재 로케일(en/ko) 상태를 보관, t(key) 함수로 messages 사전에서
-//     번역 문자열을 조회.
-//   - 초기 로케일은 localStorage 우선, 없으면 navigator.language 가
-//     "ko" 로 시작하는지로 결정.
-//   - locale 변경 시 localStorage 에 저장 (브라우저 webview 가 storage
-//     를 지원하지 않을 수 있어 try/catch 로 감쌈).
-//
-// 의존성 주의: useI18n 훅은 Provider 외부에서 호출 시 throw — 모든
-// 페이지/컴포넌트는 main.tsx 의 트리 안쪽에서만 사용 가능.
-// ─────────────────────────────────────────────────────────────────────
+// Five-locale React provider; saved preference takes priority over navigator language matching.
 import {
   createContext,
   useContext,
@@ -22,13 +9,14 @@ import {
 } from "react";
 
 import { messages, type Locale, type MessageKey } from "./messages";
-
-const STORAGE_KEY = "archscope.profiler.locale";
+import { LOCALE_STORAGE_KEY, preferredLocale } from "./locales";
+import { translateText } from "./translations";
 
 type I18nContextValue = {
   locale: Locale;
   setLocale: (locale: Locale) => void;
   t: (key: MessageKey) => string;
+  w: (en: string, ko?: string) => string;
 };
 
 const I18nContext = createContext<I18nContextValue | null>(null);
@@ -38,10 +26,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(STORAGE_KEY, locale);
+      window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
     } catch {
       // localStorage may be unavailable in some webviews — silently ignore.
     }
+    document.documentElement.lang = locale;
   }, [locale]);
 
   const value = useMemo<I18nContextValue>(
@@ -49,6 +38,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       locale,
       setLocale,
       t: (key) => messages[locale][key],
+      w: (en, ko) => translateText(locale, en, ko),
     }),
     [locale],
   );
@@ -65,13 +55,13 @@ export function useI18n(): I18nContextValue {
 }
 
 function detectInitialLocale(): Locale {
+  let saved: string | null = null;
   try {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved === "ko" || saved === "en") return saved;
+    saved = window.localStorage.getItem(LOCALE_STORAGE_KEY);
   } catch {
     // ignore
   }
-  return navigator.language?.toLowerCase().startsWith("ko") ? "ko" : "en";
+  return preferredLocale(saved, navigator.languages?.length ? navigator.languages : [navigator.language]);
 }
 
 export type { Locale, MessageKey };

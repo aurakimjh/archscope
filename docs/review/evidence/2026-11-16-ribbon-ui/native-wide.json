@@ -1,0 +1,97 @@
+{
+  "osScreenScaleFactor": 2,
+  "report": {
+    "checks": [
+      "all 21 route commands reachable and all six tabs fit in all five locales without remounting",
+      "capture commands disabled outside the HTTP page",
+      "tab ArrowRight/Home keyboard focus navigation",
+      "File screen preserves the mounted settings page",
+      "collapse, temporary expansion, Escape, outside pointer, hide and restore preserve page and saved mode"
+    ],
+    "locales": [
+      {
+        "locale": "en",
+        "menuRows": 1,
+        "ribbonHeight": 122,
+        "selected": "true",
+        "tabHeight": 36
+      },
+      {
+        "locale": "ko",
+        "menuRows": 1,
+        "ribbonHeight": 122,
+        "selected": "true",
+        "tabHeight": 36
+      },
+      {
+        "locale": "ja",
+        "menuRows": 1,
+        "ribbonHeight": 122,
+        "selected": "true",
+        "tabHeight": 36
+      },
+      {
+        "locale": "zh-CN",
+        "menuRows": 1,
+        "ribbonHeight": 122,
+        "selected": "true",
+        "tabHeight": 36
+      },
+      {
+        "locale": "zh-TW",
+        "menuRows": 1,
+        "ribbonHeight": 122,
+        "selected": "true",
+        "tabHeight": 36
+      }
+    ],
+    "passed": true,
+    "platform": "MacIntel",
+    "schemaVersion": 2,
+    "scope": "Native ribbon and five-language UI smoke",
+    "themes": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "foreground": "rgb(15, 23, 42)",
+        "resolved": "light",
+        "theme": "light"
+      },
+      {
+        "background": "rgb(30, 41, 59)",
+        "foreground": "rgb(226, 232, 240)",
+        "resolved": "dark",
+        "theme": "dark"
+      },
+      {
+        "background": "rgb(30, 41, 59)",
+        "foreground": "rgb(226, 232, 240)",
+        "resolved": "dark",
+        "theme": "system"
+      }
+    ],
+    "viewport": {
+      "height": 800,
+      "pixelRatio": 2,
+      "width": 1280
+    }
+  },
+  "screenLogicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 1728,
+    "Height": 1117
+  },
+  "screenPhysicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 3456,
+    "Height": 2234
+  },
+  "webviewZoom": 1,
+  "window": {
+    "height": 799,
+    "width": 1279,
+    "x": 224,
+    "y": 136
+  }
+}

@@ -6,7 +6,7 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { ResultRequestScope, safeDisplayText } from "@/state/resultProviders";
 
 export function ProfileSourceAssistance({ path, disabled, useNormalized }: { path: string; disabled: boolean; useNormalized: (path: string, selection: string) => void }): React.JSX.Element {
-  const { locale } = useI18n(); const words = (en: string, ko: string): string => locale === "ko" ? ko : en;
+  const { w: words } = useI18n();
   const requests = useRef(new ResultRequestScope());
   const [format, setFormat] = useState("auto"); const [producer, setProducer] = useState(""); const [version, setVersion] = useState(""); const [capture, setCapture] = useState("{}");
   const [inventory, setInventory] = useState<bridge.ProfileSourceInventory | null>(null);

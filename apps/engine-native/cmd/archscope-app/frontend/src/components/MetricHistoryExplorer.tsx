@@ -9,7 +9,7 @@ import { ResultRequestScope, safeDisplayText } from "@/state/resultProviders";
 import { addWorkspaceResult, getWorkspaceGeneration } from "@/state/analysisWorkspace";
 
 export function MetricHistoryExplorer({ handle }: { handle: string }): React.JSX.Element {
-  const { locale } = useI18n(); const w = (en: string, ko: string): string => locale === "ko" ? ko : en;
+  const { w } = useI18n();
   const scope = useRef(new ResultRequestScope());
   const [inventory, setInventory] = useState<bridge.MetricQueryInventory | null>(null);
   const [ids, setIDs] = useState<string[]>([]); const [from, setFrom] = useState(""); const [to, setTo] = useState("");

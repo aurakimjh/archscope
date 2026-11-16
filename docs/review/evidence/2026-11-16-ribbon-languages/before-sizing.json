@@ -1,0 +1,69 @@
+{
+  "osScreenScaleFactor": 2,
+  "report": {
+    "checks": [
+      "all six command tabs switch without remounting the active page",
+      "File screen preserves the mounted settings page",
+      "collapse, temporary expansion, Escape, hide and restore preserve page and saved mode"
+    ],
+    "locales": [
+      {
+        "locale": "en",
+        "menuRows": 1,
+        "ribbonHeight": 138,
+        "selected": "true",
+        "tabHeight": 36
+      },
+      {
+        "locale": "ko",
+        "menuRows": 1,
+        "ribbonHeight": 138,
+        "selected": "true",
+        "tabHeight": 36
+      },
+      {
+        "locale": "ja",
+        "menuRows": 1,
+        "ribbonHeight": 138,
+        "selected": "true",
+        "tabHeight": 36
+      },
+      {
+        "locale": "zh-CN",
+        "menuRows": 1,
+        "ribbonHeight": 138,
+        "selected": "true",
+        "tabHeight": 36
+      },
+      {
+        "locale": "zh-TW",
+        "menuRows": 1,
+        "ribbonHeight": 138,
+        "selected": "true",
+        "tabHeight": 36
+      }
+    ],
+    "passed": true,
+    "platform": "MacIntel",
+    "schemaVersion": 1,
+    "scope": "Native ribbon and five-language UI smoke"
+  },
+  "screenLogicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 1728,
+    "Height": 1117
+  },
+  "screenPhysicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 3456,
+    "Height": 2234
+  },
+  "window": {
+    "height": 799,
+    "width": 1279,
+    "x": 224,
+    "y": 136
+  }
+}

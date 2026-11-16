@@ -1,3 +1,4 @@
+import { translateText } from "@/i18n/translations";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] pages/JenniferProfilePage.tsx — Jennifer 프로파일 분석기 페이지(MVP1).
 //
@@ -3258,16 +3259,16 @@ export function JenniferProfilePage(): React.JSX.Element {
               </p>
             )}
             <div className="flex flex-wrap items-center gap-2 text-xs" aria-live="polite">
-              {!currentDrilldown && drilldownSelection && <span>{locale === "ko" ? "선택 범위 계산 중…" : "Calculating selected scope…"}</span>}
+              {!currentDrilldown && drilldownSelection && <span>{translateText(locale, "Calculating selected scope…", "선택 범위 계산 중…")}</span>}
               {currentDrilldown?.error && <span role="alert" className="text-destructive">{currentDrilldown.error}</span>}
-              {currentDrilldown?.projection && <span>{locale === "ko" ? "Go 드릴다운 표본" : "Go drilldown samples"}: {String(currentDrilldown.projection.summary.sample_count)} / {String(currentDrilldown.projection.summary.candidate_group_count)}</span>}
-              <Button size="sm" variant="outline" disabled={!currentDrilldown?.projection || drilldownExporting} onClick={() => void exportDrilldown("json")}>{locale === "ko" ? "선택 범위 JSON 저장" : "Save scope JSON"}</Button>
-              <Button size="sm" variant="outline" disabled={!currentDrilldown?.projection || drilldownExporting} onClick={() => void exportDrilldown("html")}>{locale === "ko" ? "선택 범위 HTML 저장" : "Save scope HTML"}</Button>
+              {currentDrilldown?.projection && <span>{translateText(locale, "Go drilldown samples", "Go 드릴다운 표본")}: {String(currentDrilldown.projection.summary.sample_count)} / {String(currentDrilldown.projection.summary.candidate_group_count)}</span>}
+              <Button size="sm" variant="outline" disabled={!currentDrilldown?.projection || drilldownExporting} onClick={() => void exportDrilldown("json")}>{translateText(locale, "Save scope JSON", "선택 범위 JSON 저장")}</Button>
+              <Button size="sm" variant="outline" disabled={!currentDrilldown?.projection || drilldownExporting} onClick={() => void exportDrilldown("html")}>{translateText(locale, "Save scope HTML", "선택 범위 HTML 저장")}</Button>
               <Button size="sm" variant="outline" disabled={!currentDrilldown?.projection} onClick={() => {
                 if (!currentDrilldown?.projection) return;
                 addWorkspaceResult({ result: currentDrilldown.projection, title: "Jennifer MSA drilldown" });
-                setDrilldownNotice(locale === "ko" ? "선택 범위를 Workspace에 추가했습니다." : "Selected scope added to Workspace.");
-              }}>{locale === "ko" ? "선택 범위 Workspace 추가" : "Add scope to Workspace"}</Button>
+                setDrilldownNotice(translateText(locale, "Selected scope added to Workspace.", "선택 범위를 Workspace에 추가했습니다."));
+              }}>{translateText(locale, "Add scope to Workspace", "선택 범위 Workspace 추가")}</Button>
               {drilldownNotice && <span>{drilldownNotice}</span>}
             </div>
             {!currentDrilldown?.projection ? null : msaTimelineMode === "single" ? (
@@ -3455,7 +3456,7 @@ export function JenniferProfilePage(): React.JSX.Element {
               rows={scopedProfileRows}
               networkTimeByTxid={profilesScopeActive ? scopedProfileNetworkTime : allProfileNetworkTimeByTxid}
             />
-            {profilesScopeActive && <p className="text-xs text-muted-foreground">{locale === "ko" ? "사용자 규칙·미수집 외부 호출의 집계는 선택 범위에서 재계산하지 않습니다. 해당 집계는 전체 보기에서 확인하세요." : "Custom-rule and unprofiled-call rollups are available in the whole-result view; they are not recomputed for this scope."}</p>}
+            {profilesScopeActive && <p className="text-xs text-muted-foreground">{translateText(locale, "Custom-rule and unprofiled-call rollups are available in the whole-result view; they are not recomputed for this scope.", "사용자 규칙·미수집 외부 호출의 집계는 선택 범위에서 재계산하지 않습니다. 해당 집계는 전체 보기에서 확인하세요.")}</p>}
             <CustomRuleStatsPanel rows={scopedCustomRuleRows} />
             <NetworkPrepMethodsTable rows={scopedNetworkPrepRows} />
             <UnprofiledExternalCallGroupsTable rows={scopedUnprofiledExternalCallRows} />

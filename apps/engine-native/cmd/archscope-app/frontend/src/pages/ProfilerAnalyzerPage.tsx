@@ -1,3 +1,4 @@
+import { translateText } from "@/i18n/translations";
 import { EarlyTaskEvents } from "@/state/earlyTaskEvents";
 import { PROFILE_VALUE_UNITS, profileWeightUnit, formatProfileSeconds } from "../state/profileDuration";
 // ─────────────────────────────────────────────────────────────────────
@@ -1182,10 +1183,10 @@ export function ProfilerAnalyzerPage(): React.JSX.Element {
 
       {progressLogNotice && (
         <details className="rounded-md border border-sky-500/30 bg-sky-500/5 px-2 py-1 text-xs text-foreground">
-          <summary className="cursor-pointer">{locale === "ko" ? "진행 로그" : "Progress log"}</summary>
+          <summary className="cursor-pointer">{translateText(locale, "Progress log", "진행 로그")}</summary>
           <code className="font-mono">{progressLogNotice}</code>
           <span className="ml-2 text-muted-foreground">
-            {locale === "ko" ? "(분석 중 종료되어도 이 파일에 진행 단계가 남습니다)" : "(Progress remains here if analysis is interrupted)"}
+            {translateText(locale, "(Progress remains here if analysis is interrupted)", "(분석 중 종료되어도 이 파일에 진행 단계가 남습니다)")}
           </span>
         </details>
       )}

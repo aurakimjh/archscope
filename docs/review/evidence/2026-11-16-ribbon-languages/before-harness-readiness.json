@@ -1,0 +1,30 @@
+{
+  "osScreenScaleFactor": 2,
+  "report": {
+    "checks": [],
+    "failure": "Error: Unavailable control: [data-ribbon-command=\"navigate:settings\"]",
+    "locales": [],
+    "passed": false,
+    "platform": "MacIntel",
+    "schemaVersion": 1,
+    "scope": "Native ribbon and five-language UI smoke"
+  },
+  "screenLogicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 1728,
+    "Height": 1117
+  },
+  "screenPhysicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 3456,
+    "Height": 2234
+  },
+  "window": {
+    "height": 799,
+    "width": 1279,
+    "x": 224,
+    "y": 136
+  }
+}

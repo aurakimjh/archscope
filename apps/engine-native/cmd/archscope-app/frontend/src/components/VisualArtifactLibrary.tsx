@@ -7,7 +7,7 @@ import * as visual from "@/bridge/visuals";
 import * as bridge from "@/bridge/engine";
 
 export function VisualArtifactLibrary({ handles }: { handles: string[] }): React.JSX.Element {
-  const { locale } = useI18n(); const w = (en: string, ko: string): string => locale === "ko" ? ko : en;
+  const { w } = useI18n();
   const scope = useRef(new ResultRequestScope()); const [items, setItems] = useState<visual.VisualDescriptor[]>([]); const [selected, setSelected] = useState<string[]>([]); const [includeResults, setIncludeResults] = useState(false);
   const [preview, setPreview] = useState<visual.VisualPreview | null>(null); const [busy, setBusy] = useState(false); const [status, setStatus] = useState(""); const [error, setError] = useState(""); const [caps, setCaps] = useState<visual.VisualCapabilities | null>(null);
   async function refresh(): Promise<void> { const r = scope.current.begin(); setBusy(true); setError(""); try { const list = JSON.parse(await scope.current.wait(r, visual.list())) as visual.VisualDescriptor[]; setItems(list); setSelected(ids => ids.filter(id => list.some(item => item.id === id))); } catch (e) { if (scope.current.current(r)) setError(String(e)); } finally { if (scope.current.current(r)) setBusy(false); } }

@@ -1,3 +1,4 @@
+import { documentationLocale } from "@/i18n/locales";
 import {useEffect,useRef,useState} from "react";
 import { Dialogs } from "@/bridge/dialogs";
 import * as api from "@/bridge/llmTrace";
@@ -6,7 +7,7 @@ import {useI18n} from "@/i18n/I18nProvider";
 import {ResultRequestScope,safeDisplayText} from "@/state/resultProviders";
 
 export function LLMTraceSourceAssistance({path,disabled,useNormalized}:{path:string;disabled:boolean;useNormalized:(path:string)=>void}):React.JSX.Element {
- const {locale}=useI18n();const w=(en:string,ko:string):string=>locale==="ko"?ko:en;const scope=useRef(new ResultRequestScope());
+ const { w, locale } = useI18n();const scope=useRef(new ResultRequestScope());
  const [profile,setProfile]=useState("neutral.v1");const [namespace,setNamespace]=useState("");const [clock,setClock]=useState("unknown");const [producer,setProducer]=useState("");const [version,setVersion]=useState("");
  const [inventory,setInventory]=useState<api.LLMInventory|null>(null);const [busy,setBusy]=useState(false);const [error,setError]=useState("");
  const options=JSON.stringify({semantic_profile:profile,trace_namespace:namespace,clock,producer,producer_version:version});
@@ -15,7 +16,7 @@ export function LLMTraceSourceAssistance({path,disabled,useNormalized}:{path:str
  async function save():Promise<void>{if(!inventory)return;const r=scope.current.begin();setBusy(true);setError("");try{const output=await Dialogs.SaveFile({Title:w("Save body-free LLM trace","본문 제외 LLM trace 저장"),Filename:"llm-trace-set.json"});if(!output||!scope.current.current(r))return;await scope.current.wait(r,api.normalize(path,options,inventory.source_sha256,output));useNormalized(output);}catch(e){if(scope.current.current(r))setError(String(e));}finally{if(scope.current.current(r))setBusy(false);}}
  return <details className="rounded border border-border p-3"><summary>{w("LLM / gateway trace evidence","LLM / gateway trace 근거")}</summary>
   <p>{w("Normalize an OTLP JSON/JSONL file before adding it to a case. Raw names, content, tool arguments and arbitrary attributes are excluded. Intake recognizes known body markers only; sanitize unsupported exports before attaching them. Technical IDs must already be sanitized. Select the exact supported semantic subset; Langfuse/LangSmith JSON exports remain gated.","케이스에 추가하기 전에 OTLP JSON/JSONL 파일을 정규화하세요. 원본 이름·본문·tool 인자·임의 속성은 제외합니다. 접수 보호는 알려진 본문 표지만 식별하므로 미지원 export는 첨부 전에 민감 정보를 제거하세요. 기술 식별자는 미리 민감 정보를 제거해야 합니다. 지원되는 의미 부분집합을 직접 선택하세요. Langfuse/LangSmith JSON export는 지원하지 않습니다.")}</p>
-  <a href={`/offline-assets/docs/${locale}/LLM_TRACE_EVIDENCE.md`} download>{w("Save offline LLM trace guide","오프라인 LLM trace 안내 저장")}</a>
+  <a href={`/offline-assets/docs/${documentationLocale(locale)}/LLM_TRACE_EVIDENCE.md`} download>{w("Save offline LLM trace guide","오프라인 LLM trace 안내 저장")}</a>
   <fieldset disabled={busy||disabled} className="space-y-2">
    <label className="block">{w("Semantic profile","의미 프로파일")} <select aria-label="LLM semantic profile" value={profile} onChange={e=>setProfile(e.target.value)}>{["neutral.v1","otel-genai.v1.37.0","openinference.core.v1","langfuse-observations.v4.79"].map(v=><option key={v}>{v}</option>)}</select></label>
    <label className="block">{w("Trace namespace (required)","Trace namespace (필수)")} <input className="rounded border border-border bg-background p-1" aria-label="LLM trace namespace" value={namespace} onChange={e=>setNamespace(e.target.value)}/></label>
@@ -28,7 +29,7 @@ export function LLMTraceSourceAssistance({path,disabled,useNormalized}:{path:str
 }
 
 export function LLMTraceEvidenceActions({handle}:{handle:string}):React.JSX.Element {
- const {locale}=useI18n();const w=(en:string,ko:string):string=>locale==="ko"?ko:en;const scope=useRef(new ResultRequestScope());const loadScope=useRef(new ResultRequestScope());const [loading,setLoading]=useState(false);
+ const { w } = useI18n();const scope=useRef(new ResultRequestScope());const loadScope=useRef(new ResultRequestScope());const [loading,setLoading]=useState(false);
  const [inventory,setInventory]=useState<api.LLMInventory|null>(null);const [kind,setKind]=useState("spans");const [trace,setTrace]=useState("");const [record,setRecord]=useState("");const [namespace,setNamespace]=useState("");const [logical,setLogical]=useState("");const [page,setPage]=useState<api.LLMPage|null>(null);const [busy,setBusy]=useState(false);const [error,setError]=useState("");
  useEffect(()=>{scope.current.cancel();const r=loadScope.current.begin();setInventory(null);setPage(null);setTrace("");setRecord("");setNamespace("");setLogical("");setError("");setLoading(true);void loadScope.current.wait(r,api.describe(handle)).then(setInventory).catch(e=>{if(loadScope.current.current(r))setError(String(e));}).finally(()=>{if(loadScope.current.current(r))setLoading(false);});return()=>{scope.current.cancel();loadScope.current.cancel();};},[handle]);
  useEffect(()=>{if(!inventory)return;scope.current.cancel();setBusy(false);setPage(null);setError("");},[kind,trace,record,namespace,logical]);

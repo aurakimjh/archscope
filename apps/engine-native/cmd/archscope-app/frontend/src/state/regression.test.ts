@@ -21,6 +21,9 @@ import { buildFlameHierarchy, flameSearchCoverage, hiddenFlameSamples, type Flam
 import { adaptProfilerDiffFlame } from "./profilerDiffView.js";
 import { gcAxis, gcCoordinate, gcUnavailableReasons, gcReasonKey } from "./gcClock.js";
 import { messages } from "../i18n/messages.js";
+import { locales, preferredLocale, resolveLocale, documentationLocale } from "../i18n/locales.js";
+import { translateText } from "../i18n/translations.js";
+import { ribbonMode, toggledRibbonMode } from "./ribbon.js";
 import type { AnalysisWorkspaceEntry, WorkspaceAnalysisResult } from "./analysisWorkspace.js";
 import { evaluateAiInterpretation, extractAiInterpretation } from "./aiInterpretation.js";
 import {
@@ -3695,3 +3698,34 @@ assert(compressionBoundary.compressionKnown===2&&compressionBoundary.compression
 assert(compressionBoundary.received.bytes===1048940&&compressionBoundary.decoded.bytes===1048667&&compressionBoundary.received.unknown===1&&compressionBoundary.decoded.unknown===1,"compression eligibility must retain independently observed byte totals");
 
 assert(bodyUnavailableKey({...analyzerRows[2]!.response,bodyStorage:"truncated",bodyPreview:""})==="httpAnalyzerBodyTruncatedUnavailable","capped binary without retained text must not claim that a body prefix is shown below");
+
+// Script takes precedence over region; saved choices survive OS changes.
+assert(locales.length === 5 && preferredLocale("zh-TW", ["ja-JP"]) === "zh-TW", "saved five-language preference must win over OS language");
+for (const [tag, expected] of [["ja-JP", "ja"], ["zh-Hans", "zh-CN"], ["zh-SG", "zh-CN"], ["zh-Hant", "zh-TW"], ["zh-HK", "zh-TW"], ["zh-Hans-TW", "zh-CN"], ["zh-Hant-CN", "zh-TW"], ["ko_KR", "ko"]]) {
+  assert(resolveLocale(tag) === expected, `locale negotiation failed: ${tag}`);
+}
+assert(preferredLocale("invalid", ["fr-FR", "ja-JP"]) === "ja", "unsupported language must not mask a later supported preference");
+assert(preferredLocale(null, ["fr-FR"]) === "en", "unsupported language needs a safe default");
+for (const locale of locales) {
+  assert(Object.keys(messages[locale]).length === Object.keys(messages.en).length, `message-key parity: ${locale}`);
+  assert(documentationLocale(locale) === (locale === "ko" ? "ko" : "en"), "new UI locales must keep bundled guide links valid");
+  for (const key of Object.keys(messages.en) as Array<keyof typeof messages.en>) {
+    const value = messages[locale][key];
+    assert(!!value && JSON.stringify(value.match(/\{[A-Za-z_]\w*\}/g)?.sort() ?? []) === JSON.stringify(messages.en[key].match(/\{[A-Za-z_]\w*\}/g)?.sort() ?? []), `translation placeholder changed: ${locale}/${key}`);
+  }
+}
+assert(translateText("ja", "File") === "ファイル" && translateText("zh-CN", "File") === "文件" && translateText("zh-TW", "File") === "檔案", "new language catalogs need independent translations");
+assert(translateText("zh-TW", "Memory") === "記憶體" && translateText("zh-TW", "Thread") === "執行緒", "traditional locale must use Taiwan terminology");
+assert(ribbonMode("corrupted") === "expanded" && toggledRibbonMode("hidden") === "expanded", "persisted ribbon settings must have a recovery path");
+const ribbonRouter = new HttpCommandRouter();
+const observedCommands: string[] = [];
+const unsubscribeRibbon = ribbonRouter.subscribe(() => observedCommands.push(ribbonRouter.availableCommands().join(",")));
+let ribbonCommandRuns = 0;
+const removeRibbonCommand = ribbonRouter.register("save", () => ribbonCommandRuns++);
+ribbonRouter.dispatch("save", "native", 100);
+ribbonRouter.dispatch("save", "keyboard", 120);
+ribbonRouter.dispatch("save", "ribbon", 130);
+ribbonRouter.dispatch("save", "ribbon", 140);
+assert(ribbonCommandRuns === 3, "native/key echo must be coalesced without dropping independent ribbon clicks");
+removeRibbonCommand(); unsubscribeRibbon();
+assert(observedCommands.join("|") === "save|" && !ribbonRouter.dispatch("save", "ribbon", 150), "command availability must publish removal and reject unmounted handlers");

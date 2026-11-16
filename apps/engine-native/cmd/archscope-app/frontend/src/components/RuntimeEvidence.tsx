@@ -1,3 +1,4 @@
+import { documentationLocale } from "@/i18n/locales";
 import {useEffect,useRef,useState} from "react";
 import { Dialogs } from "@/bridge/dialogs";
 import {addWorkspaceResult,getWorkspaceGeneration} from "@/state/analysisWorkspace";
@@ -8,7 +9,7 @@ import {useI18n} from "@/i18n/I18nProvider";
 import {ResultRequestScope,safeDisplayText} from "@/state/resultProviders";
 const entry="rounded border border-border bg-background p-2";
 export function RuntimeSourceAssistance({path,disabled,useNormalized}:{path:string;disabled:boolean;useNormalized:(path:string)=>void}):React.JSX.Element {
- const {locale}=useI18n();const w=(en:string,ko:string):string=>locale==="ko"?ko:en;const scope=useRef(new ResultRequestScope());
+ const { w, locale } = useI18n();const scope=useRef(new ResultRequestScope());
  const [format,setFormat]=useState("python-runtime-json");const [context,setContext]=useState('{"clock_id":"unknown"}');const [paths,setPaths]=useState("");const [inventory,setInventory]=useState<api.RuntimeInventory|null>(null);const [busy,setBusy]=useState(false);const [error,setError]=useState("");
  useEffect(()=>{scope.current.cancel();setInventory(null);setBusy(false);setError("");return()=>scope.current.cancel();},[path,format,context,paths,disabled]);
  function options():string{const value=JSON.parse(context) as Record<string,unknown>;return JSON.stringify({...value,format});}
@@ -16,7 +17,7 @@ export function RuntimeSourceAssistance({path,disabled,useNormalized}:{path:stri
  async function save(merge=false):Promise<void>{if(!merge&&!inventory?.source_sha256)return;const r=scope.current.begin();setBusy(true);setError("");try{const output=await Dialogs.SaveFile({Title:w("Save scoped runtime model","범위가 있는 런타임 모델 저장"),Filename:"runtime-evidence-set.json"});if(!output||!scope.current.current(r))return;if(merge){const files=paths.split(/\r?\n/).map(v=>v.trim()).filter(Boolean);await scope.current.wait(r,api.merge(files,output));}else{await scope.current.wait(r,api.normalize(path,options(),inventory!.source_sha256!,output));}useNormalized(output);}catch(e){if(scope.current.current(r))setError(String(e));}finally{if(scope.current.current(r))setBusy(false);}}
  return <details className="rounded border border-border p-3"><summary>{w("Runtime / thread / TA / plan evidence","런타임 / 스레드 / TA / 실행계획 근거")}</summary>
   <p>{w("Inspect offline Python task/allocation exports, Node reports/event-loop exports, explicit CPU CSV, thread dumps, Rust backtraces or PostgreSQL plan JSON. Declare sanitized process identity, clock and collection conditions. Snapshots and open handles do not prove continuous wait or CPU use.","오프라인 Python task·allocation export, Node report·event-loop export, 명시적 CPU CSV, thread dump, Rust backtrace, PostgreSQL 실행계획 JSON을 확인합니다. 민감 정보를 제거한 프로세스 identity·시계·수집 조건을 선언하세요. 스냅샷과 열린 handle만으로 지속 대기나 CPU 사용을 판단하지 않습니다.")}</p>
-  <a href={`/offline-assets/docs/${locale}/RUNTIME_EVIDENCE.md`} download>{w("Save offline runtime guide and context examples","오프라인 런타임 안내·맥락 예제 저장")}</a>
+  <a href={`/offline-assets/docs/${documentationLocale(locale)}/RUNTIME_EVIDENCE.md`} download>{w("Save offline runtime guide and context examples","오프라인 런타임 안내·맥락 예제 저장")}</a>
   <fieldset disabled={busy||disabled} className="space-y-2"><select className={entry} aria-label="Runtime source format" value={format} onChange={e=>setFormat(e.target.value)}>{["python-runtime-json","node-runtime-json","node-report-json","ps-l-csv","thread-dump","rust-backtrace","postgres-explain-json","profile-source-set-json","runtime-evidence-json"].map(v=><option key={v}>{v}</option>)}</select>
    <label className="block">{w("Sanitized collection context JSON (without format)","민감 정보를 제거한 수집 맥락 JSON (format 제외)")}<textarea spellCheck={false} className={`${entry} w-full`} aria-label="Runtime collection context" value={context} onChange={e=>setContext(e.target.value)}/></label>
    <Button variant="outline" disabled={!path} onClick={()=>void inspect()}>{w("Inspect runtime source","런타임 원본 확인")}</Button>
@@ -26,7 +27,7 @@ export function RuntimeSourceAssistance({path,disabled,useNormalized}:{path:stri
  </details>;
 }
 export function RuntimeEvidenceActions({handle}:{handle:string}):React.JSX.Element {
- const {locale}=useI18n();const w=(en:string,ko:string):string=>locale==="ko"?ko:en;const scope=useRef(new ResultRequestScope());const loadScope=useRef(new ResultRequestScope());
+ const { w } = useI18n();const scope=useRef(new ResultRequestScope());const loadScope=useRef(new ResultRequestScope());
  const [inventory,setInventory]=useState<api.RuntimeInventory|null>(null);const [kind,setKind]=useState("observations");const [entity,setEntity]=useState("");const [stack,setStack]=useState("");const [frame,setFrame]=useState("");const [cpu,setCPU]=useState("");const [snapshot,setSnapshot]=useState("");const [page,setPage]=useState<api.RuntimePage|null>(null);const [busy,setBusy]=useState(false);const [loading,setLoading]=useState(false);const [error,setError]=useState("");
  useEffect(()=>{scope.current.cancel();const r=loadScope.current.begin();setInventory(null);setPage(null);setEntity("");setStack("");setFrame("");setCPU("");setSnapshot("");setError("");setBusy(false);setLoading(true);void loadScope.current.wait(r,api.describe(handle)).then(setInventory).catch(e=>{if(loadScope.current.current(r))setError(String(e));}).finally(()=>{if(loadScope.current.current(r))setLoading(false);});return()=>{loadScope.current.cancel();scope.current.cancel();};},[handle]);
  useEffect(()=>{scope.current.cancel();setBusy(false);setPage(null);setError("");},[kind,entity,stack,frame,cpu,snapshot]);

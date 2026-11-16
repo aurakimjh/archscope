@@ -78,7 +78,7 @@ export function HttpSessionFiles({
       setBusy(false);
     }
   };
-  useHttpCommands({ save: () => void save() });
+  useHttpCommands({ save: () => void save() }, { save: !busy });
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-2 border-b px-2 py-1 text-xs">
       <span>{t("httpFilesTitle")}</span>

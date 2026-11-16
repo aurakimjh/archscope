@@ -5,7 +5,7 @@ import { safeDisplayText } from "@/state/resultProviders";
 import { useI18n } from "@/i18n/I18nProvider";
 
 export function PackSettings(): React.JSX.Element {
-  const { locale } = useI18n(); const text = (en: string, ko: string): string => locale === "ko" ? ko : en;
+  const { w: text } = useI18n();
   const [pendingTrust, setPendingTrust] = useState<{ bodyPath: string; signaturePath: string; preview: bridge.PackTrustPreview } | null>(null);
   const [state, setState] = useState<bridge.PackState | null>(null);
   const [problem, setProblem] = useState(""); const [busy, setBusy] = useState(false);

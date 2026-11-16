@@ -1,3 +1,4 @@
+import { translateText } from "@/i18n/translations";
 import { Dialogs } from "@/bridge/dialogs";
 import { Download, FileText, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -147,11 +148,9 @@ export function ExportCenterPage(): React.JSX.Element {
               <option value="pptx" disabled={backendEntry}>{t("powerPointReport")}</option>
               <option value="csv">{t("csvTableExport")}</option>
               <option value="csv_dir" disabled={backendEntry}>{t("csvDirectoryExport")}</option>
-              <option value="json">{backendEntry ? (locale === "ko" ? "JSON (원본)" : "JSON (original)") : t("jsonExport")}</option>
+              <option value="json">{backendEntry ? (translateText(locale, "JSON (original)", "JSON (원본)")) : t("jsonExport")}</option>
             </select>
-            {backendEntry && <p className="text-xs text-muted-foreground">{locale === "ko"
-              ? "원본 JSON은 그대로 저장합니다. HTML·CSV는 결과 형식이 지원할 때 제공하며, 지원되지 않는 형식은 거절합니다."
-              : "Original JSON is preserved. HTML and CSV require a supported result format; unsupported formats are refused."}</p>}
+            {backendEntry && <p className="text-xs text-muted-foreground">{translateText(locale, "Original JSON is preserved. HTML and CSV require a supported result format; unsupported formats are refused.", "원본 JSON은 그대로 저장합니다. HTML·CSV는 결과 형식이 지원할 때 제공하며, 지원되지 않는 형식은 거절합니다.")}</p>}
           </label>
           <label className="workspace-field workspace-field-wide">
             <HelpedLabel help={getHelpText(locale, "optionOutputPath")}>

@@ -6,7 +6,7 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { ResultRequestScope, safeDisplayText, type Cancelable } from "@/state/resultProviders";
 
 export function InputAssistance({ path, scope, chooseImporter }: { path: string; scope: string; chooseImporter: (id: string) => void }): React.JSX.Element {
-  const { locale } = useI18n(); const words = (en: string, ko: string): string => locale === "ko" ? ko : en;
+  const { w: words } = useI18n();
   const requests = useRef(new ResultRequestScope());
   const [capture, setCapture] = useState(""); const [tool, setTool] = useState("");
   const [report, setReport] = useState<bridge.InputDiscovery | null>(null);

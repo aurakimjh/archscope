@@ -59,6 +59,13 @@ export default defineConfig({
     },
   },
   build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [{ name: "translations", test: /\/src\/i18n\/(?:ja|zh-CN|zh-TW)\.ts$/ }],
+        },
+      },
+    },
     // Page-level lazy loading keeps the startup shell small. The largest
     // remaining chunk is the shared, lazy ECharts runtime used only after a
     // chart page is opened, so keep the release budget explicit instead of

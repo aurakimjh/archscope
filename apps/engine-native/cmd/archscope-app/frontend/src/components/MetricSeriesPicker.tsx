@@ -5,7 +5,7 @@ import { safeDisplayText } from "@/state/resultProviders";
 import { filterMetricSeries, indexMetricSeries, pageMetricSeries, updateMetricSelection, type MetricSeriesChoice } from "@/state/metricSeriesSelection";
 
 export function MetricSeriesPicker({ series, selected, onChange }: { series: MetricSeriesChoice[]; selected: string[]; onChange: (ids: string[]) => void }): React.JSX.Element {
-  const { locale } = useI18n(); const w = (en: string, ko: string): string => locale === "ko" ? ko : en;
+  const { w } = useI18n();
   const [search, setSearch] = useState(""); const [requestedPage, setPage] = useState(0);
   useEffect(() => { setSearch(""); setPage(0); }, [series]);
   const index = useMemo(() => indexMetricSeries(series), [series]);

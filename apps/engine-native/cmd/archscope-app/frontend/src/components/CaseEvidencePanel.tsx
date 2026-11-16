@@ -7,7 +7,7 @@ import { ResultRequestScope, safeDisplayText } from "@/state/resultProviders";
 import { reopenWorkspaceCase } from "@/state/analysisWorkspace";
 
 export function CaseEvidencePanel({ handle }: { handle: string }): React.JSX.Element {
-  const { locale } = useI18n(); const w = (en: string, ko: string): string => locale === "ko" ? ko : en;
+  const { w } = useI18n();
   const scope = useRef(new ResultRequestScope());
   const [cases, setCases] = useState<{ id: string; title: string; state: string; problem?: string }[]>([]);
   const [caseID, setCaseID] = useState(""); const [manifest, setManifest] = useState<bridge.CaseEvidenceManifest | null>(null);

@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-16",
+  "baseCommit": "a7a0478a6500b1e1fd297b0f4afc70149d1fcdb5",
+  "state": "verified_before_scoped_commit",
+  "authorization": "User requested UI testing followed by commit and push",
+  "nativeScenarios": [
+    {
+      "name": "wide",
+      "requestedWindow": {
+        "width": 1280,
+        "height": 800
+      },
+      "actualWebviewZoom": 1,
+      "rendererViewport": {
+        "height": 800,
+        "pixelRatio": 2,
+        "width": 1280
+      },
+      "receipt": "native-wide.json",
+      "result": "PASS",
+      "localeTabLayouts": 30
+    },
+    {
+      "name": "compact",
+      "requestedWindow": {
+        "width": 1024,
+        "height": 768
+      },
+      "actualWebviewZoom": 1.25,
+      "rendererViewport": {
+        "height": 614,
+        "pixelRatio": 2.5,
+        "width": 819
+      },
+      "receipt": "native-compact.json",
+      "result": "PASS",
+      "localeTabLayouts": 30
+    },
+    {
+      "name": "narrow",
+      "requestedWindow": {
+        "width": 900,
+        "height": 768
+      },
+      "actualWebviewZoom": 1.25,
+      "rendererViewport": {
+        "height": 614,
+        "pixelRatio": 2.5,
+        "width": 720
+      },
+      "receipt": "native-narrow.json",
+      "result": "PASS",
+      "localeTabLayouts": 30
+    }
+  ],
+  "localeTabLayouts": 90,
+  "checks": {
+    "nativeMatrix": "PASS",
+    "all21RouteCommandsPresent": "PASS",
+    "fiveLocales": "PASS",
+    "lightDarkSystemThemes": "PASS",
+    "fileBackPagePreservation": "PASS",
+    "tabKeyboardFocus": "PASS",
+    "collapseTemporaryEscapeOutsideHideRestore": "PASS",
+    "frontendState": "PASS",
+    "frontendBuild": "PASS",
+    "translationCoverage": {
+      "result": "PASS",
+      "phrasesPerAddedLocale": 2197
+    },
+    "desktopOnlyGuard": "PASS",
+    "smokeSyntax": "PASS",
+    "goMenuAuditTag": "PASS",
+    "goVetAuditTag": "PASS",
+    "windowsProductionCrossBuild": {
+      "amd64": "PASS",
+      "386": "PASS"
+    }
+  },
+  "fixes": [
+    "Remove unconditional right alignment from the last compact group popup",
+    "Apply requested audit zoom after native window creation",
+    "Wait for the temporary panel before testing outside pointer closing",
+    "Retain progress and renderer result before optional native geometry reads"
+  ],
+  "visualScreenshot": {
+    "result": "UNOBSERVED",
+    "reason": "cgWindowNotFound"
+  },
+  "remaining": [
+    "Independent implementation and fluent-speaker review",
+    "Actual Windows WebView2 fonts, IME, native shortcuts and OS DPI acceptance",
+    "Manual screenshot/readability review"
+  ],
+  "excludedFromCommit": [
+    "docs/en/SYSTEM_HTTP_CAPTURE.md",
+    "docs/ko/SYSTEM_HTTP_CAPTURE.md",
+    "scripts/verify-http-desktop.mjs",
+    "Pre-existing First implementation cycle history block in work_status.md"
+  ]
+}

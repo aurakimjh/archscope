@@ -21,8 +21,7 @@ import { ResultRequestScope, safeDisplayText, comparisonEligibility, type Compar
 
 // The consumer understands provider schemas, never importer/result type names.
 export function EvidenceResultPanel({ entries, active }: { entries: AnalysisWorkspaceEntry[]; active?: AnalysisWorkspaceEntry }): React.JSX.Element {
-  const { locale } = useI18n(); const ko = locale === "ko";
-  const words = (en: string, kr: string): string => ko ? kr : en;
+  const { w: words } = useI18n();
   const jobLabel = (state: string): string => ({ queued: words("Queued", "대기 중"), probing: words("Detecting", "형식 감지 중"), validating: words("Validating", "검증 중"), parsing: words("Reading", "읽는 중"), normalizing: words("Normalizing", "정규화 중"), analyzing: words("Analyzing", "분석 중"), validating_result: words("Checking result", "결과 검증 중"), committing: words("Saving", "저장 중"), needs_selection: words("Choose a format", "형식 선택 필요"), completed: words("Completed", "완료"), partial: words("Partial result", "부분 결과"), failed: words("Failed", "실패"), cancelled: words("Canceled", "취소됨") })[state] ?? words("Unknown state", "알 수 없는 상태");
   const viewLabel = (kind: string, path: string): string => {
     const labels: Record<string, string> = { summary: words("Summary", "요약"), diagnostics: words("Diagnostics", "진단"), table: words("Table", "표"), detail: words("Detail", "상세"), timeline: words("Timeline events", "타임라인 이벤트"), sli: words("Service indicators", "서비스 지표"), compare: words("Compare", "비교"), chart: words("Charts", "차트") };

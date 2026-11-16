@@ -1,3 +1,4 @@
+import { translateText } from "@/i18n/translations";
 import { EarlyTaskEvents } from "@/state/earlyTaskEvents";
 // ─────────────────────────────────────────────────────────────────────
 // [한글] pages/ThreadDumpAnalyzerPage.tsx — 스레드 덤프 통합 분석기 페이지.
@@ -558,7 +559,7 @@ export function ThreadDumpAnalyzerPage(): React.JSX.Element {
             </label>
           )}
           </div>
-          {mode==="multi"&&<label className="block space-y-1 text-xs"><span>{locale==="ko"?"명시적 프로세스·스레드 수명 맥락 JSON (선택)":"Explicit process/thread lifetime context JSON (optional)"}</span><textarea aria-label="Thread correlation context" maxLength={65536} disabled={state==="running"} className="w-full rounded border border-border bg-background p-2 font-mono" value={correlationContextJSON} onChange={event=>setCorrelationContextJSON(event.target.value)}/><p>{locale==="ko"?"맥락이 없으면 dump별로 분리하고 지속성 탐지 제한을 경고합니다. runtime thread ID별 시작 시간을 선언하세요. 이름 일치만으로 연결하지 않습니다. RUNTIME_EVIDENCE 안내의 correlation-context 예제를 참고하세요.":"Missing context isolates snapshots and warns that persistence detection is limited. Declare start times per runtime thread ID. Names alone never join. See the correlation-context example in the runtime guide."}</p></label>}
+          {mode==="multi"&&<label className="block space-y-1 text-xs"><span>{translateText(locale, "Explicit process/thread lifetime context JSON (optional)", "명시적 프로세스·스레드 수명 맥락 JSON (선택)")}</span><textarea aria-label="Thread correlation context" maxLength={65536} disabled={state==="running"} className="w-full rounded border border-border bg-background p-2 font-mono" value={correlationContextJSON} onChange={event=>setCorrelationContextJSON(event.target.value)}/><p>{translateText(locale, "Missing context isolates snapshots and warns that persistence detection is limited. Declare start times per runtime thread ID. Names alone never join. See the correlation-context example in the runtime guide.", "맥락이 없으면 dump별로 분리하고 지속성 탐지 제한을 경고합니다. runtime thread ID별 시작 시간을 선언하세요. 이름 일치만으로 연결하지 않습니다. RUNTIME_EVIDENCE 안내의 correlation-context 예제를 참고하세요.")}</p></label>}
         </AnalyzerOptionsDock>
       </div>
 
@@ -1001,7 +1002,7 @@ function MultiDumpResult({
 
   return (
     <Tabs defaultValue="summary" className="w-full">
- {(result.metadata.diagnostics?.warnings??[]).map((warning,index)=><p key={index} role="status" className="rounded border border-amber-500 p-2 text-sm">{locale==="ko"?"상관 맥락/분석 제한: ":"Correlation/analysis limitation: "}{warning.message}</p>)}
+ {(result.metadata.diagnostics?.warnings??[]).map((warning,index)=><p key={index} role="status" className="rounded border border-amber-500 p-2 text-sm">{translateText(locale, "Correlation/analysis limitation: ", "상관 맥락/분석 제한: ")}{warning.message}</p>)}
       <TabsList>
         <TabsTrigger value="summary">{t("threadDumpTabSummary")}</TabsTrigger>
         <TabsTrigger value="findings">

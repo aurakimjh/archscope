@@ -41,6 +41,16 @@ export function HttpCommandProvider({
         return;
       router.dispatch(command, "native", performance.now());
     });
+    const fromRibbon = (event: Event) => {
+      const command = (event as CustomEvent<unknown>).detail;
+      if (document.querySelector(".desktop-shell")?.getAttribute("data-active-route") !== "http_capture" ||
+        !isHttpCommand(command) || (modalOpen() && command !== "help")) return;
+      router.dispatch(command, "ribbon", performance.now());
+    };
+    const publish = () => window.dispatchEvent(new CustomEvent("desktop:capture-commands", { detail: router.availableCommands() }));
+    const unsubscribe = router.subscribe(publish);
+    window.addEventListener("desktop:capture-command", fromRibbon);
+    publish();
     const keydown = (event: KeyboardEvent) => {
       if (document.querySelector(".desktop-shell")?.getAttribute("data-active-route") !== "http_capture") return;
       const target = event.target instanceof HTMLElement ? event.target : null;
@@ -55,6 +65,9 @@ export function HttpCommandProvider({
     window.addEventListener("keydown", keydown);
     return () => {
       off();
+      unsubscribe();
+      window.removeEventListener("desktop:capture-command", fromRibbon);
+      window.dispatchEvent(new CustomEvent("desktop:capture-commands", { detail: [] }));
       window.removeEventListener("keydown", keydown);
     };
   }, [router]);
@@ -62,11 +75,12 @@ export function HttpCommandProvider({
 }
 export function useHttpCommands(
   handlers: Partial<Record<HttpCommand, () => void>>,
+  enabled: Partial<Record<HttpCommand, boolean>> = {},
 ): void {
   const router = useContext(Context);
   const latest = useRef(handlers);
   latest.current = handlers;
-  const keys = Object.keys(handlers).sort().join(",");
+  const keys = Object.keys(handlers).filter(isHttpCommand).filter(command => enabled[command] !== false).sort().join(",");
   useEffect(() => {
     if (!router) return;
     const cleanups = keys

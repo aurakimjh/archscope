@@ -8,7 +8,7 @@ import { ResultRequestScope, safeDisplayText } from "@/state/resultProviders";
 import { addWorkspaceResult, getWorkspaceGeneration, type SavedCaseReference } from "@/state/analysisWorkspace";
 
 export function ProfileEvidenceExplorer({ handle, caseRef }: { handle: string; caseRef?: SavedCaseReference }): React.JSX.Element {
-  const { locale } = useI18n(); const w = (en: string, ko: string): string => locale === "ko" ? ko : en;
+  const { w } = useI18n();
   const scope = useRef(new ResultRequestScope());
   const [inventory, setInventory] = useState<bridge.ProfileQueryInventory | null>(null);
   const [selection, setSelection] = useState<bridge.ProfileSelection>({ profile_ids: [], metric_id: "" });

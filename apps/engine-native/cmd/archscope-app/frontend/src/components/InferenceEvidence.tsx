@@ -1,3 +1,4 @@
+import { documentationLocale } from "@/i18n/locales";
 import {useEffect,useRef,useState} from "react";
 import { Dialogs } from "@/bridge/dialogs";
 import * as api from "@/bridge/inferenceEvidence";
@@ -8,7 +9,7 @@ import {ResultRequestScope,safeDisplayText} from "@/state/resultProviders";
 import {addWorkspaceResult,getWorkspaceGeneration} from "@/state/analysisWorkspace";
 
 export function InferenceSourceAssistance({path,disabled,useNormalized}:{path:string;disabled:boolean;useNormalized:(path:string)=>void}):React.JSX.Element {
- const {locale}=useI18n();const w=(en:string,ko:string):string=>locale==="ko"?ko:en;const scope=useRef(new ResultRequestScope());
+ const { w, locale } = useI18n();const scope=useRef(new ResultRequestScope());
  const [format,setFormat]=useState("nvidia-smi-csv");const [contract,setContract]=useState("{}");const [inventory,setInventory]=useState<api.InferenceInventory|null>(null);const [busy,setBusy]=useState(false);const [error,setError]=useState("");
  const options=format==="ollama-generate-final-json"?JSON.stringify({format}):`{"format":${JSON.stringify(format)},"${format==="nvidia-smi-csv"?"capture":"bindings"}":${contract}}`;
  useEffect(()=>{scope.current.cancel();setInventory(null);setBusy(false);setError("");return()=>scope.current.cancel();},[path,options,disabled]);
@@ -17,7 +18,7 @@ export function InferenceSourceAssistance({path,disabled,useNormalized}:{path:st
  return <details className="rounded border border-border p-3"><summary>{w("GPU / inference serving evidence","GPU / 추론 서빙 근거")}</summary>
   <p>{w("Import files with explicit identity, units and collection context. No GPU polling, tool execution, live endpoint or automatic vLLM aliases.","명시적 identity·단위·수집 맥락을 가진 파일을 가져옵니다. GPU polling·도구 실행·실시간 endpoint·vLLM 자동 alias는 사용하지 않습니다.")}</p>
   <p className="text-xs">{w("For NVIDIA CSV, supply the exact query contract and per-row timestamps (or leave time unknown). For canonical MetricHistory, supply a manifest without metrics. Missing measurements stay unavailable. Save a new model, then Analyze with inference.evidence-json and {}.","NVIDIA CSV는 정확한 query 계약과 행별 시각(없으면 unknown)을 입력하세요. 정규 MetricHistory에는 metrics를 제외한 연결 manifest를 입력하세요. 누락 측정은 unavailable로 남깁니다. 새 모델 저장 후 inference.evidence-json과 {}로 분석하세요.")}</p>
-  <a href={`/offline-assets/docs/${locale}/INFERENCE_EVIDENCE.md`} download>{w("Save offline device/serving guide","오프라인 장치·서빙 안내 저장")}</a>
+  <a href={`/offline-assets/docs/${documentationLocale(locale)}/INFERENCE_EVIDENCE.md`} download>{w("Save offline device/serving guide","오프라인 장치·서빙 안내 저장")}</a>
   <fieldset disabled={busy||disabled} className="space-y-2"><select className="max-w-full rounded border border-border bg-background p-2" aria-label={w("Inference source format","추론 근거 원본 형식")} value={format} onChange={e=>setFormat(e.target.value)}><option>nvidia-smi-csv</option><option>metric-bindings-json</option><option>ollama-generate-final-json</option><option>otlp-genai-ollama-json</option></select>
    {format!=="ollama-generate-final-json"&&<label className="block">{w("Sanitized capture / bindings JSON","민감 정보를 제거한 capture / bindings JSON")}<textarea spellCheck={false} aria-label={w("Inference capture or bindings","추론 capture 또는 bindings")} className="w-full rounded border border-border bg-background p-2" value={contract} onChange={e=>setContract(e.target.value)}/></label>}
    <Button variant="outline" disabled={!path} onClick={()=>void inspect()}>{w("Inspect device/serving source","장치·서빙 원본 확인")}</Button>
@@ -27,7 +28,7 @@ export function InferenceSourceAssistance({path,disabled,useNormalized}:{path:st
 }
 
 export function InferenceEvidenceActions({handle}:{handle:string}):React.JSX.Element {
- const {locale}=useI18n();const w=(en:string,ko:string):string=>locale==="ko"?ko:en;const scope=useRef(new ResultRequestScope());
+ const { w } = useI18n();const scope=useRef(new ResultRequestScope());
  const [inventory,setInventory]=useState<api.InferenceInventory|null>(null);const [entity,setEntity]=useState("");const [signal,setSignal]=useState("");const [page,setPage]=useState<api.MetricPage|null>(null);const [busy,setBusy]=useState(false);const [error,setError]=useState("");
  useEffect(()=>{const r=scope.current.begin();setInventory(null);setEntity("");setSignal("");setPage(null);setError("");setBusy(true);void scope.current.wait(r,api.describe(handle)).then(setInventory).catch(e=>{if(scope.current.current(r))setError(String(e));}).finally(()=>{if(scope.current.current(r))setBusy(false);});return()=>scope.current.cancel();},[handle]);
  useEffect(()=>{if(!inventory)return;scope.current.cancel();setBusy(false);setPage(null);setError("");},[signal,entity]);

@@ -1,0 +1,43 @@
+{
+  "osScreenScaleFactor": 2,
+  "report": {
+    "checks": [],
+    "failure": "Error: Popup command outside viewport: Chart Studio",
+    "locales": [],
+    "passed": false,
+    "phase": "locale en",
+    "platform": "MacIntel",
+    "renderer": {
+      "heading": "Settings",
+      "language": "en",
+      "paneHidden": false
+    },
+    "schemaVersion": 2,
+    "scope": "Native ribbon and five-language UI smoke",
+    "themes": [],
+    "viewport": {
+      "height": 768,
+      "pixelRatio": 2,
+      "width": 1024
+    }
+  },
+  "screenLogicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 1728,
+    "Height": 1117
+  },
+  "screenPhysicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 3456,
+    "Height": 2234
+  },
+  "webviewZoom": 1,
+  "window": {
+    "height": 767,
+    "width": 1023,
+    "x": 352,
+    "y": 152
+  }
+}

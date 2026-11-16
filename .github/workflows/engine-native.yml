@@ -8,6 +8,8 @@ on:
       - "apps/engine-native/**"
       - "examples/**"
       - "scripts/verify-desktop-only.mjs"
+      - "scripts/check-desktop-i18n.py"
+      - "scripts/verify-ribbon-native.js"
       - "scripts/verify-windows-desktop-soak.mjs"
       - "scripts/lib/desktop-soak-checks.mjs"
       - "scripts/test-desktop-soak-checks.mjs"
@@ -28,6 +30,8 @@ on:
       - "apps/engine-native/**"
       - "examples/**"
       - "scripts/verify-desktop-only.mjs"
+      - "scripts/check-desktop-i18n.py"
+      - "scripts/verify-ribbon-native.js"
       - "scripts/verify-windows-desktop-soak.mjs"
       - "scripts/lib/desktop-soak-checks.mjs"
       - "scripts/test-desktop-soak-checks.mjs"
@@ -267,6 +271,12 @@ jobs:
 
       - name: State tests
         run: npm run test:state
+
+      - name: Desktop translations and ribbon smoke syntax
+        working-directory: .
+        run: |
+          python3 scripts/check-desktop-i18n.py
+          node --check scripts/verify-ribbon-native.js
 
       - name: Desktop soak failure predicates
         working-directory: .

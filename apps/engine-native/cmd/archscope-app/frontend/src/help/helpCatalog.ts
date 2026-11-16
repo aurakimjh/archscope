@@ -1,5 +1,6 @@
 import { useI18n } from "@/i18n/I18nProvider";
 import type { Locale } from "@/i18n/messages";
+import { translateText } from "@/i18n/translations";
 
 const en = {
   helpTrigger: "Show help",
@@ -569,10 +570,8 @@ const ko: Record<HelpKey, string> = {
     "설치된 앱 빌드의 metadata입니다.",
 };
 
-const catalog: Record<Locale, Record<HelpKey, string>> = { en, ko };
-
 export function getHelpText(locale: Locale, key: HelpKey): string {
-  return catalog[locale][key] ?? catalog.en[key];
+  return translateText(locale, en[key], ko[key]);
 }
 
 export function useHelpText(key: HelpKey): string {

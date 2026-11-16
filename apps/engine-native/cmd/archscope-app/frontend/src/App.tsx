@@ -1,7 +1,7 @@
 import { Events } from "@wailsio/runtime";
 import * as CaptureService from "../bindings/github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app/captureservice";
-// 네이티브 메뉴가 화면 탐색을 담당하며 메뉴를 여닫아도 현재 도구는 유지한다.
-import { lazy, Suspense, useState, useEffect } from "react";
+// 리본과 OS 메뉴는 같은 명령을 사용하며 리본 탭 전환은 현재 도구를 유지한다.
+import { lazy, Suspense, useState, useEffect, useCallback } from "react";
 
 import { useI18n } from "./i18n/I18nProvider";
 
@@ -11,6 +11,11 @@ import { DESKTOP_ROUTES, type NavKey } from "./state/desktopNavigation";
 import { AboutDialog } from "./components/AboutDialog";
 import { SlideOverPanel } from "./components/SlideOverPanel";
 import { getHelpText } from "./help/helpCatalog";
+import { DesktopRibbon } from "./components/DesktopRibbon";
+import { isLocale } from "./i18n/locales";
+import { desktopMenuLabels } from "./i18n/desktopLabels";
+import { isHttpCommand, type HttpCommand } from "./state/httpCommands";
+import { ribbonMode, RIBBON_STORAGE_KEY, toggledRibbonMode, type RibbonMode } from "./state/ribbon";
 
 
 
@@ -146,7 +151,7 @@ const PAGES = {
 
 // 현재 도구만 마운트해 큰 분석 결과 여러 개가 메모리에 남지 않게 한다.
 function App() {
-  const { locale, setLocale, t } = useI18n();
+  const { locale, setLocale, t, w } = useI18n();
   const { theme, setTheme } = useTheme();
   const [active, setActive] = useState<NavKey>("profiler");
   const [about, setAbout] = useState(false);
@@ -154,6 +159,15 @@ function App() {
   const [canOpen, setCanOpen] = useState(false);
   const [canRecent, setCanRecent] = useState(false);
   const [launchError, setLaunchError] = useState("");
+  const [ribbon, setRibbon] = useState<RibbonMode>(() => {
+    try { return ribbonMode(localStorage.getItem(RIBBON_STORAGE_KEY)); } catch { return "expanded"; }
+  });
+  const [fileOpen, setFileOpen] = useState(false);
+  const [captureCommands, setCaptureCommands] = useState<HttpCommand[]>([]);
+  const setRibbonMode = useCallback((mode: RibbonMode) => {
+    setRibbon(mode);
+    try { localStorage.setItem(RIBBON_STORAGE_KEY, mode); } catch { /* Keep the session setting. */ }
+  }, []);
   useEffect(() => {
     let disposed = false;
     void CaptureService.ApplyDesktopLaunch()
@@ -181,8 +195,8 @@ function App() {
   const routes = DESKTOP_ROUTES.map(route => {
     let label: string;
     if ("labelKey" in route) label = t(route.labelKey);
-    else if (route.key === "http_capture") label = locale === "ko" ? "HTTP 캡처" : "HTTP Capture";
-    else label = locale === "ko" ? "브라우저 CPU" : "Browser CPU";
+    else if (route.key === "http_capture") label = w("HTTP Capture", "HTTP 캡처");
+    else label = w("Browser CPU", "브라우저 CPU");
     return {...route, label};
   });
   useEffect(() => {
@@ -198,23 +212,27 @@ function App() {
     return () => observer.disconnect();
   }, [active]);
   useEffect(() => {
-    void Events.Emit("desktop:state", {locale, theme, active, canOpen, canRecent, routes});
-  }, [locale, theme, active, canOpen, canRecent]);
-  useEffect(() => Events.On("desktop:command", event => {
-    const command = (event.data as {command?: string})?.command ?? "";
+    void Events.Emit("desktop:state", {locale, theme, active, canOpen, canRecent, routes, captureCommands, labels: desktopMenuLabels(locale)});
+  }, [locale, theme, active, canOpen, canRecent, captureCommands]);
+  const dispatchDesktopCommand = useCallback((command: string) => {
     const [action, value] = command.split(":");
     const modalOpen = document.querySelector(
       '[role="dialog"][aria-modal="true"]:not([aria-hidden="true"])',
     );
-    if (["open", "navigate"].includes(action) && modalOpen) return;
+    if (modalOpen && !["help", "locale", "theme"].includes(action)) return;
+    if (action !== "ribbon") setFileOpen(false);
     if (action === "navigate" && DESKTOP_ROUTES.some(route => route.key === value)) {
       setActive(value as NavKey);
-    } else if (action === "locale" && (value === "en" || value === "ko")) {
+    } else if (action === "locale" && isLocale(value)) {
       setLocale(value);
     } else if (action === "theme" && ["light", "dark", "system"].includes(value)) {
       setTheme(value as Theme);
     } else if (action === "about") {
       setAbout(true);
+    } else if (action === "ribbon") {
+      setRibbonMode(value === "toggle" ? toggledRibbonMode(ribbon) : ribbonMode(value));
+    } else if (action === "capture" && active === "http_capture" && isHttpCommand(value)) {
+      window.dispatchEvent(new CustomEvent("desktop:capture-command", { detail: value }));
     } else if (action === "open") {
       document.querySelector<HTMLButtonElement>(
         `[data-route="${active}"] [data-open-file]:not([disabled])`,
@@ -233,7 +251,18 @@ function App() {
         else setHelp(true);
       }
     }
-  }), [active, setLocale, setTheme]);
+  }, [active, ribbon, setLocale, setTheme, setRibbonMode]);
+  useEffect(() => Events.On("desktop:command", event => {
+    dispatchDesktopCommand((event.data as {command?: string})?.command ?? "");
+  }), [dispatchDesktopCommand]);
+  useEffect(() => {
+    const update = (event: Event) => {
+      const commands = (event as CustomEvent<unknown>).detail;
+      setCaptureCommands(Array.isArray(commands) ? commands.filter(isHttpCommand) : []);
+    };
+    window.addEventListener("desktop:capture-commands", update);
+    return () => window.removeEventListener("desktop:capture-commands", update);
+  }, []);
   useEffect(() => {
     const navigate = (event: Event) => {
       const key = (event as CustomEvent<NavKey>).detail;
@@ -251,6 +280,11 @@ function App() {
       <div className="app-shell desktop-shell" data-active-route={active}>
         <div className="app-main">
           <header className="desktop-titlebar"><span>{routes.find(route => route.key===active)?.label}</span></header>
+          <DesktopRibbon active={active} routes={routes} mode={ribbon} onMode={setRibbonMode}
+            onToggle={() => setRibbonMode(toggledRibbonMode(ribbon))} onCommand={dispatchDesktopCommand}
+            canOpen={canOpen} canRecent={canRecent} captureCommands={captureCommands} theme={theme}
+            fileOpen={fileOpen} onFileOpen={setFileOpen} />
+          <div className="tool-pane" data-route={active} key={active} hidden={fileOpen}>
           <Suspense fallback={<PageFallback />}>
             {launchError && (
               <p
@@ -260,10 +294,9 @@ function App() {
                 {launchError}
               </p>
             )}
-            <div className="tool-pane" data-route={active} key={active}>
               <ActivePage />
-            </div>
           </Suspense>
+          </div>
         </div>
       </div>
       <AboutDialog open={about} onClose={() => setAbout(false)} />

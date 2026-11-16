@@ -7,7 +7,7 @@ import { addEvidenceCard } from "@/state/evidenceBoard";
 import * as visual from "@/bridge/visuals";
 
 export function VisualArtifactActions({ handle, target = "", query, title, availableColumns }: { handle: string; target?: string; query: visual.VisualQuery; title: string; availableColumns?: string[] }): React.JSX.Element {
-  const { locale } = useI18n(); const w = (en: string, ko: string): string => locale === "ko" ? ko : en;
+  const { w } = useI18n();
   const scope = useRef(new ResultRequestScope()); const [caps, setCaps] = useState<visual.VisualCapabilities | null>(null);
   const [presentation, setPresentation] = useState<visual.VisualPresentation>({ width: 2400, height: 1600, font_size: 26, rows_per_page: 20, transparent: false, title, annotation: "" });
   const [artifact, setArtifact] = useState<visual.VisualDescriptor | null>(null); const [preview, setPreview] = useState<visual.VisualPreview | null>(null); const [page, setPage] = useState(0);

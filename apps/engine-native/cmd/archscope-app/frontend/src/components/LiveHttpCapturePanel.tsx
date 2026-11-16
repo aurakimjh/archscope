@@ -400,6 +400,10 @@ export function LiveHttpCapturePanel({
   useHttpCommands({
     start: () => void start(), stop: () => void stop(), pause: () => void pause(),
     clear: () => void clear(), follow: () => dispatch({type:"follow",follow:!state.follow}),
+  }, {
+    start: !state.busy && !active && firstUseAccepted && !!modes[0]?.available && backends.some(item => item.name === backend && item.available)
+      && (processScope !== "selected" || selectedProcesses.length > 0) && (processScope !== "launch" || !!launchPath),
+    stop: !state.busy && active, pause: !state.busy && active, clear: !state.busy && !!state.session,
   });
 
   const installCA = useCallback(async () => {
