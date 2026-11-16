@@ -1,0 +1,281 @@
+{
+  "scope": "Read-only instrumented native Windows correlation; separate from ordinary screens, no forced GC/trim, no causal allocation or universal leak-free proof",
+  "instrumented": true,
+  "nativeAcceptance": false,
+  "countsQualified": true,
+  "maximumLagSeconds": 5.328,
+  "jsHeapAvailable": true,
+  "expectedCounters": {
+    "entries": 80,
+    "httpEntries": 80,
+    "fingerprintedHttpEntries": 80,
+    "uniqueTransactionArrays": 80,
+    "logicalRows": 10240,
+    "uniqueRetainedRows": 10240,
+    "immutableArrays": 80,
+    "activeRows": 128
+  },
+  "metrics": {
+    "rendererPrivateBytes": {
+      "firstMedian": 391479296,
+      "lastMedian": 397799424,
+      "delta": 6320128,
+      "slopePerCycle": 4674560.0
+    },
+    "treePrivateBytes": {
+      "firstMedian": 646123520,
+      "lastMedian": 651481088,
+      "delta": 5357568,
+      "slopePerCycle": 3937792.0
+    },
+    "jsHeapUsed": {
+      "firstMedian": 75281690,
+      "lastMedian": 74194457,
+      "delta": -1087233,
+      "slopePerCycle": 4260.333333333333
+    },
+    "jsHeapTotal": {
+      "firstMedian": 88002461,
+      "lastMedian": 76728777,
+      "delta": -11273684,
+      "slopePerCycle": -66745.125
+    }
+  },
+  "matched": [
+    {
+      "cycle": 29,
+      "lagSeconds": 2.7,
+      "counters": {
+        "activeRows": 128,
+        "entries": 80,
+        "fingerprintedHttpEntries": 80,
+        "httpEntries": 80,
+        "immutableArrays": 80,
+        "jsHeap": {
+          "total": 93508262,
+          "used": 75281690
+        },
+        "logicalRows": 10240,
+        "uniqueRetainedRows": 10240,
+        "uniqueTransactionArrays": 80
+      },
+      "rendererPrivateBytes": 391479296,
+      "treePrivateBytes": 646123520
+    },
+    {
+      "cycle": 30,
+      "lagSeconds": 1.023,
+      "counters": {
+        "activeRows": 128,
+        "entries": 80,
+        "fingerprintedHttpEntries": 80,
+        "httpEntries": 80,
+        "immutableArrays": 80,
+        "jsHeap": {
+          "total": 76732348,
+          "used": 74080856
+        },
+        "logicalRows": 10240,
+        "uniqueRetainedRows": 10240,
+        "uniqueTransactionArrays": 80
+      },
+      "rendererPrivateBytes": 367902720,
+      "treePrivateBytes": 620224512
+    },
+    {
+      "cycle": 31,
+      "lagSeconds": 5.328,
+      "counters": {
+        "activeRows": 128,
+        "entries": 80,
+        "fingerprintedHttpEntries": 80,
+        "httpEntries": 80,
+        "immutableArrays": 80,
+        "jsHeap": {
+          "total": 88002461,
+          "used": 75705029
+        },
+        "logicalRows": 10240,
+        "uniqueRetainedRows": 10240,
+        "uniqueTransactionArrays": 80
+      },
+      "rendererPrivateBytes": 393859072,
+      "treePrivateBytes": 647028736
+    },
+    {
+      "cycle": 32,
+      "lagSeconds": 2.732,
+      "counters": {
+        "activeRows": 128,
+        "entries": 80,
+        "fingerprintedHttpEntries": 80,
+        "httpEntries": 80,
+        "immutableArrays": 80,
+        "jsHeap": {
+          "total": 76467153,
+          "used": 74100881
+        },
+        "logicalRows": 10240,
+        "uniqueRetainedRows": 10240,
+        "uniqueTransactionArrays": 80
+      },
+      "rendererPrivateBytes": 377413632,
+      "treePrivateBytes": 629932032
+    },
+    {
+      "cycle": 33,
+      "lagSeconds": 1.057,
+      "counters": {
+        "activeRows": 128,
+        "entries": 80,
+        "fingerprintedHttpEntries": 80,
+        "httpEntries": 80,
+        "immutableArrays": 80,
+        "jsHeap": {
+          "total": 88788269,
+          "used": 75908449
+        },
+        "logicalRows": 10240,
+        "uniqueRetainedRows": 10240,
+        "uniqueTransactionArrays": 80
+      },
+      "rendererPrivateBytes": 403046400,
+      "treePrivateBytes": 658808832
+    },
+    {
+      "cycle": 34,
+      "lagSeconds": 0.359,
+      "counters": {
+        "activeRows": 128,
+        "entries": 80,
+        "fingerprintedHttpEntries": 80,
+        "httpEntries": 80,
+        "immutableArrays": 80,
+        "jsHeap": {
+          "total": 76728777,
+          "used": 74194457
+        },
+        "logicalRows": 10240,
+        "uniqueRetainedRows": 10240,
+        "uniqueTransactionArrays": 80
+      },
+      "rendererPrivateBytes": 387739648,
+      "treePrivateBytes": 641458176
+    },
+    {
+      "cycle": 35,
+      "lagSeconds": 3.708,
+      "counters": {
+        "activeRows": 128,
+        "entries": 80,
+        "fingerprintedHttpEntries": 80,
+        "httpEntries": 80,
+        "immutableArrays": 80,
+        "jsHeap": {
+          "total": 88787815,
+          "used": 75727319
+        },
+        "logicalRows": 10240,
+        "uniqueRetainedRows": 10240,
+        "uniqueTransactionArrays": 80
+      },
+      "rendererPrivateBytes": 412971008,
+      "treePrivateBytes": 665382912
+    },
+    {
+      "cycle": 36,
+      "lagSeconds": 2.061,
+      "counters": {
+        "activeRows": 128,
+        "entries": 80,
+        "fingerprintedHttpEntries": 80,
+        "httpEntries": 80,
+        "immutableArrays": 80,
+        "jsHeap": {
+          "total": 76728561,
+          "used": 74098545
+        },
+        "logicalRows": 10240,
+        "uniqueRetainedRows": 10240,
+        "uniqueTransactionArrays": 80
+      },
+      "rendererPrivateBytes": 397799424,
+      "treePrivateBytes": 651481088
+    }
+  ],
+  "ordinaryPolicyAssessmentInDiagnosticRun": {
+    "policy": {
+      "measuredCycles": 8,
+      "window": 3,
+      "treePrivateBytes": {
+        "delta": 67108864,
+        "perCycle": 4194304
+      },
+      "rootPrivateBytes": {
+        "delta": 16777216,
+        "perCycle": 1048576
+      },
+      "rootHandles": {
+        "delta": 24,
+        "perCycle": 2
+      },
+      "rootThreads": {
+        "delta": 4,
+        "perCycle": 0.5
+      }
+    },
+    "metrics": {
+      "treePrivateBytes": {
+        "firstMedian": 646123520,
+        "lastMedian": 651481088,
+        "delta": 5357568,
+        "slopePerCycle": 3937792,
+        "budget": {
+          "delta": 67108864,
+          "perCycle": 4194304
+        },
+        "withinBudget": true
+      },
+      "rootPrivateBytes": {
+        "firstMedian": 77455360,
+        "lastMedian": 77897728,
+        "delta": 442368,
+        "slopePerCycle": 12902.4,
+        "budget": {
+          "delta": 16777216,
+          "perCycle": 1048576
+        },
+        "withinBudget": true
+      },
+      "rootHandles": {
+        "firstMedian": 641,
+        "lastMedian": 641,
+        "delta": 0,
+        "slopePerCycle": 0,
+        "budget": {
+          "delta": 24,
+          "perCycle": 2
+        },
+        "withinBudget": true
+      },
+      "rootThreads": {
+        "firstMedian": 33,
+        "lastMedian": 33,
+        "delta": 0,
+        "slopePerCycle": 0,
+        "budget": {
+          "delta": 4,
+          "perCycle": 0.5
+        },
+        "withinBudget": true
+      }
+    },
+    "withinBudget": true,
+    "classification": "BOUNDED_IN_THIS_RUN"
+  },
+  "binarySha256": "8822557264680c38235b0c63633903a91cf57112cdcf59590a14c5f641a22ecb",
+  "reportSha256": "2e5d8c635fcae1ea0dcbbd42c7735fd5606c82ff96333b57030941671bf1918c",
+  "layoutSha256": "c719e249aa1438b723f691ebdff77a356b63eca74ecaae147be819f73cce3cdb",
+  "memoryStreamSha256": "07af7c5be82d58d704fefae55f6ffdc79275930bb9b0f84adad427578b5901f1",
+  "memoryRecords": 181
+}

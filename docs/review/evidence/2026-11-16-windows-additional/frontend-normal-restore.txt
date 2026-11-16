@@ -1,0 +1,82 @@
+
+> archscope-frontend@0.4.0-rc.1 build
+> tsc && vite build --mode production
+
+vite v8.3.7 building client environment for production...
+transforming...
+✓ 2620 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                   0.70 kB │ gzip:   0.35 kB
+dist/assets/App-CSke-x5w.css                      5.79 kB │ gzip:   1.59 kB
+dist/assets/index-DCJzHuVC.css                   56.63 kB │ gzip:  10.24 kB
+dist/assets/loader-circle-EGRFlOUg.js             0.13 kB │ gzip:   0.14 kB
+dist/assets/plus-D1N_Dpu9.js                      0.14 kB │ gzip:   0.14 kB
+dist/assets/x-B96tIt8D.js                         0.14 kB │ gzip:   0.14 kB
+dist/assets/formatters-CZZLyHNn.js                0.22 kB │ gzip:   0.13 kB
+dist/assets/funnel-BPMgGSjR.js                    0.24 kB │ gzip:   0.20 kB
+dist/assets/chartExport-BS1uS_MS.js               0.31 kB │ gzip:   0.25 kB
+dist/assets/trash-2-1CD5oRKL.js                   0.31 kB │ gzip:   0.20 kB
+dist/assets/clipboard-plus-Cotkk6Q6.js            0.32 kB │ gzip:   0.23 kB
+dist/assets/file-text-D8bIa-lI.js                 0.37 kB │ gzip:   0.24 kB
+dist/assets/profileDuration-DBELum5c.js           0.38 kB │ gzip:   0.25 kB
+dist/assets/earlyTaskEvents-CfHVQGWP.js           0.43 kB │ gzip:   0.24 kB
+dist/assets/visuals-BD7hsKKi.js                   0.59 kB │ gzip:   0.31 kB
+dist/assets/input-Dl8XPcBY.js                     0.65 kB │ gzip:   0.40 kB
+dist/assets/MetricCard-Bjda-jwv.js                0.71 kB │ gzip:   0.42 kB
+dist/assets/rolldown-runtime-XKyaHtl9.js          0.72 kB │ gzip:   0.42 kB
+dist/assets/defaults-CzAfjLIs.js                  0.83 kB │ gzip:   0.39 kB
+dist/assets/dialogs-B6M7zHL9.js                   1.06 kB │ gzip:   0.51 kB
+dist/assets/card-BdnrCRpq.js                      1.18 kB │ gzip:   0.45 kB
+dist/assets/useRecentFiles-Cjz_2a-K.js            1.32 kB │ gzip:   0.67 kB
+dist/assets/ChartPanel-DAnvFtWi.js                1.48 kB │ gzip:   0.77 kB
+dist/assets/visualRenderSurface-1FQWe000.js       1.78 kB │ gzip:   0.95 kB
+dist/assets/profilerContract-DcEOIIG8.js          2.22 kB │ gzip:   0.87 kB
+dist/assets/resultProviders-qO2QxzAc.js           2.46 kB │ gzip:   1.08 kB
+dist/assets/RecentFilesPanel-XKuK3FkZ.js          2.52 kB │ gzip:   1.17 kB
+dist/assets/AnalyzerFeedback-Dgae2Akl.js          2.54 kB │ gzip:   0.91 kB
+dist/assets/CustomCategoriesEditor-CpM0UnU0.js    3.17 kB │ gzip:   1.26 kB
+dist/assets/evidenceBoard-o3jZepw-.js             3.39 kB │ gzip:   1.56 kB
+dist/assets/DiagnosticsPanel-BQRQBujV.js          3.88 kB │ gzip:   1.39 kB
+dist/assets/button-39WexETu.js                    4.11 kB │ gzip:   1.84 kB
+dist/assets/analysisWorkspace-CI0ayUR2.js         4.26 kB │ gzip:   1.88 kB
+dist/assets/ReportDiffPage-SJguL98G.js            4.90 kB │ gzip:   1.79 kB
+dist/assets/WailsFileDock-B-8VINbR.js             5.18 kB │ gzip:   2.31 kB
+dist/assets/ExportCenterPage-D-gCmXgx.js          5.68 kB │ gzip:   2.32 kB
+dist/assets/aiInterpretation-DyW5O8Ci.js          5.93 kB │ gzip:   2.08 kB
+dist/assets/DiffPage-Ac7KN4Zl.js                  6.16 kB │ gzip:   2.12 kB
+dist/assets/engine-C_GeSXLP.js                    6.52 kB │ gzip:   2.32 kB
+dist/assets/react-BDur5s0O.js                     7.53 kB │ gzip:   2.88 kB
+dist/assets/ChartStudioPage-DlZrStf5.js           8.07 kB │ gzip:   2.94 kB
+dist/assets/archscope-app-D7Nzf45p.js             8.22 kB │ gzip:   2.08 kB
+dist/assets/BrowserCpuProfilePage-CPV4UQAu.js     8.36 kB │ gzip:   2.93 kB
+dist/assets/CanvasFlameGraph-BP1zxZ16.js         10.81 kB │ gzip:   4.39 kB
+dist/assets/ServiceFlowPage-BlaOBHPJ.js          11.07 kB │ gzip:   2.87 kB
+dist/assets/IncidentTimelinePage-DYj14ysQ.js     12.02 kB │ gzip:   3.08 kB
+dist/assets/SettingsPage-CiDUj4gA.js             12.77 kB │ gzip:   4.65 kB
+dist/assets/SloGoldenSignalsPage-CmrV5UgJ.js     14.98 kB │ gzip:   3.27 kB
+dist/assets/serviceFlow-CVL_EmeZ.js              15.58 kB │ gzip:   4.10 kB
+dist/assets/TraceImportPage-BKgujqAq.js          15.71 kB │ gzip:   3.96 kB
+dist/assets/tabs-CkeQK52a.js                     16.72 kB │ gzip:   6.33 kB
+dist/assets/LighthouseAuditPage-Ba44NvMK.js      17.32 kB │ gzip:   4.46 kB
+dist/assets/incidentTimeline-DYSVnju6.js         20.43 kB │ gzip:   6.37 kB
+dist/assets/AccessLogAnalyzerPage-BwoBi7_L.js    20.74 kB │ gzip:   5.16 kB
+dist/assets/ExceptionAnalyzerPage-ugSoH1D6.js    21.96 kB │ gzip:   5.50 kB
+dist/assets/JfrAnalyzerPage-Bw37zxhF.js          27.34 kB │ gzip:   5.85 kB
+dist/assets/EvidenceBoardPage-BrYjk0Gx.js        30.46 kB │ gzip:   9.88 kB
+dist/assets/GcLogAnalyzerPage-CTNWdXxK.js        31.73 kB │ gzip:   8.18 kB
+dist/assets/sloGoldenSignals-DEnQ6fuT.js         37.84 kB │ gzip:   8.45 kB
+dist/assets/ThreadDumpAnalyzerPage-Bv4HhVjZ.js   38.61 kB │ gzip:   7.33 kB
+dist/assets/ProfilerAnalyzerPage-BbaGWZ_8.js     47.04 kB │ gzip:  12.18 kB
+dist/assets/App-CsLZCncT.js                      53.64 kB │ gzip:  17.09 kB
+dist/assets/dist-BW5hPFUk.js                     62.56 kB │ gzip:  16.15 kB
+dist/assets/HelpTip-Cwum3eTX.js                  69.52 kB │ gzip:  24.52 kB
+dist/assets/HttpCorrelationPanel-n4sruGGs.js     74.85 kB │ gzip:  18.41 kB
+dist/assets/JenniferProfilePage-DRlce3hD.js     109.14 kB │ gzip:  25.42 kB
+dist/assets/HttpCapturePage-BxRoTSAM.js         121.60 kB │ gzip:  32.52 kB
+dist/assets/AnalysisWorkspacePage-B5VaS2xW.js   154.18 kB │ gzip:  41.50 kB
+dist/assets/index-gFdWjnbB.js                   370.69 kB │ gzip: 115.87 kB
+dist/assets/translations-D5gw0WeH.js            521.91 kB │ gzip: 189.12 kB
+dist/assets/echartsCore-CrBGIP-z.js             697.93 kB │ gzip: 235.21 kB
+
+✓ built in 1.23s

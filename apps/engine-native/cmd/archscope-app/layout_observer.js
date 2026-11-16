@@ -59,7 +59,21 @@
     const selectedTabs=[...main.querySelectorAll('[role=tab][aria-selected=true]')];
     observation.selectedTabFits=selectedTabs.every(tab=>{const rect=tab.getBoundingClientRect();return rect.left>=0 && rect.right<=innerWidth;});
     const retention=window.__archscopeWorkspaceRetention?.();
-    if(retention) observation.workspaceRetention=retention;
+    if(retention) {
+      // Keep changing heap/timestamp values out of the accumulated layout views.
+      // Emit one small read-only record per five seconds instead of repeatedly
+      // serializing hundreds of heap observations into the layout report.
+      const {jsHeap,...counts}=retention;
+      observation.workspaceRetention=counts;
+      const epochMs=Date.now();
+      if(epochMs-lastMemorySample>=5000){
+        lastMemorySample=epochMs;
+        fetch(new URL('/wails/runtime',location.href),{
+          method:'POST',headers:{'Content-Type':'application/json','x-wails-client-id':window._wails.clientId},
+          body:JSON.stringify({object:3,method:0,args:{name:'layout:memory',data:{epochMs,counters:retention}}})
+        }).catch(error=>console.error('memory diagnostic record failed',error));
+      }
+    }
     const key=JSON.stringify(observation);
     if(observations.has(key)) return;
     if(observations.size>=500) observations.delete(observations.keys().next().value);
@@ -70,6 +84,7 @@
     }).catch(error=>console.error('layout audit record failed',error));
   }
   let pending;
+  let lastMemorySample=0;
   new MutationObserver(() => {clearTimeout(pending);pending=setTimeout(sample,100);}).observe(document.querySelector('#root'),{subtree:true,childList:true,characterData:true});
   window.addEventListener('resize',sample);
   setInterval(sample,1000);

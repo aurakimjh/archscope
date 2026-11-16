@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -56,6 +57,32 @@ func configureLayoutAudit(app *application.App, window *application.WebviewWindo
 	if output == "" {
 		output = filepath.Join(os.TempDir(), "archscope-layout-observations.json")
 	}
+	// Explicit diagnostic build only. Bounded, small append records avoid the
+	// allocation cost of serializing a growing layout history for every heap sample.
+	var memoryMu sync.Mutex
+	memorySamples := 0
+	app.Event.On("layout:memory", func(event *application.CustomEvent) {
+		data, err := json.Marshal(event.Data)
+		if err != nil || len(data) > 4096 {
+			return
+		}
+		memoryMu.Lock()
+		defer memoryMu.Unlock()
+		if memorySamples >= 5000 {
+			return
+		}
+		file, err := os.OpenFile(output+".memory.jsonl", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		defer file.Close()
+		if _, err = file.Write(append(data, '\n')); err != nil {
+			log.Print(err)
+			return
+		}
+		memorySamples++
+	})
 	app.Event.On("layout:progress", func(event *application.CustomEvent) {
 		if data, err := json.MarshalIndent(event.Data, "", "  "); err == nil {
 			if err := os.WriteFile(output+".progress.json", data, 0600); err != nil {
