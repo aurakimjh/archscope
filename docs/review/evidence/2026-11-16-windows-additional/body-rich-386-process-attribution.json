@@ -1,0 +1,47 @@
+{
+  "scope": "Recorded process-private attribution only, not JS allocation causality",
+  "metrics": [
+    {
+      "role": "app",
+      "ordinal": 1,
+      "delta": 1286144,
+      "slopePerCycle": 194950.09523809524
+    },
+    {
+      "role": "browser",
+      "ordinal": 2,
+      "delta": 192512,
+      "slopePerCycle": 40243.2
+    },
+    {
+      "role": "crashpad",
+      "ordinal": 3,
+      "delta": 0,
+      "slopePerCycle": 0.0
+    },
+    {
+      "role": "gpu",
+      "ordinal": 4,
+      "delta": -335872,
+      "slopePerCycle": -38570.66666666667
+    },
+    {
+      "role": "utility",
+      "ordinal": 5,
+      "delta": -16384,
+      "slopePerCycle": -819.2
+    },
+    {
+      "role": "utility",
+      "ordinal": 6,
+      "delta": 0,
+      "slopePerCycle": 0.0
+    },
+    {
+      "role": "renderer",
+      "ordinal": 7,
+      "delta": 46936064,
+      "slopePerCycle": 8982664.533333333
+    }
+  ]
+}

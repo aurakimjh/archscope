@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "case": "body-rich-386",
+  "scope": "Actual post-measurement128/128row body and annotation readback only; ordinary memory screen remains FAIL",
+  "requestPrefix": "synthetic-request-107-0-",
+  "responsePrefix": "synthetic-response-107-0-",
+  "observedComment": "메모리 재열기 synthetic note body-rich 107",
+  "starVisuallyChecked": true,
+  "artifacts": {
+    "body-rich-386-raw.txt": "a4e808a5a61e86b1359cb35f8f71f9bde4160070858291c8067f742854c8502e",
+    "body-rich-386-notes.jpg": "c215e4e161dde6cd88a85d9748b38b05ab759c89a6f201986dc61e57597c3b8d",
+    "body-rich-386-notes.txt": "eef3ca0999b727462f5de7f07d896150aadf11ad25a81392a01b57cfcf5951ca"
+  }
+}
