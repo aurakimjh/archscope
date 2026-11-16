@@ -1,0 +1,1117 @@
+Window: "ArchScope", App: archscope-production-amd64.exe.
+	0 window (창) ArchScope Secondary Actions: Raise
+		7 pane (창) ArchScope
+			8 pane (창) (disabled)
+			9 pane (영역) ArchScope - 웹 콘텐츠
+				10 pane (영역)
+					11 pane (영역)
+					12 pane (영역)
+						13 pane (영역)
+							14 pane (영역)
+							15 pane (영역)
+								16 pane (영역)
+									17 pane (영역)
+										18 pane (영역)
+											19 pane (영역)
+											20 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												23 group (그룹) ID: root
+													24 group (머리글)
+														25 text (텍스트) HTTP 캡처
+													26 group (탐색) 메뉴 탭
+														27 button (단추) 파일
+														28 button (전환 버튼) 홈
+														29 button (전환 버튼) 분석
+														30 button (전환 버튼) HTTP
+														31 button (전환 버튼) 워크스페이스
+														32 button (전환 버튼) 보기
+														33 button (전환 버튼) 도움말
+														34 group (세부정보)
+															35 button (펼치기/접기 삼각형) 리본 표시 옵션
+														36 button (단추) 리본 접기
+													37 group (그룹) 홈 ID: desktop-ribbon-panel
+														38 group (지역) 파일
+															39 button (단추) 열기… Description: 열기…
+															40 button (단추) (disabled) 최근 파일 Description: 최근 파일
+															41 button (단추) 저장 / 내보내기 Description: 저장 / 내보내기
+															42 text (텍스트) 파일
+														43 group (지역) 도구
+															44 button (단추) 프로파일러 Description: 프로파일러
+															45 button (단추) HTTP 캡처 Description: HTTP 캡처
+															46 button (단추) 분석 작업 공간 Description: 분석 작업 공간
+															47 text (텍스트) 도구
+														48 group (지역) 보고서
+															49 button (단추) 차트 스튜디오 Description: 차트 스튜디오
+															50 button (단추) Export 센터 Description: Export 센터
+															51 text (텍스트) 보고서
+													54 group (기본)
+														55 group (세부정보)
+															56 button (펼치기/접기 삼각형) 파일·요청 작성
+																57 text (텍스트) 파일·요청 작성
+														58 group (세부정보)
+															59 button (펼치기/접기 삼각형) 캡처 설정
+																60 text (텍스트) 캡처 설정
+														61 button (단추) (disabled) 캡처 시작
+														62 button (단추) (disabled) 캡처 중지
+														63 button (단추) 자동 추적 중
+														64 button (단추) (disabled) 일시정지
+														65 button (단추) (disabled) 비우기
+														18790 group (지역) 트랜잭션
+															18791 group (세부정보)
+																18792 button (펼치기/접기 삼각형) 메서드, URL, 호스트, 상태로 필터 · 128 / 128
+																	18793 text (텍스트) 메서드, URL, 호스트, 상태로 필터
+																	18794 text (텍스트) ·
+																	18795 text (텍스트) 128
+																	18796 text (텍스트) /
+																	18797 text (텍스트) 128
+															18798 group (세부정보)
+																18799 button (펼치기/접기 삼각형) 세션 도구
+																	18800 text (텍스트) 세션 도구
+															18801 group (세부정보)
+																18802 button (펼치기/접기 삼각형) 열 필터
+																	18803 text (텍스트) 열 필터
+															18804 combo box (콤보 상자) (settable, string) 그룹 기준 Value: 프로세스
+															18805 group (세부정보)
+																18806 button (펼치기/접기 삼각형) 표시 열
+																	18807 text (텍스트) 표시 열
+															18808 group (그룹) 트랜잭션
+																18809 table (TABLE) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																	18810 text (텍스트) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																	18811 data item (행)
+																		18812 button (단추) # Description: Sort by this column
+																			18813 button (단추) #
+																		18814 button (단추) 시작 Description: Sort by this column
+																			18815 button (단추) 시작
+																		18816 button (단추) 메서드 Description: Sort by this column
+																			18817 button (단추) 메서드
+																		18818 button (단추) 결과 Description: Sort by this column
+																			18819 button (단추) 결과
+																		18820 button (단추) 호스트 Description: Sort by this column
+																			18821 button (단추) 호스트
+																		18822 button (단추) 경로 Description: Sort by this column
+																			18823 button (단추) 경로
+																		18824 button (단추) 종류 Description: Sort by this column
+																			18825 button (단추) 종류
+																		18826 button (단추) 크기 Description: Sort by this column
+																			18827 button (단추) 크기
+																		18828 button (단추) 시간 Description: Sort by this column
+																			18829 button (단추) 시간
+																		18830 button (단추) 타임라인 Description: Sort by this column
+																		18831 button (단추) 프로세스 Description: Sort by this column
+																			18832 button (단추) 프로세스
+																	18833 data item (행)
+																		18834 data item (항목) ▾ synthetic-fixture [4242] · 2026-11-14T00:00:00Z 128 · ↑ 131 KiB · ↓ 131 KiB
+																			18835 button (단추) ▾ synthetic-fixture [4242] · 2026-11-14T00:00:00Z 128 · ↑ 131 KiB · ↓ 131 KiB
+																	18836 data item (행)
+																		18837 data item (항목) 1 Description: 1
+																		18838 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		18839 data item (항목) GET Description: GET
+																		18840 data item (항목) 200 Description: 200
+																		18841 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		18842 data item (항목) /import?size=128&row=0 Description: /import?size=128&row=0
+																		18843 data item (항목) 텍스트 Description: text
+																		18844 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		18845 data item (항목) 4 ms Description: 4 ms
+																		18846 data item (항목) — Description: —
+																		18847 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	18848 data item (행)
+																		18849 data item (항목) 2 Description: 2
+																		18850 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		18851 data item (항목) GET Description: GET
+																		18852 data item (항목) 200 Description: 200
+																		18853 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		18854 data item (항목) /import?size=128&row=1 Description: /import?size=128&row=1
+																		18855 data item (항목) 텍스트 Description: text
+																		18856 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		18857 data item (항목) 4 ms Description: 4 ms
+																		18858 data item (항목) — Description: —
+																		18859 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	18860 data item (행)
+																		18861 data item (항목) 3 Description: 3
+																		18862 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		18863 data item (항목) GET Description: GET
+																		18864 data item (항목) 200 Description: 200
+																		18865 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		18866 data item (항목) /import?size=128&row=2 Description: /import?size=128&row=2
+																		18867 data item (항목) 텍스트 Description: text
+																		18868 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		18869 data item (항목) 4 ms Description: 4 ms
+																		18870 data item (항목) — Description: —
+																		18871 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	18872 data item (행)
+																		18873 data item (항목) 4 Description: 4
+																		18874 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		18875 data item (항목) GET Description: GET
+																		18876 data item (항목) 200 Description: 200
+																		18877 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		18878 data item (항목) /import?size=128&row=3 Description: /import?size=128&row=3
+																		18879 data item (항목) 텍스트 Description: text
+																		18880 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		18881 data item (항목) 4 ms Description: 4 ms
+																		18882 data item (항목) — Description: —
+																		18883 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	18884 data item (행)
+																		18885 data item (항목) 5 Description: 5
+																		18886 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		18887 data item (항목) GET Description: GET
+																		18888 data item (항목) 200 Description: 200
+																		18889 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		18890 data item (항목) /import?size=128&row=4 Description: /import?size=128&row=4
+																		18891 data item (항목) 텍스트 Description: text
+																		18892 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		18893 data item (항목) 4 ms Description: 4 ms
+																		18894 data item (항목) — Description: —
+																		18895 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	18896 data item (행)
+																		18897 data item (항목) 6 Description: 6
+																		18898 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		18899 data item (항목) GET Description: GET
+																		18900 data item (항목) 200 Description: 200
+																		18901 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		18902 data item (항목) /import?size=128&row=5 Description: /import?size=128&row=5
+																		18903 data item (항목) 텍스트 Description: text
+																		18904 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		18905 data item (항목) 4 ms Description: 4 ms
+																		18906 data item (항목) — Description: —
+																		18907 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	18908 data item (행)
+																		18909 data item (항목) 7 Description: 7
+																		18910 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		18911 data item (항목) GET Description: GET
+																		18912 data item (항목) 200 Description: 200
+																		18913 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		18914 data item (항목) /import?size=128&row=6 Description: /import?size=128&row=6
+																		18915 data item (항목) 텍스트 Description: text
+																		18916 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		18917 data item (항목) 4 ms Description: 4 ms
+																		18918 data item (항목) — Description: —
+																		18919 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	18920 data item (행)
+																		18921 data item (항목) 8 Description: 8
+																		18922 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		18923 data item (항목) GET Description: GET
+																		18924 data item (항목) 200 Description: 200
+																		18925 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		18926 data item (항목) /import?size=128&row=7 Description: /import?size=128&row=7
+																		18927 data item (항목) 텍스트 Description: text
+																		18928 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		18929 data item (항목) 4 ms Description: 4 ms
+																		18930 data item (항목) — Description: —
+																		18931 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	18932 data item (행)
+																		18933 data item (항목) 9 Description: 9
+																		18934 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		18935 data item (항목) GET Description: GET
+																		18936 data item (항목) 200 Description: 200
+																		18937 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		18938 data item (항목) /import?size=128&row=8 Description: /import?size=128&row=8
+																		18939 data item (항목) 텍스트 Description: text
+																		18940 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		18941 data item (항목) 4 ms Description: 4 ms
+																		18942 data item (항목) — Description: —
+																		18943 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	18944 data item (행)
+																		18945 data item (항목) 10 Description: 10
+																		18946 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		18947 data item (항목) GET Description: GET
+																		18948 data item (항목) 200 Description: 200
+																		18949 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		18950 data item (항목) /import?size=128&row=9 Description: /import?size=128&row=9
+																		18951 data item (항목) 텍스트 Description: text
+																		18952 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		18953 data item (항목) 4 ms Description: 4 ms
+																		18954 data item (항목) — Description: —
+																		18955 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	18956 data item (행)
+																		18957 data item (항목) 11 Description: 11
+																		18958 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		18959 data item (항목) GET Description: GET
+																		18960 data item (항목) 200 Description: 200
+																		18961 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		18962 data item (항목) /import?size=128&row=10 Description: /import?size=128&row=10
+																		18963 data item (항목) 텍스트 Description: text
+																		18964 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		18965 data item (항목) 4 ms Description: 4 ms
+																		18966 data item (항목) — Description: —
+																		18967 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	18968 data item (행)
+																		18969 data item (항목) 12 Description: 12
+																		18970 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		18971 data item (항목) GET Description: GET
+																		18972 data item (항목) 200 Description: 200
+																		18973 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		18974 data item (항목) /import?size=128&row=11 Description: /import?size=128&row=11
+																		18975 data item (항목) 텍스트 Description: text
+																		18976 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		18977 data item (항목) 4 ms Description: 4 ms
+																		18978 data item (항목) — Description: —
+																		18979 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	18980 data item (행)
+																		18981 data item (항목) 13 Description: 13
+																		18982 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		18983 data item (항목) GET Description: GET
+																		18984 data item (항목) 200 Description: 200
+																		18985 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		18986 data item (항목) /import?size=128&row=12 Description: /import?size=128&row=12
+																		18987 data item (항목) 텍스트 Description: text
+																		18988 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		18989 data item (항목) 4 ms Description: 4 ms
+																		18990 data item (항목) — Description: —
+																		18991 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	18992 data item (행)
+																		18993 data item (항목) 14 Description: 14
+																		18994 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		18995 data item (항목) GET Description: GET
+																		18996 data item (항목) 200 Description: 200
+																		18997 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		18998 data item (항목) /import?size=128&row=13 Description: /import?size=128&row=13
+																		18999 data item (항목) 텍스트 Description: text
+																		19000 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		19001 data item (항목) 4 ms Description: 4 ms
+																		19002 data item (항목) — Description: —
+																		19003 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	19004 data item (행)
+																		19005 data item (항목) 15 Description: 15
+																		19006 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		19007 data item (항목) GET Description: GET
+																		19008 data item (항목) 200 Description: 200
+																		19009 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		19010 data item (항목) /import?size=128&row=14 Description: /import?size=128&row=14
+																		19011 data item (항목) 텍스트 Description: text
+																		19012 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		19013 data item (항목) 4 ms Description: 4 ms
+																		19014 data item (항목) — Description: —
+																		19015 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	19016 data item (행)
+																		19017 data item (항목) 16 Description: 16
+																		19018 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		19019 data item (항목) GET Description: GET
+																		19020 data item (항목) 200 Description: 200
+																		19021 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		19022 data item (항목) /import?size=128&row=15 Description: /import?size=128&row=15
+																		19023 data item (항목) 텍스트 Description: text
+																		19024 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		19025 data item (항목) 4 ms Description: 4 ms
+																		19026 data item (항목) — Description: —
+																		19027 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	19028 data item (행)
+																		19029 data item (항목) 17 Description: 17
+																		19030 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		19031 data item (항목) GET Description: GET
+																		19032 data item (항목) 200 Description: 200
+																		19033 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		19034 data item (항목) /import?size=128&row=16 Description: /import?size=128&row=16
+																		19035 data item (항목) 텍스트 Description: text
+																		19036 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		19037 data item (항목) 4 ms Description: 4 ms
+																		19038 data item (항목) — Description: —
+																		19039 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	19040 data item (행)
+																		19041 data item (항목) 18 Description: 18
+																		19042 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		19043 data item (항목) GET Description: GET
+																		19044 data item (항목) 200 Description: 200
+																		19045 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		19046 data item (항목) /import?size=128&row=17 Description: /import?size=128&row=17
+																		19047 data item (항목) 텍스트 Description: text
+																		19048 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		19049 data item (항목) 4 ms Description: 4 ms
+																		19050 data item (항목) — Description: —
+																		19051 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	19052 data item (행)
+																		19053 data item (항목) 19 Description: 19
+																		19054 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		19055 data item (항목) GET Description: GET
+																		19056 data item (항목) 200 Description: 200
+																		19057 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		19058 data item (항목) /import?size=128&row=18 Description: /import?size=128&row=18
+																		19059 data item (항목) 텍스트 Description: text
+																		19060 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		19061 data item (항목) 4 ms Description: 4 ms
+																		19062 data item (항목) — Description: —
+																		19063 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	19064 data item (행)
+																		19065 data item (항목) 20 Description: 20
+																		19066 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		19067 data item (항목) GET Description: GET
+																		19068 data item (항목) 200 Description: 200
+																		19069 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		19070 data item (항목) /import?size=128&row=19 Description: /import?size=128&row=19
+																		19071 data item (항목) 텍스트 Description: text
+																		19072 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		19073 data item (항목) 4 ms Description: 4 ms
+																		19074 data item (항목) — Description: —
+																		19075 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	19076 data item (행)
+																		19077 data item (항목) 21 Description: 21
+																		19078 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		19079 data item (항목) GET Description: GET
+																		19080 data item (항목) 200 Description: 200
+																		19081 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		19082 data item (항목) /import?size=128&row=20 Description: /import?size=128&row=20
+																		19083 data item (항목) 텍스트 Description: text
+																		19084 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		19085 data item (항목) 4 ms Description: 4 ms
+																		19086 data item (항목) — Description: —
+																		19087 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	19088 data item (행)
+																		19089 data item (항목) 22 Description: 22
+																		19090 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		19091 data item (항목) GET Description: GET
+																		19092 data item (항목) 200 Description: 200
+																		19093 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		19094 data item (항목) /import?size=128&row=21 Description: /import?size=128&row=21
+																		19095 data item (항목) 텍스트 Description: text
+																		19096 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		19097 data item (항목) 4 ms Description: 4 ms
+																		19098 data item (항목) — Description: —
+																		19099 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	19100 data item (행)
+																		19101 data item (항목) 23 Description: 23
+																		19102 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		19103 data item (항목) GET Description: GET
+																		19104 data item (항목) 200 Description: 200
+																		19105 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		19106 data item (항목) /import?size=128&row=22 Description: /import?size=128&row=22
+																		19107 data item (항목) 텍스트 Description: text
+																		19108 data item (항목) 1.0 KiB Description: 1.0 KiB
+																		19109 data item (항목) 4 ms Description: 4 ms
+																		19110 data item (항목) — Description: —
+																		19111 data item (항목) synthetic-fixture Description: synthetic-fixture
+															19112 text (텍스트) 방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+															19113 thumb (위치 조정) 트랜잭션 목록 크기 조절 Description: 드래그·방향키로 크기를 조절하고, 더블클릭·Home으로 기본 높이를 복원합니다. Value: 100
+															19114 button (단추) Request Builder로 복사
+															19115 text (텍스트) 200
+															19116 text (텍스트) GET
+															19117 text (텍스트) http://127.0.0.1:11514/import?size=128&row=0
+															19118 text (텍스트) 신규 연결
+															19119 group (그룹) Description: decoded_wire
+																19120 text (텍스트) 와이어 복호화
+															19121 tab (Tab) 트랜잭션
+																19122 tab item (탭 항목) (selectable) 힌트 / 상태 / 주석
+																19123 tab item (탭 항목) (selectable) Raw
+																19124 tab item (탭 항목) (selectable) 스트림
+																19125 tab item (탭 항목) (selectable) 헤더
+																19126 tab item (탭 항목) (selectable) 쿼리 문자열
+																19127 tab item (탭 항목) (selectable) POST 데이터
+																19128 tab item (탭 항목) (selectable) 본문
+																19129 tab item (탭 항목) (selectable) 타이밍
+																19130 tab item (탭 항목) (selectable) 쿠키
+																19131 tab item (탭 항목) (selectable) 프로세스
+															19132 pane (탭 패널) Raw
+																19133 text (텍스트) 정규화된 모델에서 재구성한 텍스트입니다. 헤더 이름·값·중복은 보존되지만 원본 필드 순서·대소문자·프레이밍은 보존되지 않습니다 — 이 캡처 tier는 raw wire가 아니라 semantic 등급입니다.
+																19134 text (제목) 요청
+																19135 button (단추) 복사
+																19136 text (텍스트) GET /import?size=128&row=0 HTTP/1.1 Host: 127.0.0.1:11514 Content-Type: text/plain Content-Length: 1048 synthetic-request-107-0-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+																19137 text (제목) 응답
+																19138 button (단추) 복사
+																19139 text (텍스트) HTTP/1.1 200 OK Content-Type: text/plain Content-Length: 1049 synthetic-response-107-0-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+														19140 button (단추) 세션 요약 및 근거
+							21 pane (영역)
+					22 pane (영역)
+		1 title bar (제목 표시줄) (settable, string) Value: ArchScope
+			2 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				3 menu item (메뉴 항목) 시스템
+			4 button (단추) 최소화
+			5 button (단추) 최대화
+			6 button (단추) 닫기
+
+Document text: ```
+HTTP 캡처
+파일
+홈
+분석
+HTTP
+워크스페이스
+보기
+도움말
+리본 표시 옵션
+리본 접기
+열기…
+최근 파일
+저장 / 내보내기
+파일
+프로파일러
+HTTP 캡처
+분석 작업 공간
+도구
+차트 스튜디오
+Export 센터
+보고서
+파일·요청 작성
+캡처 설정
+캡처 시작
+캡처 중지
+자동 추적 중
+일시정지
+비우기
+메서드, URL, 호스트, 상태로 필터 · 128 / 128
+세션 도구
+열 필터
+그룹 기준
+표시 열
+캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+#
+￼
+시작
+￼
+메서드
+￼
+결과
+￼
+호스트
+￼
+경로
+￼
+종류
+￼
+크기
+￼
+시간
+￼
+타임라인
+￼
+프로세스
+￼
+▾
+synthetic-fixture [4242] · 2026-11-14T00:00:00Z
+128 · ↑ 131 KiB · ↓ 131 KiB
+1
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=0
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+2
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=1
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+3
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=2
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+4
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=3
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+5
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=4
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+6
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=5
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+7
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=6
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+8
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=7
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+9
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=8
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+10
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=9
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+11
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=10
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+12
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=11
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+13
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=12
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+14
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=13
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+15
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=14
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+16
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=15
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+17
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=16
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+18
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=17
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+19
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=18
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+20
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=19
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+21
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=20
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+22
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=21
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+23
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=22
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+트랜잭션 목록 크기 조절
+Request Builder로 복사
+200
+GET
+http://127.0.0.1:11514/import?size=128&row=0
+신규 연결
+와이어 복호화
+힌트 / 상태 / 주석
+Raw
+스트림
+헤더
+쿼리 문자열
+POST 데이터
+본문
+타이밍
+쿠키
+프로세스
+정규화된 모델에서 재구성한 텍스트입니다. 헤더 이름·값·중복은 보존되지만 원본 필드 순서·대소문자·프레이밍은 보존되지 않습니다 — 이 캡처 tier는 raw wire가 아니라 semantic 등급입니다.
+요청
+복사
+GET /import?size=128&row=0 HTTP/1.1
+Host: 127.0.0.1:11514
+Content-Type: text/plain
+Content-Length: 1048
+
+synthetic-request-107-0-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+응답
+복사
+HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Length: 1049
+
+synthetic-response-107-0-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+세션 요약 및 근거
+```
+
+Focused element: 7 pane (창) ArchScope
+
+Document text:
+HTTP 캡처
+파일
+홈
+분석
+HTTP
+워크스페이스
+보기
+도움말
+리본 표시 옵션
+리본 접기
+열기…
+최근 파일
+저장 / 내보내기
+파일
+프로파일러
+HTTP 캡처
+분석 작업 공간
+도구
+차트 스튜디오
+Export 센터
+보고서
+파일·요청 작성
+캡처 설정
+캡처 시작
+캡처 중지
+자동 추적 중
+일시정지
+비우기
+메서드, URL, 호스트, 상태로 필터 · 128 / 128
+세션 도구
+열 필터
+그룹 기준
+표시 열
+캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+#
+￼
+시작
+￼
+메서드
+￼
+결과
+￼
+호스트
+￼
+경로
+￼
+종류
+￼
+크기
+￼
+시간
+￼
+타임라인
+￼
+프로세스
+￼
+▾
+synthetic-fixture [4242] · 2026-11-14T00:00:00Z
+128 · ↑ 131 KiB · ↓ 131 KiB
+1
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=0
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+2
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=1
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+3
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=2
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+4
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=3
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+5
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=4
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+6
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=5
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+7
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=6
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+8
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=7
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+9
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=8
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+10
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=9
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+11
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=10
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+12
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=11
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+13
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=12
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+14
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=13
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+15
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=14
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+16
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=15
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+17
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=16
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+18
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=17
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+19
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=18
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+20
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=19
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+21
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=20
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+22
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=21
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+23
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=128&row=22
+텍스트
+1.0 KiB
+4 ms
+￼
+synthetic-fixture
+방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+트랜잭션 목록 크기 조절
+Request Builder로 복사
+200
+GET
+http://127.0.0.1:11514/import?size=128&row=0
+신규 연결
+와이어 복호화
+힌트 / 상태 / 주석
+Raw
+스트림
+헤더
+쿼리 문자열
+POST 데이터
+본문
+타이밍
+쿠키
+프로세스
+정규화된 모델에서 재구성한 텍스트입니다. 헤더 이름·값·중복은 보존되지만 원본 필드 순서·대소문자·프레이밍은 보존되지 않습니다 — 이 캡처 tier는 raw wire가 아니라 semantic 등급입니다.
+요청
+복사
+GET /import?size=128&row=0 HTTP/1.1
+Host: 127.0.0.1:11514
+Content-Type: text/plain
+Content-Length: 1048
+
+synthetic-request-107-0-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+응답
+복사
+HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Length: 1049
+
+synthetic-response-107-0-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+세션 요약 및 근거

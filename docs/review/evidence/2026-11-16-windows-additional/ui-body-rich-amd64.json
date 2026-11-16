@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "scope": "Post-measurement actual native offline body/annotation readback only; memory screen remains FAIL",
+  "case": "body-rich-amd64",
+  "sourceCommit": "635512cf",
+  "rows": 128,
+  "expectedLastFile": 107,
+  "observedRequestPrefix": "synthetic-request-107-0-",
+  "observedResponsePrefix": "synthetic-response-107-0-",
+  "observedComment": "메모리 재열기 synthetic note body-rich 107",
+  "starVisuallyChecked": true,
+  "initialAccessibilityReadbackFile": 50,
+  "afterNativeActivationReadbackFile": 107,
+  "limit": "Background accessibility/paint freshness observed; no conclusion about event-queue allocation or JS heap cause from this observation alone",
+  "artifacts": {
+    "body-rich-amd64-initial-readback.txt": "9b167cff24d9abaf328ea8a8982cae76b0cf7a81c8203f6571b9322496dace2a",
+    "body-rich-amd64-activated-raw.txt": "a5483d674e1f8af483e2a2517545feedd5fadb31b3e6375e964c37045cc23914",
+    "body-rich-amd64-activated-raw.jpg": "b248f2f51448ae2bd34bbee565d3e5a59e2f846b5717e05cffae6b3d326d8fbc",
+    "body-rich-amd64-notes.txt": "0038656dbb49988472e833d58584c01b6cdcac6f4e4b18d9374b9dfd251c76be",
+    "body-rich-amd64-notes.jpg": "85f9d44460f520dd51583efdb43226e79b3d0581bdcb92c2952218134f924663"
+  }
+}

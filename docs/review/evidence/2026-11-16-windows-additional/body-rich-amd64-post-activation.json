@@ -1,0 +1,17 @@
+{
+  "scope": "Post-measurement diagnostic sample after native activation and annotation-tab observation; not a replacement for the failed36cycle verdict or a causal allocation proof",
+  "treePrivateBytes": 635502592,
+  "rootPrivateBytes": 68390912,
+  "rootHandles": 645,
+  "rootThreads": 32,
+  "roles": [
+    "app",
+    "browser",
+    "crashpad",
+    "gpu",
+    "utility",
+    "utility",
+    "renderer"
+  ],
+  "responding": true
+}
