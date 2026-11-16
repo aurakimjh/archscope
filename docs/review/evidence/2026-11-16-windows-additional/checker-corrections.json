@@ -1,0 +1,16 @@
+{
+  "chartBounds": {
+    "issue": "Generic SVG selector measured a toolbar icon for the initial x64 PNG metadata",
+    "correction": "Select data-chart-surface and require width/height>100",
+    "validation": "Fixedx86native14Saves plus independent actual-file readback onbotharchitectures",
+    "productDefect": false
+  },
+  "projectionFingerprint": {
+    "issue": "New checker assumed recursive map-key order; the fingerprint contract encodes nested HTTP structs in declared field order",
+    "correction": "Hash original nested RawMessage bytes with row count and one encoded row per line",
+    "initialFailure": "projection-initial-checker-failure.txt",
+    "initialSource": "projection-initial-checker-used.go",
+    "productDefect": false,
+    "validation": "Fixed checker passes216models and exact3host projection/fingerprint parity onWindowsamd64/386 andDockerLinuxamd64purego"
+  }
+}

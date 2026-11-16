@@ -1,0 +1,6 @@
+=== RUN   TestQualifiedImportWorkloadProjection
+    import_workload_qualification_test.go:138: invalid or repeated exact-row fingerprint
+--- FAIL: TestQualifiedImportWorkloadProjection (0.25s)
+FAIL
+FAIL	github.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app	1.076s
+FAIL

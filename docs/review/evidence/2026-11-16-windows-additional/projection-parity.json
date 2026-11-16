@@ -1,0 +1,28 @@
+{
+  "scope": "Headless actual backend projections of the216ordinary-run input files; Windowsamd64/386 and DockerLinuxamd64purego. Not native memory, GTK or live-capture qualification.",
+  "testSourceSha256": "225b7c9411d523ca60c0aaf7ec56c0a961af7fab00a927409ca53bda16264f51",
+  "runs": {
+    "amd64": {
+      "exitCode": 0,
+      "elapsedSeconds": 63.27845573425293,
+      "reportSha256": "0ebb63b054c22837d77894ded61161bfb467813f10bd00805a92af11b48afd9a",
+      "logSha256": "bf069b835a0284ef9893591c7ba59245d53d04845e27e24656b8518d52b083d6"
+    },
+    "386": {
+      "exitCode": 0,
+      "elapsedSeconds": 88.91183996200562,
+      "reportSha256": "0ebb63b054c22837d77894ded61161bfb467813f10bd00805a92af11b48afd9a",
+      "logSha256": "e42bd5f7205ef6354df2778eee9509524da9f7c95ad3a6fde44c8f6d25fbbe80"
+    },
+    "linux": {
+      "exitCode": 0,
+      "elapsedSeconds": 77.38382887840271,
+      "reportSha256": "0ebb63b054c22837d77894ded61161bfb467813f10bd00805a92af11b48afd9a",
+      "logSha256": "02a1c7515162270024f72838021b1310394b0fba5e0862e3b20f13c7a61e5b27"
+    }
+  },
+  "passed": true,
+  "matchingProjections": 216,
+  "dockerImageDigest": "node@sha256:e9f565d32859f0cbfb52125eafe8be39390f24dac302dc3cdf566e8ba3ab21ee",
+  "linuxBinarySha256": "fd269a451ecdf355eaf53156637e6a536447a091e5f3068dc103a2fff826b1db"
+}

@@ -1,0 +1,63 @@
+{
+  "scope": "Attribution of recorded native process-private growth by unchanged process identity; not JS/native allocation causality",
+  "scenario": "body-rich-amd64",
+  "measuredCycles": 8,
+  "metrics": [
+    {
+      "role": "app",
+      "ordinal": 1,
+      "firstMedian": 78811136,
+      "lastMedian": 77176832,
+      "delta": -1634304,
+      "slopePerCycle": -420132.5714285714
+    },
+    {
+      "role": "browser",
+      "ordinal": 2,
+      "firstMedian": 50171904,
+      "lastMedian": 50102272,
+      "delta": -69632,
+      "slopePerCycle": -12288.0
+    },
+    {
+      "role": "crashpad",
+      "ordinal": 3,
+      "firstMedian": 4296704,
+      "lastMedian": 4296704,
+      "delta": 0,
+      "slopePerCycle": 0.0
+    },
+    {
+      "role": "gpu",
+      "ordinal": 4,
+      "firstMedian": 103198720,
+      "lastMedian": 103161856,
+      "delta": -36864,
+      "slopePerCycle": 5939.2
+    },
+    {
+      "role": "utility",
+      "ordinal": 5,
+      "firstMedian": 13512704,
+      "lastMedian": 13524992,
+      "delta": 12288,
+      "slopePerCycle": 1901.7142857142858
+    },
+    {
+      "role": "utility",
+      "ordinal": 6,
+      "firstMedian": 9461760,
+      "lastMedian": 9461760,
+      "delta": 0,
+      "slopePerCycle": 0.0
+    },
+    {
+      "role": "renderer",
+      "ordinal": 7,
+      "firstMedian": 355819520,
+      "lastMedian": 396828672,
+      "delta": 41009152,
+      "slopePerCycle": 5466112.0
+    }
+  ]
+}

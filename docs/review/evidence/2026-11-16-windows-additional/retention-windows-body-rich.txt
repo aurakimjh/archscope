@@ -1,0 +1,1 @@
+{"scenario":"body-rich","passed":true,"arrays":80,"uniqueRows":10240,"heapMiB":84.3209228515625,"afterClearDeltaMiB":0.24002838134765625}

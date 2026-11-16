@@ -1,0 +1,1 @@
+{"scenario":"unique","passed":true,"arrays":80,"uniqueRows":40960,"heapMiB":174.32955169677734,"afterClearDeltaMiB":-0.6119613647460938}

@@ -1,0 +1,4 @@
+=== RUN   TestQualifiedImportWorkloadProjection
+    import_workload_qualification_test.go:147: PASS 216 distinct sanitized projections preserve annotations and HTTP messages
+--- PASS: TestQualifiedImportWorkloadProjection (76.04s)
+PASS

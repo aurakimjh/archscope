@@ -1,0 +1,80 @@
+{
+  "passed": true,
+  "scope": "Matched actual backend models in compiled workspace; explicit-GC Node diagnostics only, not native leak closure",
+  "moduleSha256": "d26ed2f4aad25ef97818d359cf9bd21446a22eee92ec02d75cab07e30bce3f63",
+  "sourceSha256": "45213321e3e6e188117882f48815bc2c2846258e9492d899bf381dd4bcb1205d",
+  "runs": [
+    {
+      "host": "windows",
+      "scenario": "unique",
+      "sha256": "c09c8e09fc987dbbf904a0cfd474341ef51bd4bbdec30c0057be0746436bdaf2",
+      "final": {
+        "cycle": 36,
+        "entries": 80,
+        "logicalRows": 40960,
+        "distinctArrays": 80,
+        "uniqueRows": 40960,
+        "immutableArrays": 80,
+        "heapUsed": 183921328,
+        "rss": 264552448,
+        "external": 1941046
+      },
+      "afterClearHeapDelta": 250048,
+      "measuredHeapSlopeBytesPerCycle": 381.33333333333337
+    },
+    {
+      "host": "windows",
+      "scenario": "body-rich",
+      "sha256": "cc79f78d598a53760f64e74d08fb712c14e25a880701f8fd1e0bbd72b154550b",
+      "final": {
+        "cycle": 36,
+        "entries": 80,
+        "logicalRows": 10240,
+        "distinctArrays": 80,
+        "uniqueRows": 10240,
+        "immutableArrays": 80,
+        "heapUsed": 88416896,
+        "rss": 161521664,
+        "external": 1941046
+      },
+      "afterClearHeapDelta": 251688,
+      "measuredHeapSlopeBytesPerCycle": 1794.6666666666665
+    },
+    {
+      "host": "docker",
+      "scenario": "unique",
+      "sha256": "0625d33558056dcfd1b52aee7798e2466dfaf73cac1dfec1917808e0d87a453d",
+      "final": {
+        "cycle": 36,
+        "entries": 80,
+        "logicalRows": 40960,
+        "distinctArrays": 80,
+        "uniqueRows": 40960,
+        "immutableArrays": 80,
+        "heapUsed": 182797784,
+        "rss": 262918144,
+        "external": 1933180
+      },
+      "afterClearHeapDelta": -641688,
+      "measuredHeapSlopeBytesPerCycle": 454
+    },
+    {
+      "host": "docker",
+      "scenario": "body-rich",
+      "sha256": "3424fc806e39784e23d2fdd6234c1c1fdb352014e3768803d40114b7dfe045aa",
+      "final": {
+        "cycle": 36,
+        "entries": 80,
+        "logicalRows": 10240,
+        "distinctArrays": 80,
+        "uniqueRows": 10240,
+        "immutableArrays": 80,
+        "heapUsed": 88174352,
+        "rss": 155328512,
+        "external": 1934678
+      },
+      "afterClearHeapDelta": 240656,
+      "measuredHeapSlopeBytesPerCycle": 1763.2
+    }
+  ]
+}
