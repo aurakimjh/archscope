@@ -1,0 +1,30 @@
+{
+  "sourceCommit": "635512cf",
+  "scripts": {
+    "scripts/verify-windows-import-memory.mjs": {
+      "sha256": "0ffb28f4297dcc1e71340b57308db5a6924ca91220fda05297f82d7a5562f52a",
+      "snapshot": "verify-windows-import-memory-used.mjs"
+    },
+    "scripts/lib/import-memory-fixtures.mjs": {
+      "sha256": "bc37cb75621d2134cf2a85b94cc55c375ac4f3f0914c80b548b53f2f0852820c",
+      "snapshot": "import-memory-fixtures-used.mjs"
+    },
+    "scripts/lib/desktop-memory-checks.mjs": {
+      "sha256": "f6d06aef60e34b29174b77c4f830c96718af57f54d596e0700b153f1d419a324",
+      "snapshot": "desktop-memory-checks-used.mjs"
+    },
+    "scripts/acceptance/layout/sample-owned-process-tree.ps1": {
+      "sha256": "ec5b8e791f1ed422d49d42b84e30c76193f0bf5eb16f6ef19fb4c0a16a807cb4",
+      "snapshot": "sample-owned-process-tree-used.ps1"
+    }
+  },
+  "windowsTests": {
+    "exitCode": 0,
+    "tests": 12
+  },
+  "dockerTests": {
+    "exitCode": 0,
+    "tests": 12,
+    "scope": "Portable synthetic workload generator and unchanged memory budget predicates; not native memory or GTK acceptance"
+  }
+}

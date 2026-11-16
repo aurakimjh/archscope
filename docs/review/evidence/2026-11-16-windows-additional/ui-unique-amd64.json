@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "scope": "Post-measurement actual ordinary x64 UI; 512/512 rows, first request selected, checked star and exact last-file Hangul comment. No exact80native Workspace count claim.",
+  "case": "unique-amd64",
+  "sourceCommit": "635512cf",
+  "observedComment": "메모리 재열기 synthetic note unique 107",
+  "artifacts": {
+    "unique-amd64-native.jpg": "5a9da3f2ffc2db2da55447c48814237aee0a6fe2bf9a374a17e76f09da6595d5",
+    "unique-amd64-native.txt": "cd13ec947ac42b5aee10728e0fec539e3f982638c590ec2d80f3e6e68c89bb8c",
+    "unique-amd64-notes.jpg": "a748267a0949a6eaa92c411ca3e3df934544aa35e92e7953884974070dd4665e",
+    "unique-amd64-notes.txt": "cd13ec947ac42b5aee10728e0fec539e3f982638c590ec2d80f3e6e68c89bb8c"
+  }
+}

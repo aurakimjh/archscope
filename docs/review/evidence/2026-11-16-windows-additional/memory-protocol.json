@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "declaredBeforeRuns": true,
+  "sourceCommit": "635512cf",
+  "order": [
+    "unique-amd64",
+    "body-rich-amd64",
+    "unique-386",
+    "body-rich-386"
+  ],
+  "cycles": 36,
+  "warmupCycles": 28,
+  "measuredCycles": 8,
+  "workspaceCapacity": 80,
+  "opensPerCycle": 3,
+  "distinctFilesPerRun": 108,
+  "rows": {
+    "unique": 512,
+    "body-rich": 128
+  },
+  "settleAfterOpenSeconds": 3,
+  "postCycleIdleSeconds": 15,
+  "forcedGC": false,
+  "trim": false,
+  "overlapOwnedNativeRuns": false,
+  "budgets": {
+    "treePrivateBytes": {
+      "delta": 67108864,
+      "perCycle": 4194304
+    },
+    "rootPrivateBytes": {
+      "delta": 16777216,
+      "perCycle": 1048576
+    },
+    "rootHandles": {
+      "delta": 24,
+      "perCycle": 2
+    },
+    "rootThreads": {
+      "delta": 4,
+      "perCycle": 0.5
+    }
+  },
+  "scope": "Finite ordinary production offline import screens on a shared interactive host; not universal leak proof or live recording security acceptance",
+  "binaries": {
+    "amd64": "1074f5604a18628cab6f595af34769a5653ecb3110730392e9f6c8eb2d49b0ef",
+    "386": "c5db677aace3637e2127c1e92a94a5270df7d37aeab513d163ec2684be351ba5"
+  }
+}

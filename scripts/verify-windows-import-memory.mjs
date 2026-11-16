@@ -6,10 +6,11 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { performance } from 'node:perf_hooks';
 import { assessMemoryPlateau, memoryPlateauPolicy } from './lib/desktop-memory-checks.mjs';
+import { importMemoryDocuments } from './lib/import-memory-fixtures.mjs';
 
 const args = {};
 for (let i=2;i<process.argv.length;i+=2) {
-  assert(['--exe','--out','--fixture','--saturate-history'].includes(process.argv[i]) && process.argv[i+1], 'invalid option');
+  assert(['--exe','--out','--fixture','--saturate-history','--scenario'].includes(process.argv[i]) && process.argv[i+1], 'invalid option');
   args[process.argv[i].slice(2)] = process.argv[i+1];
 }
 assert.equal(process.platform,'win32');
@@ -18,25 +19,21 @@ assert(args['saturate-history']===undefined || args['saturate-history']==='true'
 // Three imports/cycle intentionally add three workspace results. The workspace
 // retains80results.28warmup cycles cross that limit before eight measured cycles.
 const warmupCycles=args['saturate-history']==='true'?28:2, cycles=warmupCycles+8;
+const scenario=args.scenario ?? 'repeated';
+assert(['repeated','unique','body-rich'].includes(scenario),'invalid scenario');
+assert(scenario==='repeated' || args['saturate-history']==='true','distinct-file workloads require saturated history');
 await mkdir(out,{recursive:false});
 const sha=raw=>createHash('sha256').update(raw).digest('hex');
 const source=await readFile(fixture), seed=JSON.parse(source).transactions[0];
 assert(seed && seed.request.bodyStorage==='omitted' && seed.response.bodyStorage==='omitted');
 const files=[];
-for (const size of [4096,512,32]) {
-  const transactions=Array.from({length:size},(_,i)=>({
-    ...structuredClone(seed),id:`import-memory-${size}-${i}`,connectionId:`synthetic-${i}`,sequence:i+1,
-    url:`http://127.0.0.1:11514/import?size=${size}&row=${i}`,host:'127.0.0.1:11514',path:'/import',query:`size=${size}&row=${i}`,
-    starred:i===0,comment:i===0?'메모리 재열기 synthetic note':'',
-    process:{key:{pid:4242,startTime:'2026-11-14T00:00:00Z'},name:'synthetic-fixture',attribution:'confirmed'},
-  }));
-  const doc={type:'archscope-http-session',schemaVersion:1,scope:'all',selectedId:transactions[0].id,transactions};
-  const file=path.join(out,`synthetic-${size}.httpsession`);
-  const raw=JSON.stringify(doc);await writeFile(file,raw);files.push({path:file,rows:size,selectedId:doc.selectedId,sha256:sha(raw)});
+for (const {name,doc} of importMemoryDocuments(seed,scenario,cycles)) {
+  const file=path.join(out,name);
+  const raw=JSON.stringify(doc);await writeFile(file,raw);files.push({path:file,...(scenario==='repeated'?{}:{fileName:name}),rows:doc.transactions.length,selectedId:doc.selectedId,sha256:sha(raw)});
 }
-const report={schemaVersion:1,scope:'Windows production file-open/import; synthetic body-omitted32/512/4096rows; no universal leak-free claim',
+const report={schemaVersion:1,scenario,scope:`Windows production offline file-open/import; synthetic ${scenario} workload; no universal leak-free claim`,
   binarySha256:sha(await readFile(exe)),sourceFixtureSha256:sha(source),passed:false,
-  protocol:{cycles,warmupCycles,workspaceCapacity:80,openSizes:[4096,512,32],settleAfterOpenSeconds:3,matchedSmallFileIdleSeconds:15},
+  protocol:{cycles,warmupCycles,workspaceCapacity:80,openSizes:scenario==='repeated'?[4096,512,32]:Array(3).fill(scenario==='unique'?512:128),settleAfterOpenSeconds:3,...(scenario==='repeated'?{matchedSmallFileIdleSeconds:15}:{postCycleIdleSeconds:15})},
   screeningPolicy:memoryPlateauPolicy,files:files.map(({path:_private,...publicFields})=>publicFields),cycles:[],samples:[]};
 const begin=performance.now(), descriptorPath=path.join(out,'.private-controller.json'),identities=new Map();
 let child,descriptor,rootStartTime='',command=0;
@@ -69,11 +66,11 @@ try {
   await delay(10000);report.buildCommit=(await call('capabilities')).buildCommit;
   for(let cycle=1;cycle<=cycles;cycle++) {
     const opens=[];
-    for(const file of files) {
+    for(const file of (scenario==='repeated'?files:files.slice((cycle-1)*3,cycle*3))) {
       const opened=await call('open',{path:file.path});assert.equal(opened.transactions,file.rows);assert.equal(opened.selectedId,file.selectedId);
       opens.push({rows:file.rows,selectedIdMatches:true});await delay(3000);
     }
-    await delay(15000);const settled=await sample(`cycle-${cycle}-small-file-idle`);
+    await delay(15000);const settled=await sample(`cycle-${cycle}-${scenario==='repeated'?'small-file':'post-cycle'}-idle`);
     report.cycles.push({cycle,warmup:cycle<=warmupCycles,opens,settled});
     await writeFile(path.join(out,'progress.json'),JSON.stringify(report,null,2));
     console.log(JSON.stringify({cycle,treePrivateMiB:settled.treePrivateBytes/1048576,rootHandles:settled.rootHandles}));

@@ -1,0 +1,1113 @@
+Window: "ArchScope", App: archscope-production-amd64.exe.
+	0 window (창) ArchScope Secondary Actions: Raise
+		1 pane (창) ArchScope
+			2 pane (창) (disabled)
+			3 pane (영역) ArchScope - 웹 콘텐츠
+				4 pane (영역)
+					5 pane (영역)
+					6 pane (영역)
+						7 pane (영역)
+							8 pane (영역)
+							9 pane (영역)
+								10 pane (영역)
+									11 pane (영역)
+										12 pane (영역)
+											13 pane (영역)
+											14 document (문서) ArchScope Value: http://wails.localhost/ ID: RootWebArea
+												23 group (그룹) ID: root
+													24 group (머리글)
+														25 text (텍스트) HTTP 캡처
+													26 group (탐색) 메뉴 탭
+														27 button (단추) 파일
+														28 button (전환 버튼) 홈
+														29 button (전환 버튼) 분석
+														30 button (전환 버튼) HTTP
+														31 button (전환 버튼) 워크스페이스
+														32 button (전환 버튼) 보기
+														33 button (전환 버튼) 도움말
+														34 group (세부정보)
+															35 button (펼치기/접기 삼각형) 리본 표시 옵션
+														36 button (단추) 리본 접기
+													37 group (그룹) 홈 ID: desktop-ribbon-panel
+														38 group (지역) 파일
+															39 button (단추) 열기… Description: 열기…
+															40 button (단추) (disabled) 최근 파일 Description: 최근 파일
+															41 button (단추) 저장 / 내보내기 Description: 저장 / 내보내기
+															42 text (텍스트) 파일
+														43 group (지역) 도구
+															44 button (단추) 프로파일러 Description: 프로파일러
+															45 button (단추) HTTP 캡처 Description: HTTP 캡처
+															46 button (단추) 분석 작업 공간 Description: 분석 작업 공간
+															47 text (텍스트) 도구
+														48 group (지역) 보고서
+															49 button (단추) 차트 스튜디오 Description: 차트 스튜디오
+															50 button (단추) Export 센터 Description: Export 센터
+															51 text (텍스트) 보고서
+													53 group (기본)
+														54 group (세부정보)
+															55 button (펼치기/접기 삼각형) 파일·요청 작성
+																56 text (텍스트) 파일·요청 작성
+														57 group (세부정보)
+															58 button (펼치기/접기 삼각형) 캡처 설정
+																59 text (텍스트) 캡처 설정
+														60 button (단추) (disabled) 캡처 시작
+														61 button (단추) (disabled) 캡처 중지
+														62 button (단추) 자동 추적 중
+														63 button (단추) (disabled) 일시정지
+														64 button (단추) (disabled) 비우기
+														46020 group (지역) 트랜잭션
+															46021 group (세부정보)
+																46022 button (펼치기/접기 삼각형) 메서드, URL, 호스트, 상태로 필터 · 512 / 512
+																	46023 text (텍스트) 메서드, URL, 호스트, 상태로 필터
+																	46024 text (텍스트) ·
+																	46025 text (텍스트) 512
+																	46026 text (텍스트) /
+																	46027 text (텍스트) 512
+															46028 group (세부정보)
+																46029 button (펼치기/접기 삼각형) 세션 도구
+																	46030 text (텍스트) 세션 도구
+															46031 group (세부정보)
+																46032 button (펼치기/접기 삼각형) 열 필터
+																	46033 text (텍스트) 열 필터
+															46034 combo box (콤보 상자) (settable, string) 그룹 기준 Value: 프로세스
+															46035 group (세부정보)
+																46036 button (펼치기/접기 삼각형) 표시 열
+																	46037 text (텍스트) 표시 열
+															46038 group (그룹) 트랜잭션
+																46039 table (TABLE) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																	46040 text (텍스트) 캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+																	46041 data item (행)
+																		46042 button (단추) # Description: Sort by this column
+																			46043 button (단추) #
+																		46044 button (단추) 시작 Description: Sort by this column
+																			46045 button (단추) 시작
+																		46046 button (단추) 메서드 Description: Sort by this column
+																			46047 button (단추) 메서드
+																		46048 button (단추) 결과 Description: Sort by this column
+																			46049 button (단추) 결과
+																		46050 button (단추) 호스트 Description: Sort by this column
+																			46051 button (단추) 호스트
+																		46052 button (단추) 경로 Description: Sort by this column
+																			46053 button (단추) 경로
+																		46054 button (단추) 종류 Description: Sort by this column
+																			46055 button (단추) 종류
+																		46056 button (단추) 크기 Description: Sort by this column
+																			46057 button (단추) 크기
+																		46058 button (단추) 시간 Description: Sort by this column
+																			46059 button (단추) 시간
+																		46060 button (단추) 타임라인 Description: Sort by this column
+																		46061 button (단추) 프로세스 Description: Sort by this column
+																			46062 button (단추) 프로세스
+																	46063 data item (행)
+																		46064 data item (항목) ▾ synthetic-fixture [4242] · 2026-11-14T00:00:00Z 512 · ↑ 0 B · ↓ 22.5 KiB
+																			46065 button (단추) ▾ synthetic-fixture [4242] · 2026-11-14T00:00:00Z 512 · ↑ 0 B · ↓ 22.5 KiB
+																	46066 data item (행)
+																		46067 data item (항목) 1 Description: 1
+																		46068 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46069 data item (항목) GET Description: GET
+																		46070 data item (항목) 200 Description: 200
+																		46071 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46072 data item (항목) /import?size=512&row=0 Description: /import?size=512&row=0
+																		46073 data item (항목) JSON Description: json
+																		46074 data item (항목) 45 B Description: 45 B
+																		46075 data item (항목) 4 ms Description: 4 ms
+																		46076 data item (항목) — Description: —
+																		46077 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46078 data item (행)
+																		46079 data item (항목) 2 Description: 2
+																		46080 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46081 data item (항목) GET Description: GET
+																		46082 data item (항목) 200 Description: 200
+																		46083 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46084 data item (항목) /import?size=512&row=1 Description: /import?size=512&row=1
+																		46085 data item (항목) JSON Description: json
+																		46086 data item (항목) 45 B Description: 45 B
+																		46087 data item (항목) 4 ms Description: 4 ms
+																		46088 data item (항목) — Description: —
+																		46089 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46090 data item (행)
+																		46091 data item (항목) 3 Description: 3
+																		46092 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46093 data item (항목) GET Description: GET
+																		46094 data item (항목) 200 Description: 200
+																		46095 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46096 data item (항목) /import?size=512&row=2 Description: /import?size=512&row=2
+																		46097 data item (항목) JSON Description: json
+																		46098 data item (항목) 45 B Description: 45 B
+																		46099 data item (항목) 4 ms Description: 4 ms
+																		46100 data item (항목) — Description: —
+																		46101 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46102 data item (행)
+																		46103 data item (항목) 4 Description: 4
+																		46104 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46105 data item (항목) GET Description: GET
+																		46106 data item (항목) 200 Description: 200
+																		46107 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46108 data item (항목) /import?size=512&row=3 Description: /import?size=512&row=3
+																		46109 data item (항목) JSON Description: json
+																		46110 data item (항목) 45 B Description: 45 B
+																		46111 data item (항목) 4 ms Description: 4 ms
+																		46112 data item (항목) — Description: —
+																		46113 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46114 data item (행)
+																		46115 data item (항목) 5 Description: 5
+																		46116 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46117 data item (항목) GET Description: GET
+																		46118 data item (항목) 200 Description: 200
+																		46119 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46120 data item (항목) /import?size=512&row=4 Description: /import?size=512&row=4
+																		46121 data item (항목) JSON Description: json
+																		46122 data item (항목) 45 B Description: 45 B
+																		46123 data item (항목) 4 ms Description: 4 ms
+																		46124 data item (항목) — Description: —
+																		46125 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46126 data item (행)
+																		46127 data item (항목) 6 Description: 6
+																		46128 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46129 data item (항목) GET Description: GET
+																		46130 data item (항목) 200 Description: 200
+																		46131 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46132 data item (항목) /import?size=512&row=5 Description: /import?size=512&row=5
+																		46133 data item (항목) JSON Description: json
+																		46134 data item (항목) 45 B Description: 45 B
+																		46135 data item (항목) 4 ms Description: 4 ms
+																		46136 data item (항목) — Description: —
+																		46137 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46138 data item (행)
+																		46139 data item (항목) 7 Description: 7
+																		46140 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46141 data item (항목) GET Description: GET
+																		46142 data item (항목) 200 Description: 200
+																		46143 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46144 data item (항목) /import?size=512&row=6 Description: /import?size=512&row=6
+																		46145 data item (항목) JSON Description: json
+																		46146 data item (항목) 45 B Description: 45 B
+																		46147 data item (항목) 4 ms Description: 4 ms
+																		46148 data item (항목) — Description: —
+																		46149 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46150 data item (행)
+																		46151 data item (항목) 8 Description: 8
+																		46152 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46153 data item (항목) GET Description: GET
+																		46154 data item (항목) 200 Description: 200
+																		46155 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46156 data item (항목) /import?size=512&row=7 Description: /import?size=512&row=7
+																		46157 data item (항목) JSON Description: json
+																		46158 data item (항목) 45 B Description: 45 B
+																		46159 data item (항목) 4 ms Description: 4 ms
+																		46160 data item (항목) — Description: —
+																		46161 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46162 data item (행)
+																		46163 data item (항목) 9 Description: 9
+																		46164 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46165 data item (항목) GET Description: GET
+																		46166 data item (항목) 200 Description: 200
+																		46167 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46168 data item (항목) /import?size=512&row=8 Description: /import?size=512&row=8
+																		46169 data item (항목) JSON Description: json
+																		46170 data item (항목) 45 B Description: 45 B
+																		46171 data item (항목) 4 ms Description: 4 ms
+																		46172 data item (항목) — Description: —
+																		46173 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46174 data item (행)
+																		46175 data item (항목) 10 Description: 10
+																		46176 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46177 data item (항목) GET Description: GET
+																		46178 data item (항목) 200 Description: 200
+																		46179 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46180 data item (항목) /import?size=512&row=9 Description: /import?size=512&row=9
+																		46181 data item (항목) JSON Description: json
+																		46182 data item (항목) 45 B Description: 45 B
+																		46183 data item (항목) 4 ms Description: 4 ms
+																		46184 data item (항목) — Description: —
+																		46185 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46186 data item (행)
+																		46187 data item (항목) 11 Description: 11
+																		46188 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46189 data item (항목) GET Description: GET
+																		46190 data item (항목) 200 Description: 200
+																		46191 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46192 data item (항목) /import?size=512&row=10 Description: /import?size=512&row=10
+																		46193 data item (항목) JSON Description: json
+																		46194 data item (항목) 45 B Description: 45 B
+																		46195 data item (항목) 4 ms Description: 4 ms
+																		46196 data item (항목) — Description: —
+																		46197 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46198 data item (행)
+																		46199 data item (항목) 12 Description: 12
+																		46200 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46201 data item (항목) GET Description: GET
+																		46202 data item (항목) 200 Description: 200
+																		46203 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46204 data item (항목) /import?size=512&row=11 Description: /import?size=512&row=11
+																		46205 data item (항목) JSON Description: json
+																		46206 data item (항목) 45 B Description: 45 B
+																		46207 data item (항목) 4 ms Description: 4 ms
+																		46208 data item (항목) — Description: —
+																		46209 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46210 data item (행)
+																		46211 data item (항목) 13 Description: 13
+																		46212 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46213 data item (항목) GET Description: GET
+																		46214 data item (항목) 200 Description: 200
+																		46215 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46216 data item (항목) /import?size=512&row=12 Description: /import?size=512&row=12
+																		46217 data item (항목) JSON Description: json
+																		46218 data item (항목) 45 B Description: 45 B
+																		46219 data item (항목) 4 ms Description: 4 ms
+																		46220 data item (항목) — Description: —
+																		46221 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46222 data item (행)
+																		46223 data item (항목) 14 Description: 14
+																		46224 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46225 data item (항목) GET Description: GET
+																		46226 data item (항목) 200 Description: 200
+																		46227 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46228 data item (항목) /import?size=512&row=13 Description: /import?size=512&row=13
+																		46229 data item (항목) JSON Description: json
+																		46230 data item (항목) 45 B Description: 45 B
+																		46231 data item (항목) 4 ms Description: 4 ms
+																		46232 data item (항목) — Description: —
+																		46233 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46234 data item (행)
+																		46235 data item (항목) 15 Description: 15
+																		46236 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46237 data item (항목) GET Description: GET
+																		46238 data item (항목) 200 Description: 200
+																		46239 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46240 data item (항목) /import?size=512&row=14 Description: /import?size=512&row=14
+																		46241 data item (항목) JSON Description: json
+																		46242 data item (항목) 45 B Description: 45 B
+																		46243 data item (항목) 4 ms Description: 4 ms
+																		46244 data item (항목) — Description: —
+																		46245 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46246 data item (행)
+																		46247 data item (항목) 16 Description: 16
+																		46248 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46249 data item (항목) GET Description: GET
+																		46250 data item (항목) 200 Description: 200
+																		46251 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46252 data item (항목) /import?size=512&row=15 Description: /import?size=512&row=15
+																		46253 data item (항목) JSON Description: json
+																		46254 data item (항목) 45 B Description: 45 B
+																		46255 data item (항목) 4 ms Description: 4 ms
+																		46256 data item (항목) — Description: —
+																		46257 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46258 data item (행)
+																		46259 data item (항목) 17 Description: 17
+																		46260 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46261 data item (항목) GET Description: GET
+																		46262 data item (항목) 200 Description: 200
+																		46263 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46264 data item (항목) /import?size=512&row=16 Description: /import?size=512&row=16
+																		46265 data item (항목) JSON Description: json
+																		46266 data item (항목) 45 B Description: 45 B
+																		46267 data item (항목) 4 ms Description: 4 ms
+																		46268 data item (항목) — Description: —
+																		46269 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46270 data item (행)
+																		46271 data item (항목) 18 Description: 18
+																		46272 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46273 data item (항목) GET Description: GET
+																		46274 data item (항목) 200 Description: 200
+																		46275 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46276 data item (항목) /import?size=512&row=17 Description: /import?size=512&row=17
+																		46277 data item (항목) JSON Description: json
+																		46278 data item (항목) 45 B Description: 45 B
+																		46279 data item (항목) 4 ms Description: 4 ms
+																		46280 data item (항목) — Description: —
+																		46281 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46282 data item (행)
+																		46283 data item (항목) 19 Description: 19
+																		46284 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46285 data item (항목) GET Description: GET
+																		46286 data item (항목) 200 Description: 200
+																		46287 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46288 data item (항목) /import?size=512&row=18 Description: /import?size=512&row=18
+																		46289 data item (항목) JSON Description: json
+																		46290 data item (항목) 45 B Description: 45 B
+																		46291 data item (항목) 4 ms Description: 4 ms
+																		46292 data item (항목) — Description: —
+																		46293 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46294 data item (행)
+																		46295 data item (항목) 20 Description: 20
+																		46296 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46297 data item (항목) GET Description: GET
+																		46298 data item (항목) 200 Description: 200
+																		46299 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46300 data item (항목) /import?size=512&row=19 Description: /import?size=512&row=19
+																		46301 data item (항목) JSON Description: json
+																		46302 data item (항목) 45 B Description: 45 B
+																		46303 data item (항목) 4 ms Description: 4 ms
+																		46304 data item (항목) — Description: —
+																		46305 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46306 data item (행)
+																		46307 data item (항목) 21 Description: 21
+																		46308 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46309 data item (항목) GET Description: GET
+																		46310 data item (항목) 200 Description: 200
+																		46311 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46312 data item (항목) /import?size=512&row=20 Description: /import?size=512&row=20
+																		46313 data item (항목) JSON Description: json
+																		46314 data item (항목) 45 B Description: 45 B
+																		46315 data item (항목) 4 ms Description: 4 ms
+																		46316 data item (항목) — Description: —
+																		46317 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46318 data item (행)
+																		46319 data item (항목) 22 Description: 22
+																		46320 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46321 data item (항목) GET Description: GET
+																		46322 data item (항목) 200 Description: 200
+																		46323 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46324 data item (항목) /import?size=512&row=21 Description: /import?size=512&row=21
+																		46325 data item (항목) JSON Description: json
+																		46326 data item (항목) 45 B Description: 45 B
+																		46327 data item (항목) 4 ms Description: 4 ms
+																		46328 data item (항목) — Description: —
+																		46329 data item (항목) synthetic-fixture Description: synthetic-fixture
+																	46361 data item (행)
+																		46362 data item (항목) 23 Description: 23
+																		46363 data item (항목) 00:41:39.288 Description: 00:41:39.288
+																		46364 data item (항목) GET Description: GET
+																		46365 data item (항목) 200 Description: 200
+																		46366 data item (항목) 127.0.0.1:11514 Description: 127.0.0.1:11514
+																		46367 data item (항목) /import?size=512&row=22 Description: /import?size=512&row=22
+																		46368 data item (항목) JSON Description: json
+																		46369 data item (항목) 45 B Description: 45 B
+																		46370 data item (항목) 4 ms Description: 4 ms
+																		46371 data item (항목) — Description: —
+																		46372 data item (항목) synthetic-fixture Description: synthetic-fixture
+															46330 text (텍스트) 방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+															46331 thumb (위치 조정) 트랜잭션 목록 크기 조절 Description: 드래그·방향키로 크기를 조절하고, 더블클릭·Home으로 기본 높이를 복원합니다. Value: 100
+															46332 button (단추) Request Builder로 복사
+															46333 text (텍스트) 200
+															46334 text (텍스트) GET
+															46335 text (텍스트) http://127.0.0.1:11514/import?size=512&row=0
+															46336 text (텍스트) 신규 연결
+															46337 group (그룹) Description: decoded_wire
+																46338 text (텍스트) 와이어 복호화
+															46339 tab (Tab) 트랜잭션
+																46340 tab item (탭 항목) (selectable) 힌트 / 상태 / 주석
+																46341 tab item (탭 항목) (selectable) Raw
+																46342 tab item (탭 항목) (selectable) 스트림
+																46343 tab item (탭 항목) (selectable) 헤더
+																46344 tab item (탭 항목) (selectable) 쿼리 문자열
+																46345 tab item (탭 항목) (selectable) POST 데이터
+																46346 tab item (탭 항목) (selectable) 본문
+																46347 tab item (탭 항목) (selectable) 타이밍
+																46348 tab item (탭 항목) (selectable) 쿠키
+																46349 tab item (탭 항목) (selectable) 프로세스
+															46350 pane (탭 패널) 힌트 / 상태 / 주석
+																46373 text (텍스트) 200
+																46374 text (텍스트) 
+																46375 text (텍스트) OK
+																46376 text (텍스트) 성공 응답입니다. 요청 메서드에 맞춰 본문을 해석하세요.
+																46377 list (LIST)
+																	46378 list item (목록 항목) BODY_OMITTED · 보존하지 않은 본문이 있습니다.
+																		46379 text (텍스트) BODY_OMITTED
+																46380 checkbox (확인란) (settable, string) 이 요청에 별표
+																46381 text (텍스트) 요청 주석
+																46382 text field (편집) (settable, string) 요청 주석 Value: 메모리 재열기 synthetic note unique 107
+																46383 text (텍스트) 45
+																46384 text (텍스트) /
+																46385 text (텍스트) 4096
+																46386 text (텍스트) UTF-8
+																46387 text (텍스트) 바이트
+																46388 button (단추) (disabled) 주석 저장
+																46389 text (텍스트) 라이브 주석은 요청 ID로 저장합니다. 열린 파일의 편집은 세션·XML·ArchScope HAR 저장에 반영합니다. 주석도 마스킹합니다.
+														46360 button (단추) 세션 요약 및 근거
+							15 pane (영역)
+					16 pane (영역)
+		17 title bar (제목 표시줄) (settable, string) Value: ArchScope
+			18 menu bar (메뉴 모음) 시스템 ID: MenuBar
+				19 menu item (메뉴 항목) 시스템
+			20 button (단추) 최소화
+			21 button (단추) 최대화
+			22 button (단추) 닫기
+
+Document text: ```
+HTTP 캡처
+파일
+홈
+분석
+HTTP
+워크스페이스
+보기
+도움말
+리본 표시 옵션
+리본 접기
+열기…
+최근 파일
+저장 / 내보내기
+파일
+프로파일러
+HTTP 캡처
+분석 작업 공간
+도구
+차트 스튜디오
+Export 센터
+보고서
+파일·요청 작성
+캡처 설정
+캡처 시작
+캡처 중지
+자동 추적 중
+일시정지
+비우기
+메서드, URL, 호스트, 상태로 필터 · 512 / 512
+세션 도구
+열 필터
+그룹 기준
+표시 열
+캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+#
+￼
+시작
+￼
+메서드
+￼
+결과
+￼
+호스트
+￼
+경로
+￼
+종류
+￼
+크기
+￼
+시간
+￼
+타임라인
+￼
+프로세스
+￼
+▾
+synthetic-fixture [4242] · 2026-11-14T00:00:00Z
+512 · ↑ 0 B · ↓ 22.5 KiB
+1
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=0
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+2
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=1
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+3
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=2
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+4
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=3
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+5
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=4
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+6
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=5
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+7
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=6
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+8
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=7
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+9
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=8
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+10
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=9
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+11
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=10
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+12
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=11
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+13
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=12
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+14
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=13
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+15
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=14
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+16
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=15
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+17
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=16
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+18
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=17
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+19
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=18
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+20
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=19
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+21
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=20
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+22
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=21
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+23
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=22
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+트랜잭션 목록 크기 조절
+Request Builder로 복사
+200
+GET
+http://127.0.0.1:11514/import?size=512&row=0
+신규 연결
+와이어 복호화
+힌트 / 상태 / 주석
+Raw
+스트림
+헤더
+쿼리 문자열
+POST 데이터
+본문
+타이밍
+쿠키
+프로세스
+200 OK
+성공 응답입니다. 요청 메서드에 맞춰 본문을 해석하세요.
+BODY_OMITTED · 보존하지 않은 본문이 있습니다.
+￼
+요청 주석
+메모리 재열기 synthetic note unique 107
+45 / 4096 UTF-8 바이트
+주석 저장
+라이브 주석은 요청 ID로 저장합니다. 열린 파일의 편집은 세션·XML·ArchScope HAR 저장에 반영합니다. 주석도 마스킹합니다.
+세션 요약 및 근거
+```
+
+Focused element: 1 pane (창) ArchScope
+
+Document text:
+HTTP 캡처
+파일
+홈
+분석
+HTTP
+워크스페이스
+보기
+도움말
+리본 표시 옵션
+리본 접기
+열기…
+최근 파일
+저장 / 내보내기
+파일
+프로파일러
+HTTP 캡처
+분석 작업 공간
+도구
+차트 스튜디오
+Export 센터
+보고서
+파일·요청 작성
+캡처 설정
+캡처 시작
+캡처 중지
+자동 추적 중
+일시정지
+비우기
+메서드, URL, 호스트, 상태로 필터 · 512 / 512
+세션 도구
+열 필터
+그룹 기준
+표시 열
+캡처된 모든 요청을 캡처 순서대로 표시합니다. 행을 선택하면 아래에서 상세를 확인합니다.
+#
+￼
+시작
+￼
+메서드
+￼
+결과
+￼
+호스트
+￼
+경로
+￼
+종류
+￼
+크기
+￼
+시간
+￼
+타임라인
+￼
+프로세스
+￼
+▾
+synthetic-fixture [4242] · 2026-11-14T00:00:00Z
+512 · ↑ 0 B · ↓ 22.5 KiB
+1
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=0
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+2
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=1
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+3
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=2
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+4
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=3
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+5
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=4
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+6
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=5
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+7
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=6
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+8
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=7
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+9
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=8
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+10
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=9
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+11
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=10
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+12
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=11
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+13
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=12
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+14
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=13
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+15
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=14
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+16
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=15
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+17
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=16
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+18
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=17
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+19
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=18
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+20
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=19
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+21
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=20
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+22
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=21
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+23
+00:41:39.288
+GET
+200
+127.0.0.1:11514
+/import?size=512&row=22
+JSON
+45 B
+4 ms
+￼
+synthetic-fixture
+방향키로 행을 이동하고 Enter로 상세 패널을 엽니다.
+트랜잭션 목록 크기 조절
+Request Builder로 복사
+200
+GET
+http://127.0.0.1:11514/import?size=512&row=0
+신규 연결
+와이어 복호화
+힌트 / 상태 / 주석
+Raw
+스트림
+헤더
+쿼리 문자열
+POST 데이터
+본문
+타이밍
+쿠키
+프로세스
+200 OK
+성공 응답입니다. 요청 메서드에 맞춰 본문을 해석하세요.
+BODY_OMITTED · 보존하지 않은 본문이 있습니다.
+￼
+요청 주석
+메모리 재열기 synthetic note unique 107
+45 / 4096 UTF-8 바이트
+주석 저장
+라이브 주석은 요청 ID로 저장합니다. 열린 파일의 편집은 세션·XML·ArchScope HAR 저장에 반영합니다. 주석도 마스킹합니다.
+세션 요약 및 근거
