@@ -6225,3 +6225,14 @@ Default Korean Windows CP949 decoding fails reading UTF-8 message sources.
 Declare UTF-8 on all checker reads; no catalog changes. Native Python3.10 normal
 and optimized executions both pass2197phrases per added locale with placeholders
 unchanged. Evidence:2026-11-16-windows-validation/README.md.
+
+### 2026-11-16 - Windows Chart units and cross-host workflow
+
+Actual amd64 profiler/Chart Studio seven units preserve SVG axis and value1000000
+through seven real Save dialogs; independent CSV parser verifies all original
+files/source arrays. Canvas creation observed; physical drop and full PNG/SVG/x86
+chart matrix remain separate. Harness readiness/operator failures retained.
+Windowsx64/x86 and Linuxpurego headless each3cases/9exports/fresh-cache restart
+pass;219sanitized projections match across3hosts. Docker four36cycle ownership
+scenarios pass with explicit diagnosticGC only; no native leak/race claim.
+Evidence:2026-11-16-windows-validation/chart-readback.json.

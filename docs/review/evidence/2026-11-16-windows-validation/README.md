@@ -32,5 +32,32 @@ the publisher had not run. A synctest bubble makes the existing10ms ticker and
 close assertions remain. Both architectures pass25targeted repeats, x64 stream
 suite and final x86 full131packages. Initial failure receipts remain preserved.
 
-Chart unit/native Save and ordinary x86 memory results are recorded separately
-when completed; protocol.json declares their scope and unchanged memory budgets.
+Seven units now pass actual Windowsamd64 profiler→Chart Studio→native CSV Save
+flow: samples/ns/µs/ms/s/bytes/unknown. The real analyzer reads a synthetic owned
+collapsed file via a synthetic renderer drop (not physical OS drag acceptance).
+Each case creates a Canvas surface, switches to SVG and checks the exact axis;
+the operator completes the real Save dialog. Independent Python CSV parsing
+checks value1000000, exact unit/template/type and the source-file array for all7
+unmodified saved outputs. This does not qualify every PNG/SVG export or x86 chart
+condition. Native UIA failed to address modal element indexes; a fresh separate
+dialog screenshot and coordinate input completed the operation. Dialog shell
+screenshots/trees stay private; only synthetic exported CSVs are published.
+
+Earlier chart harness outcomes remain explicit: Settings lazy-load readiness
+failure, an inconclusive run waiting for Summary while the app correctly opened
+Flamegraph, and an operator timeout during modal control recovery. The final run
+waits for enabled result tabs and permits15minutes per manual Save dialog; the
+analyzer readiness and original native memory timing/budgets are unchanged.
+
+Windowsx64/x86 and Linuxamd64 purego/headless Wails-service integration each pass
+3saved cases/9exports and fresh backend/cache restart. All219independently produced
+sanitized transaction projections/fingerprints match exactly across the3hosts.
+Docker repeated/unique/body-rich/unshared-control diagnostics each run36cycles;
+history remains80cards, repeated data uses3arrays, other scenarios80, and Clear
+releases every entry. Explicit Node GC is diagnostic only. The Linux purego test
+variant is not native GTK/UI or production CGO/race acceptance. An initial Docker
+CLI flag-splitting failure is separate from the successful array-argument rerun.
+
+Ordinary x86 native memory results are recorded separately when completed;
+protocol.json declares their unchanged screening budgets. Original historical
+memory failures and every independent review disposition remain unchanged.

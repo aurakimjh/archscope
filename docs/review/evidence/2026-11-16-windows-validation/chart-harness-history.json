@@ -1,0 +1,40 @@
+[
+  {
+    "attempt": "chart-amd64",
+    "result": "FAIL",
+    "scope": "Harness/operator limitation; no completed unit Save acceptance",
+    "report": {
+      "cases": [],
+      "failure": "TypeError: Cannot read properties of null (reading 'querySelectorAll')",
+      "passed": false,
+      "phase": "readiness",
+      "scope": "Actual Windows profiler\u2192Chart Studio\u2192native CSV Save; synthetic input dispatch, not physical drag or universal export qualification"
+    }
+  },
+  {
+    "attempt": "chart-amd64-2",
+    "result": "INCONCLUSIVE",
+    "scope": "Harness/operator limitation; no completed unit Save acceptance",
+    "report": {
+      "phase": "analyze samples",
+      "reason": "Stopped after actual import auto-selected Flamegraph while harness incorrectly waited for active Summary"
+    }
+  },
+  {
+    "attempt": "chart-amd64-3",
+    "result": "FAIL",
+    "scope": "Harness/operator limitation; no completed unit Save acceptance",
+    "report": {
+      "cases": [],
+      "failure": "Error: Chart unit readiness timeout",
+      "passed": false,
+      "phase": "native save samples",
+      "scope": "Actual Windows profiler\u2192Chart Studio\u2192native CSV Save; synthetic input dispatch, not physical drag or universal export qualification"
+    }
+  },
+  {
+    "attempt": "chart-amd64-4",
+    "result": "PASS",
+    "scope": "Final seven native CSV Save dialogs completed; operator wait extended to15minutes separately from unchanged180s analyzer readiness and native memory protocol"
+  }
+]
