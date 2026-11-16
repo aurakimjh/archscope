@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-11-16
+Last updated: 2026-11-17
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -630,7 +630,7 @@ T-629 is DONE after independent R2 confirmed R4 remediation and allowed closure;
 | 3 | T-663 | P2 | `REVIEW` | Actual Windowsx64/x86 responsive ribbon180locale/tab layouts,18theme selections,selected contrast>=4.5 pass; Settings shortcut/contrast defects fixed and physical selected shortcuts verified. Remaining independent review, full physical keyboard/provider/state and actual OS-DPI conditions remain. |
 | 4 | T-664 | P2 | `REVIEW` | Five-locale Windows geometry and selected KO/JA/Chinese glyph screenshots pass;2197phrases per added locale/placeholder checks pass under native WindowsPython after UTF8 correction. Independent fluent-speaker review, actual IME and full font/language/DPI/physical-keyboard conditions remain. |
 | 5 | T-611 | P3 | `REVIEW` | Physical retention, pre-storage admission cancellation, owned custom-IID registration, nested normalized filters and common-engine soak tooling implemented. Mac and hosted race/vet/frontend/package plus both GUI cross-builds pass; amd64-race/386 native COM, including custom-IID RPC and explicit registration replacement/cleanup, pass. Current vendor early-bound compatibility, unobserved native filter/cache-origin evidence and foreign-process in-memory session-cookie integration remain. |
-| 6 | T-613 | P3 | `PENDING` | Duplicate projection retention fixed; two earlier fixedx64 screens and current36cycle ordinaryx86 screen pass within original budgets. Historical initial/x64FAIL receipts and OSprivate/JSheap uncertainty remain. Windows/Docker saved workflows/219model parity and preparatory pack matrices pass within explicit fixture scope. Full originalV7.6.4/client/IME/drag/body-format/driver/isolated-fault/official-signer and unique/body-rich/longer native memory conditions remain; x64body is still gated. |
+| 6 | T-613 | P3 | `PENDING` | Baseline635512cf ordinaryx64/x86 unique512row36cycle screens PASS. Body-rich128row screens bothFAIL tree slope (x64 4.801MiB/cycle,x86 8.764), original4MiB budget preserved; root/handles/threads pass.216actual projections match3hosts; explicit-GC80array/Clear diagnostics are separate. Native bodies/annotations survive; renderer private/JS-heap cause, repetitions/longer runs and full original/client/IME/drag/driver/isolated-fault/official-signer gates remain. Evidence: docs/review/evidence/2026-11-16-windows-additional/. |
 
 ### Native Windows follow-up (2026-11-11)
 
@@ -1136,6 +1136,16 @@ filtered before analysis.
 | Collapsed profiler | 29 MB / 500k lines | 0.26s | 16 MB | 6.8 KB | Good baseline |
 
 ## Next Execution Queue
+
+### Windows additional acceptance — current 2026-11-16 supplement
+
+Both architectures pass seven-unit Canvas→SVG/SVG→PNG native Saves (28files).
+Ordinary unique-file memory screens pass; body-rich screens fail original tree
+slope budgets onbotharchitectures and remain unresolved. Exact216input model
+projections/fingerprints match Windowsx64/x86 and Dockerpurego; matched explicit-GC
+80array/Clear diagnostics do not close native growth. Latest remaining conditions:
+[Windows additional evidence](docs/review/evidence/2026-11-16-windows-additional/README.md).
+Existing243DONE/5REVIEW/1PENDING/2TODO and independentCONDITIONAL are unchanged.
 
 ### Desktop ribbon and five display languages (2026-11-16)
 
@@ -6266,3 +6276,16 @@ Final source/build/log hashes,current acceptance gates and native observation
 limits are recorded. Owned apps/WebViews/containers stopped,7usercontainers kept.
 All8open task states and independentCONDITIONAL remain; no release/tag created.
 Evidence:2026-11-16-windows-validation/final-validation.json.
+
+### 2026-11-17 - Windows additional acceptance completion
+
+Seven task commits qualify28native cross-renderer image Saves, ordinaryx64/x86
+unique-file memory PASS and preservedbody-richFAILs (tree slopes4.801/8.764MiB
+percycle),216exactthree-host projections and matched explicit-GC80array/Clear
+diagnostics. A separate read-only native run matches8samples (maxlag5.328s):
+80cards/80arrays/10240rows, JSusedslope0.004MiB/cycle versusrendererprivate4.458.
+OrdinaryFAILs remain; native allocation cause/repetition/longer qualification is
+open. Checker selector/serialization assumptions are corrected and their initial
+receipts preserved. Normal frontend restored, owned apps/containers cleaned up,
+7preexisting containers preserved. Existing8open statuses and independent
+CONDITIONAL remain. Evidence:2026-11-16-windows-additional/README.md.

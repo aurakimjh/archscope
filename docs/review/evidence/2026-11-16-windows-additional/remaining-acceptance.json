@@ -1,0 +1,99 @@
+{
+  "asOf": "2026-11-17",
+  "baseline": "635512cf",
+  "priorInventory": "../2026-11-16-windows-validation/remaining-acceptance.json",
+  "scope": "Incremental actual Windows/Docker tests; eight open task states and original independent CONDITIONAL preserved",
+  "T-601": {
+    "status": "REVIEW",
+    "priority": "P1",
+    "remaining": [
+      "Isolated WinDivert installation/injection/cleanup and driver-policy compatibility",
+      "Proxy-ignoring client, service and other-session actual capture reach"
+    ]
+  },
+  "T-627": {
+    "status": "REVIEW",
+    "priority": "P2",
+    "remaining": [
+      "Other native unit/renderer/export combinations beyond seven units each of SVG-screen CSV, Canvas-screen SVG and SVG-screen PNG on Windowsx64/x86. Same-renderer image outputs, Office/reopened reference and remaining provider templates still require their own receipts.",
+      "Remaining original/reference, dense/error/empty, actual OS DPI, EN/KO and keyboard/provider combinations",
+      "Actual Hangul IME composition and drag-specific paths; Office/renderer combinations beyond pinned receipts"
+    ],
+    "newlyVerified": [
+      "Windowsx64/x86 each7actual profiler→Chart Studio SVG axes/Canvas surface and native CSV Save;7saved CSV bytes equal across architectures.",
+      "Actual new ribbon Windows180locale/tab combinations and18theme selections; selected control contrast>=4.5:1; original1.118failure retained.",
+      "Windowsx64/x86 each14native cross-renderer image Saves:7Canvas→SVG and7SVG→PNG; independent XML/PNG structure, axis/value/bar/background/dimensions pass,7PNG pairs byte-identical. Initial audit bounds mistake retained and corrected onx86."
+    ]
+  },
+  "T-611": {
+    "status": "REVIEW",
+    "priority": "P3",
+    "remaining": [
+      "Original/vendor early-bound foreign COM client compatibility",
+      "Foreign session-cookie integration and clean-host registration/unregistration/remoting lifecycle"
+    ]
+  },
+  "T-613": {
+    "status": "PENDING",
+    "priority": "P3",
+    "dependsOn": [
+      "T-601",
+      "T-611",
+      "T-627"
+    ],
+    "remaining": [
+      "Original V7.6.4/client remaining 16-case exchange/display/export parity",
+      "Actual x64 live body recording remains blocked by real SEC-10 capability preflight: bodyCaptureAvailable=false, local_dumps_collecting. No security/dump policy bypass.",
+      "Body-rich ordinary native growth is unresolved: Windowsx64 tree slope4.801MiB/cycle and Windowsx86 slope8.764 exceed the original4MiB/cycle budget. Repeat/longer runs and renderer OS-private/JS-heap attribution remain. Unique512row/108distinct-file36cycle screens now pass on both architectures. Exact80ordinary native UIA count is still PARTIAL; headless80ownership is separate.",
+      "Ordinary body-rich renderer allocation/native DOM/buffer attribution, reproduction and longer runs remain; the instrumented native last8counter/JS-heap correlation bounds80entries but does not identify the remaining renderer-private allocator or erase ordinaryFAILs.",
+      "Isolated Windows actual disk exhaustion, interrupted writes/power-loss and recovery",
+      "Actual signed-pack clean installation and RC-to-stable upgrade preserving cases/settings/owner activation"
+    ],
+    "newlyVerified": [
+      "Ordinary Windowsx86 production10228156,36cycles/108opens,28warmup/8measured:all original memory/root/handle/thread delta/slope budgets PASS without forcedGC/trim; independent recomputation and32row/star/Hangul-note UI bookends.",
+      "Windowsx64/x86 and Linuxpurego headless each3saved cases/9exports/fresh-cache restart;219exact transaction projections/fingerprints equal. Docker4ownership scenarios qualify explicit-GC diagnostics only.",
+      "Native x64/x86 RC/stable/future preparatory pack matrices with ephemeral fixture trust; actual official signed installation/upgrade is not qualified.",
+      "Baseline635512cf ordinaryWindowsx64/x86 each36cycles/108distinct512rowopens PASS with original28warmup/8measured budgets and native row/star/Hangul-note readback. Ordinarybody-rich128row screens bothFAIL and are retained unchanged; controller counts and final native bodies/annotations pass.",
+      "Exact216actual input projections/fingerprints match Windowsamd64/386 and DockerLinuxamd64purego. Matched Windows/Docker explicit-GC diagnostics bound history at80arrays/40960unique rows or10240body-rich rows and Clear releases all entries; no ordinary memory acceptance promotion.",
+      "Separate instrumented native x64 body-rich36cycle run: last8timely counter matches (maximumlag5.328s within predeclared10s) retain80cards/80arrays/10240rows. JS used slope0.004MiB/cycle while rendererprivate slope4.458; no forcedGC/trim. Ordinary body-rich failures remain unchanged; native allocation cause is not proven."
+    ]
+  },
+  "T-654": {
+    "status": "TODO",
+    "environment": "Permitted real two-NVIDIA-GPU Linux CUDA/NCCL execution with declared versions/inputs remains required; no distributed inference evidence supplied by this Windows/Docker UI/workflow increment."
+  },
+  "T-662": {
+    "status": "TODO",
+    "environment": "Owner-authorized natural nonzero swap/elevated pressure with independent OS values; these explicit-GC synthetic diagnostics do not qualify it"
+  },
+  "releasePackGate": {
+    "status": "PENDING",
+    "remaining": "Official existing-signer pack, embedded bundle startup, explicit migration/recovery with owner state preserved; ephemeral test signatures are not release approval"
+  },
+  "independentReview": {
+    "status": "PENDING",
+    "remaining": "Different reviewer must assess remediation and acceptance evidence; original CONDITIONAL reviews remain unchanged",
+    "originalVerdict": "CONDITIONAL; no new independent review performed"
+  },
+  "T-663": {
+    "status": "REVIEW",
+    "priority": "P2",
+    "newlyVerified": "Actual Windowsx64/x86 six responsive WebView2 runs/180locale-tab layouts/18themes; physical Settings shortcut both architectures,F1/Ctrl+F1x86; low-contrast selected text fixed.",
+    "remaining": [
+      "Independent implementation review",
+      "Remaining full physical keyboard/provider/state/layout combinations and actual OS-DPI matrix; current observed OSscale100%,WebView zoom100/125% only"
+    ]
+  },
+  "T-664": {
+    "status": "REVIEW",
+    "priority": "P2",
+    "dependsOn": [
+      "T-663"
+    ],
+    "newlyVerified": "Windows selected KO/JA/Chinese glyph screenshots and five-locale renderer geometry; native Python normal/optimized coverage2197phrases per added locale after explicit UTF8 correction.",
+    "remaining": [
+      "Independent fluent-speaker review",
+      "Actual IME composition and complete font/language/physical-keyboard/OS-DPI combinations beyond pinned receipts"
+    ]
+  }
+}

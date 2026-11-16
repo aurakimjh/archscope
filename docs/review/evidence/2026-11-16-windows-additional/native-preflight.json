@@ -1,0 +1,43 @@
+{
+  "sourceCommit": "635512cf",
+  "scope": "Read-only real owned-app capability preflight; no dump/security/driver policy changed",
+  "bodyCaptureAvailable": false,
+  "bodyCaptureGate": "sec10_unavailable",
+  "bodyCaptureGateReason": "local_dumps_collecting",
+  "backends": [
+    {
+      "name": "explicit_proxy",
+      "available": true,
+      "transparent": false,
+      "requiresDriver": false,
+      "scopes": [
+        "all_sessions",
+        "current_session",
+        "selected",
+        "launch"
+      ],
+      "protocols": [
+        "http/1.0",
+        "http/1.1",
+        "explicit opaque CONNECT fallback"
+      ]
+    },
+    {
+      "name": "windows_transparent",
+      "available": false,
+      "transparent": true,
+      "requiresDriver": true,
+      "reason": "set ARCHSCOPE_WINDIVERT_DLL to the official 2.2.2-A DLL's absolute path",
+      "scopes": [
+        "all_sessions",
+        "current_session",
+        "selected",
+        "launch"
+      ],
+      "protocols": [
+        "IPv4 TCP HTTP/1.x",
+        "TLS with trusted capture CA; opaque h2-only fallback"
+      ]
+    }
+  ]
+}

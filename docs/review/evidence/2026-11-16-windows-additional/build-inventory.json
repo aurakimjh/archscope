@@ -1,0 +1,51 @@
+{
+  "productCommit": "635512cf",
+  "frontendProductionBuild": {
+    "command": "npm run build (VITE_MEMORY_DIAGNOSTICS=0)",
+    "observedExitCode": 0,
+    "scope": "TypeScript and Vite production build before all four binary builds"
+  },
+  "node": "v22.15.1",
+  "go": "go version go1.26.10 windows/amd64",
+  "windows": "10.0.26300",
+  "binaries": [
+    {
+      "file": "archscope-production-amd64.exe",
+      "arch": "amd64",
+      "tags": "production",
+      "bytes": 56828416,
+      "sha256": "1074f5604a18628cab6f595af34769a5653ecb3110730392e9f6c8eb2d49b0ef",
+      "peMachine": "0x8664",
+      "retentionSymbolAbsent": true
+    },
+    {
+      "file": "archscope-production-386.exe",
+      "arch": "386",
+      "tags": "production",
+      "bytes": 54881792,
+      "sha256": "c5db677aace3637e2127c1e92a94a5270df7d37aeab513d163ec2684be351ba5",
+      "peMachine": "0x14c",
+      "retentionSymbolAbsent": true
+    },
+    {
+      "file": "archscope-audit-amd64.exe",
+      "arch": "amd64",
+      "tags": "production,layoutaudit",
+      "bytes": 56851968,
+      "sha256": "abd65ae4d70eba54a5eeab9dbd02b20fe7653688dd71e1217cee43f9f332829b",
+      "peMachine": "0x8664",
+      "retentionSymbolAbsent": false
+    },
+    {
+      "file": "archscope-audit-386.exe",
+      "arch": "386",
+      "tags": "production,layoutaudit",
+      "bytes": 54904320,
+      "sha256": "88aad2f5d30a6ef2540bc99d178db16bf4e26ec0c04aef81cf2753e7273a1873",
+      "peMachine": "0x14c",
+      "retentionSymbolAbsent": false
+    }
+  ],
+  "auditLimit": "layoutaudit embeds an observer referencing the optional retention symbol; only ordinary production binaries are asserted to exclude that symbol. All builds embed VITE_MEMORY_DIAGNOSTICS=0 frontend.",
+  "dockerImageDigest": "node@sha256:e9f565d32859f0cbfb52125eafe8be39390f24dac302dc3cdf566e8ba3ab21ee"
+}

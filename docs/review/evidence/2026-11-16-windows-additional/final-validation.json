@@ -1,0 +1,122 @@
+{
+  "completedAt": "2026-11-17",
+  "batchStarted": "2026-11-16",
+  "productBaseline": "635512cf",
+  "taskCommits": [
+    "7b373acbbe8b0985c77a0f5000e11fd7570c3934",
+    "3a3d044cf8aed2c8d58fdc7a39cebfc6e1e1df1d",
+    "cc2d4de6d81533ea497cbbe762839cfac28b5edc",
+    "2c91c51cb1eb9faa5e92dd3ebd6ce5a6e15aa21d",
+    "6c608b0b7583ea0562dcf4475ce16f7052d105aa",
+    "8a6ad78b0bdc9c9f18b47af81726f2117d0fd4d0",
+    "a7d80b560673a705af8e83bb50d52d96ffb3d57e"
+  ],
+  "scope": "Completed incremental Windows/Docker test batch; overall acceptance remains open",
+  "ordinaryMemory": {
+    "unique-amd64": {
+      "passed": true,
+      "elapsedSeconds": 912.9653179000001,
+      "treeMetrics": {
+        "firstMedian": 741703680,
+        "lastMedian": 718393344,
+        "delta": -23310336,
+        "slopePerCycle": 54954.66666666667,
+        "withinBudget": true
+      }
+    },
+    "body-rich-amd64": {
+      "passed": false,
+      "elapsedSeconds": 922.3377834,
+      "treeMetrics": {
+        "firstMedian": 615870464,
+        "lastMedian": 654966784,
+        "delta": 39096320,
+        "slopePerCycle": 5033984.0,
+        "withinBudget": false
+      }
+    },
+    "unique-386": {
+      "passed": true,
+      "elapsedSeconds": 915.7952826000001,
+      "treeMetrics": {
+        "firstMedian": 736538624,
+        "lastMedian": 709857280,
+        "delta": -26681344,
+        "slopePerCycle": -412160.0,
+        "withinBudget": true
+      }
+    },
+    "body-rich-386": {
+      "passed": false,
+      "elapsedSeconds": 926.5491555,
+      "treeMetrics": {
+        "firstMedian": 579858432,
+        "lastMedian": 628105216,
+        "delta": 48246784,
+        "slopePerCycle": 9189376.0,
+        "withinBudget": false
+      }
+    }
+  },
+  "ordinaryBodyRichFailuresPreserved": true,
+  "chartNativeSaveOutputs": 28,
+  "matchingThreeHostProjections": 216,
+  "explicitGCDiagnosticRuns": 4,
+  "nativeCounterDiagnostic": {
+    "countsQualified": true,
+    "nativeAcceptance": false,
+    "maximumLagSeconds": 5.328,
+    "metrics": {
+      "rendererPrivateBytes": {
+        "firstMedian": 391479296,
+        "lastMedian": 397799424,
+        "delta": 6320128,
+        "slopePerCycle": 4674560.0
+      },
+      "treePrivateBytes": {
+        "firstMedian": 646123520,
+        "lastMedian": 651481088,
+        "delta": 5357568,
+        "slopePerCycle": 3937792.0
+      },
+      "jsHeapUsed": {
+        "firstMedian": 75281690,
+        "lastMedian": 74194457,
+        "delta": -1087233,
+        "slopePerCycle": 4260.333333333333
+      },
+      "jsHeapTotal": {
+        "firstMedian": 88002461,
+        "lastMedian": 76728777,
+        "delta": -11273684,
+        "slopePerCycle": -66745.125
+      }
+    }
+  },
+  "checkerCorrections": 2,
+  "productAllocationCause": "Renderer-private growth remains unresolved; bounded JS counts/heap correlation does not identify the native allocator",
+  "taskStates": {
+    "T-601": "REVIEW",
+    "T-627": "REVIEW",
+    "T-611": "REVIEW",
+    "T-613": "PENDING",
+    "T-654": "TODO",
+    "T-662": "TODO",
+    "T-663": "REVIEW",
+    "T-664": "REVIEW"
+  },
+  "independentVerdict": "CONDITIONAL unchanged",
+  "cleanup": {
+    "ownedNative": 0,
+    "ownedViews": 0,
+    "ownedLabeledContainers": 0,
+    "preexistingContainersPreserved": 7
+  },
+  "securityScan": {
+    "actualUniqueControllerTokensCompared": 77,
+    "leaks": 0,
+    "personalShellPathsOrOneDriveInEvidence": 0
+  },
+  "normalFrontendRestored": true,
+  "releaseOrTagCreated": false
+}

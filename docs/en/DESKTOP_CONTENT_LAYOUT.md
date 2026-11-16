@@ -461,3 +461,17 @@ architectures. Input drop dispatch is synthetic; this does not qualify physical
 drag, all PNG/SVG exports, Office or the full reference/dense/error matrix.
 T-627/T-663/T-664 remain REVIEW. Current evidence:
 docs/review/evidence/2026-11-16-windows-validation/.
+
+### 2026-11-16 Native chart image Save follow-up
+
+Windows x64/x86 each save seven units through the actual profiler and Chart Studio
+with Canvas→SVG and SVG→PNG output (28 native Save dialogs total). Independent
+XML and PNG decoding verifies exact axes/value1000000, the bar, white PNG background
+and doubled raster dimensions. Seven PNG pairs are byte-identical across hosts.
+The audit script's initial x64 SVG bounds query measured an icon; its raw receipt
+is preserved and that metadata is excluded. Actual saved-file dimensions pass;
+the corrected x86 run confirms both chart-surface measurements. The initial x86
+Save was cancelled before reloading the corrected script, with no PASS claimed.
+Synthetic drop dispatch, OS100% and this selected template do not qualify physical
+drag, Office/reference imports or the remaining chart/provider/DPI matrix.
+T-627 remains REVIEW. Evidence: ../review/evidence/2026-11-16-windows-additional/.

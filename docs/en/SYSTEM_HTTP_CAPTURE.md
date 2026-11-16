@@ -2136,3 +2136,31 @@ Windows pack preparation passes RC/stable/future overlays with ephemeral fixture
 trust; official signed installation/upgrade remains pending. T-613 PENDING and
 the independent CONDITIONAL remain unchanged. Current receipts and open gates:
 docs/review/evidence/2026-11-16-windows-validation/.
+
+### 2026-11-16 Distinct-file and body-rich ordinary memory screens
+
+Baseline635512cf ordinary Windowsx64/x86 each run36cycles/108opens with the same
+28warmup/8measured protocol,3second post-open/15second post-cycle idle and no
+forcedGC/trim. Unique512row input files pass both architectures: tree delta/slope
+-22.230MiB/0.052MiB percycle onx64 and-25.445MiB/-0.393MiB percycle onx86.
+Body-rich128row inputs fail both: tree slopes4.801MiB/cycle onx64 and8.764onx86
+exceed the original4MiB budget, although root/handle/thread budgets pass. These
+failures are preserved. Growth is concentrated in the WebView renderer; retained
+workspace counters alone do not prove the native allocation cause or leak freedom.
+Native final row counts, selected request, star, Hangul notes and synthetic bodies
+survive; the x64 background accessibility readback refreshes from file50to107
+after activation. This freshness observation is separate from memory causality.
+
+Actual216input projections/fingerprints agree across Windowsx64/x86 and Docker
+Linuxpurego. Matched explicit-GC Windows/Docker Node diagnostics retain80arrays
+and Clear releases them; these do not replace the failed ordinary screens.
+Real x64 live-body preflight remains blocked by local_dumps_collecting; no security
+or dump policy changed. T-613 stays PENDING and independent CONDITIONAL remains.
+Current receipts and concrete remaining conditions:
+../review/evidence/2026-11-16-windows-additional/.
+
+A separate read-only native x64 diagnostic completes on2026-11-17. All8matched
+samples (maxlag5.328s) retain80cards/80arrays/10240rows; JSused-heap slope is
+0.004MiB/cycle while rendererprivate slope is4.458. The instrumented tree screen
+is not an ordinary acceptance rerun. No forcedGC/trim; ordinarybody-richFAILs and
+renderer allocation attribution/repetition/longer gates remain unchanged.

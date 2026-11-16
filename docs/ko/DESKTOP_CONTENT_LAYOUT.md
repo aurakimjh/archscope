@@ -486,3 +486,16 @@ unknown으로 실제 분석했습니다. Canvas 표면 생성과 각 SVG 축을 
 Office와 전체 원본·밀집·오류 조합의 통과는 아닙니다. T-627/T-663/T-664는 REVIEW를
 유지합니다. 최신 증거:
 docs/review/evidence/2026-11-16-windows-validation/.
+
+### 2026-11-16 네이티브 차트 이미지 저장 추가 검증
+
+Windows x64/x86 각각 실제 profiler와 Chart Studio에서 7개 단위를 Canvas→SVG,
+SVG→PNG로 저장했습니다. 실제 Save 대화상자 총28회이며 독립 XML/PNG 파서가
+정확한 축·값1000000·막대·PNG 흰 배경·2배 해상도를 확인했습니다. PNG 7쌍의
+바이트도 같습니다. 초기 x64 검증 스크립트의 SVG 크기 선택자가 아이콘을 읽어
+해당 메타데이터는 증거에서 제외하고 원본 기록을 보존했습니다. 실제 저장 파일의
+크기 검사는 통과했고 수정한 x86 실행은 두 차트 표면 크기까지 확인했습니다.
+초기 x86 Save는 수정 스크립트를 불러오기 위해 취소했으며 통과로 기록하지 않습니다.
+합성 drop·OS100%·선택한 템플릿 범위이며 실제 drag, Office/원본과 나머지 차트·
+provider·DPI 조합은 남습니다. T-627 REVIEW를 유지합니다. 증거:
+../review/evidence/2026-11-16-windows-additional/.
