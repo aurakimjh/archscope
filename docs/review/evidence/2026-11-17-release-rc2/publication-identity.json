@@ -1,0 +1,13 @@
+{
+  "tag": "v0.4.0-rc.2",
+  "annotatedTagObject": "2db81164cd2b04b87d2d9e7c5c184ff991144c82",
+  "commit": "9dc0c2390a7602125af5f53401ad3b3f70112824",
+  "publicationRun": 44002806584,
+  "rc1TagObjectUnchanged": "2400ab73d0e722fc263f03f4e3c19ba30d86840c",
+  "latestStableUnchanged": "v0.3.5-24",
+  "allPublishedAssetsVerified": true,
+  "metadataVerifierSha256": "55359e65fe960b52d923115a3386232dddcaf0b60783a40ae8bf1bdda366db00",
+  "nativeWindowsInstallOrUpgradeExecuted": false,
+  "ordinaryWindowsMemoryRequalificationExecuted": false,
+  "independentAcceptance": false
+}

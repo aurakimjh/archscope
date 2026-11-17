@@ -1,0 +1,180 @@
+{
+  "date": "2026-11-17",
+  "candidateCommit": "9dc0c2390a7602125af5f53401ad3b3f70112824",
+  "checks": {
+    "go-race": {
+      "command": [
+        "go",
+        "-C",
+        "apps/engine-native",
+        "test",
+        "./...",
+        "-race",
+        "-count=1",
+        "-p",
+        "2",
+        "-timeout",
+        "20m"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 657.426,
+      "logBytes": 15431,
+      "logSha256": "3353e7e040c02464f4cb2bd651902fe1f09874ea7e026bb56fd485f7d6eca709"
+    },
+    "vet": {
+      "command": [
+        "go",
+        "-C",
+        "apps/engine-native",
+        "vet",
+        "./..."
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.247,
+      "logBytes": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "state": {
+      "command": [
+        "npm",
+        "run",
+        "test:state"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.914,
+      "logBytes": 171,
+      "logSha256": "923531447043f2649bb4e732d9eb2d26d924765dbef57ae38b8bd97650974ebf"
+    },
+    "frontend-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.085,
+      "logBytes": 5783,
+      "logSha256": "7d2cfec6c3a14519251eaa70e424e79fdb5ca9047f5a7c8b90c20984f11e3b17"
+    },
+    "tagged-receipt": {
+      "command": [
+        "go",
+        "-C",
+        "apps/engine-native",
+        "test",
+        "-race",
+        "-tags",
+        "layoutaudit",
+        "./cmd/archscope-app",
+        "-run",
+        "^TestLayoutAuditReceipt",
+        "-count=20"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.382,
+      "logBytes": 3575,
+      "logSha256": "8553312dd1eb60725fb9db4559f8a8de8a3d17200a8592003f54e2370704aa38"
+    },
+    "pack-release": {
+      "command": [
+        "go",
+        "-C",
+        "apps/engine-native",
+        "test",
+        "./internal/packs",
+        "-run",
+        "TestApplicationPrereleaseRangeKeepsSignedStableBoundary|TestReleaseInstallsOriginalSignedBootstrap",
+        "-count=1",
+        "-v"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.535,
+      "logBytes": 336,
+      "logSha256": "f4f0098e522561a6a82ad024dfb45040583d2a0e9db2053d72107a6b430dc3ab"
+    },
+    "mac-package": {
+      "command": [
+        "task",
+        "package",
+        "ARCH=arm64"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.172,
+      "logBytes": 7795,
+      "logSha256": "9914d56786096dc492cbc9d43eee6eafef349f8b7ece715c846aa97ce752d51f"
+    },
+    "version": {
+      "old": {
+        "version": "0.4.0-rc.1",
+        "tag": "v0.4.0-rc.1",
+        "windowsVersion": "0.4.0.1",
+        "macosShortVersion": "0.4.0",
+        "macosBuildVersion": "4001",
+        "platforms": [
+          "darwin-arm64",
+          "windows-amd64",
+          "linux-amd64"
+        ]
+      },
+      "new": {
+        "version": "0.4.0-rc.2",
+        "tag": "v0.4.0-rc.2",
+        "windowsVersion": "0.4.0.2",
+        "macosShortVersion": "0.4.0",
+        "macosBuildVersion": "4002",
+        "platforms": [
+          "darwin-arm64",
+          "windows-amd64",
+          "linux-amd64"
+        ]
+      },
+      "monotonicPlatformBuilds": true,
+      "tagChecks": {
+        "v0.4.0-rc.2": {
+          "exitCode": 0,
+          "accepted": true
+        },
+        "v0.4.0-rc.1": {
+          "exitCode": 1,
+          "accepted": false
+        },
+        "v0.4.0": {
+          "exitCode": 1,
+          "accepted": false
+        }
+      }
+    }
+  },
+  "goRacePassingPackages": 131,
+  "goRaceNoTestPackages": 4,
+  "portableNodeTestsEach": 41,
+  "portableNodeHosts": [
+    "macOS arm64 Node25.9.0",
+    "Docker Linux arm64 Node22.23.2"
+  ],
+  "macNodeLogSha256": "152d15f11cb085828605215f03496889d65bc09468575ebaaf60cc7a2f9714ad",
+  "dockerNodeLogSha256": "b59632d9f6d0c41cf7a31ec28eed5e05b03e9410413d779cc2a0eb6f1df55bad",
+  "actualMacBundle": {
+    "sourceCommit": "9dc0c2390a7602125af5f53401ad3b3f70112824",
+    "arch": "arm64",
+    "shortVersion": "0.4.0",
+    "build": "4002",
+    "binaryBytes": 41804928,
+    "binarySha256": "8c6352839595b509f1a44e71b083f13d3ddb3fe67f4ffab52db8b5ba71079870",
+    "deepStrictSignatureVerified": true,
+    "signing": "ad-hoc",
+    "notarized": false,
+    "frontendBuildCommitEmbedded": true,
+    "generatedOnlyUnusedWindowsIcon": {
+      "path": "apps/engine-native/cmd/archscope-app/build/windows/icon.ico",
+      "originalSha256": "126f9c6bb544d001921fc60ac1fd21550940fdada477e3f41d46c73e08ae84a7",
+      "generatedSha256": "81c1456c65865da8d31649babb5b0099eacb6e873890d736c5be17c384caccab",
+      "restoredInOwnedWorktree": true
+    },
+    "sourceWorktreeCleanAfterRestoringGeneratedWindowsIcon": true
+  },
+  "note": "Ordinary full Go race started after RC2 metadata changes; tagged receipt cases reran after the Windows sharing fix. Local SDK deployment-target warnings did not produce test failures. Hosted tests/package preflight bind the exact final candidate.",
+  "nativeWindowsMemoryAcceptance": false,
+  "naturalSwapPressureEvidence": false,
+  "independentAcceptance": false
+}

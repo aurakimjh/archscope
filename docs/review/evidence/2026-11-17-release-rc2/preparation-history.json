@@ -1,0 +1,53 @@
+{
+  "scope": "Historical failed baseline and superseded preparation attempts; none is relabeled as a passing release gate",
+  "attempts": [
+    {
+      "runId": 43979073252,
+      "headSha": "d74b7953de07262e157ee7fcea912bf8dca30afb",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43979073252",
+      "failedSteps": [
+        {
+          "job": "Native Windows tests (386)",
+          "step": "Test native x86 receipt publication"
+        },
+        {
+          "job": "Go test/build (windows-latest)",
+          "step": "Layout audit receipt publication"
+        }
+      ]
+    },
+    {
+      "runId": 43980136773,
+      "headSha": "a8940361e1d7892538139e48c5f7f5ed0fbc869b",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43980136773",
+      "failedSteps": [
+        {
+          "job": "Linux disconnected CLI and architecture gates",
+          "step": "Upload bounded offline evidence"
+        }
+      ]
+    },
+    {
+      "runId": 43980136824,
+      "headSha": "a8940361e1d7892538139e48c5f7f5ed0fbc869b",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43980136824",
+      "failedSteps": []
+    },
+    {
+      "runId": 43980136785,
+      "headSha": "a8940361e1d7892538139e48c5f7f5ed0fbc869b",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/43980136785",
+      "failedSteps": []
+    }
+  ],
+  "nativeFailureLogSha256": "be30c1d8ad821670bea9754e56fbaef1e96de4173e887f5e2081013769fbd6d2",
+  "supersededReason": "a8940361 preparation runs were cancelled in favor of exact final candidate9dc0c239, whose five gates all passed"
+}

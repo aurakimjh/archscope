@@ -1,0 +1,97 @@
+{
+  "tag": "v0.4.0-rc.2",
+  "sourceRef": "9dc0c2390a7602125af5f53401ad3b3f70112824",
+  "phase": "preflight",
+  "url": null,
+  "prerelease": null,
+  "draft": null,
+  "assetCount": 11,
+  "assets": [
+    {
+      "name": "RELEASE_NOTES.en.md",
+      "bytes": 6906,
+      "sha256": "c304f3e32599cdb9be14ad534a35a6c1858d24f433f6e4decd396ce0176cf842"
+    },
+    {
+      "name": "RELEASE_NOTES.ko.md",
+      "bytes": 7183,
+      "sha256": "76100f0e1471c2465b4e1f5c96a9813aeb32c1dc5451b87b6de21651c8f7e1d2"
+    },
+    {
+      "name": "SHA256SUMS",
+      "bytes": 880,
+      "sha256": "f07bd21d26f28c8bc9974fea9eaa386b767467125e6d542012fd11ab1f5ce72c"
+    },
+    {
+      "name": "archscope-arm64.dmg",
+      "bytes": 20455605,
+      "sha256": "6e99ab74f4da77edeef0f466c208a932a2dd5ca014d8becedb0c21ec227d37b3"
+    },
+    {
+      "name": "archscope-conformance-v1.zip",
+      "bytes": 1427038,
+      "sha256": "085f3148071af6be5048dbace5b7393f5076d0fc7bdb899b67cb74d5b97e3272"
+    },
+    {
+      "name": "archscope-darwin-arm64.zip",
+      "bytes": 18778813,
+      "sha256": "c6530de56ef4da7cb2254bd2dcf653044398d375c47fe23a213c5d0edc03c2a0"
+    },
+    {
+      "name": "archscope-docs.zip",
+      "bytes": 878574,
+      "sha256": "ec9698f75e8170d03f6a34ef13bf83495e8d143d43c115c6e336333a20c7f2ec"
+    },
+    {
+      "name": "archscope-linux-amd64.tar.gz",
+      "bytes": 17748196,
+      "sha256": "c3c53c6b956736c2ff7b44ec777b04a3af689f0d489e2764088873c116ccd570"
+    },
+    {
+      "name": "archscope-windows-amd64.zip",
+      "bytes": 37802200,
+      "sha256": "e8a1eb7bf424d766595e94181b180a364dd68bdfabb5623553897342c20855d9"
+    },
+    {
+      "name": "archscope.deb",
+      "bytes": 18118582,
+      "sha256": "86ecba0545fd757aaa4368f439e5f5c4911e36c9ca298959497bcfd2371bf83c"
+    },
+    {
+      "name": "archscope.rpm",
+      "bytes": 18642238,
+      "sha256": "f29365fe6d4e349de0d581b824ab6b8fc9f680aca656c621e9edb0f341263b33"
+    }
+  ],
+  "allGithubDigestsMatch": null,
+  "sha256sumEntries": 10,
+  "windows": {
+    "archscope.exe": {
+      "machine": "0x8664",
+      "numericVersion": "0.4.0.2",
+      "publicVersion": "0.4.0-rc.2"
+    },
+    "archscope-amd64-installer.exe": {
+      "machine": "0x14c",
+      "numericVersion": "0.4.0.2",
+      "publicVersion": "0.4.0-rc.2"
+    }
+  },
+  "macos": {
+    "binarySha256": "27ef4beeae3f31a2c571509e682fe133f21eff0ae7f9adae56cacbf13d3ff2fe",
+    "arch": "arm64",
+    "shortVersion": "0.4.0",
+    "build": "4002",
+    "executableModePreserved": true
+  },
+  "linux": {
+    "binarySha256": "63f1cb56bd47ce291768e6ae7e1df6d242b9e8dae2eff5396de23ebb049db1f0",
+    "arch": "amd64",
+    "executableModePreserved": true,
+    "debVersion": "0.4.0~rc.2-1",
+    "rpmVersion": "0.4.0~rc.2-1"
+  },
+  "documentationFilesMatchedToTag": 133,
+  "nativeWindowsInstallOrUpgradeExecuted": false,
+  "ordinaryMemoryRequalificationExecuted": false
+}

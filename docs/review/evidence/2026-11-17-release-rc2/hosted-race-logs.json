@@ -1,0 +1,36 @@
+{
+  "run": 43980275408,
+  "headSha": "9dc0c2390a7602125af5f53401ad3b3f70112824",
+  "jobs": [
+    {
+      "job": "Go test/build (macos-15)",
+      "jobId": 133694658268,
+      "conclusion": "success",
+      "stepStartedAt": "2026-11-16T23:35:00Z",
+      "stepCompletedAt": "2026-11-17T00:01:32Z",
+      "passingPackages": 131,
+      "completeJobLogSha256": "166eaa7486bbcc1544e5940fcd32d40f17afae7ff038d76227007f54659c39d1",
+      "completeJobLogBytes": 52152
+    },
+    {
+      "job": "Go test/build (ubuntu-latest)",
+      "jobId": 133694658615,
+      "conclusion": "success",
+      "stepStartedAt": "2026-11-16T23:35:01Z",
+      "stepCompletedAt": "2026-11-16T23:49:51Z",
+      "passingPackages": 131,
+      "completeJobLogSha256": "972ffb7f1752394705c23c7b5038899dc82435cf703a16a3f490130399099fe2",
+      "completeJobLogBytes": 149413
+    },
+    {
+      "job": "Go test/build (windows-latest)",
+      "jobId": 133694658663,
+      "conclusion": "success",
+      "stepStartedAt": "2026-11-16T23:35:39Z",
+      "stepCompletedAt": "2026-11-16T23:51:45Z",
+      "passingPackages": 131,
+      "completeJobLogSha256": "c48913064cfde16914a2e3b74c163c57dcb854d727301b71e496fe88438d76bd",
+      "completeJobLogBytes": 51544
+    }
+  ]
+}

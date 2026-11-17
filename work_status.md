@@ -1142,13 +1142,24 @@ filtered before analysis.
 
 ## Next Execution Queue
 
-### v0.4.0-rc.2 release preparation (2026-11-17)
+### Release candidate v0.4.0-rc.2 (2026-11-17)
 
 User authorized RC2 release, including commit/push, tag and prerelease publication.
 Baseline d74b7953; RC1 tag remains immutable. Application0.4.0-rc.2,
 Windows0.4.0.2, macOS short0.4.0/build4002, LinuxRC2 are synchronized with
-frontend/Wails/NSIS/notices and EN/KO notes. Current state: PREPARING; local and
-hosted test/package results will be recorded before the immutable tag is made.
+frontend/Wails/NSIS/notices and EN/KO notes. **PUBLISHED_AND_VERIFIED** —
+[GitHub prerelease](https://github.com/aurakimjh/archscope/releases/tag/v0.4.0-rc.2).
+Annotated tag2db81164cd2b04b87d2d9e7c5c184ff991144c82 pins
+9dc0c2390a7602125af5f53401ad3b3f70112824 and is not moved by later receipts.
+Local full race131packages/vet/frontend,41Node regressions per Mac/Docker,
+20publisher race repeats and actual RC2 signed-bootstrap activation pass.
+All19candidate jobs pass across CI/EngineNative/WindowsGUI/COM/package preflight;
+full hosted race131packages per Windows/macOS/Linux. Tag publication44002806584
+passes4jobs. All11public assets downloaded;11GitHub digests/10checksums, ZIPCRC,
+macOS DMG/ZIP identical arm64 binary/ad-hoc signatures, Windows app/installer
+resources, Linux DEB/RPM/TAR identity and133tagged docs/examples verified.
+RC1tag and lateststablev0.3.5-24 remain unchanged. Full receipt:
+docs/review/evidence/2026-11-17-release-rc2/README.md.
 The preceding d74b7953 native Windows386 CI exposed ERROR_SHARING_VIOLATION
 during final-file rename. RC2 adds Windows-only EBUSY polling within the same
 deadline; permanent EBUSY times out, exits and EACCES/EPERM still fail. The
@@ -1281,8 +1292,9 @@ reviewer; no new independent PASS is asserted.
 ### Stable v0.4.0 preparation — Mac/Docker (2026-11-15)
 
 User authorizes local stable-release preparation, validation receipts, tracker
-updates and scoped commit/push. Production stays at RC.1. These readiness items
-do not close the six numbered acceptance tasks or change registry counts.
+updates and scoped commit/push. At this November15 checkpoint production stayed
+at RC.1; current RC2 publication is recorded above. These historical readiness
+items did not close the six then-open acceptance tasks or change registry counts.
 [Evidence and reproduction](docs/review/evidence/2026-11-15-stable-preparation/README.md).
 
 | Priority / area | Result | Remaining action |
@@ -6480,3 +6492,23 @@ cause-specific fix if established, then repeat ordinary unique/body-rich memory
 checks under the original4MiB/cycle budget without forcedGC/trim/debug acceptance
 substitution. See2026-11-17-renderer-memory-investigation/README.md and
 2026-11-17-native-receipt-fix/README.md for commands and evidence boundaries.
+
+### 2026-11-17 - v0.4.0-rc.2 published and independently read back
+
+User-authorized RC2 preparationa8940361 plus tracker9dc0c239 were pushed.
+Annotated tagv0.4.0-rc.2 targets9dc0c239; publication44002806584 succeeded.
+Exact-candidate CI/EngineNative/WindowsGUI/COM/preflight19jobs passed before the
+tag; hosted full race131packages on eachOS and local race131packages pass.
+Public11assets have matching11GitHub digests/10SHA256SUMS entries; native package
+metadata, archive modes/CRC, macOS DMG/ZIP/ad-hoc signatures, Linux binary identity
+and133docs/example files match the tagged source. This receipt is a technical
+artifact readback, not an independent product review or native acceptance close.
+
+Public metadata:0.4.0-rc.2, Windows0.4.0.2, macOS0.4.0/build4002,
+Linux0.4.0~rc.2-1. RC1tag and lateststablev0.3.5-24 stay unchanged. Native publisher
+unit cases pass on Windowsx64/x86 after bounded sharing-violation handling;
+changed full native UI runner/new collector and ordinary memory revalidation
+remain. Both body-rich ordinary FAIL, original4MiB/cycle budget, all8open tasks,
+independent CONDITIONAL and T-662 TODO are preserved. Official stable pack,
+clean-host install/actual upgrade and other native/hardware gates remain.
+Evidence:docs/review/evidence/2026-11-17-release-rc2/README.md.
