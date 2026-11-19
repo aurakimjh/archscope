@@ -128,6 +128,13 @@ var unifiedGCRe = regexp.MustCompile(
 		`(?P<pause>\d+(?:\.\d+)?)ms`,
 )
 
+// Completed stop-the-world phases can omit occupancy. Do not match gc,start,
+// concurrent phases or worker subphases as additional pause events.
+var unifiedPauseOnlyRe = regexp.MustCompile(
+	`^\[[^\]]+\](?:\[[^\]]+\])*\s+GC\((?P<gc_id>\d+)\)\s+` +
+		`(?P<label>Pause\s+[^\r\n]*?)\s+(?P<pause>\d+(?:\.\d+)?)ms\s*$`,
+)
+
 // unifiedMetaspaceRe matches the companion Metaspace line that
 // follows a pause event — same GC(id) ties the two together.
 var unifiedMetaspaceRe = regexp.MustCompile(
@@ -712,7 +719,13 @@ func regionsToMB(regions, regionSizeMB *float64) *float64 {
 func parseUnifiedGCLine(line string) (*Event, *int) {
 	groups := captureGroups(unifiedGCRe, line)
 	if groups == nil {
-		return nil, nil
+		if strings.Contains(line, "gc,start") {
+			return nil, nil
+		}
+		groups = captureGroups(unifiedPauseOnlyRe, line)
+		if groups == nil {
+			return nil, nil
+		}
 	}
 
 	label := strings.TrimSpace(groups["label"])

@@ -20,6 +20,8 @@ import { partition } from "d3-hierarchy";
 import { buildFlameHierarchy, flameSearchCoverage, hiddenFlameSamples, type FlameGraphNode } from "./flamegraphLayout.js";
 import { adaptProfilerDiffFlame } from "./profilerDiffView.js";
 import { gcAxis, gcCoordinate, gcUnavailableReasons, gcReasonKey } from "./gcClock.js";
+import { heapUsageOption, pauseTimelineOption, type GcChartLabels } from "../charts/gcLogCharts.js";
+import { gcEventTooltip } from "../charts/gcTooltip.js";
 import { messages } from "../i18n/messages.js";
 import { locales, preferredLocale, resolveLocale, documentationLocale } from "../i18n/locales.js";
 import { translateText } from "../i18n/translations.js";
@@ -3736,3 +3738,31 @@ ribbonRouter.dispatch("save", "ribbon", 140);
 assert(ribbonCommandRuns === 3, "native/key echo must be coalesced without dropping independent ribbon clicks");
 removeRibbonCommand(); unsubscribeRibbon();
 assert(observedCommands.join("|") === "save|" && !ribbonRouter.dispatch("save", "ribbon", 150), "command availability must publish removal and reject unmounted handlers");
+
+// Phase timing must remain available beyond the top-N table and independently
+// of heap occupancy/overlay; zero, unknown and same-coordinate events differ.
+const gcTimingLabels = { pauseAxis:"Pause (ms)", pauseSeries:"GC pause",heapAfter:"Heap after",heapPauseOverlay:"Pause overlay",heapAxis:"Heap (MB)" } as GcChartLabels;
+const gcTimingResult = {
+  type:"gc_log",metadata:{time_axis:"absolute"},tables:{events:[],alerts:[]},
+  series:{pause_timeline:[
+    {time:"2026-11-19T10:00:00.123+09:00",value:1.235,pause_ms:1.2345,gc_type:"Pause Remark",event_number:2,timestamp:"2026-11-19T10:00:00.123+09:00",uptime_sec:2.123},
+    {time:"2026-11-19T10:00:00.123+09:00",value:0,pause_ms:0,gc_type:"Pause Cleanup",event_number:3},
+    {time:"2026-11-19T10:00:02.123+09:00",value:0,pause_ms:null,gc_type:"<img src=x onerror=alert(1)>",event_number:4},
+  ],heap_after_mb:[{time:"2026-11-19T10:00:02.123+09:00",value:48,pause_ms:null,event_number:4}]},
+} as unknown as import("../bridge/types.js").GcLogAnalysisResult;
+const gcTimingPause = pauseTimelineOption(gcTimingResult,gcTimingLabels) as any;
+const gcTimingPauseText = gcTimingPause.tooltip.formatter({data:gcTimingPause.series[0].data[0]});
+assert(gcTimingPauseText.includes("2026-11-19T10:00:00.123+09:00") && gcTimingPauseText.includes("Pause Remark") && gcTimingPauseText.includes("1.2345 ms") && gcTimingPauseText.includes("Pause Cleanup") && gcTimingPauseText.includes("0 ms"),"pause tooltip loses phase time, precision, zero or same-time events");
+assert(gcTimingPause.series[0].data[2].value[1]===null,"unknown pause must not plot as zero");
+for(const overlay of [false,true]) {
+  const option=heapUsageOption(gcTimingResult,gcTimingLabels,new Set(["heap_after"]),overlay) as any;
+  const anchor=option.series.find((s:any)=>s.id==="gc-event-times");
+  const text=option.tooltip.formatter([{seriesId:anchor.id,data:anchor.data[0]}]);
+  assert(text.includes("Pause Remark")&&text.includes("1.2345 ms"),"heap tooltip requires occupancy or a pause overlay to show remark timing");
+  const missing=option.tooltip.formatter([{seriesName:"Heap after",data:option.series[0].data[0]}]);
+  assert(missing.includes("48 MB")&&missing.includes("Pause (ms): —")&&!missing.includes("Pause (ms): 0 ms")&&!missing.includes("<img")&&missing.includes("&lt;img"),"heap tooltip invents duration or renders log text as HTML");
+  assert(!option.legend.data.includes(gcTimingLabels.pauseSeries),"invisible timing series leaked into legend");
+}
+const legacyGc={...gcTimingResult,metadata:{time_axis:"uptime_seconds"},series:{pause_timeline:[{time:"2.5",value:0,gc_type:"Legacy remark"}]}} as unknown as import("../bridge/types.js").GcLogAnalysisResult;
+const legacyGcText=gcEventTooltip(legacyGc,gcTimingLabels,false)({value:[2.5,0],axisValue:2.5});
+assert(legacyGcText.includes("Legacy remark")&&legacyGcText.includes("0 ms")&&legacyGcText.includes("Uptime (s): 2.5"),"legacy saved GC series lost zero or uptime");

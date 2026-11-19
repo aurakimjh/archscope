@@ -820,3 +820,25 @@ func containsString(values []string, want string) bool {
 	}
 	return false
 }
+
+func TestChartTimingSurvivesTopNAndSparseOccupancy(t *testing.T) {
+	f := func(n float64) *float64 { return &n }
+	events := []parser.Event{
+		{GCType: "Pause Young", UptimeSec: f(1), PauseMS: f(10), HeapAfterMB: f(50)},
+		{GCType: "Pause Remark", UptimeSec: f(2), PauseMS: f(1.2345)},
+		{GCType: "Pause Cleanup", UptimeSec: f(3), PauseMS: f(0), HeapAfterMB: f(49)},
+		{GCType: "Unknown duration", UptimeSec: f(4), HeapAfterMB: f(48)},
+	}
+	r := Build(events, "", parser.FormatUnified, nil, nil, Options{TopN: 1})
+	if len(r.Tables["events"].([]map[string]any)) != 1 {
+		t.Fatal("table cap lost")
+	}
+	pauses := r.Series["pause_timeline"].([]map[string]any)
+	if pauses[1]["pause_ms"] != 1.2345 || pauses[1]["gc_type"] != "Pause Remark" || pauses[1]["event_number"] != 2 || pauses[1]["uptime_sec"] != 2.0 {
+		t.Fatalf("remark timing lost: %v", pauses[1])
+	}
+	heap := r.Series["heap_after_mb"].([]map[string]any)
+	if heap[1]["pause_ms"] != 0.0 || heap[1]["event_number"] != 3 || heap[2]["pause_ms"] != nil {
+		t.Fatalf("sparse/zero/unknown metadata: %v", heap)
+	}
+}

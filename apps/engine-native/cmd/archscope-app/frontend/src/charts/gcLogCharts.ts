@@ -18,7 +18,8 @@
 import type { EChartsOption } from "@/charts/echartsCore";
 
 import type { GcLogAnalysisResult } from "@/bridge/types";
-import { gcAxis, gcCoordinate } from "../state/gcClock";
+import { gcAxis, gcCoordinate } from "../state/gcClock.js";
+import { gcEventTooltip, gcPauseDuration } from "./gcTooltip.js";
 
 // EChartsOption builders for the GC log analyzer page.
 //
@@ -50,6 +51,10 @@ export type GcChartLabels = {
   allocSeries: string;
   promSeries: string;
   countAxis: string;
+  eventTime?: string;
+  eventUptime?: string;
+  eventType?: string;
+  eventCause?: string;
 };
 
 // HeapSeriesId mirrors the web GC page's series-toggle vocabulary
@@ -150,6 +155,7 @@ export function pauseTimelineOption(
       itemStyle: { color: "#f97316" },
       symbol: "pin",
       symbolSize: 30,
+      gc: { time: row.timestamp ?? String(row.uptime_sec), ...row },
     }));
   const alertMarks = alerts
     .filter((alert) => alert.time && typeof alert.pause_ms === "number")
@@ -166,13 +172,14 @@ export function pauseTimelineOption(
         itemStyle: { color: isCritical ? "#e11d48" : "#f59e0b" },
         symbol: "pin",
         symbolSize: isCritical ? 34 : 28,
+        gc: { time: alert.time, gc_type: alert.gc_type, pause_ms: alert.pause_ms },
       };
     });
   const markPoints = [...fullGcMarks, ...alertMarks];
 
   return {
     grid: baseGrid,
-    tooltip: { trigger: "axis" },
+    tooltip: { trigger: "axis", confine: true, formatter: gcEventTooltip(result, labels, false) },
     dataZoom: baseZoom,
     xAxis: {
       ...gcAxis(result),
@@ -189,7 +196,7 @@ export function pauseTimelineOption(
         type: "line",
         smooth: false,
         name: labels.pauseSeries,
-        data: rows.map((row) => [gcCoordinate(result, row.time), row.value] as [string | number, number]),
+        data: rows.map((row) => ({ value: [gcCoordinate(result, row.time), gcPauseDuration(row)], gc: { ...row, pause_ms: gcPauseDuration(row) } })),
         showSymbol: showSymbols(rows),
         symbolSize: 4,
         lineStyle: { color: "#ef4444", width: 1.5 },
@@ -245,7 +252,7 @@ export function heapUsageOption(
     const item: any = {
       type: "line",
       name: def.label,
-      data: points.map((p) => [gcCoordinate(result, p.time), p.value] as [string | number, number]),
+      data: points.map((p) => ({ value: [gcCoordinate(result, p.time), p.value], gc: p })),
       smooth: false,
       showSymbol: showSymbols(points),
       lineStyle: { color: def.color, width: 1.5, type: def.dashed ? "dashed" : undefined },
@@ -263,9 +270,10 @@ export function heapUsageOption(
   const pausePoints = result?.series.pause_timeline ?? [];
   if (pauseOverlay && pausePoints.length > 0) {
     series.push({
+      id: "gc-pause-overlay",
       type: "line",
       name: labels.heapPauseOverlay,
-      data: pausePoints.map((p) => [gcCoordinate(result, p.time), p.value] as [string | number, number]),
+      data: pausePoints.map((p) => ({ value: [gcCoordinate(result, p.time), gcPauseDuration(p)], gc: { ...p, pause_ms: gcPauseDuration(p) } })),
       smooth: false,
       showSymbol: showSymbols(pausePoints),
       yAxisIndex: 1,
@@ -273,6 +281,16 @@ export function heapUsageOption(
       itemStyle: { color: "#ef4444" },
     });
   }
+
+  // Invisible event coordinates keep phase-only events hoverable even when
+  // there is no occupancy measurement or the pause overlay is switched off.
+  const legendNames = series.map(item => item.name);
+  if (pausePoints.length > 0) series.push({
+    id: "gc-event-times", name: labels.pauseSeries, type: "line",
+    data: pausePoints.map(p => ({ value: [gcCoordinate(result, p.time), 0], gc: { ...p, pause_ms: gcPauseDuration(p) } })),
+    showSymbol: false, symbol: "none", lineStyle: { opacity: 0 },
+    itemStyle: { opacity: 0 }, emphasis: { disabled: true },
+  });
 
   const yAxes: any[] = [
     {
@@ -294,8 +312,8 @@ export function heapUsageOption(
 
   return {
     grid: baseGrid,
-    tooltip: { trigger: "axis" },
-    legend: { top: 0, textStyle: { fontSize: 10 } },
+    tooltip: { trigger: "axis", confine: true, formatter: gcEventTooltip(result, labels, true) },
+    legend: { top: 0, data: legendNames, textStyle: { fontSize: 10 } },
     dataZoom: baseZoom,
     xAxis: {
       ...gcAxis(result),

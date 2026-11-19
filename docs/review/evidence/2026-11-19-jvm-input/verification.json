@@ -1,0 +1,117 @@
+{
+  "date": "2026-11-19",
+  "implementation_status": "LOCALLY_VERIFIED",
+  "original_user_files_available": false,
+  "committed": false,
+  "pushed": false,
+  "checks": [
+    "full relevant Go packages and CLI tests",
+    "full desktop app Go tests (loopback allowed)",
+    "targeted final desktop bridge regression",
+    "race tests for profiler/profile import/thread parsers/single and multi analyzers",
+    "go vet on relevant packages",
+    "frontend TypeScript and production build",
+    "frontend state regressions"
+  ],
+  "cases": [
+    {
+      "name": "jcmd",
+      "type": "thread_dump_multi",
+      "error_count": 0,
+      "command": "jcmd PID Thread.print -l",
+      "captures": 20,
+      "thread_observations": 413,
+      "nominal_interval_seconds": 1,
+      "capture_timestamps": [
+        "2026-11-19 09:12:12",
+        "2026-11-19 09:12:13",
+        "2026-11-19 09:12:14",
+        "2026-11-19 09:12:15",
+        "2026-11-19 09:12:16",
+        "2026-11-19 09:12:17",
+        "2026-11-19 09:12:18",
+        "2026-11-19 09:12:19",
+        "2026-11-19 09:12:20",
+        "2026-11-19 09:12:21",
+        "2026-11-19 09:12:22",
+        "2026-11-19 09:12:23",
+        "2026-11-19 09:12:24",
+        "2026-11-19 09:12:25",
+        "2026-11-19 09:12:26",
+        "2026-11-19 09:12:27",
+        "2026-11-19 09:12:28",
+        "2026-11-19 09:12:29",
+        "2026-11-19 09:12:30",
+        "2026-11-19 09:12:31"
+      ]
+    },
+    {
+      "name": "jstack",
+      "type": "thread_dump_multi",
+      "error_count": 0,
+      "command": "jstack -l PID",
+      "captures": 20,
+      "thread_observations": 360,
+      "nominal_interval_seconds": 1,
+      "capture_timestamps": [
+        "2026-11-19 09:12:32",
+        "2026-11-19 09:12:33",
+        "2026-11-19 09:12:34",
+        "2026-11-19 09:12:35",
+        "2026-11-19 09:12:36",
+        "2026-11-19 09:12:37",
+        "2026-11-19 09:12:38",
+        "2026-11-19 09:12:39",
+        "2026-11-19 09:12:40",
+        "2026-11-19 09:12:41",
+        "2026-11-19 09:12:42",
+        "2026-11-19 09:12:43",
+        "2026-11-19 09:12:44",
+        "2026-11-19 09:12:45",
+        "2026-11-19 09:12:46",
+        "2026-11-19 09:12:47",
+        "2026-11-19 09:12:48",
+        "2026-11-19 09:12:49",
+        "2026-11-19 09:12:50",
+        "2026-11-19 09:12:51"
+      ]
+    },
+    {
+      "name": "v2",
+      "type": "profiler_collapsed",
+      "error_count": 0,
+      "total_samples": 10
+    },
+    {
+      "name": "v3",
+      "type": "profiler_collapsed",
+      "error_count": 0,
+      "total_samples": 10
+    }
+  ],
+  "limits": [
+    "Owned JDK21 target only; no production JVM attach.",
+    "HTML records generated in official v2.9/v3.0 complete templates, not user Arthas files.",
+    "Native receipt is scoped to macOS WebView and synthetic drop events; Windows, physical drag and visual readability remain outside this check.",
+    "Existing missing process/thread lifetime context isolation is preserved; capture boundaries do not prove continuous execution/wait."
+  ],
+  "html_sources": [
+    "https://github.com/async-profiler/async-profiler/blob/v2.9/src/res/flame.html",
+    "https://github.com/async-profiler/async-profiler/blob/v3.0/src/res/flame.html"
+  ],
+  "source_sha256": {
+    "apps/engine-native/internal/profiler/html.go": "24cc0bd20d927df96486fe3a325ea8437325ad9eb21b1778a31b985d686c7dc9",
+    "apps/engine-native/internal/profiler/html_canvas.go": "264f501c8f5c487ba19e9fec77fe6daa2c9b035c30c8d2382c7c3672720d0a6d",
+    "apps/engine-native/internal/threaddump/plugins/javajstack/parser.go": "ed1190c383529b2e4d8ee4baf99cdecf16322ac1b660bb525c0d8b3ff0238771",
+    "apps/engine-native/internal/threaddump/plugins/javajstack/blocks.go": "ce38147f44b29ddff4159cfc15c993c8b2e4873a6de986909943eba2180ead0c",
+    "apps/engine-native/internal/analyzers/threaddump/analyzer.go": "fe12939794ab9e8953fb62ce04512033a2a54aa0386e4e74ea8d9b083d28c682",
+    "apps/engine-native/cmd/archscope-app/frontend/src/pages/ThreadDumpAnalyzerPage.tsx": "f3df8e43c6818264982f2f5cc123c1cc7b12feddd3732743504288053ce96715"
+  },
+  "native": {
+    "passed": true,
+    "case_count": 4,
+    "receipt": "native.json",
+    "renderer_receipt": "native-renderer.json",
+    "harness_adjustments": "Initial harness assertions used the wrong button label, exact tab whitespace, click-only Radix activation, unscoped table rows and inactive profiler summary. Final harness selects actual controls and active table/summary; these harness failures are not product parse failures."
+  }
+}

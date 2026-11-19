@@ -58,11 +58,31 @@ type jstackSection struct {
 }
 
 var (
-	threadHeaderRE = regexp.MustCompile(`^"(?P<name>[^"]+)"(?P<rest>.*)$`)
-	tidRE          = regexp.MustCompile(`\b(?:tid|nid)=(?P<tid>0x[0-9a-fA-F]+|\S+)`)
-	stateRE        = regexp.MustCompile(`java\.lang\.Thread\.State:\s+(?P<state>[A-Z_]+)`)
-	timestampRE    = regexp.MustCompile(`\d{4}[-/]\d{2}[-/]\d{2}|\d{2}:\d{2}:\d{2}`)
+	threadHeaderRE     = regexp.MustCompile(`^"(?P<name>[^"]+)"(?P<rest>.*)$`)
+	tidRE              = regexp.MustCompile(`\b(?:tid|nid)=(?P<tid>0x[0-9a-fA-F]+|\S+)`)
+	stateRE            = regexp.MustCompile(`java\.lang\.Thread\.State:\s+(?P<state>[A-Z_]+)`)
+	timestampRE        = regexp.MustCompile(`\d{4}[-/]\d{2}[-/]\d{2}|\d{2}:\d{2}:\d{2}`)
+	captureTimestampRE = regexp.MustCompile(`^\d{4}[-/]\d{2}[-/]\d{2}[ T]\d{2}:\d{2}:\d{2}(?:[.,]\d+)?(?:Z|\s*[+-]\d{2}:?\d{2})?$`)
+	arthasIDRE         = regexp.MustCompile(`\bId=(\d+)\b`)
+	headerStateRE      = regexp.MustCompile(`\b(RUNNABLE|BLOCKED|WAITING|TIMED_WAITING|NEW|TERMINATED)\b`)
+	nativeIDRE         = regexp.MustCompile(`\bnid=(0x[0-9a-fA-F]+)`)
 )
+
+func normalizeDumpLine(line string) string {
+	return strings.TrimLeft(terminalEscapeRE.ReplaceAllString(line, ""), " \t\ufeff")
+}
+
+// Thread IDs can repeat across captures, but names alone are not boundaries:
+// a JVM may contain many distinct threads with the same display name.
+func dumpThreadIdentity(line string) string {
+	if m := tidRE.FindStringSubmatch(line); m != nil {
+		return m[1]
+	}
+	if m := arthasIDRE.FindStringSubmatch(line); m != nil {
+		return "Id=" + m[1]
+	}
+	return ""
+}
 
 // parseThreadDump reads the file and returns one record per "Foo" block.
 // Mirrors Python's parse_thread_dump (without the diagnostics surface).
@@ -79,6 +99,7 @@ func parseThreadDump(path string) ([]threadDumpRecord, error) {
 		current = nil
 	}
 	err := textio.ForEachTextLine(path, "", func(_ int, line string) error {
+		line = normalizeDumpLine(line)
 		if threadHeaderRE.MatchString(line) {
 			flush()
 			current = []string{line}
@@ -133,16 +154,23 @@ func parseThreadBlock(block []string) *threadDumpRecord {
 	}
 
 	if state == "" {
+		if m := headerStateRE.FindStringSubmatch(rest); m != nil {
+			state = m[1]
+		}
+	}
+	if state == "" {
 		state = stateFromHeader(rest)
 	}
 
 	threadID := ""
 	if m := tidRE.FindStringSubmatch(block[0]); m != nil {
 		threadID = m[tidRE.SubexpIndex("tid")]
+	} else if m := arthasIDRE.FindStringSubmatch(block[0]); m != nil {
+		threadID = m[1]
 	}
 
 	nativeID := ""
-	if match := regexp.MustCompile(`\bnid=(0x[0-9a-fA-F]+)`).FindStringSubmatch(block[0]); match != nil {
+	if match := nativeIDRE.FindStringSubmatch(block[0]); match != nil {
 		nativeID = match[1]
 	}
 	return &threadDumpRecord{
@@ -202,6 +230,8 @@ func splitJstackSections(path string) ([]jstackSection, error) {
 	var currentBlock []string
 	var prefixLines []string
 	var recentLines []string
+	seenIDs := map[string]bool{}
+	inDeadlockSummary := false
 
 	flushBlock := func() {
 		if currentSection == nil || len(currentBlock) == 0 {
@@ -224,6 +254,8 @@ func splitJstackSections(path string) ([]jstackSection, error) {
 		currentSection = nil
 	}
 	startSection := func(lineNumber int, timestampLines []string) {
+		seenIDs = map[string]bool{}
+		inDeadlockSummary = false
 		if timestampLines == nil {
 			timestampLines = prefixLines
 		}
@@ -244,8 +276,41 @@ func splitJstackSections(path string) ([]jstackSection, error) {
 	}
 
 	err := textio.ForEachTextLine(path, "", func(lineNumber int, line string) error {
+		line = normalizeDumpLine(line)
 		isFullHeader := fullThreadHeaderRE.MatchString(line)
 		isThreadHeader := threadBlockHeaderRE.MatchString(line)
+		// A standalone capture time also separates headerless captures.
+		if captureTimestampRE.MatchString(strings.TrimSpace(line)) {
+			flushSection()
+			inDeadlockSummary = false
+			prefixLines = []string{line}
+			recentLines = []string{line}
+			return nil
+		}
+		if strings.HasPrefix(line, "Found ") && strings.Contains(line, "deadlock") || strings.HasPrefix(line, "Java stack information for the threads listed above:") {
+			flushBlock()
+			inDeadlockSummary = true
+		}
+		if inDeadlockSummary && !isFullHeader {
+			if currentSection != nil {
+				currentSection.RawLines = append(currentSection.RawLines, line)
+				currentSection.EndLine = lineNumber
+			}
+			return nil
+		}
+		identity := ""
+		if isThreadHeader {
+			identity = dumpThreadIdentity(line)
+			// Deadlock summaries quote names without thread header fields.
+			if strings.HasSuffix(strings.TrimSpace(line), "\":") {
+				isThreadHeader = false
+			}
+			if currentSection != nil && identity != "" && seenIDs[identity] {
+				flushSection()
+				prefixLines = nil
+				recentLines = nil
+			}
+		}
 
 		if isFullHeader {
 			timestampLines := append([]string(nil), recentLines...)
@@ -261,6 +326,9 @@ func splitJstackSections(path string) ([]jstackSection, error) {
 		if currentSection == nil {
 			if isThreadHeader {
 				startSection(lineNumber, nil)
+				if identity != "" {
+					seenIDs[identity] = true
+				}
 				currentBlock = []string{line}
 				currentSection.RawLines = append(currentSection.RawLines, line)
 				currentSection.EndLine = lineNumber
@@ -280,6 +348,9 @@ func splitJstackSections(path string) ([]jstackSection, error) {
 		if isThreadHeader {
 			flushBlock()
 			currentBlock = []string{line}
+			if identity != "" {
+				seenIDs[identity] = true
+			}
 		} else if len(currentBlock) > 0 {
 			currentBlock = append(currentBlock, line)
 		}

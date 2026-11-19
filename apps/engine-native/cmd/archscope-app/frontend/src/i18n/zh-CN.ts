@@ -903,7 +903,7 @@ export default {
   "Single dump": "单个转储",
   "Multi-dump correlation": "多转储关联",
   "Lock contention": "锁竞争",
-  "Legacy single-dump JVM view for Java jstack: state distribution, lock relationships, top signatures.": "Java jstack 的旧版单转储 JVM 视图：状态分布、锁关系和主要签名。",
+  "Java jstack/jcmd text: repeated captures in one file automatically use multi-dump analysis.": "Java jstack/jcmd 文本：一个文件包含多个时间点的转储时，自动进行多转储分析。",
   "Correlate consecutive dumps across Java jstack/jcmd JSON, Go, Python, Node.js, and .NET to surface long-running and persistently-blocked threads.": "关联 Java jstack/jcmd JSON、Go、Python、Node.js 和 .NET 的连续转储，找出长时间运行及持续阻塞的线程。",
   "Detect contended locks and deadlock cycles from parsed lock metadata; Java jstack/jcmd dumps provide the richest lock detail.": "从已解析的锁元数据检测竞争锁和死锁环；Java jstack/jcmd 转储提供最丰富的锁详情。",
   "Files selected": "已选文件",

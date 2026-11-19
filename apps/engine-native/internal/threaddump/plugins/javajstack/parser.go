@@ -93,12 +93,14 @@ const defaultClassHistogramRowLimit = 500
 // Detector heuristics — mirror the Python regexes verbatim.
 var (
 	fullThreadHeaderRE = regexp.MustCompile(`(?i)Full thread dump\b`)
-	jstackNidLineRE    = regexp.MustCompile(`(?m)^"[^"]+".*\bnid=0x[0-9a-fA-F]+`)
+	jstackNidLineRE    = regexp.MustCompile(`(?m)^[\t ]*"[^"]+".*\bnid=0x[0-9a-fA-F]+`)
 	// Loose detector for jstack-like dumps that omit "Full thread dump".
 	jstackLooseHeaderRE = regexp.MustCompile(
 		`(?m)^"[^"]+"\s+#\d+\s+prio=\d+(?:\s+\w+)*\s+tid=\S+\s+(?:RUNNABLE|BLOCKED|WAITING|TIMED_WAITING|NEW|TERMINATED)`,
 	)
 	threadBlockHeaderRE = regexp.MustCompile(`^"[^"]+"`)
+	arthasHeaderRE      = regexp.MustCompile(`(?m)^\s*"[^"]+"[^\r\n]*\bId=\d+\b[^\r\n]*\b(?:RUNNABLE|BLOCKED|WAITING|TIMED_WAITING|NEW|TERMINATED)\b`)
+	terminalEscapeRE    = regexp.MustCompile("\x1b\\[[0-?]*[ -/]*[@-~]")
 )
 
 // Plugin is the Java jstack parser plugin. It is value-safe; callers
@@ -123,6 +125,10 @@ func (p *Plugin) Language() string { return Language }
 //  2. Any quoted-name line carrying a `nid=0x…` field.
 //  3. At least two `"Name" #id prio=n tid=… STATE` rows.
 func (p *Plugin) CanParse(head string) bool {
+	head = terminalEscapeRE.ReplaceAllString(head, "")
+	if arthasHeaderRE.MatchString(head) {
+		return true
+	}
 	if fullThreadHeaderRE.MatchString(head) {
 		return true
 	}

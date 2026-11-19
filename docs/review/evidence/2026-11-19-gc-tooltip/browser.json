@@ -1,0 +1,70 @@
+{
+  "passed": true,
+  "scope": "Actual production chart builders + actual Go analysis output in isolated Chromium harness; real Playwright mouse hover; not native desktop acceptance",
+  "caseCount": 9,
+  "cases": [
+    {
+      "chart": 0,
+      "phase": "Pause Remark",
+      "timestamp": "2026-11-19T10:00:02.123+09:00",
+      "duration": "1.2345 ms",
+      "tooltip": "Timestamp: 2026-11-19T10:00:02.123+09:00\nUptime (s): 2.123\nGC type: Pause Remark\nPause (ms): 1.2345 ms\n"
+    },
+    {
+      "chart": 0,
+      "phase": "Pause Cleanup",
+      "timestamp": "2026-11-19T10:00:03.123+09:00",
+      "duration": "0 ms",
+      "tooltip": "Timestamp: 2026-11-19T10:00:03.123+09:00\nUptime (s): 3.123\nGC type: Pause Cleanup\nPause (ms): 0 ms\n"
+    },
+    {
+      "chart": 0,
+      "phase": "Pause Full",
+      "timestamp": "2026-11-19T10:00:04.123+09:00",
+      "duration": "250 ms",
+      "tooltip": "Timestamp: 2026-11-19T10:00:04.123+09:00\nUptime (s): 4.123\nGC type: Pause Full\nPause (ms): 250 ms\nCause: System.gc()\n"
+    },
+    {
+      "chart": 1,
+      "phase": "Pause Remark",
+      "timestamp": "2026-11-19T10:00:02.123+09:00",
+      "duration": "1.2345 ms",
+      "tooltip": "Timestamp: 2026-11-19T10:00:02.123+09:00\nUptime (s): 2.123\nGC type: Pause Remark\nPause (ms): 1.2345 ms\n"
+    },
+    {
+      "chart": 1,
+      "phase": "Pause Cleanup",
+      "timestamp": "2026-11-19T10:00:03.123+09:00",
+      "duration": "0 ms",
+      "tooltip": "Timestamp: 2026-11-19T10:00:03.123+09:00\nUptime (s): 3.123\nGC type: Pause Cleanup\nPause (ms): 0 ms\n\nHeap after: 49 MB"
+    },
+    {
+      "chart": 1,
+      "phase": "Pause Full",
+      "timestamp": "2026-11-19T10:00:04.123+09:00",
+      "duration": "250 ms",
+      "tooltip": "Timestamp: 2026-11-19T10:00:04.123+09:00\nUptime (s): 4.123\nGC type: Pause Full\nPause (ms): 250 ms\nCause: System.gc()\n\nHeap after: 45 MB"
+    },
+    {
+      "chart": 2,
+      "phase": "Pause Remark",
+      "timestamp": "2026-11-19T10:00:02.123+09:00",
+      "duration": "1.2345 ms",
+      "tooltip": "Timestamp: 2026-11-19T10:00:02.123+09:00\nUptime (s): 2.123\nGC type: Pause Remark\nPause (ms): 1.2345 ms\n"
+    },
+    {
+      "chart": 2,
+      "phase": "Pause Cleanup",
+      "timestamp": "2026-11-19T10:00:03.123+09:00",
+      "duration": "0 ms",
+      "tooltip": "Timestamp: 2026-11-19T10:00:03.123+09:00\nUptime (s): 3.123\nGC type: Pause Cleanup\nPause (ms): 0 ms\n\nHeap after: 49 MB"
+    },
+    {
+      "chart": 2,
+      "phase": "Pause Full",
+      "timestamp": "2026-11-19T10:00:04.123+09:00",
+      "duration": "250 ms",
+      "tooltip": "Timestamp: 2026-11-19T10:00:04.123+09:00\nUptime (s): 4.123\nGC type: Pause Full\nPause (ms): 250 ms\nCause: System.gc()\n\nHeap after: 45 MB"
+    }
+  ]
+}

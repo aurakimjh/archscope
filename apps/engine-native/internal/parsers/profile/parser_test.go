@@ -347,3 +347,26 @@ func TestParseV8ClampsEndTimeBeforeLastSample(t *testing.T) {
 		t.Fatalf("missing endTime diagnostic: %#v", diags.Warnings)
 	}
 }
+
+func TestAutoParseArthasHTML(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "arthas.html")
+	body := `<!DOCTYPE html><html><script>
+function u(key, width) {
+ f(key, level0 + 1, 0, width)
+}
+const cpool=['all',' com/acme/Worker.run'];
+unpack(cpool);
+f(0,0,0,12)
+u(8)
+</script></html>`
+	if err := os.WriteFile(path, []byte(body), 0600); err != nil {
+		t.Fatal(err)
+	}
+	parsed, diags, err := ParseFile(path, "auto", Options{})
+	if err != nil || diags.ErrorCount != 0 || parsed.Format != "async-profiler-html" || len(parsed.Samples) != 1 {
+		t.Fatalf("parsed=%+v diagnostics=%+v err=%v", parsed, diags, err)
+	}
+	if parsed.Samples[0].Value != 12 || len(parsed.Samples[0].Stack) != 2 || parsed.Metadata["detected_html_format"] != "async_profiler_canvas" {
+		t.Fatalf("%+v", parsed)
+	}
+}

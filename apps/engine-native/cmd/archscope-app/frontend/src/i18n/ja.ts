@@ -903,7 +903,7 @@ export default {
   "Single dump": "単一ダンプ",
   "Multi-dump correlation": "複数ダンプの相関",
   "Lock contention": "ロック競合",
-  "Legacy single-dump JVM view for Java jstack: state distribution, lock relationships, top signatures.": "Java jstack 用の従来の単一ダンプ JVM 表示です。状態分布、ロック関係、上位シグネチャを表示します。",
+  "Java jstack/jcmd text: repeated captures in one file automatically use multi-dump analysis.": "Java jstack/jcmd テキスト：1つのファイルに複数時点のダンプがある場合、自動的にマルチダンプ分析を行います。",
   "Correlate consecutive dumps across Java jstack/jcmd JSON, Go, Python, Node.js, and .NET to surface long-running and persistently-blocked threads.": "Java jstack/jcmd JSON、Go、Python、Node.js、.NET の連続ダンプを関連付け、長時間実行や継続ブロックのスレッドを示します。",
   "Detect contended locks and deadlock cycles from parsed lock metadata; Java jstack/jcmd dumps provide the richest lock detail.": "解析済みロック情報から競合ロックとデッドロック循環を検出します。Java jstack/jcmd ダンプは最も詳細なロック情報を提供します。",
   "Files selected": "選択したファイル",

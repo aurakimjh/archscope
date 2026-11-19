@@ -1,17 +1,18 @@
 // [한글] javajstack parser 회귀 테스트.
 //
 // 검증 대상
-//   • 단일 dump 의 thread 개수 / state 분포 / stack frame.
-//   • multi-dump 파일의 블록 분리 (ParseMany).
-//   • timestamp 추출 (블록 직전 라인이 timestamp 형태).
-//   • Java state 격상 (RUNNABLE → NETWORK_WAIT 등).
-//   • LockHandle 추출 (4가지 wait_mode).
-//   • carrier pinning marker 추출.
-//   • SMR / class histogram block 추출.
-//   • CGLIB / Lambda / Proxy 정리 후 stack signature 안정화.
+//   - 단일 dump 의 thread 개수 / state 분포 / stack frame.
+//   - multi-dump 파일의 블록 분리 (ParseMany).
+//   - timestamp 추출 (블록 직전 라인이 timestamp 형태).
+//   - Java state 격상 (RUNNABLE → NETWORK_WAIT 등).
+//   - LockHandle 추출 (4가지 wait_mode).
+//   - carrier pinning marker 추출.
+//   - SMR / class histogram block 추출.
+//   - CGLIB / Lambda / Proxy 정리 후 stack signature 안정화.
 package javajstack
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -392,5 +393,67 @@ func TestParseAllFallsBackWithoutSectionHeader(t *testing.T) {
 	}
 	if len(bundles) != 1 {
 		t.Fatalf("bundles = %d", len(bundles))
+	}
+}
+
+func TestRepeatedCapturesInOneFile(t *testing.T) {
+	for _, format := range []string{"jstack", "timestamp-only", "headerless", "arthas"} {
+		t.Run(format, func(t *testing.T) {
+			var data strings.Builder
+			for i := 0; i < 40; i++ {
+				if format != "headerless" {
+					data.WriteString(fmt.Sprintf("2026-11-19 10:00:%02d\r\n", i))
+				}
+				if format == "jstack" {
+					data.WriteString("Full thread dump OpenJDK 64-Bit Server VM:\r\n")
+				}
+				if format == "arthas" {
+					data.WriteString("\x1b[32m\"worker\" Id=7 BLOCKED on java.lang.Object@123\x1b[0m\r\n\tat com.acme.Worker.run(Worker.java:42)\r\n")
+				} else {
+					data.WriteString("  \"worker\" #7 prio=5 tid=0x0007 nid=0x0077 waiting for monitor entry\r\n   java.lang.Thread.State: BLOCKED\r\n\tat com.acme.Worker.run(Worker.java:42)\r\n")
+				}
+			}
+			path := writeFile(t, "repeated.log", data.String())
+			if !New().CanParse(data.String()) {
+				t.Fatal("format not detected")
+			}
+			bundles, err := New().ParseAll(path)
+			if err != nil || len(bundles) != 40 {
+				t.Fatalf("captures=%d err=%v", len(bundles), err)
+			}
+			for i, b := range bundles {
+				if len(b.Snapshots) != 1 || b.Snapshots[0].ThreadName != "worker" || b.Snapshots[0].State != models.ThreadStateBlocked || len(b.Snapshots[0].StackFrames) != 1 {
+					t.Fatalf("capture %d: %+v", i, b)
+				}
+				if format != "headerless" && b.Metadata["raw_timestamp"] != fmt.Sprintf("2026-11-19 10:00:%02d", i) {
+					t.Fatalf("capture %d timestamp: %+v", i, b.Metadata)
+				}
+			}
+		})
+	}
+}
+
+func TestDuplicateNamesAndDeadlockSummaryAreNotCaptures(t *testing.T) {
+	data := `Full thread dump OpenJDK:
+"worker" #1 tid=0x1 nid=0x11 runnable
+ java.lang.Thread.State: RUNNABLE
+ at com.acme.One.run(One.java:1)
+"worker" #2 tid=0x2 nid=0x12 waiting for monitor entry
+ java.lang.Thread.State: BLOCKED
+ at com.acme.Two.run(Two.java:2)
+Found one Java-level deadlock:
+=============================
+"worker":
+ waiting to lock monitor 0x3
+Java stack information for the threads listed above:
+"worker":
+ at com.acme.Deadlock.run(Deadlock.java:99)
+`
+	bundles, err := New().ParseAll(writeFile(t, "deadlock.log", data))
+	if err != nil || len(bundles) != 1 || len(bundles[0].Snapshots) != 2 {
+		t.Fatalf("%+v %v", bundles, err)
+	}
+	if len(bundles[0].Snapshots[1].StackFrames) != 1 {
+		t.Fatalf("deadlock appendix leaked into thread: %+v", bundles[0].Snapshots[1])
 	}
 }

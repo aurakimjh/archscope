@@ -66,6 +66,19 @@ func ParseHtmlProfilerText(text string, debugLog *DebugLog) HtmlProfilerParseRes
 		SkippedByReason: map[string]int{},
 	}
 	diagnostics.TotalLines = strings.Count(text, "\n") + 1
+	// Arthas uses async-profiler's canvas format. Decode its data before
+	// looking for SVGs: recent templates also contain SVG toolbar icons.
+	if stacks, recognized, err := stacksFromAsyncProfilerCalls(text); recognized {
+		if err != nil {
+			addDiagnosticError(&diagnostics, 0, "INVALID_ASYNC_PROFILER_DATA", err.Error(), "")
+		} else {
+			for _, count := range stacks {
+				diagnostics.ParsedRecords += count
+			}
+		}
+		debugLog.SetTotals(diagnostics.TotalLines, diagnostics.ParsedRecords, diagnostics.SkippedLines)
+		return HtmlProfilerParseResult{Stacks: stacks, Diagnostics: diagnostics, DetectedFormat: "async_profiler_canvas"}
+	}
 
 	// 1) Inline-SVG flamegraph (perf flamegraph + html shell, etc.)
 	if match := htmlSvgBlockRE.FindString(text); match != "" {

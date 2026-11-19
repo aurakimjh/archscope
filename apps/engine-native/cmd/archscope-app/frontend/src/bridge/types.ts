@@ -1067,13 +1067,22 @@ export type GcPauseHistogramBucket = {
   count: number;
 };
 
-export type GcPauseTimelinePoint = {
+export type GcEventTiming = {
+  event_number?: number;
+  timestamp?: string | null;
+  uptime_sec?: number | null;
+  pause_ms?: number | null;
+  gc_type?: string | null;
+  cause?: string | null;
+};
+
+export type GcPauseTimelinePoint = GcEventTiming & {
   time: string;
   value: number;
   gc_type: string;
 };
 
-export type GcHeapPoint = {
+export type GcHeapPoint = GcEventTiming & {
   time: string;
   value: number;
 };

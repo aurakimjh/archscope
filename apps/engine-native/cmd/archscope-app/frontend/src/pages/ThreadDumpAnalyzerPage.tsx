@@ -329,11 +329,15 @@ export function ThreadDumpAnalyzerPage(): React.JSX.Element {
         });
         if (inflightSyncRef.current !== token) return;
         inflightSyncRef.current = null;
-        const singleResult = response as unknown as ThreadDumpSingleResult;
+        const singleResult = response as unknown as ThreadDumpSingleResult | ThreadDumpMultiResult;
         setResult(singleResult);
+        if (singleResult.type === "thread_dump_multi") {
+          setFiles([singleFile]);
+          setMode("multi");
+        }
         addWorkspaceResult({
           result: singleResult,
-          title: `thread_dump: ${singleFile.originalName}`,
+          title: `${singleResult.type}: ${singleFile.originalName}`,
           sourceLabel: singleFile.originalName,
         });
         setState("success");
@@ -409,7 +413,7 @@ export function ThreadDumpAnalyzerPage(): React.JSX.Element {
       ? (result as ThreadDumpSingleResult)
       : null;
   const multiResult =
-    mode === "multi" && result?.type === "thread_dump_multi"
+    (mode === "single" || mode === "multi") && result?.type === "thread_dump_multi"
       ? (result as ThreadDumpMultiResult)
       : null;
   const lockResult =

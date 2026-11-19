@@ -9,6 +9,7 @@
 package threaddump
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -455,4 +456,20 @@ func itoa(i int) string {
 		out = append([]byte{'-'}, out...)
 	}
 	return string(out)
+}
+
+func TestAnalyzeAutomaticallyExpandsConcatenatedDumps(t *testing.T) {
+	var body strings.Builder
+	for i := 0; i < 40; i++ {
+		fmt.Fprintf(&body, "2026-11-19 10:00:%02d\nFull thread dump OpenJDK:\n%s\n", i, pythonRegressionDump)
+	}
+	path := writeFile(t, "forty-captures.log", body.String())
+	result, err := Analyze(path, Options{})
+	if err != nil || result.Type != "thread_dump_multi" || result.Summary["total_dumps"] != 40 || result.Summary["total_thread_observations"] != 80 {
+		t.Fatalf("type=%s summary=%v err=%v", result.Type, result.Summary, err)
+	}
+	rows := result.Tables["dumps"].([]map[string]any)
+	if len(rows) != 40 || rows[0]["dump_label"] != "forty-captures.log#1" || rows[39]["dump_label"] != "forty-captures.log#40" {
+		t.Fatalf("%+v", rows)
+	}
 }

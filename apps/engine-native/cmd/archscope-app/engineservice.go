@@ -733,8 +733,8 @@ func (s *EngineService) AnalyzeJenniferProfile(req JenniferProfileRequest) (engi
 	return engineapi.AnalyzeJenniferProfiles(paths, opts)
 }
 
-// AnalyzeThreadDump wraps engineapi.AnalyzeThreadDump (single Java
-// jstack file).
+// AnalyzeThreadDump accepts one Java jstack/jcmd text file and automatically
+// returns a multi-dump analysis when the file contains repeated captures.
 func (s *EngineService) AnalyzeThreadDump(req ThreadDumpRequest) (engineapi.AnalysisResult, error) {
 	if strings.TrimSpace(req.Path) == "" {
 		return engineapi.AnalysisResult{}, fmt.Errorf("path is required")

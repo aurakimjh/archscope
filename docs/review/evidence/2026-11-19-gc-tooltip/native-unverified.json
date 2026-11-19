@@ -1,0 +1,14 @@
+{
+  "cases": [],
+  "errors": [],
+  "failure": "Error: timeout ()=\u003esurface.querySelector('canvas')",
+  "page": "gc.log\n\ngc.log·11 B\nBrowse\nAnalyze\nAnalyzer options\nAnalyzer options\nMax lines\nTop N causes\nStrict mode\nAnalyze\nRecent files (1)\nSummary\nPauses\nHeap\nBreakdown\nEvents\nJVM info\nParser Report\nPause timeline\nAllocation / promotion rate",
+  "passed": false,
+  "rafObserved": false,
+  "scope": "Actual macOS WebView; owned GC log; synthetic file drop and mousemove, no physical pointer or Windows claim",
+  "surfaces": [
+    "\u003cdiv data-chart-surface=\"true\" _echarts_instance_=\"ec_1795065857239\" style=\"width: 100%; height: 320px; -webkit-user-select: none;\"\u003e\u003cdiv style=\"position: relative; width: 1230px; height: 320px; padding: 0px; margin: 0px; border-width: 0px;\"\u003e\u003c/div\u003e\u003c/div\u003e",
+    "\u003cdiv data-chart-surface=\"true\" _echarts_instance_=\"ec_1795065857240\" style=\"width: 100%; height: 260px; -webkit-user-select: none;\"\u003e\u003cdiv style=\"position: relative; width: 1230px; height: 260px; padding: 0px; margin: 0px; border-width: 0px;\"\u003e\u003c/div\u003e\u003c/div\u003e"
+  ],
+  "visibility": "hidden"
+}

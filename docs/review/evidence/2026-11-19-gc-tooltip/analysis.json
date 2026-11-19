@@ -1,0 +1,454 @@
+{
+  "type": "gc_log",
+  "source_files": [
+    "/private/tmp/archscope-gc-tooltip/gc.log"
+  ],
+  "created_at": "2026-11-19T05:48:10.647637Z",
+  "summary": {
+    "avg_allocation_rate_mb_per_sec": 51,
+    "avg_pause_ms": 65.309,
+    "avg_promotion_rate_mb_per_sec": null,
+    "concurrent_mode_failure_count": 0,
+    "critical_pause_event_count": 0,
+    "full_gc_count": 1,
+    "humongous_allocation_count": 0,
+    "long_pause_event_count": 1,
+    "max_pause_ms": 250,
+    "oom_event_count": 0,
+    "p50_pause_ms": 5.617,
+    "p95_pause_ms": 214,
+    "p99_pause_ms": 242.8,
+    "promotion_failure_count": 0,
+    "throughput_pause_ms": 251.234,
+    "throughput_percent": 91.626,
+    "total_events": 4,
+    "total_pause_ms": 261.235,
+    "wall_time_sec": 3,
+    "young_gc_count": 1
+  },
+  "series": {
+    "allocation_rate_mb_per_sec": [
+      {
+        "time": "2026-11-19T10:00:04.123+09:00",
+        "value": 51
+      }
+    ],
+    "cause_breakdown": [
+      {
+        "cause": "UNKNOWN",
+        "count": 2
+      },
+      {
+        "cause": "Normal",
+        "count": 1
+      },
+      {
+        "cause": "System.gc()",
+        "count": 1
+      }
+    ],
+    "gc_type_breakdown": [
+      {
+        "count": 1,
+        "gc_type": "Pause Young"
+      },
+      {
+        "count": 1,
+        "gc_type": "Pause Remark"
+      },
+      {
+        "count": 1,
+        "gc_type": "Pause Cleanup"
+      },
+      {
+        "count": 1,
+        "gc_type": "Pause Full"
+      }
+    ],
+    "heap_after_mb": [
+      {
+        "cause": "Normal",
+        "event_number": 1,
+        "gc_type": "Pause Young",
+        "pause_ms": 10,
+        "time": "2026-11-19T10:00:01.123+09:00",
+        "timestamp": "2026-11-19T10:00:01.123+09:00",
+        "uptime_sec": 1.123,
+        "value": 50
+      },
+      {
+        "cause": null,
+        "event_number": 3,
+        "gc_type": "Pause Cleanup",
+        "pause_ms": 0,
+        "time": "2026-11-19T10:00:03.123+09:00",
+        "timestamp": "2026-11-19T10:00:03.123+09:00",
+        "uptime_sec": 3.123,
+        "value": 49
+      },
+      {
+        "cause": "System.gc()",
+        "event_number": 4,
+        "gc_type": "Pause Full",
+        "pause_ms": 250,
+        "time": "2026-11-19T10:00:04.123+09:00",
+        "timestamp": "2026-11-19T10:00:04.123+09:00",
+        "uptime_sec": 4.123,
+        "value": 45
+      }
+    ],
+    "heap_before_mb": [
+      {
+        "cause": "Normal",
+        "event_number": 1,
+        "gc_type": "Pause Young",
+        "pause_ms": 10,
+        "time": "2026-11-19T10:00:01.123+09:00",
+        "timestamp": "2026-11-19T10:00:01.123+09:00",
+        "uptime_sec": 1.123,
+        "value": 100
+      },
+      {
+        "cause": null,
+        "event_number": 3,
+        "gc_type": "Pause Cleanup",
+        "pause_ms": 0,
+        "time": "2026-11-19T10:00:03.123+09:00",
+        "timestamp": "2026-11-19T10:00:03.123+09:00",
+        "uptime_sec": 3.123,
+        "value": 51
+      },
+      {
+        "cause": "System.gc()",
+        "event_number": 4,
+        "gc_type": "Pause Full",
+        "pause_ms": 250,
+        "time": "2026-11-19T10:00:04.123+09:00",
+        "timestamp": "2026-11-19T10:00:04.123+09:00",
+        "uptime_sec": 4.123,
+        "value": 100
+      }
+    ],
+    "heap_committed_mb": [
+      {
+        "cause": "Normal",
+        "event_number": 1,
+        "gc_type": "Pause Young",
+        "pause_ms": 10,
+        "time": "2026-11-19T10:00:01.123+09:00",
+        "timestamp": "2026-11-19T10:00:01.123+09:00",
+        "uptime_sec": 1.123,
+        "value": 200
+      },
+      {
+        "cause": null,
+        "event_number": 3,
+        "gc_type": "Pause Cleanup",
+        "pause_ms": 0,
+        "time": "2026-11-19T10:00:03.123+09:00",
+        "timestamp": "2026-11-19T10:00:03.123+09:00",
+        "uptime_sec": 3.123,
+        "value": 200
+      },
+      {
+        "cause": "System.gc()",
+        "event_number": 4,
+        "gc_type": "Pause Full",
+        "pause_ms": 250,
+        "time": "2026-11-19T10:00:04.123+09:00",
+        "timestamp": "2026-11-19T10:00:04.123+09:00",
+        "uptime_sec": 4.123,
+        "value": 200
+      }
+    ],
+    "metaspace_after_mb": [],
+    "metaspace_before_mb": [],
+    "old_after_mb": [],
+    "old_before_mb": [],
+    "pause_histogram": [
+      {
+        "bucket": "\u003c1ms",
+        "count": 1,
+        "max_ms": 1,
+        "min_ms": 0
+      },
+      {
+        "bucket": "1-5ms",
+        "count": 1,
+        "max_ms": 5,
+        "min_ms": 1
+      },
+      {
+        "bucket": "5-10ms",
+        "count": 0,
+        "max_ms": 10,
+        "min_ms": 5
+      },
+      {
+        "bucket": "10-50ms",
+        "count": 1,
+        "max_ms": 50,
+        "min_ms": 10
+      },
+      {
+        "bucket": "50-100ms",
+        "count": 0,
+        "max_ms": 100,
+        "min_ms": 50
+      },
+      {
+        "bucket": "100-500ms",
+        "count": 1,
+        "max_ms": 500,
+        "min_ms": 100
+      },
+      {
+        "bucket": "500ms-1s",
+        "count": 0,
+        "max_ms": 1000,
+        "min_ms": 500
+      },
+      {
+        "bucket": "1-5s",
+        "count": 0,
+        "max_ms": 5000,
+        "min_ms": 1000
+      },
+      {
+        "bucket": "\u003e=5s",
+        "count": 0,
+        "max_ms": null,
+        "min_ms": 5000
+      }
+    ],
+    "pause_timeline": [
+      {
+        "cause": "Normal",
+        "event_number": 1,
+        "gc_type": "Pause Young",
+        "pause_ms": 10,
+        "time": "2026-11-19T10:00:01.123+09:00",
+        "timestamp": "2026-11-19T10:00:01.123+09:00",
+        "uptime_sec": 1.123,
+        "value": 10
+      },
+      {
+        "cause": null,
+        "event_number": 2,
+        "gc_type": "Pause Remark",
+        "pause_ms": 1.2345,
+        "time": "2026-11-19T10:00:02.123+09:00",
+        "timestamp": "2026-11-19T10:00:02.123+09:00",
+        "uptime_sec": 2.123,
+        "value": 1.234
+      },
+      {
+        "cause": null,
+        "event_number": 3,
+        "gc_type": "Pause Cleanup",
+        "pause_ms": 0,
+        "time": "2026-11-19T10:00:03.123+09:00",
+        "timestamp": "2026-11-19T10:00:03.123+09:00",
+        "uptime_sec": 3.123,
+        "value": 0
+      },
+      {
+        "cause": "System.gc()",
+        "event_number": 4,
+        "gc_type": "Pause Full",
+        "pause_ms": 250,
+        "time": "2026-11-19T10:00:04.123+09:00",
+        "timestamp": "2026-11-19T10:00:04.123+09:00",
+        "uptime_sec": 4.123,
+        "value": 250
+      }
+    ],
+    "promotion_rate_mb_per_sec": [],
+    "young_after_mb": [],
+    "young_before_mb": []
+  },
+  "tables": {
+    "alerts": [
+      {
+        "cause": "System.gc()",
+        "code": "LONG_GC_PAUSE_EVENT",
+        "event_category": "gc_pause",
+        "event_number": 4,
+        "gc_type": "Pause Full",
+        "message": "GC pause exceeded 100.0 ms.",
+        "pause_ms": 250,
+        "raw_preview": "[2026-11-19T10:00:04.123+0900][4.123s][info][gc] GC(2) Pause Full (System.gc()) 100M-\u003e45M(200M) 250.000ms",
+        "severity": "warning",
+        "threshold_ms": 100,
+        "time": "2026-11-19T10:00:04.123+09:00"
+      }
+    ],
+    "events": [
+      {
+        "cause": "Normal",
+        "event_flags": [],
+        "gc_type": "Pause Young",
+        "heap_after_mb": 50,
+        "heap_before_mb": 100,
+        "heap_committed_mb": 200,
+        "metaspace_after_mb": null,
+        "metaspace_before_mb": null,
+        "old_after_mb": null,
+        "old_before_mb": null,
+        "pause_ms": 10,
+        "raw_line": "[2026-11-19T10:00:01.123+0900][1.123s][info][gc] GC(0) Pause Young (Normal) 100M-\u003e50M(200M) 10.000ms",
+        "severity": null,
+        "timestamp": "2026-11-19T10:00:01.123+09:00",
+        "uptime_sec": 1.123,
+        "young_after_mb": null,
+        "young_before_mb": null
+      },
+      {
+        "cause": null,
+        "event_flags": [],
+        "gc_type": "Pause Remark",
+        "heap_after_mb": null,
+        "heap_before_mb": null,
+        "heap_committed_mb": null,
+        "metaspace_after_mb": null,
+        "metaspace_before_mb": null,
+        "old_after_mb": null,
+        "old_before_mb": null,
+        "pause_ms": 1.2345,
+        "raw_line": "[2026-11-19T10:00:02.123+0900][2.123s][info][gc] GC(1) Pause Remark 1.2345ms",
+        "severity": null,
+        "timestamp": "2026-11-19T10:00:02.123+09:00",
+        "uptime_sec": 2.123,
+        "young_after_mb": null,
+        "young_before_mb": null
+      },
+      {
+        "cause": null,
+        "event_flags": [],
+        "gc_type": "Pause Cleanup",
+        "heap_after_mb": 49,
+        "heap_before_mb": 51,
+        "heap_committed_mb": 200,
+        "metaspace_after_mb": null,
+        "metaspace_before_mb": null,
+        "old_after_mb": null,
+        "old_before_mb": null,
+        "pause_ms": 0,
+        "raw_line": "[2026-11-19T10:00:03.123+0900][3.123s][info][gc] GC(1) Pause Cleanup 51M-\u003e49M(200M) 0.000ms",
+        "severity": null,
+        "timestamp": "2026-11-19T10:00:03.123+09:00",
+        "uptime_sec": 3.123,
+        "young_after_mb": null,
+        "young_before_mb": null
+      },
+      {
+        "cause": "System.gc()",
+        "event_flags": [
+          "long_pause",
+          "full_gc"
+        ],
+        "gc_type": "Pause Full",
+        "heap_after_mb": 45,
+        "heap_before_mb": 100,
+        "heap_committed_mb": 200,
+        "metaspace_after_mb": null,
+        "metaspace_before_mb": null,
+        "old_after_mb": null,
+        "old_before_mb": null,
+        "pause_ms": 250,
+        "raw_line": "[2026-11-19T10:00:04.123+0900][4.123s][info][gc] GC(2) Pause Full (System.gc()) 100M-\u003e45M(200M) 250.000ms",
+        "severity": "warning",
+        "timestamp": "2026-11-19T10:00:04.123+09:00",
+        "uptime_sec": 4.123,
+        "young_after_mb": null,
+        "young_before_mb": null
+      }
+    ]
+  },
+  "charts": {},
+  "metadata": {
+    "analysis_options": {
+      "max_lines": null,
+      "max_series_points": 10000,
+      "strict": false,
+      "top_n": 20
+    },
+    "diagnostics": {
+      "source_file": "/private/tmp/archscope-gc-tooltip/gc.log",
+      "format": "unified",
+      "total_lines": 4,
+      "parsed_records": 4,
+      "skipped_lines": 0,
+      "skipped_by_reason": {},
+      "samples": [],
+      "warning_count": 0,
+      "error_count": 0,
+      "warnings": [],
+      "errors": []
+    },
+    "findings": [
+      {
+        "code": "LONG_GC_PAUSE",
+        "evidence": {
+          "long_pause_event_count": 1,
+          "max_pause_ms": 250
+        },
+        "message": "One or more GC pauses exceeded 100 ms.",
+        "severity": "warning"
+      },
+      {
+        "code": "FULL_GC_PRESENT",
+        "evidence": {
+          "full_gc_count": 1
+        },
+        "message": "Full GC activity was detected.",
+        "severity": "warning"
+      },
+      {
+        "code": "LOW_GC_THROUGHPUT",
+        "evidence": {
+          "throughput_percent": 91.626
+        },
+        "message": "GC throughput is below 95% — application is spending significant time in GC.",
+        "severity": "warning"
+      },
+      {
+        "code": "HIGH_P99_PAUSE",
+        "evidence": {
+          "p99_pause_ms": 242.8
+        },
+        "message": "p99 GC pause exceeds 200 ms — latency-sensitive workloads may be impacted.",
+        "severity": "warning"
+      }
+    ],
+    "gc_format": "unified",
+    "measurement_clock": "uptime_seconds",
+    "measurement_unavailable": {
+      "avg_allocation_rate_mb_per_sec": "",
+      "avg_promotion_rate_mb_per_sec": "insufficient_heap_measurements",
+      "throughput_percent": "",
+      "wall_time_sec": ""
+    },
+    "observation_window": "first_event_end_to_last_event_end",
+    "parser": "hotspot_unified_gc_log",
+    "percentile_method": {
+      "algorithm": "linear_interpolation",
+      "composition": "Do not average/add percentiles across populations.",
+      "policy_id": "legacy-percentile.gc_log.v1",
+      "population": "parsed pause durations",
+      "rank": "(n-1)*p/100",
+      "rounding": "half-even to 3 decimal places",
+      "saved_compatibility": "Absent metadata means undisclosed legacy policy; never relabel or recompute saved values on read.",
+      "version": "1.0.0"
+    },
+    "schema_version": "0.2.0",
+    "series_sampling": {
+      "downsampled": false,
+      "input_events": 4,
+      "max_series_points": 10000,
+      "strategy": "event_bucket_last",
+      "summary_uses_all_data": true
+    },
+    "time_axis": "absolute"
+  }
+}

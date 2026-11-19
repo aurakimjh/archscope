@@ -41,9 +41,12 @@
 package threaddump
 
 import (
+	"fmt"
+	"path/filepath"
 	"sort"
 	"strings"
 
+	"github.com/aurakimjh/archscope/apps/engine-native/internal/analyzers/multithread"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/diagnostics"
 	"github.com/aurakimjh/archscope/apps/engine-native/internal/models"
 	javajstack "github.com/aurakimjh/archscope/apps/engine-native/internal/threaddump/plugins/javajstack"
@@ -71,9 +74,9 @@ type Options struct {
 	TopN int
 }
 
-// Analyze parses `path` through the Java jstack plugin and builds the
-// AnalysisResult. Mirrors Python's `analyze_thread_dump(path, top_n=...)`
-// entry point.
+// Analyze expands captures inside one Java jstack/jcmd Thread.print file.
+// One capture keeps the thread_dump result; multiple captures use the existing
+// thread_dump_multi result so desktop and CLI share automatic dispatch.
 //
 // The Java jstack plugin is the only ThreadDumpBundle producer this
 // analyzer accepts — Python equivalents for Go / Python / .NET dumps
@@ -82,10 +85,22 @@ type Options struct {
 // analyzer without registering any plugin globally.
 func Analyze(path string, opts Options) (models.AnalysisResult, error) {
 	plugin := javajstack.New()
-	bundle, err := plugin.Parse(path)
+	bundles, err := plugin.ParseAll(path)
 	if err != nil {
 		return models.AnalysisResult{}, err
 	}
+	if len(bundles) == 0 || len(bundles) == 1 && len(bundles[0].Snapshots) == 0 {
+		return models.AnalysisResult{}, fmt.Errorf("no Java thread snapshots found in input")
+	}
+	if len(bundles) > 1 {
+		for i := range bundles {
+			bundles[i].DumpIndex = i
+			label := fmt.Sprintf("%s#%d", filepath.Base(path), i+1)
+			bundles[i].DumpLabel = &label
+		}
+		return multithread.Analyze(bundles, multithread.Options{TopN: opts.TopN})
+	}
+	bundle := bundles[0]
 	return Build(bundle, path, defaultDiagnostics(len(bundle.Snapshots)), opts), nil
 }
 

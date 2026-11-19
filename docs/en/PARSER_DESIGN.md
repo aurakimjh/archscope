@@ -290,6 +290,23 @@ Collapsed stacks are also converted into the common `FlameNode` tree contract so
 
 ## Unified Profile Evidence Parser
 
+Arthas HTML flamegraphs use the shared HTML profiler parser. It decodes both
+async-profiler 2.x absolute `f(...)` records and 3.x+ prefix-compressed `cpool`
+with `f/u/n` records, including inherited widths and exclusive parent weights.
+Only data literals are decoded; imported JavaScript is never executed. Inline
+SVG and embedded JSON tree inputs remain supported. Canvas data takes precedence
+over SVG toolbar icons. Invalid pool indices, overlapping/out-of-parent frames
+and decoding budgets produce parser diagnostics.
+
+One Java text file from `jstack` or `jcmd PID Thread.print -l` may contain many
+captures. The parser separates full-dump headers, standalone capture timestamps
+or repeated runtime thread IDs when headers are absent; equal thread names alone
+do not separate captures. Capture order, source path and timestamps are retained.
+The single-file desktop and CLI entry points automatically emit the existing
+`thread_dump_multi` contract for multiple captures and `thread_dump` for one.
+Cross-capture identity still requires the existing process/thread lifetime
+context; repeated IDs do not prove a continuous execution or wait interval.
+
 The `profile import` path normalizes profiler families into a common sample
 schema before analysis. Each sample carries a stack of frames tagged with
 language, runtime, `native`, `managed`, and `async` markers. The analyzer then
@@ -343,6 +360,17 @@ breakdown calculations use non-overlapping exclusive paths so category totals do
 not double-count parent and child samples.
 
 ## JVM Parsers
+
+GC chart points retain event number, original timestamp/uptime, GC type/cause and
+nullable pause duration independently of the top-N event table. Pause and heap
+tooltips show this timing with units, including remark/cleanup and same-time
+events; heap timing remains available with the pause overlay disabled or heap
+occupancy absent. An invisible event-coordinate series supplies hover targets
+without inventing occupancy. Unknown durations display as unavailable, while
+measured zero remains zero; older saved series can use their existing values.
+Completed unified `Pause ... Nms` summaries without occupancy are parsed, while
+concurrent and worker-subphase durations are not added as pause events by this
+extension. Original duration precision is retained in tooltip metadata.
 
 GC logs, thread dumps, and exception stack traces follow the same parser and analyzer separation as access logs and profiler inputs.
 

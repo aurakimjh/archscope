@@ -1053,7 +1053,7 @@ const baseMessages = {
     threadDumpModeMulti: "Multi-dump correlation",
     threadDumpModeLocks: "Lock contention",
     threadDumpModeSingleHint:
-      "Legacy single-dump JVM view for Java jstack: state distribution, lock relationships, top signatures.",
+      "Java jstack/jcmd text: repeated captures in one file automatically use multi-dump analysis.",
     threadDumpModeMultiHint:
       "Correlate consecutive dumps across Java jstack/jcmd JSON, Go, Python, Node.js, and .NET to surface long-running and persistently-blocked threads.",
     threadDumpModeLocksHint:
@@ -2941,7 +2941,7 @@ const baseMessages = {
     threadDumpModeMulti: "멀티 덤프 상관 분석",
     threadDumpModeLocks: "락 경합",
     threadDumpModeSingleHint:
-      "단일 덤프는 레거시 JVM(Java jstack) 요약입니다: 상태 분포, 락 관계, 상위 시그니처.",
+      "Java jstack/jcmd 텍스트: 한 파일에 여러 시점의 덤프가 있으면 자동으로 멀티 덤프로 분석합니다.",
     threadDumpModeMultiHint:
       "Java jstack/jcmd JSON, Go, Python, Node.js, .NET 덤프를 연속 시점으로 상관 분석해 장시간 실행 / 지속 BLOCKED 쓰레드를 탐지합니다.",
     threadDumpModeLocksHint:

@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-19",
+  "status": "LOCALLY_VERIFIED",
+  "committed": false,
+  "pushed": false,
+  "browser_hover_cases": 9,
+  "native_hover_status": "UNVERIFIED_HIDDEN_WEBVIEW_NO_RAF_NO_CANVAS_CUA_WINDOW_NOT_FOUND",
+  "checks": [
+    "GC parser/analyzer tests",
+    "GC parser/analyzer race tests",
+    "GC parser/analyzer go vet",
+    "full CLI command tests",
+    "frontend state regressions including actual production chart builders",
+    "frontend TypeScript and production build",
+    "actual Chromium mouse hover of production chart builders using Go analysis output"
+  ],
+  "scope": "Owned synthetic log, component browser verification. No native/Windows/user-source acceptance claim.",
+  "receipts": {
+    "browser": "browser.json",
+    "native": "native-unverified.json",
+    "screenshot": "heap-remark.png"
+  },
+  "compatibility": "Additive event timing metadata; legacy value-only results retain value semantics. Unknown pause_ms is distinct from measured zero.",
+  "sources": {
+    "apps/engine-native/internal/parsers/gclog/parser.go": "ea4f1df05c751a7091eef941093c21ba76e88137d12e2122ebb671ae683a933e",
+    "apps/engine-native/internal/analyzers/gclog/analyzer.go": "0143df9f5ce04b40cdc3d5a6542c3a6ac232918562155822f2b423291310741f",
+    "apps/engine-native/cmd/archscope-app/frontend/src/charts/gcLogCharts.ts": "5ad5d972a34bde359e481bfd10db977ba38e9d4e51d7f7527ec39892de1affca",
+    "apps/engine-native/cmd/archscope-app/frontend/src/charts/gcTooltip.ts": "7666576f1bacf3f1f4fa796f2ace34eabd4d8b0ce630348fa0581a40b3608697",
+    "apps/engine-native/cmd/archscope-app/frontend/src/pages/GcLogAnalyzerPage.tsx": "75ca10c0abf59c72fbb1cc33099bb04374b06a4cfdb0ec0edf2ca414c3824e30",
+    "apps/engine-native/cmd/archscope-app/frontend/src/bridge/types.ts": "5a17247699234503eee90e65f233023522c12750c03de282ff002ad6cee874d3"
+  }
+}

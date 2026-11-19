@@ -228,16 +228,29 @@ func Build(
 		}
 
 		timeLabel := clock.label(event, index)
+		// Chart samples must carry their own event timing: the events table is
+		// top-N limited and each occupancy series is sampled independently.
+		chartPoint := func(value any) map[string]any {
+			var timestamp, uptime, pause any
+			if event.Timestamp != nil {
+				timestamp = event.Timestamp.Format(time.RFC3339Nano)
+			}
+			if event.UptimeSec != nil {
+				uptime = *event.UptimeSec
+			}
+			if event.PauseMS != nil {
+				pause = *event.PauseMS
+			}
+			return map[string]any{"time": timeLabel, "value": value, "event_number": index + 1,
+				"timestamp": timestamp, "uptime_sec": uptime, "pause_ms": pause,
+				"gc_type": strOrUnknown(event.GCType), "cause": strPtrOrNil(event.Cause)}
+		}
 
 		var pauseValue float64
 		if event.PauseMS != nil {
 			pauseValue = *event.PauseMS
 		}
-		pauseTimeline.add(index, map[string]any{
-			"time":    timeLabel,
-			"value":   roundHalfEven(pauseValue, 3),
-			"gc_type": strOrUnknown(event.GCType),
-		})
+		pauseTimeline.add(index, chartPoint(roundHalfEven(pauseValue, 3)))
 		if alert := buildLongPauseAlert(&event, index, timeLabel); alert != nil {
 			longPauseEventCount++
 			if alert["severity"] == "critical" {
@@ -249,19 +262,19 @@ func Build(
 		}
 
 		if event.HeapAfterMB != nil {
-			heapAfterMB.add(index, map[string]any{"time": timeLabel, "value": *event.HeapAfterMB})
+			heapAfterMB.add(index, chartPoint(*event.HeapAfterMB))
 		}
 		if event.HeapBeforeMB != nil {
-			heapBeforeMB.add(index, map[string]any{"time": timeLabel, "value": *event.HeapBeforeMB})
+			heapBeforeMB.add(index, chartPoint(*event.HeapBeforeMB))
 		}
 		if event.HeapCommittedMB != nil {
-			heapCommittedMB.add(index, map[string]any{"time": timeLabel, "value": *event.HeapCommittedMB})
+			heapCommittedMB.add(index, chartPoint(*event.HeapCommittedMB))
 		}
 		if event.YoungBeforeMB != nil {
-			youngBeforeMB.add(index, map[string]any{"time": timeLabel, "value": *event.YoungBeforeMB})
+			youngBeforeMB.add(index, chartPoint(*event.YoungBeforeMB))
 		}
 		if event.YoungAfterMB != nil {
-			youngAfterMB.add(index, map[string]any{"time": timeLabel, "value": *event.YoungAfterMB})
+			youngAfterMB.add(index, chartPoint(*event.YoungAfterMB))
 		}
 
 		// Old gen synthesised from heap - young if no explicit value.
@@ -274,7 +287,7 @@ func Build(
 			oldBefore = &v
 		}
 		if oldBefore != nil {
-			oldBeforeMB.add(index, map[string]any{"time": timeLabel, "value": *oldBefore})
+			oldBeforeMB.add(index, chartPoint(*oldBefore))
 		}
 
 		var oldAfter *float64
@@ -286,14 +299,14 @@ func Build(
 			oldAfter = &v
 		}
 		if oldAfter != nil {
-			oldAfterMB.add(index, map[string]any{"time": timeLabel, "value": *oldAfter})
+			oldAfterMB.add(index, chartPoint(*oldAfter))
 		}
 
 		if event.MetaspaceBeforeMB != nil {
-			metaspaceBeforeMB.add(index, map[string]any{"time": timeLabel, "value": *event.MetaspaceBeforeMB})
+			metaspaceBeforeMB.add(index, chartPoint(*event.MetaspaceBeforeMB))
 		}
 		if event.MetaspaceAfterMB != nil {
-			metaspaceAfterMB.add(index, map[string]any{"time": timeLabel, "value": *event.MetaspaceAfterMB})
+			metaspaceAfterMB.add(index, chartPoint(*event.MetaspaceAfterMB))
 		}
 
 		if rate := allocationRateMBPerSec(prevEvent, &rateEvent); rate != nil && clock.reason == "" {

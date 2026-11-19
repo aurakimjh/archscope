@@ -580,3 +580,19 @@ func TestJenniferDrilldownServiceExportParity(t *testing.T) {
 		t.Fatal("scope label missing")
 	}
 }
+
+func TestEngineService_SingleFileExpandsRepeatedThreadDumps(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "jcmd.log")
+	capture := "12345:\n2026-11-19 10:00:00\nFull thread dump OpenJDK:\n\"main\" #1 tid=0x1 nid=0x2 runnable\n java.lang.Thread.State: RUNNABLE\n at com.acme.Main.run(Main.java:1)\n"
+	if err := os.WriteFile(path, []byte(strings.Repeat(capture, 40)), 0600); err != nil {
+		t.Fatal(err)
+	}
+	res, err := (&EngineService{}).AnalyzeThreadDump(ThreadDumpRequest{Path: path})
+	if err != nil {
+		t.Fatal(err)
+	}
+	requireResultEnvelope(t, "single file with forty captures", "thread_dump_multi", resultToMap(t, res))
+	if res.Summary["total_dumps"] != 40 {
+		t.Fatalf("summary=%v", res.Summary)
+	}
+}

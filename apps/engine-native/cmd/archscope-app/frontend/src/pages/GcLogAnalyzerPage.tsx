@@ -142,6 +142,10 @@ export function GcLogAnalyzerPage(): React.JSX.Element {
       allocSeries: t("allocationRateLabel"),
       promSeries: t("promotionRateLabel"),
       countAxis: t("count"),
+      eventTime: t("timestampLabel"),
+      eventUptime: t("uptimeSec"),
+      eventType: t("gcTypeLabel"),
+      eventCause: t("gcCauseLabel"),
     }),
     [t],
   );

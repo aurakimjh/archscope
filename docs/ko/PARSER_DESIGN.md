@@ -285,6 +285,21 @@ Collapsed stack은 공통 `FlameNode` tree contract로도 변환한다. 이를 �
 
 ## 통합 Profile Evidence Parser
 
+Arthas HTML flamegraph는 공통 HTML profiler parser를 사용한다. async-profiler
+2.x의 절대 좌표 `f(...)`와 3.x 이후의 접두사 압축 `cpool` 및 `f/u/n` 레코드를
+해독하며 생략된 너비와 부모의 자체 가중치를 복원한다. 데이터 리터럴만 읽고
+입력 JavaScript는 실행하지 않는다. 기존 인라인 SVG와 JSON 트리도 지원하며,
+툴바 SVG 아이콘보다 canvas 데이터를 먼저 처리한다. 잘못된 상수 인덱스,
+겹치거나 부모 범위를 벗어난 프레임, 해독 예산 초과는 파서 진단으로 반환한다.
+
+`jstack` 또는 `jcmd PID Thread.print -l`로 생성한 Java 텍스트 한 파일에 여러
+캡처를 저장할 수 있다. 전체 덤프 헤더, 독립된 캡처 시각, 헤더 생략 시 반복된
+런타임 스레드 ID를 기준으로 분리하고 이름이 같다는 이유만으로 분리하지 않는다.
+순서·원본 경로·캡처 시각을 보존하며 단일 파일 데스크톱/CLI 진입점도 여러 캡처면
+기존 `thread_dump_multi`, 한 캡처면 `thread_dump` 계약을 반환한다. 시점 간 스레드
+동일성에는 기존 프로세스/스레드 수명 맥락이 필요하며 반복 ID만으로 연속 실행이나
+대기 시간을 확정하지 않는다.
+
 `profile import` 경로는 여러 profiler family를 공통 sample schema로 정규화한 뒤
 분석한다. 각 sample은 language, runtime, `native`, `managed`, `async` marker가
 붙은 frame stack을 가진다. Analyzer는 이 sample들을 collapsed stack으로
@@ -337,6 +352,15 @@ inclusive 값을 보존하고, top-stack 및 execution breakdown 계산은 paren
 sample을 중복 집계하지 않도록 non-overlapping exclusive path를 사용한다.
 
 ## JVM Parsers
+
+GC 차트의 각 점은 상위 N개 이벤트 표와 독립적으로 이벤트 번호, 원본 발생 시각과
+uptime, GC 종류·원인, nullable pause 시간을 보존한다. Pause·힙 툴팁은 remark와
+cleanup 및 같은 시각의 이벤트도 단위와 함께 표시한다. 힙 값이 없거나 pause
+오버레이가 꺼져 있어도 이벤트 좌표를 통해 시간을 확인하며 힙 사용량을 임의로
+채우지 않는다. 시간 미기록은 `—`, 측정된 0은 `0ms`로 구분하고 기존 저장 결과는
+기존 시계열 값으로 호환한다. 힙 값 없는 unified `Pause ... Nms` 완료 요약도
+파싱하되 이번 확장으로 concurrent·worker 하위 단계 시간을 pause 이벤트에
+합산하지 않는다. 툴팁 metadata에는 원래 소요 시간 정밀도를 보존한다.
 
 GC log, thread dump, exception stack trace parser는 access log 및 profiler input과 동일하게 parser/analyzer 책임 분리를 따른다.
 

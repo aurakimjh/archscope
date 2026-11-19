@@ -1,10 +1,54 @@
 # ArchScope Work Status
 
-Last updated: 2026-11-17
+Last updated: 2026-11-19
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
 `archive/work_status_legacy_2026-05-09.md`.
+
+## 2026-11-19 — User-reported JVM input corrections
+
+Scoped follow-ups under the existing T-627 acceptance work; tracked-task counts
+and independent review verdicts remain unchanged. Both corrections are
+`LOCALLY_VERIFIED`, uncommitted and unpushed.
+
+| Priority / ID | Status | Behavior and acceptance |
+|---|---|---|
+| P2 JVM-IN-01 — Arthas HTML | LOCALLY_VERIFIED | Shared HTML parser decodes async-profiler absolute frame records and compressed constant-pool/delta records without executing JavaScript. Exclusive sample weights, inherited widths and escaped names are preserved; invalid data is diagnosed. Official complete v2.9/v3.0 templates with controlled records each produce10samples/errors0 in CLI and actual macOS WebView. User's original Arthas files and native Windows acceptance remain unverified. |
+| P2 JVM-IN-02 — repeated Java dumps in one file | LOCALLY_VERIFIED | `jstack`/`jcmd Thread.print` captures are expanded before single-file analysis. Multiple captures automatically use the existing multi-dump result and desktop mode; selected input is retained for multi-mode reruns/options. Headers, standalone capture times, headerless repeated IDs, indentation/ANSI and deadlock-summary isolation are covered. Owned JDK21 `jcmd Thread.print -l` and `jstack -l` each20captures at nominal1second intervals produce20dumps/errors0; native automatic mode and20labeled rows pass. Generated40capture parser/analyzer/bridge regressions pass. User's original files and native Windows acceptance remain unverified. |
+
+Validation: relevant Go/CLI packages, full app Go tests with local loopback,
+targeted final bridge regressions, parser/analyzer race tests and vet, frontend
+TypeScript/production build and state regressions pass. Four native macOS
+WebView cases pass using synthetic file-drop events; this does not establish
+physical drag or visual-readability acceptance. Missing process/thread lifetime
+context still isolates observations and disables cross-dump persistence claims.
+Evidence and reproducible local harnesses:
+`docs/review/evidence/2026-11-19-jvm-input/verification.json` and `native.json`.
+
+### GC tooltip follow-up — GC-TIP-01 (P2)
+
+`LOCALLY_VERIFIED`, uncommitted/unpushed; scoped correction under T-627, with
+existing task counts and native acceptance gates preserved. Pause and heap
+tooltips now retain original timestamp/uptime, GC type/cause and exact pause
+duration for remark/cleanup/full events. Heap timing works with the pause
+overlay off and at events without occupancy. Unknown duration is unavailable,
+measured zero remains0ms, same-coordinate events remain distinct, and chart
+timing is independent of top-N event-table truncation. Unified completed
+`Pause ... Nms` summaries without heap fields are now parsed without adding
+concurrent/worker durations to pause statistics through this extension.
+
+Go parser/analyzer tests, race and vet, full CLI tests, frontend state
+regressions and production build pass. Actual production chart builders with
+actual Go analysis output passed9Playwright mouse-hover checks: remark1.2345ms,
+cleanup0ms and full250ms on pause, heap-overlay-off and heap-overlay-on charts.
+Screenshot confirms the remark timestamp and duration with no invented heap
+value. Native macOS hover remains UNVERIFIED: the diagnostic WebView reported
+`visibility=hidden`, no animation frame and no painted canvas; CUA window lookup
+returned `cgWindowNotFound`. No native UI PASS is claimed. Original user logs,
+Windows native execution and independent review remain outside this evidence.
+Receipts: `docs/review/evidence/2026-11-19-gc-tooltip/browser.json` and
+`native-unverified.json`; implementation details in the paired PARSER_DESIGN.
 
 ## Status Overview
 

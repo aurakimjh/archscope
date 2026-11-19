@@ -77,7 +77,7 @@ Go goroutines, Node.js report, Python dump, .NET CLR).`,
 		analyze := &cobra.Command{
 			Use:   "analyze",
 			Short: "Analyze a Java thread dump text file.",
-			Long:  "Parse a single Java jstack dump and emit an AnalysisResult JSON envelope.",
+			Long:  "Parse a Java jstack/jcmd Thread.print file; automatically expand repeated captures into a thread_dump_multi AnalysisResult.",
 			Example: `  archscope-engine thread-dump analyze \
     --in examples/thread-dumps/sample-java-thread-dump.txt \
     --out result.json`,

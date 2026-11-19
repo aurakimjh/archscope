@@ -1,0 +1,11 @@
+<!doctype html><html><head><title>GC tooltip component verification</title><style>body{font:14px sans-serif;margin:12px;background:white}.chart{width:1000px;height:320px;border:1px solid #ddd;margin-bottom:24px}</style></head><body><h1>GC tooltip component verification</h1><script type="module">
+import {echarts} from '/src/charts/echartsCore.ts';
+import {pauseTimelineOption,heapUsageOption} from '/src/charts/gcLogCharts.ts';
+import result from './analysis.json';
+const labels={pauseAxis:'Pause (ms)',pauseSeries:'GC pause',fullGcMarker:'Full GC',longPauseMarker:'Long pause',criticalPauseMarker:'Critical pause',heapAxis:'Heap (MB)',heapBefore:'Heap before',heapAfter:'Heap after',heapCommitted:'Committed',heapPauseOverlay:'Overlay pause',eventTime:'Timestamp',eventUptime:'Uptime (s)',eventType:'GC type',eventCause:'Cause'};
+window.gcCharts=[];
+for(const [name,option] of [['Pause timeline',pauseTimelineOption(result,labels)],['Heap — overlay off',heapUsageOption(result,labels,new Set(['heap_after']),false)],['Heap — overlay on',heapUsageOption(result,labels,new Set(['heap_after']),true)]]){
+const h=document.createElement('h2');h.textContent=name;document.body.append(h);const el=document.createElement('div');el.className='chart';document.body.append(el);const chart=echarts.init(el);chart.setOption({animation:false,...option});window.gcCharts.push({name,chart,el});
+}
+window.gcTestReady=true;
+</script></body></html>

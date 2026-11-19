@@ -1,0 +1,50 @@
+{
+  "osScreenScaleFactor": 2,
+  "report": {
+    "cases": [
+      {
+        "dumps": 20,
+        "firstLabel": "jcmd.log#1",
+        "lastLabel": "jcmd.log#20",
+        "name": "jcmd.log",
+        "rows": 20
+      },
+      {
+        "dumps": 20,
+        "firstLabel": "jstack.log#1",
+        "lastLabel": "jstack.log#20",
+        "name": "jstack.log",
+        "rows": 20
+      },
+      {
+        "name": "async-profiler-v2.html",
+        "samples": 10
+      },
+      {
+        "name": "async-profiler-v3.html",
+        "samples": 10
+      }
+    ],
+    "passed": true,
+    "scope": "Actual macOS WebView; synthetic file drop through real single-file page and real engine; no physical drag or Windows claim"
+  },
+  "screenLogicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 1728,
+    "Height": 1117
+  },
+  "screenPhysicalBounds": {
+    "X": 0,
+    "Y": 0,
+    "Width": 3456,
+    "Height": 2234
+  },
+  "webviewZoom": 1,
+  "window": {
+    "height": 799,
+    "width": 1279,
+    "x": 224,
+    "y": 136
+  }
+}

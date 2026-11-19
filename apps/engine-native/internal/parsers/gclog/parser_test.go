@@ -693,3 +693,22 @@ func TestSplitUnifiedLabel(t *testing.T) {
 		t.Errorf("cause = %v, want nil", cause)
 	}
 }
+
+func TestUnifiedPausePhasesWithoutOccupancy(t *testing.T) {
+	body := `[2026-11-19T10:00:01.123+0900][1.123s][info][gc] GC(1) Pause Young (Normal) 100M->50M(200M) 10.000ms
+[2026-11-19T10:00:02.123+0900][2.123s][info][gc,start] GC(2) Pause Remark
+[2026-11-19T10:00:02.123+0900][2.123s][info][gc] GC(2) Pause Remark 1.2345ms
+[2026-11-19T10:00:03.123+0900][3.123s][info][gc] GC(2) Pause Cleanup 0.000ms
+[2026-11-19T10:00:04.123+0900][4.123s][info][gc] GC(2) Concurrent Mark 23.456ms
+`
+	events, _, err := ParseFile(writeTempFile(t, "phases.log", body), Options{})
+	if err != nil || len(events) != 3 {
+		t.Fatalf("events=%+v err=%v", events, err)
+	}
+	if events[1].GCType != "Pause Remark" || events[1].PauseMS == nil || *events[1].PauseMS != 1.2345 || events[1].Timestamp == nil || events[1].HeapAfterMB != nil {
+		t.Fatalf("remark=%+v", events[1])
+	}
+	if events[2].PauseMS == nil || *events[2].PauseMS != 0 {
+		t.Fatalf("zero pause lost: %+v", events[2])
+	}
+}

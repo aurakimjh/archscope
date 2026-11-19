@@ -143,3 +143,79 @@ func TestAnalyzeFlamegraphHTMLFile(t *testing.T) {
 		t.Fatalf("total_samples = %d, want 10", result.Summary.TotalSamples)
 	}
 }
+
+// Producer-shaped records from async-profiler 2.x (absolute coordinates) and
+// 3.x+ (prefix-compressed pool, delta coordinates, inherited width).
+func TestHtmlProfilerCanvas(t *testing.T) {
+	for name, data := range map[string]string{
+		"legacy": `f(0,0,10,0,'all')
+f(1,1,6,1,'main')
+f(2,2,2,1,'compute')
+f(2,4,3,1,'render')
+f(1,7,3,1,'worker')`,
+		"compressed": `const cpool = ['all',' main',' compute',' render',' worker'];
+unpack(cpool);
+f(0,0,0,10)
+f(8,1,1,6)
+f(16,2,1,2)
+n(24,3)
+f(32,1,3)`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			result := ParseHtmlProfilerText("<html><body><svg><path/></svg><canvas/><script>\n"+data+"\n</script></body></html>", nil)
+			if result.DetectedFormat != "async_profiler_canvas" || result.Diagnostics.ErrorCount != 0 {
+				t.Fatalf("%+v", result)
+			}
+			assertStacksEqual(t, map[string]int{"all": 1, "all;main": 1, "all;main;compute": 2, "all;main;render": 3, "all;worker": 3}, result.Stacks)
+		})
+	}
+}
+
+func TestHtmlProfilerCanvasPoolAndInheritedWidth(t *testing.T) {
+	html := `<html><script>
+const cpool = [
+'all',
+' com/acme/Worker.run',
+'0stop',
+' a\'b,)]\\x\uD83D\uDE00'
+];
+unpack(cpool);
+f(0,0,0,10)
+u(8,4)
+u(16)
+f(24,1,4,0)
+</script></html>`
+	// '0' encodes a 16-character prefix, preserving com/acme/Worker.
+	result := ParseHtmlProfilerText(html, nil)
+	if result.Diagnostics.ErrorCount != 0 {
+		t.Fatalf("%+v", result.Diagnostics)
+	}
+	assertStacksEqual(t, map[string]int{"all": 2, "all;com/acme/Worker.run;com/acme/Worker.stop": 4, "all;a'b,)]\\x😀": 4}, result.Stacks)
+}
+
+func TestHtmlProfilerCanvasRejectsCorruptData(t *testing.T) {
+	for _, records := range []string{
+		"f(80,0,0,10)",                // Invalid pool index.
+		"f(0,0,0,10)\nu(8,11)",        // Child exceeds parent.
+		"f(0,0,0,10)\nu(8,6)\nn(8,6)", // Sibling exceeds parent.
+		"f(0,0,0,10)\nf(8,4097,0,1)",
+		"f(0,0,0,10)\nu(8,notData())", // Do not evaluate expressions.
+		"f(0,0,0,10)\nf(8,1,-1,1)",
+	} {
+		result := ParseHtmlProfilerText("<html><script>\nconst cpool=['all',' child'];\nunpack(cpool);\n"+records+"\n</script></html>", nil)
+		if result.Diagnostics.ErrorCount == 0 || len(result.Stacks) != 0 {
+			t.Fatalf("accepted %q: %+v", records, result)
+		}
+	}
+}
+
+func TestAnalyzeArthasCanvasHTMLFile(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "arthas.html")
+	if err := os.WriteFile(path, []byte("<html><script>\nf(0,0,12,0,'all')\nf(1,0,12,1,'com/acme/Worker.run')\n</script></html>"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	result, err := AnalyzeFlamegraphHTMLFile(path, Options{})
+	if err != nil || result.Summary.TotalSamples != 12 || result.Metadata.Diagnostics.ErrorCount != 0 {
+		t.Fatalf("%+v %v", result, err)
+	}
+}
