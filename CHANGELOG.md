@@ -10,6 +10,10 @@ Changes after the latest release candidate will be recorded here.
 
 ## [0.4.0-rc.2] — 2026-11-17
 
+Refreshed on 2026-11-19 at the user's request, keeping the RC2 version and
+release URL. Refreshed artifacts have a new source/build identity; re-download
+the files if using the initial RC2 build. Original publication evidence remains.
+
 Prerelease for controlled evaluation. Scope and remaining qualification:
 [English](docs/en/releases/v0.4.0-rc.2.md) ·
 [Korean](docs/ko/releases/v0.4.0-rc.2.md).
@@ -27,6 +31,13 @@ Prerelease for controlled evaluation. Scope and remaining qualification:
 
 ### Fixed
 
+- Arthas/async-profiler HTML absolute and compressed frame records now import
+  with preserved sample weights and no execution of input JavaScript.
+- Repeated jstack/jcmd text captures in one file automatically use multi-dump
+  analysis and switch the desktop to the multi-dump view.
+- GC pause/heap tooltips retain occurrence time, GC type and measured duration
+  for remark/cleanup/full phases, including heap-overlay-off and absent-heap
+  cases. Unknown duration stays unavailable; heap-less pause summaries parse.
 - Windows Settings shortcut routing and selected ribbon/language contrast.
 - Windows stream batching regression tests use deterministic timing bounds;
   translation source checks explicitly decode UTF-8 on Windows.

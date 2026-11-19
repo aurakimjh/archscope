@@ -10,7 +10,7 @@ The previous long-form history was archived to
 
 Scoped follow-ups under the existing T-627 acceptance work; tracked-task counts
 and independent review verdicts remain unchanged. Both corrections are
-`LOCALLY_VERIFIED`, uncommitted and unpushed.
+`LOCALLY_VERIFIED`; implementation committed as `f4b69afc`, RC2 refresh publication pending.
 
 | Priority / ID | Status | Behavior and acceptance |
 |---|---|---|
@@ -28,7 +28,7 @@ Evidence and reproducible local harnesses:
 
 ### GC tooltip follow-up — GC-TIP-01 (P2)
 
-`LOCALLY_VERIFIED`, uncommitted/unpushed; scoped correction under T-627, with
+`LOCALLY_VERIFIED`, committed in `f4b69afc`; scoped correction under T-627, with
 existing task counts and native acceptance gates preserved. Pause and heap
 tooltips now retain original timestamp/uptime, GC type/cause and exact pause
 duration for remark/cleanup/full events. Heap timing works with the pause
@@ -49,6 +49,19 @@ returned `cgWindowNotFound`. No native UI PASS is claimed. Original user logs,
 Windows native execution and independent review remain outside this evidence.
 Receipts: `docs/review/evidence/2026-11-19-gc-tooltip/browser.json` and
 `native-unverified.json`; implementation details in the paired PARSER_DESIGN.
+
+## RC2 refresh preparation — 2026-11-19
+
+User explicitly requested updating the existing RC2 release. Keep application
+0.4.0-rc.2, Windows0.4.0.2, macOS0.4.0/build4002 and the existing release URL.
+Implementation is `f4b69afc`; paired release notes and CHANGELOG disclose the
+same-version refresh and its new source/build identity. Current publication
+status: PREPARING; original RC2 assets/tag remain in place until exact-candidate
+hosted checks and packaging preflight pass. Previous release/tag metadata and
+all11original asset digest checks are retained under
+`docs/review/evidence/2026-11-19-rc2-refresh/`. Original source9dc0c239 and
+2026-11-17 acceptance receipts remain historical evidence. No stable release,
+independent PASS or missing native GC-hover/Windows acceptance is inferred.
 
 ## Status Overview
 

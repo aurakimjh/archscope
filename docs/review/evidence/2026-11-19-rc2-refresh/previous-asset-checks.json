@@ -1,0 +1,60 @@
+{
+  "all_matched": true,
+  "assets": [
+    {
+      "name": "archscope-arm64.dmg",
+      "size": 20458289,
+      "sha256": "70f30a0eff26f188f7f6ad27a8863db11e32a8065f82e6f800923ff416c9a6eb"
+    },
+    {
+      "name": "archscope-conformance-v1.zip",
+      "size": 1427038,
+      "sha256": "085f3148071af6be5048dbace5b7393f5076d0fc7bdb899b67cb74d5b97e3272"
+    },
+    {
+      "name": "archscope-darwin-arm64.zip",
+      "size": 18778813,
+      "sha256": "f793c803f0cb8ea9123d4d4957f3f01b6725144109fb15ac362ace513d387c58"
+    },
+    {
+      "name": "archscope-docs.zip",
+      "size": 878574,
+      "sha256": "ec9698f75e8170d03f6a34ef13bf83495e8d143d43c115c6e336333a20c7f2ec"
+    },
+    {
+      "name": "archscope-linux-amd64.tar.gz",
+      "size": 17748170,
+      "sha256": "981b53c9b5be95de09dc8547861665833c67490be9b5609f39d3ec6d1061bde8"
+    },
+    {
+      "name": "archscope-windows-amd64.zip",
+      "size": 37802185,
+      "sha256": "9274d9a9e86de0b0ab221ab5d2cb3fbc35656f0f9f78748621d2237603c01660"
+    },
+    {
+      "name": "archscope.deb",
+      "size": 18118582,
+      "sha256": "002e252e95966aab3710d7fda07230a1a1c8d953cb6b55946d6b8558f4b1d2b3"
+    },
+    {
+      "name": "archscope.rpm",
+      "size": 18642238,
+      "sha256": "df1b8bd30af9cd4d770d67b55ac946324f642fe71559c84261233b5b40ed4f62"
+    },
+    {
+      "name": "RELEASE_NOTES.en.md",
+      "size": 6906,
+      "sha256": "c304f3e32599cdb9be14ad534a35a6c1858d24f433f6e4decd396ce0176cf842"
+    },
+    {
+      "name": "RELEASE_NOTES.ko.md",
+      "size": 7183,
+      "sha256": "76100f0e1471c2465b4e1f5c96a9813aeb32c1dc5451b87b6de21651c8f7e1d2"
+    },
+    {
+      "name": "SHA256SUMS",
+      "size": 880,
+      "sha256": "284fa1e12c631dca4fa86d9b5fb9ad3a3cfc58bc0192d041d7a932789bee237f"
+    }
+  ]
+}
