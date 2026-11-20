@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-20",
+  "candidateCommit": "fe92b5bcfd1fdcd3595b30a9d25d2204a8c31937",
+  "status": "PASS",
+  "configuration": "Same four race invocations as the revised hosted workflow; full general suite plus separately executed 54k profile, 100k metric and 100k table tests. No short mode or reduced fixture.",
+  "checks": {
+    "generalFullRace": {
+      "exitCode": 0,
+      "logSha256": "f8cb55be3f279ac4d2e4663f3a7ceee2a5448818715216f843c18d255f776c0f",
+      "passingPackages": 131,
+      "packagesWithoutTests": 4,
+      "analysisPackageSeconds": 176.889
+    },
+    "largeProfileRace": {
+      "exitCode": 0,
+      "logSha256": "c4a3568be1fc61d3707a21f8ac3b94d21bd46b7b3ab5d574222ee9e35afd3755",
+      "passingPackages": 1,
+      "packagesWithoutTests": 0,
+      "analysisPackageSeconds": 94.258
+    },
+    "metric100kRace": {
+      "exitCode": 0,
+      "logSha256": "4382656645e4b04b961f3429df6712ac52cd939aaddac0c852376360004ac212",
+      "passingPackages": 1,
+      "packagesWithoutTests": 0,
+      "analysisPackageSeconds": 181.046
+    },
+    "table100kRace": {
+      "exitCode": 0,
+      "logSha256": "ef3aef19d80f1fcfb1fc938ac31fcfc968c0dc1a5cb281f6e90a1752801e72ff",
+      "passingPackages": 1,
+      "packagesWithoutTests": 0,
+      "analysisPackageSeconds": 8.867
+    }
+  }
+}

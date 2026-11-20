@@ -1,0 +1,102 @@
+{
+  "date": "2026-11-20",
+  "tag": "v0.4.0-rc.2",
+  "candidateCommit": "30e7c2efab96d80d50c005b8bf4fed458b98b527",
+  "phase": "preflight",
+  "assetCount": 11,
+  "assets": [
+    {
+      "name": "RELEASE_NOTES.en.md",
+      "bytes": 8317,
+      "sha256": "ec2f1835e28d48d054c314167db6a204917228e68a6de9c1d28be34aaf682566"
+    },
+    {
+      "name": "RELEASE_NOTES.ko.md",
+      "bytes": 8731,
+      "sha256": "2f8b7fafc96a34648df8c6d9bf21ff1e32674ebd6f1ca7905e939b6d57bd01a0"
+    },
+    {
+      "name": "SHA256SUMS",
+      "bytes": 880,
+      "sha256": "08e05e8c5e8c4471ef4a2b0507c012c2d4f147b6313ea8d12eb2c3fb69bd2d40"
+    },
+    {
+      "name": "archscope-arm64.dmg",
+      "bytes": 20468334,
+      "sha256": "9134458a2c8d9e881ded25826dfe00758b3327beee82e6eaa4f03b0217186271"
+    },
+    {
+      "name": "archscope-conformance-v1.zip",
+      "bytes": 1427038,
+      "sha256": "085f3148071af6be5048dbace5b7393f5076d0fc7bdb899b67cb74d5b97e3272"
+    },
+    {
+      "name": "archscope-darwin-arm64.zip",
+      "bytes": 18787949,
+      "sha256": "81ad19e3c7c2dd6030d22c1af6f2cfeda3bf2fa9ef0d45b34336dd113943a2f7"
+    },
+    {
+      "name": "archscope-docs.zip",
+      "bytes": 881560,
+      "sha256": "6bad06c33ba8639da6d616617359c091118cd67adde0d3f5fd39e7c2695c9775"
+    },
+    {
+      "name": "archscope-linux-amd64.tar.gz",
+      "bytes": 17760745,
+      "sha256": "91ca6c39de68eeae1d9e184135d63907be3e993d2fde47f8407db62685e37eff"
+    },
+    {
+      "name": "archscope-windows-amd64.zip",
+      "bytes": 37839843,
+      "sha256": "bb9071d306e7e471400065db0d95da2c68c4d3e6d89a907ee0306dc243d941cf"
+    },
+    {
+      "name": "archscope.deb",
+      "bytes": 18133028,
+      "sha256": "e81ccafe859822b85ee7c3aac0ae1d881db241440471630eb0266c4f70de32ed"
+    },
+    {
+      "name": "archscope.rpm",
+      "bytes": 18699912,
+      "sha256": "90b609db08c2412db0c480a4d096d93262715da0c7b9ac071f21a9443f609b55"
+    }
+  ],
+  "githubDigestsMatched": false,
+  "checksumEntriesVerified": 10,
+  "zipCRCVerified": true,
+  "documentationFilesMatchedToSource": 133,
+  "macos": {
+    "shortVersion": "0.4.0",
+    "build": "4002",
+    "executableModePreserved": true
+  },
+  "linux": {
+    "debVersion": "0.4.0~rc.2-1",
+    "rpmVersion": "0.4.0~rc.2-1",
+    "executableModePreserved": true
+  },
+  "binaries": {
+    "darwin-arm64": {
+      "sha256": "e1a07c2537886bcc1869b003619249db0cd68f54181dab7712709f29fd8c2672",
+      "vcsRevision": null,
+      "embeddedFrontendBuildCommit": "30e7c2efab96d80d50c005b8bf4fed458b98b527",
+      "sourceBinding": "Embedded frontend build identity plus exact hosted checkout SHA; native build may omit Go VCS metadata",
+      "buildInfo": "/private/tmp/archscope-rc2-refresh/preflight-assets-binaries/darwin-arm64: go1.26.10\n\tpath\tgithub.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app\n\tmod\tgithub.com/aurakimjh/archscope/apps/engine-native\t(devel)\t\n\tdep\tgithub.com/dustin/go-humanize\tv1.0.1\th1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=\n\tdep\tgithub.com/google/pprof\tv0.0.0-20260402051712-545e8a4df936\th1:EwtI+Al+DeppwYX2oXJCETMO23COyaKGP6fHVpkpWpg=\n\tdep\tgithub.com/google/uuid\tv1.6.0\th1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=\n\tdep\tgithub.com/ianlancetaylor/demangle\tv0.0.0-20261012173340-cbb8aaea4290\th1:kv8MRpE97lV8dkoMAJzsAVZ86kv7BevizwSUo+1okU0=\n\tdep\tgithub.com/mattn/go-isatty\tv0.0.20\th1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=\n\tdep\tgithub.com/ncruces/go-strftime\tv1.0.0\th1:HMFp8mLCTPp341M/ZnA4qaf7ZlsbTc+miZjCLOFAw7w=\n\tdep\tgithub.com/remyoudompheng/bigfft\tv0.0.0-20230129092748-24d4a6f8daec\th1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=\n\tdep\tgithub.com/santhosh-tekuri/jsonschema/v6\tv6.0.2\th1:KRzFb2m7YtdldCEkzs6KqmJw4nqEVZGK7IN2kJkjTuQ=\n\tdep\tgithub.com/wailsapp/wails/v3\tv3.1.0\th1:ld0AXSicXiTTsIvmTq3qNn9FzCP8vIHRSJdkRLgaAo8=\n\tdep\tgolang.org/x/exp\tv0.0.0-20260410095643-746e56fc9e2f\th1:W3F4c+6OLc6H2lb//N1q4WpJkhzJCK5J6kUi1NTVXfM=\n\tdep\tgolang.org/x/mod\tv0.41.0\th1:qJmnOUb4YB+FsEuM3HcWucdZASCPGhsX6uljO6pog0c=\n\tdep\tgolang.org/x/sys\tv0.48.0\th1:bbX/i/6MgT9BVLM9RT1thmxL04yeTAhbEz4SyadbXoo=\n\tdep\tgolang.org/x/text\tv0.42.0\th1:JbOZXgfeCPU9gacVtYliJqOhD+zhrEqK4LfdpmlUZqI=\n\tdep\tmodernc.org/libc\tv1.67.6\th1:eVOQvpModVLKOdT+LvBPjdQqfrZq+pC39BygcT+E7OI=\n\tdep\tmodernc.org/mathutil\tv1.7.1\th1:GCZVGXdaN8gTqB1Mf/usp1Y/hSqgI2vAGGP4jZMCxOU=\n\tdep\tmodernc.org/memory\tv1.11.0\th1:o4QC8aMQzmcwCK3t3Ux/ZHmwFPzE6hf2Y5LbkRs+hbI=\n\tdep\tmodernc.org/sqlite\tv1.44.3\th1:+39JvV/HWMcYslAwRxHb8067w+2zowvFOUrOWIy9PjY=\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-tags=production\n\tbuild\t-trimpath=true\n\tbuild\tCGO_ENABLED=1\n\tbuild\tGOARCH=arm64\n\tbuild\tGOOS=darwin\n\tbuild\tGOARM64=v8.0\n"
+    },
+    "windows-amd64": {
+      "sha256": "ee54508cfdb978389fe4327f776a59329c1f3629a8cd5e469460677c92278b77",
+      "vcsRevision": null,
+      "embeddedFrontendBuildCommit": "30e7c2efab96d80d50c005b8bf4fed458b98b527",
+      "sourceBinding": "Embedded frontend build identity plus exact hosted checkout SHA; native build may omit Go VCS metadata",
+      "buildInfo": "/private/tmp/archscope-rc2-refresh/preflight-assets-binaries/windows-amd64: go1.26.10\n\tpath\tgithub.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app\n\tmod\tgithub.com/aurakimjh/archscope/apps/engine-native\t(devel)\t\n\tdep\tgithub.com/dustin/go-humanize\tv1.0.1\th1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=\n\tdep\tgithub.com/go-ole/go-ole\tv1.3.0\th1:Dt6ye7+vXGIKZ7Xtk4s6/xVdGDQynvom7xCFEdWr6uE=\n\tdep\tgithub.com/google/pprof\tv0.0.0-20260402051712-545e8a4df936\th1:EwtI+Al+DeppwYX2oXJCETMO23COyaKGP6fHVpkpWpg=\n\tdep\tgithub.com/ianlancetaylor/demangle\tv0.0.0-20261012173340-cbb8aaea4290\th1:kv8MRpE97lV8dkoMAJzsAVZ86kv7BevizwSUo+1okU0=\n\tdep\tgithub.com/mattn/go-isatty\tv0.0.20\th1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=\n\tdep\tgithub.com/ncruces/go-strftime\tv1.0.0\th1:HMFp8mLCTPp341M/ZnA4qaf7ZlsbTc+miZjCLOFAw7w=\n\tdep\tgithub.com/remyoudompheng/bigfft\tv0.0.0-20230129092748-24d4a6f8daec\th1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=\n\tdep\tgithub.com/santhosh-tekuri/jsonschema/v6\tv6.0.2\th1:KRzFb2m7YtdldCEkzs6KqmJw4nqEVZGK7IN2kJkjTuQ=\n\tdep\tgithub.com/wailsapp/wails/v3\tv3.1.0\th1:ld0AXSicXiTTsIvmTq3qNn9FzCP8vIHRSJdkRLgaAo8=\n\tdep\tgolang.org/x/exp\tv0.0.0-20260410095643-746e56fc9e2f\th1:W3F4c+6OLc6H2lb//N1q4WpJkhzJCK5J6kUi1NTVXfM=\n\tdep\tgolang.org/x/mod\tv0.41.0\th1:qJmnOUb4YB+FsEuM3HcWucdZASCPGhsX6uljO6pog0c=\n\tdep\tgolang.org/x/sys\tv0.48.0\th1:bbX/i/6MgT9BVLM9RT1thmxL04yeTAhbEz4SyadbXoo=\n\tdep\tgolang.org/x/text\tv0.42.0\th1:JbOZXgfeCPU9gacVtYliJqOhD+zhrEqK4LfdpmlUZqI=\n\tdep\tmodernc.org/libc\tv1.67.6\th1:eVOQvpModVLKOdT+LvBPjdQqfrZq+pC39BygcT+E7OI=\n\tdep\tmodernc.org/mathutil\tv1.7.1\th1:GCZVGXdaN8gTqB1Mf/usp1Y/hSqgI2vAGGP4jZMCxOU=\n\tdep\tmodernc.org/memory\tv1.11.0\th1:o4QC8aMQzmcwCK3t3Ux/ZHmwFPzE6hf2Y5LbkRs+hbI=\n\tdep\tmodernc.org/sqlite\tv1.44.3\th1:+39JvV/HWMcYslAwRxHb8067w+2zowvFOUrOWIy9PjY=\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-tags=production\n\tbuild\t-trimpath=true\n\tbuild\tCGO_ENABLED=0\n\tbuild\tGOARCH=amd64\n\tbuild\tGOOS=windows\n\tbuild\tGOAMD64=v1\n"
+    },
+    "linux-amd64": {
+      "sha256": "bcdf19db8e2ef7f1581e6edcbb13f007457bc90ea1b493f657fa0ba681717caf",
+      "vcsRevision": null,
+      "embeddedFrontendBuildCommit": "30e7c2efab96d80d50c005b8bf4fed458b98b527",
+      "sourceBinding": "Embedded frontend build identity plus exact hosted checkout SHA; native build may omit Go VCS metadata",
+      "buildInfo": "/private/tmp/archscope-rc2-refresh/preflight-assets-binaries/linux-amd64: go1.26.11\n\tpath\tgithub.com/aurakimjh/archscope/apps/engine-native/cmd/archscope-app\n\tmod\tgithub.com/aurakimjh/archscope/apps/engine-native\t(devel)\t\n\tdep\tgithub.com/dustin/go-humanize\tv1.0.1\th1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=\n\tdep\tgithub.com/godbus/dbus/v5\tv5.2.2\th1:TUR3TgtSVDmjiXOgAAyaZbYmIeP3DPkld3jgKGV8mXQ=\n\tdep\tgithub.com/google/pprof\tv0.0.0-20260402051712-545e8a4df936\th1:EwtI+Al+DeppwYX2oXJCETMO23COyaKGP6fHVpkpWpg=\n\tdep\tgithub.com/google/uuid\tv1.6.0\th1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=\n\tdep\tgithub.com/ianlancetaylor/demangle\tv0.0.0-20261012173340-cbb8aaea4290\th1:kv8MRpE97lV8dkoMAJzsAVZ86kv7BevizwSUo+1okU0=\n\tdep\tgithub.com/remyoudompheng/bigfft\tv0.0.0-20230129092748-24d4a6f8daec\th1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=\n\tdep\tgithub.com/santhosh-tekuri/jsonschema/v6\tv6.0.2\th1:KRzFb2m7YtdldCEkzs6KqmJw4nqEVZGK7IN2kJkjTuQ=\n\tdep\tgithub.com/wailsapp/wails/v3\tv3.1.0\th1:ld0AXSicXiTTsIvmTq3qNn9FzCP8vIHRSJdkRLgaAo8=\n\tdep\tgolang.org/x/exp\tv0.0.0-20260410095643-746e56fc9e2f\th1:W3F4c+6OLc6H2lb//N1q4WpJkhzJCK5J6kUi1NTVXfM=\n\tdep\tgolang.org/x/mod\tv0.41.0\th1:qJmnOUb4YB+FsEuM3HcWucdZASCPGhsX6uljO6pog0c=\n\tdep\tgolang.org/x/sys\tv0.48.0\th1:bbX/i/6MgT9BVLM9RT1thmxL04yeTAhbEz4SyadbXoo=\n\tdep\tgolang.org/x/text\tv0.42.0\th1:JbOZXgfeCPU9gacVtYliJqOhD+zhrEqK4LfdpmlUZqI=\n\tdep\tmodernc.org/libc\tv1.67.6\th1:eVOQvpModVLKOdT+LvBPjdQqfrZq+pC39BygcT+E7OI=\n\tdep\tmodernc.org/mathutil\tv1.7.1\th1:GCZVGXdaN8gTqB1Mf/usp1Y/hSqgI2vAGGP4jZMCxOU=\n\tdep\tmodernc.org/memory\tv1.11.0\th1:o4QC8aMQzmcwCK3t3Ux/ZHmwFPzE6hf2Y5LbkRs+hbI=\n\tdep\tmodernc.org/sqlite\tv1.44.3\th1:+39JvV/HWMcYslAwRxHb8067w+2zowvFOUrOWIy9PjY=\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-tags=production\n\tbuild\t-trimpath=true\n\tbuild\tCGO_ENABLED=1\n\tbuild\tGOARCH=amd64\n\tbuild\tGOOS=linux\n\tbuild\tGOAMD64=v1\n"
+    }
+  },
+  "scope": "Artifact identity, metadata and archive integrity; not clean-host installation, upgrade or new native feature acceptance."
+}

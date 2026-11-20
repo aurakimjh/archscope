@@ -1,0 +1,22 @@
+{
+  "ciCommit": "fe92b5bcfd1fdcd3595b30a9d25d2204a8c31937",
+  "parentCandidateCommit": "30e7c2efab96d80d50c005b8bf4fed458b98b527",
+  "sourceChanges": [
+    ".github/workflows/engine-native.yml"
+  ],
+  "productSourceUnchanged": true,
+  "largeProfileIsolatedRace": "PASS (94.258s)",
+  "skipAndRunPatternsMatchThreeExistingTopLevelTests": [
+    "TestR4LargeProfileChunkImportOverFiftyThousandNodes",
+    "TestR1302Metric100kWarmPages",
+    "TestR802LargeTableCacheReuseCopiesAndLeaseLifetime"
+  ],
+  "raceEnabledForAllInvocations": true,
+  "fixtureSizesUnchanged": true,
+  "packageTimeoutSeconds": 1200,
+  "yamlSyntax": "PASS",
+  "originalFailedAttempts": [
+    "hosted-macos-attempt-1.json",
+    "hosted-macos-attempt-2.json"
+  ]
+}

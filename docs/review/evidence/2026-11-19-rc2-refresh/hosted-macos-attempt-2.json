@@ -1,0 +1,13 @@
+{
+  "runId": 44614738900,
+  "attempt": 2,
+  "jobId": 136087769088,
+  "name": "Go test/build (macos-15)",
+  "conclusion": "failure",
+  "url": "https://github.com/aurakimjh/archscope/actions/runs/44614738900",
+  "candidateCommit": "30e7c2efab96d80d50c005b8bf4fed458b98b527",
+  "observedFailure": "analysis package cumulative timeout after 20m0s; active TestReviewR02ActiveJobSurvivesHistoryPressure had run 1s; previous large-profile test completed",
+  "packageDurationSeconds": 1200.182,
+  "dataRaceOrAssertionFailureReported": false,
+  "action": "No further retry. Separate the existing 54k-node import/reopen/export test into its own bounded race invocation, retaining full test coverage and the 20m package limit."
+}

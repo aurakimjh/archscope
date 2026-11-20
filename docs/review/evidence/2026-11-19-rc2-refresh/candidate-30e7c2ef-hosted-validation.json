@@ -1,0 +1,1406 @@
+{
+  "candidateCommit": "30e7c2efab96d80d50c005b8bf4fed458b98b527",
+  "completedSuccessfulRuns": [
+    {
+      "id": 44614738928,
+      "attempt": 1,
+      "conclusion": "success",
+      "event": "push",
+      "headSha": "30e7c2efab96d80d50c005b8bf4fed458b98b527",
+      "jobs": [
+        {
+          "completedAt": "2026-11-19T21:02:50Z",
+          "conclusion": "success",
+          "databaseId": 135880265904,
+          "name": "Wails Frontend",
+          "startedAt": "2026-11-19T21:02:35Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-19T21:02:36Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-19T21:02:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:42Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-19T21:02:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:44Z",
+              "conclusion": "success",
+              "name": "Set up Node",
+              "number": 3,
+              "startedAt": "2026-11-19T21:02:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:46Z",
+              "conclusion": "success",
+              "name": "Install dependencies",
+              "number": 4,
+              "startedAt": "2026-11-19T21:02:44Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:48Z",
+              "conclusion": "success",
+              "name": "Build",
+              "number": 5,
+              "startedAt": "2026-11-19T21:02:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:48Z",
+              "conclusion": "success",
+              "name": "Post Set up Node",
+              "number": 9,
+              "startedAt": "2026-11-19T21:02:48Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:48Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 10,
+              "startedAt": "2026-11-19T21:02:48Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:48Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 11,
+              "startedAt": "2026-11-19T21:02:48Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/44614738928/job/135880265904"
+        },
+        {
+          "completedAt": "2026-11-19T21:06:30Z",
+          "conclusion": "success",
+          "databaseId": 135880266525,
+          "name": "Go Engine Native",
+          "startedAt": "2026-11-19T21:02:35Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-19T21:02:37Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-19T21:02:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:42Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-19T21:02:37Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:47Z",
+              "conclusion": "success",
+              "name": "Set up Go",
+              "number": 3,
+              "startedAt": "2026-11-19T21:02:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:15Z",
+              "conclusion": "success",
+              "name": "Linux WebKitGTK headers",
+              "number": 4,
+              "startedAt": "2026-11-19T21:02:47Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:24Z",
+              "conclusion": "success",
+              "name": "Test",
+              "number": 5,
+              "startedAt": "2026-11-19T21:03:15Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:27Z",
+              "conclusion": "success",
+              "name": "Build CLIs",
+              "number": 6,
+              "startedAt": "2026-11-19T21:06:24Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:27Z",
+              "conclusion": "success",
+              "name": "Post Set up Go",
+              "number": 11,
+              "startedAt": "2026-11-19T21:06:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:27Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 12,
+              "startedAt": "2026-11-19T21:06:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:27Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 13,
+              "startedAt": "2026-11-19T21:06:27Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/44614738928/job/135880266525"
+        }
+      ],
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/44614738928"
+    },
+    {
+      "id": 44614768876,
+      "attempt": 1,
+      "conclusion": "success",
+      "event": "workflow_dispatch",
+      "headSha": "30e7c2efab96d80d50c005b8bf4fed458b98b527",
+      "jobs": [
+        {
+          "completedAt": "2026-11-19T21:06:35Z",
+          "conclusion": "success",
+          "databaseId": 135880378670,
+          "name": "Build and launch Wails exe (amd64)",
+          "startedAt": "2026-11-19T21:02:46Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-19T21:02:48Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-19T21:02:47Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:56Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-19T21:02:48Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:05Z",
+              "conclusion": "success",
+              "name": "Set up Go",
+              "number": 3,
+              "startedAt": "2026-11-19T21:02:56Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:11Z",
+              "conclusion": "success",
+              "name": "Set up Node",
+              "number": 4,
+              "startedAt": "2026-11-19T21:03:05Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:42Z",
+              "conclusion": "success",
+              "name": "Install Wails CLI",
+              "number": 5,
+              "startedAt": "2026-11-19T21:03:11Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:54Z",
+              "conclusion": "success",
+              "name": "Install Task runner",
+              "number": 6,
+              "startedAt": "2026-11-19T21:04:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:07Z",
+              "conclusion": "success",
+              "name": "Build Windows executable",
+              "number": 7,
+              "startedAt": "2026-11-19T21:04:54Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:31Z",
+              "conclusion": "success",
+              "name": "Launch GUI smoke",
+              "number": 8,
+              "startedAt": "2026-11-19T21:06:07Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:31Z",
+              "conclusion": "success",
+              "name": "Post Set up Node",
+              "number": 14,
+              "startedAt": "2026-11-19T21:06:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:31Z",
+              "conclusion": "success",
+              "name": "Post Set up Go",
+              "number": 15,
+              "startedAt": "2026-11-19T21:06:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:34Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 16,
+              "startedAt": "2026-11-19T21:06:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:34Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-11-19T21:06:34Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/44614768876/job/135880378670"
+        },
+        {
+          "completedAt": "2026-11-19T21:06:33Z",
+          "conclusion": "success",
+          "databaseId": 135880378994,
+          "name": "Build and launch Wails exe (386)",
+          "startedAt": "2026-11-19T21:02:47Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-19T21:02:49Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-19T21:02:47Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:57Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-19T21:02:49Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:09Z",
+              "conclusion": "success",
+              "name": "Set up Go",
+              "number": 3,
+              "startedAt": "2026-11-19T21:02:57Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:18Z",
+              "conclusion": "success",
+              "name": "Set up Node",
+              "number": 4,
+              "startedAt": "2026-11-19T21:03:09Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:44Z",
+              "conclusion": "success",
+              "name": "Install Wails CLI",
+              "number": 5,
+              "startedAt": "2026-11-19T21:03:18Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:54Z",
+              "conclusion": "success",
+              "name": "Install Task runner",
+              "number": 6,
+              "startedAt": "2026-11-19T21:04:44Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:05Z",
+              "conclusion": "success",
+              "name": "Build Windows executable",
+              "number": 7,
+              "startedAt": "2026-11-19T21:04:54Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:29Z",
+              "conclusion": "success",
+              "name": "Launch GUI smoke",
+              "number": 8,
+              "startedAt": "2026-11-19T21:06:05Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:29Z",
+              "conclusion": "success",
+              "name": "Post Set up Node",
+              "number": 14,
+              "startedAt": "2026-11-19T21:06:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:29Z",
+              "conclusion": "success",
+              "name": "Post Set up Go",
+              "number": 15,
+              "startedAt": "2026-11-19T21:06:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:32Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 16,
+              "startedAt": "2026-11-19T21:06:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:32Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-11-19T21:06:32Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/44614768876/job/135880378994"
+        }
+      ],
+      "name": "Windows GUI Smoke",
+      "status": "completed",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/44614768876"
+    },
+    {
+      "id": 44614772884,
+      "attempt": 1,
+      "conclusion": "success",
+      "event": "workflow_dispatch",
+      "headSha": "30e7c2efab96d80d50c005b8bf4fed458b98b527",
+      "jobs": [
+        {
+          "completedAt": "2026-11-19T21:03:55Z",
+          "conclusion": "success",
+          "databaseId": 135880396237,
+          "name": "Native COM (amd64)",
+          "startedAt": "2026-11-19T21:02:48Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-19T21:02:49Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-19T21:02:49Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:56Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v7",
+              "number": 2,
+              "startedAt": "2026-11-19T21:02:49Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:05Z",
+              "conclusion": "success",
+              "name": "Run actions/setup-go@v7",
+              "number": 3,
+              "startedAt": "2026-11-19T21:02:56Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:27Z",
+              "conclusion": "success",
+              "name": "Verify COM code",
+              "number": 4,
+              "startedAt": "2026-11-19T21:03:05Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:51Z",
+              "conclusion": "success",
+              "name": "Run ABI, lifetime and separate-process tests",
+              "number": 5,
+              "startedAt": "2026-11-19T21:03:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:52Z",
+              "conclusion": "success",
+              "name": "Post Run actions/setup-go@v7",
+              "number": 9,
+              "startedAt": "2026-11-19T21:03:51Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:53Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v7",
+              "number": 10,
+              "startedAt": "2026-11-19T21:03:52Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:53Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 11,
+              "startedAt": "2026-11-19T21:03:53Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/44614772884/job/135880396237"
+        },
+        {
+          "completedAt": "2026-11-19T21:03:35Z",
+          "conclusion": "success",
+          "databaseId": 135880396850,
+          "name": "Native COM (386)",
+          "startedAt": "2026-11-19T21:02:49Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-19T21:02:52Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-19T21:02:50Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:01Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v7",
+              "number": 2,
+              "startedAt": "2026-11-19T21:02:52Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:11Z",
+              "conclusion": "success",
+              "name": "Run actions/setup-go@v7",
+              "number": 3,
+              "startedAt": "2026-11-19T21:03:01Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:23Z",
+              "conclusion": "success",
+              "name": "Verify COM code",
+              "number": 4,
+              "startedAt": "2026-11-19T21:03:11Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:31Z",
+              "conclusion": "success",
+              "name": "Run ABI, lifetime and separate-process tests",
+              "number": 5,
+              "startedAt": "2026-11-19T21:03:23Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:31Z",
+              "conclusion": "success",
+              "name": "Post Run actions/setup-go@v7",
+              "number": 9,
+              "startedAt": "2026-11-19T21:03:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:34Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v7",
+              "number": 10,
+              "startedAt": "2026-11-19T21:03:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:34Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 11,
+              "startedAt": "2026-11-19T21:03:34Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/44614772884/job/135880396850"
+        }
+      ],
+      "name": "Windows COM contract",
+      "status": "completed",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/44614772884"
+    },
+    {
+      "id": 44614777541,
+      "attempt": 1,
+      "conclusion": "success",
+      "event": "workflow_dispatch",
+      "headSha": "30e7c2efab96d80d50c005b8bf4fed458b98b527",
+      "jobs": [
+        {
+          "completedAt": "2026-11-19T21:06:21Z",
+          "conclusion": "success",
+          "databaseId": 135880420651,
+          "name": "Package (darwin-arm64)",
+          "startedAt": "2026-11-19T21:02:55Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-19T21:02:59Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-19T21:02:56Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:07Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-19T21:02:59Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:07Z",
+              "conclusion": "success",
+              "name": "Record packaged source identity",
+              "number": 3,
+              "startedAt": "2026-11-19T21:03:07Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:08Z",
+              "conclusion": "success",
+              "name": "Validate release identity",
+              "number": 4,
+              "startedAt": "2026-11-19T21:03:07Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:29Z",
+              "conclusion": "success",
+              "name": "Set up Go",
+              "number": 5,
+              "startedAt": "2026-11-19T21:03:08Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:41Z",
+              "conclusion": "success",
+              "name": "Gate mandatory standalone conformance resources",
+              "number": 6,
+              "startedAt": "2026-11-19T21:03:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:42Z",
+              "conclusion": "success",
+              "name": "Set up Node",
+              "number": 7,
+              "startedAt": "2026-11-19T21:03:41Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:42Z",
+              "conclusion": "success",
+              "name": "Validate macOS signing inputs",
+              "number": 8,
+              "startedAt": "2026-11-19T21:03:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:42Z",
+              "conclusion": "skipped",
+              "name": "Linux WebKitGTK runtime headers",
+              "number": 9,
+              "startedAt": "2026-11-19T21:03:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:17Z",
+              "conclusion": "success",
+              "name": "Install Wails CLI",
+              "number": 10,
+              "startedAt": "2026-11-19T21:03:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:19Z",
+              "conclusion": "success",
+              "name": "Install Task runner (macOS / Linux)",
+              "number": 11,
+              "startedAt": "2026-11-19T21:04:17Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:19Z",
+              "conclusion": "skipped",
+              "name": "Install Task runner and Windows packaging tools",
+              "number": 12,
+              "startedAt": "2026-11-19T21:04:19Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:26Z",
+              "conclusion": "success",
+              "name": "Frontend deps",
+              "number": 13,
+              "startedAt": "2026-11-19T21:04:19Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:28Z",
+              "conclusion": "success",
+              "name": "Frontend state regression",
+              "number": 14,
+              "startedAt": "2026-11-19T21:04:26Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:07Z",
+              "conclusion": "success",
+              "name": "Wails package",
+              "number": 15,
+              "startedAt": "2026-11-19T21:04:28Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:07Z",
+              "conclusion": "skipped",
+              "name": "Linux release packages",
+              "number": 16,
+              "startedAt": "2026-11-19T21:06:07Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:07Z",
+              "conclusion": "skipped",
+              "name": "Verify Windows version resources and installer",
+              "number": 17,
+              "startedAt": "2026-11-19T21:06:07Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:07Z",
+              "conclusion": "skipped",
+              "name": "Import Developer ID certificate (macOS)",
+              "number": 18,
+              "startedAt": "2026-11-19T21:06:07Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:08Z",
+              "conclusion": "success",
+              "name": "Codesign (Developer ID)",
+              "number": 19,
+              "startedAt": "2026-11-19T21:06:07Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:08Z",
+              "conclusion": "success",
+              "name": "Notarize",
+              "number": 20,
+              "startedAt": "2026-11-19T21:06:08Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:08Z",
+              "conclusion": "success",
+              "name": "Verify macOS signature and notarization",
+              "number": 21,
+              "startedAt": "2026-11-19T21:06:08Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:13Z",
+              "conclusion": "success",
+              "name": "Build DMG",
+              "number": 22,
+              "startedAt": "2026-11-19T21:06:08Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:15Z",
+              "conclusion": "success",
+              "name": "Archive macOS app with permissions and symlinks",
+              "number": 23,
+              "startedAt": "2026-11-19T21:06:13Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:15Z",
+              "conclusion": "skipped",
+              "name": "Archive Linux executable with permissions",
+              "number": 24,
+              "startedAt": "2026-11-19T21:06:15Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:17Z",
+              "conclusion": "success",
+              "name": "Upload artifacts",
+              "number": 25,
+              "startedAt": "2026-11-19T21:06:15Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:18Z",
+              "conclusion": "success",
+              "name": "Post Set up Node",
+              "number": 48,
+              "startedAt": "2026-11-19T21:06:17Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:18Z",
+              "conclusion": "success",
+              "name": "Post Set up Go",
+              "number": 49,
+              "startedAt": "2026-11-19T21:06:18Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:19Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 50,
+              "startedAt": "2026-11-19T21:06:18Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:19Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 51,
+              "startedAt": "2026-11-19T21:06:19Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/44614777541/job/135880420651"
+        },
+        {
+          "completedAt": "2026-11-19T21:06:40Z",
+          "conclusion": "success",
+          "databaseId": 135880421033,
+          "name": "Package (linux-amd64)",
+          "startedAt": "2026-11-19T21:02:51Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-19T21:02:53Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-19T21:02:52Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:55Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-19T21:02:53Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:55Z",
+              "conclusion": "success",
+              "name": "Record packaged source identity",
+              "number": 3,
+              "startedAt": "2026-11-19T21:02:55Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:02:55Z",
+              "conclusion": "success",
+              "name": "Validate release identity",
+              "number": 4,
+              "startedAt": "2026-11-19T21:02:55Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:00Z",
+              "conclusion": "success",
+              "name": "Set up Go",
+              "number": 5,
+              "startedAt": "2026-11-19T21:02:55Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:43Z",
+              "conclusion": "success",
+              "name": "Gate mandatory standalone conformance resources",
+              "number": 6,
+              "startedAt": "2026-11-19T21:03:00Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:46Z",
+              "conclusion": "success",
+              "name": "Set up Node",
+              "number": 7,
+              "startedAt": "2026-11-19T21:03:43Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:46Z",
+              "conclusion": "skipped",
+              "name": "Validate macOS signing inputs",
+              "number": 8,
+              "startedAt": "2026-11-19T21:03:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:06Z",
+              "conclusion": "success",
+              "name": "Linux WebKitGTK runtime headers",
+              "number": 9,
+              "startedAt": "2026-11-19T21:03:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:54Z",
+              "conclusion": "success",
+              "name": "Install Wails CLI",
+              "number": 10,
+              "startedAt": "2026-11-19T21:04:06Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:55Z",
+              "conclusion": "success",
+              "name": "Install Task runner (macOS / Linux)",
+              "number": 11,
+              "startedAt": "2026-11-19T21:04:54Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:55Z",
+              "conclusion": "skipped",
+              "name": "Install Task runner and Windows packaging tools",
+              "number": 12,
+              "startedAt": "2026-11-19T21:04:55Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:05:00Z",
+              "conclusion": "success",
+              "name": "Frontend deps",
+              "number": 13,
+              "startedAt": "2026-11-19T21:04:55Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:05:02Z",
+              "conclusion": "success",
+              "name": "Frontend state regression",
+              "number": 14,
+              "startedAt": "2026-11-19T21:05:00Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:05:02Z",
+              "conclusion": "skipped",
+              "name": "Wails package",
+              "number": 15,
+              "startedAt": "2026-11-19T21:05:02Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:33Z",
+              "conclusion": "success",
+              "name": "Linux release packages",
+              "number": 16,
+              "startedAt": "2026-11-19T21:05:02Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:33Z",
+              "conclusion": "skipped",
+              "name": "Verify Windows version resources and installer",
+              "number": 17,
+              "startedAt": "2026-11-19T21:06:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:33Z",
+              "conclusion": "skipped",
+              "name": "Import Developer ID certificate (macOS)",
+              "number": 18,
+              "startedAt": "2026-11-19T21:06:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:33Z",
+              "conclusion": "skipped",
+              "name": "Codesign (Developer ID)",
+              "number": 19,
+              "startedAt": "2026-11-19T21:06:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:33Z",
+              "conclusion": "skipped",
+              "name": "Notarize",
+              "number": 20,
+              "startedAt": "2026-11-19T21:06:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:33Z",
+              "conclusion": "skipped",
+              "name": "Verify macOS signature and notarization",
+              "number": 21,
+              "startedAt": "2026-11-19T21:06:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:33Z",
+              "conclusion": "skipped",
+              "name": "Build DMG",
+              "number": 22,
+              "startedAt": "2026-11-19T21:06:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:33Z",
+              "conclusion": "skipped",
+              "name": "Archive macOS app with permissions and symlinks",
+              "number": 23,
+              "startedAt": "2026-11-19T21:06:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:35Z",
+              "conclusion": "success",
+              "name": "Archive Linux executable with permissions",
+              "number": 24,
+              "startedAt": "2026-11-19T21:06:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:38Z",
+              "conclusion": "success",
+              "name": "Upload artifacts",
+              "number": 25,
+              "startedAt": "2026-11-19T21:06:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:38Z",
+              "conclusion": "success",
+              "name": "Post Set up Node",
+              "number": 48,
+              "startedAt": "2026-11-19T21:06:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:38Z",
+              "conclusion": "success",
+              "name": "Post Set up Go",
+              "number": 49,
+              "startedAt": "2026-11-19T21:06:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:38Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 50,
+              "startedAt": "2026-11-19T21:06:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:38Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 51,
+              "startedAt": "2026-11-19T21:06:38Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/44614777541/job/135880421033"
+        },
+        {
+          "completedAt": "2026-11-19T21:06:50Z",
+          "conclusion": "success",
+          "databaseId": 135880421314,
+          "name": "Package (windows-amd64)",
+          "startedAt": "2026-11-19T21:02:51Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-19T21:02:53Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-19T21:02:52Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:04Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-19T21:02:53Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:04Z",
+              "conclusion": "success",
+              "name": "Record packaged source identity",
+              "number": 3,
+              "startedAt": "2026-11-19T21:03:04Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:06Z",
+              "conclusion": "success",
+              "name": "Validate release identity",
+              "number": 4,
+              "startedAt": "2026-11-19T21:03:04Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:03:16Z",
+              "conclusion": "success",
+              "name": "Set up Go",
+              "number": 5,
+              "startedAt": "2026-11-19T21:03:06Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:12Z",
+              "conclusion": "success",
+              "name": "Gate mandatory standalone conformance resources",
+              "number": 6,
+              "startedAt": "2026-11-19T21:03:16Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:19Z",
+              "conclusion": "success",
+              "name": "Set up Node",
+              "number": 7,
+              "startedAt": "2026-11-19T21:04:12Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:19Z",
+              "conclusion": "skipped",
+              "name": "Validate macOS signing inputs",
+              "number": 8,
+              "startedAt": "2026-11-19T21:04:19Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:04:19Z",
+              "conclusion": "skipped",
+              "name": "Linux WebKitGTK runtime headers",
+              "number": 9,
+              "startedAt": "2026-11-19T21:04:19Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:05:15Z",
+              "conclusion": "success",
+              "name": "Install Wails CLI",
+              "number": 10,
+              "startedAt": "2026-11-19T21:04:19Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:05:15Z",
+              "conclusion": "skipped",
+              "name": "Install Task runner (macOS / Linux)",
+              "number": 11,
+              "startedAt": "2026-11-19T21:05:15Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:05:35Z",
+              "conclusion": "success",
+              "name": "Install Task runner and Windows packaging tools",
+              "number": 12,
+              "startedAt": "2026-11-19T21:05:15Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:05:48Z",
+              "conclusion": "success",
+              "name": "Frontend deps",
+              "number": 13,
+              "startedAt": "2026-11-19T21:05:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:05:50Z",
+              "conclusion": "success",
+              "name": "Frontend state regression",
+              "number": 14,
+              "startedAt": "2026-11-19T21:05:48Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:41Z",
+              "conclusion": "success",
+              "name": "Wails package",
+              "number": 15,
+              "startedAt": "2026-11-19T21:05:50Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:41Z",
+              "conclusion": "skipped",
+              "name": "Linux release packages",
+              "number": 16,
+              "startedAt": "2026-11-19T21:06:41Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:42Z",
+              "conclusion": "success",
+              "name": "Verify Windows version resources and installer",
+              "number": 17,
+              "startedAt": "2026-11-19T21:06:41Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:42Z",
+              "conclusion": "skipped",
+              "name": "Import Developer ID certificate (macOS)",
+              "number": 18,
+              "startedAt": "2026-11-19T21:06:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:42Z",
+              "conclusion": "skipped",
+              "name": "Codesign (Developer ID)",
+              "number": 19,
+              "startedAt": "2026-11-19T21:06:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:42Z",
+              "conclusion": "skipped",
+              "name": "Notarize",
+              "number": 20,
+              "startedAt": "2026-11-19T21:06:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:42Z",
+              "conclusion": "skipped",
+              "name": "Verify macOS signature and notarization",
+              "number": 21,
+              "startedAt": "2026-11-19T21:06:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:42Z",
+              "conclusion": "skipped",
+              "name": "Build DMG",
+              "number": 22,
+              "startedAt": "2026-11-19T21:06:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:42Z",
+              "conclusion": "skipped",
+              "name": "Archive macOS app with permissions and symlinks",
+              "number": 23,
+              "startedAt": "2026-11-19T21:06:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:42Z",
+              "conclusion": "skipped",
+              "name": "Archive Linux executable with permissions",
+              "number": 24,
+              "startedAt": "2026-11-19T21:06:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:46Z",
+              "conclusion": "success",
+              "name": "Upload artifacts",
+              "number": 25,
+              "startedAt": "2026-11-19T21:06:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:46Z",
+              "conclusion": "success",
+              "name": "Post Set up Node",
+              "number": 48,
+              "startedAt": "2026-11-19T21:06:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:46Z",
+              "conclusion": "success",
+              "name": "Post Set up Go",
+              "number": 49,
+              "startedAt": "2026-11-19T21:06:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:48Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 50,
+              "startedAt": "2026-11-19T21:06:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:06:48Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 51,
+              "startedAt": "2026-11-19T21:06:48Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/44614777541/job/135880421314"
+        },
+        {
+          "completedAt": "2026-11-19T21:07:18Z",
+          "conclusion": "success",
+          "databaseId": 135882825502,
+          "name": "Verify release assets and publish",
+          "startedAt": "2026-11-19T21:06:53Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-19T21:06:55Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-19T21:06:54Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:07:01Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-19T21:06:55Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:07:06Z",
+              "conclusion": "success",
+              "name": "Download all artifacts",
+              "number": 3,
+              "startedAt": "2026-11-19T21:07:01Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:07:08Z",
+              "conclusion": "success",
+              "name": "Pack per-platform archives",
+              "number": 4,
+              "startedAt": "2026-11-19T21:07:06Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:07:09Z",
+              "conclusion": "success",
+              "name": "Verify archived executable permissions",
+              "number": 5,
+              "startedAt": "2026-11-19T21:07:08Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:07:09Z",
+              "conclusion": "success",
+              "name": "Compute checksums",
+              "number": 6,
+              "startedAt": "2026-11-19T21:07:09Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:07:09Z",
+              "conclusion": "success",
+              "name": "Resolve tag name",
+              "number": 7,
+              "startedAt": "2026-11-19T21:07:09Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:07:15Z",
+              "conclusion": "success",
+              "name": "Preserve assembled preflight assets",
+              "number": 8,
+              "startedAt": "2026-11-19T21:07:09Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:07:15Z",
+              "conclusion": "skipped",
+              "name": "Create Release",
+              "number": 9,
+              "startedAt": "2026-11-19T21:07:15Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:07:15Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 18,
+              "startedAt": "2026-11-19T21:07:15Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-19T21:07:15Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 19,
+              "startedAt": "2026-11-19T21:07:15Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/aurakimjh/archscope/actions/runs/44614777541/job/135882825502"
+        }
+      ],
+      "name": "Release",
+      "status": "completed",
+      "url": "https://github.com/aurakimjh/archscope/actions/runs/44614777541"
+    }
+  ],
+  "engineNativeRun": 44614738900,
+  "engineNativeState": "Single failed macOS job retry in progress; initial failure preserved in hosted-macos-attempt-1.json",
+  "complete": false
+}

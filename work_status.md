@@ -1,6 +1,6 @@
 # ArchScope Work Status
 
-Last updated: 2026-11-19
+Last updated: 2026-11-20
 
 This file is the current execution status for the active ArchScope product line.
 The previous long-form history was archived to
@@ -10,7 +10,7 @@ The previous long-form history was archived to
 
 Scoped follow-ups under the existing T-627 acceptance work; tracked-task counts
 and independent review verdicts remain unchanged. Both corrections are
-`LOCALLY_VERIFIED`; implementation committed as `f4b69afc`, RC2 refresh publication pending.
+`LOCALLY_VERIFIED`; implementation committed as `f4b69afc`; the refreshed RC2 is published and verified.
 
 | Priority / ID | Status | Behavior and acceptance |
 |---|---|---|
@@ -50,18 +50,38 @@ Windows native execution and independent review remain outside this evidence.
 Receipts: `docs/review/evidence/2026-11-19-gc-tooltip/browser.json` and
 `native-unverified.json`; implementation details in the paired PARSER_DESIGN.
 
-## RC2 refresh preparation — 2026-11-19
+## RC2 refresh — 2026-11-20
 
-User explicitly requested updating the existing RC2 release. Keep application
-0.4.0-rc.2, Windows0.4.0.2, macOS0.4.0/build4002 and the existing release URL.
-Implementation is `f4b69afc`; paired release notes and CHANGELOG disclose the
-same-version refresh and its new source/build identity. Current publication
-status: PREPARING; original RC2 assets/tag remain in place until exact-candidate
-hosted checks and packaging preflight pass. Previous release/tag metadata and
-all11original asset digest checks are retained under
-`docs/review/evidence/2026-11-19-rc2-refresh/`. Original source9dc0c239 and
-2026-11-17 acceptance receipts remain historical evidence. No stable release,
-independent PASS or missing native GC-hover/Windows acceptance is inferred.
+User explicitly approved main publication and updating the existing RC2 release.
+Application 0.4.0-rc.2, Windows 0.4.0.2, macOS 0.4.0/build 4002 and the release
+URL are retained. Implementation is `f4b69afc`, release preparation `30e7c2ef`,
+and source candidate `fe92b5bc` adds only the CI test partition below.
+Current publication status: PUBLISHED_AND_VERIFIED (run `44683666242`).
+All 19 hosted jobs and three-platform packaging preflight passed at that exact
+candidate. Its 11 preflight files passed SHA256SUMS, source documentation,
+embedded frontend commit and package version checks; macOS ZIP/DMG binaries
+match and their ad-hoc signatures pass strict verification.
+
+The first macOS full race attempt and one unchanged retry hit the analysis
+package's cumulative 20-minute limit at different active tests. Both failures
+are preserved. CI now executes the existing 54k-node profile and two 100k-row
+cache cases in separate race invocations, retaining all tests, input sizes and
+20-minute package limits. The general full race suite (131 passing packages)
+and all three scale invocations also pass locally; product code is unchanged.
+
+The RC2 annotated tag was updated with an exact old-object lease from
+`2db81164` to `90d7e67f` (source `fe92b5bc`). The original release metadata,
+11 original asset checksums and tag object remain backed up under
+`docs/review/evidence/2026-11-19-rc2-refresh/`. The existing release ID `447993671` and URL are retained. All 11 public assets
+were replaced and re-downloaded: GitHub digests, 10 SHA256SUMS entries, 133
+source documentation/example files, embedded build commit, archive integrity
+and package versions pass. Public macOS ZIP/DMG app binaries match and strict
+ad-hoc signatures pass. All four publication jobs succeeded. Stable latest
+`v0.3.5-24` is unchanged. Receipts: `publication-identity.json`,
+`published-assets.json`, `published-macos.json` and `hosted-validation.json`. Original source `9dc0c239`
+and 2026-11-17 acceptance receipts remain historical evidence. No stable
+release, independent PASS or missing native GC-hover/Windows acceptance is
+inferred; original task states and native acceptance limits are preserved.
 
 ## Status Overview
 

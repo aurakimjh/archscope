@@ -1,0 +1,85 @@
+{
+  "date": "2026-11-20",
+  "status": "PUBLISHED_AND_VERIFIED",
+  "tag": "v0.4.0-rc.2",
+  "sourceCommit": "fe92b5bcfd1fdcd3595b30a9d25d2204a8c31937",
+  "releaseId": 447993671,
+  "releaseUrl": "https://github.com/aurakimjh/archscope/releases/tag/v0.4.0-rc.2",
+  "sameReleaseIdAndUrl": true,
+  "prerelease": true,
+  "stableLatestUnchanged": "v0.3.5-24",
+  "previousTagObject": "2db81164cd2b04b87d2d9e7c5c184ff991144c82",
+  "publishedTagObject": "90d7e67f2d34a95100e590301f654b38da4d254f",
+  "publishedRun": "https://github.com/aurakimjh/archscope/actions/runs/44683666242",
+  "assetCount": 11,
+  "assetReplacements": [
+    {
+      "name": "archscope-arm64.dmg",
+      "previousId": 757306094,
+      "publishedId": 770659114,
+      "contentChanged": true
+    },
+    {
+      "name": "archscope-conformance-v1.zip",
+      "previousId": 757306090,
+      "publishedId": 770659106,
+      "contentChanged": false
+    },
+    {
+      "name": "archscope-darwin-arm64.zip",
+      "previousId": 757306096,
+      "publishedId": 770659116,
+      "contentChanged": true
+    },
+    {
+      "name": "archscope-docs.zip",
+      "previousId": 757306089,
+      "publishedId": 770659105,
+      "contentChanged": true
+    },
+    {
+      "name": "archscope-linux-amd64.tar.gz",
+      "previousId": 757306093,
+      "publishedId": 770659115,
+      "contentChanged": true
+    },
+    {
+      "name": "archscope-windows-amd64.zip",
+      "previousId": 757306088,
+      "publishedId": 770659108,
+      "contentChanged": true
+    },
+    {
+      "name": "archscope.deb",
+      "previousId": 757306091,
+      "publishedId": 770659103,
+      "contentChanged": true
+    },
+    {
+      "name": "archscope.rpm",
+      "previousId": 757306095,
+      "publishedId": 770659107,
+      "contentChanged": true
+    },
+    {
+      "name": "RELEASE_NOTES.en.md",
+      "previousId": 757306085,
+      "publishedId": 770659104,
+      "contentChanged": true
+    },
+    {
+      "name": "RELEASE_NOTES.ko.md",
+      "previousId": 757306084,
+      "publishedId": 770659101,
+      "contentChanged": true
+    },
+    {
+      "name": "SHA256SUMS",
+      "previousId": 757306087,
+      "publishedId": 770659102,
+      "contentChanged": true
+    }
+  ],
+  "originalAcceptanceLimitsPreserved": true,
+  "limits": "Artifact and hosted regression verification does not establish original-user-file, native GC-hover, clean-host install/upgrade or remaining tracked native acceptance."
+}

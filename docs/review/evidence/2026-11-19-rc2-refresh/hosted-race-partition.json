@@ -1,0 +1,36 @@
+{
+  "candidateCommit": "fe92b5bcfd1fdcd3595b30a9d25d2204a8c31937",
+  "runId": 44679681995,
+  "status": "PASS",
+  "samePackageTimeoutSeconds": 1200,
+  "allFourRaceInvocationsPassedOnAllThreePlatforms": true,
+  "results": [
+    {
+      "os": "macos",
+      "analysisPackageSecondsByInvocation": {
+        "general": 419.599,
+        "54kProfile": 230.273,
+        "100kMetric": 477.298,
+        "100kTable": 17.147
+      }
+    },
+    {
+      "os": "linux",
+      "analysisPackageSecondsByInvocation": {
+        "general": 326.456,
+        "54kProfile": 171.087,
+        "100kMetric": 330.244,
+        "100kTable": 14.748
+      }
+    },
+    {
+      "os": "windows",
+      "analysisPackageSecondsByInvocation": {
+        "general": 377.793,
+        "54kProfile": 177.124,
+        "100kMetric": 338.563,
+        "100kTable": 15.216
+      }
+    }
+  ]
+}

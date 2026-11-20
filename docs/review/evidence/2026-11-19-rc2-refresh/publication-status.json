@@ -1,0 +1,72 @@
+{
+  "date": "2026-11-20",
+  "status": "PUBLISHED_AND_VERIFIED",
+  "candidateCommit": "fe92b5bcfd1fdcd3595b30a9d25d2204a8c31937",
+  "implementationCommit": "f4b69afc",
+  "releaseTag": "v0.4.0-rc.2",
+  "remoteMutationPerformed": true,
+  "oldAssetsBackedUp": 11,
+  "autoReview": {
+    "rejectedAction": "git push origin main",
+    "reason": "RC2 release request was not deemed explicit authorization for this exact main push.",
+    "approvalQuestion": "Push f4b69afc and 30e7c2ef to main, then after checks pass update the existing RC2 tag and its 11 assets.",
+    "resolvedBy": "Explicit approval received 2026-11-20"
+  },
+  "checks": {
+    "version": "PASS",
+    "offlineResources": "PASS",
+    "frontendState": "PASS",
+    "frontendBuild": "PASS",
+    "fullGoRace": "PASS_131_PACKAGES_4_WITHOUT_TESTS",
+    "fullGoVet": "PASS"
+  },
+  "originalAcceptanceLimitsPreserved": true,
+  "approvalDate": "2026-11-20",
+  "approval": "Explicit user approval: main push and existing RC2 update",
+  "pushedMainCommit": "fe92b5bcfd1fdcd3595b30a9d25d2204a8c31937",
+  "runs": {
+    "CI": 44679682025,
+    "Engine Native": 44679681995,
+    "Windows GUI Smoke": 44679707535,
+    "Windows COM contract": 44679715205,
+    "Release preflight": 44679725235
+  },
+  "expectedOldTagObject": "2db81164cd2b04b87d2d9e7c5c184ff991144c82",
+  "releaseId": 447993671,
+  "stableLatestBefore": {
+    "id": 342706545,
+    "tag": "v0.3.5-24"
+  },
+  "preflightAssetsVerified": true,
+  "preflightMacSignaturesVerified": true,
+  "nextStep": null,
+  "hostedInitialAttempt": {
+    "passedJobs": 18,
+    "failedJobs": 1,
+    "failure": "macOS analysis package cumulative 20m timeout",
+    "retry": "Only failed macOS job, unchanged source and limits"
+  },
+  "previousCandidateCommit": "30e7c2efab96d80d50c005b8bf4fed458b98b527",
+  "macosRetryOutcome": "Same 20m package timeout at a different test (1s active), after the large-profile test completed; no assertion or data-race report.",
+  "ciRemediationCommit": "fe92b5bcfd1fdcd3595b30a9d25d2204a8c31937",
+  "hostedJobsPassed": 19,
+  "originalReleaseBackupPreserved": true,
+  "publishedTagObject": "90d7e67f2d34a95100e590301f654b38da4d254f",
+  "publicationRun": 44683666242,
+  "tagMutationMethod": "Exact old-object force-with-lease; main was not force pushed",
+  "preparedDate": "2026-11-19",
+  "originalReleaseIdentityPreserved": true,
+  "publicDownloadsVerified": 11,
+  "publicationJobsPassed": 4,
+  "stableLatestAfter": {
+    "id": 342706545,
+    "tag": "v0.3.5-24"
+  },
+  "completionEvidence": [
+    "publication-identity.json",
+    "published-assets.json",
+    "published-macos.json",
+    "hosted-validation.json",
+    "hosted-race-partition.json"
+  ]
+}

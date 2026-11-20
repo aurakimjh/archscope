@@ -1,0 +1,6 @@
+object 9dc0c2390a7602125af5f53401ad3b3f70112824
+type commit
+tag v0.4.0-rc.2
+tagger 진호 <aura.kimjh@gmail.com> 1794882294 +0900
+
+ArchScope v0.4.0-rc.2: controlled evaluation; native memory and acceptance gates remain open

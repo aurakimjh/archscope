@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-20",
+  "dmgChecksumVerified": true,
+  "dmgAndZipBinaryIdentical": true,
+  "binarySha256": "e1a07c2537886bcc1869b003619249db0cd68f54181dab7712709f29fd8c2672",
+  "shortVersion": "0.4.0",
+  "build": "4002",
+  "deepStrictSignatureVerifiedForZipAndDmg": true,
+  "signing": "ad-hoc",
+  "notDeveloperIdOrNotarizationAcceptance": true
+}

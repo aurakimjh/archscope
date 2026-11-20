@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-19",
+  "candidateCommit": "30e7c2efab96d80d50c005b8bf4fed458b98b527",
+  "checks": {
+    "goRace": {
+      "exitCode": 0,
+      "logBytes": 15434,
+      "logSha256": "fdd639a3097bdd9db837a933030ccdd81bb3fd4f0d8d0d2bdbd342c31ecac8c6",
+      "passingPackages": 131,
+      "packagesWithoutTests": 4,
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "./..."
+      ]
+    },
+    "goVet": {
+      "exitCode": 0,
+      "logBytes": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "frontendState": {
+      "exitCode": 0,
+      "logBytes": 171,
+      "logSha256": "923531447043f2649bb4e732d9eb2d26d924765dbef57ae38b8bd97650974ebf"
+    },
+    "frontendBuild": {
+      "exitCode": 0,
+      "logBytes": 5783,
+      "logSha256": "36c45cbba79e7eb4b573b0af1573782c9d9ed73a5868319b327b81fddb84f1e4"
+    }
+  },
+  "versionCheck": "PASS",
+  "offlineResources": "PASS",
+  "hostedValidation": "NOT_STARTED_PUSH_APPROVAL_REQUIRED",
+  "publication": "NOT_STARTED_PREVIOUS_RC2_PRESERVED"
+}

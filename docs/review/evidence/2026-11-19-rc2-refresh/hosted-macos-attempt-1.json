@@ -1,0 +1,16 @@
+{
+  "runId": 44614738900,
+  "attempt": 1,
+  "jobId": 135880266453,
+  "name": "Go test/build (macos-15)",
+  "conclusion": "failure",
+  "startedAt": "2026-11-19T21:02:36Z",
+  "completedAt": "2026-11-19T21:33:52Z",
+  "url": "https://github.com/aurakimjh/archscope/actions/runs/44614738900/job/135880266453",
+  "observedFailure": "analysis package cumulative timeout after 20m0s; active TestR4LargeProfileChunkImportOverFiftyThousandNodes had run 4m7s and was exporting results",
+  "dataRaceOrAssertionFailureReported": false,
+  "action": "Retry only this failed job once on a fresh hosted runner, with source and test limits unchanged",
+  "retryRequestedDate": "2026-11-20",
+  "packageTimeoutSeconds": 1200,
+  "localAnalysisPackagePassedSeconds": 472.692
+}
