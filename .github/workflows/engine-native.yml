@@ -181,10 +181,19 @@ jobs:
           go run ./cmd/archscope-engine offline fixtures
 
       - name: go test
-        # The analysis package includes cumulative scale/import/export cases;
-        # race instrumentation can exceed Go's default ten-minute package limit.
-        # Bound concurrent packages so large fixtures do not starve each other.
-        run: go test ./... -race -count=1 -p 2 -timeout 20m
+        # Run the 54k-node profile and 100k-row cache cases separately so their
+        # race instrumentation does not consume the general analysis package's
+        # cumulative budget. Keep every invocation bounded and retain all tests.
+        run: go test ./... -race -count=1 -p 2 -timeout 20m -skip '^Test(R4LargeProfileChunkImportOverFiftyThousandNodes|R1302Metric100kWarmPages|R802LargeTableCacheReuseCopiesAndLeaseLifetime)$'
+
+      - name: Large profile import, reopen and export (race)
+        run: go test ./internal/analysis -race -count=1 -p 2 -timeout 20m -run '^TestR4LargeProfileChunkImportOverFiftyThousandNodes$'
+
+      - name: 100k metric cache pages (race)
+        run: go test ./internal/analysis -race -count=1 -p 2 -timeout 20m -run '^TestR1302Metric100kWarmPages$'
+
+      - name: 100k table cache and lease lifetime (race)
+        run: go test ./internal/analysis -race -count=1 -p 2 -timeout 20m -run '^TestR802LargeTableCacheReuseCopiesAndLeaseLifetime$'
 
       - name: Windows live-capture E2E
         if: runner.os == 'Windows'
